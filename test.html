@@ -1,0 +1,139 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" 
+                    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<link rel="stylesheet" href="http://github.com/jquery/qunit/raw/master/qunit/qunit.css" type="text/css" media="screen" />
+<script type="text/javascript" src="http://github.com/jquery/qunit/raw/master/qunit/qunit.js"></script>
+<script type="text/javascript" src="crafty.js"></script>
+<title>Crafty Unit Test</title>
+
+<script>
+$(document).ready(function(){
+
+	module("Selector");
+
+	test("Selector entity", function() {
+		var obj = Crafty(1);
+		console.log(obj);
+		ok(obj, "Crafty instance not null");
+		equals(obj.length, 0, "Length of selector");
+	});
+	
+	test("Selector component", function() {
+		var e = Crafty.e("testcomp"); //create entity with a component
+		var found = Crafty("testcomp");
+		equals(e, found[0], "Entity is found");
+		
+		var ee = Crafty.e("testcomp, something, position");
+		equals(Crafty("testcomp").length, 2, "Found two entities");
+		equals(Crafty("something").length, 1, "Found one 'something' entity");
+	});
+
+	module("Components");
+	
+	test("Inheriting Objects", function() {
+		
+		var c = Crafty.c("position", {
+			w: 0,
+			h: 0,
+			
+			area: function() {
+				return this.w * this.h;
+			}
+		});
+		
+		var e = Crafty.e("position");
+		
+		equals(Crafty(e).area(),0, "Area should be default");
+		
+		Crafty(e).attr("w", 5).attr("h", 8);
+		
+		equals(Crafty(e).area(),40, "Area updated by updating the properties");
+		
+		Crafty(e).attr({w: 10, h: 20});
+		
+		equals(Crafty(e).area(),200, "Area updated by updating the properties");
+	});
+	
+	test("Advanced Components", function() {
+		Crafty.c("co", {
+			x:0,
+			y:0
+		});
+		
+		Crafty.c("gravity", {
+			gravity: 1.4,
+			
+			init: function() {
+				this.addComponent("co"); //add the coordinate component
+				Crafty.bind("enterframe", this.draw);
+			},
+			
+			draw: function() {
+				this.y *= gravity;
+			}
+		});
+		
+		Crafty.c("domdraw", {
+			elem: null,
+			
+			init: function(elem) {
+				
+			},
+			
+			drawDom: function() {
+				this.elem.style.left = this.x;
+				this.elem.style.top = this.y;
+			}
+		});
+		
+		var player = Crafty.e("co,gravity,domdraw");
+		console.log(Crafty(player));
+	});
+	
+	module("Functions");
+	
+	test("Prototyped", function() {
+		var c = Crafty.e("mycomp");
+		//has
+		equals(Crafty(c).has("mycomp"), true, "has()");
+		equals(Crafty(c).has("mycomp2"), false, "not has()");
+		
+		//toArray
+		console.log(Crafty(c).toArray());
+		equals(Crafty(c).toArray().toString(), (c).toString(), "toArray");
+		
+		//each
+		Crafty.e("mycomp");
+		var total = 0;
+		Crafty("mycomp").each(function(i) {
+			total++;
+		});
+		
+		equals(total, 2, "each()");
+		
+		//addComponent
+		Crafty(c).addComponent("newcomp");
+		equals(Crafty(c).has("newcomp"), true, "addComponent standard");
+		
+		Crafty(c).addComponent("testcomp, another");
+		equals(Crafty(c).has("testcomp") && Crafty(c).has("another"), true, "addComponent list");
+		
+		Crafty(c).addComponent("arg", "arg2");
+		equals(Crafty(c).has("arg") && Crafty(c).has("arg2"), true, "addComponent args");
+	});
+});
+</script>
+  
+</head>
+<body>
+<div id="player"></div>
+<h1 id="qunit-header">QUnit example</h1>
+<h2 id="qunit-banner"></h2>
+<h2 id="qunit-userAgent"></h2>
+<ol id="qunit-tests"></ol>
+<div id="qunit-fixture">test markup, will be hidden</div>
+<div id="qunit-filter-pass"></div>
+</body>
+</html>
