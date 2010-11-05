@@ -1,5 +1,5 @@
 # Crafty JS
-A JavaScript game **framework* and not engine. Uses jQuery like syntax for code organisation and conforming to
+A JavaScript game **framework** and not engine. Uses jQuery like syntax for code organisation and conforming to
 the Entity-Component-System paradigm. [Read this article for more information](http://cowboyprogramming.com/2007/01/05/evolve-your-heirachy/).
 
 ***
