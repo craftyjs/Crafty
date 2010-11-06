@@ -9,6 +9,7 @@ var Crafty = function(selector) {
 	components = {}, //map of components and their functions
 	entities = {}, //map of entities and their data
 	layers = [],
+	handlers = {}, //global handlers
 	interval,
 	
 	slice = Array.prototype.slice,
@@ -19,7 +20,7 @@ Crafty.fn = Crafty.prototype = {
 	init: function(selector) {
 		//select entities by component
 		if(typeof selector === "string") {
-			var elem = 0; //index elements
+			var elem = 0, e; //index elements
 			
 			//loop over entities
 			for(e in entities) {
@@ -30,6 +31,11 @@ Crafty.fn = Crafty.prototype = {
 			this.length = elem; //length is the last index (already incremented)
 			
 		} else { //Select a specific entity
+			
+			if(!selector) { //nothin passed creates God entity
+				selector = 0;
+				if(!(selector in entities)) entities[selector] = this;
+			}
 			
 			//if not exists, return undefined
 			if(!(selector in entities)) {
@@ -42,9 +48,6 @@ Crafty.fn = Crafty.prototype = {
 			
 			//update from the cache
 			this.extend(entities[selector]);
-			
-			//create a collection of handlers and components if not exists
-			if(!this.__h) this.__h = {};
 			
 			entities[selector] = this; //update to the cache
 		}
@@ -65,18 +68,29 @@ Crafty.fn = Crafty.prototype = {
 			for(;i<l;i++) {
 				this.__c.push(comps[i]);
 			}
-			return this;
 		} else this.__c.push(id);
 		
-		this.inherit();
+		
 		return this;
 	},
 	
 	inherit: function() {
-		var i = 0, l = this.__c.length;
+		var i = 0, l = this.__c.length, comp, inits = [];
 		for(;i<l;i++) {
+			comp = components[this.__c[i]];
 			//extend the prototype with the components functions
-			this.extend(components[this.__c[i]]);
+			this.extend(comp);
+			
+			//if constructor, add to init stack
+			if(comp && "init" in comp) {
+				inits.push(comp.init);	
+			}
+			console.log(comp);
+		}
+		
+		l = inits.length;
+		for(i=0;i<l;i++) {
+			inits[i].call(this);
 		}
 	},
 	
@@ -112,18 +126,23 @@ Crafty.fn = Crafty.prototype = {
 	
 	bind: function(event, fn) {
 		this.each(function() {
-			if(!this.__h[event]) this.__h[event] = [];
-			this.__h[event].push(fn);
+			//init event collection
+			if(!handlers[event]) handlers[event] = {};
+			var h = handlers[event];
+			
+			if(!h[this[0]]) h[this[0]] = []; //init handler array for entity
+			h[this[0]].push(fn); //add current fn
 		});
 		return this;
 	},
 	
 	trigger: function(event) {
 		this.each(function() {
-			if(this.__h && this.__h[event]) {
-				var fns = this.__h[event], i = 0, l = fns.length;
+			//find the handlers assigned to the event and entity
+			if(handlers[event] && handlers[event][this[0]]) {
+				var fns = handlers[event][this[0]], i = 0, l = fns.length;
 				for(;i<l;i++) {
-					fns[i]();
+					fns[i].call(this);
 				}
 			}
 		});
@@ -136,6 +155,14 @@ Crafty.fn = Crafty.prototype = {
 			fn.call(Crafty(this[i]),i);
 		}
 		return this;
+	},
+	
+	destroy: function() {
+		//remove all event handlers, delete from entries
+		this.each(function() {
+			delete entries[this[0]];
+			delete this;
+		});
 	}
 };
 //give the init instances the Crafty prototype
@@ -161,7 +188,7 @@ Crafty.extend({
 	init: function(f) {
 		if(f) FPS = f;
 		interval = setInterval(function() {
-			Crafty().trigger("enterframe");
+			Crafty.trigger("enterframe");
 		}, 1000 / FPS);
 	},
 	
@@ -178,6 +205,7 @@ Crafty.extend({
 		if(arguments.length > 0) {
 			craft.addComponent.apply(craft, arguments);
 		}
+		craft.inherit();
 		return id;
 	},
 	
@@ -189,11 +217,22 @@ Crafty.extend({
 	
 	},
 	
+	trigger: function(event) {
+		var hdl = handlers[event], h, i, l;
+		for(h in hdl) {
+			if(!hdl.hasOwnProperty(h)) continue;
+			l = hdl[h].length;
+			for(i=0;i<l;i++) {
+				hdl[h][i].call(Crafty(+h));
+			}
+		}
+	},
+	
 	debug: function() {
 		if(console) {
 			console.log("Entities: ", entities);
 			console.log("Components: ", components);
-			console.log("Cache: ", cache);
+			console.log("Handlers: ", handlers);
 		}
 	}
 });
