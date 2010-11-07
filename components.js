@@ -29,22 +29,27 @@ Crafty.c("2D", {
 });
 
 Crafty.c("gravity", {
-	gravity: 1.4,
+	gravity: 1.1,
 	
 	init: function() {
 		console.log("inited", this);
-
-		this.bind("enterframe", this.update);
-	},
-	
-	update: function() {
-		console.log("enterframe", this);
-		this.y *= Math.ceil(this.gravity);
+		if(!this.has("2D")) this.addComponent("2D");
+		this.bind("enterframe", function() {
+			if(this.y > 2000) this.y = 1;
+			this.y *= this.gravity;
+		});
 	}
 });
 
-/**
-{
-	"enterframe": {0: [], 1: []},
-}
-*/
+Crafty.c("DOMDraw", {
+	element: null,
+	
+	DOMDraw: function(elem) {
+		this.element = elem;
+		elem.style.position = 'absolute';
+		this.bind("enterframe", function() {
+			elem.style.top = Math.ceil(this.y) + "px";
+			elem.style.left = Math.ceil(this.x) + "px";
+		});
+	}
+});

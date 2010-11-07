@@ -48,6 +48,7 @@ Crafty.fn = Crafty.prototype = {
 			
 			//update from the cache
 			this.extend(entities[selector]);
+			if(!this.__c) this.__c = [];
 			
 			entities[selector] = this; //update to the cache
 		}
@@ -56,7 +57,6 @@ Crafty.fn = Crafty.prototype = {
 	},
 	
 	addComponent: function(id) {
-		if(!this.__c) this.__c = [];
 		//add multiple arguments
 		if(arguments.length > 1) {
 			var i = 0, l = arguments.length;
@@ -69,7 +69,6 @@ Crafty.fn = Crafty.prototype = {
 				this.__c.push(comps[i]);
 			}
 		} else this.__c.push(id);
-		
 		
 		return this;
 	},
