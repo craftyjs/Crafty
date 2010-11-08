@@ -3,24 +3,48 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
 	<script type="text/javascript" src="crafty.js"></script>
 	<script type="text/javascript" src="components.js"></script>
 	<script type="text/javascript">
-	window.onload = function() {
-		var e = Crafty.e("2D, gravity, DOMDraw");
-		Crafty(e).attr({"y": 1, x: 500}).DOMDraw(document.getElementById("player"));
+	$(document).ready(function() {
+		var i = 0;
 		
+		(function loop() {
+			var node = document.createElement("div");
+			node.className = "ball";
+			node.style.left = i * 50 + "px"; //bad reflow otherwise
+			var color = "#ff"+(i*5).toString(16)+(i*5).toString(16);
+			
+			node.style.background = color;
+			document.body.appendChild(node);
+			
+			var e = Crafty.e("2D, gravity, DOM, DOMDraw");
+			Crafty(e).attr({"y": 1, x: i * 50}).DOM(node).DOMDraw();
+			
+			i++;
+			if(i > 50) return;
+			setTimeout(loop, 30);
+			
+		})();
+		var platform = Crafty.e("2D, wall");
+		Crafty("gravity 2D").hit(platform,function() {
+			console.log("HIT");
+			this.y = 1;
+		});
 		
 		Crafty.init(50);
-	};
+	});
 	</script>
 	<style type="text/css">
-	#player { width:30px; height:150px; background:red; position:absolute }
+	.ball { width:30px; height:30px; background:red; position:absolute; border-radius:16px }
+	#platform { background:blue; height:50px; width:100%; position:absolute; top:500px }
 	</style>
 	<title>Crafty Demo</title>
 </head>
 
 <body>
-<div id="player"></div>
+
+<div id="platform"></div>
 </body>
 </html>

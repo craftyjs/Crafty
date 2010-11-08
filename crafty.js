@@ -20,13 +20,42 @@ Crafty.fn = Crafty.prototype = {
 	init: function(selector) {
 		//select entities by component
 		if(typeof selector === "string") {
-			var elem = 0, e; //index elements
+			var elem = 0, //index elements
+				e, //entity forEach
+				and = false, //flags for multiple
+				or = false,
+				del;
+			
+			//multiple components OR
+			if(selector.indexOf(',') !== -1) {
+				or = true;
+				del = rlist;
+			//deal with multiple components AND
+			} else if(selector.indexOf(' ') !== -1) {
+				and = true;
+				del = ' ';
+			}
 			
 			//loop over entities
 			for(e in entities) {
 				if(!entities.hasOwnProperty(e)) continue; //skip
-				if(Crafty(+e).has(selector)) this[elem++] = +e; //convert to int
+				
+				if(and || or) { //multiple components
+					var comps = selector.split(del), i = 0, l = comps.length, score = 0;
+					
+					for(;i<l;i++) //loop over components
+						if(Crafty(+e).has(comps[i])) score++; //if component exists add to score 
+					
+					//if anded comps and has all OR ored comps and at least 1
+					console.log(and, or, score);
+					if(and && score === l || or && score > 0) this[elem++] = +e;
+					
+				} else if(Crafty(+e).has(selector)) this[elem++] = +e; //convert to int
 			}
+			
+			//extend all common components
+			if(elem > 0 && !and && !or) this.extend(components[selector]);
+			if(comps && and) for(i=0;i<l;i++) this.extend(components[comps[i]]);
 			
 			this.length = elem; //length is the last index (already incremented)
 			
@@ -84,7 +113,6 @@ Crafty.fn = Crafty.prototype = {
 			if(comp && "init" in comp) {
 				inits.push(comp.init);	
 			}
-			console.log(comp);
 		}
 		
 		l = inits.length;
@@ -252,3 +280,5 @@ function UID() {
 //make Crafty global
 window.Crafty = Crafty;
 })(window);
+//DELETE THIS
+if(!console) window.console = {log: function() {}};

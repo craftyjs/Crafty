@@ -15,7 +15,7 @@ $(document).ready(function(){
 
 	test("Selector entity", function() {
 		var obj = Crafty(1);
-		console.log(obj);
+		
 		ok(obj, "Crafty instance not null");
 		equals(obj.length, 0, "Length of selector");
 	});
@@ -57,39 +57,7 @@ $(document).ready(function(){
 	});
 	
 	test("Advanced Components", function() {
-		Crafty.c("co", {
-			x:0,
-			y:0
-		});
 		
-		Crafty.c("gravity", {
-			gravity: 1.4,
-			
-			init: function() {
-				this.addComponent("co"); //add the coordinate component
-				Crafty.bind("enterframe", this.draw);
-			},
-			
-			draw: function() {
-				this.y *= gravity;
-			}
-		});
-		
-		Crafty.c("domdraw", {
-			elem: null,
-			
-			init: function(elem) {
-				
-			},
-			
-			drawDom: function() {
-				this.elem.style.left = this.x;
-				this.elem.style.top = this.y;
-			}
-		});
-		
-		var player = Crafty.e("co,gravity,domdraw");
-		console.log(Crafty(player));
 	});
 	
 	module("Functions");
@@ -101,7 +69,6 @@ $(document).ready(function(){
 		equals(Crafty(c).has("mycomp2"), false, "not has()");
 		
 		//toArray
-		console.log(Crafty(c).toArray());
 		equals(Crafty(c).toArray().toString(), (c).toString(), "toArray");
 		
 		//each

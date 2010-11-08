@@ -1,3 +1,20 @@
+/*************************************
+Native Components for Crafty Library
+
+TODO:
+	- Collision
+	- Inventory
+	- Items
+	- Canvas
+	- Lighting
+	- Controls
+	- Particles
+	- TerrainGen
+	- Map
+	- Animation
+	- Sound
+	
+*************************************/
 Crafty.c("2D", {
 	x: 0,
 	y: 0,
@@ -25,31 +42,60 @@ Crafty.c("2D", {
 	isAt: function(x,y) {
 		return this.x <= x && this.x + this.w >= x 
 			   this.y <= y && this.y + this.h >= y;
+	},
+	
+	hit: function(obj, fn) {
+		this.each(function() {
+			this.bind("hit", fn);
+			this.bind("enterframe", function() {
+				if(this.intersect(Crafty(obj))) {
+					this.trigger("hit");
+				}
+			});
+		});
 	}
 });
 
 Crafty.c("gravity", {
-	gravity: 1.1,
+	_gravity: 1.1,
 	
 	init: function() {
-		console.log("inited", this);
 		if(!this.has("2D")) this.addComponent("2D");
 		this.bind("enterframe", function() {
-			if(this.y > 2000) this.y = 1;
-			this.y *= this.gravity;
+			this.y *= this._gravity;
 		});
 	}
 });
 
-Crafty.c("DOMDraw", {
-	element: null,
+Crafty.c("DOM", {
+	_element: null,
 	
-	DOMDraw: function(elem) {
-		this.element = elem;
-		elem.style.position = 'absolute';
+	DOM: function(elem) {
+		if(!this.has("2D")) this.addComponent("2D");
+		this._element = elem;
+		
+		return this;
+	}
+});
+
+Crafty.c("DOMDraw", {
+	
+	DOMDraw: function() {
+		if(!this.has("DOM")) this.addComponent("DOM");
+		this._element.style.position = 'absolute';
 		this.bind("enterframe", function() {
-			elem.style.top = Math.ceil(this.y) + "px";
-			elem.style.left = Math.ceil(this.x) + "px";
+			this._element.style.top = Math.ceil(this.y) + "px";
+			this._element.style.left = Math.ceil(this.x) + "px";
 		});
 	}
+});
+
+Crafty.c("map", {
+	_maps: {},
+	
+	add: function(key, value) {
+	
+	},
+	
+	
 });
