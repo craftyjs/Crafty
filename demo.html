@@ -20,18 +20,30 @@
 			document.body.appendChild(node);
 			
 			var e = Crafty.e("2D, gravity, DOM, DOMDraw");
-			Crafty(e).attr({"y": 1, x: i * 50}).DOM(node).DOMDraw();
+			Crafty(e).attr({"y": 1, x: i * 50, w:50, h:50}).DOM(node).DOMDraw();
 			
 			i++;
-			if(i > 50) return;
-			setTimeout(loop, 30);
+			if(i > 50) {
+				//exit
+				collide();
+				return;
+			}
+			setTimeout(loop, 20);
 			
 		})();
-		var platform = Crafty.e("2D, wall");
-		Crafty("gravity 2D").hit(platform,function() {
-			console.log("HIT");
-			this.y = 1;
-		});
+		
+		function collide() {
+			var platform = Crafty.e("2D, wall"),
+				$p = $("#platform");
+			
+			console.log({x: 0, y: $p.offset().top, w: $p.width(), h: $p.height()});
+			Crafty(platform).attr({x: $p.offset().left, y: $p.offset().top, w: $p.width(), h: $p.height()});
+			
+			Crafty("gravity 2D").hit(platform,function() {
+				console.log("HIT");
+				this.y = 1;
+			});
+		}
 		
 		Crafty.init(50);
 	});

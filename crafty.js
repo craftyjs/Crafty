@@ -6,14 +6,16 @@ var Crafty = function(selector) {
 	
 	GUID = 1, //GUID for entity IDs
 	FPS = 50,
+	TILE = 16,
 	components = {}, //map of components and their functions
 	entities = {}, //map of entities and their data
 	layers = [],
-	handlers = {}, //global handlers
+	handlers = {}, //global event handlers
 	interval,
 	
 	slice = Array.prototype.slice,
-	rlist = /\s*,\s*/;
+	rlist = /\s*,\s*/,
+	rspace = /\s+/;
 
 Crafty.fn = Crafty.prototype = {
 
@@ -33,7 +35,7 @@ Crafty.fn = Crafty.prototype = {
 			//deal with multiple components AND
 			} else if(selector.indexOf(' ') !== -1) {
 				and = true;
-				del = ' ';
+				del = rspace;
 			}
 			
 			//loop over entities
@@ -212,8 +214,10 @@ Crafty.extend = Crafty.fn.extend = function(obj) {
 };
 
 Crafty.extend({
-	init: function(f) {
+	init: function(f,t) {
 		if(f) FPS = f;
+		if(t) TILE = t;
+		
 		interval = setInterval(function() {
 			Crafty.trigger("enterframe");
 		}, 1000 / FPS);

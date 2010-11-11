@@ -28,6 +28,19 @@ $(document).ready(function(){
 		var ee = Crafty.e("testcomp, something, position");
 		equals(Crafty("testcomp").length, 2, "Found two entities");
 		equals(Crafty("something").length, 1, "Found one 'something' entity");
+		
+		
+	});
+	
+	test("Advanced Selectors", function() {
+		Crafty.e("morethan, two, component");
+		Crafty.e("more, than, two, components");
+		equals(Crafty("testcomp something").length, 1, "AND selecting multiple");
+		equals(Crafty("testcomp, something").length, 2, "OR selecting multiple");
+		
+		equals(Crafty("morethan, two, something").length, 3, "OR selecting three");
+		equals(Crafty("morethan two something").length, 0, "AND selecting none");
+		equals(Crafty("morethan two component").length, 1, "AND selecting one");
 	});
 
 	module("Components");
@@ -96,7 +109,7 @@ $(document).ready(function(){
 </head>
 <body>
 <div id="player"></div>
-<h1 id="qunit-header">QUnit example</h1>
+<h1 id="qunit-header">Crafty Test Suite</h1>
 <h2 id="qunit-banner"></h2>
 <h2 id="qunit-userAgent"></h2>
 <ol id="qunit-tests"></ol>
