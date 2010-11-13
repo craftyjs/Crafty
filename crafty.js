@@ -49,7 +49,6 @@ Crafty.fn = Crafty.prototype = {
 						if(Crafty(+e).has(comps[i])) score++; //if component exists add to score 
 					
 					//if anded comps and has all OR ored comps and at least 1
-					console.log(and, or, score);
 					if(and && score === l || or && score > 0) this[elem++] = +e;
 					
 				} else if(Crafty(+e).has(selector)) this[elem++] = +e; //convert to int
@@ -187,9 +186,9 @@ Crafty.fn = Crafty.prototype = {
 	},
 	
 	destroy: function() {
-		//remove all event handlers, delete from entries
+		//remove all event handlers, delete from entities
 		this.each(function() {
-			delete entries[this[0]];
+			delete entities[this[0]];
 			delete this;
 		});
 	}
