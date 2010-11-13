@@ -165,13 +165,13 @@ Crafty.fn = Crafty.prototype = {
 		return this;
 	},
 	
-	trigger: function(event) {
+	trigger: function(event, data) {
 		this.each(function() {
 			//find the handlers assigned to the event and entity
 			if(handlers[event] && handlers[event][this[0]]) {
 				var fns = handlers[event][this[0]], i = 0, l = fns.length;
 				for(;i<l;i++) {
-					fns[i].call(this);
+					fns[i].call(this, data);
 				}
 			}
 		});
@@ -245,7 +245,12 @@ Crafty.extend({
 	},
 	
 	addLayer: function() {
+		layers.push([]);
+		return layers.length - 1;
+	},
 	
+	removeLayer: function(i) {
+		delete layers[i];
 	},
 	
 	trigger: function(event) {
@@ -264,6 +269,7 @@ Crafty.extend({
 			console.log("Entities: ", entities);
 			console.log("Components: ", components);
 			console.log("Handlers: ", handlers);
+			console.log("Layers: ", layers);
 		}
 	}
 });
