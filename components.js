@@ -6,7 +6,6 @@ TODO:
 	- Inventory
 	- Items
 	- Lighting
-	- Controls
 	- Particles
 	- TerrainGen
 	- Map
@@ -14,11 +13,14 @@ TODO:
 	- Sound
 	
 *************************************/
+(function(Crafty) {
+
 Crafty.c("2D", {
 	x: 0,
 	y: 0,
 	w: 0,
 	h: 0,
+	z: 0,
 	
 	area: function() {
 		return this.w * this.h;
@@ -53,12 +55,16 @@ Crafty.c("2D", {
 });
 
 Crafty.c("gravity", {
-	_gravity: 1.1,
+	_gravity: 0.2,
+	_gy: 0,
 	
 	init: function() {
 		if(!this.has("2D")) this.addComponent("2D");
 		this.bind("enterframe", function() {
-			this.y *= this._gravity;
+			var old = {x: this.x, y: this.y, w: this.w, h: this.h};
+			this._gy += this._gravity * 2;
+			this.y += this._gy;
+			this.trigger("change",old);
 		});
 	}
 });
@@ -155,6 +161,8 @@ Crafty.extend({
 * Canvas Components and Extensions
 */
 Crafty.c("canvas", {
+	drawable: false,
+	
 	init: function() {
 		this.img = new Image();
 		this.img.src = this.__image;
@@ -168,10 +176,6 @@ Crafty.c("canvas", {
 			Crafty.context.clearRect(e.x, e.y, e.w, e.h);
 			this.draw();
 		});
-	},
-	
-	append: function() {
-	
 	},
 	
 	draw: function() {
@@ -274,6 +278,57 @@ Crafty.c("fourway", {
 				move.down = false;
 			}
 		});
+		
+		return this;
+	}
+});
+
+Crafty.c("twoway", {
+	__move: {left: false, right: false, up: false, falling: false},
+	
+	twoway: function(speed) {
+		var move = this.__move;
+		
+		this.bind("enterframe", function() {
+			var old = {x: this.x, y: this.y, w: this.w, h: this.h},
+				changed = false;
+			if(move.right) {
+				this.x += speed;
+				changed = true;
+			}
+			if(move.left) {
+				this.x -= speed;
+				changed = true;
+			}
+			if(move.up) {
+				this.y -= speed;
+				changed = true;
+			}
+			
+			if(changed) this.trigger("change", old);
+		}).bind("keydown", function(e) {
+			if(e.keyCode === Crafty.keys.RA) {
+				move.right = true;
+			}
+			if(e.keyCode === Crafty.keys.LA) {
+				move.left = true;
+			}
+			if(e.keyCode === Crafty.keys.UA) {
+				move.up = true;
+			}
+		}).bind("keyup", function(e) {
+			if(e.keyCode === Crafty.keys.RA) {
+				move.right = false;
+			}
+			if(e.keyCode === Crafty.keys.LA) {
+				move.left = false;
+			}
+			if(e.keyCode === Crafty.keys.UA) {
+				move.up = false;
+			}
+		});
+		
+		return this;
 	}
 });
 
@@ -308,3 +363,5 @@ var DrawBuffer = (function() {
 		}
 	};
 })();
+
+})(Crafty);
