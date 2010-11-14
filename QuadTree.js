@@ -1,10 +1,13 @@
 /**
 * Quad Tree ADT
+*
+* Used in Crafty to keep track of every 2D entity for automatic redraw
+* and generally quick access times with a given boundin box.
 * @author Louis Stowasser
 */
 (function(parent) {
 
-var MAX_SUB_DIVISIONS = 5,
+var MAX_SUB_DIVISIONS = 6,
 	MAX_OBJECTS = 4,
 	results = [], //results of multiple quads
 	OBJECT = "object",
@@ -13,6 +16,7 @@ var MAX_SUB_DIVISIONS = 5,
 	
 function QTree() {
 	this.root = new QNode(0, 0, Crafty.window.width, Crafty.window.height, 0);
+	
 }
 
 QTree.prototype = {
@@ -33,22 +37,22 @@ QTree.prototype = {
 	
 	put: function(x,y,obj) {
 		var found;
-		//if not an object, wrap it
-		if(typeof obj !== OBJECT) {
-			obj = {x: x, y: y, w: 1, h: 1, obj: obj};
-		}
+		
 		//if putting an object only
 		if(typeof x === OBJECT) {
 			obj = x;
 			y = x.y;
 			x = x.x;
+		} else if(typeof obj !== OBJECT) {
+			obj = {x: x, y: y, w: 1, h: 1, obj: obj};
 		}
+		
 		
 		found = this.root.f(x,y,1,1);
 		
 		if(found) {
 			found.obj.push(obj);
-			
+			create(x,y,1,1);
 			if(found.obj.length > MAX_OBJECTS && found.lvl < MAX_SUB_DIVISIONS) found.divide();
 		}
 	},
@@ -58,6 +62,9 @@ QTree.prototype = {
 	}
 };
 
+/**
+ * @constructor
+ */
 function QNode(x,y,w,h,lvl) {
 	this.x = x;
 	this.y = y;
@@ -70,6 +77,7 @@ function QNode(x,y,w,h,lvl) {
 	this.ne = NULL;
 	this.sw = NULL;
 	this.se = NULL;
+	create(x,y,w,h);
 }
 
 QNode.prototype = {
@@ -83,16 +91,27 @@ QNode.prototype = {
 			i = 0, l = this.obj.length,
 			temp, node;
 			
+		/**
+		*   hw
+		*  _________
+		* |    |    |
+		* | nw | ne |  hh
+		* |____|____|
+		* |    |    |
+		* | sw | se |
+		* |____|____|
+		*/
 		this.nw = new QNode(0,0,hw,hh,this.lvl+1);
-		this.ne = new QNode(hw,0,hw+hw,hh,this.lvl+1);
-		this.sw = new QNode(0,hh,hw,hh+hh,this.lvl+1);
-		this.se = new QNode(hw,hh,hw+hw,hh+hh,this.lvl+1);
+		this.ne = new QNode(hw,0,hw,hh,this.lvl+1);
+		this.sw = new QNode(0,hh,hw,hh,this.lvl+1);
+		this.se = new QNode(hw,hh,hw,hh,this.lvl+1);
 		
 		//loop over the children and reassign
 		for(;i<l;i++) {
 			temp = this.obj[i];
 			
 			node = this.f(temp.x, temp.y, 1, 1); //find quad node
+			if(!node) console.log(temp,this,node);
 			node.obj.push(temp); //add to obj array
 			
 			if(node.obj.length > MAX_OBJECTS && this.lvl < MAX_SUB_DIVISIONS) node.divide(); //if overflow, divide that node
@@ -103,6 +122,7 @@ QNode.prototype = {
 	
 	get: function(x,y,w,h) {
 		//if passed rect is within this quad
+		//console.log(this.x,this.y,this.w,this.h);
 		if(this.x < x + w && this.x + this.w > x &&
 		   this.y < y + h && this.h + this.y > y) {
 		   
@@ -133,7 +153,10 @@ QNode.prototype = {
 				//for every child check not false
 				return this.nw.f(x,y,w,h) || this.ne.f(x,y,w,h) || this.sw.f(x,y,w,h) || this.se.f(x,y,w,h);
 			} else return this;
-		} else return false;
+		} else {
+			console.log("WTF!");
+			return false;
+		}
 	},
 	
 	destroy: function() {
@@ -144,10 +167,10 @@ QNode.prototype = {
 			this.se.destroy();
 		}
 		if(this.obj) this.obj.length = 0;
-		this.nw = NULL;
-		this.ne = NULL;
-		this.sw = NULL;
-		this.se = NULL;
+		this.nw = null;
+		this.ne = null;
+		this.sw = null;
+		this.se = null;
 	}
 };
 

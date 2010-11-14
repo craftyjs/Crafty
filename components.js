@@ -29,7 +29,7 @@ Crafty.c("2D", {
 	*/
 	intersect: function(rect) {
 		//rect must have x,y,w,h
-		if(!rect.x || !rect.y || !rect.w || !rect.h) return undefined;
+		//if(!rect.x || !rect.y || !rect.w || !rect.h) return undefined;
 		
 		return this.x < rect.x + rect.w && this.x + this.w > rect.x &&
 			   this.y < rect.y + rect.h && this.h + this.y > rect.y;

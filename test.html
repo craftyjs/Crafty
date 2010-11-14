@@ -71,10 +71,6 @@ $(document).ready(function(){
 		equals(Crafty(e).area(),200, "Area updated by updating the properties");
 	});
 	
-	test("Advanced Components", function() {
-		
-	});
-	
 	module("Functions");
 	
 	test("Prototyped", function() {
@@ -107,14 +103,13 @@ $(document).ready(function(){
 	});
 	
 	module("Quad Tree");
-	
+	/*
 	test("Putting Arbitrary", function() {
 		var tree = new Crafty.QTree();
 		tree.put(5,5, "test");
 		tree.put(6,6, "neighbor");
 		
 		var q = tree.get(4,4,10,10);
-		console.log(q.length);
 		equals(q.length, 2, "Found 2");
 		
 		equals(q[0].obj + q[1].obj, "testneighbor", "Found all and non-object wrapped");
@@ -156,9 +151,54 @@ $(document).ready(function(){
 		
 		tree.destroy();
 	});
+	*/
+	
+	test("Large Dataset", function() {
+		//tree = new Crafty.QTree();
+		var search = {x:150, y:150, w:500, h:500};
+		//create(150,150,500,500);
+		for(var i = 0; i < 10000; i++) {
+			var e = Crafty.e("2D");
+			var x = randrange(0, Crafty.window.width);
+			var y = randrange(0, Crafty.window.height);
+			
+			Crafty(e).attr({x: x, y: y, w: 50, h: 50});
+			//tree.put(Crafty(e));
+		}
+		var e = Crafty.e("2D");
+		Crafty(e).attr({x: 200, y: 200});
+		//tree.put(Crafty(e));
+		
+		var start2 = (new Date).getTime();
+		var total = 0;
+		var q = Crafty("2D");
+		for(i = 0; i < q.length; i++) {
+			if(Crafty(q[i]).intersect(search)) {
+				total++;
+			}
+		};
+		var end2 = (new Date).getTime() - start2;
+		
+		$("#player").text(end2);
+	});
+	
+	function randrange(from,to) {
+		return Math.round(Math.random() * (to - from) + from);
+	}
+	
+	
 });
+
+function create(x,y,w,h) {
+	var node = document.createElement("div");
+	node.setAttribute("class","bound");
+	document.body.appendChild(node);
+	$(node).css({left: x, top: y, width: w, height: h});
+}
 </script>
-  
+<style>
+.bound { border:1px solid black;  position:absolute }
+</style>
 </head>
 <body>
 <div id="player"></div>
