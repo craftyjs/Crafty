@@ -133,6 +133,7 @@ Crafty.fn = Crafty.prototype = {
 	},
 	
 	attr: function(key, value) {
+		this.trigger("change"); //trigger change event
 		if(arguments.length === 1) {
 			//if just the key, return the value
 			if(typeof key === "string") {
@@ -189,7 +190,6 @@ Crafty.fn = Crafty.prototype = {
 		//remove all event handlers, delete from entities
 		this.each(function() {
 			delete entities[this[0]];
-			delete this;
 		});
 	}
 };
@@ -216,6 +216,8 @@ Crafty.extend({
 	init: function(f,t) {
 		if(f) FPS = f;
 		if(t) TILE = t;
+		
+		Crafty.trigger("onload");
 		
 		interval = setInterval(function() {
 			Crafty.trigger("enterframe");

@@ -5,13 +5,12 @@
 * and generally quick access times with a given bounding box.
 * @author Louis Stowasser
 */
-//(function(parent) {
+(function(parent) {
 
 var MAX_SUB_DIVISIONS = 6,
 	MAX_OBJECTS = 6,
-	results = [], //results of multiple quads
+	results = [], //results of searching
 	OBJECT = "object",
-	NULL = null,
 	mc = Math.ceil;
 	
 function RTree() {
@@ -62,15 +61,7 @@ RTree.prototype = {
 			if(found.children.length >= MAX_OBJECTS && found.lvl < MAX_SUB_DIVISIONS) {
 				found.divide();
 			}
-		} else console.log("NOT FOUND!", found, obj);
-	},
-	
-	findById: function(id) {
-		return this.root.findById(id);
-	},
-	
-	destroy: function() {
-		this.root.destroy();
+		}
 	}
 };
 
@@ -175,7 +166,7 @@ Box.prototype = {
 		if(this.x < x + w && this.x + this.w > x &&
 		   this.y < y + h && this.h + this.y > y) {
 
-			//if external node, select the parent
+			//if external node, try parent then this.
 			if(!l) {
 				return this.parent || this;
 			}
@@ -208,20 +199,9 @@ Box.prototype = {
 			}
 		   
 		} else return false;
-	},
-	
-	findById: function(id) {
-		if(this.obj && '0' in this.obj) {
-			if(this.obj[0] === id) return this;
-		}
-		for(var i = 0; i < this.children.length; i++) {
-			var r = this.children[i].findById(id);
-			if(r) return r;
-		}
-		return false;
 	}
 	
 };
 
-//parent.RTree = RTree;
-//})(Crafty);
+parent.RTree = RTree;
+})(Crafty);

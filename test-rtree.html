@@ -63,11 +63,11 @@ $(document).ready(function(){
 		create(60,60,5,5,true,"white");
 		var q = box.get(60,60,5,5);
 	});
-	
+	*/
 	module("RTree");
 
 	test("insertion", function() {
-		tree = new RTree();
+		tree = new Crafty.RTree();
 		tree.put(150,5, 50, 50, "test");
 		tree.put(60,6, 20, 20, "neighbor");
 		tree.put(40,46, 50, 50, "neighbor 2");
@@ -82,13 +82,13 @@ $(document).ready(function(){
 		
 		create(100,0,800,900,true,"white");
 		var q = tree.find(100,0,800,900);
-		equals(q.length, 2, "Found 2");
+		equals(q.length, 3, "Found 3");
 		console.log(q);
 		//tree.destroy();
-	});*/
+	});
 	
 	test("Large Dataset", function() {
-		tree = new RTree();
+		tree = new Crafty.RTree();
 		var search = {x:150, y:150, w:500, h:500};
 		create(150,150,500,500, true, "blue");
 		for(var i = 0; i < 10000; i++) {
@@ -106,16 +106,14 @@ $(document).ready(function(){
 		
 		//check tree
 		var start = (new Date).getTime();
-		var total = 0;
 		var q = tree.find(search);
+		var end = (new Date).getTime() - start;
+		$("#player").text(end);
+		
 		var qids = [];
 		for(i = 0; i < q.length; i++) {
-			if(q[i].intersect(search)) {
-				total++;
-				qids.push(q[i][0]);
-			}
+			qids.push(q[i][0]);
 		}
-		var end = (new Date).getTime() - start;
 		
 		
 		var start2 = (new Date).getTime();
@@ -130,10 +128,12 @@ $(document).ready(function(){
 		});
 		var end2 = (new Date).getTime() - start2;
 		
-		$("#player").text(end2);
+		
+		
 		ok(end < end2, "Tree Faster");
-		equals(total, total2, "Tree == Brute");
-		console.log(total, total2, "|", end, end2);
+		equals(q.length, total2, "Tree == Brute");
+		console.log(total2, q.length, "|", end, end2);
+		//*/
 	});
 	
 	function randrange(from,to) {
@@ -151,6 +151,7 @@ function create(x,y,w,h,intern,color) {
 	$(node).css({left: x, top: y, width: w, height: h});
 	if(color) $(node).css("border-color",color);
 }
+if(!('console' in window)) window.console = {log: function(){}};
 </script>
 <style>
 .bound { border:1px solid black;  position:absolute }
