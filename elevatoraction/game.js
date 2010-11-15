@@ -14,12 +14,14 @@ $(document).ready(function() {
 	}).canvas(document.getElementById("canvas"));
 	
 	var player = Crafty.e("2D, player, canvas, controls, fourway");
-	Crafty(player).attr({"y":1, z: 1}).fourway(3);
+	Crafty(player).attr({"y":1, z: 30}).fourway(3);
 	
-	var door = Crafty.e("2D, door, canvas");
-	Crafty(door).attr({x: 250, y: 50, z: 0});
-	
-	var red = Crafty.e("2D, reddoor, canvas");
-	Crafty(red).attr({x: 450, y: 50, z: 0});
+	for(var i = 1; i <= 10; i++) {
+		var door = Crafty.e("2D, door, canvas");
+		Crafty(door).attr({x: 250, y: i*80, z: i});
+		
+		var red = Crafty.e("2D, reddoor, canvas");
+		Crafty(red).attr({x: 450, y: i*80, z: i});
+	}
 
 });

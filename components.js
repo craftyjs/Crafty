@@ -188,7 +188,7 @@ Crafty.c("canvas", {
 			this.entry.update(pos.x,pos.y,pos.w,pos.h);
 			
 			//add to the DrawBuffer
-			DrawBuffer.add(this);
+			DrawBuffer.add(this,e);
 		});
 	},
 	
@@ -232,41 +232,35 @@ Crafty.extend({
 });
 
 var DrawBuffer = {
-	
-	last: null,
-	
+
 	/**
 	* Find all objects intersected by this
 	* and redraw them in order of Z
 	*/
-	add: function add(obj) {
+	add: function add(obj,e) {
 		var q, i = 0, l,
 			box, z, layer,
 			total = 0,
 			sorted = []; //bucket sort
 		
+		e = e || obj;
 		
-		q = tree.find(obj);
-		l = q.length;
-		
+		//q = tree.find(obj);
+		//l = q.length;
+		//console.log(q.length);
 		//sort the query results with bucket sort
-		for(;i<l;i++) {
-			box = q[i];
+		//for(;i<l;i++) {
+		Crafty("canvas").each(function() {
+			box = this;//q[i];
 			
-			if(box.intersect(obj)) {
+			if(box.intersect(e)) {
 				if(!sorted[box.z]) sorted[box.z] = [];
 				sorted[box.z].push(box);
-				if(box[0] !== obj[0]) total++;
 			}
-		}
+		});
 		
 		sorted.sort();
-		if(total) this.last = sorted;
-		
-		if(!total && this.last) {
-			sorted = this.last;
-			this.last = null;
-		}
+		sorted.reverse();
 		
 		//for each z index, draw
 		for(z in sorted) {
