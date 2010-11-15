@@ -44,13 +44,11 @@ Crafty.c("2D", {
 	},
 	
 	move: function(dir, by) {
-		var old = {x: this.x, y: this.y, w: this.w, h: this.h};
+		this.trigger("change");
 		if(dir.charAt(0) === 'n') this.y -= by;
 		if(dir.charAt(0) === 's') this.y += by;
 		if(dir === 'e' || dir.charAt(1) === 'e') this.x += by;
 		if(dir === 'w' || dir.charAt(1) === 'w') this.x -= by;
-		
-		this.trigger("change",old);
 	}
 });
 
@@ -61,10 +59,9 @@ Crafty.c("gravity", {
 	init: function() {
 		if(!this.has("2D")) this.addComponent("2D");
 		this.bind("enterframe", function() {
-			var old = {x: this.x, y: this.y, w: this.w, h: this.h};
+			this.trigger("change");
 			this._gy += this._gravity * 2;
 			this.y += this._gy;
-			this.trigger("change",old);
 		});
 	}
 });
@@ -131,19 +128,24 @@ Crafty.extend({
 	* Window Events credited to John Resig
 	* http://ejohn.org/projects/flexible-javascript-events
 	*/
-	addEvent: function(obj, type, fn) {
-		if (window.attachEvent ) {
-			window['e'+type+fn] = fn;
-			window[type+fn] = function(){ window['e'+type+fn]( window.event );}
-			window.attachEvent( 'on'+type, window[type+fn] );
-		} else window.addEventListener( type, function(e) { fn.call(obj,e) }, false );
+	addEvent: function(ctx, obj, type, fn) {
+		if(arguments.length === 3) {
+			fn = type;
+			type = obj;
+			obj = window;
+		}
+		if (obj.attachEvent ) {
+			obj['e'+type+fn] = fn;
+			obj[type+fn] = function(){ obj['e'+type+fn]( obj.event );}
+			obj.attachEvent( 'on'+type, obj[type+fn] );
+		} else obj.addEventListener( type, function(e) { fn.call(ctx,e) }, false );
 	},
 	
 	removeEvent: function(obj, type, fn) {
-		if (window.detachEvent) {
-			window.detachEvent('on'+type, window[type+fn]);
-			window[type+fn] = null;
-		} else window.removeEventListener(type, fn, false);
+		if (obj.detachEvent) {
+			obj.detachEvent('on'+type, obj[type+fn]);
+			obj[type+fn] = null;
+		} else obj.removeEventListener(type, fn, false);
 	},
 	
 	window: {
@@ -161,20 +163,25 @@ Crafty.extend({
 * Canvas Components and Extensions
 */
 Crafty.c("canvas", {
-	drawable: false,
+	drawn: false,
 	
 	init: function() {
 		this.img = new Image();
 		this.img.src = this.__image;
+		//draw when ready
+		Crafty.addEvent(this, this.img, 'load', this.draw);
 		this.w = this.__coord[2];
 		this.h = this.__coord[3];
 		
 		//on change, redraw
 		this.bind("change", function(e) {
-			console.log("changed");
+			//console.log("changed");
 			e = e || this;
+			//clear self
 			Crafty.context.clearRect(e.x, e.y, e.w, e.h);
-			this.draw();
+			
+			//add to the DrawBuffer
+			DrawBuffer.add(this);
 		});
 	},
 	
@@ -332,36 +339,45 @@ Crafty.c("twoway", {
 	}
 });
 
+Crafty.c("DrawBuffer", {
+	__drawables: [],
+	
+	init: function() {
+		//this.bind("enterframe", this.draw);
+	},
+	
+	add: function add(obj) {
+		this.__drawables.push(obj);
+		this.draw();
+	},
+	
+	remove: function remove(i) {
+		delete this.__drawables[i];
+	},
+	
+	draw: function draw() {
+		var i = 0, l = this.__drawables.length, r;
+		
+		for(;i<l;i++) {
+			if(this.__drawables[i]) {
+				
+				if(this.__drawables[i][0] === 2) {
+					console.log("draw",this.__drawables[i]);
+				}
+				r = this.__drawables[i].draw();
+				//Delete if returns -1
+				if(r === -1) this.remove(i);
+			}
+		}
+		//reset
+		this.__drawables.length = 0;
+		this.__drawables = [];
+	}
+});
+var DrawBuffer = Crafty(Crafty.e("DrawBuffer"));
 /**
 * Collection of objects to be drawn on each
 * frame
 */
-var DrawBuffer = (function() {
-	var drawables = [];
-	return {
-		add: function(obj) {
-			return drawables.push(obj);
-		},
-		
-		remove: function(i) {
-			delete drawables[i];
-		},
-		
-		draw: function() {
-			var i = 0, l = drawables.length, r;
-			for(;i<l;i++) {
-				if(drawables[i]) {
-					r = drawables[i].draw();
-					//Delete if returns -1
-					if(r === -1) this.remove(i);
-				}
-			}
-		},
-		
-		debug: function() {
-			console.log(drawables);
-		}
-	};
-})();
-
+window.DrawBuffer = DrawBuffer;
 })(Crafty);

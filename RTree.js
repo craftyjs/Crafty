@@ -61,6 +61,8 @@ RTree.prototype = {
 			if(found.children.length >= MAX_OBJECTS && found.lvl < MAX_SUB_DIVISIONS) {
 				found.divide();
 			}
+			
+			return box;
 		}
 	}
 };
