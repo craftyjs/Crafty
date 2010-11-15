@@ -201,16 +201,39 @@ Crafty.c("canvas", {
 		};
 	},
 	
-	draw: function() {
-		var co = this.__coord,
+	draw: function(x,y,w,h) {
+		var co = {},
+			coord = this.__coord,
 			pos = this.pos();
 		
+		//if offset
+		co.x = coord[0];
+		if(x && typeof x === "number") {
+			co.x = coord[0] + x;
+			pos.x += x;
+		}
+		co.y = coord[1];
+		if(y && typeof y === "number") {
+			co.y = coord[1] + y;
+			pos.y += y;
+		}
+		co.w = coord[2];
+		if(w) {
+			co.w = w;
+			pos.w = w;
+		}
+		co.h = coord[3];
+		if(h) {
+			co.h = h
+			pos.h = h;
+		}
+		console.log(co.x, co.y, co.w,co.h);
 		//draw the image on the canvas element
 		Crafty.context.drawImage(this.img, //image element
-								 co[0], //x position on sprite
-								 co[1], //y position on sprite
-								 co[2], //width on sprite
-								 co[3], //height on sprite
+								 co.x, //x position on sprite
+								 co.y, //y position on sprite
+								 co.w, //width on sprite
+								 co.h, //height on sprite
 								 pos.x, //x position on canvas
 								 pos.y, //y position on canvas
 								 pos.w, //width on canvas
@@ -252,11 +275,7 @@ var DrawBuffer = {
 		
 		e = e || obj;
 		
-		//q = tree.find(obj);
-		//l = q.length;
-		//console.log(q.length);
 		//sort the query results with bucket sort
-		//for(;i<l;i++) {
 		Crafty("canvas").each(function() {
 			box = this;//q[i];
 			
@@ -280,7 +299,17 @@ var DrawBuffer = {
 			zlength = layer.length;
 			
 			for(j=0;j<zlength;j++) {
-				layer[j].draw();
+				var todraw = layer[j];
+				//only draw visible area
+				if(todraw[0] !== obj[0]) {
+					var x = (e.x - todraw.x < 0) ? 0 : (e.x - todraw.x),
+						y = (e.y - todraw.y < 0) ? 0 : (e.y - todraw.y),
+						w = Math.min(todraw.w - x, e.w),
+						h = Math.min(todraw.h - y, e.h);
+					
+					layer[j].draw(x,y,w,h);
+					
+				} else layer[j].draw();
 			}
 		}
 	}	
