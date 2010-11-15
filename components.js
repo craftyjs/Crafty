@@ -238,10 +238,17 @@ var DrawBuffer = {
 	* and redraw them in order of Z
 	*/
 	add: function add(obj,e) {
-		var q, i = 0, l,
-			box, z, layer,
+		var q, 
+			i = 0, 
+			j = 0, 
+			keylength,
+			zlength,
+			box, 
+			z, 
+			layer,
 			total = 0,
-			sorted = []; //bucket sort
+			keys = [],
+			sorted = {}; //bucket sort
 		
 		e = e || obj;
 		
@@ -256,20 +263,24 @@ var DrawBuffer = {
 			if(box.intersect(e)) {
 				if(!sorted[box.z]) sorted[box.z] = [];
 				sorted[box.z].push(box);
+				total++;
 			}
 		});
-		
-		sorted.sort();
-		sorted.reverse();
 		
 		//for each z index, draw
 		for(z in sorted) {
 			if(!sorted.hasOwnProperty(z)) continue;
-			layer = sorted[z];
-			l = layer.length;
+			keys.push(+z);
+		}
+		keylength = keys.length;
+		keys.sort(function(a,b) {return a-b;}); //FFS!
+		
+		for(i=0;i<keylength;i++) {	
+			layer = sorted[keys[i]];
+			zlength = layer.length;
 			
-			for(i=0;i<l;i++) {
-				layer[i].draw();
+			for(j=0;j<zlength;j++) {
+				layer[j].draw();
 			}
 		}
 	}	
