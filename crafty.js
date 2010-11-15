@@ -135,8 +135,6 @@ Crafty.fn = Crafty.prototype = {
 	},
 	
 	attr: function(key, value) {
-		this.trigger("change"); //trigger change event
-
 		if(arguments.length === 1) {
 			//if just the key, return the value
 			if(typeof key === "string") {
@@ -145,11 +143,13 @@ Crafty.fn = Crafty.prototype = {
 			
 			//extend if object
 			this.extend(key);
+			this.trigger("change"); //trigger change event
 			return this;
 		}
 		//if key value pair
 		this[key] = value;
 		
+		this.trigger("change"); //trigger change event
 		return this;
 	},
 	

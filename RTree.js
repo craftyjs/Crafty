@@ -39,10 +39,10 @@ RTree.prototype = {
 		//if putting an object only
 		if(typeof x === OBJECT) {
 			obj = x;
-			h = x.h;
-			w = x.w;
-			y = x.y;
-			x = x.x;
+			h = mc(x.h);
+			w = mc(x.w);
+			y = mc(x.y);
+			x = mc(x.x);
 		}
 		//search for bounding box
 		found = this.root.get(x,y,w,h);
@@ -148,11 +148,17 @@ Box.prototype = {
 	* correct bounding
 	*/
 	update: function(x,y,w,h) {
-		if(this.x > x) this.x = x;
-		if(this.y > y) this.y = y;
-		if(this.x + this.w < x+w) this.w = x+w-this.x;
-		if(this.y + this.h < y+h) this.h = y+h-this.y;
-		
+		if(!this.children.length) { //if leaf node, change x,y,w,h
+			this.x = x;
+			this.y = y;
+			this.w = w;
+			this.h = h;
+		} else { //if internal, update to fit
+			if(this.x > x) this.x = x;
+			if(this.y > y) this.y = y;
+			if(this.x + this.w < x+w) this.w = x+w-this.x;
+			if(this.y + this.h < y+h) this.h = y+h-this.y;
+		}
 		if(this.parent !== null) {
 			this.parent.update(x,y,w,h);
 		}

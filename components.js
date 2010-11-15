@@ -156,7 +156,7 @@ Crafty.extend({
 	/**
 	* Map key names to key codes
 	*/
-	keys: {'BSP':8, 'TAB':9, 'ENT':13, 'SHF':16, 'CTR':17, 'ALT':18, 'PAU':19, 'CAP':20, 'ESC':27, 'SP':32, 'PGU':33, 'PGD':34, 'END':35, 'HOM':36, 'LA':37, 'UA':38, 'RA':39, 'DA':40, 'INS':45, 'DEL':46, 'D0':48, 'D1':49, 'D2':50, 'D3':51, 'D4':52, 'D5':53, 'D6':54, 'D7':55, 'D8':56, 'D9':57, 'SEM':59, 'EQL':61, 'A':65, 'B':66, 'C':67, 'D':68, 'E':69, 'F':70, 'G':71, 'H':72, 'I':73, 'J':74, 'K':75, 'L':76, 'M':77, 'N':78, 'O':79, 'P':80, 'Q':81, 'R':82, 'S':83, 'T':84, 'U':85, 'V':86, 'W':67, 'X':88, 'Y':89, 'Z':90, 'LWN':91, 'RWN':92, 'SEL':93, 'N0':96, 'N1':97, 'N2':98, 'N3':99, 'N4':100, 'N5':101, 'N6':102, 'N7':103, 'N8':104, 'N9':105, 'MUL':106, 'ADD':107, 'SUB':109, 'DEC':110, 'DIV':111, 'F1':112, 'F2':113, 'F3':114, 'F4':115, 'F5':116, 'F6':117, 'F7':118, 'F8':119, 'F9':120, 'F10':121, 'F11':122, 'F12':123, 'NUM':144, 'SCR':145, 'COM':188, 'PER':190, 'FSL':191, 'ACC':192, 'OBR':219, 'BSL':220, 'CBR':221, 'QOT':222}
+	keys: {'BSP':8, 'TAB':9, 'ENT':13, 'SHF':16, 'CTR':17, 'ALT':18, 'PAU':19, 'CAP':20, 'ESC':27, 'SP':32, 'PGU':33, 'PGD':34, 'END':35, 'HOM':36, 'LA':37, 'UA':38, 'RA':39, 'DA':40, 'INS':45, 'DEL':46, 'D0':48, 'D1':49, 'D2':50, 'D3':51, 'D4':52, 'D5':53, 'D6':54, 'D7':55, 'D8':56, 'D9':57, 'SEM':59, 'EQL':61, 'A':65, 'B':66, 'C':67, 'D':68, 'E':69, 'F':70, 'G':71, 'H':72, 'I':73, 'J':74, 'K':75, 'L':76, 'M':77, 'N':78, 'O':79, 'P':80, 'Q':81, 'R':82, 'S':83, 'T':84, 'U':85, 'V':86, 'W':87, 'X':88, 'Y':89, 'Z':90, 'LWN':91, 'RWN':92, 'SEL':93, 'N0':96, 'N1':97, 'N2':98, 'N3':99, 'N4':100, 'N5':101, 'N6':102, 'N7':103, 'N8':104, 'N9':105, 'MUL':106, 'ADD':107, 'SUB':109, 'DEC':110, 'DIV':111, 'F1':112, 'F2':113, 'F3':114, 'F4':115, 'F5':116, 'F6':117, 'F7':118, 'F8':119, 'F9':120, 'F10':121, 'F11':122, 'F12':123, 'NUM':144, 'SCR':145, 'COM':188, 'PER':190, 'FSL':191, 'ACC':192, 'OBR':219, 'BSL':220, 'CBR':221, 'QOT':222}
 });
 
 /**
@@ -164,6 +164,7 @@ Crafty.extend({
 */
 Crafty.c("canvas", {
 	drawn: false,
+	entry: null,
 	
 	init: function() {
 		this.img = new Image();
@@ -173,20 +174,36 @@ Crafty.c("canvas", {
 		this.w = this.__coord[2];
 		this.h = this.__coord[3];
 		
+		//add the object to the RTree
+		this.entry = tree.put(this);
+		
 		//on change, redraw
 		this.bind("change", function(e) {
-			//console.log("changed");
 			e = e || this;
 			//clear self
 			Crafty.context.clearRect(e.x, e.y, e.w, e.h);
+			
+			//update position in RTree
+			var pos = this.pos();
+			this.entry.update(pos.x,pos.y,pos.w,pos.h);
 			
 			//add to the DrawBuffer
 			DrawBuffer.add(this);
 		});
 	},
 	
+	pos: function() {
+		return {
+			x: Math.ceil(this.x),
+			y: Math.ceil(this.y),
+			w: Math.ceil(this.w),
+			h: Math.ceil(this.h)
+		};
+	},
+	
 	draw: function() {
-		var co = this.__coord;
+		var co = this.__coord,
+			pos = this.pos();
 		
 		//draw the image on the canvas element
 		Crafty.context.drawImage(this.img, //image element
@@ -194,10 +211,10 @@ Crafty.c("canvas", {
 								 co[1], //y position on sprite
 								 co[2], //width on sprite
 								 co[3], //height on sprite
-								 Math.ceil(this.x), //x position on canvas
-								 Math.ceil(this.y), //y position on canvas
-								 this.w, //width on canvas
-								 this.h //height on canvas
+								 pos.x, //x position on canvas
+								 pos.y, //y position on canvas
+								 pos.w, //width on canvas
+								 pos.h //height on canvas
 		);
 	}
 });
@@ -259,29 +276,29 @@ Crafty.c("fourway", {
 			
 			if(changed) this.trigger("change", old);
 		}).bind("keydown", function(e) {
-			if(e.keyCode === Crafty.keys.RA) {
+			if(e.keyCode === Crafty.keys.RA || e.keyCode === Crafty.keys.D) {
 				move.right = true;
 			}
-			if(e.keyCode === Crafty.keys.LA) {
+			if(e.keyCode === Crafty.keys.LA || e.keyCode === Crafty.keys.A) {
 				move.left = true;
 			}
-			if(e.keyCode === Crafty.keys.UA) {
+			if(e.keyCode === Crafty.keys.UA || e.keyCode === Crafty.keys.W) {
 				move.up = true;
 			}
-			if(e.keyCode === Crafty.keys.DA) {
+			if(e.keyCode === Crafty.keys.DA || e.keyCode === Crafty.keys.S) {
 				move.down = true;
 			}
 		}).bind("keyup", function(e) {
-			if(e.keyCode === Crafty.keys.RA) {
+			if(e.keyCode === Crafty.keys.RA || e.keyCode === Crafty.keys.D) {
 				move.right = false;
 			}
-			if(e.keyCode === Crafty.keys.LA) {
+			if(e.keyCode === Crafty.keys.LA || e.keyCode === Crafty.keys.A) {
 				move.left = false;
 			}
-			if(e.keyCode === Crafty.keys.UA) {
+			if(e.keyCode === Crafty.keys.UA || e.keyCode === Crafty.keys.W) {
 				move.up = false;
 			}
-			if(e.keyCode === Crafty.keys.DA) {
+			if(e.keyCode === Crafty.keys.DA || e.keyCode === Crafty.keys.S) {
 				move.down = false;
 			}
 		});
@@ -340,44 +357,47 @@ Crafty.c("twoway", {
 });
 
 Crafty.c("DrawBuffer", {
-	__drawables: [],
 	
-	init: function() {
-		//this.bind("enterframe", this.draw);
-	},
-	
+	/**
+	* Find all objects intersected by this
+	* and redraw them in order of Z
+	*/
 	add: function add(obj) {
-		this.__drawables.push(obj);
-		this.draw();
-	},
-	
-	remove: function remove(i) {
-		delete this.__drawables[i];
-	},
-	
-	draw: function draw() {
-		var i = 0, l = this.__drawables.length, r;
+		var q = tree.find(obj), i = 0, l = q.length,
+			box, z, layer,
+			sorted = {}; //bucket sort
 		
+		//sort the query results with bucket sort
 		for(;i<l;i++) {
-			if(this.__drawables[i]) {
-				
-				if(this.__drawables[i][0] === 2) {
-					console.log("draw",this.__drawables[i]);
-				}
-				r = this.__drawables[i].draw();
-				//Delete if returns -1
-				if(r === -1) this.remove(i);
+			box = q[i];
+			
+			if(box.intersect(obj)) {
+				if(!sorted[box.z]) sorted[box.z] = []
+				sorted[box.z].push(box);
 			}
 		}
-		//reset
-		this.__drawables.length = 0;
-		this.__drawables = [];
+		
+		//for each z index, draw
+		for(z in sorted) {
+			if(!sorted.hasOwnProperty(z)) continue;
+			layer = sorted[z];
+			l = layer.length;
+			
+			for(i=0;i<l;i++) {
+				layer[i].draw();
+			}
+		}
 	}
+	
 });
+
 var DrawBuffer = Crafty(Crafty.e("DrawBuffer"));
+var tree = new Crafty.RTree();
+
 /**
 * Collection of objects to be drawn on each
 * frame
 */
 window.DrawBuffer = DrawBuffer;
+window.tree = tree;
 })(Crafty);
