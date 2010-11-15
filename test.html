@@ -7,7 +7,6 @@
 <script type="text/javascript" src="http://github.com/jquery/qunit/raw/master/qunit/qunit.js"></script>
 <script type="text/javascript" src="crafty.js"></script>
 <script type="text/javascript" src="components.js"></script>
-<script type="text/javascript" src="QuadTree.js"></script>
 <title>Crafty Unit Test</title>
 
 <script>
@@ -58,17 +57,30 @@ $(document).ready(function(){
 			}
 		});
 		
+		var c = Crafty.c("3D", {
+			z:0,
+			
+			volume: function() {
+				return this.w * this.h * this.z;
+			}
+		});
+		
 		var e = Crafty.e("position");
 		
 		equals(Crafty(e).area(),0, "Area should be default");
 		
 		Crafty(e).attr("w", 5).attr("h", 8);
+		console.log("ATTR",Crafty(e));
 		
 		equals(Crafty(e).area(),40, "Area updated by updating the properties");
 		
 		Crafty(e).attr({w: 10, h: 20});
 		
+		
 		equals(Crafty(e).area(),200, "Area updated by updating the properties");
+		
+		var empty = Crafty.e("position, 3D");
+		console.log(Crafty(empty));
 	});
 	
 	module("Functions");

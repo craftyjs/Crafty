@@ -76,49 +76,52 @@ Crafty.fn = Crafty.prototype = {
 			this.length = 1;
 			
 			//update from the cache
-			this.extend(entities[selector]);
 			if(!this.__c) this.__c = [];
 			
-			entities[selector] = this; //update to the cache
+			//update to the cache if NULL
+			if(!entities[selector]) entities[selector] = this; 
+			return entities[selector]; //return the cached selector
 		}
 		
 		return this;
 	},
 	
 	addComponent: function(id) {
+		var uninit = [], c = 0, ul; //array of components to init
+		
 		//add multiple arguments
 		if(arguments.length > 1) {
 			var i = 0, l = arguments.length;
 			for(;i<l;i++) {
 				this.__c.push(arguments[i]);
+				uninit.push(arguments[i]);
 			}
+		//split components if contains comma
 		} else if(id.indexOf(',') !== -1) {
 			var comps = id.split(rlist), i = 0, l = comps.length;
 			for(;i<l;i++) {
 				this.__c.push(comps[i]);
+				uninit.push(comps[i]);
 			}
-		} else this.__c.push(id);
+		//single component passed
+		} else {
+			this.__c.push(id);
+			uninit.push(id);
+		}
 		
-		return this;
-	},
-	
-	inherit: function() {
-		var i = 0, l = this.__c.length, comp, inits = [];
-		for(;i<l;i++) {
-			comp = components[this.__c[i]];
-			//extend the prototype with the components functions
+		//extend the components
+		ul = uninit.length;
+		for(;c<ul;c++) {
+			comp = components[uninit[c]];
 			this.extend(comp);
 			
-			//if constructor, add to init stack
+			//if constructor, call it
 			if(comp && "init" in comp) {
-				inits.push(comp.init);	
+				comp.init.call(this);
 			}
 		}
 		
-		l = inits.length;
-		for(i=0;i<l;i++) {
-			inits[i].call(this);
-		}
+		return this;
 	},
 	
 	has: function(id) {
@@ -132,7 +135,8 @@ Crafty.fn = Crafty.prototype = {
 	},
 	
 	attr: function(key, value) {
-		
+		this.trigger("change"); //trigger change event
+
 		if(arguments.length === 1) {
 			//if just the key, return the value
 			if(typeof key === "string") {
@@ -145,7 +149,7 @@ Crafty.fn = Crafty.prototype = {
 		}
 		//if key value pair
 		this[key] = value;
-		this.trigger("change"); //trigger change event
+		
 		return this;
 	},
 	
@@ -237,7 +241,7 @@ Crafty.extend({
 		if(arguments.length > 0) {
 			craft.addComponent.apply(craft, arguments);
 		}
-		craft.inherit();
+		
 		return id;
 	},
 	
