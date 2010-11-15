@@ -231,6 +231,56 @@ Crafty.extend({
 	},
 });
 
+var DrawBuffer = {
+	
+	last: null,
+	
+	/**
+	* Find all objects intersected by this
+	* and redraw them in order of Z
+	*/
+	add: function add(obj) {
+		var q, i = 0, l,
+			box, z, layer,
+			total = 0,
+			sorted = []; //bucket sort
+		
+		
+		q = tree.find(obj);
+		l = q.length;
+		
+		//sort the query results with bucket sort
+		for(;i<l;i++) {
+			box = q[i];
+			
+			if(box.intersect(obj)) {
+				if(!sorted[box.z]) sorted[box.z] = [];
+				sorted[box.z].push(box);
+				if(box[0] !== obj[0]) total++;
+			}
+		}
+		
+		sorted.sort();
+		if(total) this.last = sorted;
+		
+		if(!total && this.last) {
+			sorted = this.last;
+			this.last = null;
+		}
+		
+		//for each z index, draw
+		for(z in sorted) {
+			if(!sorted.hasOwnProperty(z)) continue;
+			layer = sorted[z];
+			l = layer.length;
+			
+			for(i=0;i<l;i++) {
+				layer[i].draw();
+			}
+		}
+	}	
+};
+
 Crafty.c("controls", {
 		
 	init: function() {
@@ -356,42 +406,8 @@ Crafty.c("twoway", {
 	}
 });
 
-Crafty.c("DrawBuffer", {
-	
-	/**
-	* Find all objects intersected by this
-	* and redraw them in order of Z
-	*/
-	add: function add(obj) {
-		var q = tree.find(obj), i = 0, l = q.length,
-			box, z, layer,
-			sorted = {}; //bucket sort
-		
-		//sort the query results with bucket sort
-		for(;i<l;i++) {
-			box = q[i];
-			
-			if(box.intersect(obj)) {
-				if(!sorted[box.z]) sorted[box.z] = []
-				sorted[box.z].push(box);
-			}
-		}
-		
-		//for each z index, draw
-		for(z in sorted) {
-			if(!sorted.hasOwnProperty(z)) continue;
-			layer = sorted[z];
-			l = layer.length;
-			
-			for(i=0;i<l;i++) {
-				layer[i].draw();
-			}
-		}
-	}
-	
-});
 
-var DrawBuffer = Crafty(Crafty.e("DrawBuffer"));
+
 var tree = new Crafty.RTree();
 
 /**
