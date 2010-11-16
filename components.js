@@ -227,7 +227,7 @@ Crafty.c("canvas", {
 			co.h = h
 			pos.h = h;
 		}
-		console.log(co.x, co.y, co.w,co.h);
+		//console.log(co.x, co.y, co.w,co.h);
 		//draw the image on the canvas element
 		Crafty.context.drawImage(this.img, //image element
 								 co.x, //x position on sprite
@@ -304,12 +304,16 @@ var DrawBuffer = {
 				if(todraw[0] !== obj[0]) {
 					var x = (e.x - todraw.x < 0) ? 0 : (e.x - todraw.x),
 						y = (e.y - todraw.y < 0) ? 0 : (e.y - todraw.y),
-						w = Math.min(todraw.w - x, e.w),
-						h = Math.min(todraw.h - y, e.h);
+						w = Math.min(todraw.w - x, e.w, e.w - (todraw.x - e.x)),
+						h = Math.min(todraw.h - y, e.h, e.h - (todraw.y - e.y));
 					
+					//console.log(todraw[0],x,y,w,h);
 					layer[j].draw(x,y,w,h);
 					
-				} else layer[j].draw();
+				} else {
+					//console.log(obj[0],todraw[0]);
+					layer[j].draw();
+				}
 			}
 		}
 	}	

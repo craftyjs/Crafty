@@ -27,5 +27,8 @@ $(document).ready(function() {
 	}
 	
 	var red = Crafty.e("2D, reddoor, canvas");
-	Crafty(red).attr({x: 260, y: 90, z: 0});
+	Crafty(red).attr({x: 260, y: 90, z: 35});
+	
+	var red = Crafty.e("2D, reddoor, canvas");
+	Crafty(red).attr({x: 230, y: 90, z: 35});
 });
