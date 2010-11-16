@@ -170,7 +170,9 @@ Crafty.c("canvas", {
 		this.img = new Image();
 		this.img.src = this.__image;
 		//draw when ready
-		Crafty.addEvent(this, this.img, 'load', this.draw);
+		Crafty.addEvent(this, this.img, 'load', function() {
+			DrawBuffer.add(this); //send to buffer to keep Z order
+		});
 		this.w = this.__coord[2];
 		this.h = this.__coord[3];
 		
