@@ -14,8 +14,10 @@ $(document).ready(function() {
 	}).canvas(document.getElementById("canvas"));
 	
 	//Create the player
-	var player = Crafty.e("2D, player, canvas, controls, fourway");
-	Crafty(player).attr({"y":1, z: 30}).fourway(3);
+	var player = Crafty.e("2D, player, canvas, gravity, controls, twoway, collision");
+	Crafty(player).attr({"y":1, z: 30}).twoway(3).collision("floor", function(e) {
+		this.stopFalling(e);
+	});
 	
 	//Generate some doors
 	for(var i = 1; i <= 10; i++) {
@@ -31,4 +33,7 @@ $(document).ready(function() {
 	
 	var red = Crafty.e("2D, reddoor, canvas");
 	Crafty(red).attr({x: 230, y: 90, z: 35});
+	
+	var floor = Crafty.e("2D, floor");
+	Crafty(floor).attr({y: 200, w: Crafty.window.width, h: 50});
 });

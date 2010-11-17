@@ -11,6 +11,7 @@ TODO:
 	- Map
 	- Animation
 	- Sound
+	- Parralex Scrolling
 	
 *************************************/
 (function(Crafty) {
@@ -55,14 +56,27 @@ Crafty.c("2D", {
 Crafty.c("gravity", {
 	_gravity: 0.2,
 	_gy: 0,
+	_falling: true,
 	
 	init: function() {
 		if(!this.has("2D")) this.addComponent("2D");
 		this.bind("enterframe", function() {
-			this.trigger("change");
-			this._gy += this._gravity * 2;
-			this.y += this._gy;
+			if(this._falling) {
+				this.trigger("change");
+				this._gy += this._gravity * 2;
+				this.y += this._gy;
+			} else {
+				this._gy = 0;
+			}
 		});
+	},
+	
+	stopFalling: function(e) {
+		var old = this.pos(); //snapshot of old position
+		if(e) this.y = e.y - this.h; //move object
+		this._falling = false;
+		if(this.__move && this.__move.up) this.__move.up = false;
+		this.trigger("change",old);
 	}
 });
 
@@ -117,7 +131,10 @@ Crafty.extend({
 			//create a component
 			Crafty.c(pos, {
 				__image: url,
-				__coord: [x,y,w,h]
+				__coord: [x,y,w,h],
+				sprite: function(x,y,w,h) {
+					this.__coord = [x*tile,y*tile,w*tile || tile,h*tile || tile];
+				}
 			});
 		}
 		
@@ -182,6 +199,7 @@ Crafty.c("canvas", {
 		//on change, redraw
 		this.bind("change", function(e) {
 			e = e || this;
+			
 			//clear self
 			Crafty.context.clearRect(e.x, e.y, e.w, e.h);
 			
@@ -229,7 +247,7 @@ Crafty.c("canvas", {
 			co.h = h
 			pos.h = h;
 		}
-		//console.log(co.x, co.y, co.w,co.h);
+		//console.log(co,pos);
 		//draw the image on the canvas element
 		Crafty.context.drawImage(this.img, //image element
 								 co.x, //x position on sprite
@@ -254,6 +272,22 @@ Crafty.extend({
 		if(!('getContext' in elem)) return;
 		this.context = elem.getContext('2d');
 	},
+});
+
+Crafty.c("collision", {
+	collision: function(comp, fn) {
+		var obj = this;
+		//on change, check for collision
+		this.bind("change", function() {
+			//for each collidable entity
+			Crafty(comp).each(function() {
+				if(this.intersect(obj)) { //check intersection
+					//console.log("HIT");
+					fn.call(obj,this);
+				}
+			});
+		});
+	}
 });
 
 var DrawBuffer = {
@@ -306,16 +340,13 @@ var DrawBuffer = {
 				if(todraw[0] !== obj[0]) {
 					var x = (e.x - todraw.x < 0) ? 0 : (e.x - todraw.x),
 						y = (e.y - todraw.y < 0) ? 0 : (e.y - todraw.y),
-						w = Math.min(todraw.w - x, e.w, e.w - (todraw.x - e.x)),
+						w = Math.min(todraw.w - x, e.w, e.w - (todraw.x - Math.max(obj.x, e.x))),
 						h = Math.min(todraw.h - y, e.h, e.h - (todraw.y - Math.max(obj.y, e.y)));
 					
 					//console.log(todraw[0],x,y,w,h);
 					layer[j].draw(x,y,w,h);
 					
-				} else {
-					//console.log(obj[0],todraw[0]);
-					layer[j].draw();
-				}
+				} else layer[j].draw();
 			}
 		}
 	}	
@@ -330,7 +361,6 @@ Crafty.c("controls", {
 		});
 		
 		Crafty.addEvent(this, "keyup", function(e) {
-			//console.log(this,e);
 			this.trigger("keyup", e);
 		});
 		
@@ -404,7 +434,7 @@ Crafty.c("twoway", {
 		var move = this.__move;
 		
 		this.bind("enterframe", function() {
-			var old = {x: this.x, y: this.y, w: this.w, h: this.h},
+			var old = this.pos(),
 				changed = false;
 			if(move.right) {
 				this.x += speed;
@@ -415,30 +445,28 @@ Crafty.c("twoway", {
 				changed = true;
 			}
 			if(move.up) {
-				this.y -= speed;
+				this.y -= speed * 2;
+				this._falling = true;
 				changed = true;
 			}
 			
 			if(changed) this.trigger("change", old);
 		}).bind("keydown", function(e) {
-			if(e.keyCode === Crafty.keys.RA) {
+			if(e.keyCode === Crafty.keys.RA || e.keyCode === Crafty.keys.D) {
 				move.right = true;
 			}
-			if(e.keyCode === Crafty.keys.LA) {
+			if(e.keyCode === Crafty.keys.LA || e.keyCode === Crafty.keys.A) {
 				move.left = true;
 			}
-			if(e.keyCode === Crafty.keys.UA) {
+			if(e.keyCode === Crafty.keys.UA || e.keyCode === Crafty.keys.W) {
 				move.up = true;
 			}
 		}).bind("keyup", function(e) {
-			if(e.keyCode === Crafty.keys.RA) {
+			if(e.keyCode === Crafty.keys.RA || e.keyCode === Crafty.keys.D) {
 				move.right = false;
 			}
-			if(e.keyCode === Crafty.keys.LA) {
+			if(e.keyCode === Crafty.keys.LA || e.keyCode === Crafty.keys.A) {
 				move.left = false;
-			}
-			if(e.keyCode === Crafty.keys.UA) {
-				move.up = false;
 			}
 		});
 		
