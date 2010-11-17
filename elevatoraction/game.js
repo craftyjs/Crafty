@@ -14,7 +14,7 @@ $(document).ready(function() {
 	}).canvas(document.getElementById("canvas"));
 	
 	//Create the player
-	var player = Crafty.e("2D, player, canvas, gravity, controls, twoway, collision");
+	var player = Crafty.e("2D, door, canvas, gravity, controls, twoway, collision");
 	Crafty(player).attr({"y":1, z: 30}).twoway(3).collision("floor", function(e) {
 		this.stopFalling(e);
 	});

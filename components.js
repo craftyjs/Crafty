@@ -62,9 +62,10 @@ Crafty.c("gravity", {
 		if(!this.has("2D")) this.addComponent("2D");
 		this.bind("enterframe", function() {
 			if(this._falling) {
-				this.trigger("change");
+				var old = this.pos();
 				this._gy += this._gravity * 2;
 				this.y += this._gy;
+				this.trigger("change",old);
 			} else {
 				this._gy = 0;
 			}
@@ -375,7 +376,7 @@ Crafty.c("fourway", {
 		var move = this.__move;
 		
 		this.bind("enterframe", function() {
-			var old = {x: this.x, y: this.y, w: this.w, h: this.h},
+			var old = this.pos(),
 				changed = false;
 			if(move.right) {
 				this.x += speed;
