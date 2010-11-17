@@ -3,7 +3,7 @@
 * Crafty JS
 */
 $(document).ready(function() {
-	Crafty.init(); //start the game
+	Crafty.init(20); //start the game
 	$("#canvas").attr({width: $(window).width(), height: $(window).height()}); //set the canvas to fullscreen
 	
 	//Initialize the sprite
@@ -15,7 +15,7 @@ $(document).ready(function() {
 	
 	//Create the player
 	var player = Crafty.e("2D, door, canvas, gravity, controls, twoway, collision");
-	Crafty(player).attr({"y":1, z: 30}).twoway(3).collision("floor", function(e) {
+	Crafty(player).attr({"y":1, z: 30}).twoway(3,10).collision("floor", function(e) {
 		this.stopFalling(e);
 	});
 	

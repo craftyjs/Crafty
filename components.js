@@ -339,10 +339,10 @@ var DrawBuffer = {
 				var todraw = layer[j];
 				//only draw visible area
 				if(todraw[0] !== obj[0]) {
-					var x = (e.x - todraw.x < 0) ? 0 : (e.x - todraw.x),
-						y = (e.y - todraw.y < 0) ? 0 : (e.y - todraw.y),
-						w = Math.min(todraw.w - x, e.w, e.w - (todraw.x - Math.max(obj.x, e.x))),
-						h = Math.min(todraw.h - y, e.h, e.h - (todraw.y - Math.max(obj.y, e.y)));
+					var x = (Math.min(e.x,obj.x) - todraw.x < 0) ? 0 : (Math.min(e.x,obj.x) - todraw.x),
+						y = (Math.min(e.y, obj.y) - todraw.y < 0) ? 0 : (Math.min(e.y, obj.y) - todraw.y),
+						w = Math.min(todraw.w - x, e.w, e.w - (todraw.x - Math.max(e.x,obj.x))),
+						h = Math.min(todraw.h - y, e.h, e.h - (todraw.y - Math.max(e.y,obj.y)));//Math.max(obj.y, e.y)));
 					
 					//console.log(todraw[0],x,y,w,h);
 					layer[j].draw(x,y,w,h);
@@ -354,7 +354,9 @@ var DrawBuffer = {
 };
 
 Crafty.c("controls", {
-		
+	__move: {left: false, right: false, up: false, down: false},	
+	_speed: 3,
+	
 	init: function() {
 		
 		Crafty.addEvent(this, "keydown", function(e) {
@@ -370,28 +372,29 @@ Crafty.c("controls", {
 });
 
 Crafty.c("fourway", {
-	__move: {left: false, right: false, up: false, down: false},
+	
 	
 	fourway: function(speed) {
+		if(speed) this._speed = speed;
 		var move = this.__move;
 		
 		this.bind("enterframe", function() {
 			var old = this.pos(),
 				changed = false;
 			if(move.right) {
-				this.x += speed;
+				this.x += this._speed;
 				changed = true;
 			}
 			if(move.left) {
-				this.x -= speed;
+				this.x -= this._speed;
 				changed = true;
 			}
 			if(move.up) {
-				this.y -= speed;
+				this.y -= this._speed;
 				changed = true;
 			}
 			if(move.down) {
-				this.y += speed;
+				this.y += this._speed;
 				changed = true;
 			}
 			
@@ -431,22 +434,25 @@ Crafty.c("fourway", {
 Crafty.c("twoway", {
 	__move: {left: false, right: false, up: false, falling: false},
 	
-	twoway: function(speed) {
+	twoway: function(speed,jump) {
+		if(speed) this._speed = speed;
+		jump = jump || this._speed * 2;
+		
 		var move = this.__move;
 		
 		this.bind("enterframe", function() {
 			var old = this.pos(),
 				changed = false;
 			if(move.right) {
-				this.x += speed;
+				this.x += this._speed;
 				changed = true;
 			}
 			if(move.left) {
-				this.x -= speed;
+				this.x -= this._speed;
 				changed = true;
 			}
 			if(move.up) {
-				this.y -= speed * 2;
+				this.y -= jump;
 				this._falling = true;
 				changed = true;
 			}
