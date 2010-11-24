@@ -2,13 +2,11 @@
 Native Components for Crafty Library
 
 TODO:
-	- Collision
 	- Inventory
 	- Items
 	- Lighting
 	- Particles
 	- TerrainGen
-	- Map
 	- Animation
 	- Sound
 	- Parralex Scrolling
@@ -288,6 +286,8 @@ Crafty.c("collision", {
 				}
 			});
 		});
+		
+		return this;
 	}
 });
 
@@ -339,10 +339,10 @@ var DrawBuffer = {
 				var todraw = layer[j];
 				//only draw visible area
 				if(todraw[0] !== obj[0]) {
-					var x = (Math.min(e.x,obj.x) - todraw.x < 0) ? 0 : (Math.min(e.x,obj.x) - todraw.x),
-						y = (Math.min(e.y, obj.y) - todraw.y < 0) ? 0 : (Math.min(e.y, obj.y) - todraw.y),
+					var x = (Math.min(e.x,obj.x) - todraw.x <= 0) ? 0 : (Math.min(e.x,obj.x) - todraw.x),
+						y = Math.ceil((Math.min(e.y, obj.y) - todraw.y < 0) ? 0 : (Math.min(e.y, obj.y) - todraw.y)),
 						w = Math.min(todraw.w - x, e.w, e.w - (todraw.x - Math.max(e.x,obj.x))),
-						h = Math.min(todraw.h - y, e.h, e.h - (todraw.y - Math.max(e.y,obj.y)));//Math.max(obj.y, e.y)));
+						h = Math.ceil(Math.min(todraw.h - y, e.h, e.h - (todraw.y - Math.max(e.y,obj.y))));
 					
 					//console.log(todraw[0],x,y,w,h);
 					layer[j].draw(x,y,w,h);
@@ -481,7 +481,73 @@ Crafty.c("twoway", {
 	}
 });
 
+/**
+* Animation component
+*
+* Crafty(player).animate("walk_left", 0, 1, 4, 100);
+* Crafty(player).animate("walk_left");
+* Crafty(player).stop();
+*/
+Crafty.c("animate", {
+	_reels: {},
+	_interval: null,
+	_current: null,
 
+	animate: function(id, fromx, y, tox, duration) {
+		//play a reel
+		if(arguments.length === 2 && typeof fromx === "number") {
+			//make sure not currently animating
+			clearInterval(this._interval);
+			this._current = id;
+			
+			duration = fromx;
+			var reel = this._reels[id],
+				self = this,
+				frameTime = Math.ceil(duration / reel.length),
+				frame = 0;
+				
+			//create recursive timeout
+			this._interval = setInterval(function() {
+				var pos = reel[frame++];
+				
+				self.__coord[0] = pos[0];
+				self.__coord[1] = pos[1];
+				
+				if(frame === reel.length) {
+					frame = 0;
+					self.stop();
+					return;
+				}
+			}, frameTime);
+			
+			return this;
+		}
+		if(typeof fromx === "number") {
+			var frames = tox + 1 - fromx, i = fromx,
+				reel = [],
+				tile = Crafty.tile;
+			for(;i<=tox;i++) {
+				reel.push([i * tile, y * tile]);
+			}
+			this._reels[id] = reel;
+		} else if(typeof fromx === "array") {
+			this._reels[id] = fromx;
+		}
+		
+		return this;
+	},
+	
+	stop: function() {
+		clearInterval(this._interval);
+		this._current = null;
+		this._interval = null;
+	},
+	
+	isPlaying: function(id) {
+		if(!id) return !!this._interval;
+		return this._current === id; 
+	}
+});
 
 var tree = new Crafty.RTree();
 
