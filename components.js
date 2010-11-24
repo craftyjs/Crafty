@@ -1,16 +1,5 @@
 /*************************************
-Native Components for Crafty Library
-
-TODO:
-	- Inventory
-	- Items
-	- Lighting
-	- Particles
-	- TerrainGen
-	- Animation
-	- Sound
-	- Parralex Scrolling
-	
+Native Components for Crafty Library	
 *************************************/
 (function(Crafty) {
 
@@ -28,8 +17,14 @@ Crafty.c("2D", {
 	/**
 	* Does a rect intersect this
 	*/
-	intersect: function(rect) {
-		//rect must have x,y,w,h
+	intersect: function(x,y,w,h) {
+		var rect;
+		if(typeof x === "object") {
+			rect = x;
+		} else {
+			rect = {x: x, y: y, w: w, h: h};
+		}
+		
 		return this.x < rect.x + rect.w && this.x + this.w > rect.x &&
 			   this.y < rect.y + rect.h && this.h + this.y > rect.y;
 	},
@@ -55,9 +50,15 @@ Crafty.c("gravity", {
 	_gravity: 0.2,
 	_gy: 0,
 	_falling: true,
+	_anti: null,
 	
 	init: function() {
-		if(!this.has("2D")) this.addComponent("2D");
+		if(!this.has("2D")) this.addComponent("2D");		
+	},
+	
+	gravity: function(comp) {
+		this._anti = comp;
+		
 		this.bind("enterframe", function() {
 			if(this._falling) {
 				var old = this.pos();
@@ -67,15 +68,29 @@ Crafty.c("gravity", {
 			} else {
 				this._gy = 0;
 			}
+			
+			var obj = this, hit = false;
+			Crafty(comp).each(function() {
+				if(this.intersect(obj)) {
+					hit = this;
+				}
+			});
+			if(hit) {
+				this.stopFalling(hit);
+			} else {
+				this._falling = true;
+			}
 		});
+		return this;
 	},
 	
 	stopFalling: function(e) {
 		var old = this.pos(); //snapshot of old position
-		if(e) this.y = e.y - this.h; //move object
+		if(e) this.y = e.y - this.h ; //move object
+		this._gy = 0;
 		this._falling = false;
 		if(this.__move && this.__move.up) this.__move.up = false;
-		this.trigger("change",old);
+		this.trigger("change", old);
 	}
 });
 
@@ -131,8 +146,17 @@ Crafty.extend({
 			Crafty.c(pos, {
 				__image: url,
 				__coord: [x,y,w,h],
+				
 				init: function() {
 					this.addComponent("sprite");
+					this.img = new Image();
+					this.img.src = this.__image;
+					//draw when ready
+					Crafty.addEvent(this, this.img, 'load', function() {
+						DrawBuffer.add(this); //send to buffer to keep Z order
+					});
+					this.w = this.__coord[2];
+					this.h = this.__coord[3];
 				},
 				
 				sprite: function(x,y,w,h) {
@@ -187,16 +211,6 @@ Crafty.c("canvas", {
 	entry: null,
 	
 	init: function() {
-		if(this.has("sprite")) {
-			this.img = new Image();
-			this.img.src = this.__image;
-			//draw when ready
-			Crafty.addEvent(this, this.img, 'load', function() {
-				DrawBuffer.add(this); //send to buffer to keep Z order
-			});
-			this.w = this.__coord[2];
-			this.h = this.__coord[3];
-		}
 		//add the object to the RTree
 		//this.entry = tree.put(this);
 		
@@ -254,6 +268,8 @@ Crafty.c("canvas", {
 		
 		if(this.has("sprite")) {
 			//draw the image on the canvas element
+			if(!this.img) return;
+			//console.log(this.img);
 			Crafty.context.drawImage(this.img, //image element
 									 co.x, //x position on sprite
 									 co.y, //y position on sprite
@@ -265,9 +281,35 @@ Crafty.c("canvas", {
 									 pos.h //height on canvas
 			);
 		} else if(this.has("color")) {
-			console.log("DRAW ME",pos.x,pos.y,pos.w,pos.h);
 			Crafty.context.fillStyle = this.color;
 			Crafty.context.fillRect(pos.x,pos.y,pos.w,pos.h);
+		} else if(this.has("image")) {
+			if(!this.img) return;
+			var i = 0, l, j = 0, k;
+			switch(this._repeat) {
+				case "repeat-x":
+					if(this.img.width === 0) return;
+					for(l = Math.floor(this.w / this.img.width); i < l; i++) {
+						Crafty.context.drawImage(this.img, this.x + this.img.width * i, this.y);
+					}
+					break;
+				case "repeat-y":
+					if(this.img.height === 0) return;
+					for(l = Math.floor(this.h / this.img.height); i <= l; i++) {
+						Crafty.context.drawImage(this.img, this.x, this.y + this.img.height * i);
+					}
+					break;
+				default:
+					if(this.img.width === 0 || this.img.height === 0) return;
+					for(l = Math.floor(this.w / this.img.width); i < l; i++) {
+						Crafty.context.drawImage(this.img, this.x + this.img.width * i, this.y);
+						for(j = 0, k = Math.floor(this.h / this.img.height); j <= k; j++) {
+							Crafty.context.drawImage(this.img, this.x + this.img.width * i, this.y + this.img.height * j);
+						}
+					}
+					
+					break;
+			}
 		}
 	}
 });
@@ -292,7 +334,6 @@ Crafty.c("collision", {
 			//for each collidable entity
 			Crafty(comp).each(function() {
 				if(this.intersect(obj)) { //check intersection
-					//console.log("HIT");
 					fn.call(obj,this);
 				}
 			});
@@ -349,7 +390,7 @@ var DrawBuffer = {
 			for(j=0;j<zlength;j++) {
 				var todraw = layer[j];
 				//only draw visible area
-				if(todraw[0] !== obj[0]) {
+				if(todraw[0] !== obj[0]) { //don't redraw partial self
 					var x = (Math.min(e.x,obj.x) - todraw.x <= 0) ? 0 : (Math.min(e.x,obj.x) - todraw.x),
 						y = Math.ceil((Math.min(e.y, obj.y) - todraw.y < 0) ? 0 : (Math.min(e.y, obj.y) - todraw.y)),
 						w = Math.min(todraw.w - x, e.w - (todraw.x - Math.max(e.x,obj.x))),
@@ -357,7 +398,7 @@ var DrawBuffer = {
 					
 					layer[j].draw(x,y,w,h);
 					
-				} else layer[j].draw();
+				} else layer[j].draw(); //redraw self
 			}
 		}
 	}	
@@ -462,6 +503,7 @@ Crafty.c("twoway", {
 				changed = true;
 			}
 			if(move.up) {
+				console.log("JUMP");
 				this.y -= jump;
 				this._falling = true;
 				changed = true;
@@ -476,6 +518,7 @@ Crafty.c("twoway", {
 				move.left = true;
 			}
 			if(e.keyCode === Crafty.keys.UA || e.keyCode === Crafty.keys.W) {
+				console.log("JUMP");
 				move.up = true;
 			}
 		}).bind("keyup", function(e) {
@@ -564,6 +607,22 @@ Crafty.c("color", {
 	
 	color: function(color) {
 		this.color = color;
+		return this;
+	}
+});
+
+Crafty.c("image", {
+	_repeat: "",
+	
+	image: function(url, repeat) {
+		this.img = new Image();
+		this.img.src = url;
+		this._repeat = repeat || "repeat";
+		//draw when ready
+		Crafty.addEvent(this, this.img, 'load', function() {
+			DrawBuffer.add(this); //send to buffer to keep Z order
+		});
+		
 		return this;
 	}
 });
