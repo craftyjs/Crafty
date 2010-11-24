@@ -56,26 +56,30 @@ Crafty.c("gravity", {
 		
 		this.bind("enterframe", function() {
 			if(this._falling) {
+				//if falling, move the players Y
 				var old = this.pos();
 				this._gy += this._gravity * 2;
 				this.y += this._gy;
 				this.trigger("change",old);
 			} else {
-				this._gy = 0;
+				this._gy = 0; //reset change in y
 			}
 			
 			var obj = this, hit = false;
 			Crafty(comp).each(function() {
-				if(this.intersect(obj)) {
+				//check for an intersection directly below the player
+				if(this.intersect(obj.x,obj.y+1,obj.w,obj.h)) {
 					hit = this;
 				}
 			});
-			if(hit) {
-				this.stopFalling(hit);
+			
+			if(hit) { //stop falling if found
+				if(this._falling) this.stopFalling(hit);
 			} else {
-				this._falling = true;
+				this._falling = true; //keep falling otherwise
 			}
 		});
+		
 		return this;
 	},
 	
