@@ -131,6 +131,10 @@ Crafty.extend({
 			Crafty.c(pos, {
 				__image: url,
 				__coord: [x,y,w,h],
+				init: function() {
+					this.addComponent("sprite");
+				},
+				
 				sprite: function(x,y,w,h) {
 					this.__coord = [x*tile,y*tile,w*tile || tile,h*tile || tile];
 				}
@@ -183,17 +187,18 @@ Crafty.c("canvas", {
 	entry: null,
 	
 	init: function() {
-		this.img = new Image();
-		this.img.src = this.__image;
-		//draw when ready
-		Crafty.addEvent(this, this.img, 'load', function() {
-			DrawBuffer.add(this); //send to buffer to keep Z order
-		});
-		this.w = this.__coord[2];
-		this.h = this.__coord[3];
-		
+		if(this.has("sprite")) {
+			this.img = new Image();
+			this.img.src = this.__image;
+			//draw when ready
+			Crafty.addEvent(this, this.img, 'load', function() {
+				DrawBuffer.add(this); //send to buffer to keep Z order
+			});
+			this.w = this.__coord[2];
+			this.h = this.__coord[3];
+		}
 		//add the object to the RTree
-		this.entry = tree.put(this);
+		//this.entry = tree.put(this);
 		
 		//on change, redraw
 		this.bind("change", function(e) {
@@ -204,7 +209,7 @@ Crafty.c("canvas", {
 			
 			//update position in RTree
 			var pos = this.pos();
-			this.entry.update(pos.x,pos.y,pos.w,pos.h);
+			//this.entry.update(pos.x,pos.y,pos.w,pos.h);
 			
 			//add to the DrawBuffer
 			DrawBuffer.add(this,e);
@@ -222,7 +227,7 @@ Crafty.c("canvas", {
 	
 	draw: function(x,y,w,h) {
 		var co = {},
-			coord = this.__coord,
+			coord = this.__coord || this.pos(),
 			pos = this.pos();
 		
 		//if offset
@@ -246,18 +251,24 @@ Crafty.c("canvas", {
 			co.h = h
 			pos.h = h;
 		}
-		//console.log(co,pos);
-		//draw the image on the canvas element
-		Crafty.context.drawImage(this.img, //image element
-								 co.x, //x position on sprite
-								 co.y, //y position on sprite
-								 co.w, //width on sprite
-								 co.h, //height on sprite
-								 pos.x, //x position on canvas
-								 pos.y, //y position on canvas
-								 pos.w, //width on canvas
-								 pos.h //height on canvas
-		);
+		
+		if(this.has("sprite")) {
+			//draw the image on the canvas element
+			Crafty.context.drawImage(this.img, //image element
+									 co.x, //x position on sprite
+									 co.y, //y position on sprite
+									 co.w, //width on sprite
+									 co.h, //height on sprite
+									 pos.x, //x position on canvas
+									 pos.y, //y position on canvas
+									 pos.w, //width on canvas
+									 pos.h //height on canvas
+			);
+		} else if(this.has("color")) {
+			console.log("DRAW ME",pos.x,pos.y,pos.w,pos.h);
+			Crafty.context.fillStyle = this.color;
+			Crafty.context.fillRect(pos.x,pos.y,pos.w,pos.h);
+		}
 	}
 });
 
@@ -341,10 +352,9 @@ var DrawBuffer = {
 				if(todraw[0] !== obj[0]) {
 					var x = (Math.min(e.x,obj.x) - todraw.x <= 0) ? 0 : (Math.min(e.x,obj.x) - todraw.x),
 						y = Math.ceil((Math.min(e.y, obj.y) - todraw.y < 0) ? 0 : (Math.min(e.y, obj.y) - todraw.y)),
-						w = Math.min(todraw.w - x, e.w, e.w - (todraw.x - Math.max(e.x,obj.x))),
-						h = Math.ceil(Math.min(todraw.h - y, e.h, e.h - (todraw.y - Math.max(e.y,obj.y))));
+						w = Math.min(todraw.w - x, e.w - (todraw.x - Math.max(e.x,obj.x))),
+						h = Math.ceil(Math.min(todraw.h - y, e.h - (todraw.y - Math.max(e.y,obj.y))));
 					
-					//console.log(todraw[0],x,y,w,h);
 					layer[j].draw(x,y,w,h);
 					
 				} else layer[j].draw();
@@ -546,6 +556,15 @@ Crafty.c("animate", {
 	isPlaying: function(id) {
 		if(!id) return !!this._interval;
 		return this._current === id; 
+	}
+});
+
+Crafty.c("color", {
+	color: "",
+	
+	color: function(color) {
+		this.color = color;
+		return this;
 	}
 });
 

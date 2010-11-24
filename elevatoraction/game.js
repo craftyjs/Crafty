@@ -3,7 +3,7 @@
 * Crafty JS
 */
 $(document).ready(function() {
-	Crafty.init(50); //start the game
+	Crafty.init(10); //start the game
 	$("#canvas").attr({width: $(window).width(), height: $(window).height()}); //set the canvas to fullscreen
 	
 	//Initialize the sprite
@@ -19,12 +19,16 @@ $(document).ready(function() {
 		this.stopFalling(e);
 	}).bind("keydown", function(e) {
 		if(e.keyCode === Crafty.keys.D || e.keyCode === Crafty.keys.RA) {
+			
 			if(!this.isPlaying("walk_right")) {
+				this.sprite(1,2,1,2);
 				this.stop();
 				this.animate("walk_right", 500);
 			}
 		} else if(e.keyCode === Crafty.keys.A || e.keyCode === Crafty.keys.LA) {
+			
 			if(!this.isPlaying("walk_left")) {
+				this.sprite(1,0,1,2);
 				this.stop();
 				this.animate("walk_left", 500);
 			}
@@ -41,18 +45,11 @@ $(document).ready(function() {
 		var red = Crafty.e("2D, reddoor, canvas");
 		Crafty(red).attr({x: 450, y: i*80, z: i});
 	}
-	/*
-	var red = Crafty.e("2D, reddoor, canvas");
-	Crafty(red).attr({x: 260, y: 90, z: 35});
-	
-	var red = Crafty.e("2D, reddoor, canvas");
-	Crafty(red).attr({x: 230, y: 90, z: 35});
-	
-	var red = Crafty.e("2D, reddoor, canvas");
-	Crafty(red).attr({x: 240, y: 90, z: 36});
-	*/
 	
 	var floor = Crafty.e("2D, floor");
 	Crafty(floor).attr({y: 224, w: Crafty.window.width, h: 50});
+	
+	var color = Crafty.e("2D, canvas, color");
+	Crafty(color).color("rgb(200,0,0)").attr({x: 50, y: 100, w: 50, h: 50});
 	
 });
