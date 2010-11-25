@@ -242,7 +242,7 @@ Crafty.extend({
 			craft.addComponent.apply(craft, arguments);
 		}
 		
-		return id;
+		return craft;
 	},
 	
 	c: function(id, fn) {
