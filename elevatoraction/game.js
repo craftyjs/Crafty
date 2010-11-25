@@ -77,4 +77,23 @@ $(document).ready(function() {
 	
 	var floor = Crafty.e("2D, floor, DOM, image");
 	floor.attr({y: 224, w: Crafty.window.width / 2, h: 50, z:50}).image("images/girder.png", "repeat-x");
+	
+	Crafty.c("shaker", {
+		init: function() {
+			var dirs = ['n', 's', 'e', 'w', 'nw', 'ne', 'sw', 'se'];
+					
+			this.bind("enterframe", function() {
+				var dir = dirs[Crafty.randRange(0,7)],
+					by = Crafty.randRange(1,5);
+				Crafty("2D").each(function() {
+					this.move(dir, by);
+					this.delay(function() {
+						this.move(dir, by * -1)
+					}, 200);
+				});
+			});
+		}
+	});
+	Crafty.e("shaker");
+	
 });

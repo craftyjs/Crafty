@@ -157,6 +157,15 @@ Crafty.fn = Crafty.prototype = {
 		return slice.call(this, 0);
 	},
 	
+	delay: function(fn, duration) {
+		this.each(function() {
+			var self = this;
+			setTimeout(function() {
+				fn.call(self);
+			}, duration);
+		});
+	},
+	
 	bind: function(event, fn) {
 		this.each(function() {
 			//init event collection
