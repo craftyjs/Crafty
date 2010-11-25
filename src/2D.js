@@ -24,6 +24,15 @@ Crafty.c("2D", {
 			   this.y < rect.y + rect.h && this.h + this.y > rect.y;
 	},
 	
+	pos: function() {
+		return {
+			x: Math.ceil(this.x),
+			y: Math.ceil(this.y),
+			w: Math.ceil(this.w),
+			h: Math.ceil(this.h)
+		};
+	},
+	
 	/**
 	* Is object at point
 	*/

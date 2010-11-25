@@ -14,7 +14,7 @@ $(document).ready(function() {
 	}).canvas(document.getElementById("canvas"));
 	
 	//Create the player
-	var player = Crafty.e("2D, player, canvas, gravity, controls, twoway, collision, animate");
+	var player = Crafty.e("2D, player, DOM, gravity, controls, twoway, collision, animate");
 	player.attr({"y":1, z: 30}).gravity("floor").twoway(3)
 	.bind("change", function() {
 		if(this.__move.right && !this.isPlaying("walk_right")) {
@@ -34,14 +34,15 @@ $(document).ready(function() {
 	
 	//Generate some doors
 	for(var i = 1; i <= 10; i++) {
-		var door = Crafty.e("2D, door, canvas");
+		var door = Crafty.e("2D, door, DOM");
 		door.attr({x: 250, y: i*80, z: i});
 		
-		var red = Crafty.e("2D, reddoor, canvas");
+		var red = Crafty.e("2D, reddoor, DOM");
 		red.attr({x: 450, y: i*80, z: i});
 	}
 	
-	var floor = Crafty.e("2D, floor, canvas, image");
+	var floor = Crafty.e("2D, floor, DOM, image");
 	floor.attr({y: 224, w: Crafty.window.width / 2, h: 50, z:50}).image("images/girder.png", "repeat-x");
 	
+	Crafty.e("2D, canvas, color").attr({x: 50, y: 150, w: 50, h: 50, z:50}).color("red");
 });
