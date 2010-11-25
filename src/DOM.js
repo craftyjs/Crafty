@@ -7,6 +7,7 @@ Crafty.c("DOM", {
 		this._element.style.position = "absolute";
 		
 		this.bind("change", this.draw);
+		this.bind("remove", this.undraw);
 	},
 	
 	DOM: function(elem) {
@@ -31,5 +32,9 @@ Crafty.c("DOM", {
 		} else if(this.has("color")) {
 			style.background = this.color;
 		}
+	},
+	
+	undraw: function() {
+		document.body.removeChild(this._element);
 	}
 });

@@ -13,9 +13,43 @@ $(document).ready(function() {
 		reddoor: [0,0,1,2]
 	}).canvas(document.getElementById("canvas"));
 	
+	//create the bullet component
+	Crafty.c("bullet", {
+		bullet: function(dir) {
+			this.bind("enterframe", function() {
+				this.move(dir, 15);
+				if(this.x > Crafty.window.width || this.x < 0) 
+					this.destroy();
+			});
+			return this;
+		}
+	});
+	
 	//Create the player
-	var player = Crafty.e("2D, player, DOM, gravity, controls, twoway, collision, animate");
-	player.attr({"y":1, z: 30}).gravity("floor").twoway(3)
+	var player = Crafty.e("2D, player, canvas, gravity, controls, twoway, collision, animate");
+	player.attr({"y":1, z: 30, facingRight: true}).gravity("floor").twoway(3)
+	.bind("keydown", function(e) {
+		if(e.keyCode === Crafty.keys.SP) {
+			this.stop();
+			
+			var bx, dir;
+			if(this.facingRight) {
+				this.sprite(5,2,1,2);
+				bx = this.x + 32;
+				dir = 'e';
+			} else {
+				this.sprite(5,0,1,2);
+				bx = this.x - 5;
+				dir = 'w';
+			}
+			
+			Crafty.e("2D, DOM, color, bullet").attr({x: bx, y: this.y + 31, w: 5, h: 2, z:50}).color("rgb(250,0,0)").bullet(dir);
+			var old = this.pos();
+			this.trigger("change",old);
+		}
+		if(e.keyCode === Crafty.keys.D) this.facingRight = true;
+		if(e.keyCode === Crafty.keys.A) this.facingRight = false;
+	})
 	.bind("change", function() {
 		if(this.__move.right && !this.isPlaying("walk_right")) {
 			this.sprite(1,2,1,2);
@@ -34,15 +68,13 @@ $(document).ready(function() {
 	
 	//Generate some doors
 	for(var i = 1; i <= 10; i++) {
-		var door = Crafty.e("2D, door, DOM");
+		var door = Crafty.e("2D, door, canvas");
 		door.attr({x: 250, y: i*80, z: i});
 		
-		var red = Crafty.e("2D, reddoor, DOM");
+		var red = Crafty.e("2D, reddoor, canvas");
 		red.attr({x: 450, y: i*80, z: i});
 	}
 	
 	var floor = Crafty.e("2D, floor, DOM, image");
 	floor.attr({y: 224, w: Crafty.window.width / 2, h: 50, z:50}).image("images/girder.png", "repeat-x");
-	
-	Crafty.e("2D, canvas, color").attr({x: 50, y: 150, w: 50, h: 50, z:50}).color("red");
 });

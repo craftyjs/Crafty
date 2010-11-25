@@ -6,7 +6,7 @@ var Crafty = function(selector) {
 	
 	GUID = 1, //GUID for entity IDs
 	FPS = 50,
-	TILE = 16,
+
 	components = {}, //map of components and their functions
 	entities = {}, //map of entities and their data
 	handlers = {}, //global event handlers
@@ -169,6 +169,13 @@ Crafty.fn = Crafty.prototype = {
 		return this;
 	},
 	
+	unbind: function(event) {
+		this.each(function() {
+			var hdl = handlers[event];
+			delete hdl[this[0]];
+		});
+	},
+	
 	trigger: function(event, data) {
 		this.each(function() {
 			//find the handlers assigned to the event and entity
@@ -193,6 +200,10 @@ Crafty.fn = Crafty.prototype = {
 	destroy: function() {
 		//remove all event handlers, delete from entities
 		this.each(function() {
+			this.trigger("remove");
+			for(var e in handlers) {
+				this.unbind(e);
+			}
 			delete entities[this[0]];
 		});
 	}
@@ -217,9 +228,8 @@ Crafty.extend = Crafty.fn.extend = function(obj) {
 };
 
 Crafty.extend({
-	init: function(f,t) {
+	init: function(f) {
 		if(f) FPS = f;
-		if(t) TILE = t;
 		
 		Crafty.trigger("onload");
 		
@@ -249,10 +259,6 @@ Crafty.extend({
 		components[id] = fn;
 	},
 	
-	removeLayer: function(i) {
-		delete layers[i];
-	},
-	
 	trigger: function(event) {
 		var hdl = handlers[event], h, i, l;
 		for(h in hdl) {
@@ -269,7 +275,6 @@ Crafty.extend({
 			console.log("Entities: ", entities);
 			console.log("Components: ", components);
 			console.log("Handlers: ", handlers);
-			console.log("Layers: ", layers);
 		}
 	}
 });
@@ -291,4 +296,4 @@ function UID() {
 window.Crafty = Crafty;
 })(window);
 //DELETE THIS
-if(!console) window.console = {log: function() {}};
+if(!('console' in window)) window.console = {log: function() {}};
