@@ -3,14 +3,15 @@
 * Crafty JS
 */
 $(document).ready(function() {
-	Crafty.init(50); //start the game
+	Crafty.init(5); //start the game
 	$("#canvas").attr({width: $(window).width(), height: $(window).height()}); //set the canvas to fullscreen
 	
 	//Initialize the sprite
 	Crafty.sprite(32, "images/sprite.png", {
 		player: [1,2,1,2],
 		door: [0,2,1,2],
-		reddoor: [0,0,1,2]
+		reddoor: [0,0,1,2],
+		light: [6,0,1,1]
 	}).canvas(document.getElementById("canvas"));
 	
 	//create the bullet component
@@ -75,8 +76,60 @@ $(document).ready(function() {
 		red.attr({x: 450, y: i*80, z: i});
 	}
 	
-	var floor = Crafty.e("2D, floor, DOM, image");
-	floor.attr({y: 224, w: Crafty.window.width / 2, h: 50, z:50}).image("images/girder.png", "repeat-x");
+	
+	
+	Crafty.c("barrier", {
+		west: null,
+		east: null,
+		north: null,
+		south: null,
+		obj: null,
+		
+		barrier: function(x,y,w,h, obj) {
+			if(!this.has("2D")) this.addComponent("2D");
+			this.attr({x: x, y: y, w: w, h: h});
+			this.obj = obj;
+			var self = this;
+			
+			this.west = Crafty.e("2D, hit, collision, canvas, color").attr({x: x, y: y, w: 1, h:h}).color("rgb(250,0,0)").collision(obj, function() {
+				self.collide('w');
+			});
+			
+			this.east = Crafty.e("2D, hit, collision").attr({x: x + w - 1, y: y, w: 1, h:h}).collision(obj, function() {
+				self.collide('e');
+			});
+			
+			this.north = Crafty.e("2D, hit, DOM, color").attr({x: x, y: y, w: w, h:1}).color("rgb(250,0,0)");
+			this.south = Crafty.e("2D, hit, collision").attr({x: x, y: y + h - 1, w: w, h: 1}).collision(obj, function() {
+				self.collide('s');
+			});
+			
+			this.bind("change", function() {
+				this.north.attr({x: this.x, y: this.y, w: this.w, h:1});
+				this.south.attr({x: this.x, y: this.y + this.h - 1, w: this.w, h: 1});
+				this.east.attr({x: this.x + this.w - 1, y: this.y, w: 1, h: this.h});
+				this.west.attr({x: this.x, y: this.y, w: 1, h: this.h});
+			});
+			
+			return this;
+		},
+		
+		collide: function(dir) {
+			this.obj.move(dir, this.obj._speed);
+		}
+	});
+	
+	var barrier = Crafty.e("barrier, DOM, image").barrier(0,544,Crafty.window.width / 2,20, player).image("images/girder.png", "repeat-x");
+	barrier.north.addComponent("floor");
+	
+	var floor1 = Crafty.e("barrier, DOM, image").barrier(0, 224, Crafty.window.width / 2, 20, player).image("images/girder.png", "repeat-x");
+	floor1.north.addComponent("floor");
+	
+	var floor3 = Crafty.e("barrier, DOM, image").barrier(Crafty.window.width / 2 + 50, 224, Crafty.window.width / 2, 20, player).image("images/girder.png", "repeat-x");
+	floor3.north.addComponent("floor");
+	
+	var floor4 = Crafty.e("barrier, DOM, image").barrier(Crafty.window.width / 2 + 50, 544, Crafty.window.width / 2, 20, player).image("images/girder.png", "repeat-x");
+	floor4.north.addComponent("floor");
 	
 	Crafty.c("shaker", {
 		shaker: function(duration) {
@@ -99,6 +152,48 @@ $(document).ready(function() {
 			});
 		}
 	});
-	Crafty.e("shaker").shaker(50);
+	//Crafty.e("shaker").shaker(50);
 	
+	Crafty.c("elevator", {
+		dir: 's',
+		speed: 1,
+		
+		init: function() {
+			this.bind("enterframe", function() {
+				if(this.y <= 0)
+					this.dir = 's';
+				if(this.y >= Crafty.window.height - this.h)
+					this.dir = 'n';
+				 
+				this.move(this.dir, this.speed);
+				top.move(this.dir, this.speed);
+				bottom.move(this.dir, this.speed);
+				rope.move(this.dir, this.speed);
+				rope2.move(this.dir, this.speed);
+				
+				if(this.intersect(player)) {
+					player.move(this.dir, this.speed);
+				}
+			});
+		}
+	});
+	var elevator = Crafty.e("2D, canvas, color, elevator").color("rgb(200,200,200)").attr({x: Crafty.window.width / 2, y:0, w: 50, h: 80});
+	var top = Crafty.e("2D, barrier, canvas, color").barrier(elevator.x, elevator.y, elevator.w, 5, player).color("rgb(100,100,100)").attr("z",1);
+	top.north.addComponent("floor");
+	console.log(top);
+	
+	//var top = Crafty.e("2D, canvas, floor, color").color("rgb(100,100,100)").attr({x: elevator.x, y: elevator.y, w: elevator.w, h: 5});
+	
+	var bottom = Crafty.e("2D, canvas, floor, color").color("rgb(100,100,100)").attr({x: elevator.x, y: elevator.y + elevator.h - 5, w: elevator.w, h: 5, z:1});
+	var rope = Crafty.e("2D, canvas, color").color("rgb(30,30,30)").attr({x: elevator.x + 23, y: Crafty.window.height * -1, h: Crafty.window.height, w: 2});
+	var rope2 = Crafty.e("2D, canvas, color").color("rgb(60,60,60)").attr({x: elevator.x + 28, y: Crafty.window.height * -1, h: Crafty.window.height, w: 1});
+	
+	for(var k=1; k <= 10; k++) {
+		var light = Crafty.e("2D, canvas, light, collision").attr({x: 100 * k, y: 244}).collision("bullet", function(e) {
+			this.addComponent("gravity").gravity("floor").bind("hit", function() {
+				this.destroy();
+			});
+			e.destroy();
+		});
+	}
 });

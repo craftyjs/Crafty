@@ -24,6 +24,18 @@ Crafty.c("2D", {
 			   this.y < rect.y + rect.h && this.h + this.y > rect.y;
 	},
 	
+	within: function(x,y,w,h) {
+		var rect;
+		if(typeof x === "object") {
+			rect = x;
+		} else {
+			rect = {x: x, y: y, w: w, h: h};
+		}
+		
+		return rect.x >= this.x && rect.x + rect.w <= this.x + this.w &&
+			   rect.y >= this.y && rect.y + rect.h <= this.y + this.h;
+	},
+	
 	pos: function() {
 		return {
 			x: Math.ceil(this.x),
@@ -99,6 +111,7 @@ Crafty.c("gravity", {
 		this._gy = 0;
 		this._falling = false;
 		if(this.__move && this.__move.up) this.__move.up = false;
+		this.trigger("hit");
 		this.trigger("change", old);
 	}
 });
@@ -107,13 +120,19 @@ Crafty.c("collision", {
 	collision: function(comp, fn) {
 		var obj = this;
 		//on change, check for collision
-		this.bind("change", function() {
+		this.bind("enterframe", function() {
 			//for each collidable entity
-			Crafty(comp).each(function() {
-				if(this.intersect(obj)) { //check intersection
-					fn.call(obj,this);
+			if(typeof comp === "string") {
+				Crafty(comp).each(function() {
+					if(this.intersect(obj)) { //check intersection
+						fn.call(obj,this);
+					}
+				});
+			} else if(typeof comp === "object") {
+				if(comp.intersect(obj)) {
+					fn.call(obj,comp);
 				}
-			});
+			}
 		});
 		
 		return this;
