@@ -6,7 +6,8 @@ var Crafty = function(selector) {
 	
 	GUID = 1, //GUID for entity IDs
 	FPS = 50,
-
+	frame = 1,
+	
 	components = {}, //map of components and their functions
 	entities = {}, //map of entities and their data
 	handlers = {}, //global event handlers
@@ -178,11 +179,27 @@ Crafty.fn = Crafty.prototype = {
 		return this;
 	},
 	
-	unbind: function(event) {
+	unbind: function(event, fn) {
 		this.each(function() {
-			var hdl = handlers[event];
-			delete hdl[this[0]];
+			var hdl = handlers[event], i = 0, l, current;
+			//if no events, cancel
+			if(hdl[this[0]]) l = hdl[this[0]].length;
+			else return this;
+			
+			//if only one event logged or no function, delete all
+			if(l === 1 || !fn) {
+				//console.log("deleting all", fn, l, this);
+				delete hdl[this[0]];
+				return this;
+			}
+			//look for a match if the function is passed
+			for(;i<l;i++) {
+				current = hdl[this[0]];
+				if(current[i] == fn) delete current[i];
+			}
 		});
+		
+		return this;
 	},
 	
 	trigger: function(event, data) {
@@ -243,7 +260,8 @@ Crafty.extend({
 		Crafty.trigger("onload");
 		
 		interval = setInterval(function() {
-			Crafty.trigger("enterframe");
+			var e = {frame: frame++};
+			Crafty.trigger("enterframe",e);
 		}, 1000 / FPS);
 	},
 	
@@ -268,15 +286,20 @@ Crafty.extend({
 		components[id] = fn;
 	},
 	
-	trigger: function(event) {
+	trigger: function(event, data) {
 		var hdl = handlers[event], h, i, l;
 		for(h in hdl) {
 			if(!hdl.hasOwnProperty(h)) continue;
 			l = hdl[h].length;
 			for(i=0;i<l;i++) {
-				hdl[h][i].call(Crafty(+h));
+				if(hdl[h][i])
+					hdl[h][i].call(Crafty(+h),data);
 			}
 		}
+	},
+	
+	frame: function() {
+		return frame;
 	},
 	
 	debug: function() {

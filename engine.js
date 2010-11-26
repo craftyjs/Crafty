@@ -127,3 +127,13 @@ Crafty.c("animated", {
 Crafty(player).animate("death", function() {
 
 });
+
+var loader = Crafty.preload(
+	"",
+	"",
+	"",
+	"",
+	""
+]);
+loader.getLoaded(); //int (bytes)
+loader.getTotal(); //int (bytes)

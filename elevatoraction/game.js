@@ -47,19 +47,19 @@ $(document).ready(function() {
 			var old = this.pos();
 			this.trigger("change",old);
 		}
-		if(e.keyCode === Crafty.keys.D) this.facingRight = true;
-		if(e.keyCode === Crafty.keys.A) this.facingRight = false;
+		if(e.keyCode === Crafty.keys.D || e.keyCode === Crafty.keys.RA) this.facingRight = true;
+		if(e.keyCode === Crafty.keys.A || e.keyCode === Crafty.keys.LA) this.facingRight = false;
 	})
 	.bind("change", function() {
 		if(this.__move.right && !this.isPlaying("walk_right")) {
 			this.sprite(1,2,1,2);
 			this.stop();
-			this.animate("walk_right", 500);
+			this.animate("walk_right", 20);
 		}
 		if(this.__move.left && !this.isPlaying("walk_left")) {
 			this.sprite(1,0,1,2);
 			this.stop();
-			this.animate("walk_left", 500);
+			this.animate("walk_left", 20);
 		}
 	})
 	.bind("keyup", function(e) {
@@ -79,21 +79,26 @@ $(document).ready(function() {
 	floor.attr({y: 224, w: Crafty.window.width / 2, h: 50, z:50}).image("images/girder.png", "repeat-x");
 	
 	Crafty.c("shaker", {
-		init: function() {
-			var dirs = ['n', 's', 'e', 'w', 'nw', 'ne', 'sw', 'se'];
+		shaker: function(duration) {
+			var dirs = ['n', 's', 'e', 'w', 'nw', 'ne', 'sw', 'se'],
+				current = Crafty.frame();
 					
-			this.bind("enterframe", function() {
+			this.bind("enterframe", function(e) {
+				if(e.frame - current >= duration) {
+					this.unbind("enterframe");
+					return;
+				}
 				var dir = dirs[Crafty.randRange(0,7)],
 					by = Crafty.randRange(1,5);
 				Crafty("2D").each(function() {
 					this.move(dir, by);
 					this.delay(function() {
 						this.move(dir, by * -1)
-					}, 200);
+					}, 100);
 				});
 			});
 		}
 	});
-	Crafty.e("shaker");
+	Crafty.e("shaker").shaker(50);
 	
 });
