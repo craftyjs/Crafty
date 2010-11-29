@@ -1,9 +1,23 @@
 Crafty.c("2D", {
-	x: 0,
-	y: 0,
-	w: 0,
-	h: 0,
-	z: 0,
+	_x: 0,
+	_y: 0,
+	_w: 0,
+	_h: 0,
+	_z: 0,
+	
+	init: function() {
+		this.__defineSetter__('x', function(v) { this._attr('_x',v); });
+		this.__defineSetter__('y', function(v) { this._attr('_y',v); });
+		this.__defineSetter__('w', function(v) { this._attr('_w',v); });
+		this.__defineSetter__('h', function(v) { this._attr('_h',v); });
+		this.__defineSetter__('z', function(v) { this._attr('_z',v); });
+		
+		this.__defineGetter__('x', function() { return this._attr('_x'); });
+		this.__defineGetter__('y', function() { return this._attr('_y'); });
+		this.__defineGetter__('w', function() { return this._attr('_w'); });
+		this.__defineGetter__('h', function() { return this._attr('_h'); });
+		this.__defineGetter__('z', function() { return this._attr('_z'); });
+	},
 	
 	area: function() {
 		return this.w * this.h;
@@ -60,7 +74,27 @@ Crafty.c("2D", {
 		if(dir === 'e' || dir.charAt(1) === 'e') this.x += by;
 		if(dir === 'w' || dir.charAt(1) === 'w') this.x -= by;
 		this.trigger("change",old);
-	}
+	},
+	
+	_attr: function(name,value) {
+		if(arguments.length === 1) return this[name];
+		
+		var old = this.pos();
+		
+		this[name] = value;
+		this.trigger("change", old);
+	},
+	
+	set x(val) { this._attr("_x",val); },
+	set y(val) { this._attr("_y",val); },
+	set w(val) { this._attr("_w",val); },
+	set h(val) { this._attr("_h",val); },
+	set z(val) { this._attr("_z",val); },
+	get x() { return this._x; },
+	get y() { return this._y; },
+	get w() { return this._w; },
+	get h() { return this._h; },
+	get z() { return this._z; }
 });
 
 Crafty.c("gravity", {
