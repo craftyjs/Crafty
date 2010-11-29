@@ -106,8 +106,12 @@ Crafty.c("gravity", {
 	},
 	
 	stopFalling: function(e) {
+		console.log("STOP");
 		var old = this.pos(); //snapshot of old position
+		
 		if(e) this.y = e.y - this.h ; //move object
+		
+		
 		this._gy = 0;
 		this._falling = false;
 		if(this.__move && this.__move.up) this.__move.up = false;

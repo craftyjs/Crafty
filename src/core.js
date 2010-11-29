@@ -292,7 +292,7 @@ Crafty.extend({
 			if(!hdl.hasOwnProperty(h)) continue;
 			l = hdl[h].length;
 			for(i=0;i<l;i++) {
-				if(hdl[h][i])
+				if(hdl[h] && hdl[h][i])
 					hdl[h][i].call(Crafty(+h),data);
 			}
 		}

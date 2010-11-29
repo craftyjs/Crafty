@@ -3,7 +3,7 @@
 * Crafty JS
 */
 $(document).ready(function() {
-	Crafty.init(5); //start the game
+	Crafty.init(50); //start the game
 	$("#canvas").attr({width: $(window).width(), height: $(window).height()}); //set the canvas to fullscreen
 	
 	//Initialize the sprite
@@ -91,7 +91,7 @@ $(document).ready(function() {
 			this.obj = obj;
 			var self = this;
 			
-			this.west = Crafty.e("2D, hit, collision, canvas, color").attr({x: x, y: y, w: 1, h:h}).color("rgb(250,0,0)").collision(obj, function() {
+			this.west = Crafty.e("2D, hit, collision").attr({x: x, y: y, w: 1, h:h}).collision(obj, function() {
 				self.collide('w');
 			});
 			
@@ -99,7 +99,7 @@ $(document).ready(function() {
 				self.collide('e');
 			});
 			
-			this.north = Crafty.e("2D, hit, DOM, color").attr({x: x, y: y, w: w, h:1}).color("rgb(250,0,0)");
+			this.north = Crafty.e("2D, hit").attr({x: x, y: y, w: w, h:1});
 			this.south = Crafty.e("2D, hit, collision").attr({x: x, y: y + h - 1, w: w, h: 1}).collision(obj, function() {
 				self.collide('s');
 			});
@@ -171,20 +171,22 @@ $(document).ready(function() {
 				rope.move(this.dir, this.speed);
 				rope2.move(this.dir, this.speed);
 				
-				if(this.intersect(player)) {
+				if(this.inside(player)) {
 					player.move(this.dir, this.speed);
 				}
 			});
+		},
+		
+		inside: function(rect) {
+			return this.x < rect.x + rect.w && this.x + this.w > rect.x &&
+				   rect.y >= this.y && rect.y + rect.h <= this.y + this.h;
 		}
 	});
 	var elevator = Crafty.e("2D, canvas, color, elevator").color("rgb(200,200,200)").attr({x: Crafty.window.width / 2, y:0, w: 50, h: 80});
 	var top = Crafty.e("2D, barrier, canvas, color").barrier(elevator.x, elevator.y, elevator.w, 5, player).color("rgb(100,100,100)").attr("z",1);
 	top.north.addComponent("floor");
-	console.log(top);
 	
-	//var top = Crafty.e("2D, canvas, floor, color").color("rgb(100,100,100)").attr({x: elevator.x, y: elevator.y, w: elevator.w, h: 5});
-	
-	var bottom = Crafty.e("2D, canvas, floor, color").color("rgb(100,100,100)").attr({x: elevator.x, y: elevator.y + elevator.h - 5, w: elevator.w, h: 5, z:1});
+	var bottom = Crafty.e("2D, canvas, floor, color, bottom").color("rgb(100,100,100)").attr({x: elevator.x, y: elevator.y + elevator.h - 5, w: elevator.w, h: 5, z:1});
 	var rope = Crafty.e("2D, canvas, color").color("rgb(30,30,30)").attr({x: elevator.x + 23, y: Crafty.window.height * -1, h: Crafty.window.height, w: 2});
 	var rope2 = Crafty.e("2D, canvas, color").color("rgb(60,60,60)").attr({x: elevator.x + 28, y: Crafty.window.height * -1, h: Crafty.window.height, w: 1});
 	
