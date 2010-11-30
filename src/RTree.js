@@ -25,9 +25,11 @@
 
 (function(window) {
 // cache Math references
-var Mathabs = Math.abs;
-var Mathmax = Math.max;
-var Mathmin = Math.min;
+var M = Math;
+var Mathabs = M.abs;
+var Mathmax = M.max;
+var Mathmin = M.min;
+var Mathfloor = M.floor;
 
 
 /**
@@ -39,7 +41,7 @@ var RTree = function(width) {
 	var _Min_Width = 3;  // Minimum width of any node before a merge
 	var _Max_Width = 6;  // Maximum width of any node before a split
 	if(!isNaN(width)) {
-		_Min_Width = Math.floor(width/2.0);
+		_Min_Width = Mathfloor(width/2.0);
 		_Max_Width = width;
 	}
 	// Start with an empty root-tree
@@ -82,7 +84,7 @@ var RTree = function(width) {
 	 * returns the ratio of the perimeter to the area - the closer to 1 we are,
 	 * the more "square" a rectangle is. conversly, when approaching zero the more elongated a rectangle is
 	 */
-	RTree.Rectangle.squarified_ratio = function(l, w, fill) {
+	RTree.R.sr = function(l, w, fill) {
 		var lperi = (l + w) / 2.0;
 		var larea = l * w;
 		var lgeo = larea / (lperi*lperi);
@@ -90,7 +92,8 @@ var RTree = function(width) {
 	};
 	
 	var _make_MBR = function(nodes, rect) { // nodes must contain at least one rectangle
-		if(nodes.length < 1) {
+		var nl = nodes.length, i = nl -1;
+		if(nl < 1) {
 			return({x:0, y:0, w:0, h:0});
 			//throw "make_MBR: nodes must contain at least one rectangle!";
 		}
@@ -102,8 +105,8 @@ var RTree = function(width) {
 			rect.w = nodes[0].w;
 			rect.h = nodes[0].h;
 		}	
-		for(var i = nodes.length-1; i>0; i--) {
-			RTree.Rectangle.expand_rectangle(rect, nodes[i]);
+		for(; i>0; i--) {
+			RTree.R.er(rect, nodes[i]);
 		}
 			
 		return(rect);
@@ -120,11 +123,11 @@ var RTree = function(width) {
 		var current_depth = 1;
 		var anydeleted = false; // True if anything was deleted
 		
-		if(!rect || !RTree.Rectangle.overlap_rectangle(rect, root)) {
+		if(!rect || !RTree.R.or(rect, root)) {
 			return ret_array;
 		}
 
-		var ret_obj = {x:rect.x, y:rect.y, w:rect.w, h:rect.h, target:obj};
+		var ret_obj = {x:rect.x, y:rect.y, w:rect.w, h:rect.h, t:obj};
 		
 		count_stack.push(root.n.length);
 		hit_stack.push(root);
@@ -133,15 +136,15 @@ var RTree = function(width) {
 			var tree = hit_stack.pop();
 			var i = count_stack.pop()-1;
 			
-			if("target" in ret_obj) { // We are searching for a target
+			if("t" in ret_obj) { // We are searching for a target
 				
 				while(i >= 0)	{
 					
 					var ltree = tree.n[i];
 					
-					if(RTree.Rectangle.overlap_rectangle(ret_obj, ltree)) {
+					if(RTree.R.or(ret_obj, ltree)) {
 						
-						if( (ret_obj.target && "l" in ltree && ltree.l === ret_obj.target) || (!ret_obj.target && ("l" in ltree || RTree.Rectangle.contains_rectangle(ltree, ret_obj)))) { // A Match !!
+						if( (ret_obj.t && "l" in ltree && ltree.l === ret_obj.t) || (!ret_obj.t && ("l" in ltree || RTree.R.cr(ltree, ret_obj)))) { // A Match !!
 							
 							// Yup we found a match...
 							// we can cancel search and start walking up the list
@@ -154,7 +157,7 @@ var RTree = function(width) {
 							
 							// Resize MBR down...
 							_make_MBR(tree.n, tree);
-							delete ret_obj.target;
+							delete ret_obj.t;
 							if(tree.n.length < _Min_Width) { // Underflow
 								ret_obj.n = _search_subtree(tree, true, [], tree);
 							}
@@ -227,7 +230,7 @@ var RTree = function(width) {
 		var nodes = root.n;	
 		
 		// cache the squarified function lookup
-		var squarified_ratio = RTree.Rectangle.squarified_ratio;
+		var sr = RTree.R.sr;
 		
 		do {	
 			if(best_choice_index != -1)	{
@@ -245,14 +248,14 @@ var RTree = function(width) {
 					break;
 				}
 				// Area of new enlarged rectangle
-				var old_lratio = squarified_ratio(ltree.w, ltree.h, ltreenodes.length+1);
+				var old_lratio = sr(ltree.w, ltree.h, ltreenodes.length+1);
 				
 				// Enlarge rectangle to fit new rectangle
 				var nw = Mathmax(ltree.x+ltree.w, rect.x+rect.w) - Mathmin(ltree.x, rect.x);
 				var nh = Mathmax(ltree.y+ltree.h, rect.y+rect.h) - Mathmin(ltree.y, rect.y);
 				
 				// Area of new enlarged rectangle
-				var lratio = squarified_ratio(nw, nh, ltreenodes.length+2);
+				var lratio = sr(nw, nh, ltreenodes.length+2);
 				
 				if(best_choice_index < 0 || Mathabs(lratio - old_lratio) < best_choice_area) {
 					best_choice_area = Mathabs(lratio - old_lratio);
@@ -282,9 +285,9 @@ var RTree = function(width) {
 	 */
 	var _pick_next = function(nodes, a, b) {
 	  // Area of new enlarged rectangle
-	  	var squarified_ratio = RTree.Rectangle.squarified_ratio;
-		var area_a = squarified_ratio(a.w, a.h, a.n.length+1);
-		var area_b = squarified_ratio(b.w, b.h, b.n.length+1);
+	  	var sr = RTree.R.sr;
+		var area_a = sr(a.w, a.h, a.n.length+1);
+		var area_b = sr(b.w, b.h, b.n.length+1);
 		var high_area_delta;
 		var high_area_node;
 		var lowest_growth_group;
@@ -296,14 +299,14 @@ var RTree = function(width) {
 			new_area_a.y = Mathmin(a.y, l.y);
 			new_area_a.w = Mathmax(a.x+a.w, l.x+l.w) - new_area_a.x;
 			new_area_a.h = Mathmax(a.y+a.h, l.y+l.h) - new_area_a.y;
-			var change_new_area_a = Mathabs(squarified_ratio(new_area_a.w, new_area_a.h, a.n.length+2) - area_a);
+			var change_new_area_a = Mathabs(sr(new_area_a.w, new_area_a.h, a.n.length+2) - area_a);
 	
 			var new_area_b = {};
 			new_area_b.x = Mathmin(b.x, l.x);
 			new_area_b.y = Mathmin(b.y, l.y);
 			new_area_b.w = Mathmax(b.x+b.w, l.x+l.w) - new_area_b.x;
 			new_area_b.h = Mathmax(b.y+b.h, l.y+l.h) - new_area_b.y;
-			var change_new_area_b = Mathabs(squarified_ratio(new_area_b.w, new_area_b.h, b.n.length+2) - area_b);
+			var change_new_area_b = Mathabs(sr(new_area_b.w, new_area_b.h, b.n.length+2) - area_b);
 
 			if( !high_area_node || !high_area_delta || Mathabs( change_new_area_b - change_new_area_a ) < high_area_delta ) {
 				high_area_node = i;
@@ -314,13 +317,13 @@ var RTree = function(width) {
 		var temp_node = nodes.splice(high_area_node, 1)[0];
 		if(a.n.length + nodes.length + 1 <= _Min_Width)	{
 			a.n.push(temp_node);
-			RTree.Rectangle.expand_rectangle(a, temp_node);
+			RTree.R.er(a, temp_node);
 		} else if(b.n.length + nodes.length + 1 <= _Min_Width) {
 			b.n.push(temp_node);
-			RTree.Rectangle.expand_rectangle(b, temp_node);
+			RTree.R.er(b, temp_node);
 		} else {
 			lowest_growth_group.n.push(temp_node);
-			RTree.Rectangle.expand_rectangle(lowest_growth_group, temp_node);
+			RTree.R.er(lowest_growth_group, temp_node);
 		}
 	};
 
@@ -386,7 +389,7 @@ var RTree = function(width) {
 	var _search_subtree = function(rect, return_node, return_array, root) {
 		var hit_stack = []; // Contains the elements that overlap
 		
-		if(!RTree.Rectangle.overlap_rectangle(rect, root)) {
+		if(!RTree.R.or(rect, root)) {
 			return(return_array);
 		}
 		
@@ -403,7 +406,7 @@ var RTree = function(width) {
 			
 			for(var i = nodes.length-1; i >= 0; i--) {
 				var ltree = nodes[i];
-				if(RTree.Rectangle.overlap_rectangle(rect, ltree)) {
+				if(RTree.R.or(rect, ltree)) {
 					if("n" in ltree) { // Not a Leaf
 						hit_stack.push(ltree.n);
 					} else if("l" in ltree) { // A Leaf !!
@@ -464,11 +467,11 @@ var RTree = function(width) {
 				// Do Insert
 				if(isArray(ret_obj)) {
 					for(var ai = 0; ai < ret_obj.length; ai++) {
-						RTree.Rectangle.expand_rectangle(bc, ret_obj[ai]);
+						RTree.R.er(bc, ret_obj[ai]);
 					}
 					bc.n = bc.n.concat(ret_obj); 
 				} else {
-					RTree.Rectangle.expand_rectangle(bc, ret_obj);
+					RTree.R.er(bc, ret_obj);
 					bc.n.push(ret_obj); // Do Insert
 				}
 				
@@ -490,7 +493,7 @@ var RTree = function(width) {
 				}
 			} else { // Otherwise Do Resize
 				//Just keep applying the new bounding rectangle to the parents..
-				RTree.Rectangle.expand_rectangle(bc, ret_obj);
+				RTree.R.er(bc, ret_obj);
 				ret_obj = {x:bc.x,y:bc.y,w:bc.w,h:bc.h};
 			}
 		} while(tree_stack.length > 0);
@@ -501,52 +504,51 @@ var RTree = function(width) {
 	 * @public
 	 */
 	this.search = function(rect, return_node, return_array) {
-
-		if(arguments.length < 1) return;
+		var args = arguments;
+		if(args.length < 1) return;
 		
 		// note: fallthrough is key here!! this sets defaults for missing args as it falls through
-		switch(arguments.length) {
+		switch(args.length) {
 			case 1:
-				arguments[1] = false;// Add an "return node" flag - may be removed in future
+				args[1] = false;// Add an "return node" flag - may be removed in future
 			case 2:
-				arguments[2] = []; // Add an empty array to contain results
+				args[2] = []; // Add an empty array to contain results
 			case 3:
-				arguments[3] = _T; // Add root node to end of argument list
+				args[3] = _T; // Add root node to end of argument list
 			default:
-				arguments.length = 4;
+				args.length = 4;
 		}
 
-		return(_search_subtree.apply(this, arguments));
+		return(_search_subtree.apply(this, args));
 	};
 	
 	/* non-recursive function that deletes a specific
 	 * [ number ] = RTree.remove(rectangle, obj)
 	 */
 	this.remove = function(rect, obj) {
-		if(arguments.length < 1) {
-			throw "Wrong number of arguments. RT.remove requires at least a bounding rectangle.";
-		}
+		var args = arguments;
+		if(args.length < 1) return;
 
 		// note: fallthrough is key here!! this sets defaults for missing args as it falls through
-		switch(arguments.length) {
+		switch(args.length) {
 			case 1:
-				arguments[1] = false; // obj == false for conditionals
+				args[1] = false; // obj == false for conditionals
 			case 2:
-				arguments[2] = _T; // Add root node to end of argument list
+				args[2] = _T; // Add root node to end of argument list
 			default:
-				arguments.length = 3;
+				args.length = 3;
 		}
 		
-		if(arguments[1] === false) { // Do area-wide delete
+		if(args[1] === false) { // Do area-wide delete
 			var numberdeleted = 0;
 			var ret_array = [];
 			do { 
 				numberdeleted=ret_array.length; 
-				ret_array = ret_array.concat(_remove_subtree.apply(this, arguments));
+				ret_array = ret_array.concat(_remove_subtree.apply(this, args));
 			} while( numberdeleted !=  ret_array.length);
 			return ret_array;
 		} else { // Delete a specific item
-			return(_remove_subtree.apply(this, arguments));
+			return(_remove_subtree.apply(this, args));
 		}
 	};
 		
@@ -580,82 +582,12 @@ var RTree = function(width) {
 //End of RTree
 };
 
-/* Rectangle - Generic rectangle object - Not yet used */
-
-RTree.Rectangle = function(ix, iy, iw, ih) { // new Rectangle(bounds) or new Rectangle(x, y, w, h)
-	if (ix.x) {
-		var x = ix.x;
-		var y = ix.y;
-		if (ix.w !== 0 && !ix.w && ix.x2) {
-			var w = ix.x2 - ix.x;
-			var h = ix.y2 - ix.y;
-		} else {
-			var w = ix.w;
-			var h = ix.h;
-		}
-		var x2 = x + w;
-		var y2 = y + h; // For extra fastitude
-	} else {
-		var x = ix;
-		var y = iy;
-		var w = iw;
-		var h = ih;
-		var x2 = x + w;
-		var y2 = y + h; // For extra fastitude
-	}
-
-	this.x1 = this.x = function(){return x;};
-	this.y1 = this.y = function(){return y;};
-	this.x2 = function(){return x2;};
-	this.y2 = function(){return y2;};		
-	this.w = function(){return w;};
-	this.h = function(){return h;};
-	
-	this.overlap = function(a) {
-		return(this.x() < a.x2() && this.x2() > a.x() && this.y() < a.y2() && this.y2() > a.y());
-	};
-	
-	this.expand = function(a) {
-		var nx = Mathmin(this.x(), a.x());
-		var ny = Mathmin(this.y(), a.y());
-		w = Mathmax(this.x2(), a.x2()) - nx;
-		h = Mathmax(this.y2(), a.y2()) - ny;
-		x = nx;
-		y = ny;
-		return(this);
-	};
-	
-	this.setRect = function(ix, iy, iw, ih) {
-		if (ix.x) {
-			var x = ix.x;
-			var y = ix.y;
-			if (ix.w !== 0 && !ix.w && ix.x2) {
-				var w = ix.x2 - ix.x;
-				var h = ix.y2 - ix.y;
-			} else {
-				var w = ix.w;
-				var h = ix.h;
-			}
-			var x2 = x + w;
-			var y2 = y + h; // For extra fastitude
-		} else {
-			var x = ix;
-			var y = iy;
-			var w = iw;
-			var h = ih;
-			var x2 = x + w;
-			var y2 = y + h; // For extra fastitude
-		}
-	};
-	//End of RTree.Rectangle
-};
-
-
+RTree.R = {};
 /* returns true if rectangle 1 overlaps rectangle 2
  * [ boolean ] = overlap_rectangle(rectangle a, rectangle b)
  * @static function
  */
-RTree.Rectangle.overlap_rectangle = function(a, b) {
+RTree.R.or = function(a, b) {
 	return(a.x < (b.x+b.w) && (a.x+a.w) > b.x && a.y < (b.y+b.h) && (a.y+a.h) > b.y);
 };
 
@@ -663,7 +595,7 @@ RTree.Rectangle.overlap_rectangle = function(a, b) {
  * [ boolean ] = contains_rectangle(rectangle a, rectangle b)
  * @static function
  */
-RTree.Rectangle.contains_rectangle = function(a, b) {
+RTree.R.cr = function(a, b) {
 	return((a.x+a.w) <= (b.x+b.w) && a.x >= b.x && (a.y+a.h) <= (b.y+b.h) && a.y >= b.y);
 };
 
@@ -671,15 +603,15 @@ RTree.Rectangle.contains_rectangle = function(a, b) {
  * [ rectangle a ] = expand_rectangle(rectangle a, rectangle b)
  * @static function
  */
-RTree.Rectangle.expand_rectangle = function(a, b)	{
+RTree.R.er = function(a, b)	{
 	var nx = Mathmin(a.x, b.x);
 	var ny = Mathmin(a.y, b.y);
 	a.w = Mathmax(a.x+a.w, b.x+b.w) - nx;
 	a.h = Mathmax(a.y+a.h, b.y+b.h) - ny;
-	a.x = nx;
-	a.y = ny;
+	a.x = nx; a.y = ny;
 	return(a);
 };
 
+
 window.RTree = RTree;
-})(window);
+})(Crafty);

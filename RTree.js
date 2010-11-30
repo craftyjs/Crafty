@@ -5,7 +5,7 @@
 * and generally quick access times with a given bounding box.
 * @author Louis Stowasser
 */
-(function(parent) {
+//(function(parent) {
 
 var MAX_SUB_DIVISIONS = 6,
 	MAX_OBJECTS = 6,
@@ -211,5 +211,5 @@ Box.prototype = {
 	
 };
 
-parent.RTree = RTree;
-})(Crafty);
+//parent.RTree = RTree;
+//})(Crafty);

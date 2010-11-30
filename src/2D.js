@@ -1,9 +1,12 @@
+Crafty.map = new Crafty.HashMap();
+
 Crafty.c("2D", {
 	_x: 0,
 	_y: 0,
 	_w: 0,
 	_h: 0,
 	_z: 0,
+	_entry: null,
 	
 	init: function() {
 		this.__defineSetter__('x', function(v) { this._attr('_x',v); });
@@ -12,11 +15,24 @@ Crafty.c("2D", {
 		this.__defineSetter__('h', function(v) { this._attr('_h',v); });
 		this.__defineSetter__('z', function(v) { this._attr('_z',v); });
 		
-		this.__defineGetter__('x', function() { return this._attr('_x'); });
-		this.__defineGetter__('y', function() { return this._attr('_y'); });
-		this.__defineGetter__('w', function() { return this._attr('_w'); });
-		this.__defineGetter__('h', function() { return this._attr('_h'); });
-		this.__defineGetter__('z', function() { return this._attr('_z'); });
+		this.__defineGetter__('x', function() { return this._x; });
+		this.__defineGetter__('y', function() { return this._y; });
+		this.__defineGetter__('w', function() { return this._w; });
+		this.__defineGetter__('h', function() { return this._h; });
+		this.__defineGetter__('z', function() { return this._z; });
+		
+		//insert self into the HashMap
+		this._entry = Crafty.map.insert(this);
+		
+		//when object changes, update HashMap
+		this.bind("change", function() {
+			this._entry.update(this);
+		});
+		
+		//when object is removed, remove from HashMap
+		this.bind("remove", function() {
+			Crafty.map.remove(this);
+		});
 	},
 	
 	area: function() {
@@ -68,12 +84,10 @@ Crafty.c("2D", {
 	},
 	
 	move: function(dir, by) {
-		var old = this.pos();
 		if(dir.charAt(0) === 'n') this.y -= by;
 		if(dir.charAt(0) === 's') this.y += by;
 		if(dir === 'e' || dir.charAt(1) === 'e') this.x += by;
 		if(dir === 'w' || dir.charAt(1) === 'w') this.x -= by;
-		this.trigger("change",old);
 	},
 	
 	_attr: function(name,value) {
@@ -113,10 +127,8 @@ Crafty.c("gravity", {
 		this.bind("enterframe", function() {
 			if(this._falling) {
 				//if falling, move the players Y
-				var old = this.pos();
 				this._gy += this._gravity * 2;
 				this.y += this._gy;
-				this.trigger("change",old);
 			} else {
 				this._gy = 0; //reset change in y
 			}
@@ -140,17 +152,12 @@ Crafty.c("gravity", {
 	},
 	
 	stopFalling: function(e) {
-		console.log("STOP");
-		var old = this.pos(); //snapshot of old position
-		
 		if(e) this.y = e.y - this.h ; //move object
-		
 		
 		this._gy = 0;
 		this._falling = false;
 		if(this.__move && this.__move.up) this.__move.up = false;
 		this.trigger("hit");
-		this.trigger("change", old);
 	}
 });
 

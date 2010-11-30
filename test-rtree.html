@@ -5,7 +5,9 @@
 <script src="http://code.jquery.com/jquery-latest.js"></script>
 <link rel="stylesheet" href="http://github.com/jquery/qunit/raw/master/qunit/qunit.css" type="text/css" media="screen" />
 <script type="text/javascript" src="http://github.com/jquery/qunit/raw/master/qunit/qunit.js"></script>
-<script type="text/javascript" src="crafty.js"></script>
+<script type="text/javascript" src="src/core.js"></script>
+<script type="text/javascript" src="src/2D.js"></script>
+<script type="text/javascript" src="src/extensions.js"></script>
 <script type="text/javascript" src="RTree.js"></script>
 <script type="text/javascript" src="components.js"></script>
 
@@ -13,11 +15,12 @@
 
 <script>
 $(document).ready(function(){
-	/*
+	
 	module("Box");
 	
 	test("update", function() {
 		var box = new Box(50,50,100,100,null,1);
+		box.children.length = 1;
 		box.update(140,140,50,50);
 		
 		equals(box.x, 50, "x maintains position");
@@ -64,11 +67,11 @@ $(document).ready(function(){
 		create(60,60,5,5,true,"white");
 		var q = box.get(60,60,5,5);
 	});
-	*/
+	
 	module("RTree");
 
 	test("insertion", function() {
-		tree = new Crafty.RTree();
+		tree = new RTree();
 		tree.put(150,5, 50, 50, "test");
 		tree.put(60,6, 20, 20, "neighbor");
 		tree.put(40,46, 50, 50, "neighbor 2");
@@ -89,7 +92,7 @@ $(document).ready(function(){
 	});
 	
 	test("Large Dataset", function() {
-		tree = new Crafty.RTree();
+		tree = new RTree();
 		var search = {x:150, y:150, w:500, h:500};
 		create(150,150,500,500, true, "blue");
 		for(var i = 0; i < 10000; i++) {
@@ -97,13 +100,13 @@ $(document).ready(function(){
 			var x = randrange(0, Crafty.window.width);
 			var y = randrange(0, Crafty.window.height);
 			
-			Crafty(e).attr({x: x, y: y, w: 50, h: 50});
-			tree.put(Crafty(e));
+			e.attr({x: x, y: y, w: 50, h: 50});
+			tree.put(e);
 		}
 		
 		var e = Crafty.e("2D");
-		Crafty(e).attr({x: 200, y: 200});
-		tree.put(Crafty(e));
+		e.attr({x: 200, y: 200});
+		tree.put(e);
 		
 		//check tree
 		var start = (new Date).getTime();
@@ -134,9 +137,9 @@ $(document).ready(function(){
 		ok(end < end2, "Tree Faster");
 		equals(q.length, total2, "Tree == Brute");
 		console.log(total2, q.length, "|", end, end2);
-		//*/
+		
 	});
-	
+	//*/
 	function randrange(from,to) {
 		return Math.round(Math.random() * (to - from) + from);
 	}
