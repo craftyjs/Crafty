@@ -137,3 +137,16 @@ var loader = Crafty.preload(
 ]);
 loader.getLoaded(); //int (bytes)
 loader.getTotal(); //int (bytes)
+
+
+Crafty.scene("something", function() {
+	Crafty();
+});
+
+Crafty.scene("something");
+
+Crafty.sceneRecord("soetthing");
+
+Crafty.sceneEnd();
+
+Crafty.sceneRun("something");

@@ -2,17 +2,18 @@
                     "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
+<script type="text/javascript" src="src/core.js"></script>
 <script type="text/javascript" src="src/HashMap.js"></script>
 
 <title>RTree2 Unit Test</title>
 
 <script>
 window.onload = function() {
-	map = new HashMap();
+	map = new Crafty.HashMap();
 	
 	console.time("Inserting 10,000 elements");
 	for(var i = 0; i < 10000; i++) {
-		var obj = {"0": i, x: randrange(0,1000), y: randrange(0,600), w: randrange(1, 300), h: randrange(1,300)};
+		var obj = {"0": i, x: randrange(0,1600), y: randrange(0,800), w: randrange(1, 1000), h: randrange(1,800)};
 		entry = map.insert(obj);
 		//create(obj.x, obj.y, obj.w, obj.h);
 	}
