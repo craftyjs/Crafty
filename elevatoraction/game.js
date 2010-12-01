@@ -14,6 +14,7 @@ $(document).ready(function() {
 		light: [6,0,1,1]
 	}).canvas(document.getElementById("canvas"));
 	
+	
 	//create the bullet component
 	Crafty.c("bullet", {
 		bullet: function(dir) {
@@ -28,7 +29,12 @@ $(document).ready(function() {
 	
 	Crafty.scene("title", function() {
 		Crafty.background("#111");
-		Crafty.e("2D, canvas, color, mouse").color("rgb(250,250,250)").attr({x: Crafty.window.width / 2, y: 100, w: 100, h: 50}).bind("click", function(e) {
+		
+		Crafty.sprite("images/title.png", {
+			title: [0,0, 430, 396]
+		})
+		Crafty.e("2D, canvas, title").attr({x: Crafty.window.width / 2 - 215});
+		Crafty.e("2D, canvas, mouse").attr({x: Crafty.window.width / 2 - 75, y: 290, w: 142, h: 74}).bind("click", function(e) {
 			Crafty.scene("main");
 		});
 	});
@@ -36,7 +42,7 @@ $(document).ready(function() {
 	Crafty.scene("title"); //play title screen
 	
 	Crafty.scene("main", function() {
-		Crafty.background("white");
+		Crafty.background("#b1c7b5");
 		//Create the player
 		var player = Crafty.e("2D, player, canvas, gravity, controls, twoway, collision, animate");
 		player.attr({"y":1, z: 30, facingRight: true}).gravity("floor").twoway(3)
