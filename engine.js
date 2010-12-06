@@ -138,15 +138,18 @@ var loader = Crafty.preload(
 loader.getLoaded(); //int (bytes)
 loader.getTotal(); //int (bytes)
 
+Crafty.camera.moveTo(-30,20);
 
-Crafty.scene("something", function() {
-	Crafty();
-});
+//Scrolling
+Crafty.scroll(xvelocity,yvelocity);
 
-Crafty.scene("something");
+//Grouping
+var groupedElevator = Crafty.group(elevator, top, bottom, rope1, rope2);
 
-Crafty.sceneRecord("soetthing");
+//Server
+Crafty.server("http://craftylive.com/game/32Af50ae80f83m5");
 
-Crafty.sceneEnd();
+//Polygon
+Crafty.polygon([0,1], [52,63], [1352,64]);
 
-Crafty.sceneRun("something");
+player.areaMap(polygon);

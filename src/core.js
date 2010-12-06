@@ -94,19 +94,19 @@ Crafty.fn = Crafty.prototype = {
 		if(arguments.length > 1) {
 			var i = 0, l = arguments.length;
 			for(;i<l;i++) {
-				this.__c.push(arguments[i]);
+				this.__c[arguments[i]] = true;
 				uninit.push(arguments[i]);
 			}
 		//split components if contains comma
 		} else if(id.indexOf(',') !== -1) {
 			var comps = id.split(rlist), i = 0, l = comps.length;
 			for(;i<l;i++) {
-				this.__c.push(comps[i]);
+				this.__c[comps[i]] = true;
 				uninit.push(comps[i]);
 			}
 		//single component passed
 		} else {
-			this.__c.push(id);
+			this.__c[id] = true;
 			uninit.push(id);
 		}
 		
@@ -125,14 +125,13 @@ Crafty.fn = Crafty.prototype = {
 		return this;
 	},
 	
+	removeComponent: function(id) {
+		delete this.__c[id];
+		return this;
+	},
+	
 	has: function(id) {
-		var ent = entities[this[0]].__c, i = 0, l = ent.length;
-		//loop over components
-		for(;i<l;i++) {
-			//if component equals component
-			if(ent[i] === id) return true;
-		}
-		return false;
+		return !!this.__c[id];
 	},
 	
 	attr: function(key, value) {
@@ -260,8 +259,7 @@ Crafty.extend({
 		Crafty.trigger("onload");
 		
 		interval = setInterval(function() {
-			var e = {frame: frame++};
-			Crafty.trigger("enterframe",e);
+			Crafty.trigger("enterframe",{frame: frame++});
 		}, 1000 / FPS);
 	},
 	
@@ -278,6 +276,7 @@ Crafty.extend({
 		if(arguments.length > 0) {
 			craft.addComponent.apply(craft, arguments);
 		}
+		craft.addComponent("obj"); //every entity automatically assumes obj
 		
 		return craft;
 	},

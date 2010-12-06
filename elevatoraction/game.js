@@ -39,7 +39,7 @@ $(document).ready(function() {
 		});
 	});
 	
-	Crafty.scene("title"); //play title screen
+	
 	
 	Crafty.scene("main", function() {
 		Crafty.background("#b1c7b5");
@@ -79,6 +79,20 @@ $(document).ready(function() {
 				this.stop();
 				this.animate("walk_left", 20);
 			}
+			/*
+			var gy = this._gy;
+			if(this.y > Crafty.window.height - Crafty.window.height / 4) {
+				console.log("SCROLL DOWN");
+				
+				Crafty("2D").each(function() {
+					this.y -= gy;
+				});
+			} else if(this.y < 100) {
+				console.log("SCROLL UP");
+				Crafty("2D").each(function() {
+					this.y += 1;
+				});
+			}*/
 		})
 		.bind("keyup", function(e) {
 			if(e.keyCode === Crafty.keys.D || e.keyCode === Crafty.keys.RA || e.keyCode === Crafty.keys.A || e.keyCode === Crafty.keys.LA) this.stop();
@@ -121,12 +135,13 @@ $(document).ready(function() {
 					self.collide('s');
 				});
 				
+				/*
 				this.bind("change", function() {
 					this.north.attr({x: this.x, y: this.y, w: this.w, h:1});
 					this.south.attr({x: this.x, y: this.y + this.h - 1, w: this.w, h: 1});
 					this.east.attr({x: this.x + this.w - 1, y: this.y, w: 1, h: this.h});
 					this.west.attr({x: this.x, y: this.y, w: 1, h: this.h});
-				});
+				});*/
 				
 				return this;
 			},
@@ -160,7 +175,7 @@ $(document).ready(function() {
 					}
 					var dir = dirs[Crafty.randRange(0,7)],
 						by = Crafty.randRange(1,5);
-					Crafty("2D").each(function() {
+					Crafty("2D obj").each(function() {
 						this.move(dir, by);
 						this.delay(function() {
 							this.move(dir, by * -1)
@@ -169,7 +184,7 @@ $(document).ready(function() {
 				});
 			}
 		});
-		//Crafty.e("shaker").shaker(50);
+		Crafty.e("shaker");
 		
 		Crafty.c("elevator", {
 			dir: 's',
@@ -207,13 +222,23 @@ $(document).ready(function() {
 		var rope = Crafty.e("2D, canvas, color").color("rgb(30,30,30)").attr({x: elevator.x + 23, y: Crafty.window.height * -1, h: Crafty.window.height, w: 2});
 		var rope2 = Crafty.e("2D, canvas, color").color("rgb(60,60,60)").attr({x: elevator.x + 28, y: Crafty.window.height * -1, h: Crafty.window.height, w: 1});
 		
+		group = Crafty.group(elevator, top, bottom, rope, rope2);
+		var shaker = Crafty.e("shaker");
+		
 		for(var k=1; k <= 10; k++) {
 			var light = Crafty.e("2D, canvas, light, collision").attr({x: 100 * k, y: 244}).collision("bullet", function(e) {
 				this.addComponent("gravity").gravity("floor").bind("hit", function() {
+					Crafty.background("#222");
+					shaker.shaker(50);
+					this.delay(function() {
+						Crafty.background("#b1c7b5");
+					},5000);
 					this.destroy();
 				});
 				e.destroy();
 			});
 		}
 	});
+	
+	Crafty.scene("main"); //play title screen
 });
