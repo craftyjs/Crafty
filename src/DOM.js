@@ -30,7 +30,7 @@ Crafty.c("DOM", {
 		} else if(this.has("image")) {
 			style.background = "url(" + this.__image + ") "+this._repeat;
 		} else if(this.has("color")) {
-			style.background = this.color;
+			style.background = this._color;
 		}
 	},
 	

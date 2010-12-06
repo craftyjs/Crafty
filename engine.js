@@ -153,3 +153,26 @@ Crafty.server("http://craftylive.com/game/32Af50ae80f83m5");
 Crafty.polygon([0,1], [52,63], [1352,64]);
 
 player.areaMap(polygon);
+
+//IsoPosition
+var iso = Crafty.isometric(128);
+iso.place(0,0,1, obj);
+/*
+xyz            /\
+ _ _ _ _      /\/\
+|_|_|_|_|    /\/\/\
+|_|_|_|_|   /\/\/\/\
+|_|_|_|_|   \/\/\/\/
+|_|_|_|_|    \/\/\/
+              \/\/
+               \/
+*/
+
+iso.remove(0,0,1);
+
+//Zoom
+iso.zoom(32);
+
+//scroll
+iso.scroll('e',5);
+iso.scrollTo(0,0,0);
