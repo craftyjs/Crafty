@@ -90,6 +90,26 @@ Crafty.c("2D", {
 		if(dir === 'w' || dir.charAt(1) === 'w') this.x -= by;
 	},
 	
+	shift: function(x,y,w,h) {
+		//shift by amount
+		if(x) this.x += x;
+		if(y) this.y += y;
+		if(w) this.w += w;
+		if(h) this.h += h;
+	},
+	
+	attatch: function(obj) {
+		//attach obj to this so when this moves, move by same amount
+		this.bind("change", function(e) {
+			var dx = this.x - e.x,
+				dy = this.y - e.y,
+				dw = this.w - e.w,
+				dh = this.h - e.h;
+			
+			obj.shift(dx,dy,dw,dh);
+		});
+	},
+	
 	_attr: function(name,value) {
 		if(arguments.length === 1) return this[name];
 		

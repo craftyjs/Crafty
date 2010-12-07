@@ -17,5 +17,14 @@ Crafty.polygon.prototype = {
 		}
 
 		return c;
+	},
+	
+	shift: function(x,y) {
+		var i = 0, l = this.points.length, current;
+		for(;i<l;i++) {
+			current = this.points[i];
+			current[0] += x;
+			current[1] += y;
+		}
 	}
 };
