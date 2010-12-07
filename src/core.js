@@ -77,7 +77,7 @@ Crafty.fn = Crafty.prototype = {
 			this.length = 1;
 			
 			//update from the cache
-			if(!this.__c) this.__c = [];
+			if(!this.__c) this.__c = {};
 			
 			//update to the cache if NULL
 			if(!entities[selector]) entities[selector] = this; 

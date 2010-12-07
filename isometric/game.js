@@ -2,7 +2,6 @@ $(document).ready(function() {
 
 	Crafty.init(50);
 	Crafty.canvas($("#canvas")[0]);
-	$("#canvas").attr({width: $(window).width(), height: $(window).height()}); //set the canvas to fullscreen
 	
 	Crafty.sprite(128, "images/sprite.png", {
 		grass: [0,0,1,1],
