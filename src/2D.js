@@ -36,7 +36,7 @@ Crafty.c("2D", {
 	},
 	
 	area: function() {
-		return this.w * this.h;
+		return this._w * this._h;
 	},
 	
 	/**
@@ -50,8 +50,8 @@ Crafty.c("2D", {
 			rect = {x: x, y: y, w: w, h: h};
 		}
 		
-		return this.x < rect.x + rect.w && this.x + this.w > rect.x &&
-			   this.y < rect.y + rect.h && this.h + this.y > rect.y;
+		return this._x < rect.x + rect.w && this._x + this._w > rect.x &&
+			   this._y < rect.y + rect.h && this._h + this._y > rect.y;
 	},
 	
 	within: function(x,y,w,h) {
@@ -68,10 +68,10 @@ Crafty.c("2D", {
 	
 	pos: function() {
 		return {
-			x: Math.ceil(this.x),
-			y: Math.ceil(this.y),
-			w: Math.ceil(this.w),
-			h: Math.ceil(this.h)
+			_x: Math.ceil(this._x),
+			_y: Math.ceil(this._y),
+			_w: Math.ceil(this._w),
+			_h: Math.ceil(this._h)
 		};
 	},
 	
@@ -103,20 +103,17 @@ Crafty.c("2D", {
 		this.bind("change", function(e) {
 			if(!e) return; //no change in position
 			
-			var dx = this.x - e.x,
-				dy = this.y - e.y,
-				dw = this.w - e.w,
-				dh = this.h - e.h;
+			var dx = this.x - e._x,
+				dy = this.y - e._y,
+				dw = this.w - e._w,
+				dh = this.h - e._h;
 			
 			obj.shift(dx,dy,dw,dh);
 		});
 	},
 	
-	_attr: function(name,value) {
-		if(arguments.length === 1) return this[name];
-		
+	_attr: function(name,value) {	
 		var old = this.pos();
-		
 		this[name] = value;
 		this.trigger("change", old);
 	},

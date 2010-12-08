@@ -258,6 +258,10 @@ Crafty.extend({
 		
 		Crafty.trigger("onload");
 		
+		Crafty.addEvent(this, "mousedown", Crafty.mouseDispatch);
+		Crafty.addEvent(this, "mouseup", Crafty.mouseDispatch);
+		Crafty.addEvent(this, "mousemove", Crafty.mouseDispatch);
+		
 		interval = setInterval(function() {
 			Crafty.trigger("enterframe",{frame: frame++});
 		}, 1000 / FPS);

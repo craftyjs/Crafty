@@ -6,10 +6,10 @@ Crafty.c("group", {
 		
 		this.bind("change", function(e) {
 			//when parent is changed, affect children
-			var dx = e.x - this.x,
-				dy = e.y - this.y,
-				dw = e.w - this.w,
-				dh = e.h - this.h,
+			var dx = e._x - this.x,
+				dy = e._y - this.y,
+				dw = e._w - this.w,
+				dh = e._h - this.h,
 				i = 0, l = this._children.length,
 				current;
 				

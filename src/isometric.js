@@ -18,10 +18,6 @@ Isometric.prototype = {
 			n = n - z * (this.tile / 2);
 			
 		obj.attr({x: m, y: n}).z += z;
-	},
-	
-	remove: function(x,y,z) {
-	
 	}
 };
 
