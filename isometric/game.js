@@ -31,10 +31,9 @@ $(document).ready(function() {
 			var dx = base.x - e.pageX,
 				dy = base.y - e.pageY;
 				base = {x: e.pageX, y: e.pageY};
-			Crafty("2D obj").each(function() {
-				this.x -= dx;
-				this.y -= dy;
-			});
+			
+			Crafty.viewport.x -= dx;
+			Crafty.viewport.y -= dy;
 		};
 		
 		Crafty.addEvent(this, "mousemove", scroll);

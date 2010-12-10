@@ -176,3 +176,37 @@ iso.zoom(32);
 //scroll
 iso.scroll('e',5);
 iso.scrollTo(0,0,0);
+
+//viewport change
+set x(value) {
+	var oldx = this._x,
+		q,
+		i = 0, j = 0, l, m,
+		box,
+		dupes = {},
+		sorted = [];
+	//clear screen
+	Crafty.context.clearRect(0,0, this.width, this.height);
+	
+	q = Crafty.map.search({x: value, y: this._y, w: this.width, h:this.height}, false);
+	for(;i<l;++i) {
+		box = q[i];
+		if(!dupes[box[0]]) {
+			dupes[box[0]] = true;
+			if(!sorted[box._z]) sorted[box._z] = [];
+			box._x += oldx - value;
+			sorted[box._z].push(box);
+		}
+	}
+	
+	m = sorted.length;
+	for(;j<m;j++) {
+		if(!sorted[j]) continue;
+		var k = 0, n = sorted[j].length;
+		for(;k<n;k++) {
+			sorted[j][n].draw();
+		}
+	}
+	
+	this._x = value;
+}
