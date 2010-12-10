@@ -68,10 +68,10 @@ Crafty.c("2D", {
 	
 	pos: function() {
 		return {
-			_x: Math.ceil(this._x),
-			_y: Math.ceil(this._y),
-			_w: Math.ceil(this._w),
-			_h: Math.ceil(this._h)
+			_x: Math.floor(this._x),
+			_y: Math.floor(this._y),
+			_w: Math.floor(this._w),
+			_h: Math.floor(this._h)
 		};
 	},
 	

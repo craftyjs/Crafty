@@ -12,7 +12,7 @@ $(document).ready(function() {
 	var z = 0;
 	for(var i = 0; i < 10; i++) {
 		for(var y = 0; y < 10; y++) {
-			var tile = Crafty.e("2D, DOM, grass, mouse").attr('z',z++).areaMap([64,0],[128,32],[128,96],[64,128],[0,96],[0,32]).bind("click", function() {
+			var tile = Crafty.e("2D, canvas, grass, mouse").attr('z',z++).areaMap([64,0],[128,32],[128,96],[64,128],[0,96],[0,32]).bind("click", function() {
 				this.destroy();
 			}).bind("mouseover", function() {
 				console.log("mouseover");

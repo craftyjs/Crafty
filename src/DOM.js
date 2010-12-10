@@ -19,10 +19,10 @@ Crafty.c("DOM", {
 	
 	draw: function() {
 		var style = this._element.style, co;
-		style.top = Math.ceil(this.y) + "px";
-		style.left = Math.ceil(this.x) + "px";
-		style.width = Math.ceil(this.w) + "px";
-		style.height = Math.ceil(this.h) + "px";
+		style.top = Math.floor(this._y) + "px";
+		style.left = Math.floor(this._x) + "px";
+		style.width = Math.floor(this._w) + "px";
+		style.height = Math.floor(this._h) + "px";
 		style.zIndex = this.z;
 		if(this.has("sprite")) {
 			co = this.__coord;
