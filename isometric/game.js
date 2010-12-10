@@ -12,7 +12,7 @@ $(document).ready(function() {
 	var z = 0;
 	for(var i = 0; i < 10; i++) {
 		for(var y = 0; y < 10; y++) {
-			var tile = Crafty.e("2D, canvas, grass, mouse").attr('z',z++).areaMap([64,0],[128,32],[128,96],[64,128],[0,96],[0,32]).bind("click", function() {
+			var tile = Crafty.e("2D, DOM, grass, mouse").attr('z',z++).areaMap([64,0],[128,32],[128,96],[64,128],[0,96],[0,32]).bind("click", function() {
 				this.destroy();
 			}).bind("mouseover", function() {
 				console.log("mouseover");
@@ -38,13 +38,8 @@ $(document).ready(function() {
 		
 		Crafty.addEvent(this, "mousemove", scroll);
 		Crafty.addEvent(this, "mouseup", function() {
+			console.log("mouseup");
 			Crafty.removeEvent(this, "mousemove", scroll);
 		});
 	});
-	
-	mapme = Crafty.e("2D, canvas, grass");
-	iso.place(0,4,0,mapme);
-	
-	mapme = Crafty.e("2D, canvas, grass").attr("z", 1);
-	iso.place(0,5,0,mapme);
 });

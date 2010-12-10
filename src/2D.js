@@ -25,7 +25,7 @@ Crafty.c("2D", {
 		this._entry = Crafty.map.insert(this);
 		
 		//when object changes, update HashMap
-		this.bind("change", function() {
+		this.bind("move", function() {
 			this._entry.update(this);
 		});
 		
@@ -100,7 +100,7 @@ Crafty.c("2D", {
 	
 	attatch: function(obj) {
 		//attach obj to this so when this moves, move by same amount
-		this.bind("change", function(e) {
+		this.bind("move", function(e) {
 			if(!e) return; //no change in position
 			
 			var dx = this.x - e._x,
@@ -115,6 +115,7 @@ Crafty.c("2D", {
 	_attr: function(name,value) {	
 		var old = this.pos();
 		this[name] = value;
+		this.trigger("move", old);
 		this.trigger("change", old);
 	},
 	
