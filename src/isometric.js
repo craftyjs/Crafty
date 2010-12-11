@@ -1,5 +1,3 @@
-(function(Crafty) {
-
 Crafty.extend({
 	isometric: function(tile) {
 		return new Isometric(tile);
@@ -8,6 +6,7 @@ Crafty.extend({
 
 var Isometric = function(tile) {
 	this.tile = tile;
+	this.z = 0;
 };
 
 Isometric.prototype = {
@@ -17,9 +16,8 @@ Isometric.prototype = {
 			n = y * this.tile / 4,
 			n = n - z * (this.tile / 2);
 			
-		obj.attr({x: m, y: n}).z += z;
+		obj.attr({x: m  + Crafty.viewport._x, y: n  + Crafty.viewport._y}).z += z;
 	}
 };
 
 Crafty.Isometric = Isometric;
-})(Crafty);

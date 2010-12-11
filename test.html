@@ -5,26 +5,19 @@
 <script src="http://code.jquery.com/jquery-latest.js"></script>
 <link rel="stylesheet" href="http://github.com/jquery/qunit/raw/master/qunit/qunit.css" type="text/css" media="screen" />
 <script type="text/javascript" src="http://github.com/jquery/qunit/raw/master/qunit/qunit.js"></script>
-<script type="text/javascript" src="crafty.js"></script>
-<script type="text/javascript" src="components.js"></script>
+<script type="text/javascript" src="src/core.js"></script>
+
 <title>Crafty Unit Test</title>
 
 <script>
 $(document).ready(function(){
 
 	module("Selector");
-
-	test("Selector entity", function() {
-		var obj = Crafty(1);
-		
-		ok(obj, "Crafty instance not null");
-		equals(obj.length, 0, "Length of selector");
-	});
 	
 	test("Selector component", function() {
 		var e = Crafty.e("testcomp"); //create entity with a component
 		var found = Crafty("testcomp");
-		equals(e, found[0], "Entity is found");
+		equals(e[0], found[0], "Entity is found");
 		
 		var ee = Crafty.e("testcomp, something, position");
 		equals(Crafty("testcomp").length, 2, "Found two entities");
@@ -67,20 +60,19 @@ $(document).ready(function(){
 		
 		var e = Crafty.e("position");
 		
-		equals(Crafty(e).area(),0, "Area should be default");
+		equals(e.area(),0, "Area should be default");
 		
-		Crafty(e).attr("w", 5).attr("h", 8);
-		console.log("ATTR",Crafty(e));
+		e.attr("w", 5).attr("h", 8);
 		
-		equals(Crafty(e).area(),40, "Area updated by updating the properties");
+		equals(e.area(),40, "Area updated by updating the properties");
 		
-		Crafty(e).attr({w: 10, h: 20});
+		e.attr({w: 10, h: 20});
 		
 		
-		equals(Crafty(e).area(),200, "Area updated by updating the properties");
+		equals(e.area(),200, "Area updated by updating the properties");
 		
 		var empty = Crafty.e("position, 3D");
-		console.log(Crafty(empty));
+		console.log(empty);
 	});
 	
 	module("Functions");
@@ -88,11 +80,11 @@ $(document).ready(function(){
 	test("Prototyped", function() {
 		var c = Crafty.e("mycomp");
 		//has
-		equals(Crafty(c).has("mycomp"), true, "has()");
-		equals(Crafty(c).has("mycomp2"), false, "not has()");
+		equals(c.has("mycomp"), true, "has()");
+		equals(c.has("mycomp2"), false, "not has()");
 		
 		//toArray
-		equals(Crafty(c).toArray().toString(), (c).toString(), "toArray");
+		equals(c.toArray().toString(), (c).toString(), "toArray");
 		
 		//each
 		Crafty.e("mycomp");
@@ -104,14 +96,14 @@ $(document).ready(function(){
 		equals(total, 2, "each()");
 		
 		//addComponent
-		Crafty(c).addComponent("newcomp");
-		equals(Crafty(c).has("newcomp"), true, "addComponent standard");
+		c.addComponent("newcomp");
+		equals(c.has("newcomp"), true, "addComponent standard");
 		
-		Crafty(c).addComponent("testcomp, another");
-		equals(Crafty(c).has("testcomp") && Crafty(c).has("another"), true, "addComponent list");
+		c.addComponent("testcomp, another");
+		equals(c.has("testcomp") && c.has("another"), true, "addComponent list");
 		
-		Crafty(c).addComponent("arg", "arg2");
-		equals(Crafty(c).has("arg") && Crafty(c).has("arg2"), true, "addComponent args");
+		c.addComponent("arg", "arg2");
+		equals(c.has("arg") && c.has("arg2"), true, "addComponent args");
 	});
 	
 	

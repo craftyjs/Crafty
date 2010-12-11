@@ -10,9 +10,9 @@ $(document).ready(function() {
 	
 	iso = Crafty.isometric(128);
 	var z = 0;
-	for(var i = 0; i < 10; i++) {
-		for(var y = 0; y < 10; y++) {
-			var tile = Crafty.e("2D, DOM, grass, mouse").attr('z',z++).areaMap([64,0],[128,32],[128,96],[64,128],[0,96],[0,32]).bind("click", function() {
+	for(var i = 2; i >= 0; i--) {
+		for(var y = 0; y < 2; y++) {
+			var tile = Crafty.e("2D, DOM, grass, mouse").attr('z',i+1 * y+1).areaMap([64,0],[128,32],[128,96],[64,128],[0,96],[0,32]).bind("click", function() {
 				this.destroy();
 			}).bind("mouseover", function() {
 				console.log("mouseover");

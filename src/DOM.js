@@ -5,7 +5,7 @@ Crafty.c("DOM", {
 		this._element = document.createElement("div");
 		document.body.appendChild(this._element);
 		this._element.style.position = "absolute";
-		
+		this._element.id = "ent" + this[0];
 		this.bind("change", this.draw);
 		this.bind("remove", this.undraw);
 	},

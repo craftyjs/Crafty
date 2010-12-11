@@ -4,7 +4,7 @@ Crafty.c("group", {
 	group: function(children) {
 		this._children = children;
 		
-		this.bind("change", function(e) {
+		this.bind("move", function(e) {
 			//when parent is changed, affect children
 			var dx = e._x - this.x,
 				dy = e._y - this.y,
