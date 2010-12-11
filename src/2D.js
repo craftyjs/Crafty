@@ -116,20 +116,10 @@ Crafty.c("2D", {
 	},
 	
 	move: function(dir, by) {
-		if(Crafty.settings.setter !== false) {
-			if(dir.charAt(0) === 'n') this.y -= by;
-			if(dir.charAt(0) === 's') this.y += by;
-			if(dir === 'e' || dir.charAt(1) === 'e') this.x += by;
-			if(dir === 'w' || dir.charAt(1) === 'w') this.x -= by;
-		} else {
-			var old = this.pos();
-			if(dir.charAt(0) === 'n') this.y(this._y - by);
-			if(dir.charAt(0) === 's') this.y(this._y + by);
-			if(dir === 'e' || dir.charAt(1) === 'e') this.x(this._x + by);
-			if(dir === 'w' || dir.charAt(1) === 'w') this.x(this._x - by);
-			this.trigger("move", old);
-			this.trigger("change", old);
-		}
+		if(dir.charAt(0) === 'n') this.y -= by;
+		if(dir.charAt(0) === 's') this.y += by;
+		if(dir === 'e' || dir.charAt(1) === 'e') this.x += by;
+		if(dir === 'w' || dir.charAt(1) === 'w') this.x -= by;
 	},
 	
 	shift: function(x,y,w,h) {

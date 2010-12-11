@@ -38,3 +38,10 @@ Crafty.c("DOM", {
 		document.body.removeChild(this._element);
 	}
 });
+
+/**
+* Fix IE6 background flickering
+*/
+try {
+    document.execCommand("BackgroundImageCache", false, true);
+} catch(e) {}

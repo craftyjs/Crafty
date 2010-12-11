@@ -33,8 +33,8 @@ $(document).ready(function() {
 		Crafty.sprite("images/title.png", {
 			title: [0,0, 430, 396]
 		})
-		Crafty.e("2D, canvas, title").attr({x: Crafty.window.width / 2 - 215});
-		Crafty.e("2D, canvas, mouse").attr({x: Crafty.window.width / 2 - 75, y: 290, w: 142, h: 74}).bind("click", function(e) {
+		Crafty.e("2D, DOM, title").attr({x: Crafty.window.width / 2 - 215});
+		Crafty.e("2D, DOM, mouse").attr({x: Crafty.window.width / 2 - 75, y: 290, w: 142, h: 74}).bind("click", function(e) {
 			Crafty.scene("main");
 		});
 	});
@@ -44,7 +44,7 @@ $(document).ready(function() {
 	Crafty.scene("main", function() {
 		Crafty.background("#b1c7b5");
 		//Create the player
-		var player = Crafty.e("2D, player, canvas, gravity, controls, twoway, collision, animate");
+		var player = Crafty.e("2D, player, DOM, gravity, controls, twoway, collision, animate");
 		player.attr({"y":1, z: 30, facingRight: true}).gravity("floor").twoway(3)
 		.bind("keydown", function(e) {
 			if(e.keyCode === Crafty.keys.SP) {
@@ -61,7 +61,7 @@ $(document).ready(function() {
 					dir = 'w';
 				}
 				
-				Crafty.e("2D, canvas, color, bullet").attr({x: bx, y: this.y + 31, w: 5, h: 2, z:50}).color("rgb(250,0,0)").bullet(dir);
+				Crafty.e("2D, DOM, color, bullet").attr({x: bx, y: this.y + 31, w: 5, h: 2, z:50}).color("rgb(250,0,0)").bullet(dir);
 				var old = this.pos();
 				this.trigger("change",old);
 			}
@@ -79,20 +79,7 @@ $(document).ready(function() {
 				this.stop();
 				this.animate("walk_left", 20);
 			}
-			/*
-			var gy = this._gy;
-			if(this.y > Crafty.window.height - Crafty.window.height / 4) {
-				console.log("SCROLL DOWN");
-				
-				Crafty("2D").each(function() {
-					this.y -= gy;
-				});
-			} else if(this.y < 100) {
-				console.log("SCROLL UP");
-				Crafty("2D").each(function() {
-					this.y += 1;
-				});
-			}*/
+			
 		})
 		.bind("keyup", function(e) {
 			if(e.keyCode === Crafty.keys.D || e.keyCode === Crafty.keys.RA || e.keyCode === Crafty.keys.A || e.keyCode === Crafty.keys.LA) this.stop();
@@ -100,10 +87,10 @@ $(document).ready(function() {
 		
 		//Generate some doors
 		for(var i = 1; i <= 10; i++) {
-			var door = Crafty.e("2D, door, canvas");
+			var door = Crafty.e("2D, door, DOM");
 			door.attr({x: 250, y: i*80, z: i});
 			
-			var red = Crafty.e("2D, reddoor, canvas");
+			var red = Crafty.e("2D, reddoor, DOM");
 			red.attr({x: 450, y: i*80, z: i});
 		}
 		
@@ -214,19 +201,19 @@ $(document).ready(function() {
 					   rect.y >= this.y && rect.y + rect.h <= this.y + this.h;
 			}
 		});
-		var elevator = Crafty.e("2D, canvas, color, elevator").color("rgb(200,200,200)").attr({x: Crafty.window.width / 2, y:0, w: 50, h: 80});
-		var top = Crafty.e("2D, barrier, canvas, color").barrier(elevator.x, elevator.y, elevator.w, 5, player).color("rgb(100,100,100)").attr("z",1);
+		var elevator = Crafty.e("2D, DOM, color, elevator").color("rgb(200,200,200)").attr({x: Crafty.window.width / 2, y:0, w: 50, h: 80});
+		var top = Crafty.e("2D, barrier, DOM, color").barrier(elevator.x, elevator.y, elevator.w, 5, player).color("rgb(100,100,100)").attr("z",1);
 		top.north.addComponent("floor");
 		
-		var bottom = Crafty.e("2D, canvas, floor, color, bottom").color("rgb(100,100,100)").attr({x: elevator.x, y: elevator.y + elevator.h - 5, w: elevator.w, h: 5, z:1});
-		var rope = Crafty.e("2D, canvas, color").color("rgb(30,30,30)").attr({x: elevator.x + 23, y: Crafty.window.height * -1, h: Crafty.window.height, w: 2});
-		var rope2 = Crafty.e("2D, canvas, color").color("rgb(60,60,60)").attr({x: elevator.x + 28, y: Crafty.window.height * -1, h: Crafty.window.height, w: 1});
+		var bottom = Crafty.e("2D, DOM, floor, color, bottom").color("rgb(100,100,100)").attr({x: elevator.x, y: elevator.y + elevator.h - 5, w: elevator.w, h: 5, z:1});
+		var rope = Crafty.e("2D, DOM, color").color("rgb(30,30,30)").attr({x: elevator.x + 23, y: Crafty.window.height * -1, h: Crafty.window.height, w: 2});
+		var rope2 = Crafty.e("2D, DOM, color").color("rgb(60,60,60)").attr({x: elevator.x + 28, y: Crafty.window.height * -1, h: Crafty.window.height, w: 1});
 		
 		group = Crafty.group(elevator, top, bottom, rope, rope2);
 		var shaker = Crafty.e("shaker");
 		
 		for(var k=1; k <= 10; k++) {
-			var light = Crafty.e("2D, canvas, light, collision").attr({x: 100 * k, y: 244}).collision("bullet", function(e) {
+			var light = Crafty.e("2D, DOM, light, collision").attr({x: 100 * k, y: 244}).collision("bullet", function(e) {
 				this.addComponent("gravity").gravity("floor").bind("hit", function() {
 					Crafty.background("#222");
 					shaker.shaker(50);
