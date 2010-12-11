@@ -49,6 +49,8 @@ Crafty.c("2D", {
 					this.trigger("change", old);
 				}
 			});
+			
+			Crafty.settings.setter = false;
 		}
 		
 		//insert self into the HashMap

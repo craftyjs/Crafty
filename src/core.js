@@ -261,6 +261,7 @@ Crafty.extend({
 		Crafty.addEvent(this, "mousedown", Crafty.mouseDispatch);
 		Crafty.addEvent(this, "mouseup", Crafty.mouseDispatch);
 		Crafty.addEvent(this, "mousemove", Crafty.mouseDispatch);
+		Crafty.viewport.init();
 		
 		interval = setInterval(function() {
 			Crafty.trigger("enterframe",{frame: frame++});

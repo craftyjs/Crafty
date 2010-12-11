@@ -25,12 +25,12 @@ $(document).ready(function() {
 	}
 	
 	Crafty.addEvent(this, "mousedown", function(e) {
-		var base = {x: e.pageX, y: e.pageY};
+		var base = {x: e.x, y: e.y};
 		
 		function scroll(e) {
-			var dx = base.x - e.pageX,
-				dy = base.y - e.pageY;
-				base = {x: e.pageX, y: e.pageY};
+			var dx = base.x - e.x,
+				dy = base.y - e.y;
+				base = {x: e.x, y: e.y};
 			
 			Crafty.viewport.x -= dx;
 			Crafty.viewport.y -= dy;
