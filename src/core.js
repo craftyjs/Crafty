@@ -11,6 +11,7 @@ var Crafty = function(selector) {
 	components = {}, //map of components and their functions
 	entities = {}, //map of entities and their data
 	handlers = {}, //global event handlers
+	onloads = [], //temporary storage of onload handlers
 	interval,
 	
 	slice = Array.prototype.slice,
@@ -253,15 +254,18 @@ Crafty.extend = Crafty.fn.extend = function(obj) {
 };
 
 Crafty.extend({
-	init: function(f) {
+	init: function(f, w, h) {
 		if(f) FPS = f;
 		
-		Crafty.trigger("onload");
+		//call all arbitrary functions attached to onload
+		this.onload();
 		
+		//TODO: move into it's own onload handlers
 		Crafty.addEvent(this, "mousedown", Crafty.mouseDispatch);
 		Crafty.addEvent(this, "mouseup", Crafty.mouseDispatch);
 		Crafty.addEvent(this, "mousemove", Crafty.mouseDispatch);
-		Crafty.viewport.init();
+		
+		Crafty.viewport.init(w,h);
 		
 		interval = setInterval(function() {
 			Crafty.trigger("enterframe",{frame: frame++});
@@ -304,6 +308,21 @@ Crafty.extend({
 	
 	frame: function() {
 		return frame;
+	},
+	
+	onload: function(ctx,fn) {
+		if(!arguments.length) {
+			var i = 0, l = onloads.length,
+				current;
+			for(;i<l;++i) {
+				current = onloads[i];
+				if(current)
+					current.fn.call(current.ctx);
+			}
+			return this;
+		}
+		onloads.push({ctx: ctx, fn: fn});
+		return this;
 	},
 	
 	debug: function() {

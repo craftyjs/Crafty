@@ -3,8 +3,9 @@
 * Crafty JS
 */
 $(document).ready(function() {
-	Crafty.init(50); //start the game
-	$("#canvas").attr({width: $(window).width(), height: $(window).height()}); //set the canvas to fullscreen
+	Crafty.init(50, 600, 400); //start the game with 50FPS and 600 x 400 stage
+	
+	Crafty.canvas();
 	
 	//Initialize the sprite
 	Crafty.sprite(32, "images/sprite.png", {
@@ -12,7 +13,7 @@ $(document).ready(function() {
 		door: [0,2,1,2],
 		reddoor: [0,0,1,2],
 		light: [6,0,1,1]
-	}).canvas(document.getElementById("canvas"));
+	});
 	
 	
 	//create the bullet component
@@ -20,7 +21,7 @@ $(document).ready(function() {
 		bullet: function(dir) {
 			this.bind("enterframe", function() {
 				this.move(dir, 15);
-				if(this.x > Crafty.window.width || this.x < 0) 
+				if(this.x > Crafty.viewport.width || this.x < 0) 
 					this.destroy();
 			});
 			return this;
@@ -33,8 +34,8 @@ $(document).ready(function() {
 		Crafty.sprite("images/title.png", {
 			title: [0,0, 430, 396]
 		})
-		Crafty.e("2D, DOM, title").attr({x: Crafty.window.width / 2 - 215});
-		Crafty.e("2D, DOM, mouse").attr({x: Crafty.window.width / 2 - 75, y: 290, w: 142, h: 74}).bind("click", function(e) {
+		Crafty.e("2D, DOM, title").attr({x: Crafty.viewport.width / 2 - 215});
+		Crafty.e("2D, DOM, mouse").attr({x: Crafty.viewport.width / 2 - 75, y: 290, w: 142, h: 74}).bind("click", function(e) {
 			Crafty.scene("main");
 		});
 	});
@@ -138,16 +139,16 @@ $(document).ready(function() {
 			}
 		});
 		
-		var barrier = Crafty.e("barrier, DOM, image").barrier(0,544,Crafty.window.width / 2,20, player).image("images/girder.png", "repeat-x");
+		var barrier = Crafty.e("barrier, DOM, image").barrier(0,544,Crafty.viewport.width / 2,20, player).image("images/girder.png", "repeat-x");
 		barrier.north.addComponent("floor");
 		
-		var floor1 = Crafty.e("barrier, DOM, image").barrier(0, 224, Crafty.window.width / 2, 20, player).image("images/girder.png", "repeat-x");
+		var floor1 = Crafty.e("barrier, DOM, image").barrier(0, 224, Crafty.viewport.width / 2, 20, player).image("images/girder.png", "repeat-x");
 		floor1.north.addComponent("floor");
 		
-		var floor3 = Crafty.e("barrier, DOM, image").barrier(Crafty.window.width / 2 + 50, 224, Crafty.window.width / 2, 20, player).image("images/girder.png", "repeat-x");
+		var floor3 = Crafty.e("barrier, DOM, image").barrier(Crafty.viewport.width / 2 + 50, 224, Crafty.viewport.width / 2, 20, player).image("images/girder.png", "repeat-x");
 		floor3.north.addComponent("floor");
 		
-		var floor4 = Crafty.e("barrier, DOM, image").barrier(Crafty.window.width / 2 + 50, 544, Crafty.window.width / 2, 20, player).image("images/girder.png", "repeat-x");
+		var floor4 = Crafty.e("barrier, DOM, image").barrier(Crafty.viewport.width / 2 + 50, 544, Crafty.viewport.width / 2, 20, player).image("images/girder.png", "repeat-x");
 		floor4.north.addComponent("floor");
 		
 		Crafty.c("shaker", {
@@ -181,7 +182,7 @@ $(document).ready(function() {
 				this.bind("enterframe", function() {
 					if(this.y <= 0)
 						this.dir = 's';
-					if(this.y >= Crafty.window.height - this.h)
+					if(this.y >= Crafty.viewport.height - this.h)
 						this.dir = 'n';
 					 
 					this.move(this.dir, this.speed);
@@ -201,13 +202,13 @@ $(document).ready(function() {
 					   rect.y >= this.y && rect.y + rect.h <= this.y + this.h;
 			}
 		});
-		var elevator = Crafty.e("2D, DOM, color, elevator").color("rgb(200,200,200)").attr({x: Crafty.window.width / 2, y:0, w: 50, h: 80});
+		var elevator = Crafty.e("2D, DOM, color, elevator").color("rgb(200,200,200)").attr({x: Crafty.viewport.width / 2, y:0, w: 50, h: 80});
 		var top = Crafty.e("2D, barrier, DOM, color").barrier(elevator.x, elevator.y, elevator.w, 5, player).color("rgb(100,100,100)").attr("z",1);
 		top.north.addComponent("floor");
 		
 		var bottom = Crafty.e("2D, DOM, floor, color, bottom").color("rgb(100,100,100)").attr({x: elevator.x, y: elevator.y + elevator.h - 5, w: elevator.w, h: 5, z:1});
-		var rope = Crafty.e("2D, DOM, color").color("rgb(30,30,30)").attr({x: elevator.x + 23, y: Crafty.window.height * -1, h: Crafty.window.height, w: 2});
-		var rope2 = Crafty.e("2D, DOM, color").color("rgb(60,60,60)").attr({x: elevator.x + 28, y: Crafty.window.height * -1, h: Crafty.window.height, w: 1});
+		var rope = Crafty.e("2D, DOM, color").color("rgb(30,30,30)").attr({x: elevator.x + 23, y: Crafty.viewport.height * -1, h: Crafty.viewport.height, w: 2});
+		var rope2 = Crafty.e("2D, DOM, color").color("rgb(60,60,60)").attr({x: elevator.x + 28, y: Crafty.viewport.height * -1, h: Crafty.viewport.height, w: 1});
 		
 		group = Crafty.group(elevator, top, bottom, rope, rope2);
 		var shaker = Crafty.e("shaker");

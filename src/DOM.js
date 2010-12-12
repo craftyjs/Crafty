@@ -3,7 +3,7 @@ Crafty.c("DOM", {
 	
 	init: function() {
 		this._element = document.createElement("div");
-		document.body.appendChild(this._element);
+		Crafty.stage.appendChild(this._element);
 		this._element.style.position = "absolute";
 		this._element.id = "ent" + this[0];
 		this.bind("change", this.draw);
@@ -31,11 +31,12 @@ Crafty.c("DOM", {
 			style.background = "url(" + this.__image + ") "+this._repeat;
 		} else if(this.has("color")) {
 			style.background = this._color;
+			style.lineHeight = 0;
 		}
 	},
 	
 	undraw: function() {
-		document.body.removeChild(this._element);
+		Crafty.stage.removeChild(this._element);
 	}
 });
 
