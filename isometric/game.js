@@ -15,7 +15,7 @@ $(document).ready(function() {
 			var tile = Crafty.e("2D, DOM, grass, mouse").attr('z',i+1 * y+1).areaMap([64,0],[128,32],[128,96],[64,128],[0,96],[0,32]).bind("click", function() {
 				this.destroy();
 			}).bind("mouseover", function() {
-				console.log("mouseover");
+				console.log("mouseover", this._z);
 				this.sprite(0,1,1,1);
 			}).bind("mouseout", function() {
 				this.sprite(0,0,1,1);

@@ -15,6 +15,12 @@ $(document).ready(function() {
 		light: [6,0,1,1]
 	});
 	
+	//initialize sounds
+	Crafty.audio.add({"shoot": "sounds/shoot.wav", 
+					  "quake": "sounds/quake.wav",
+					  "spark": "sounds/spark.mp3"})
+			    .settings("quake", {volume: 0.2})
+				.settings("spark", {volume: 0.5});
 	
 	//create the bullet component
 	Crafty.c("bullet", {
@@ -45,26 +51,34 @@ $(document).ready(function() {
 	Crafty.scene("main", function() {
 		Crafty.background("#b1c7b5");
 		//Create the player
-		var player = Crafty.e("2D, player, DOM, gravity, controls, twoway, collision, animate");
+		var player = Crafty.e("2D, player, DOM, gravity, controls, twoway, collision, animate, audio");
 		player.attr({"y":1, z: 30, facingRight: true}).gravity("floor").twoway(3)
 		.bind("keydown", function(e) {
 			if(e.keyCode === Crafty.keys.SP) {
-				this.stop();
-				
-				var bx, dir;
-				if(this.facingRight) {
-					this.sprite(5,2,1,2);
-					bx = this.x + 32;
-					dir = 'e';
-				} else {
-					this.sprite(5,0,1,2);
-					bx = this.x - 5;
-					dir = 'w';
+				if(!this.shoot) {
+					this.shoot = true;
+					this.delay(function() {
+						this.shoot = false;
+					}, 100);
+					
+					this.stop();
+					Crafty.audio.play("shoot");
+					
+					var bx, dir;
+					if(this.facingRight) {
+						this.sprite(5,2,1,2);
+						bx = this.x + 32;
+						dir = 'e';
+					} else {
+						this.sprite(5,0,1,2);
+						bx = this.x - 5;
+						dir = 'w';
+					}
+					
+					Crafty.e("2D, DOM, color, bullet").attr({x: bx, y: this.y + 31, w: 5, h: 2, z:50}).color("rgb(250,0,0)").bullet(dir);
+					var old = this.pos();
+					this.trigger("change",old);
 				}
-				
-				Crafty.e("2D, DOM, color, bullet").attr({x: bx, y: this.y + 31, w: 5, h: 2, z:50}).color("rgb(250,0,0)").bullet(dir);
-				var old = this.pos();
-				this.trigger("change",old);
 			}
 			if(e.keyCode === Crafty.keys.D || e.keyCode === Crafty.keys.RA) this.facingRight = true;
 			if(e.keyCode === Crafty.keys.A || e.keyCode === Crafty.keys.LA) this.facingRight = false;
@@ -153,22 +167,24 @@ $(document).ready(function() {
 		
 		Crafty.c("shaker", {
 			shaker: function(duration) {
-				var dirs = ['n', 's', 'e', 'w', 'nw', 'ne', 'sw', 'se'],
-					current = Crafty.frame();
+				var current = Crafty.frame();
 						
 				this.bind("enterframe", function(e) {
 					if(e.frame - current >= duration) {
 						this.unbind("enterframe");
 						return;
 					}
-					var dir = dirs[Crafty.randRange(0,7)],
-						by = Crafty.randRange(1,5);
-					Crafty("2D obj").each(function() {
-						this.move(dir, by);
-						this.delay(function() {
-							this.move(dir, by * -1)
-						}, 100);
-					});
+					var xmove = Crafty.randRange(-5,5),
+						ymove = Crafty.randRange(-5,5);
+						
+					Crafty.viewport.x += xmove;
+					Crafty.viewport.y += ymove;
+					
+					this.delay(function() {
+						Crafty.viewport.x -= xmove;
+						Crafty.viewport.y -= ymove;
+					}, 100);
+					
 				});
 			}
 		});
@@ -214,9 +230,10 @@ $(document).ready(function() {
 		var shaker = Crafty.e("shaker");
 		
 		for(var k=1; k <= 10; k++) {
-			var light = Crafty.e("2D, DOM, light, collision").attr({x: 100 * k, y: 244}).collision("bullet", function(e) {
+			var light = Crafty.e("2D, DOM, light, collision, audio").attr({x: 100 * k, y: 244}).collision("bullet", function(e) {
 				this.addComponent("gravity").gravity("floor").bind("hit", function() {
 					Crafty.background("#222");
+					Crafty.audio.play("quake").play("spark");
 					shaker.shaker(50);
 					this.delay(function() {
 						Crafty.background("#b1c7b5");

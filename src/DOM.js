@@ -61,11 +61,11 @@ Crafty.extend({
 			borderY;
 		
 		//border left
-		borderX = parseInt(this.getStyle(obj, 'border-left-width'), 10);
-		borderY = parseInt(this.getStyle(obj, 'border-top-width'), 10);
+		borderX = parseInt(this.getStyle(obj, 'border-left-width') || 0, 10);
+		borderY = parseInt(this.getStyle(obj, 'border-top-width') || 0, 10);
 		if(!borderX || !borderY) { //JS notation for IE
-			borderX = parseInt(this.getStyle(obj, 'borderLeftWidth'), 10);
-			borderY = parseInt(this.getStyle(obj, 'borderTopWidth'), 10);
+			borderX = parseInt(this.getStyle(obj, 'borderLeftWidth') || 0, 10);
+			borderY = parseInt(this.getStyle(obj, 'borderTopWidth') || 0, 10);
 		}
 		
 		x += borderX;

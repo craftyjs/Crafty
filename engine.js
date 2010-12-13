@@ -177,6 +177,11 @@ iso.zoom(32);
 iso.scroll('e',5);
 iso.scrollTo(0,0,0);
 
+Crafty.audio("hit", "sound/something.wav");
+player.audio("hit");
+
+
+
 //viewport change
 set x(value) {
 	var oldx = this._x,
@@ -210,3 +215,4 @@ set x(value) {
 	
 	this._x = value;
 }
+
