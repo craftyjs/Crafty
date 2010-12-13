@@ -50,20 +50,36 @@ try {
 
 Crafty.extend({
 	/**
-	* Find a DOM elements position
+	* Find a DOM elements position including
+	* padding and border
 	*/
-	offset: function(obj) { 
-		var x = 0, 
-			y = 0; 
-			
-		if(obj.offsetParent) { 
-			x = obj.offsetLeft;
-			y = obj.offsetTop; 
-			while(obj = obj.offsetParent) { 
-				x += obj.offsetLeft; 
-				y += obj.offsetTop;
-			} 
-		} 
+	inner: function(obj) { 
+		var rect = obj.getBoundingClientRect(),
+			x = rect.left,
+			y = rect.top,
+			borderX,
+			borderY;
+		
+		//border left
+		borderX = parseInt(this.getStyle(obj, 'border-left-width'), 10);
+		borderY = parseInt(this.getStyle(obj, 'border-top-width'), 10);
+		if(!borderX || !borderY) { //JS notation for IE
+			borderX = parseInt(this.getStyle(obj, 'borderLeftWidth'), 10);
+			borderY = parseInt(this.getStyle(obj, 'borderTopWidth'), 10);
+		}
+		
+		x += borderX;
+		y += borderY;
+		
 		return {x: x, y: y}; 
+	},
+	
+	getStyle: function(obj,prop) {
+		var result;
+		if(obj.currentStyle)
+			result = obj.currentStyle[prop];
+		else if(window.getComputedStyle)
+			result = document.defaultView.getComputedStyle(obj,null).getPropertyValue(prop);
+		return result;
 	}
 });
