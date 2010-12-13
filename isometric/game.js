@@ -1,6 +1,6 @@
 $(document).ready(function() {
 
-	Crafty.init(50);
+	Crafty.init(50, 500, 400);
 	Crafty.canvas();
 	
 	Crafty.sprite(128, "images/sprite.png", {
