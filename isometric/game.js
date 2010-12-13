@@ -24,7 +24,7 @@ $(document).ready(function() {
 		}
 	}
 	
-	Crafty.addEvent(this, "mousedown", function(e) {
+	Crafty.addEvent(this, Crafty.stage.elem, "mousedown", function(e) {
 		var base = {x: e.x, y: e.y};
 		
 		function scroll(e) {
@@ -36,10 +36,10 @@ $(document).ready(function() {
 			Crafty.viewport.y -= dy;
 		};
 		
-		Crafty.addEvent(this, "mousemove", scroll);
-		Crafty.addEvent(this, "mouseup", function() {
+		Crafty.addEvent(this, Crafty.stage.elem, "mousemove", scroll);
+		Crafty.addEvent(this, Crafty.stage.elem, "mouseup", function() {
 			console.log("mouseup");
-			Crafty.removeEvent(this, "mousemove", scroll);
+			Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", scroll);
 		});
 	});
 });

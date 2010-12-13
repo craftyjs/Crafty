@@ -260,12 +260,12 @@ Crafty.extend({
 		//call all arbitrary functions attached to onload
 		this.onload();
 		
-		//TODO: move into it's own onload handlers
-		Crafty.addEvent(this, "mousedown", Crafty.mouseDispatch);
-		Crafty.addEvent(this, "mouseup", Crafty.mouseDispatch);
-		Crafty.addEvent(this, "mousemove", Crafty.mouseDispatch);
-		
 		Crafty.viewport.init(w,h);
+		
+		//TODO: move into it's own onload handlers
+		Crafty.addEvent(this, Crafty.stage.elem, "mousedown", Crafty.mouseDispatch);
+		Crafty.addEvent(this, Crafty.stage.elem, "mouseup", Crafty.mouseDispatch);
+		Crafty.addEvent(this, Crafty.stage.elem, "mousemove", Crafty.mouseDispatch);
 		
 		interval = setInterval(function() {
 			Crafty.trigger("enterframe",{frame: frame++});
