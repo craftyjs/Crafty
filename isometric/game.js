@@ -1,7 +1,7 @@
 $(document).ready(function() {
 
 	Crafty.init(50);
-	Crafty.canvas("canvas");
+	Crafty.canvas();
 	
 	Crafty.sprite(128, "images/sprite.png", {
 		grass: [0,0,1,1],

@@ -3,7 +3,7 @@ Crafty.c("DOM", {
 	
 	init: function() {
 		this._element = document.createElement("div");
-		Crafty.stage.appendChild(this._element);
+		Crafty.stage.elem.appendChild(this._element);
 		this._element.style.position = "absolute";
 		this._element.id = "ent" + this[0];
 		this.bind("change", this.draw);
@@ -36,7 +36,7 @@ Crafty.c("DOM", {
 	},
 	
 	undraw: function() {
-		Crafty.stage.removeChild(this._element);
+		Crafty.stage.elem.removeChild(this._element);
 	}
 });
 
@@ -46,3 +46,24 @@ Crafty.c("DOM", {
 try {
     document.execCommand("BackgroundImageCache", false, true);
 } catch(e) {}
+
+
+Crafty.extend({
+	/**
+	* Find a DOM elements position
+	*/
+	offset: function(obj) { 
+		var x = 0, 
+			y = 0; 
+			
+		if(obj.offsetParent) { 
+			x = obj.offsetLeft;
+			y = obj.offsetTop; 
+			while(obj = obj.offsetParent) { 
+				x += obj.offsetLeft; 
+				y += obj.offsetTop;
+			} 
+		} 
+		return {x: x, y: y}; 
+	}
+});
