@@ -177,7 +177,7 @@ iso.zoom(32);
 iso.scroll('e',5);
 iso.scrollTo(0,0,0);
 
-Crafty.audio("hit", "sound/something.wav");
+Crafty.audio({"hit", ["sound/something.wav", "sound/something.ogg"]});
 player.audio("hit");
 
 

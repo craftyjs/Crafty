@@ -218,6 +218,20 @@ $(document).ready(function() {
 					   rect.y >= this.y && rect.y + rect.h <= this.y + this.h;
 			}
 		});
+		
+		Crafty.c("flicker", {
+			flicker: function(duration, to, from) {
+				var current = Crafty.frame();
+				this.bind("enterframe", function(e) {
+					if(e.frame - current >= duration) {
+						this.unbind("enterframe");
+						return;
+					}
+					Crafty.background((e.frame % 2) ? from : to);
+				});
+			}
+		});
+		
 		var elevator = Crafty.e("2D, DOM, color, elevator").color("rgb(200,200,200)").attr({x: Crafty.viewport.width / 2, y:0, w: 50, h: 80});
 		var top = Crafty.e("2D, barrier, DOM, color").barrier(elevator.x, elevator.y, elevator.w, 5, player).color("rgb(100,100,100)").attr("z",1);
 		top.north.addComponent("floor");
@@ -228,13 +242,14 @@ $(document).ready(function() {
 		
 		group = Crafty.group(elevator, top, bottom, rope, rope2);
 		var shaker = Crafty.e("shaker");
+		var flicker = Crafty.e("flicker");
 		
 		for(var k=1; k <= 10; k++) {
 			var light = Crafty.e("2D, DOM, light, collision, audio").attr({x: 100 * k, y: 244}).collision("bullet", function(e) {
 				this.addComponent("gravity").gravity("floor").bind("hit", function() {
-					Crafty.background("#222");
 					Crafty.audio.play("quake").play("spark");
 					shaker.shaker(50);
+					flicker.flicker(50, "#222", "#b1c7b5");
 					this.delay(function() {
 						Crafty.background("#b1c7b5");
 					},5000);
