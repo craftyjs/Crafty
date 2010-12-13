@@ -8,7 +8,7 @@ $(document).ready(function() {
 		stone: [1,0,1,1]
 	});
 	
-	iso = Crafty.isometric(128);
+	iso = Crafty.isometric.init(128);
 	var z = 0;
 	for(var i = 2; i >= 0; i--) {
 		for(var y = 0; y < 2; y++) {
