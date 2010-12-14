@@ -19,8 +19,7 @@ $(document).ready(function() {
 	Crafty.audio.add({"shoot": "sounds/shoot.wav", 
 					  "quake": "sounds/quake.wav",
 					  "spark": "sounds/spark.mp3"})
-			    .settings("quake", {volume: 0.2})
-				.settings("spark", {volume: 0.5});
+			    .settings({volume: 0.2});
 	
 	//create the bullet component
 	Crafty.c("bullet", {
