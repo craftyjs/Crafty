@@ -5,7 +5,9 @@ $files = array("core.js","intro.js","2D.js","DOM.js","extensions.js","canvas.js"
 			   
 foreach($files as $file) {
 	$src .= file_get_contents("src/".$file);
+	$src .= "\n\r\n\r";
 }
 
-file_put_contents($src, "crafty.js");
+file_put_contents("crafty.js", $src);
 ?>
+<h1>Done: Please YUI Compress!</h1>

@@ -257,15 +257,10 @@ Crafty.extend({
 	init: function(f, w, h) {
 		if(f) FPS = f;
 		
-		//call all arbitrary functions attached to onload
-		this.onload();
-		
 		Crafty.viewport.init(w,h);
 		
-		//TODO: move into it's own onload handlers
-		Crafty.addEvent(this, Crafty.stage.elem, "mousedown", Crafty.mouseDispatch);
-		Crafty.addEvent(this, Crafty.stage.elem, "mouseup", Crafty.mouseDispatch);
-		Crafty.addEvent(this, Crafty.stage.elem, "mousemove", Crafty.mouseDispatch);
+		//call all arbitrary functions attached to onload
+		this.onload();
 		
 		interval = setInterval(function() {
 			Crafty.trigger("enterframe",{frame: frame++});
@@ -323,14 +318,6 @@ Crafty.extend({
 		}
 		onloads.push({ctx: ctx, fn: fn});
 		return this;
-	},
-	
-	debug: function() {
-		if(console) {
-			console.log("Entities: ", entities);
-			console.log("Components: ", components);
-			console.log("Handlers: ", handlers);
-		}
 	}
 });
 
@@ -350,5 +337,3 @@ function UID() {
 //make Crafty global
 window.Crafty = Crafty;
 })(window);
-//DELETE THIS
-if(!('console' in window)) window.console = {log: function() {}};
