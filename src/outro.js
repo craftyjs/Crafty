@@ -1,0 +1,1 @@
+})(Crafty,window,window.document);

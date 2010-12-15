@@ -24,14 +24,12 @@ Crafty.c("DOM", {
 		style.width = Math.floor(this._w) + "px";
 		style.height = Math.floor(this._h) + "px";
 		style.zIndex = this.z;
+		
+		this.trigger("draw", {style: style, type: "DOM"});
+		
 		if(this.has("sprite")) {
 			co = this.__coord;
 			style.background = "url('" + this.__image + "') no-repeat -" + co[0] + "px -" + co[1] + "px";
-		} else if(this.has("image")) {
-			style.background = "url(" + this.__image + ") "+this._repeat;
-		} else if(this.has("color")) {
-			style.background = this._color;
-			style.lineHeight = 0;
 		}
 	},
 	
