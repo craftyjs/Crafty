@@ -35,6 +35,15 @@ Crafty.c("DOM", {
 	
 	undraw: function() {
 		Crafty.stage.elem.removeChild(this._element);
+	},
+	
+	css: function(obj) {
+		var key, elem = this._element, style = elem.style;
+		for(key in obj) {
+			if(!obj.hasOwnProperty(key)) continue;
+			style[key] = obj[key];
+		}
+		this.trigger("change");
 	}
 });
 
