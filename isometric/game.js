@@ -25,12 +25,12 @@ $(document).ready(function() {
 	}
 	
 	Crafty.addEvent(this, Crafty.stage.elem, "mousedown", function(e) {
-		var base = {x: e.x, y: e.y};
+		var base = {x: e.clientX, y: e.clientY};
 		
 		function scroll(e) {
-			var dx = base.x - e.x,
-				dy = base.y - e.y;
-				base = {x: e.x, y: e.y};
+			var dx = base.x - e.clientX,
+				dy = base.y - e.clientY;
+				base = {x: e.clientX, y: e.clientY};
 			
 			Crafty.viewport.x -= dx;
 			Crafty.viewport.y -= dy;
@@ -38,7 +38,6 @@ $(document).ready(function() {
 		
 		Crafty.addEvent(this, Crafty.stage.elem, "mousemove", scroll);
 		Crafty.addEvent(this, Crafty.stage.elem, "mouseup", function() {
-			console.log("mouseup");
 			Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", scroll);
 		});
 	});

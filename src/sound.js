@@ -78,7 +78,7 @@ Crafty.extend({
 		
 		play: function(id) {
 			var sound = this._elems[id];
-			console.log(sound.ended, sound.currentTime, sound.networkState, sound.readyState);
+			
 			if(sound.ended || !sound.currentTime) {
 				sound.play();
 			} 

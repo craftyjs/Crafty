@@ -50,7 +50,7 @@ $(document).ready(function() {
 	Crafty.scene("main", function() {
 		Crafty.background("#b1c7b5");
 		//Create the player
-		var player = Crafty.e("2D, player, DOM, gravity, controls, twoway, collision, animate, audio");
+		var player = Crafty.e("2D, player, DOM, gravity, controls, twoway, collision, animate, audio, health");
 		player.attr({"y":1, z: 30, facingRight: true}).gravity("floor").twoway(3)
 		.bind("keydown", function(e) {
 			if(e.keyCode === Crafty.keys.SP) {
@@ -101,10 +101,10 @@ $(document).ready(function() {
 		
 		//Generate some doors
 		for(var i = 1; i <= 10; i++) {
-			var door = Crafty.e("2D, door, DOM");
+			var door = Crafty.e("2D, door, DOM, explosive");
 			door.attr({x: 250, y: i*80, z: i});
 			
-			var red = Crafty.e("2D, reddoor, DOM");
+			var red = Crafty.e("2D, reddoor, DOM, explosive");
 			red.attr({x: 450, y: i*80, z: i});
 		}
 		

@@ -195,7 +195,10 @@ Crafty.fn = Crafty.prototype = {
 			//look for a match if the function is passed
 			for(;i<l;i++) {
 				current = hdl[this[0]];
-				if(current[i] == fn) delete current[i];
+				if(current[i] == fn) {
+					current.splice(i,1);
+					i--;
+				}
 			}
 		});
 		

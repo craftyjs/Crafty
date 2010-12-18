@@ -165,33 +165,35 @@ Crafty.c("gravity", {
 	},
 	
 	gravity: function(comp) {
-		this._anti = comp;
+		if(comp) this._anti = comp;
 		
-		this.bind("enterframe", function() {
-			if(this._falling) {
-				//if falling, move the players Y
-				this._gy += this._gravity * 2;
-				this.y += this._gy;
-			} else {
-				this._gy = 0; //reset change in y
-			}
-			
-			var obj = this, hit = false;
-			Crafty(comp).each(function() {
-				//check for an intersection directly below the player
-				if(this.intersect(obj.x,obj.y+1,obj.w,obj.h)) {
-					hit = this;
-				}
-			});
-			
-			if(hit) { //stop falling if found
-				if(this._falling) this.stopFalling(hit);
-			} else {
-				this._falling = true; //keep falling otherwise
+		this.bind("enterframe", this._enterframe);
+		
+		return this;
+	},
+	
+	_enterframe: function() {
+		if(this._falling) {
+			//if falling, move the players Y
+			this._gy += this._gravity * 2;
+			this.y += this._gy;
+		} else {
+			this._gy = 0; //reset change in y
+		}
+		
+		var obj = this, hit = false;
+		Crafty(this._anti).each(function() {
+			//check for an intersection directly below the player
+			if(this.intersect(obj.x,obj.y+1,obj.w,obj.h)) {
+				hit = this;
 			}
 		});
 		
-		return this;
+		if(hit) { //stop falling if found
+			if(this._falling) this.stopFalling(hit);
+		} else {
+			this._falling = true; //keep falling otherwise
+		}
 	},
 	
 	stopFalling: function(e) {
@@ -201,21 +203,40 @@ Crafty.c("gravity", {
 		this._falling = false;
 		if(this.__move && this.__move.up) this.__move.up = false;
 		this.trigger("hit");
+	},
+	
+	antigravity: function() {
+		this.unbind("enterframe", this._enterframe);
 	}
 });
 
 Crafty.c("collision", {
-	collision: function(comp, fn) {
-		var obj = this;
+	_collided: false,
+	
+	collision: function(comp, fn, fnoff) {
+		var obj = this,
+			found = false;
+			
 		//on change, check for collision
 		this.bind("enterframe", function() {
 			//for each collidable entity
 			if(typeof comp === "string") {
+				found = false;
+				
 				Crafty(comp).each(function() {
 					if(this.intersect(obj)) { //check intersection
-						fn.call(obj,this);
+						obj._collided = true;
+						found = this;
 					}
 				});
+				
+				if(found) {
+					fn.call(this, found);
+				} else {
+					if(fnoff && this._collided) {
+						fnoff.call(this);
+					}
+				}
 			} else if(typeof comp === "object") {
 				if(comp.intersect(obj)) {
 					fn.call(obj,comp);
@@ -235,7 +256,7 @@ Crafty.polygon = function(poly) {
 		poly = Array.prototype.slice.call(arguments, 0);
 	}
 	this.points = poly;
-}
+};
 
 Crafty.polygon.prototype = {
 	containsPoint: function(x, y) {

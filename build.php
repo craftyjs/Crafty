@@ -1,6 +1,6 @@
 <?php
 $src = "";
-$files = array("core.js","intro.js","2D.js","DOM.js","extensions.js","canvas.js","controls.js","animation.js",
+$files = array("license.txt", "core.js","intro.js", "HashMap.js", "2D.js","DOM.js","extensions.js","canvas.js","controls.js","animation.js",
 			   "drawing.js", "groups.js", "isometric.js", "sound.js", "text.js", "health.js", "scores.js", "loader.js", "outro.js");
 			   
 foreach($files as $file) {
@@ -9,5 +9,10 @@ foreach($files as $file) {
 }
 
 file_put_contents("crafty.js", $src);
+
 ?>
 <h1>Done: Please YUI Compress!</h1>
+<?php
+$compressed = gzcompress(file_get_contents("crafty-min.js"));
+echo strlen($compressed);
+?>

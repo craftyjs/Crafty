@@ -7,11 +7,9 @@ Crafty.c("health", {
 	},
 	
 	hurt: function(by) {
-		var diff = this._mana;
 		this._mana -= by;
-		diff -= this._mana;
 		
-		this.trigger("hurt", {by: by, diff: diff, mana: this._mana});
+		this.trigger("hurt", {by: by, mana: this._mana});
 		if(this._mana <= 0) {
 			this.trigger("die");
 		}
@@ -20,6 +18,7 @@ Crafty.c("health", {
 	
 	heal: function(by) {
 		this._mana += by;
+		this.trigger("heal");
 		return this;
 	}
 });
