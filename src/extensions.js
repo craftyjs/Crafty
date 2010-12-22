@@ -29,8 +29,8 @@ Crafty.extend({
 			if(!map.hasOwnProperty(pos)) continue;
 			
 			temp = map[pos];
-			x = (temp[0] + paddingX) * tile;
-			y = (temp[1] + paddingY) * tile;
+			x = temp[0] * tile + paddingX;
+			y = temp[1] * tile + paddingY;
 			w = temp[2] * tile || tile;
 			h = temp[3] * tile || tile;
 			
@@ -56,9 +56,7 @@ Crafty.extend({
 				},
 				
 				sprite: function(x,y,w,h) {
-					x += this.__padding[0];
-					y += this.__padding[1];
-					this.__coord = [x*this.__tile,y*this.__tile,w*this.__tile || this.__tile,h*this.__tile || this.__tile];
+					this.__coord = [x*this.__tile+this.__padding[0],y*this.__tile+this.__padding[1],w*this.__tile || this.__tile,h*this.__tile || this.__tile];
 					if(this.has("canvas")) DrawBuffer.add(this);
 					else if(this.has("DOM")) this.draw();
 				}
