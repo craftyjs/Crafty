@@ -76,8 +76,20 @@ Crafty.extend({
 			return this;		
 		},
 		
+		seek: function(id, tm) {
+			var sound = this._elems[id];
+			
+			if(!sound.ended && 0 != sound.currentTime)
+			{
+				sound.currentTime=tm;
+			}
+			return this;
+		},
+
 		play: function(id) {
 			var sound = this._elems[id];
+			
+			
 			
 			if(sound.ended || !sound.currentTime) {
 				sound.play();

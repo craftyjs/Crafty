@@ -16,7 +16,7 @@ $(document).ready(function() {
 	});
 	
 	//initialize sounds
-	Crafty.audio.add({"shoot": "sounds/shoot.wav", 
+	Crafty.audio.add({"shoot": "sounds/shoot.ogg", 
 					  "quake": "sounds/quake.wav",
 					  "spark": "sounds/spark.mp3"})
 			    .settings({volume: 0.2});
@@ -61,7 +61,7 @@ $(document).ready(function() {
 					}, 100);
 					
 					this.stop();
-					Crafty.audio.play("shoot");
+					Crafty.audio.seek("shoot",0).play("shoot");
 					
 					var bx, dir;
 					if(this.facingRight) {
