@@ -60,6 +60,8 @@ Crafty.c("animate", {
 			this.stop();
 			return;
 		}
+		
+		this.trigger("change");
 	},
 	
 	stop: function() {

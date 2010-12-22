@@ -138,24 +138,3 @@ Entry.prototype = {
 
 parent.HashMap = HashMap;
 })(Crafty);
-
-Crafty.c("explosive", {
-	init: function() {
-		if(!this.has("collision")) this.addComponent("collision");
-		this.collision("player", function(obj) {
-			if(obj.has("health")) {
-				obj.hurt(5);
-			}
-			this.destroy();
-		});
-	}
-});
-
-Crafty.c("explosive", {
-	init: function() {
-		if(!this.has("collision")) this.addComponent("collision");
-		this.collision("player", function(obj) {
-			//hurt player
-		});
-	}
-});
