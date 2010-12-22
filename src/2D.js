@@ -184,7 +184,7 @@ Crafty.c("gravity", {
 		var obj = this, hit = false;
 		Crafty(this._anti).each(function() {
 			//check for an intersection directly below the player
-			if(this.intersect(obj.x,obj.y+1,obj.w,obj.h)) {
+			if(this.intersect(obj.x,obj.y+1,obj.w,obj.h) && obj !== this) {
 				hit = this;
 			}
 		});
