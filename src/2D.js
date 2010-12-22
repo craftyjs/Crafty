@@ -130,7 +130,7 @@ Crafty.c("2D", {
 		if(h) this.h += h;
 	},
 	
-	attatch: function(obj) {
+	attach: function(obj) {
 		//attach obj to this so when this moves, move by same amount
 		this.bind("move", function(e) {
 			if(!e) return; //no change in position
