@@ -12,7 +12,3 @@ file_put_contents("crafty.js", $src);
 
 ?>
 <h1>Done: Please YUI Compress!</h1>
-<?php
-$compressed = gzcompress(file_get_contents("crafty-min.js"));
-echo strlen($compressed);
-?>

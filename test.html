@@ -2,136 +2,45 @@
                     "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<script src="http://code.jquery.com/jquery-latest.js"></script>
-<link rel="stylesheet" href="http://github.com/jquery/qunit/raw/master/qunit/qunit.css" type="text/css" media="screen" />
-<script type="text/javascript" src="http://github.com/jquery/qunit/raw/master/qunit/qunit.js"></script>
-<script type="text/javascript" src="src/core.js"></script>
+<script type="text/javascript" src="crafty.js"></script>
 
 <title>Crafty Unit Test</title>
 
 <script>
-$(document).ready(function(){
+window.onload = function() {
+	Crafty.init(50, 320, 240);
+	Crafty.canvas();
 
-	module("Selector");
-	
-	test("Selector component", function() {
-		var e = Crafty.e("testcomp"); //create entity with a component
-		var found = Crafty("testcomp");
-		equals(e[0], found[0], "Entity is found");
-		
-		var ee = Crafty.e("testcomp, something, position");
-		equals(Crafty("testcomp").length, 2, "Found two entities");
-		equals(Crafty("something").length, 1, "Found one 'something' entity");
-		
-		
-	});
-	
-	test("Advanced Selectors", function() {
-		Crafty.e("morethan, two, component");
-		Crafty.e("more, than, two, components");
-		equals(Crafty("testcomp something").length, 1, "AND selecting multiple");
-		equals(Crafty("testcomp, something").length, 2, "OR selecting multiple");
-		
-		equals(Crafty("morethan, two, something").length, 3, "OR selecting three");
-		equals(Crafty("morethan two something").length, 0, "AND selecting none");
-		equals(Crafty("morethan two component").length, 1, "AND selecting one");
+	Crafty.sprite("bg.png",
+	{
+		background: [0, 0, 321, 243]
 	});
 
-	module("Components");
-	
-	test("Inheriting Objects", function() {
-		
-		var c = Crafty.c("position", {
-			w: 0,
-			h: 0,
-			
-			area: function() {
-				return this.w * this.h;
-			}
-		});
-		
-		var c = Crafty.c("3D", {
-			z:0,
-			
-			volume: function() {
-				return this.w * this.h * this.z;
-			}
-		});
-		
-		var e = Crafty.e("position");
-		
-		equals(e.area(),0, "Area should be default");
-		
-		e.attr("w", 5).attr("h", 8);
-		
-		equals(e.area(),40, "Area updated by updating the properties");
-		
-		e.attr({w: 10, h: 20});
-		
-		
-		equals(e.area(),200, "Area updated by updating the properties");
-		
-		var empty = Crafty.e("position, 3D");
-		console.log(empty);
+	Crafty.sprite("mover.png",
+	{
+		mover: [0, 0, 25, 25]
 	});
-	
-	module("Functions");
-	
-	test("Prototyped", function() {
-		var c = Crafty.e("mycomp");
-		//has
-		equals(c.has("mycomp"), true, "has()");
-		equals(c.has("mycomp2"), false, "not has()");
-		
-		//toArray
-		equals(c.toArray().toString(), (c).toString(), "toArray");
-		
-		//each
-		Crafty.e("mycomp");
-		var total = 0;
-		Crafty("mycomp").each(function(i) {
-			total++;
-		});
-		
-		equals(total, 2, "each()");
-		
-		//addComponent
-		c.addComponent("newcomp");
-		equals(c.has("newcomp"), true, "addComponent standard");
-		
-		c.addComponent("testcomp, another");
-		equals(c.has("testcomp") && c.has("another"), true, "addComponent list");
-		
-		c.addComponent("arg", "arg2");
-		equals(c.has("arg") && c.has("arg2"), true, "addComponent args");
-	});
-	
-	
-	function randrange(from,to) {
-		return Math.round(Math.random() * (to - from) + from);
-	}
-	
-	
-});
 
-function create(x,y,w,h) {
-	var node = document.createElement("div");
-	node.setAttribute("class","bound");
-	document.body.appendChild(node);
-	$(node).css({left: x, top: y, width: w, height: h});
-}
+	var bg = Crafty.e("2D, canvas, background");
+	//bg.x = (Crafty.viewport.width - bg.w) / 2;
+	//bg.y = (Crafty.viewport.width - bg.w) / 2;
+	console.log("bg x: " + bg.x + ", bg y: " + bg.y);
+
+	var mover = Crafty.e("2D, canvas, mover");
+	var modifier = 5;
+	mover.bind("enterframe", function()
+	{
+		mover.x += modifier;
+		if(mover.x >= Crafty.viewport.width - mover.w || mover.x < 0)
+		{
+			modifier *= -1;
+		}
+	});
+};
 </script>
-<style>
-.bound { border:1px solid black;  position:absolute }
-</style>
+
 </head>
 <body>
-<div id="player"></div>
-<h1 id="qunit-header">Crafty Test Suite</h1>
-<h2 id="qunit-banner"></h2>
-<h2 id="qunit-userAgent"></h2>
-<ol id="qunit-tests"></ol>
-<div id="qunit-fixture">test markup, will be hidden</div>
-<div id="qunit-filter-pass"></div>
+
 </body>
 </html>
