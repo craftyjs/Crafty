@@ -7,9 +7,10 @@ Crafty.c("2D", {
 	_h: 0,
 	_z: 0,
 	_entry: null,
+	_attachy: [],
 	
 	init: function() {
-		if('__defineSetter__' in this && '__defineGetter__' in this) {
+		if(Crafty.support.setter) {
 			//create getters and setters on x,y,w,h,z
 			this.__defineSetter__('x', function(v) { this._attr('_x',v); });
 			this.__defineSetter__('y', function(v) { this._attr('_y',v); });
@@ -64,6 +65,7 @@ Crafty.c("2D", {
 		//when object is removed, remove from HashMap
 		this.bind("remove", function() {
 			Crafty.map.remove(this);
+			this.detach();
 		});
 	},
 	
@@ -131,8 +133,7 @@ Crafty.c("2D", {
 	},
 	
 	attach: function(obj) {
-		//attach obj to this so when this moves, move by same amount
-		this.bind("move", function(e) {
+		function callback(e) {
 			if(!e) return; //no change in position
 			
 			var dx = this.x - e._x,
@@ -141,7 +142,33 @@ Crafty.c("2D", {
 				dh = this.h - e._h;
 			
 			obj.shift(dx,dy,dw,dh);
-		});
+		}
+		
+		//attach obj to this so when this moves, move by same amount
+		this.bind("move", callback);
+		
+		this._attachy[obj[0]] = callback;
+	},
+	
+	detach: function(obj) {
+		//if nothing passed, remove all attached objects
+		if(!obj) {
+			var key, a = this._attachy;
+			for(key in a) {
+				if(!a.hasOwnProperty(key)) continue;
+				this.unbind("move", a[key]);
+				
+				this._attachy[key] = null;
+				delete this._attachy[key];
+			}
+			
+			return;
+		}
+		//if obj passed, find the handler and unbind
+		var handle = this._attachy[obj[0]];
+		this.unbind("move", handle);
+		this._attachy[obj[0]] = null;
+		delete this._attachy[obj[0]];
 	},
 	
 	_attr: function(name,value) {	

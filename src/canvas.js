@@ -83,27 +83,7 @@ Crafty.c("canvas", {
 			//don't draw if not loaded
 			if(!this.img.width) return;
 			
-			//if out of bounds from the canvas, crop
-			if(pos._x < 0) {
-				//negative minus negative
-				co._x -= pos._x;
-				pos._x = 0;
-			}
 			
-			if(pos._y < 0) {
-				co._y -= pos._y;
-				pos._y = 0;
-			}
-			
-			if(pos._x + pos._w > Crafty.viewport.width) {
-				co._w += (Crafty.viewport.width - pos._x + pos._w);
-				pos._w = co._w;
-			}
-			
-			if(pos._y + pos._h > Crafty.viewport.height) {
-				co._h += (Crafty.viewport.height - pos._y + pos._h);
-				pos._h = co._h;
-			}
 			
 			//draw the image on the canvas element
 			Crafty.context.drawImage(this.img, //image element

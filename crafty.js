@@ -506,9 +506,10 @@ Crafty.c("2D", {
 	_h: 0,
 	_z: 0,
 	_entry: null,
+	_attachy: [],
 	
 	init: function() {
-		if('__defineSetter__' in this && '__defineGetter__' in this) {
+		if(Crafty.support.setter) {
 			//create getters and setters on x,y,w,h,z
 			this.__defineSetter__('x', function(v) { this._attr('_x',v); });
 			this.__defineSetter__('y', function(v) { this._attr('_y',v); });
@@ -563,6 +564,7 @@ Crafty.c("2D", {
 		//when object is removed, remove from HashMap
 		this.bind("remove", function() {
 			Crafty.map.remove(this);
+			this.detach();
 		});
 	},
 	
@@ -630,8 +632,7 @@ Crafty.c("2D", {
 	},
 	
 	attach: function(obj) {
-		//attach obj to this so when this moves, move by same amount
-		this.bind("move", function(e) {
+		function callback(e) {
 			if(!e) return; //no change in position
 			
 			var dx = this.x - e._x,
@@ -640,7 +641,33 @@ Crafty.c("2D", {
 				dh = this.h - e._h;
 			
 			obj.shift(dx,dy,dw,dh);
-		});
+		}
+		
+		//attach obj to this so when this moves, move by same amount
+		this.bind("move", callback);
+		
+		this._attachy[obj[0]] = callback;
+	},
+	
+	detach: function(obj) {
+		//if nothing passed, remove all attached objects
+		if(!obj) {
+			var key, a = this._attachy;
+			for(key in a) {
+				if(!a.hasOwnProperty(key)) continue;
+				this.unbind("move", a[key]);
+				
+				this._attachy[key] = null;
+				delete this._attachy[key];
+			}
+			
+			return;
+		}
+		//if obj passed, find the handler and unbind
+		var handle = this._attachy[obj[0]];
+		this.unbind("move", handle);
+		this._attachy[obj[0]] = null;
+		delete this._attachy[obj[0]];
 	},
 	
 	_attr: function(name,value) {	
@@ -1094,7 +1121,7 @@ Crafty.extend({
 			Crafty.stage.x = offset.x;
 			Crafty.stage.y = offset.y;
 			
-			if('__defineSetter__' in this && '__defineGetter__' in this) {
+			if(Crafty.support.setter) {
 				//define getters and setters to scroll the viewport
 				this.__defineSetter__('x', function(v) { this.scroll('_x', v); });
 				this.__defineSetter__('y', function(v) { this.scroll('_y', v); });
@@ -1115,6 +1142,14 @@ Crafty.extend({
 	* Map key names to key codes
 	*/
 	keys: {'BSP':8, 'TAB':9, 'ENT':13, 'SHF':16, 'CTR':17, 'ALT':18, 'PAU':19, 'CAP':20, 'ESC':27, 'SP':32, 'PGU':33, 'PGD':34, 'END':35, 'HOM':36, 'LA':37, 'UA':38, 'RA':39, 'DA':40, 'INS':45, 'DEL':46, 'D0':48, 'D1':49, 'D2':50, 'D3':51, 'D4':52, 'D5':53, 'D6':54, 'D7':55, 'D8':56, 'D9':57, 'SEM':59, 'EQL':61, 'A':65, 'B':66, 'C':67, 'D':68, 'E':69, 'F':70, 'G':71, 'H':72, 'I':73, 'J':74, 'K':75, 'L':76, 'M':77, 'N':78, 'O':79, 'P':80, 'Q':81, 'R':82, 'S':83, 'T':84, 'U':85, 'V':86, 'W':87, 'X':88, 'Y':89, 'Z':90, 'LWN':91, 'RWN':92, 'SEL':93, 'N0':96, 'N1':97, 'N2':98, 'N3':99, 'N4':100, 'N5':101, 'N6':102, 'N7':103, 'N8':104, 'N9':105, 'MUL':106, 'ADD':107, 'SUB':109, 'DEC':110, 'DIV':111, 'F1':112, 'F2':113, 'F3':114, 'F4':115, 'F5':116, 'F6':117, 'F7':118, 'F8':119, 'F9':120, 'F10':121, 'F11':122, 'F12':123, 'NUM':144, 'SCR':145, 'COM':188, 'PER':190, 'FSL':191, 'ACC':192, 'OBR':219, 'BSL':220, 'CBR':221, 'QOT':222}
+});
+
+/**
+* Test support for various javascript and HTML features
+*/
+Crafty.onload(this, function() {
+	Crafty.support.setter = ('__defineSetter__' in this && '__defineGetter__' in this);
+	Crafty.support.audio = ('Audio' in window);
 });
 
 /**
@@ -1306,8 +1341,7 @@ Crafty.c("canvas", {
 			//don't draw if not loaded
 			if(!this.img.width) return;
 			
-			try {
-			
+			/*
 			//if out of bounds from the canvas, crop
 			if(pos._x < 0) {
 				//negative minus negative
@@ -1329,6 +1363,7 @@ Crafty.c("canvas", {
 				co._h += (Crafty.viewport.height - pos._y + pos._h);
 				pos._h = co._h;
 			}
+			*/
 			
 			//draw the image on the canvas element
 			Crafty.context.drawImage(this.img, //image element
@@ -1341,9 +1376,6 @@ Crafty.c("canvas", {
 									 pos._w, //width on canvas
 									 pos._h //height on canvas
 			);
-			} catch(e) {
-				console.log(e, co, pos);
-			}
 		}
 	}
 });
@@ -1907,6 +1939,8 @@ Crafty.extend({
 		},
 		
 		add: function(id, url) {
+			if(!Crafty.support.audio) return;
+			
 			var elem, 
 				key, 
 				audio = new Audio(),
@@ -1974,6 +2008,8 @@ Crafty.extend({
 		},
 		
 		play: function(id) {
+			if(!Crafty.support.audio) return;
+			
 			var sound = this._elems[id];
 			
 			if(sound.ended || !sound.currentTime) {

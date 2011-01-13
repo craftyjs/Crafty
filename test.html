@@ -11,31 +11,13 @@ window.onload = function() {
 	Crafty.init(50, 320, 240);
 	Crafty.canvas();
 
-	Crafty.sprite("bg.png",
-	{
-		background: [0, 0, 321, 243]
-	});
-
 	Crafty.sprite("mover.png",
 	{
 		mover: [0, 0, 25, 25]
 	});
-
-	var bg = Crafty.e("2D, canvas, background");
-	//bg.x = (Crafty.viewport.width - bg.w) / 2;
-	//bg.y = (Crafty.viewport.width - bg.w) / 2;
-	console.log("bg x: " + bg.x + ", bg y: " + bg.y);
-
-	var mover = Crafty.e("2D, canvas, mover");
-	var modifier = 5;
-	mover.bind("enterframe", function()
-	{
-		mover.x += modifier;
-		if(mover.x >= Crafty.viewport.width - mover.w || mover.x < 0)
-		{
-			modifier *= -1;
-		}
-	});
+	
+	var e1 = Crafty.e("2D, canvas, mover, controls, fourway").fourway(5);
+	var e2 = Crafty.e("2D, canvas, mover");
 };
 </script>
 

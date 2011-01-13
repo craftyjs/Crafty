@@ -10,6 +10,8 @@ Crafty.extend({
 		},
 		
 		add: function(id, url) {
+			if(!Crafty.support.audio) return;
+			
 			var elem, 
 				key, 
 				audio = new Audio(),
@@ -77,6 +79,8 @@ Crafty.extend({
 		},
 		
 		play: function(id) {
+			if(!Crafty.support.audio) return;
+			
 			var sound = this._elems[id];
 			
 			if(sound.ended || !sound.currentTime) {
