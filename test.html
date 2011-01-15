@@ -10,14 +10,30 @@
 window.onload = function() {
 	Crafty.init(50, 320, 240);
 	Crafty.canvas();
-
-	Crafty.sprite("mover.png",
-	{
+	
+	Crafty.load(["mover.png"], function() {
+		console.log("loaded");
+		Crafty.scene("main");
+	});
+	
+	Crafty.sprite("bg.png", {
+		background: [0, 0, 321, 240]
+	});
+	Crafty.sprite("mover.png", {
 		mover: [0, 0, 25, 25]
 	});
 	
-	var e1 = Crafty.e("2D, canvas, mover, controls, fourway").fourway(5);
-	var e2 = Crafty.e("2D, canvas, mover");
+	Crafty.scene("main", function() {
+		var bg = Crafty.e("2D, canvas, background");
+		bg.x = (Crafty.viewport.width - bg.w) / 2;
+		bg.y = (Crafty.viewport.width - bg.w) / 2;
+		console.log("bg x: " + bg.x + ", bg y: " + bg.y);
+
+		var mover = Crafty.e("2D, canvas, mover, block, controls, fourway").fourway(5);
+		var barrier = Crafty.e("2D, canvas, mover");
+		//barrier.x += 50;
+		//barrier.y += 50;
+	});
 };
 </script>
 

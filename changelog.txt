@@ -9,6 +9,6 @@ v0.2 - 13/1/2011
 * Objects will detach on remove event
 * Sprite maps can take optional padding values for maps with padding around objects
 * Fixed a typeahead bug with controls component
-* Barrier component for quick collision rectangles to prevent moving entities from intersecting
 * Onload functions that will be called as soon as Crafty.init() is called
 * Support object to detect support for HTML5 features and others
+* Loader to load assets before the game starts.
