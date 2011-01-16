@@ -12,3 +12,4 @@ v0.2 - 13/1/2011
 * Onload functions that will be called as soon as Crafty.init() is called
 * Support object to detect support for HTML5 features and others
 * Loader to load assets before the game starts.
+* Rotation implemented

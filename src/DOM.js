@@ -25,6 +25,21 @@ Crafty.c("DOM", {
 		style.height = Math.floor(this._h) + "px";
 		style.zIndex = this.z;
 		
+		if(this._rotation % 360) {
+			var rstring = "rotate("+this._rotation+"deg)",
+				origin = this._orientation.x + "px " + this._orientation.y + "px";
+			
+			style.transformOrigin = origin;
+			style.mozTransformOrigin = origin;
+			style.webkitTransformOrigin = origin;
+			style.oTransformOrigin = origin;
+			
+			style.transform = rstring;
+			style.mozTransform = rstring;
+			style.webkitTransform = rstring;
+			style.oTransform = rstring;
+		}
+		
 		this.trigger("draw", {style: style, type: "DOM"});
 		
 		if(this.has("sprite")) {
