@@ -10,8 +10,10 @@ Crafty.c("canvas", {
 		//on change, redraw
 		this.bind("change", function(e) {
 			e = e || this;
+			if(this._mbr) e = this._mbr; //use the MBR over anything else
 			
 			//clear self
+			console.log("clear");
 			Crafty.context.clearRect(e._x, e._y, e._w, e._h);
 			
 			//add to the DrawBuffer if visible
@@ -76,14 +78,19 @@ Crafty.c("canvas", {
 			}
 		}
 		
+		if(this._rotation % 360 !== 0) {
+			Crafty.context.save();
+			console.log(this._orientation);
+			Crafty.context.translate(this._orientation.x + this._x, this._orientation.y + this._y);
+			Crafty.context.rotate((this._rotation % 360) * (Math.PI / 180));
+		}
+		
 		this.trigger("draw",{type: "canvas", spritePos: co, pos: pos});
 		
 		//inline drawing of the sprite
 		if(this.__c.sprite) {
 			//don't draw if not loaded
 			if(!this.img.width) return;
-			
-			
 			
 			//draw the image on the canvas element
 			Crafty.context.drawImage(this.img, //image element
@@ -97,6 +104,8 @@ Crafty.c("canvas", {
 									 pos._h //height on canvas
 			);
 		}
+		
+		Crafty.context.restore();
 	}
 });
 

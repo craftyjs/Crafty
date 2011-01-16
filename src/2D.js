@@ -6,6 +6,9 @@ Crafty.c("2D", {
 	_w: 0,
 	_h: 0,
 	_z: 0,
+	_rotation: 0,
+	_orientation: {x: 0, y: 0},
+	_mbr: null,
 	_entry: null,
 	_attachy: [],
 	
@@ -18,11 +21,49 @@ Crafty.c("2D", {
 			this.__defineSetter__('h', function(v) { this._attr('_h',v); });
 			this.__defineSetter__('z', function(v) { this._attr('_z',v); });
 			
+			this.__defineSetter__('rotation', function(v) {
+				var theta = -1 * (v % 360), //angle always between 0 and 359
+					rad = theta * (Math.PI / 180),
+					ct = Math.cos(rad), //cache the sin and cosine of theta
+					st = Math.sin(rad),
+					o = {x: this._orientation.x + this._x, 
+						 y: this._orientation.y + this._y}; 
+				
+				//if the angle is 0 and is currently 0, skip
+				if(theta === 0 && this._rotation % 360 === 0) {
+					this._mbr = null;
+					return;
+				}
+				
+				var x0 = o.x + (this._x - o.x) * ct + (this._y - o.y) * st,
+					y0 = o.y - (this._x - o.x) * st + (this._y - o.y) * ct,
+					x1 = o.x + (this._x + this._w - o.x) * ct + (this._y - o.y) * st,
+					y1 = o.y - (this._x + this._w - o.x) * st + (this._y - o.y) * ct,
+					x2 = o.x + (this._x + this._w - o.x) * ct + (this._y + this._h - o.y) * st,
+					y2 = o.y - (this._x + this._w - o.x) * st + (this._y + this._h - o.y) * ct,
+					x3 = o.x + (this._x - o.x) * ct + (this._y + this._h - o.y) * st,
+					y3 = o.y - (this._x - o.x) * st + (this._y + this._h - o.y) * ct,
+					minx = Math.min(x0,x1,x2,x3),
+					miny = Math.min(y0,y1,y2,y3),
+					maxx = Math.max(x0,x1,x2,x3),
+					maxy = Math.max(y0,y1,y2,y3);
+					
+				this._mbr = {_x: Math.floor(minx), _y: Math.floor(miny), _w: Math.ceil(maxx - minx), _h: Math.ceil(maxy - miny)};
+				this._rotation = v;
+				
+				//this.trigger("move", old);
+				this.trigger("change", this._mbr);
+				
+				
+				//Crafty.e('2D, DOM').attr(this._mbr).css({border: '1px solid red'});
+			});
+			
 			this.__defineGetter__('x', function() { return this._x; });
 			this.__defineGetter__('y', function() { return this._y; });
 			this.__defineGetter__('w', function() { return this._w; });
 			this.__defineGetter__('h', function() { return this._h; });
 			this.__defineGetter__('z', function() { return this._z; });
+			this.__defineGetter__('rotation', function() { return this._rotation; });
 		} else {
 			/*
 			if no setters, check on every frame for a difference 
@@ -169,6 +210,14 @@ Crafty.c("2D", {
 		this.unbind("move", handle);
 		this._attachy[obj[0]] = null;
 		delete this._attachy[obj[0]];
+	},
+	
+	orientation: function(x,y) {
+		if(x > this._w || y > this._h || x < 0 || y < 0) return;
+		
+		var o = this._orientation;
+		o.x = x;
+		o.y = y;
 	},
 	
 	_attr: function(name,value) {	
