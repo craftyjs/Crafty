@@ -43,16 +43,17 @@ Crafty.c("2D", {
 					y2 = o.y - (this._x + this._w - o.x) * st + (this._y + this._h - o.y) * ct,
 					x3 = o.x + (this._x - o.x) * ct + (this._y + this._h - o.y) * st,
 					y3 = o.y - (this._x - o.x) * st + (this._y + this._h - o.y) * ct,
-					minx = Math.min(x0,x1,x2,x3),
-					miny = Math.min(y0,y1,y2,y3),
-					maxx = Math.max(x0,x1,x2,x3),
-					maxy = Math.max(y0,y1,y2,y3);
+					minx = Math.floor(Math.min(x0,x1,x2,x3)),
+					miny = Math.floor(Math.min(y0,y1,y2,y3)),
+					maxx = Math.ceil(Math.max(x0,x1,x2,x3)),
+					maxy = Math.ceil(Math.max(y0,y1,y2,y3)),
+					oldmbr = this._mbr || this.pos();
 					
-				this._mbr = {_x: Math.floor(minx), _y: Math.floor(miny), _w: Math.ceil(maxx - minx), _h: Math.ceil(maxy - miny)};
+				this._mbr = {_x: minx, _y: miny, _w: maxx - minx, _h: maxy - miny};
 				this._rotation = v;
 				
 				//this.trigger("move", old);
-				this.trigger("change", this._mbr);
+				this.trigger("change", oldmbr);
 				
 				
 				//Crafty.e('2D, DOM').attr(this._mbr).css({border: '1px solid red'});
@@ -222,9 +223,9 @@ Crafty.c("2D", {
 				var cmd = x.split(' ');
 				if(cmd[0] === "top") y = 0;
 				else if(cmd[0] === "bottom") y = this._h;
-				else if(cmd[0] === "middle") y = this._h / 2;
+				else if(cmd[0] === "middle" || cmd[1] === "center" || cmd[1] === "centre") y = this._h / 2;
 				
-				if(cmd[1] === "center" || cmd[1] === "centre") x = this._w / 2;
+				if(cmd[1] === "center" || cmd[1] === "centre" || cmd[1] === "middle") x = this._w / 2;
 				else if(cmd[1] === "left") x = 0;
 				else if(cmd[1] === "right") x = this._w;
 			}

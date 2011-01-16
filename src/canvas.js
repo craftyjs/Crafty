@@ -10,7 +10,7 @@ Crafty.c("canvas", {
 		//on change, redraw
 		this.bind("change", function(e) {
 			e = e || this;
-			if(this._mbr) e = this._mbr; //use the MBR over anything else
+			//if(this._mbr) e = this._mbr; //use the MBR over anything else
 			
 			//clear self
 			Crafty.context.clearRect(e._x, e._y, e._w, e._h);
