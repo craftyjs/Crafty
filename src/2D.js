@@ -213,7 +213,24 @@ Crafty.c("2D", {
 	},
 	
 	orientation: function(x,y) {
-		if(x > this._w || y > this._h || x < 0 || y < 0) return;
+		//text based orientation
+		if(typeof x === "string") {
+			if(x === "centre" || x === "center" || x.indexOf(' ') === -1) {
+				x = this._w / 2;
+				y = this._h / 2;
+			} else {
+				var cmd = x.split(' ');
+				if(cmd[0] === "top") y = 0;
+				else if(cmd[0] === "bottom") y = this._h;
+				else if(cmd[0] === "middle") y = this._h / 2;
+				
+				if(cmd[1] === "center" || cmd[1] === "centre") x = this._w / 2;
+				else if(cmd[1] === "left") x = 0;
+				else if(cmd[1] === "right") x = this._w;
+			}
+			
+			
+		} else if(x > this._w || y > this._h || x < 0 || y < 0) return;
 		
 		var o = this._orientation;
 		o.x = x;
