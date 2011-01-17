@@ -9,7 +9,7 @@ Crafty.c("text", {
 				el.innerHTML = this._text;
 				style.font = this._font;
 			} else {
-			
+				
 			}
 		});
 	},
@@ -24,5 +24,6 @@ Crafty.c("text", {
 	font: function(font) {
 		this._font = font;
 		this.trigger("change");
+		return this;
 	}
 });

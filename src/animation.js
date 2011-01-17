@@ -68,6 +68,8 @@ Crafty.c("animate", {
 		this.unbind("enterframe", this.drawFrame);
 		this._current = null;
 		this._frame = null;
+		
+		return this;
 	},
 	
 	isPlaying: function(id) {

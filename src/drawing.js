@@ -54,30 +54,32 @@ Crafty.c("image", {
 	canvasDraw: function() {
 		//skip if no image
 		if(!this.img) return;
+		
 		var i = 0, l, j = 0, k;
-		switch(this._repeat) {
-			case "repeat-x":
-				if(this.img.width === 0) return;
-				for(l = Math.floor(this._w / this.img.width); i < l; i++) {
-					Crafty.context.drawImage(this.img, this._x + this.img.width * i, this._y);
+		
+		if(this._repeat === "no-repeat") {
+			
+		} else if(this._repeat === "repeat-x") {
+			if(this.img.width === 0) return;
+			
+			for(l = Math.floor(this._w / this.img.width); i < l; i++) {
+				Crafty.context.drawImage(this.img, this._x + this.img.width * i, this._y);
+			}
+		} else if(this._repeat === "repeat-y") {
+			if(this.img.height === 0) return;
+			
+			for(l = Math.floor(this._h / this.img.height); i <= l; i++) {
+				Crafty.context.drawImage(this.img, this._x, this._y + this.img.height * i);
+			}
+		} else {
+			if(this.img.width === 0 || this.img.height === 0) return;
+			
+			for(l = Math.floor(this._w / this.img.width); i < l; i++) {
+				Crafty.context.drawImage(this.img, this._x + this.img.width * i, this._y);
+				for(j = 0, k = Math.floor(this._h / this.img.height); j <= k; j++) {
+					Crafty.context.drawImage(this.img, this._x + this.img.width * i, this._y + this.img.height * j);
 				}
-				break;
-			case "repeat-y":
-				if(this.img.height === 0) return;
-				for(l = Math.floor(this._h / this.img.height); i <= l; i++) {
-					Crafty.context.drawImage(this.img, this._x, this._y + this.img.height * i);
-				}
-				break;
-			default:
-				if(this.img.width === 0 || this.img.height === 0) return;
-				for(l = Math.floor(this._w / this.img.width); i < l; i++) {
-					Crafty.context.drawImage(this.img, this._x + this.img.width * i, this._y);
-					for(j = 0, k = Math.floor(this._h / this.img.height); j <= k; j++) {
-						Crafty.context.drawImage(this.img, this._x + this.img.width * i, this._y + this.img.height * j);
-					}
-				}
-				
-				break;
+			}
 		}
 	}
 });

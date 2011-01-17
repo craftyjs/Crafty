@@ -30,6 +30,8 @@ Crafty.c("group", {
 				current.destroy();
 			}
 		});
+		
+		return this;
 	}
 });
 

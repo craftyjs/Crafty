@@ -109,6 +109,7 @@ Crafty.c("canvas", {
 		if(this._mbr) {
 			Crafty.context.restore();
 		}
+		return this;
 	}
 });
 

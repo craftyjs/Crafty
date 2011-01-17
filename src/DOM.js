@@ -47,10 +47,12 @@ Crafty.c("DOM", {
 			co = this.__coord;
 			style.background = "url('" + this.__image + "') no-repeat -" + co[0] + "px -" + co[1] + "px";
 		}
+		return this;
 	},
 	
 	undraw: function() {
 		Crafty.stage.elem.removeChild(this._element);
+		return this;
 	},
 	
 	css: function(obj) {
@@ -60,6 +62,8 @@ Crafty.c("DOM", {
 			style[key] = obj[key];
 		}
 		this.trigger("change");
+		
+		return this;
 	}
 });
 

@@ -118,19 +118,23 @@ Crafty.c("controls", {
 			Crafty.removeEvent(this, "keydown", dispatch);
 			Crafty.removeEvent(this, "keyup", dispatch);
 		});
-		return this;
 	},
 	
-	preventTypeaheadFind:function(e){
-			if(!(e.metaKey || e.altKey || e.shiftKey || e.ctrlKey) && e.preventDefault){
-				e.preventDefault();
-			}
+	preventTypeaheadFind: function(e) {
+		if(!(e.metaKey || e.altKey || e.shiftKey || e.ctrlKey) && e.preventDefault){
+			e.preventDefault();
+		}
+		return this;
  	}
 });
 
 Crafty.c("fourway", {
 	__move: {left: false, right: false, up: false, down: false},	
 	_speed: 3,
+	
+	init: function() {
+		if(!this.has("controls")) this.addComponent("controls");
+	},
 	
 	fourway: function(speed) {
 		if(speed) this._speed = speed;
@@ -194,6 +198,10 @@ Crafty.c("fourway", {
 Crafty.c("twoway", {
 	__move: {left: false, right: false, up: false, falling: false},
 	_speed: 3,
+	
+	init: function() {
+		if(!this.has("controls")) this.addComponent("controls");
+	},
 	
 	twoway: function(speed,jump) {
 		if(speed) this._speed = speed;

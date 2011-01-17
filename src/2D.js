@@ -165,6 +165,8 @@ Crafty.c("2D", {
 		if(dir.charAt(0) === 's') this.y += by;
 		if(dir === 'e' || dir.charAt(1) === 'e') this.x += by;
 		if(dir === 'w' || dir.charAt(1) === 'w') this.x -= by;
+		
+		return this;
 	},
 	
 	shift: function(x,y,w,h) {
@@ -173,6 +175,8 @@ Crafty.c("2D", {
 		if(y) this.y += y;
 		if(w) this.w += w;
 		if(h) this.h += h;
+		
+		return this;
 	},
 	
 	attach: function(obj) {
@@ -191,6 +195,8 @@ Crafty.c("2D", {
 		this.bind("move", callback);
 		
 		this._attachy[obj[0]] = callback;
+		
+		return this;
 	},
 	
 	detach: function(obj) {
@@ -205,13 +211,15 @@ Crafty.c("2D", {
 				delete this._attachy[key];
 			}
 			
-			return;
+			return this;
 		}
 		//if obj passed, find the handler and unbind
 		var handle = this._attachy[obj[0]];
 		this.unbind("move", handle);
 		this._attachy[obj[0]] = null;
 		delete this._attachy[obj[0]];
+		
+		return this;
 	},
 	
 	origin: function(x,y) {
@@ -237,6 +245,8 @@ Crafty.c("2D", {
 		var o = this._origin;
 		o.x = x;
 		o.y = y;
+		
+		return this;
 	},
 	
 	_attr: function(name,value) {	
@@ -298,10 +308,13 @@ Crafty.c("gravity", {
 		this._falling = false;
 		if(this.__move && this.__move.up) this.__move.up = false;
 		this.trigger("hit");
+		
+		return this;
 	},
 	
 	antigravity: function() {
 		this.unbind("enterframe", this._enterframe);
+		return this;
 	}
 });
 
