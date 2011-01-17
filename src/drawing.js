@@ -91,10 +91,7 @@ Crafty.c("image", {
 				height = this._h < this.img.height ? yoffcut : this.img.height;
 				
 				for(j = 0, k = Math.ceil(this._h / this.img.height); j < k; j++) {
-					if(j === k-1) {
-						console.log(j , k);
-						height = yoffcut;
-					}
+					if(j === k-1) height = yoffcut;
 					Crafty.context.drawImage(this.img, 0,0, width, height, obj._x + this.img.width * i, obj._y + this.img.height * j, width, height);
 				}
 			}

@@ -12,6 +12,8 @@ Crafty.c("canvas", {
 			e = e || this;
 			
 			//clear self
+			//Crafty.e("2D, DOM").attr({x: e._x, y: e._y, w: e._w, h:e._h}).css({border: "1px solid red"});
+			//if(e !== this._mbr) console.log("USE MBR!", this._mbr, e);
 			Crafty.context.clearRect(e._x, e._y, e._w, e._h);
 			
 			//add to the DrawBuffer if visible

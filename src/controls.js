@@ -159,8 +159,6 @@ Crafty.c("fourway", {
 				this.y += this._speed;
 				changed = true;
 			}
-			
-			if(changed) this.trigger("change", old);
 		}).bind("keydown", function(e) {
 			if(e.keyCode === Crafty.keys.RA || e.keyCode === Crafty.keys.D) {
 				move.right = true;
@@ -225,8 +223,6 @@ Crafty.c("twoway", {
 				this._falling = true;
 				changed = true;
 			}
-			
-			if(changed) this.trigger("change", old);
 		}).bind("keydown", function(e) {
 			if(e.keyCode === Crafty.keys.RA || e.keyCode === Crafty.keys.D) {
 				move.right = true;

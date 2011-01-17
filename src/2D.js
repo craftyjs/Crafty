@@ -21,44 +21,7 @@ Crafty.c("2D", {
 			this.__defineSetter__('h', function(v) { this._attr('_h',v); });
 			this.__defineSetter__('z', function(v) { this._attr('_z',v); });
 			
-			this.__defineSetter__('rotation', function(v) {
-				var theta = -1 * (v % 360), //angle always between 0 and 359
-					rad = theta * (Math.PI / 180),
-					ct = Math.cos(rad), //cache the sin and cosine of theta
-					st = Math.sin(rad),
-					o = {x: this._origin.x + this._x, 
-						 y: this._origin.y + this._y}; 
-				
-				
-				//if the angle is 0 and is currently 0, skip
-				if(theta === 0) {
-					this._mbr = null;
-					if(!this._rotation % 360) return;
-				}
-				
-				var x0 = o.x + (this._x - o.x) * ct + (this._y - o.y) * st,
-					y0 = o.y - (this._x - o.x) * st + (this._y - o.y) * ct,
-					x1 = o.x + (this._x + this._w - o.x) * ct + (this._y - o.y) * st,
-					y1 = o.y - (this._x + this._w - o.x) * st + (this._y - o.y) * ct,
-					x2 = o.x + (this._x + this._w - o.x) * ct + (this._y + this._h - o.y) * st,
-					y2 = o.y - (this._x + this._w - o.x) * st + (this._y + this._h - o.y) * ct,
-					x3 = o.x + (this._x - o.x) * ct + (this._y + this._h - o.y) * st,
-					y3 = o.y - (this._x - o.x) * st + (this._y + this._h - o.y) * ct,
-					minx = Math.floor(Math.min(x0,x1,x2,x3)),
-					miny = Math.floor(Math.min(y0,y1,y2,y3)),
-					maxx = Math.ceil(Math.max(x0,x1,x2,x3)),
-					maxy = Math.ceil(Math.max(y0,y1,y2,y3)),
-					oldmbr = this._mbr || this.pos();
-					
-				this._mbr = {_x: minx, _y: miny, _w: maxx - minx, _h: maxy - miny};
-				this._rotation = v;
-				
-				//this.trigger("move", old);
-				this.trigger("change", oldmbr);
-				
-				
-				//Crafty.e('2D, DOM').attr(this._mbr).css({border: '1px solid red'});
-			});
+			this.__defineSetter__('rotation', function(v) { this._attr('_rotation', v); });
 			
 			this.__defineGetter__('x', function() { return this._x; });
 			this.__defineGetter__('y', function() { return this._y; });
@@ -93,8 +56,6 @@ Crafty.c("2D", {
 					this.trigger("change", old);
 				}
 			});
-			
-			Crafty.support.setter = false;
 		}
 		
 		//insert self into the HashMap
@@ -110,6 +71,38 @@ Crafty.c("2D", {
 			Crafty.map.remove(this);
 			this.detach();
 		});
+	},
+	
+	_rotate: function(v) {
+		var theta = -1 * (v % 360), //angle always between 0 and 359
+			rad = theta * (Math.PI / 180),
+			ct = Math.cos(rad), //cache the sin and cosine of theta
+			st = Math.sin(rad),
+			o = {x: this._origin.x + this._x, 
+				 y: this._origin.y + this._y}; 
+		
+		//if the angle is 0 and is currently 0, skip
+		if(!theta) {
+			this._mbr = null;
+			if(!this._rotation % 360) return;
+		}
+		
+		var x0 = o.x + (this._x - o.x) * ct + (this._y - o.y) * st,
+			y0 = o.y - (this._x - o.x) * st + (this._y - o.y) * ct,
+			x1 = o.x + (this._x + this._w - o.x) * ct + (this._y - o.y) * st,
+			y1 = o.y - (this._x + this._w - o.x) * st + (this._y - o.y) * ct,
+			x2 = o.x + (this._x + this._w - o.x) * ct + (this._y + this._h - o.y) * st,
+			y2 = o.y - (this._x + this._w - o.x) * st + (this._y + this._h - o.y) * ct,
+			x3 = o.x + (this._x - o.x) * ct + (this._y + this._h - o.y) * st,
+			y3 = o.y - (this._x - o.x) * st + (this._y + this._h - o.y) * ct,
+			minx = Math.floor(Math.min(x0,x1,x2,x3)),
+			miny = Math.floor(Math.min(y0,y1,y2,y3)),
+			maxx = Math.ceil(Math.max(x0,x1,x2,x3)),
+			maxy = Math.ceil(Math.max(y0,y1,y2,y3));
+			
+		this._mbr = {_x: minx, _y: miny, _w: maxx - minx, _h: maxy - miny};
+		//update coords
+		
 	},
 	
 	area: function() {
@@ -251,7 +244,17 @@ Crafty.c("2D", {
 	
 	_attr: function(name,value) {	
 		var old = this._mbr || this.pos();
+		
+		if(name === '_rotation') {
+			this._rotate(value);
+		} else {
+			var mbr = this._mbr;
+			if(mbr) {
+				mbr[name] -= this[name] - value;
+			}
+		}
 		this[name] = value;
+		
 		this.trigger("move", old);
 		this.trigger("change", old);
 	}
