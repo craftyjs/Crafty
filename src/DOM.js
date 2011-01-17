@@ -27,7 +27,7 @@ Crafty.c("DOM", {
 		
 		if(this._rotation % 360) {
 			var rstring = "rotate("+this._rotation+"deg)",
-				origin = this._orientation.x + "px " + this._orientation.y + "px";
+				origin = this._origin.x + "px " + this._origin.y + "px";
 			
 			style.transformOrigin = origin;
 			style.mozTransformOrigin = origin;

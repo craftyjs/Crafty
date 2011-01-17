@@ -505,6 +505,9 @@ Crafty.c("2D", {
 	_w: 0,
 	_h: 0,
 	_z: 0,
+	_rotation: 0,
+	_orientation: {x: 0, y: 0},
+	_mbr: null,
 	_entry: null,
 	_attachy: [],
 	
@@ -517,11 +520,50 @@ Crafty.c("2D", {
 			this.__defineSetter__('h', function(v) { this._attr('_h',v); });
 			this.__defineSetter__('z', function(v) { this._attr('_z',v); });
 			
+			this.__defineSetter__('rotation', function(v) {
+				var theta = -1 * (v % 360), //angle always between 0 and 359
+					rad = theta * (Math.PI / 180),
+					ct = Math.cos(rad), //cache the sin and cosine of theta
+					st = Math.sin(rad),
+					o = {x: this._orientation.x + this._x, 
+						 y: this._orientation.y + this._y}; 
+				
+				//if the angle is 0 and is currently 0, skip
+				if(theta === 0 && this._rotation % 360 === 0) {
+					this._mbr = null;
+					return;
+				}
+				
+				var x0 = o.x + (this._x - o.x) * ct + (this._y - o.y) * st,
+					y0 = o.y - (this._x - o.x) * st + (this._y - o.y) * ct,
+					x1 = o.x + (this._x + this._w - o.x) * ct + (this._y - o.y) * st,
+					y1 = o.y - (this._x + this._w - o.x) * st + (this._y - o.y) * ct,
+					x2 = o.x + (this._x + this._w - o.x) * ct + (this._y + this._h - o.y) * st,
+					y2 = o.y - (this._x + this._w - o.x) * st + (this._y + this._h - o.y) * ct,
+					x3 = o.x + (this._x - o.x) * ct + (this._y + this._h - o.y) * st,
+					y3 = o.y - (this._x - o.x) * st + (this._y + this._h - o.y) * ct,
+					minx = Math.floor(Math.min(x0,x1,x2,x3)),
+					miny = Math.floor(Math.min(y0,y1,y2,y3)),
+					maxx = Math.ceil(Math.max(x0,x1,x2,x3)),
+					maxy = Math.ceil(Math.max(y0,y1,y2,y3)),
+					oldmbr = this._mbr || this.pos();
+					
+				this._mbr = {_x: minx, _y: miny, _w: maxx - minx, _h: maxy - miny};
+				this._rotation = v;
+				
+				//this.trigger("move", old);
+				this.trigger("change", oldmbr);
+				
+				
+				//Crafty.e('2D, DOM').attr(this._mbr).css({border: '1px solid red'});
+			});
+			
 			this.__defineGetter__('x', function() { return this._x; });
 			this.__defineGetter__('y', function() { return this._y; });
 			this.__defineGetter__('w', function() { return this._w; });
 			this.__defineGetter__('h', function() { return this._h; });
 			this.__defineGetter__('z', function() { return this._z; });
+			this.__defineGetter__('rotation', function() { return this._rotation; });
 		} else {
 			/*
 			if no setters, check on every frame for a difference 
@@ -668,6 +710,31 @@ Crafty.c("2D", {
 		this.unbind("move", handle);
 		this._attachy[obj[0]] = null;
 		delete this._attachy[obj[0]];
+	},
+	
+	orientation: function(x,y) {
+		//text based orientation
+		if(typeof x === "string") {
+			if(x === "centre" || x === "center" || x.indexOf(' ') === -1) {
+				x = this._w / 2;
+				y = this._h / 2;
+			} else {
+				var cmd = x.split(' ');
+				if(cmd[0] === "top") y = 0;
+				else if(cmd[0] === "bottom") y = this._h;
+				else if(cmd[0] === "middle" || cmd[1] === "center" || cmd[1] === "centre") y = this._h / 2;
+				
+				if(cmd[1] === "center" || cmd[1] === "centre" || cmd[1] === "middle") x = this._w / 2;
+				else if(cmd[1] === "left") x = 0;
+				else if(cmd[1] === "right") x = this._w;
+			}
+			
+			
+		} else if(x > this._w || y > this._h || x < 0 || y < 0) return;
+		
+		var o = this._orientation;
+		o.x = x;
+		o.y = y;
 	},
 	
 	_attr: function(name,value) {	
@@ -833,6 +900,21 @@ Crafty.polygon.prototype = {
 		style.width = Math.floor(this._w) + "px";
 		style.height = Math.floor(this._h) + "px";
 		style.zIndex = this.z;
+		
+		if(this._rotation % 360) {
+			var rstring = "rotate("+this._rotation+"deg)",
+				origin = this._orientation.x + "px " + this._orientation.y + "px";
+			
+			style.transformOrigin = origin;
+			style.mozTransformOrigin = origin;
+			style.webkitTransformOrigin = origin;
+			style.oTransformOrigin = origin;
+			
+			style.transform = rstring;
+			style.mozTransform = rstring;
+			style.webkitTransform = rstring;
+			style.oTransform = rstring;
+		}
 		
 		this.trigger("draw", {style: style, type: "DOM"});
 		
@@ -1268,6 +1350,7 @@ Crafty.c("canvas", {
 		//on change, redraw
 		this.bind("change", function(e) {
 			e = e || this;
+			//if(this._mbr) e = this._mbr; //use the MBR over anything else
 			
 			//clear self
 			Crafty.context.clearRect(e._x, e._y, e._w, e._h);
@@ -1334,14 +1417,21 @@ Crafty.c("canvas", {
 			}
 		}
 		
+		if(this._rotation % 360 !== 0) {
+			Crafty.context.save();
+			
+			Crafty.context.translate(this._orientation.x + this._x, this._orientation.y + this._y);
+			pos._x = -this._orientation.x;
+			pos._y = -this._orientation.y;
+			Crafty.context.rotate((this._rotation % 360) * (Math.PI / 180));
+		}
+		
 		this.trigger("draw",{type: "canvas", spritePos: co, pos: pos});
 		
 		//inline drawing of the sprite
 		if(this.__c.sprite) {
 			//don't draw if not loaded
 			if(!this.img.width) return;
-			
-			
 			
 			//draw the image on the canvas element
 			Crafty.context.drawImage(this.img, //image element
@@ -1354,6 +1444,10 @@ Crafty.c("canvas", {
 									 pos._w, //width on canvas
 									 pos._h //height on canvas
 			);
+		}
+		
+		if(this._rotation % 360 !== 0) {
+			Crafty.context.restore();
 		}
 	}
 });

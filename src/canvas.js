@@ -80,9 +80,9 @@ Crafty.c("canvas", {
 		if(this._rotation % 360 !== 0) {
 			Crafty.context.save();
 			
-			Crafty.context.translate(this._orientation.x + this._x, this._orientation.y + this._y);
-			pos._x = -this._orientation.x;
-			pos._y = -this._orientation.y;
+			Crafty.context.translate(this._origin.x + this._x, this._origin.y + this._y);
+			pos._x = -this._origin.x;
+			pos._y = -this._origin.y;
 			Crafty.context.rotate((this._rotation % 360) * (Math.PI / 180));
 		}
 		

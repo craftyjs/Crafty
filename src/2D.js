@@ -7,7 +7,7 @@ Crafty.c("2D", {
 	_h: 0,
 	_z: 0,
 	_rotation: 0,
-	_orientation: {x: 0, y: 0},
+	_origin: {x: 0, y: 0},
 	_mbr: null,
 	_entry: null,
 	_attachy: [],
@@ -26,8 +26,8 @@ Crafty.c("2D", {
 					rad = theta * (Math.PI / 180),
 					ct = Math.cos(rad), //cache the sin and cosine of theta
 					st = Math.sin(rad),
-					o = {x: this._orientation.x + this._x, 
-						 y: this._orientation.y + this._y}; 
+					o = {x: this._origin.x + this._x, 
+						 y: this._origin.y + this._y}; 
 				
 				//if the angle is 0 and is currently 0, skip
 				if(theta === 0 && this._rotation % 360 === 0) {
@@ -213,8 +213,8 @@ Crafty.c("2D", {
 		delete this._attachy[obj[0]];
 	},
 	
-	orientation: function(x,y) {
-		//text based orientation
+	origin: function(x,y) {
+		//text based origin
 		if(typeof x === "string") {
 			if(x === "centre" || x === "center" || x.indexOf(' ') === -1) {
 				x = this._w / 2;
@@ -233,7 +233,7 @@ Crafty.c("2D", {
 			
 		} else if(x > this._w || y > this._h || x < 0 || y < 0) return;
 		
-		var o = this._orientation;
+		var o = this._origin;
 		o.x = x;
 		o.y = y;
 	},
