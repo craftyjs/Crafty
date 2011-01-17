@@ -25,10 +25,11 @@ Crafty.c("DOM", {
 		style.height = Math.floor(this._h) + "px";
 		style.zIndex = this.z;
 		
-		if(this._rotation % 360) {
+		if(this._mbr) {
 			var rstring = "rotate("+this._rotation+"deg)",
 				origin = this._origin.x + "px " + this._origin.y + "px";
 			
+			console.log(rstring);
 			style.transformOrigin = origin;
 			style.mozTransformOrigin = origin;
 			style.webkitTransformOrigin = origin;

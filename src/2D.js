@@ -29,10 +29,11 @@ Crafty.c("2D", {
 					o = {x: this._origin.x + this._x, 
 						 y: this._origin.y + this._y}; 
 				
+				
 				//if the angle is 0 and is currently 0, skip
-				if(theta === 0 && this._rotation % 360 === 0) {
+				if(theta === 0) {
 					this._mbr = null;
-					return;
+					if(!this._rotation % 360) return;
 				}
 				
 				var x0 = o.x + (this._x - o.x) * ct + (this._y - o.y) * st,
@@ -239,7 +240,7 @@ Crafty.c("2D", {
 	},
 	
 	_attr: function(name,value) {	
-		var old = this.pos();
+		var old = this._mbr || this.pos();
 		this[name] = value;
 		this.trigger("move", old);
 		this.trigger("change", old);

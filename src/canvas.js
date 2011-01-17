@@ -10,7 +10,6 @@ Crafty.c("canvas", {
 		//on change, redraw
 		this.bind("change", function(e) {
 			e = e || this;
-			//if(this._mbr) e = this._mbr; //use the MBR over anything else
 			
 			//clear self
 			Crafty.context.clearRect(e._x, e._y, e._w, e._h);
@@ -77,12 +76,13 @@ Crafty.c("canvas", {
 			}
 		}
 		
-		if(this._rotation % 360 !== 0) {
+		if(this._mbr) {
 			Crafty.context.save();
 			
 			Crafty.context.translate(this._origin.x + this._x, this._origin.y + this._y);
 			pos._x = -this._origin.x;
 			pos._y = -this._origin.y;
+			
 			Crafty.context.rotate((this._rotation % 360) * (Math.PI / 180));
 		}
 		
@@ -106,7 +106,7 @@ Crafty.c("canvas", {
 			);
 		}
 		
-		if(this._rotation % 360 !== 0) {
+		if(this._mbr) {
 			Crafty.context.restore();
 		}
 	}
