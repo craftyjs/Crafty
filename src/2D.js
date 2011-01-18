@@ -242,8 +242,19 @@ Crafty.c("2D", {
 		return this;
 	},
 	
+	mbr: function() {
+		var mbr = this._mbr;
+		if(!mbr) return;
+		return {
+			_x: mbr._x,
+			_y: mbr._y,
+			_w: mbr._w,
+			_h: mbr._h,
+		};
+	},
+	
 	_attr: function(name,value) {	
-		var old = this._mbr || this.pos();
+		var old = this.mbr() || this.pos();
 		
 		if(name === '_rotation') {
 			this._rotate(value);
@@ -253,6 +264,7 @@ Crafty.c("2D", {
 				mbr[name] -= this[name] - value;
 			}
 		}
+		
 		this[name] = value;
 		
 		this.trigger("move", old);
