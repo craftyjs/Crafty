@@ -1,4 +1,6 @@
 body, html { margin:0; padding:0; font-family:Verdana; font-size:12px }
+a img { border:0 }
+
 #layout { width:100%; height:100%; }
 #layout td { padding-right:10px; height:100%; }
 #layout-left { width:30%;  }
@@ -12,9 +14,24 @@ body, html { margin:0; padding:0; font-family:Verdana; font-size:12px }
 #header li { display:inline }
 #header a { padding:5px 10px; color:#ff7200 }
 
-#editor { border:1px solid #aaa; width:100%; height:100%; margin:-5px -15px 0 -15px; font-family:'Courier New', monospace; color:#ddd; background:#222 }
-#stage { border:1px solid #aaa; margin:-5px -15px 0 -15px; overflow:hidden }
+#editor-container { border:1px solid #aaa; margin:-5px -15px -7px -15px; overflow:hidden }
+#editor { width:100%; height:100%; font-family:'Courier New', monospace; color:#ddd; background:#222; border:0 }
+#stage { border:1px solid #aaa; margin:-5px -15px -7px -15px; overflow:hidden }
+#workarea { border:1px solid #aaa; margin:-5px -15px -7px -15px; overflow:hidden }
 
 .toolbar { background:#fff url('../assets/images/toolbar.png') repeat-x bottom; padding:5px; margin:-12px -20px; border-bottom:1px solid #ccc }
 .toolbar a { padding:5px 10px; text-decoration:none }
 .toolbar a:hover { background:#ddd }
+.menu { background:#fff url('../assets/images/toolbar.png') repeat-x bottom; border-bottom:1px solid #aaa }
+
+#dialog { display:none }
+#console { margin:0 -2px -3px -2px;  border-top:1px solid #aaa; height:150px; font-size:10px }
+#console-text { display:block; overflow:auto; height:130px }
+#console .menu { padding:3px }
+#console small { display:block; padding:5px; border-bottom:1px solid #aaa; font-size:12px }
+#console small:nth-child(odd) { background:#ddd }
+
+ul.list { list-style:none; padding:0; margin:13px -20px 0 -20px }
+ul.list a { padding:5px; display:block; text-decoration:none }
+ul.list img { vertical-align:bottom }
+ul.list li:nth-child(odd) { background:#eee }

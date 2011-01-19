@@ -6,13 +6,15 @@
 <link href="assets/jui.css" type="text/css" rel="stylesheet" />
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.8/jquery-ui.min.js"></script>
-
+<script type="text/javascript" src="../crafty-min.js"></script>
 <script type="text/javascript" src="assets/editor.js"></script>
 </head>
 <body>
 <div id="header">
 <ul>
 	<li><a href="#newgame">New Game</a></li>
+	<li><a href="#run">Run</a></li>
+	<li><a href="#save">Save</a></li>
 	<li><a href="#about">About</a></li>
 </ul>
 </div>
@@ -47,7 +49,7 @@
 			<a href="#addasset">Add</a>
 			<a href="#removeasset">Remove</a>
 		</div>
-		<ul></ul>
+		<ul class="list"></ul>
 	</div>
 	
 	<div id="scenes">
@@ -64,9 +66,11 @@
 	<ul class="tabs">
 		<li><a href="#code">Code</a></li>
 		<li><a href="#designer">Designer</a></li>
+		<li><a href="#preview">Preview</a></li>
 	</ul>
 	
 	<div id="code">
+<div id="editor-container">
 <textarea id="editor">
 Getting Started
 ================
@@ -74,14 +78,45 @@ Getting Started
 1. Paste your Crafty code here or click 'New Game' to build from scratch
 2. Use the builder to make your game
 3. Copy the game code generated here into your game logic
+
+Interface
+==========
+
+There are 3 views: Code, Designer and Preview. 
+	Code view allows you to modify code and is the soul of the game. 
+	Designer view allows you to visible move around entities.
+	Preview view is a preview of how the game will play.
+	
+The four tabs on the left are game objects you can modify including
+components (which augment the functionality of entities). Entities
+which are the objects in the game such as players and enemies. Assets
+are a list of images, sounds and animations used in the game. Scenes
+encapsulate blocks of game logic to easily create levels and different
+areas of your game.
 </textarea>
+</div>
 	</div>
 	
 	<div id="designer">
+		<div id="workarea"></div>
+	</div>
+	
+	<div id="preview">
 		<div id="stage"></div>
+	</div>
+	
+	<div id="console">
+	<div class="menu"><a href="#clear">Clear</a></div>
+	<span id="console-text"></span>
 	</div>
 </div>
 </td></tr>
 </table>
+
+<div id="dialog" title="">
+	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>
+	<span id="dialog-text"></span>
+	</p>
+</div>
 </body>
 </html>

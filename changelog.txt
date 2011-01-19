@@ -20,3 +20,4 @@ v0.3
 * Better minification
 * Use the inbuilt canvas background repeat
 * SAT collision
+* Global assets
