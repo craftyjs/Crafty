@@ -506,7 +506,7 @@ Crafty.c("2D", {
 	_h: 0,
 	_z: 0,
 	_rotation: 0,
-	_orientation: {x: 0, y: 0},
+	_origin: {x: 0, y: 0},
 	_mbr: null,
 	_entry: null,
 	_attachy: [],
@@ -520,43 +520,7 @@ Crafty.c("2D", {
 			this.__defineSetter__('h', function(v) { this._attr('_h',v); });
 			this.__defineSetter__('z', function(v) { this._attr('_z',v); });
 			
-			this.__defineSetter__('rotation', function(v) {
-				var theta = -1 * (v % 360), //angle always between 0 and 359
-					rad = theta * (Math.PI / 180),
-					ct = Math.cos(rad), //cache the sin and cosine of theta
-					st = Math.sin(rad),
-					o = {x: this._orientation.x + this._x, 
-						 y: this._orientation.y + this._y}; 
-				
-				//if the angle is 0 and is currently 0, skip
-				if(theta === 0 && this._rotation % 360 === 0) {
-					this._mbr = null;
-					return;
-				}
-				
-				var x0 = o.x + (this._x - o.x) * ct + (this._y - o.y) * st,
-					y0 = o.y - (this._x - o.x) * st + (this._y - o.y) * ct,
-					x1 = o.x + (this._x + this._w - o.x) * ct + (this._y - o.y) * st,
-					y1 = o.y - (this._x + this._w - o.x) * st + (this._y - o.y) * ct,
-					x2 = o.x + (this._x + this._w - o.x) * ct + (this._y + this._h - o.y) * st,
-					y2 = o.y - (this._x + this._w - o.x) * st + (this._y + this._h - o.y) * ct,
-					x3 = o.x + (this._x - o.x) * ct + (this._y + this._h - o.y) * st,
-					y3 = o.y - (this._x - o.x) * st + (this._y + this._h - o.y) * ct,
-					minx = Math.floor(Math.min(x0,x1,x2,x3)),
-					miny = Math.floor(Math.min(y0,y1,y2,y3)),
-					maxx = Math.ceil(Math.max(x0,x1,x2,x3)),
-					maxy = Math.ceil(Math.max(y0,y1,y2,y3)),
-					oldmbr = this._mbr || this.pos();
-					
-				this._mbr = {_x: minx, _y: miny, _w: maxx - minx, _h: maxy - miny};
-				this._rotation = v;
-				
-				//this.trigger("move", old);
-				this.trigger("change", oldmbr);
-				
-				
-				//Crafty.e('2D, DOM').attr(this._mbr).css({border: '1px solid red'});
-			});
+			this.__defineSetter__('rotation', function(v) { this._attr('_rotation', v); });
 			
 			this.__defineGetter__('x', function() { return this._x; });
 			this.__defineGetter__('y', function() { return this._y; });
@@ -591,8 +555,6 @@ Crafty.c("2D", {
 					this.trigger("change", old);
 				}
 			});
-			
-			Crafty.support.setter = false;
 		}
 		
 		//insert self into the HashMap
@@ -608,6 +570,38 @@ Crafty.c("2D", {
 			Crafty.map.remove(this);
 			this.detach();
 		});
+	},
+	
+	_rotate: function(v) {
+		var theta = -1 * (v % 360), //angle always between 0 and 359
+			rad = theta * (Math.PI / 180),
+			ct = Math.cos(rad), //cache the sin and cosine of theta
+			st = Math.sin(rad),
+			o = {x: this._origin.x + this._x, 
+				 y: this._origin.y + this._y}; 
+		
+		//if the angle is 0 and is currently 0, skip
+		if(!theta) {
+			this._mbr = null;
+			if(!this._rotation % 360) return;
+		}
+		
+		var x0 = o.x + (this._x - o.x) * ct + (this._y - o.y) * st,
+			y0 = o.y - (this._x - o.x) * st + (this._y - o.y) * ct,
+			x1 = o.x + (this._x + this._w - o.x) * ct + (this._y - o.y) * st,
+			y1 = o.y - (this._x + this._w - o.x) * st + (this._y - o.y) * ct,
+			x2 = o.x + (this._x + this._w - o.x) * ct + (this._y + this._h - o.y) * st,
+			y2 = o.y - (this._x + this._w - o.x) * st + (this._y + this._h - o.y) * ct,
+			x3 = o.x + (this._x - o.x) * ct + (this._y + this._h - o.y) * st,
+			y3 = o.y - (this._x - o.x) * st + (this._y + this._h - o.y) * ct,
+			minx = Math.floor(Math.min(x0,x1,x2,x3)),
+			miny = Math.floor(Math.min(y0,y1,y2,y3)),
+			maxx = Math.ceil(Math.max(x0,x1,x2,x3)),
+			maxy = Math.ceil(Math.max(y0,y1,y2,y3));
+			
+		this._mbr = {_x: minx, _y: miny, _w: maxx - minx, _h: maxy - miny};
+		//update coords
+		
 	},
 	
 	area: function() {
@@ -663,6 +657,8 @@ Crafty.c("2D", {
 		if(dir.charAt(0) === 's') this.y += by;
 		if(dir === 'e' || dir.charAt(1) === 'e') this.x += by;
 		if(dir === 'w' || dir.charAt(1) === 'w') this.x -= by;
+		
+		return this;
 	},
 	
 	shift: function(x,y,w,h) {
@@ -671,6 +667,8 @@ Crafty.c("2D", {
 		if(y) this.y += y;
 		if(w) this.w += w;
 		if(h) this.h += h;
+		
+		return this;
 	},
 	
 	attach: function(obj) {
@@ -689,6 +687,8 @@ Crafty.c("2D", {
 		this.bind("move", callback);
 		
 		this._attachy[obj[0]] = callback;
+		
+		return this;
 	},
 	
 	detach: function(obj) {
@@ -703,17 +703,19 @@ Crafty.c("2D", {
 				delete this._attachy[key];
 			}
 			
-			return;
+			return this;
 		}
 		//if obj passed, find the handler and unbind
 		var handle = this._attachy[obj[0]];
 		this.unbind("move", handle);
 		this._attachy[obj[0]] = null;
 		delete this._attachy[obj[0]];
+		
+		return this;
 	},
 	
-	orientation: function(x,y) {
-		//text based orientation
+	origin: function(x,y) {
+		//text based origin
 		if(typeof x === "string") {
 			if(x === "centre" || x === "center" || x.indexOf(' ') === -1) {
 				x = this._w / 2;
@@ -732,14 +734,38 @@ Crafty.c("2D", {
 			
 		} else if(x > this._w || y > this._h || x < 0 || y < 0) return;
 		
-		var o = this._orientation;
+		var o = this._origin;
 		o.x = x;
 		o.y = y;
+		
+		return this;
+	},
+	
+	mbr: function() {
+		var mbr = this._mbr;
+		if(!mbr) return;
+		return {
+			_x: mbr._x,
+			_y: mbr._y,
+			_w: mbr._w,
+			_h: mbr._h,
+		};
 	},
 	
 	_attr: function(name,value) {	
-		var old = this.pos();
+		var old = this.mbr() || this.pos();
+		
+		if(name === '_rotation') {
+			this._rotate(value);
+		} else {
+			var mbr = this._mbr;
+			if(mbr) {
+				mbr[name] -= this[name] - value;
+			}
+		}
+		
 		this[name] = value;
+		
 		this.trigger("move", old);
 		this.trigger("change", old);
 	}
@@ -796,10 +822,13 @@ Crafty.c("gravity", {
 		this._falling = false;
 		if(this.__move && this.__move.up) this.__move.up = false;
 		this.trigger("hit");
+		
+		return this;
 	},
 	
 	antigravity: function() {
 		this.unbind("enterframe", this._enterframe);
+		return this;
 	}
 });
 
@@ -901,10 +930,11 @@ Crafty.polygon.prototype = {
 		style.height = Math.floor(this._h) + "px";
 		style.zIndex = this.z;
 		
-		if(this._rotation % 360) {
+		if(this._mbr) {
 			var rstring = "rotate("+this._rotation+"deg)",
-				origin = this._orientation.x + "px " + this._orientation.y + "px";
+				origin = this._origin.x + "px " + this._origin.y + "px";
 			
+			console.log(rstring);
 			style.transformOrigin = origin;
 			style.mozTransformOrigin = origin;
 			style.webkitTransformOrigin = origin;
@@ -922,10 +952,12 @@ Crafty.polygon.prototype = {
 			co = this.__coord;
 			style.background = "url('" + this.__image + "') no-repeat -" + co[0] + "px -" + co[1] + "px";
 		}
+		return this;
 	},
 	
 	undraw: function() {
 		Crafty.stage.elem.removeChild(this._element);
+		return this;
 	},
 	
 	css: function(obj) {
@@ -935,6 +967,8 @@ Crafty.polygon.prototype = {
 			style[key] = obj[key];
 		}
 		this.trigger("change");
+		
+		return this;
 	}
 });
 
@@ -1350,7 +1384,6 @@ Crafty.c("canvas", {
 		//on change, redraw
 		this.bind("change", function(e) {
 			e = e || this;
-			//if(this._mbr) e = this._mbr; //use the MBR over anything else
 			
 			//clear self
 			Crafty.context.clearRect(e._x, e._y, e._w, e._h);
@@ -1417,12 +1450,13 @@ Crafty.c("canvas", {
 			}
 		}
 		
-		if(this._rotation % 360 !== 0) {
+		if(this._mbr) {
 			Crafty.context.save();
 			
-			Crafty.context.translate(this._orientation.x + this._x, this._orientation.y + this._y);
-			pos._x = -this._orientation.x;
-			pos._y = -this._orientation.y;
+			Crafty.context.translate(this._origin.x + this._x, this._origin.y + this._y);
+			pos._x = -this._origin.x;
+			pos._y = -this._origin.y;
+			
 			Crafty.context.rotate((this._rotation % 360) * (Math.PI / 180));
 		}
 		
@@ -1446,9 +1480,10 @@ Crafty.c("canvas", {
 			);
 		}
 		
-		if(this._rotation % 360 !== 0) {
+		if(this._mbr) {
 			Crafty.context.restore();
 		}
+		return this;
 	}
 });
 
@@ -1605,19 +1640,23 @@ Crafty.c("controls", {
 			Crafty.removeEvent(this, "keydown", dispatch);
 			Crafty.removeEvent(this, "keyup", dispatch);
 		});
-		return this;
 	},
 	
-	preventTypeaheadFind:function(e){
-			if(!(e.metaKey || e.altKey || e.shiftKey || e.ctrlKey) && e.preventDefault){
-				e.preventDefault();
-			}
+	preventTypeaheadFind: function(e) {
+		if(!(e.metaKey || e.altKey || e.shiftKey || e.ctrlKey) && e.preventDefault){
+			e.preventDefault();
+		}
+		return this;
  	}
 });
 
 Crafty.c("fourway", {
 	__move: {left: false, right: false, up: false, down: false},	
 	_speed: 3,
+	
+	init: function() {
+		if(!this.has("controls")) this.addComponent("controls");
+	},
 	
 	fourway: function(speed) {
 		if(speed) this._speed = speed;
@@ -1642,8 +1681,6 @@ Crafty.c("fourway", {
 				this.y += this._speed;
 				changed = true;
 			}
-			
-			if(changed) this.trigger("change", old);
 		}).bind("keydown", function(e) {
 			if(e.keyCode === Crafty.keys.RA || e.keyCode === Crafty.keys.D) {
 				move.right = true;
@@ -1682,6 +1719,10 @@ Crafty.c("twoway", {
 	__move: {left: false, right: false, up: false, falling: false},
 	_speed: 3,
 	
+	init: function() {
+		if(!this.has("controls")) this.addComponent("controls");
+	},
+	
 	twoway: function(speed,jump) {
 		if(speed) this._speed = speed;
 		jump = jump || this._speed * 2;
@@ -1704,8 +1745,6 @@ Crafty.c("twoway", {
 				this._falling = true;
 				changed = true;
 			}
-			
-			if(changed) this.trigger("change", old);
 		}).bind("keydown", function(e) {
 			if(e.keyCode === Crafty.keys.RA || e.keyCode === Crafty.keys.D) {
 				move.right = true;
@@ -1800,6 +1839,8 @@ Crafty.c("animate", {
 		this.unbind("enterframe", this.drawFrame);
 		this._current = null;
 		this._frame = null;
+		
+		return this;
 	},
 	
 	isPlaying: function(id) {
@@ -1836,9 +1877,10 @@ Crafty.c("image", {
 	init: function() {
 		this.bind("draw", function(e) {
 			if(e.type === "canvas") {
-				this.canvasDraw();
+				this.canvasDraw(e);
 			} else if(e.type === "DOM") {
-				e.style.background = "url(" + this.__image + ") "+this._repeat;
+				if(this.__image) 
+					e.style.background = "url(" + this.__image + ") "+this._repeat;
 			}
 		});
 	},
@@ -1849,45 +1891,61 @@ Crafty.c("image", {
 		
 		if(this.has("canvas")) {
 			this.img = new Image();
-			
 			this.img.src = url;
 			
 			//draw when ready
-			Crafty.addEvent(this, this.img, 'load', function() {
-				DrawBuffer.add(this); //send to buffer to keep Z order
-			});
+			var self = this;
+			this.img.onload = function() {
+				DrawBuffer.add(self);
+			};
+		} else {
+			this.trigger("change");
 		}
-		this.trigger("change");
+		
 		return this;
 	},
 	
-	canvasDraw: function() {
+	canvasDraw: function(e) {
 		//skip if no image
 		if(!this.img) return;
-		var i = 0, l, j = 0, k;
-		switch(this._repeat) {
-			case "repeat-x":
-				if(this.img.width === 0) return;
-				for(l = Math.floor(this._w / this.img.width); i < l; i++) {
-					Crafty.context.drawImage(this.img, this._x + this.img.width * i, this._y);
-				}
-				break;
-			case "repeat-y":
-				if(this.img.height === 0) return;
-				for(l = Math.floor(this._h / this.img.height); i <= l; i++) {
-					Crafty.context.drawImage(this.img, this._x, this._y + this.img.height * i);
-				}
-				break;
-			default:
-				if(this.img.width === 0 || this.img.height === 0) return;
-				for(l = Math.floor(this._w / this.img.width); i < l; i++) {
-					Crafty.context.drawImage(this.img, this._x + this.img.width * i, this._y);
-					for(j = 0, k = Math.floor(this._h / this.img.height); j <= k; j++) {
-						Crafty.context.drawImage(this.img, this._x + this.img.width * i, this._y + this.img.height * j);
-					}
-				}
+		
+		var i = 0, l, j, k, 
+			obj = e.pos || this,
+			xoffcut = this._w % this.img.width || this.img.width,
+			yoffcut = this._h % this.img.height || this.img.height,
+			width = this._w < this.img.width ? xoffcut : this.img.width,
+			height = this._h < this.img.height ? yoffcut : this.img.height;
+		
+		if(this._repeat === "no-repeat") {
+			//draw once with no repeat
+			Crafty.context.drawImage(this.img, 0,0, width, height, obj._x, obj._y, width, height);
+		} else if(this._repeat === "repeat-x") {
+			//repeat along the x axis
+			for(l = Math.ceil(this._w / this.img.width); i < l; i++) {
+				if(i === l-1) width = xoffcut;
 				
-				break;
+				Crafty.context.drawImage(this.img, 0, 0, width, height, obj._x + this.img.width * i, obj._y, width, height);
+			}
+		} else if(this._repeat === "repeat-y") {
+			//repeat along the y axis
+			for(l = Math.ceil(this._h / this.img.height); i < l; i++) {
+				//if the last image, determin how much to offcut
+				if(i === l-1) height = yoffcut;
+				
+				Crafty.context.drawImage(this.img, 0,0, width, height, obj._x, obj._y + this.img.height * i, width, height);
+			}
+		} else {
+			//repeat all axis
+			for(l = Math.ceil(this._w / this.img.width); i < l; i++) {
+				if(i === l-1) width = xoffcut;
+				Crafty.context.drawImage(this.img, 0,0, width, height, obj._x + this.img.width * i, obj._y, width, height);
+				height = this._h < this.img.height ? yoffcut : this.img.height;
+				
+				for(j = 0, k = Math.ceil(this._h / this.img.height); j < k; j++) {
+					if(j === k-1) height = yoffcut;
+					Crafty.context.drawImage(this.img, 0,0, width, height, obj._x + this.img.width * i, obj._y + this.img.height * j, width, height);
+				}
+			}
 		}
 	}
 });
@@ -1942,6 +2000,8 @@ Crafty.extend({
 				current.destroy();
 			}
 		});
+		
+		return this;
 	}
 });
 
@@ -2121,7 +2181,7 @@ Crafty.extend({
 				el.innerHTML = this._text;
 				style.font = this._font;
 			} else {
-			
+				
 			}
 		});
 	},
@@ -2136,6 +2196,7 @@ Crafty.extend({
 	font: function(font) {
 		this._font = font;
 		this.trigger("change");
+		return this;
 	}
 });
 

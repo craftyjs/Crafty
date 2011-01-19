@@ -72,7 +72,7 @@ Crafty.c("image", {
 			//repeat along the x axis
 			for(l = Math.ceil(this._w / this.img.width); i < l; i++) {
 				if(i === l-1) width = xoffcut;
-
+				
 				Crafty.context.drawImage(this.img, 0, 0, width, height, obj._x + this.img.width * i, obj._y, width, height);
 			}
 		} else if(this._repeat === "repeat-y") {

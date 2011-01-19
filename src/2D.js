@@ -249,7 +249,7 @@ Crafty.c("2D", {
 			_x: mbr._x,
 			_y: mbr._y,
 			_w: mbr._w,
-			_h: mbr._h,
+			_h: mbr._h
 		};
 	},
 	
