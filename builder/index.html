@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Crafty Builder</title>
+<link href="assets/global.css" type="text/css" rel="stylesheet" />
+<link href="assets/jui.css" type="text/css" rel="stylesheet" />
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.8/jquery-ui.min.js"></script>
+
+<script type="text/javascript" src="assets/editor.js"></script>
+</head>
+<body>
+<div id="header">
+<ul>
+	<li><a href="#newgame">New Game</a></li>
+	<li><a href="#about">About</a></li>
+</ul>
+</div>
+<table id="layout">
+<tr><td id="layout-left">
+<div id="control">
+	<ul class="tabs">
+		<li><a href="#components">Components</a></li>
+		<li><a href="#entities">Entities</a></li>
+		<li><a href="#assets">Assets</a></li>
+		<li><a href="#scenes">Scenes</a></li>
+	</ul>
+	
+	<div id="components">
+		<div class="toolbar">
+			<a href="#newcomp">New</a>
+			<a href="#removecomp">Remove</a>
+		</div>
+		<ul></ul>
+	</div>
+	
+	<div id="entities">
+		<div class="toolbar">
+			<a href="#newent">New</a>
+			<a href="#removeent">Remove</a>
+		</div>
+		<ul></ul>
+	</div>
+	
+	<div id="assets">
+		<div class="toolbar">
+			<a href="#addasset">Add</a>
+			<a href="#removeasset">Remove</a>
+		</div>
+		<ul></ul>
+	</div>
+	
+	<div id="scenes">
+		<div class="toolbar">
+			<a href="#newscene">New</a>
+			<a href="#removescene">Remove</a>
+		</div>
+		<ul></ul>
+	</div>
+</div>
+</td><td id="layout-right">
+
+<div id="workbench">
+	<ul class="tabs">
+		<li><a href="#code">Code</a></li>
+		<li><a href="#designer">Designer</a></li>
+	</ul>
+	
+	<div id="code">
+<textarea id="editor">
+Getting Started
+================
+
+1. Paste your Crafty code here or click 'New Game' to build from scratch
+2. Use the builder to make your game
+3. Copy the game code generated here into your game logic
+</textarea>
+	</div>
+	
+	<div id="designer">
+		<div id="stage"></div>
+	</div>
+</div>
+</td></tr>
+</table>
+</body>
+</html>

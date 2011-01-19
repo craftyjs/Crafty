@@ -13,3 +13,10 @@ v0.2 - 13/1/2011
 * Support object to detect support for HTML5 features and others
 * Loader to load assets before the game starts.
 * Rotation implemented
+
+v0.3
+
+* Unit tests
+* Better minification
+* Use the inbuilt canvas background repeat
+* SAT collision
