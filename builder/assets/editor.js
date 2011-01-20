@@ -13,8 +13,20 @@ var $control,
 	$console,
 	$assets,
 	$workarea,
-	$consoletext;
+	$consoletext,
+	$frame,
+	frame,
+	CM,
+	CRAFTY_SRC = "../crafty.js",
+	craft;
 
+function createHTMLElement(el) {
+	if (document.createElementNS && document.documentElement.namespaceURI !== null)
+	  return document.createElementNS("http://www.w3.org/1999/xhtml", el)
+	else
+	  return document.createElement(el)
+}
+  
 $(function() {
 	window.onbeforeunload = "Are you sure you want to leave?";
 	
@@ -36,9 +48,17 @@ $(function() {
 	$control.tabs();
 	$workbench.tabs({
 		show: function() {
-			console.log("test");
 			fixHeight();
 		}
+	});
+	
+	CM = new CodeMirror(CodeMirror.replace($editor[0]), {
+		height: '100%',
+		content: $editor.val(),
+		parserfile: ["tokenizejavascript.js", "parsejavascript.js"],
+		stylesheet: "codemirror/css/jscolors.css",
+		path: "codemirror/js/",
+		autoMatchParens: true
 	});
 	
 	//calculate heights
@@ -52,15 +72,8 @@ $(function() {
 		$workarea.css("height", height - 290);
 		
 		sw = $stage.width() - 6;
-		sh = $stage.height()
+		sh = $stage.height();
 		
-		Crafty.window.width = sw;
-		Crafty.window.height = sh;
-		Crafty.viewport.width = sw;
-		Crafty.viewport.height = sh;
-		Crafty.canvas.width = sw;
-		Crafty.canvas.height = sh;
-		$("#cr-stage").css({width: sw, height: sh});
 	}
 	fixHeight();
 	$window.bind('resize', fixHeight);
@@ -81,7 +94,7 @@ $(function() {
 			},
 			
 			"New Game": function() {
-				$editor.html("window.onload = function() {\r\n    Crafty.init(50);\r\n};");
+				CM.setCode("window.onload = function() {\r\n\tCrafty.init(50);\r\n};");
 				$consoletext.html("");
 				$(this).dialog("close");
 			}
@@ -89,6 +102,7 @@ $(function() {
 	});
 	
 	$b.run.click(function() {
+		$workbench.tabs('select', 2);
 		Editor.run();
 	});
 	
@@ -106,9 +120,9 @@ var Editor = (function() {
 			assets = [];
 			var dupes = {},
 				url,
-				elems = Crafty.audio._elems;
+				elems = craft.assets;
 				
-			Crafty("sprite, image").each(function() {
+			craft("sprite, image").each(function() {
 				if(!dupes[this.__image]) dupes[this.__image] = true;
 			});
 			
@@ -117,7 +131,18 @@ var Editor = (function() {
 			}
 			
 			for(url in elems) {
-				assets.push({url: elems[url].src, type: "sound"});
+				if(dupes[url]) continue;
+				
+				var ext = url.substr(url.lastIndexOf('.')+1).toLowerCase(),
+					type;
+					
+				if(ext === "mp3" || ext === "wav" || ext === "ogg" || ext === "mp4") {
+					type = "sound";
+				} else if(ext === "jpg" || ext === "jpeg" || ext === "gif" || ext === "png") {
+					type = "image";
+				} else continue;
+				
+				assets.push({url: url, type: type});
 			}
 			
 			this.update();
@@ -138,17 +163,37 @@ var Editor = (function() {
 		},
 		
 		run: function run() {
-			var code = $editor.val();
-			try {
-				Crafty.stop();
-				eval(code);
-				window.onload();
-				Editor.detectObjects();
+			//if iframe exists, remove it and create a new one
+			if(frame) $stage[0].removeChild(frame);
+			frame = createHTMLElement("iframe");
+			frame.src = "javascript:;";
+			frame.frameBorder = 0;
+			frame.style.border = "0";
+			frame.style.width = '100%';
+			frame.style.height = '100%';
+			frame.style.display = "block";
+			
+			//add it to the stage div
+			$stage.append(frame);
+			$(frame).load(handler);
+			
+			//generate the HTML for the frame
+			var code = CM.getCode(),
+				html = ["<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\"><html><head>",
+						"<scr"+"ipt"+" type='text/javascript' src='"+CRAFTY_SRC+"'></scr"+"ipt>",
+						"<scr"+"ipt"+" type='text/javascript'>"+code+"</scr"+"ipt>",
+						"</head><body style='margin:0;padding:0'></body></html>"],
+				win = frame.contentWindow;
 				
-				$("#stage").append($("#cr-stage")[0]);
-
-			} catch(e) {
-				$consoletext[0].innerHTML += "<small>"+e+"</small>";
+			//add the HTML
+			win.document.open();
+			win.document.write(html.join(""));
+			win.document.close();
+			
+			//when loaded, grab the Crafty instance
+			function handler() {
+				craft = win.Crafty;
+				Editor.detectObjects();	
 			}
 		},
 		

@@ -11,7 +11,7 @@ Crafty.extend({
 	* based on sprites and tiles
 	*/
 	sprite: function(tile, url, map, paddingX, paddingY) {
-		var pos, temp, x, y, w, h;
+		var pos, temp, x, y, w, h, img;
 		
 		//if no tile value, default to 16
 		if(typeof tile === "string") {
@@ -24,6 +24,13 @@ Crafty.extend({
 		if(!paddingY && paddingX) paddingY = paddingX;
 		paddingX = parseInt(paddingX || 0, 10); //just incase
 		paddingY = parseInt(paddingY || 0, 10);
+		
+		img = Crafty.assets[url];
+		if(!img) {
+			img = new Image();
+			img.src = url;
+			Crafty.assets[url] = img;
+		}
 		
 		for(pos in map) {
 			if(!map.hasOwnProperty(pos)) continue;
@@ -40,23 +47,14 @@ Crafty.extend({
 				__coord: [x,y,w,h],
 				__tile: tile,
 				__padding: [paddingX, paddingY],
+				img: img,
 				
 				init: function() {
 					this.addComponent("sprite");
-					var loaded = true;
-					
-					//if image exists in cache
-					this.img = Crafty.assets[this.__image];
-					if(!this.img) { //load it now if not
-						this.img = new Image();
-						this.img.src = this.__image;
-						Crafty.assets[this.__image] = this.img;
-						loaded = false;
-					}
 					
 					if(this.has("canvas")) {
 						//draw now
-						if(loaded) {
+						if(this.img.complete && this.img.width > 0) {
 							DrawBuffer.add(this);
 						} else {
 							//draw when ready
@@ -122,11 +120,6 @@ Crafty.extend({
 			} else obj.removeEventListener(type, afn, false);
 			delete this._events[obj+type+fn];
 		}
-	},
-	
-	window: {
-		width: window.innerWidth || (window.document.documentElement.clientWidth || window.document.body.clientWidth),
-		height: window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight)
 	},
 	
 	background: function(color) {
@@ -195,6 +188,7 @@ Crafty.extend({
 		},
 		
 		init: function(w,h) {
+			Crafty.window.init();
 			this.width = w || Crafty.window.width;
 			this.height = h || Crafty.window.height;
 			

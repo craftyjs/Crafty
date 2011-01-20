@@ -1,0 +1,59 @@
+html {
+  cursor: text;
+}
+
+.editbox {
+  margin: .4em;
+  padding: 0;
+  font-family: monospace;
+  font-size: 10pt;
+  color: #ddd;
+}
+
+pre.code, .editbox {
+  color: #ddd;
+}
+
+.editbox p {
+  margin: 0;
+}
+
+span.js-punctuation {
+  color: #888;
+}
+
+span.js-operator {
+  color: #ddd;
+}
+
+span.js-keyword {
+  color: #69A7FF; font-weight:bold
+}
+
+span.js-atom {
+  color: #FF2424;
+}
+
+span.js-variable {
+  color: #ddd;
+}
+
+span.js-variabledef {
+  color: #ddd;
+}
+
+span.js-localvariable {
+  color: #ddd;
+}
+
+span.js-property {
+  color: #ddd;
+}
+
+span.js-comment {
+  color: #888;
+}
+
+span.js-string {
+  color: #C9FF82;
+}

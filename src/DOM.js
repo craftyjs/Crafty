@@ -29,7 +29,6 @@ Crafty.c("DOM", {
 			var rstring = "rotate("+this._rotation+"deg)",
 				origin = this._origin.x + "px " + this._origin.y + "px";
 			
-			console.log(rstring);
 			style.transformOrigin = origin;
 			style.mozTransformOrigin = origin;
 			style.webkitTransformOrigin = origin;
@@ -76,6 +75,16 @@ try {
 
 
 Crafty.extend({
+	window: {
+		init: function() {
+			this.width = window.innerWidth || (window.document.documentElement.clientWidth || window.document.body.clientWidth);
+			this.height = window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
+		},
+		
+		width: 0,
+		height: 0
+	},
+	
 	/**
 	* Find a DOM elements position including
 	* padding and border
