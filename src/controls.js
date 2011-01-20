@@ -93,6 +93,9 @@ Crafty.c("mouse", {
 				args[i][0] += this.x;
 				args[i][1] += this.y;
 			}
+			else {
+			    poly.shift(this.x, this.y);
+			}
 			
 			poly = new Crafty.polygon(args);
 		}
