@@ -352,9 +352,7 @@ window.Crafty = Crafty;
 
 //wrap around components
 (function(Crafty, window, document) {
-var M = Math,
-	Mf = Math.floor,
-	Mc = Math.ceil;
+
 
 /**
 * Spatial HashMap for broad phase collision
@@ -1061,14 +1059,28 @@ Crafty.extend({
 				
 				init: function() {
 					this.addComponent("sprite");
-					if(this.has("canvas")) {
+					var loaded = true;
+					
+					//if image exists in cache
+					this.img = Crafty.assets[this.__image];
+					if(!this.img) { //load it now if not
 						this.img = new Image();
 						this.img.src = this.__image;
-						//draw when ready
-						var obj = this;
-						this.img.onload = function() {
-							DrawBuffer.add(obj);
-						};
+						Crafty.assets[this.__image] = this.img;
+						loaded = false;
+					}
+					
+					if(this.has("canvas")) {
+						//draw now
+						if(loaded) {
+							DrawBuffer.add(this);
+						} else {
+							//draw when ready
+							var obj = this;
+							this.img.onload = function() {
+								DrawBuffer.add(obj);
+							};
+						}
 					}
 					this.w = this.__coord[2];
 					this.h = this.__coord[3];
@@ -2077,9 +2089,6 @@ Crafty.extend({
 				key, 
 				audio = new Audio(),
 				canplay;
-				
-			//exit if audio not supported
-			if(!audio.canPlayType) return;
 						
 			//if an object is passed
 			if(arguments.length === 1 && typeof id === "object") {
@@ -2107,7 +2116,14 @@ Crafty.extend({
 						url = id[key];
 					}
 					
-					this._elems[key] = new Audio(url);
+					//check if loaded, else new
+					this._elems[key] = Crafty.assets[url];
+					if(!this._elems[key]) {
+						//create a new Audio object and add it to assets
+						this._elems[key] = new Audio(url);
+						Crafty.assets[url] = this._elems[key];
+					}
+					
 					this._elems[key].preload = "auto";
 					this._elems[key].load();
 				}
@@ -2246,6 +2262,8 @@ Crafty.extend({
 * Loader to load assets
 */
 Crafty.extend({
+	assets: {},
+	
 	load: function(data, callback) {
 		var i = 0, l = data.length, current, obj, total = l, j = 0;
 		for(;i<l;++i) {
@@ -2261,6 +2279,9 @@ Crafty.extend({
 				total--;
 				continue; //skip if not applicable
 			}
+			
+			//add to global asset collection
+			this.assets[current] = obj;
 			
 			obj.onload = function() {
 				++j;
