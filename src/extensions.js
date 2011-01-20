@@ -44,13 +44,21 @@ Crafty.extend({
 				init: function() {
 					this.addComponent("sprite");
 					if(this.has("canvas")) {
-						this.img = new Image();
-						this.img.src = this.__image;
-						//draw when ready
-						var obj = this;
-						this.img.onload = function() {
-							DrawBuffer.add(obj);
-						};
+						this.img = Crafty.assets[this.__image];
+						
+						//if image exists in cache, draw it now
+						if(this.img) {
+							DrawBuffer.add(this);
+						//else load it and draw when ready
+						} else {
+							this.img = new Image();
+							this.img.src = this.__image;
+							//draw when ready
+							var obj = this;
+							this.img.onload = function() {
+								DrawBuffer.add(obj);
+							};
+						}
 					}
 					this.w = this.__coord[2];
 					this.h = this.__coord[3];

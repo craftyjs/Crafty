@@ -2,6 +2,8 @@
 * Loader to load assets
 */
 Crafty.extend({
+	assets: {},
+	
 	load: function(data, callback) {
 		var i = 0, l = data.length, current, obj, total = l, j = 0;
 		for(;i<l;++i) {
@@ -17,6 +19,9 @@ Crafty.extend({
 				total--;
 				continue; //skip if not applicable
 			}
+			
+			//add to global asset collection
+			this.assets[current] = obj;
 			
 			obj.onload = function() {
 				++j;

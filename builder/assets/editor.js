@@ -51,7 +51,7 @@ $(function() {
 		$stage.css("height", height - 290);
 		$workarea.css("height", height - 290);
 		
-		sw = $stage.width();
+		sw = $stage.width() - 6;
 		sh = $stage.height()
 		
 		Crafty.window.width = sw;

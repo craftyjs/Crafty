@@ -16,9 +16,6 @@ Crafty.extend({
 				key, 
 				audio = new Audio(),
 				canplay;
-				
-			//exit if audio not supported
-			if(!audio.canPlayType) return;
 						
 			//if an object is passed
 			if(arguments.length === 1 && typeof id === "object") {
@@ -46,7 +43,8 @@ Crafty.extend({
 						url = id[key];
 					}
 					
-					this._elems[key] = new Audio(url);
+					//check if loaded, else new
+					this._elems[key] = Crafty.assets[url] || new Audio(url);
 					this._elems[key].preload = "auto";
 					this._elems[key].load();
 				}
