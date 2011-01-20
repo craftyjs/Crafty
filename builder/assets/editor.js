@@ -58,7 +58,13 @@ $(function() {
 		parserfile: ["tokenizejavascript.js", "parsejavascript.js"],
 		stylesheet: "codemirror/css/jscolors.css",
 		path: "codemirror/js/",
-		autoMatchParens: true
+		autoMatchParens: true,
+		lineNumbers: true,
+		tabMode: 'shift',
+		enterMode: 'keep',
+		electricChars: false,
+		textWrapping: false,
+		indentUnit: 4
 	});
 	
 	//calculate heights
@@ -179,12 +185,27 @@ var Editor = (function() {
 			
 			//generate the HTML for the frame
 			var code = CM.getCode(),
-				html = ["<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\"><html><head>",
-						"<scr"+"ipt"+" type='text/javascript' src='"+CRAFTY_SRC+"'></scr"+"ipt>",
-						"<scr"+"ipt"+" type='text/javascript'>"+code+"</scr"+"ipt>",
-						"</head><body style='margin:0;padding:0'></body></html>"],
-				win = frame.contentWindow;
-				
+				html,
+				win = frame.contentWindow,
+				results = JSLINT(code);
+			
+			//if found errors, log them
+			if(!results) {
+				var i = 0, errorz = JSLINT.errors, l = errorz.length, current;
+				for(;i<l;i++) {
+					current = errorz[i];
+					if(!current) continue;
+					this.log("Line <var>"+current.line+"</var> Char <var>"+current.character+"</var>: <code>"+current.evidence+"</code> ... "+current.reason);
+				}
+				$workbench.tabs('select', 0);
+				return;
+			}
+			
+			html = ["<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\"><html><head>",
+					"<scr"+"ipt"+" type='text/javascript' src='"+CRAFTY_SRC+"'></scr"+"ipt>",
+					"<scr"+"ipt"+" type='text/javascript'>"+code+"</scr"+"ipt>",
+					"</head><body style='margin:0;padding:0'></body></html>"];
+						
 			//add the HTML
 			win.document.open();
 			win.document.write(html.join(""));
@@ -200,8 +221,13 @@ var Editor = (function() {
 		dialog: function dialog(title, msg, buttons) {
 			$dialog.attr("title", title).dialog({draggable: false, resizable: false, modal: true, buttons: buttons});
 			$dialogtext.text(msg);
+		},
+		
+		log: function(msg) {
+			$consoletext[0].innerHTML += "<small>"+msg+"</small>";
 		}
 	};
 })();
-	
+
+window.Builder = Editor;
 })(Crafty, window, jQuery);

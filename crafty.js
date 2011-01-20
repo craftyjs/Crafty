@@ -2152,7 +2152,12 @@ Crafty.extend({
 				}
 			}
 			
-			this._elems[id] = new Audio(url);
+			this._elems[key] = Crafty.assets[url];
+			if(!this._elems[key]) {
+				//create a new Audio object and add it to assets
+				this._elems[key] = new Audio(url);
+				Crafty.assets[url] = this._elems[key];
+			}
 			this._elems[id].preload = "auto";
 			this._elems[id].load();
 			return this;		
