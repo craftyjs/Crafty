@@ -107,9 +107,10 @@ $(function() {
 			},
 			
 			"New Game": function() {
-				CM.setCode("window.onload = function() {\r\n\tCrafty.init(50);\r\n};");
+				CM.setCode("window.onload = function() {\r\n\tCrafty.init(50);\r\n\r\n\tCrafty.scene(\"main\", function() {\r\n\t\t//your code here\r\n\t});\r\n};");
 				$consoletext.html("");
 				$(this).dialog("close");
+				if(craft) Editor.detectObjects();
 			}
 		});
 	});
@@ -129,11 +130,13 @@ var Editor = (function() {
 	var assets = [],
 		scenes = [],
 		ents = [],
-		comps = [];
+		comps = {};
 	
 	return {
 		detectObjects: function() {
 			assets = [];
+			scenes = [];
+			
 			var dupes = {},
 				url,
 				name,
@@ -168,11 +171,16 @@ var Editor = (function() {
 				scenes.push(name);
 			}
 			
+			//get all entities
 			ents = craft('*');
+			
+			//get all components
+			comps = craft.components();
 			
 			this.updateAssets();
 			this.updateScenes();
 			this.updateEntities();
+			this.updateComponents();
 		},
 		
 		updateAssets: function() {
@@ -205,15 +213,31 @@ var Editor = (function() {
 		updateEntities: function() {
 			var html = "",
 				i = 1, l = ents.length,
-				comps,
+				comps = "",
 				current;
 				
 			for(;i<=l;i++) {
+				comps = "";
 				current = ents[i];
-				comps = Array.prototype.slice.call(current.__c, 0).join(", ");
+				
+				for(var comp in current.__c) comps += comp + ", ";
+				comps = comps.substring(0, comps.length - 2);
+				
 				html += "<li><a href='#'><img src='assets/images/bullet.png'/> Ent #"+current[0]+" <b>"+ comps +"</b></a></li>";
 			}
 			$entities.find("ul").html(html);
+		},
+		
+		updateComponents: function() {
+			var html = "",
+				current;
+				
+			for(comp in comps) {
+				current = comps[comp];
+				
+				html += "<li><a href='#'><img src='assets/images/plugin.png'/> "+comp+" <b>"+ comps +"</b></a></li>";
+			}
+			$components.find("ul").html(html);
 		},
 		
 		run: function run() {
@@ -280,4 +304,5 @@ var Editor = (function() {
 })();
 
 window.Builder = Editor;
+
 })(Crafty, window, jQuery);

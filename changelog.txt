@@ -14,11 +14,15 @@ v0.2 - 13/1/2011
 * Loader to load assets before the game starts.
 * Rotation implemented
 
+v0.2.1 - 21/1/2011
+
+* Global assets
+* Use of '*' in selector engine to select all entities
+* Bug fix for DOM elements using the mouse component
+
 v0.3
 
 * Unit tests
 * Better minification
 * Use the inbuilt canvas background repeat
 * SAT collision
-* Global assets
-* Use of '*' in selector engine to select all entities

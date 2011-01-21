@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Spriter</title>
+
+<link href="assets/jui.css" type="text/css" rel="stylesheet" />
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.8/jquery-ui.min.js"></script>
+<script>
+$(function() {
+	var $dialog = $("#dialog"),
+		$sprite = $("#sprite"),
+		$tile = $("#tilesize"),
+		$paddingx = $("#paddingx"),
+		$paddingy = $("#paddingy"),
+		$label = $("#label"),
+		$grid = $("#grid"),
+		$over = $("#over"),
+		$inner = $("#inner"),
+		$width = $("#width"),
+		$height = $("#height"),
+		inneroffset,
+		blurred = false,
+		selected = null,
+		labels = {};
+		
+	var file = "assets/logo.png";
+	
+	function init() {
+		var controls_width = 150;
+		$sprite.attr("src", file).load(function() {
+			$dialog.dialog({
+				width: $(this).width() + controls_width,
+				height: 'auto',
+				resizable: false,
+				buttons: {
+					'Save' : function() {
+						
+					},
+					
+					'Cancel': function() {
+						$(this).dialog("close");
+					}
+				}
+			});
+			
+			//init grid
+			$grid.css({width: $(this).width(), height: $(this).height() });
+			inneroffset = $grid.offset();
+		});
+		$grid.mousemove(overHandler).click(clickHandler);
+	}
+	init();
+	
+	function grid(size, paddingX, paddingY) {
+		if(size <= 1) return;
+		var width = $sprite.width(),
+			height = $sprite.height(),
+			i = 1, l = Math.ceil(width / (size + paddingX)),
+			j = 1, k = Math.ceil(height / (size + paddingY)),
+			html = "";
+		
+		//add x axis
+		for(;i<=l;i++) {
+			html += "<div style='top:0; left:"+(i * (size + paddingX) - paddingX)+"px; border-right-width:"+(paddingX+1)+"px; height:"+height+"px;'></div>";
+		}
+		
+		//add y axis
+		for(;j<=k;j++) {
+			html += "<div style='top:"+(j * (size + paddingY) - paddingY)+"px; left:0; border-bottom-width:"+(paddingY+1)+"px; width:"+width+"px;'></div>";
+		}
+		
+		$inner.html(html);
+	}
+	
+	function gridHandler() {
+		grid(+$tile.val(), +$paddingx.val(), +$paddingy.val());
+	}
+	
+	function overHandler(e) {
+		if(+$tile.val() <= 1) return;
+		
+		var tile = (+$tile.val()),
+			paddingx = (+$paddingx.val()),
+			paddingy = (+$paddingy.val()),
+			roundx = tile + paddingx,
+			roundy = tile + paddingy,
+			realx = e.clientX - inneroffset.left,
+			realy = e.clientY - inneroffset.top,
+			width = +$width.val(),
+			height = +$height.val(),
+			x = Math.floor(realx / roundx) * roundx,
+			y = Math.floor(realy / roundy) * roundy;
+			
+		$over.css({left: x, top: y, width: (tile * width + paddingx - 1), height: (tile * height + paddingy - 1)});
+	}
+	
+	function clickHandler(e) {
+		if(selected) {
+			selected = null;
+			$over.css("border-color", "red");
+			$grid.mousemove(overHandler);
+			$label.val("");
+			return;
+		}
+		
+		var tile = (+$tile.val()),
+			paddingx = (+$paddingx.val()),
+			paddingy = (+$paddingy.val()),
+			roundx = tile + paddingx,
+			roundy = tile + paddingy,
+			realx = e.clientX - inneroffset.left,
+			realy = e.clientY - inneroffset.top,
+			x = Math.floor(realx / roundx),
+			y = Math.floor(realy / roundy),
+			value = labels[x+"x"+y] || "";
+		
+		selected = [x, y];
+		$over.css("border-color", "green");
+		$(this).unbind("mousemove");
+		$label.focus().val(value);
+	}
+	
+	$tile.change(gridHandler);
+	$paddingx.change(gridHandler);
+	$paddingy.change(gridHandler);
+	
+	$label.keypress(function() {
+		if(!selected) {
+			$(this).blur();
+			return false;
+		}
+	}).keyup(function() {
+		if(!selected) return false;
+		
+		labels[selected[0]+"x"+selected[1]] = $(this).val();
+	});
+	
+	window.labels = labels;
+});
+</script>
+<style>
+body { font-size:12px }
+#sprite { border:1px solid #aaa }
+#options { width:100px; float:right; font-size:10px; border-left:1px solid #ccc; position:relative; height:100% }
+#options label { display:block; margin-top:5px; float:left; position:relative; left:15px }
+#options input { width:25px; float:left }
+#sections { clear:both; margin-top:5px }
+
+#sections input { width:30% }
+#label { width:100% !important }
+
+#grid { position:absolute; overflow:hidden }
+#grid div { position:absolute; border:0 solid #ccc }
+#inner { position:absolute }
+#over { position:absolute; border:1px solid #ff6000; display:block; z-index:1000 }
+</style>
+</head>
+<body>
+<div id="dialog" title="Spritify">
+
+<div id="grid"><span id="over"></span>
+<div id="inner"></div>
+</div>
+<img id="sprite"/>
+
+<div id="options">
+	<label>Tile Size: <input type="text" id="tilesize" value="1" /></label>
+	<label>Padding X: <input type="text" id="paddingx" value="0" /></label>
+	<label>Padding Y: <input type="text" id="paddingy" value="0" /></label>
+	<label>Width: <input type="text" id="width" value="1" /></label>
+	<label>Height: <input type="text" id="height" value="1" /></label>
+</div>
+<div id="sections">
+<label>Label: <input type="text" id="label" /></label>
+
+</div>
+</div>
+</body>
+</html>

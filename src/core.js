@@ -330,6 +330,10 @@ Crafty.extend({
 		}
 		onloads.push({ctx: ctx, fn: fn});
 		return this;
+	},
+	
+	components: function() {
+		return components;
 	}
 });
 

@@ -338,6 +338,10 @@ Crafty.extend({
 		}
 		onloads.push({ctx: ctx, fn: fn});
 		return this;
+	},
+	
+	components: function() {
+		return components;
 	}
 });
 
@@ -1261,7 +1265,7 @@ Crafty.extend({
 			Crafty.stage.x = offset.x;
 			Crafty.stage.y = offset.y;
 			
-			if(Crafty.support.setter) {
+			if('__defineSetter__' in this && '__defineGetter__' in this) {
 				//define getters and setters to scroll the viewport
 				this.__defineSetter__('x', function(v) { this.scroll('_x', v); });
 				this.__defineSetter__('y', function(v) { this.scroll('_y', v); });
