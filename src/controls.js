@@ -23,7 +23,7 @@ Crafty.extend({
 				if(current.map.containsPoint(x, y)) {
 					flag = true;
 				}
-			} else if(current.isAt(x, y) || current.has("DOM")) flag = true;
+			} else if(current.isAt(x, y)) flag = true;
 			
 			if(flag && (current._z >= maxz || maxz === -1)) {
 				//if the Z is the same, select the closest GUID

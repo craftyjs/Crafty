@@ -37,6 +37,15 @@ Crafty.fn = Crafty.prototype = {
 				or = false,
 				del;
 			
+			if(selector === '*') {
+				for(e in entities) {
+					this[+e] = entities[e];
+					elem++;
+				}
+				this.length = elem;
+				return this;
+			}
+			
 			//multiple components OR
 			if(selector.indexOf(',') !== -1) {
 				or = true;
@@ -1560,7 +1569,7 @@ Crafty.extend({
 				if(current.map.containsPoint(x, y)) {
 					flag = true;
 				}
-			} else if(current.isAt(x, y) || current.has("DOM")) flag = true;
+			} else if(current.isAt(x, y)) flag = true;
 			
 			if(flag && (current._z >= maxz || maxz === -1)) {
 				//if the Z is the same, select the closest GUID

@@ -29,6 +29,15 @@ Crafty.fn = Crafty.prototype = {
 				or = false,
 				del;
 			
+			if(selector === '*') {
+				for(e in entities) {
+					this[+e] = entities[e];
+					elem++;
+				}
+				this.length = elem;
+				return this;
+			}
+			
 			//multiple components OR
 			if(selector.indexOf(',') !== -1) {
 				or = true;

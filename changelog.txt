@@ -21,3 +21,4 @@ v0.3
 * Use the inbuilt canvas background repeat
 * SAT collision
 * Global assets
+* Use of '*' in selector engine to select all entities

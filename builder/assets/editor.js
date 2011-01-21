@@ -12,12 +12,16 @@ var $control,
 	$dialogtext,
 	$console,
 	$assets,
+	$scenes,
+	$components,
+	$entities,
 	$workarea,
 	$consoletext,
 	$frame,
 	frame,
 	CM,
 	CRAFTY_SRC = "../crafty.js",
+	LINT_OPTIONS = {evil: true, forin: true, sub: true, css: true, cap: true, on: true, fragment: true, es5: true, debug: true, browser: true},
 	craft;
 
 function createHTMLElement(el) {
@@ -42,6 +46,9 @@ $(function() {
 	$dialogtext = $("#dialog-text");
 	$console = $("#console");
 	$assets = $("#assets");
+	$scenes = $("#scenes");
+	$components = $("#components");
+	$entities = $("#entities");
 	$consoletext = $("#console-text"),
 	$workarea = $("#workarea");
 		
@@ -119,14 +126,19 @@ $(function() {
 
 
 var Editor = (function() {
-	var assets = [];
+	var assets = [],
+		scenes = [],
+		ents = [],
+		comps = [];
 	
 	return {
 		detectObjects: function() {
 			assets = [];
 			var dupes = {},
 				url,
-				elems = craft.assets;
+				name,
+				elems = craft.assets,
+				lscenes = craft._scenes;
 				
 			craft("sprite, image").each(function() {
 				if(!dupes[this.__image]) dupes[this.__image] = true;
@@ -151,10 +163,19 @@ var Editor = (function() {
 				assets.push({url: url, type: type});
 			}
 			
-			this.update();
+			//add scenes
+			for(name in lscenes) {
+				scenes.push(name);
+			}
+			
+			ents = craft('*');
+			
+			this.updateAssets();
+			this.updateScenes();
+			this.updateEntities();
 		},
 		
-		update: function() {
+		updateAssets: function() {
 			var html = "",
 				i = 0, l = assets.length,
 				current,
@@ -166,6 +187,33 @@ var Editor = (function() {
 				html += "<li><a href='#' title='"+current.url+"'><img src='assets/images/"+current.type+".png'/> "+file+"</a></li>";
 			}
 			$assets.find("ul").html(html);
+		},
+		
+		updateScenes: function() {
+			var html = "",
+				i = 0, l = scenes.length,
+				current;
+				
+			for(;i<l;i++) {
+				current = scenes[i];
+				
+				html += "<li><a href='#'><img src='assets/images/world.png'/> "+current+"</a></li>";
+			}
+			$scenes.find("ul").html(html);
+		},
+		
+		updateEntities: function() {
+			var html = "",
+				i = 1, l = ents.length,
+				comps,
+				current;
+				
+			for(;i<=l;i++) {
+				current = ents[i];
+				comps = Array.prototype.slice.call(current.__c, 0).join(", ");
+				html += "<li><a href='#'><img src='assets/images/bullet.png'/> Ent #"+current[0]+" <b>"+ comps +"</b></a></li>";
+			}
+			$entities.find("ul").html(html);
 		},
 		
 		run: function run() {
@@ -187,7 +235,7 @@ var Editor = (function() {
 			var code = CM.getCode(),
 				html,
 				win = frame.contentWindow,
-				results = JSLINT(code);
+				results = JSLINT(code, LINT_OPTIONS);
 			
 			//if found errors, log them
 			if(!results) {
@@ -197,8 +245,10 @@ var Editor = (function() {
 					if(!current) continue;
 					this.log("Line <var>"+current.line+"</var> Char <var>"+current.character+"</var>: <code>"+current.evidence+"</code> ... "+current.reason);
 				}
-				$workbench.tabs('select', 0);
-				return;
+				if(errorz[l-1] == null) {
+					$workbench.tabs('select', 0);
+					return;
+				}
 			}
 			
 			html = ["<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\"><html><head>",
