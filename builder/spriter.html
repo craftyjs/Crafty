@@ -73,7 +73,7 @@ $(function() {
 		$inner.html(html);
 	}
 	
-	function gridHandler() {
+	function gridHandler(e) {
 		grid(+$tile.val(), +$paddingx.val(), +$paddingy.val());
 	}
 	
@@ -92,7 +92,7 @@ $(function() {
 			x = Math.floor(realx / roundx) * roundx,
 			y = Math.floor(realy / roundy) * roundy;
 			
-		$over.css({left: x, top: y, width: (tile * width + paddingx - 1), height: (tile * height + paddingy - 1)});
+		$over.css({left: x, top: y, width: (width * (tile + paddingx) - paddingx-1), height: (height * (tile + paddingy) - paddingy-1)});
 	}
 	
 	function clickHandler(e) {
@@ -111,19 +111,27 @@ $(function() {
 			roundy = tile + paddingy,
 			realx = e.clientX - inneroffset.left,
 			realy = e.clientY - inneroffset.top,
+			width = +$width.val(),
+			height = +$height.val(),
 			x = Math.floor(realx / roundx),
 			y = Math.floor(realy / roundy),
-			value = labels[x+"x"+y] || "";
+			value = labels[x+"x"+y+"x"+width+"x"+height] || "";
 		
-		selected = [x, y];
+		selected = [x, y, width, height];
 		$over.css("border-color", "green");
 		$(this).unbind("mousemove");
 		$label.focus().val(value);
 	}
 	
-	$tile.change(gridHandler);
-	$paddingx.change(gridHandler);
-	$paddingy.change(gridHandler);
+	function intOnly(e) {
+		return e.keyCode >= 48 && e.keyCode <= 57;
+	}
+	
+	$tile.keydown(intOnly).keyup(gridHandler);
+	$paddingx.keydown(intOnly).keyup(gridHandler);
+	$paddingy.keydown(intOnly).keyup(gridHandler);
+	$width.keydown(intOnly).keyup(gridHandler);
+	$height.keydown(intOnly).keyup(gridHandler);
 	
 	$label.keypress(function() {
 		if(!selected) {
@@ -133,7 +141,7 @@ $(function() {
 	}).keyup(function() {
 		if(!selected) return false;
 		
-		labels[selected[0]+"x"+selected[1]] = $(this).val();
+		labels[selected[0]+"x"+selected[1]+"x"+selected[2]+"x"+selected[3]] = $(this).val();
 	});
 	
 	window.labels = labels;
