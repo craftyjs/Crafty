@@ -70,8 +70,7 @@ Crafty.extend({
 				
 				sprite: function(x,y,w,h) {
 					this.__coord = [x*this.__tile+this.__padding[0],y*this.__tile+this.__padding[1],w*this.__tile || this.__tile,h*this.__tile || this.__tile];
-					if(this.has("canvas")) DrawBuffer.add(this);
-					else if(this.has("DOM")) this.draw();
+					this.trigger("change");
 				}
 			});
 		}

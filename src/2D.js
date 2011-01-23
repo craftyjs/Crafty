@@ -13,6 +13,7 @@ Crafty.c("2D", {
 	_mbr: null,
 	_entry: null,
 	_attachy: [],
+	_changed: false,
 	
 	init: function() {
 		if(Crafty.support.setter) {
@@ -109,6 +110,19 @@ Crafty.c("2D", {
 		this.bind("remove", function() {
 			Crafty.map.remove(this);
 			this.detach();
+		});
+		
+		this.bind("change", function(e) {
+			//when the change event is triggered, set the change flag
+			if(!this._changed) {
+				this._changed = e || this.pos();
+				//bind to enterframe
+				this.bind("enterframe", function draw() {
+					this.trigger("repaint", this._changed);
+					this._changed = false;
+					this.unbind("enterframe", draw);
+				});
+			}
 		});
 	},
 	

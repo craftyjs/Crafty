@@ -8,7 +8,7 @@ Crafty.c("canvas", {
 	
 	init: function() {
 		//on change, redraw
-		this.bind("change", function(e) {
+		this.bind("repaint", function(e) {
 			e = e || this;
 			
 			//clear self

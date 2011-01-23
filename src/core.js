@@ -25,6 +25,7 @@ Crafty.fn = Crafty.prototype = {
 		if(typeof selector === "string") {
 			var elem = 0, //index elements
 				e, //entity forEach
+				current,
 				and = false, //flags for multiple
 				or = false,
 				del;
@@ -51,17 +52,18 @@ Crafty.fn = Crafty.prototype = {
 			//loop over entities
 			for(e in entities) {
 				if(!entities.hasOwnProperty(e)) continue; //skip
+				current = entities[e];
 				
 				if(and || or) { //multiple components
 					var comps = selector.split(del), i = 0, l = comps.length, score = 0;
 					
 					for(;i<l;i++) //loop over components
-						if(Crafty(+e).has(comps[i])) score++; //if component exists add to score 
+						if(current.__c[comps[i]]) score++; //if component exists add to score 
 					
 					//if anded comps and has all OR ored comps and at least 1
 					if(and && score === l || or && score > 0) this[elem++] = +e;
 					
-				} else if(Crafty(+e).has(selector)) this[elem++] = +e; //convert to int
+				} else if(current.__c[selector]) this[elem++] = +e; //convert to int
 			}
 			
 			//extend all common components
@@ -177,6 +179,16 @@ Crafty.fn = Crafty.prototype = {
 	},
 	
 	bind: function(event, fn) {
+		//optimization for 1 entity
+		if(this.length === 1) {
+			if(!handlers[event]) handlers[event] = {};
+			var h = handlers[event];
+			
+			if(!h[this[0]]) h[this[0]] = []; //init handler array for entity
+			h[this[0]].push(fn); //add current fn
+			return this;
+		}
+		
 		this.each(function() {
 			//init event collection
 			if(!handlers[event]) handlers[event] = {};
@@ -215,6 +227,17 @@ Crafty.fn = Crafty.prototype = {
 	},
 	
 	trigger: function(event, data) {
+		if(this.length === 1) {
+			//find the handlers assigned to the event and entity
+			if(handlers[event] && handlers[event][this[0]]) {
+				var fns = handlers[event][this[0]], i = 0, l = fns.length;
+				for(;i<l;i++) {
+					fns[i].call(this, data);
+				}
+			}
+			return this;
+		}
+		
 		this.each(function() {
 			//find the handlers assigned to the event and entity
 			if(handlers[event] && handlers[event][this[0]]) {
@@ -230,7 +253,7 @@ Crafty.fn = Crafty.prototype = {
 	each: function(fn) {
 		var i = 0, l = this.length;
 		for(;i<l;i++) {
-			fn.call(Crafty(this[i]),i);
+			fn.call(entities[this[i]],i);
 		}
 		return this;
 	},

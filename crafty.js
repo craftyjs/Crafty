@@ -33,6 +33,7 @@ Crafty.fn = Crafty.prototype = {
 		if(typeof selector === "string") {
 			var elem = 0, //index elements
 				e, //entity forEach
+				current,
 				and = false, //flags for multiple
 				or = false,
 				del;
@@ -59,17 +60,18 @@ Crafty.fn = Crafty.prototype = {
 			//loop over entities
 			for(e in entities) {
 				if(!entities.hasOwnProperty(e)) continue; //skip
+				current = entities[e];
 				
 				if(and || or) { //multiple components
 					var comps = selector.split(del), i = 0, l = comps.length, score = 0;
 					
 					for(;i<l;i++) //loop over components
-						if(Crafty(+e).has(comps[i])) score++; //if component exists add to score 
+						if(current.__c[comps[i]]) score++; //if component exists add to score 
 					
 					//if anded comps and has all OR ored comps and at least 1
 					if(and && score === l || or && score > 0) this[elem++] = +e;
 					
-				} else if(Crafty(+e).has(selector)) this[elem++] = +e; //convert to int
+				} else if(current.__c[selector]) this[elem++] = +e; //convert to int
 			}
 			
 			//extend all common components
@@ -185,6 +187,16 @@ Crafty.fn = Crafty.prototype = {
 	},
 	
 	bind: function(event, fn) {
+		//optimization for 1 entity
+		if(this.length === 1) {
+			if(!handlers[event]) handlers[event] = {};
+			var h = handlers[event];
+			
+			if(!h[this[0]]) h[this[0]] = []; //init handler array for entity
+			h[this[0]].push(fn); //add current fn
+			return this;
+		}
+		
 		this.each(function() {
 			//init event collection
 			if(!handlers[event]) handlers[event] = {};
@@ -223,6 +235,17 @@ Crafty.fn = Crafty.prototype = {
 	},
 	
 	trigger: function(event, data) {
+		if(this.length === 1) {
+			//find the handlers assigned to the event and entity
+			if(handlers[event] && handlers[event][this[0]]) {
+				var fns = handlers[event][this[0]], i = 0, l = fns.length;
+				for(;i<l;i++) {
+					fns[i].call(this, data);
+				}
+			}
+			return this;
+		}
+		
 		this.each(function() {
 			//find the handlers assigned to the event and entity
 			if(handlers[event] && handlers[event][this[0]]) {
@@ -238,7 +261,7 @@ Crafty.fn = Crafty.prototype = {
 	each: function(fn) {
 		var i = 0, l = this.length;
 		for(;i<l;i++) {
-			fn.call(Crafty(this[i]),i);
+			fn.call(entities[this[i]],i);
 		}
 		return this;
 	},
@@ -517,10 +540,13 @@ Crafty.c("2D", {
 	_h: 0,
 	_z: 0,
 	_rotation: 0,
+	_alpha: 1.0,
+	
 	_origin: {x: 0, y: 0},
 	_mbr: null,
 	_entry: null,
 	_attachy: [],
+	_changed: false,
 	
 	init: function() {
 		if(Crafty.support.setter) {
@@ -530,8 +556,8 @@ Crafty.c("2D", {
 			this.__defineSetter__('w', function(v) { this._attr('_w',v); });
 			this.__defineSetter__('h', function(v) { this._attr('_h',v); });
 			this.__defineSetter__('z', function(v) { this._attr('_z',v); });
-			
 			this.__defineSetter__('rotation', function(v) { this._attr('_rotation', v); });
+			this.__defineSetter__('alpha', function(v) { this._attr('_alpha',v); });
 			
 			this.__defineGetter__('x', function() { return this._x; });
 			this.__defineGetter__('y', function() { return this._y; });
@@ -539,28 +565,65 @@ Crafty.c("2D", {
 			this.__defineGetter__('h', function() { return this._h; });
 			this.__defineGetter__('z', function() { return this._z; });
 			this.__defineGetter__('rotation', function() { return this._rotation; });
+			this.__defineGetter__('alpha', function() { return this._alpha; });
+			
+		//IE9 supports Object.defineProperty
+		} else if(Crafty.support.defineProperty) {
+			
+			Object.defineProperty(this, 'x', { set: function(v) { this._attr('_x',v); }, get: function() { return this._x; } });
+			Object.defineProperty(this, 'y', { set: function(v) { this._attr('_y',v); }, get: function() { return this._y; } });
+			Object.defineProperty(this, 'w', { set: function(v) { this._attr('_w',v); }, get: function() { return this._w; } });
+			Object.defineProperty(this, 'h', { set: function(v) { this._attr('_h',v); }, get: function() { return this._h; } });
+			Object.defineProperty(this, 'z', { set: function(v) { this._attr('_z',v); }, get: function() { return this._z; } });
+			
+			Object.defineProperty(this, 'rotation', { 
+				set: function(v) { this._attr('_rotation',v); }, get: function() { return this._rotation; } 
+			});
+			
+			Object.defineProperty(this, 'alpha', { 
+				set: function(v) { this._attr('_alpha',v); }, get: function() { return this._alpha; } 
+			});
+			
 		} else {
 			/*
 			if no setters, check on every frame for a difference 
-			between this._(x|y|w|h|z) and this.(x|y|w|h|z)
+			between this._(x|y|w|h|z...) and this.(x|y|w|h|z)
 			*/
 			this.x = this._x;
 			this.y = this._y;
 			this.w = this._w;
 			this.h = this._h;
 			this.z = this._z;
+			this.rotation = this._rotation;
 			
 			this.bind("enterframe", function() {
+				//if there are differences
 				if(this.x !== this._x || this.y !== this._y ||
 				   this.w !== this._w || this.h !== this._h ||
-				   this.z !== this._z) {
+				   this.z !== this._z || this.rotation !== this._rotation ||
+				   this.alpha !== this._alpha) {
 					
-					var old = this.pos();
+					var old = this.mbr() || this.pos();
+					
+					if(this.rotation !== this._rotation) {
+						this._rotate(this.rotation);
+					} else {
+						var mbr = this._mbr;
+						if(mbr) { //check each value to see which has changed
+							if(this.x !== this._x) { mbr._x -= this.x - this._x; }
+							else if(this.y !== this._y) { mbr._y -= this.y - this._y; }
+							else if(this.w !== this._w) { mbr._w -= this.w - this._w; }
+							else if(this.h !== this._h) { mbr._h -= this.h - this._h; }
+							else if(this.z !== this._z) { mbr._z -= this.z - this._z; }
+						}
+					}
+					
 					this._x = this.x;
 					this._y = this.y;
 					this._w = this.w;
 					this._h = this.h;
 					this._z = this.z;
+					this._rotation = this.rotation;
 					
 					this.trigger("move", old);
 					this.trigger("change", old);
@@ -580,6 +643,19 @@ Crafty.c("2D", {
 		this.bind("remove", function() {
 			Crafty.map.remove(this);
 			this.detach();
+		});
+		
+		this.bind("change", function(e) {
+			//when the change event is triggered, set the change flag
+			if(!this._changed) {
+				this._changed = e || this.pos();
+				//bind to enterframe
+				this.bind("enterframe", function draw() {
+					this.trigger("repaint", this._changed);
+					this._changed = false;
+					this.unbind("enterframe", draw);
+				});
+			}
 		});
 	},
 	
@@ -768,7 +844,7 @@ Crafty.c("2D", {
 		
 		if(name === '_rotation') {
 			this._rotate(value);
-		} else {
+		} else if(name !== '_alpha') {
 			var mbr = this._mbr;
 			if(mbr) {
 				mbr[name] -= this[name] - value;
@@ -922,7 +998,7 @@ Crafty.polygon.prototype = {
 		Crafty.stage.elem.appendChild(this._element);
 		this._element.style.position = "absolute";
 		this._element.id = "ent" + this[0];
-		this.bind("change", this.draw);
+		this.bind("repaint", this.draw);
 		this.bind("remove", this.undraw);
 	},
 	
@@ -939,7 +1015,8 @@ Crafty.polygon.prototype = {
 		style.left = Math.floor(this._x) + "px";
 		style.width = Math.floor(this._w) + "px";
 		style.height = Math.floor(this._h) + "px";
-		style.zIndex = this.z;
+		style.zIndex = this._z;
+		style.opacity = this._alpha;
 		
 		if(this._mbr) {
 			var rstring = "rotate("+this._rotation+"deg)",
@@ -1108,8 +1185,7 @@ Crafty.extend({
 				
 				sprite: function(x,y,w,h) {
 					this.__coord = [x*this.__tile+this.__padding[0],y*this.__tile+this.__padding[1],w*this.__tile || this.__tile,h*this.__tile || this.__tile];
-					if(this.has("canvas")) DrawBuffer.add(this);
-					else if(this.has("DOM")) this.draw();
+					this.trigger("change");
 				}
 			});
 		}
@@ -1271,6 +1347,10 @@ Crafty.extend({
 				this.__defineSetter__('y', function(v) { this.scroll('_y', v); });
 				this.__defineGetter__('x', function() { return this._x; });
 				this.__defineGetter__('y', function() { return this._y; });
+			//IE9
+			} else if('defineProperty' in Object) {
+				Object.defineProperty(this, 'x', {set: function(v) { this.scroll('_x', v); }, get: function() { return this._x; }});
+				Object.defineProperty(this, 'y', {set: function(v) { this.scroll('_y', v); }, get: function() { return this._y; }});
 			} else {
 				//create empty entity waiting for enterframe
 				this.x = this._x;
@@ -1293,6 +1373,7 @@ Crafty.extend({
 */
 Crafty.onload(this, function() {
 	Crafty.support.setter = ('__defineSetter__' in this && '__defineGetter__' in this);
+	Crafty.support.defineProperty = ('defineProperty' in Object);
 	Crafty.support.audio = ('Audio' in window);
 });
 
@@ -1410,7 +1491,7 @@ Crafty.c("canvas", {
 	
 	init: function() {
 		//on change, redraw
-		this.bind("change", function(e) {
+		this.bind("repaint", function(e) {
 			e = e || this;
 			
 			//clear self
@@ -1488,6 +1569,10 @@ Crafty.c("canvas", {
 			Crafty.context.rotate((this._rotation % 360) * (Math.PI / 180));
 		}
 		
+		//draw with alpha
+		var globalpha = Crafty.context.globalAlpha;
+		Crafty.context.globalAlpha = this._alpha;
+		
 		this.trigger("draw",{type: "canvas", spritePos: co, pos: pos});
 		
 		//inline drawing of the sprite
@@ -1511,6 +1596,7 @@ Crafty.c("canvas", {
 		if(this._mbr) {
 			Crafty.context.restore();
 		}
+		Crafty.context.globalAlpha = globalpha;
 		return this;
 	}
 });
@@ -1648,6 +1734,8 @@ Crafty.c("mouse", {
 		}
 		
 		this.map = poly;
+		this.map.shift(this._x, this._y);
+		
 		this.attach(this.map);
 		return this;
 	}
@@ -2090,6 +2178,7 @@ Crafty.extend({
 Crafty.extend({
 	audio: {
 		_elems: {},
+		MAX_CHANNELS: 5,
 		
 		type: {
 			'mp3': 'audio/mpeg;',
@@ -2104,7 +2193,9 @@ Crafty.extend({
 			var elem, 
 				key, 
 				audio = new Audio(),
-				canplay;
+				canplay,
+				i = 0,
+				sounds = [];
 						
 			//if an object is passed
 			if(arguments.length === 1 && typeof id === "object") {
@@ -2119,7 +2210,7 @@ Crafty.extend({
 						for(;i<l;++i) {
 							source = sources[i];
 							//get the file extension
-							ext = source.substr(source.lastIndexOf('.')+1);
+							ext = source.substr(source.lastIndexOf('.')+1).toLowerCase();
 							canplay = audio.canPlayType(this.type[ext]);
 							
 							//if browser can play this type, use it
@@ -2132,16 +2223,14 @@ Crafty.extend({
 						url = id[key];
 					}
 					
-					//check if loaded, else new
-					this._elems[key] = Crafty.assets[url];
-					if(!this._elems[key]) {
-						//create a new Audio object and add it to assets
-						this._elems[key] = new Audio(url);
-						Crafty.assets[url] = this._elems[key];
+					for(;i<this.MAX_CHANNELS;i++) {
+						audio = new Audio(url);
+						audio.preload = "auto";
+						audio.load();
+						sounds.push(audio);
 					}
-					
-					this._elems[key].preload = "auto";
-					this._elems[key].load();
+					this._elems[key] = sounds;
+					if(!Crafty.assets[url]) Crafty.assets[url] = this._elems[key][0];
 				}
 				
 				return this;
@@ -2165,25 +2254,38 @@ Crafty.extend({
 				}
 			}
 			
-			this._elems[key] = Crafty.assets[url];
-			if(!this._elems[key]) {
-				//create a new Audio object and add it to assets
-				this._elems[key] = new Audio(url);
-				Crafty.assets[url] = this._elems[key];
+			//create a new Audio object and add it to assets
+			for(;i<this.MAX_CHANNELS;i++) {
+				audio = new Audio(url);
+				audio.preload = "auto";
+				audio.load();
+				sounds.push(audio);
 			}
-			this._elems[id].preload = "auto";
-			this._elems[id].load();
+			this._elems[key] = sounds;
+			if(!Crafty.assets[url]) Crafty.assets[url] = this._elems[key][0];
+			
 			return this;		
 		},
 		
 		play: function(id) {
 			if(!Crafty.support.audio) return;
 			
-			var sound = this._elems[id];
+			var sounds = this._elems[id],
+				sound,
+				i = 0, l = sounds.length;
 			
-			if(sound.ended || !sound.currentTime) {
-				sound.play();
-			} 
+			for(;i<l;i++) {
+				sound = sounds[i];
+				//go through the channels and play a sound that is stopped
+				if(sound.ended || !sound.currentTime) {
+					sound.play();
+					break;
+				} else if(i === l-1) { //if all sounds playing, try stop the last one
+					sound.currentTime = 0;
+					sound.play();
+				}
+			}
+			
 			return this;
 		},
 		
@@ -2196,10 +2298,16 @@ Crafty.extend({
 				return this;
 			}
 			
-			var sound = this._elems[id];
+			var sounds = this._elems[id],
+				sound,
+				setting,
+				i = 0, l = sounds.length;
 			
 			for(var setting in settings) {
-				sound[setting] = settings[setting];
+				for(;i<l;i++) {
+					sound = sounds[i];
+					sound[setting] = settings[setting];
+				}
 			}
 			
 			return this;
@@ -2285,13 +2393,13 @@ Crafty.extend({
 Crafty.extend({
 	assets: {},
 	
-	load: function(data, callback) {
+	load: function(data, oncomplete, onprogress, onerror) {
 		var i = 0, l = data.length, current, obj, total = l, j = 0;
 		for(;i<l;++i) {
 			current = data[i];
 			ext = current.substr(current.lastIndexOf('.')+1).toLowerCase();
 
-			if((ext === "mp3" || ext === "wav" || ext === "ogg" || ext === "mp4") && Crafty.support.audio) {
+			if(Crafty.support.audio && (ext === "mp3" || ext === "wav" || ext === "ogg" || ext === "mp4")) {
 				obj = new Audio(current);
 			} else if(ext === "jpg" || ext === "jpeg" || ext === "gif" || ext === "png") {
 				obj = new Image();
@@ -2307,8 +2415,19 @@ Crafty.extend({
 			obj.onload = function() {
 				++j;
 				
+				//if progress callback, give information of assets loaded, total and percent
+				if(onprogress) {
+					onprogress.call(this, {loaded: j, total: total, percent: (j / total * 100)});
+				}
 				if(j === total) {
-					if(callback) callback();
+					if(oncomplete) oncomplete();
+				}
+			};
+			
+			//if there is an error, pass it in the callback (this will be the object that didn't load)
+			obj.onerror = function() {
+				if(onerror) {
+					onerror.call(this, {loaded: j, total: total, percent: (j / total * 100)});
 				}
 			};
 		}

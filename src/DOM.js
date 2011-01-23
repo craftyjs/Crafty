@@ -6,7 +6,7 @@ Crafty.c("DOM", {
 		Crafty.stage.elem.appendChild(this._element);
 		this._element.style.position = "absolute";
 		this._element.id = "ent" + this[0];
-		this.bind("change", this.draw);
+		this.bind("repaint", this.draw);
 		this.bind("remove", this.undraw);
 	},
 	
@@ -23,8 +23,8 @@ Crafty.c("DOM", {
 		style.left = Math.floor(this._x) + "px";
 		style.width = Math.floor(this._w) + "px";
 		style.height = Math.floor(this._h) + "px";
-		style.zIndex = this.z;
-		style.opacity = this.opacity;
+		style.zIndex = this._z;
+		style.opacity = this._alpha;
 		
 		if(this._mbr) {
 			var rstring = "rotate("+this._rotation+"deg)",
