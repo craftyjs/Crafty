@@ -98,6 +98,8 @@ Crafty.c("mouse", {
 		}
 		
 		this.map = poly;
+		this.map.shift(this._x, this._y);
+		
 		this.attach(this.map);
 		return this;
 	}
