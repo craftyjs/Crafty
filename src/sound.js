@@ -1,6 +1,7 @@
 Crafty.extend({
 	audio: {
 		_elems: {},
+		MAX_CHANNELS: 5,
 		
 		type: {
 			'mp3': 'audio/mpeg;',
@@ -15,7 +16,9 @@ Crafty.extend({
 			var elem, 
 				key, 
 				audio = new Audio(),
-				canplay;
+				canplay,
+				i = 0,
+				sounds = [];
 						
 			//if an object is passed
 			if(arguments.length === 1 && typeof id === "object") {
@@ -30,7 +33,7 @@ Crafty.extend({
 						for(;i<l;++i) {
 							source = sources[i];
 							//get the file extension
-							ext = source.substr(source.lastIndexOf('.')+1);
+							ext = source.substr(source.lastIndexOf('.')+1).toLowerCase();
 							canplay = audio.canPlayType(this.type[ext]);
 							
 							//if browser can play this type, use it
@@ -43,16 +46,14 @@ Crafty.extend({
 						url = id[key];
 					}
 					
-					//check if loaded, else new
-					this._elems[key] = Crafty.assets[url];
-					if(!this._elems[key]) {
-						//create a new Audio object and add it to assets
-						this._elems[key] = new Audio(url);
-						Crafty.assets[url] = this._elems[key];
+					for(;i<this.MAX_CHANNELS;i++) {
+						audio = new Audio(url);
+						audio.preload = "auto";
+						audio.load();
+						sounds.push(audio);
 					}
-					
-					this._elems[key].preload = "auto";
-					this._elems[key].load();
+					this._elems[key] = sounds;
+					if(!Crafty.assets[url]) Crafty.assets[url] = this._elems[key][0];
 				}
 				
 				return this;
@@ -76,25 +77,38 @@ Crafty.extend({
 				}
 			}
 			
-			this._elems[key] = Crafty.assets[url];
-			if(!this._elems[key]) {
-				//create a new Audio object and add it to assets
-				this._elems[key] = new Audio(url);
-				Crafty.assets[url] = this._elems[key];
+			//create a new Audio object and add it to assets
+			for(;i<this.MAX_CHANNELS;i++) {
+				audio = new Audio(url);
+				audio.preload = "auto";
+				audio.load();
+				sounds.push(audio);
 			}
-			this._elems[id].preload = "auto";
-			this._elems[id].load();
+			this._elems[key] = sounds;
+			if(!Crafty.assets[url]) Crafty.assets[url] = this._elems[key][0];
+			
 			return this;		
 		},
 		
 		play: function(id) {
 			if(!Crafty.support.audio) return;
 			
-			var sound = this._elems[id];
+			var sounds = this._elems[id],
+				sound,
+				i = 0, l = sounds.length;
 			
-			if(sound.ended || !sound.currentTime) {
-				sound.play();
-			} 
+			for(;i<l;i++) {
+				sound = sounds[i];
+				//go through the channels and play a sound that is stopped
+				if(sound.ended || !sound.currentTime) {
+					sound.play();
+					break;
+				} else if(i === l-1) { //if all sounds playing, try stop the last one
+					sound.currentTime = 0;
+					sound.play();
+				}
+			}
+			
 			return this;
 		},
 		
@@ -107,10 +121,16 @@ Crafty.extend({
 				return this;
 			}
 			
-			var sound = this._elems[id];
+			var sounds = this._elems[id],
+				sound,
+				setting,
+				i = 0, l = sounds.length;
 			
 			for(var setting in settings) {
-				sound[setting] = settings[setting];
+				for(;i<l;i++) {
+					sound = sounds[i];
+					sound[setting] = settings[setting];
+				}
 			}
 			
 			return this;

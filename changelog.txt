@@ -26,3 +26,9 @@ v0.3
 * Better minification
 * Use the inbuilt canvas background repeat
 * SAT collision
+* Comment code
+* defineProperty for IE9
+* Mobile
+* Alpha (contact Josh)
+* Draw not so often (wait til no more changes)
+* More Audio instances

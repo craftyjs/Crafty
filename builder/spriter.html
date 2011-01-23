@@ -24,7 +24,7 @@ $(function() {
 		selected = null,
 		labels = {};
 		
-	var file = "assets/logo.png";
+	var file = "spritemap.gif";
 	
 	function init() {
 		var controls_width = 150;
@@ -41,6 +41,9 @@ $(function() {
 					'Cancel': function() {
 						$(this).dialog("close");
 					}
+				},
+				dragStop: function() {
+					inneroffset = $grid.offset();
 				}
 			});
 			
