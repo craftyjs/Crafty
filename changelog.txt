@@ -29,7 +29,8 @@ v0.3
 * Comment code
 * defineProperty for IE9
 * Mobile
-* Alpha (contact Josh)
-* Draw not so often (wait til no more changes)
-* More Audio instances
-* Loader accepts onProgress and onError callbacks with info on what is loaded and percentages
+* Alpha - thanks to Josh Tynjala
+* Drawing optimization
+* More Audio instances - thanks to Josh Tynjala
+* Loader accepts onProgress and onError callbacks with info on what is loaded and percentages - thanks to Josh Tynjala
+

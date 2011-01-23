@@ -98,7 +98,10 @@ Crafty.c("mouse", {
 		}
 		
 		this.map = poly;
-		this.map.shift(this._x, this._y);
+		
+		//offset the polygon if it was passed through arguments
+		if(arguments.length === 1) 
+			this.map.shift(this._x, this._y);
 		
 		this.attach(this.map);
 		return this;
