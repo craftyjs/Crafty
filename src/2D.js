@@ -7,6 +7,8 @@ Crafty.c("2D", {
 	_h: 0,
 	_z: 0,
 	_rotation: 0,
+	_alpha: 1.0,
+	
 	_origin: {x: 0, y: 0},
 	_mbr: null,
 	_entry: null,
@@ -20,8 +22,8 @@ Crafty.c("2D", {
 			this.__defineSetter__('w', function(v) { this._attr('_w',v); });
 			this.__defineSetter__('h', function(v) { this._attr('_h',v); });
 			this.__defineSetter__('z', function(v) { this._attr('_z',v); });
-			
 			this.__defineSetter__('rotation', function(v) { this._attr('_rotation', v); });
+			this.__defineSetter__('alpha', function(v) { this._attr('_alpha',v); });
 			
 			this.__defineGetter__('x', function() { return this._x; });
 			this.__defineGetter__('y', function() { return this._y; });
@@ -29,6 +31,7 @@ Crafty.c("2D", {
 			this.__defineGetter__('h', function() { return this._h; });
 			this.__defineGetter__('z', function() { return this._z; });
 			this.__defineGetter__('rotation', function() { return this._rotation; });
+			this.__defineGetter__('alpha', function() { return this._alpha; });
 			
 		//IE9 supports Object.defineProperty
 		} else if(Crafty.support.defineProperty) {
@@ -41,6 +44,10 @@ Crafty.c("2D", {
 			
 			Object.defineProperty(this, 'rotation', { 
 				set: function(v) { this._attr('_rotation',v); }, get: function() { return this._rotation; } 
+			});
+			
+			Object.defineProperty(this, 'alpha', { 
+				set: function(v) { this._attr('_alpha',v); }, get: function() { return this._alpha; } 
 			});
 			
 		} else {
@@ -59,7 +66,8 @@ Crafty.c("2D", {
 				//if there are differences
 				if(this.x !== this._x || this.y !== this._y ||
 				   this.w !== this._w || this.h !== this._h ||
-				   this.z !== this._z || this.rotation !== this._rotation) {
+				   this.z !== this._z || this.rotation !== this._rotation ||
+				   this.alpha !== this._alpha) {
 					
 					var old = this.mbr() || this.pos();
 					
@@ -289,7 +297,7 @@ Crafty.c("2D", {
 		
 		if(name === '_rotation') {
 			this._rotate(value);
-		} else {
+		} else if(name !== '_alpha') {
 			var mbr = this._mbr;
 			if(mbr) {
 				mbr[name] -= this[name] - value;

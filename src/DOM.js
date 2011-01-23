@@ -24,6 +24,7 @@ Crafty.c("DOM", {
 		style.width = Math.floor(this._w) + "px";
 		style.height = Math.floor(this._h) + "px";
 		style.zIndex = this.z;
+		style.opacity = this.opacity;
 		
 		if(this._mbr) {
 			var rstring = "rotate("+this._rotation+"deg)",

@@ -86,6 +86,10 @@ Crafty.c("canvas", {
 			Crafty.context.rotate((this._rotation % 360) * (Math.PI / 180));
 		}
 		
+		//draw with alpha
+		var globalpha = Crafty.context.globalAlpha;
+		Crafty.context.globalAlpha = this._alpha;
+		
 		this.trigger("draw",{type: "canvas", spritePos: co, pos: pos});
 		
 		//inline drawing of the sprite
@@ -109,6 +113,7 @@ Crafty.c("canvas", {
 		if(this._mbr) {
 			Crafty.context.restore();
 		}
+		Crafty.context.globalAlpha = globalpha;
 		return this;
 	}
 });
