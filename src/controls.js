@@ -3,6 +3,10 @@ Crafty.extend({
 	over: null, //object mouseover, waiting for out
 		
 	mouseDispatch: function(e) {
+		if(e.type === "touchstart") e.type = "mousedown";
+		else if(e.type === "touchmove") e.type = "mousemove";
+		else if(e.type === "touchend") e.type = "mouseup";
+		
 		var maxz = -1,
 			closest,
 			q,
@@ -79,6 +83,10 @@ Crafty.onload(this, function() {
 	Crafty.addEvent(this, Crafty.stage.elem, "mousedown", Crafty.mouseDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "mouseup", Crafty.mouseDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "mousemove", Crafty.mouseDispatch);
+	
+	Crafty.addEvent(this, Crafty.stage.elem, "touchstart", Crafty.mouseDispatch);
+	Crafty.addEvent(this, Crafty.stage.elem, "touchmove", Crafty.mouseDispatch);
+	Crafty.addEvent(this, Crafty.stage.elem, "touchend", Crafty.mouseDispatch);
 });
 
 Crafty.c("mouse", {
@@ -86,22 +94,12 @@ Crafty.c("mouse", {
 		//create polygon
 		if(arguments.length > 1) {
 			//convert args to array to create polygon
-			var args = Array.prototype.slice.call(arguments, 0),
-				i = 0, l = args.length;
-			
-			for(;i<l;i++) {
-				args[i][0] += this.x;
-				args[i][1] += this.y;
-			}
-			
+			var args = Array.prototype.slice.call(arguments, 0);
 			poly = new Crafty.polygon(args);
 		}
 		
+		poly.shift(this._x, this._y);
 		this.map = poly;
-		
-		//offset the polygon if it was passed through arguments
-		if(arguments.length === 1) 
-			this.map.shift(this._x, this._y);
 		
 		this.attach(this.map);
 		return this;
