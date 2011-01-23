@@ -4,13 +4,13 @@
 Crafty.extend({
 	assets: {},
 	
-	load: function(data, callback) {
+	load: function(data, oncomplete, onprogress, onerror) {
 		var i = 0, l = data.length, current, obj, total = l, j = 0;
 		for(;i<l;++i) {
 			current = data[i];
 			ext = current.substr(current.lastIndexOf('.')+1).toLowerCase();
 
-			if((ext === "mp3" || ext === "wav" || ext === "ogg" || ext === "mp4") && Crafty.support.audio) {
+			if(Crafty.support.audio && (ext === "mp3" || ext === "wav" || ext === "ogg" || ext === "mp4")) {
 				obj = new Audio(current);
 			} else if(ext === "jpg" || ext === "jpeg" || ext === "gif" || ext === "png") {
 				obj = new Image();
@@ -26,8 +26,19 @@ Crafty.extend({
 			obj.onload = function() {
 				++j;
 				
+				//if progress callback, give information of assets loaded, total and percent
+				if(onprogress) {
+					onprogress.call(this, {loaded: j, total: total, percent: (j / total * 100)});
+				}
 				if(j === total) {
-					if(callback) callback();
+					if(oncomplete) oncomplete();
+				}
+			};
+			
+			//if there is an error, pass it in the callback (this will be the object that didn't load)
+			obj.onerror = function() {
+				if(onerror) {
+					onerror.call(this, {loaded: j, total: total, percent: (j / total * 100)});
 				}
 			};
 		}
