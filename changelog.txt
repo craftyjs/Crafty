@@ -32,3 +32,4 @@ v0.3
 * Alpha (contact Josh)
 * Draw not so often (wait til no more changes)
 * More Audio instances
+* Loader accepts onProgress and onError callbacks with info on what is loaded and percentages

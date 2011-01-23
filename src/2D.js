@@ -29,28 +29,59 @@ Crafty.c("2D", {
 			this.__defineGetter__('h', function() { return this._h; });
 			this.__defineGetter__('z', function() { return this._z; });
 			this.__defineGetter__('rotation', function() { return this._rotation; });
+			
+		//IE9 supports Object.defineProperty
+		} else if(Crafty.support.defineProperty) {
+			
+			Object.defineProperty(this, 'x', { set: function(v) { this._attr('_x',v); }, get: function() { return this._x; } });
+			Object.defineProperty(this, 'y', { set: function(v) { this._attr('_y',v); }, get: function() { return this._y; } });
+			Object.defineProperty(this, 'w', { set: function(v) { this._attr('_w',v); }, get: function() { return this._w; } });
+			Object.defineProperty(this, 'h', { set: function(v) { this._attr('_h',v); }, get: function() { return this._h; } });
+			Object.defineProperty(this, 'z', { set: function(v) { this._attr('_z',v); }, get: function() { return this._z; } });
+			
+			Object.defineProperty(this, 'rotation', { 
+				set: function(v) { this._attr('_rotation',v); }, get: function() { return this._rotation; } 
+			});
+			
 		} else {
 			/*
 			if no setters, check on every frame for a difference 
-			between this._(x|y|w|h|z) and this.(x|y|w|h|z)
+			between this._(x|y|w|h|z...) and this.(x|y|w|h|z)
 			*/
 			this.x = this._x;
 			this.y = this._y;
 			this.w = this._w;
 			this.h = this._h;
 			this.z = this._z;
+			this.rotation = this._rotation;
 			
 			this.bind("enterframe", function() {
+				//if there are differences
 				if(this.x !== this._x || this.y !== this._y ||
 				   this.w !== this._w || this.h !== this._h ||
-				   this.z !== this._z) {
+				   this.z !== this._z || this.rotation !== this._rotation) {
 					
-					var old = this.pos();
+					var old = this.mbr() || this.pos();
+					
+					if(this.rotation !== this._rotation) {
+						this._rotate(this.rotation);
+					} else {
+						var mbr = this._mbr;
+						if(mbr) { //check each value to see which has changed
+							if(this.x !== this._x) { mbr._x -= this.x - this._x; }
+							else if(this.y !== this._y) { mbr._y -= this.y - this._y; }
+							else if(this.w !== this._w) { mbr._w -= this.w - this._w; }
+							else if(this.h !== this._h) { mbr._h -= this.h - this._h; }
+							else if(this.z !== this._z) { mbr._z -= this.z - this._z; }
+						}
+					}
+					
 					this._x = this.x;
 					this._y = this.y;
 					this._w = this.w;
 					this._h = this.h;
 					this._z = this.z;
+					this._rotation = this.rotation;
 					
 					this.trigger("move", old);
 					this.trigger("change", old);

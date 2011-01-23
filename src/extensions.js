@@ -233,6 +233,10 @@ Crafty.extend({
 				this.__defineSetter__('y', function(v) { this.scroll('_y', v); });
 				this.__defineGetter__('x', function() { return this._x; });
 				this.__defineGetter__('y', function() { return this._y; });
+			//IE9
+			} else if('defineProperty' in Object) {
+				Object.defineProperty(this, 'x', {set: function(v) { this.scroll('_x', v); }, get: function() { return this._x; }});
+				Object.defineProperty(this, 'y', {set: function(v) { this.scroll('_y', v); }, get: function() { return this._y; }});
 			} else {
 				//create empty entity waiting for enterframe
 				this.x = this._x;
@@ -255,6 +259,7 @@ Crafty.extend({
 */
 Crafty.onload(this, function() {
 	Crafty.support.setter = ('__defineSetter__' in this && '__defineGetter__' in this);
+	Crafty.support.defineProperty = ('defineProperty' in Object);
 	Crafty.support.audio = ('Audio' in window);
 });
 
