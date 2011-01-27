@@ -4,6 +4,13 @@ Crafty.extend({
 		return Math.round(Math.random() * (to - from) + from);
 	},
 	
+	zeroFill: function(number, width) {
+		width -= number.toString().length;
+		if (width > 0)
+			return new Array(width + (/\./.test( number ) ? 2 : 1)).join( '0' ) + number;
+		return number.toString();
+	},
+	
 	/**
 	* Sprite generator.
 	*
@@ -55,12 +62,12 @@ Crafty.extend({
 					if(this.has("canvas")) {
 						//draw now
 						if(this.img.complete && this.img.width > 0) {
-							DrawBuffer.add(this);
+							DrawBucket.draw(this.bucket);
 						} else {
 							//draw when ready
 							var obj = this;
 							this.img.onload = function() {
-								DrawBuffer.add(obj);
+								DrawBucket.draw(this.bucket);
 							};
 						}
 					}
@@ -278,89 +285,3 @@ Crafty.c("viewport", {
 		});
 	}
 });
-
-var DrawBuffer = {
-
-	add: function add(obj, old) {
-		//redraw old position that was cleared
-		this.redraw(obj,old); 
-		
-		//redraw obj in new position
-		this.redraw(obj); 
-	},
-	
-	/**
-	* Find all objects intersected by this
-	* and redraw them in order of Z
-	*/
-	redraw: function redraw(obj, old) {
-		var q, 
-			i = 0, 
-			j = 0, 
-			keylength,
-			zlength,
-			box, 
-			z, 
-			layer,
-			total = 0,
-			redrawSelf = false,
-			dupes = {}, //lookup of dupes
-			sorted = []; //bucket sort
-		
-		if(!old) redrawSelf = true; //redraw self if no old param passed
-		old = old || obj; //default old x & y to obj
-		
-		q = Crafty.map.search({x: old._x, y: old._y, w: old._w, h: old._h},false);
-		
-		for(i=0;i<q.length;++i) {
-			box = q[i];
-			
-			//if found is canvas, not a duplicate and intersects (inlined for performance)
-			if(box.isCanvas && !dupes[box[0]] && box._x < old._x + old._w && box._x + box._w > old._x &&
-												 box._y < old._y + old._h && box._h + box._y > old._y) {
-				dupes[box[0]] = true; //don't search again
-				if(box === obj && !redrawSelf) continue; //TAKE HEED, don't return dear lord
-				if(!sorted[box._z]) sorted[box._z] = [];
-				
-				sorted[box._z].push(box);
-				++total;
-			}
-		};
-		
-		//skip if nothing added
-		if(total == 0) return;
-		//only draw self
-		if(total == 1 && redrawSelf) {
-			obj.draw();
-			return;
-		}
-		
-		//loop over sorted Z keys
-		for(i=0, keylength = sorted.length; i < keylength; ++i) {
-			if(!sorted[i]) continue; //skip if undefined
-			layer = sorted[i];
-			zlength = layer.length;
-			
-			//loop over all objects with current Z index
-			for(j=0;j<zlength;++j) {
-				var todraw = layer[j];
-				
-				//only draw visible area
-				if(todraw[0] !== obj[0]) { //don't redraw partial self
-					var x = (old._x - todraw._x <= 0) ? 0 : (old._x - todraw._x),
-						y = Math.ceil(old._y - todraw._y < 0 ? 0 : (old._y - todraw._y)),
-						w = Math.min(todraw._w - x, old._w - (todraw._x - old._x), old._w),
-						h = Math.ceil(Math.min(todraw._h - y, old._h - (todraw._y - old._y), old._h));
-					
-					if(h === 0 || w === 0) continue; //don't bother drawing with h or w as 0
-					todraw.draw(x,y,w,h);
-					
-				} else todraw.draw(); //redraw self
-			}
-		}
-	},
-	
-	remove: function(obj) {
-		this.redraw(obj,obj);
-	}
-};

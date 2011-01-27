@@ -7,8 +7,8 @@ Crafty.c("color", {
 				e.style.background = this._color;
 				e.style.lineHeight = 0;
 			} else if(e.type === "canvas") {
-				if(this._color) Crafty.context.fillStyle = this._color;
-				Crafty.context.fillRect(e.pos._x,e.pos._y,e.pos._w,e.pos._h);
+				if(this._color) Crafty.context[this.bucket].fillStyle = this._color;
+				Crafty.context[this.bucket].fillRect(e.pos._x,e.pos._y,e.pos._w,e.pos._h);
 			}
 		});
 	},
@@ -45,7 +45,7 @@ Crafty.c("image", {
 			//draw when ready
 			var self = this;
 			this.img.onload = function() {
-				DrawBuffer.add(self);
+				DrawBucket.draw(self.bucket);
 			};
 		} else {
 			this.trigger("change");
@@ -63,17 +63,18 @@ Crafty.c("image", {
 			xoffcut = this._w % this.img.width || this.img.width,
 			yoffcut = this._h % this.img.height || this.img.height,
 			width = this._w < this.img.width ? xoffcut : this.img.width,
-			height = this._h < this.img.height ? yoffcut : this.img.height;
+			height = this._h < this.img.height ? yoffcut : this.img.height,
+			context =  Crafty.context[this.bucket];
 		
 		if(this._repeat === "no-repeat") {
 			//draw once with no repeat
-			Crafty.context.drawImage(this.img, 0,0, width, height, obj._x, obj._y, width, height);
+			context.drawImage(this.img, 0,0, width, height, obj._x, obj._y, width, height);
 		} else if(this._repeat === "repeat-x") {
 			//repeat along the x axis
 			for(l = Math.ceil(this._w / this.img.width); i < l; i++) {
 				if(i === l-1) width = xoffcut;
 				
-				Crafty.context.drawImage(this.img, 0, 0, width, height, obj._x + this.img.width * i, obj._y, width, height);
+				context.drawImage(this.img, 0, 0, width, height, obj._x + this.img.width * i, obj._y, width, height);
 			}
 		} else if(this._repeat === "repeat-y") {
 			//repeat along the y axis
@@ -81,18 +82,18 @@ Crafty.c("image", {
 				//if the last image, determin how much to offcut
 				if(i === l-1) height = yoffcut;
 				
-				Crafty.context.drawImage(this.img, 0,0, width, height, obj._x, obj._y + this.img.height * i, width, height);
+				context.drawImage(this.img, 0,0, width, height, obj._x, obj._y + this.img.height * i, width, height);
 			}
 		} else {
 			//repeat all axis
 			for(l = Math.ceil(this._w / this.img.width); i < l; i++) {
 				if(i === l-1) width = xoffcut;
-				Crafty.context.drawImage(this.img, 0,0, width, height, obj._x + this.img.width * i, obj._y, width, height);
+				context.drawImage(this.img, 0,0, width, height, obj._x + this.img.width * i, obj._y, width, height);
 				height = this._h < this.img.height ? yoffcut : this.img.height;
 				
 				for(j = 0, k = Math.ceil(this._h / this.img.height); j < k; j++) {
 					if(j === k-1) height = yoffcut;
-					Crafty.context.drawImage(this.img, 0,0, width, height, obj._x + this.img.width * i, obj._y + this.img.height * j, width, height);
+					context.drawImage(this.img, 0,0, width, height, obj._x + this.img.width * i, obj._y + this.img.height * j, width, height);
 				}
 			}
 		}

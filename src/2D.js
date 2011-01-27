@@ -8,6 +8,7 @@ Crafty.c("2D", {
 	_z: 0,
 	_rotation: 0,
 	_alpha: 1.0,
+	_global: null,
 	
 	_origin: {x: 0, y: 0},
 	_mbr: null,
@@ -16,6 +17,7 @@ Crafty.c("2D", {
 	_changed: false,
 	
 	init: function() {
+		this._global = this[0];
 		if(Crafty.support.setter) {
 			//create getters and setters on x,y,w,h,z
 			this.__defineSetter__('x', function(v) { this._attr('_x',v); });
@@ -117,10 +119,10 @@ Crafty.c("2D", {
 			if(!this._changed) {
 				this._changed = e || this.pos();
 				//bind to enterframe
-				this.bind("enterframe", function draw() {
+				this.bind("drawframe", function draw() {
 					this.trigger("repaint", this._changed);
 					this._changed = false;
-					this.unbind("enterframe", draw);
+					this.unbind("drawframe", draw);
 				});
 			}
 		});
@@ -311,6 +313,9 @@ Crafty.c("2D", {
 		
 		if(name === '_rotation') {
 			this._rotate(value);
+		} else if(name === '_z') {
+			this._global = parseInt(value + Crafty.zeroFill(this[0], 5), 10); //magic number 10e5 is the max num of entities
+			this.trigger("reorder");
 		} else if(name !== '_alpha') {
 			var mbr = this._mbr;
 			if(mbr) {

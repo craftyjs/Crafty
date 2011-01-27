@@ -27,6 +27,7 @@ v0.3
 * Use the inbuilt canvas background repeat
 * SAT collision
 * Comment code
+* Window resize
 * defineProperty for IE9
 * Mobile
 * Variable frame rate

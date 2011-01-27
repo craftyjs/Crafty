@@ -307,6 +307,7 @@ Crafty.extend({
 		
 		interval = setInterval(function() {
 			Crafty.trigger("enterframe",{frame: frame++});
+			Crafty.trigger("drawframe");
 		}, 1000 / FPS);
 	},
 	
@@ -541,6 +542,7 @@ Crafty.c("2D", {
 	_z: 0,
 	_rotation: 0,
 	_alpha: 1.0,
+	_global: null,
 	
 	_origin: {x: 0, y: 0},
 	_mbr: null,
@@ -549,6 +551,7 @@ Crafty.c("2D", {
 	_changed: false,
 	
 	init: function() {
+		this._global = this[0];
 		if(Crafty.support.setter) {
 			//create getters and setters on x,y,w,h,z
 			this.__defineSetter__('x', function(v) { this._attr('_x',v); });
@@ -650,10 +653,10 @@ Crafty.c("2D", {
 			if(!this._changed) {
 				this._changed = e || this.pos();
 				//bind to enterframe
-				this.bind("enterframe", function draw() {
+				this.bind("drawframe", function draw() {
 					this.trigger("repaint", this._changed);
 					this._changed = false;
-					this.unbind("enterframe", draw);
+					this.unbind("drawframe", draw);
 				});
 			}
 		});
@@ -844,6 +847,9 @@ Crafty.c("2D", {
 		
 		if(name === '_rotation') {
 			this._rotate(value);
+		} else if(name === '_z') {
+			this._global = parseInt(value + Crafty.zeroFill(this[0], 5), 10); //magic number 10e5 is the max num of entities
+			this.trigger("reorder");
 		} else if(name !== '_alpha') {
 			var mbr = this._mbr;
 			if(mbr) {
@@ -1119,6 +1125,13 @@ Crafty.extend({
 		return Math.round(Math.random() * (to - from) + from);
 	},
 	
+	zeroFill: function(number, width) {
+		width -= number.toString().length;
+		if (width > 0)
+			return new Array(width + (/\./.test( number ) ? 2 : 1)).join( '0' ) + number;
+		return number.toString();
+	},
+	
 	/**
 	* Sprite generator.
 	*
@@ -1170,12 +1183,12 @@ Crafty.extend({
 					if(this.has("canvas")) {
 						//draw now
 						if(this.img.complete && this.img.width > 0) {
-							DrawBuffer.add(this);
+							DrawBucket.draw(this.bucket);
 						} else {
 							//draw when ready
 							var obj = this;
 							this.img.onload = function() {
-								DrawBuffer.add(obj);
+								DrawBucket.draw(this.bucket);
 							};
 						}
 					}
@@ -1394,92 +1407,6 @@ Crafty.c("viewport", {
 	}
 });
 
-var DrawBuffer = {
-
-	add: function add(obj, old) {
-		//redraw old position that was cleared
-		this.redraw(obj,old); 
-		
-		//redraw obj in new position
-		this.redraw(obj); 
-	},
-	
-	/**
-	* Find all objects intersected by this
-	* and redraw them in order of Z
-	*/
-	redraw: function redraw(obj, old) {
-		var q, 
-			i = 0, 
-			j = 0, 
-			keylength,
-			zlength,
-			box, 
-			z, 
-			layer,
-			total = 0,
-			redrawSelf = false,
-			dupes = {}, //lookup of dupes
-			sorted = []; //bucket sort
-		
-		if(!old) redrawSelf = true; //redraw self if no old param passed
-		old = old || obj; //default old x & y to obj
-		
-		q = Crafty.map.search({x: old._x, y: old._y, w: old._w, h: old._h},false);
-		
-		for(i=0;i<q.length;++i) {
-			box = q[i];
-			
-			//if found is canvas, not a duplicate and intersects (inlined for performance)
-			if(box.isCanvas && !dupes[box[0]] && box._x < old._x + old._w && box._x + box._w > old._x &&
-												 box._y < old._y + old._h && box._h + box._y > old._y) {
-				dupes[box[0]] = true; //don't search again
-				if(box === obj && !redrawSelf) continue; //TAKE HEED, don't return dear lord
-				if(!sorted[box._z]) sorted[box._z] = [];
-				
-				sorted[box._z].push(box);
-				++total;
-			}
-		};
-		
-		//skip if nothing added
-		if(total == 0) return;
-		//only draw self
-		if(total == 1 && redrawSelf) {
-			obj.draw();
-			return;
-		}
-		
-		//loop over sorted Z keys
-		for(i=0, keylength = sorted.length; i < keylength; ++i) {
-			if(!sorted[i]) continue; //skip if undefined
-			layer = sorted[i];
-			zlength = layer.length;
-			
-			//loop over all objects with current Z index
-			for(j=0;j<zlength;++j) {
-				var todraw = layer[j];
-				
-				//only draw visible area
-				if(todraw[0] !== obj[0]) { //don't redraw partial self
-					var x = (old._x - todraw._x <= 0) ? 0 : (old._x - todraw._x),
-						y = Math.ceil(old._y - todraw._y < 0 ? 0 : (old._y - todraw._y)),
-						w = Math.min(todraw._w - x, old._w - (todraw._x - old._x), old._w),
-						h = Math.ceil(Math.min(todraw._h - y, old._h - (todraw._y - old._y), old._h));
-					
-					if(h === 0 || w === 0) continue; //don't bother drawing with h or w as 0
-					todraw.draw(x,y,w,h);
-					
-				} else todraw.draw(); //redraw self
-			}
-		}
-	},
-	
-	remove: function(obj) {
-		this.redraw(obj,obj);
-	}
-};
-
 
 
 /**
@@ -1488,39 +1415,35 @@ var DrawBuffer = {
 Crafty.c("canvas", {
 	isCanvas: true,
 	buffer: 50,
+	bucket: 0,
+	drawCount: 0,
 	
 	init: function() {
+		DrawBucket.add(this);
+		
+		this.bind("reorder", function() {
+			DrawBucket.move(this);
+		});
+		
 		//on change, redraw
-		this.bind("repaint", function(e) {
-			e = e || this;
-			
-			//clear self
-			Crafty.context.clearRect(e._x, e._y, e._w, e._h);
+		this.bind("repaint", function() {
+			this.drawCount++;
 			
 			//add to the DrawBuffer if visible
-			if((e._x + e._w > 0 - this.buffer && 
-			   e._y + e._h > 0 - this.buffer && 
-			   e._x < Crafty.viewport.width + this.buffer && 
-			   e._y < Crafty.viewport.height + this.buffer) ||
-			   
-			   (this._x + this._w > 0 - this.buffer && 
+			if(this._x + this._w > 0 - this.buffer && 
 			   this._y + this._h > 0 - this.buffer && 
 			   this._x < Crafty.viewport.width + this.buffer && 
-			   this._y < Crafty.viewport.height + this.buffer)) {
-			  
-				DrawBuffer.add(this,e);
+			   this._y < Crafty.viewport.height + this.buffer) {
+				DrawBucket.draw(this.bucket);
 			}
 		});
 		
 		this.bind("remove", function() {
-			//this.trigger("change");
-			Crafty.context.clearRect(this._x, this._y, this._w, this._h);
-			DrawBuffer.remove(this);
+			DrawBucket.remove(this);
 		});
 	},
 	
-	draw: function(x,y,w,h) {
-		
+	draw: function() {	
 		var co = {}, //cached obj of position in sprite with offset
 			pos = { //inlined pos() function, for speed
 				_x: Math.floor(this._x),
@@ -1528,52 +1451,30 @@ Crafty.c("canvas", {
 				_w: Math.floor(this._w),
 				_h: Math.floor(this._h)
 			},
-			coord = this.__coord || [];
-		
+			coord = this.__coord || [],
+			context = Crafty.context[this.bucket];
+
 		//if offset
 		co.x = coord[0];
 		co.y = coord[1];
 		co.w = coord[2];
 		co.h = coord[3];
-		
-		if(x !== undefined) {
-			co.x = coord[0] + x;
-			pos._x += x;
 			
-			//if x is undefined, the rest of the arguments will be
-			if(y !== undefined) {
-				co.y = coord[1] + y;
-				pos._y += y;
-			}
-			
-			
-			if(w !== undefined) {
-				co.w = w;
-				pos._w = w;
-			}
-			
-			
-			if(h !== undefined) {
-				co.h = h;
-				pos._h = h;
-			}
-		}
-		
 		if(this._mbr) {
-			Crafty.context.save();
+			context.save();
 			
-			Crafty.context.translate(this._origin.x + this._x, this._origin.y + this._y);
+			context.translate(this._origin.x + this._x, this._origin.y + this._y);
 			pos._x = -this._origin.x;
 			pos._y = -this._origin.y;
 			
-			Crafty.context.rotate((this._rotation % 360) * (Math.PI / 180));
+			context.rotate((this._rotation % 360) * (Math.PI / 180));
 		}
 		
 		//draw with alpha
-		var globalpha = Crafty.context.globalAlpha;
-		Crafty.context.globalAlpha = this._alpha;
+		var globalpha = context.globalAlpha;
+		context.globalAlpha = this._alpha;
 		
-		this.trigger("draw",{type: "canvas", spritePos: co, pos: pos});
+		this.trigger("draw", {type: "canvas", pos: pos});
 		
 		//inline drawing of the sprite
 		if(this.__c.sprite) {
@@ -1581,7 +1482,7 @@ Crafty.c("canvas", {
 			if(!this.img.width) return;
 			
 			//draw the image on the canvas element
-			Crafty.context.drawImage(this.img, //image element
+			context.drawImage(this.img, //image element
 									 co.x, //x position on sprite
 									 co.y, //y position on sprite
 									 co.w, //width on sprite
@@ -1594,44 +1495,120 @@ Crafty.c("canvas", {
 		}
 		
 		if(this._mbr) {
-			Crafty.context.restore();
+			context.restore();
 		}
-		Crafty.context.globalAlpha = globalpha;
+		context.globalAlpha = globalpha;
 		return this;
 	}
 });
 
 Crafty.extend({
-	context: null,
-	_canvas: null,
-	gz: 0,
+	context: [],
+	_canvas: [],
 	
 	/**
 	* Set the canvas element and 2D context
 	*/
-	canvas: function(elem) {
-		//can pass a string with an ID
-		if(typeof elem === "string") {
-			elem = document.getElementById(elem);
-			//move node
-		} else if(!elem) {
+	canvas: function(buckets) {
+		var elem, i = 0;
+		buckets = buckets || 3; //default to 3
+		DrawBucket.init(buckets);
+		
+		for(;i<buckets;i++) {
 			elem = document.createElement("canvas");
 			this.stage.elem.appendChild(elem);
+			
+			//check if is an actual canvas element
+			if(!('getContext' in elem)) {
+				Crafty.trigger("nocanvas");
+				return;
+			}
+			
+			this.context[i] = elem.getContext('2d');
+			this._canvas[i] = elem;
+			
+			//set canvas and viewport to the final dimensions
+			elem.width = this.viewport.width;
+			elem.height = this.viewport.height;
+			elem.style.position = "absolute";
 		}
-		
-		//check if is an actual canvas element
-		if(!('getContext' in elem)) {
-			Crafty.trigger("nocanvas");
-			return;
-		}
-		this.context = elem.getContext('2d');
-		this._canvas = elem;
-		
-		//set canvas and viewport to the final dimensions
-		this._canvas.width = this.viewport.width;
-		this._canvas.height = this.viewport.height;
 	}
 });
+
+/**
+* Custom algorithm for canvas optimization 
+* using frequency buckets
+*/
+DrawBucket = {
+	buckets: [],
+	ents: [],
+	
+	init: function(size) {
+		var i = 0, z = 0;
+		for(;i<size;i++) {
+			this.buckets[i] = {
+				minZ: null,
+				maxZ: null
+			};
+			this.ents[i] = [];
+		}
+	},
+	
+	add: function(obj) {
+		var buckets = this.buckets,
+			bucket = buckets[1], //choose middle bucket first
+			z = obj._global;
+			
+		if(z < bucket.minZ || bucket.minZ === null) {
+			bucket.minZ = z;
+		}
+		if(z > bucket.maxZ || bucket.maxZ === null) {
+			bucket.maxZ = z;
+		}
+		obj.bucket = 1;
+		this.ents[1].push(obj);
+	},
+
+	draw: function(bucket) {
+		if(bucket === undefined) return;
+		
+		var ents = this.ents[bucket] || [],
+			i = 0, l = ents.length;
+		
+		Crafty.context[bucket].clearRect(0, 0, Crafty.viewport.width, Crafty.viewport.height);
+		ents.sort(function(a,b) { return a._global - b._global });
+		
+		for(;i<l;i++) {
+			ents[i].draw();
+		}
+	},
+	
+	remove: function(obj) {
+		var bucket = obj.bucket;
+		this.seekAndDestroy(bucket, obj);
+		this.draw(bucket);
+	},
+	
+	move: function(obj) {
+		this.seekAndDestroy(obj.bucket, obj);
+		this.add(obj);
+	},
+	
+	seekAndDestroy: function(b, obj) {
+		var bucket = this.ents[b],
+			i = 0, l = bucket.length,
+			current;
+			
+		for(;i<l;i++) {
+			current = bucket[i];
+			if(current[0] === obj[0]) {
+				bucket.splice(i, 1);
+				return;
+			}
+		}
+	}
+};
+
 
 
 Crafty.extend({
@@ -1639,6 +1616,10 @@ Crafty.extend({
 	over: null, //object mouseover, waiting for out
 		
 	mouseDispatch: function(e) {
+		if(e.type === "touchstart") e.type = "mousedown";
+		else if(e.type === "touchmove") e.type = "mousemove";
+		else if(e.type === "touchend") e.type = "mouseup";
+		
 		var maxz = -1,
 			closest,
 			q,
@@ -1715,6 +1696,10 @@ Crafty.onload(this, function() {
 	Crafty.addEvent(this, Crafty.stage.elem, "mousedown", Crafty.mouseDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "mouseup", Crafty.mouseDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "mousemove", Crafty.mouseDispatch);
+	
+	Crafty.addEvent(this, Crafty.stage.elem, "touchstart", Crafty.mouseDispatch);
+	Crafty.addEvent(this, Crafty.stage.elem, "touchmove", Crafty.mouseDispatch);
+	Crafty.addEvent(this, Crafty.stage.elem, "touchend", Crafty.mouseDispatch);
 });
 
 Crafty.c("mouse", {
@@ -1722,19 +1707,12 @@ Crafty.c("mouse", {
 		//create polygon
 		if(arguments.length > 1) {
 			//convert args to array to create polygon
-			var args = Array.prototype.slice.call(arguments, 0),
-				i = 0, l = args.length;
-			
-			for(;i<l;i++) {
-				args[i][0] += this.x;
-				args[i][1] += this.y;
-			}
-			
+			var args = Array.prototype.slice.call(arguments, 0);
 			poly = new Crafty.polygon(args);
 		}
 		
+		poly.shift(this._x, this._y);
 		this.map = poly;
-		this.map.shift(this._x, this._y);
 		
 		this.attach(this.map);
 		return this;
@@ -1974,8 +1952,8 @@ Crafty.c("animate", {
 				e.style.background = this._color;
 				e.style.lineHeight = 0;
 			} else if(e.type === "canvas") {
-				if(this._color) Crafty.context.fillStyle = this._color;
-				Crafty.context.fillRect(e.pos._x,e.pos._y,e.pos._w,e.pos._h);
+				if(this._color) Crafty.context[this.bucket].fillStyle = this._color;
+				Crafty.context[this.bucket].fillRect(e.pos._x,e.pos._y,e.pos._w,e.pos._h);
 			}
 		});
 	},
@@ -2012,7 +1990,7 @@ Crafty.c("image", {
 			//draw when ready
 			var self = this;
 			this.img.onload = function() {
-				DrawBuffer.add(self);
+				DrawBucket.draw(self.bucket);
 			};
 		} else {
 			this.trigger("change");
@@ -2030,17 +2008,18 @@ Crafty.c("image", {
 			xoffcut = this._w % this.img.width || this.img.width,
 			yoffcut = this._h % this.img.height || this.img.height,
 			width = this._w < this.img.width ? xoffcut : this.img.width,
-			height = this._h < this.img.height ? yoffcut : this.img.height;
+			height = this._h < this.img.height ? yoffcut : this.img.height,
+			context =  Crafty.context[this.bucket];
 		
 		if(this._repeat === "no-repeat") {
 			//draw once with no repeat
-			Crafty.context.drawImage(this.img, 0,0, width, height, obj._x, obj._y, width, height);
+			context.drawImage(this.img, 0,0, width, height, obj._x, obj._y, width, height);
 		} else if(this._repeat === "repeat-x") {
 			//repeat along the x axis
 			for(l = Math.ceil(this._w / this.img.width); i < l; i++) {
 				if(i === l-1) width = xoffcut;
 				
-				Crafty.context.drawImage(this.img, 0, 0, width, height, obj._x + this.img.width * i, obj._y, width, height);
+				context.drawImage(this.img, 0, 0, width, height, obj._x + this.img.width * i, obj._y, width, height);
 			}
 		} else if(this._repeat === "repeat-y") {
 			//repeat along the y axis
@@ -2048,18 +2027,18 @@ Crafty.c("image", {
 				//if the last image, determin how much to offcut
 				if(i === l-1) height = yoffcut;
 				
-				Crafty.context.drawImage(this.img, 0,0, width, height, obj._x, obj._y + this.img.height * i, width, height);
+				context.drawImage(this.img, 0,0, width, height, obj._x, obj._y + this.img.height * i, width, height);
 			}
 		} else {
 			//repeat all axis
 			for(l = Math.ceil(this._w / this.img.width); i < l; i++) {
 				if(i === l-1) width = xoffcut;
-				Crafty.context.drawImage(this.img, 0,0, width, height, obj._x + this.img.width * i, obj._y, width, height);
+				context.drawImage(this.img, 0,0, width, height, obj._x + this.img.width * i, obj._y, width, height);
 				height = this._h < this.img.height ? yoffcut : this.img.height;
 				
 				for(j = 0, k = Math.ceil(this._h / this.img.height); j < k; j++) {
 					if(j === k-1) height = yoffcut;
-					Crafty.context.drawImage(this.img, 0,0, width, height, obj._x + this.img.width * i, obj._y + this.img.height * j, width, height);
+					context.drawImage(this.img, 0,0, width, height, obj._x + this.img.width * i, obj._y + this.img.height * j, width, height);
 				}
 			}
 		}

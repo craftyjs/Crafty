@@ -5,39 +5,37 @@
 Crafty.c("canvas", {
 	isCanvas: true,
 	buffer: 50,
+	bucket: 0,
+	changeCount: 0,
 	
 	init: function() {
+		DrawBucket.add(this);
+		
+		this.bind("reorder", function() {
+			DrawBucket.move(this);
+		});
+		
+		this.bind("change", function() {
+			this.changeCount++;
+		});
+		
 		//on change, redraw
-		this.bind("repaint", function(e) {
-			e = e || this;
-			
-			//clear self
-			Crafty.context.clearRect(e._x, e._y, e._w, e._h);
-			
+		this.bind("repaint", function() {
 			//add to the DrawBuffer if visible
-			if((e._x + e._w > 0 - this.buffer && 
-			   e._y + e._h > 0 - this.buffer && 
-			   e._x < Crafty.viewport.width + this.buffer && 
-			   e._y < Crafty.viewport.height + this.buffer) ||
-			   
-			   (this._x + this._w > 0 - this.buffer && 
+			if(this._x + this._w > 0 - this.buffer && 
 			   this._y + this._h > 0 - this.buffer && 
 			   this._x < Crafty.viewport.width + this.buffer && 
-			   this._y < Crafty.viewport.height + this.buffer)) {
-			  
-				DrawBuffer.add(this,e);
+			   this._y < Crafty.viewport.height + this.buffer) {
+				DrawBucket.draw(this.bucket);
 			}
 		});
 		
 		this.bind("remove", function() {
-			//this.trigger("change");
-			Crafty.context.clearRect(this._x, this._y, this._w, this._h);
-			DrawBuffer.remove(this);
+			DrawBucket.remove(this);
 		});
 	},
 	
-	draw: function(x,y,w,h) {
-		
+	draw: function() {	
 		var co = {}, //cached obj of position in sprite with offset
 			pos = { //inlined pos() function, for speed
 				_x: Math.floor(this._x),
@@ -45,52 +43,30 @@ Crafty.c("canvas", {
 				_w: Math.floor(this._w),
 				_h: Math.floor(this._h)
 			},
-			coord = this.__coord || [];
-		
+			coord = this.__coord || [],
+			context = Crafty.context[this.bucket];
+
 		//if offset
 		co.x = coord[0];
 		co.y = coord[1];
 		co.w = coord[2];
 		co.h = coord[3];
-		
-		if(x !== undefined) {
-			co.x = coord[0] + x;
-			pos._x += x;
 			
-			//if x is undefined, the rest of the arguments will be
-			if(y !== undefined) {
-				co.y = coord[1] + y;
-				pos._y += y;
-			}
-			
-			
-			if(w !== undefined) {
-				co.w = w;
-				pos._w = w;
-			}
-			
-			
-			if(h !== undefined) {
-				co.h = h;
-				pos._h = h;
-			}
-		}
-		
 		if(this._mbr) {
-			Crafty.context.save();
+			context.save();
 			
-			Crafty.context.translate(this._origin.x + this._x, this._origin.y + this._y);
+			context.translate(this._origin.x + this._x, this._origin.y + this._y);
 			pos._x = -this._origin.x;
 			pos._y = -this._origin.y;
 			
-			Crafty.context.rotate((this._rotation % 360) * (Math.PI / 180));
+			context.rotate((this._rotation % 360) * (Math.PI / 180));
 		}
 		
 		//draw with alpha
-		var globalpha = Crafty.context.globalAlpha;
-		Crafty.context.globalAlpha = this._alpha;
+		var globalpha = context.globalAlpha;
+		context.globalAlpha = this._alpha;
 		
-		this.trigger("draw",{type: "canvas", spritePos: co, pos: pos});
+		this.trigger("draw", {type: "canvas", pos: pos});
 		
 		//inline drawing of the sprite
 		if(this.__c.sprite) {
@@ -98,7 +74,7 @@ Crafty.c("canvas", {
 			if(!this.img.width) return;
 			
 			//draw the image on the canvas element
-			Crafty.context.drawImage(this.img, //image element
+			context.drawImage(this.img, //image element
 									 co.x, //x position on sprite
 									 co.y, //y position on sprite
 									 co.w, //width on sprite
@@ -111,41 +87,117 @@ Crafty.c("canvas", {
 		}
 		
 		if(this._mbr) {
-			Crafty.context.restore();
+			context.restore();
 		}
-		Crafty.context.globalAlpha = globalpha;
+		context.globalAlpha = globalpha;
 		return this;
 	}
 });
 
 Crafty.extend({
-	context: null,
-	_canvas: null,
-	gz: 0,
+	context: [],
+	_canvas: [],
 	
 	/**
 	* Set the canvas element and 2D context
 	*/
-	canvas: function(elem) {
-		//can pass a string with an ID
-		if(typeof elem === "string") {
-			elem = document.getElementById(elem);
-			//move node
-		} else if(!elem) {
+	canvas: function(buckets) {
+		var elem, i = 0;
+		buckets = buckets || 3; //default to 3
+		DrawBucket.init(buckets);
+		
+		for(;i<buckets;i++) {
 			elem = document.createElement("canvas");
 			this.stage.elem.appendChild(elem);
+			
+			//check if is an actual canvas element
+			if(!('getContext' in elem)) {
+				Crafty.trigger("nocanvas");
+				return;
+			}
+			
+			this.context[i] = elem.getContext('2d');
+			this._canvas[i] = elem;
+			
+			//set canvas and viewport to the final dimensions
+			elem.width = this.viewport.width;
+			elem.height = this.viewport.height;
+			elem.style.position = "absolute";
 		}
-		
-		//check if is an actual canvas element
-		if(!('getContext' in elem)) {
-			Crafty.trigger("nocanvas");
-			return;
-		}
-		this.context = elem.getContext('2d');
-		this._canvas = elem;
-		
-		//set canvas and viewport to the final dimensions
-		this._canvas.width = this.viewport.width;
-		this._canvas.height = this.viewport.height;
 	}
 });
+
+/**
+* Custom algorithm for canvas optimization 
+* using frequency buckets
+*/
+DrawBucket = {
+	buckets: [],
+	ents: [],
+	
+	init: function(size) {
+		var i = 0, z = 0;
+		for(;i<size;i++) {
+			this.buckets[i] = {
+				minZ: null,
+				maxZ: null
+			};
+			this.ents[i] = [];
+		}
+	},
+	
+	add: function(obj) {
+		var buckets = this.buckets,
+			bucket = buckets[1], //choose middle bucket first
+			z = obj._global;
+			
+		if(z < bucket.minZ || bucket.minZ === null) {
+			bucket.minZ = z;
+		}
+		if(z > bucket.maxZ || bucket.maxZ === null) {
+			bucket.maxZ = z;
+		}
+		obj.bucket = 1;
+		this.ents[1].push(obj);
+	},
+
+	draw: function(bucket) {
+		if(bucket === undefined) return;
+		
+		var ents = this.ents[bucket] || [],
+			i = 0, l = ents.length;
+		
+		Crafty.context[bucket].clearRect(0, 0, Crafty.viewport.width, Crafty.viewport.height);
+		ents.sort(function(a,b) { return a._global - b._global });
+		
+		for(;i<l;i++) {
+			ents[i].draw();
+		}
+	},
+	
+	remove: function(obj) {
+		var bucket = obj.bucket;
+		this.seekAndDestroy(bucket, obj);
+		this.draw(bucket);
+	},
+	
+	move: function(obj) {
+		this.seekAndDestroy(obj.bucket, obj);
+		this.add(obj);
+	},
+	
+	seekAndDestroy: function(b, obj) {
+		var bucket = this.ents[b],
+			i = 0, l = bucket.length,
+			current;
+			
+		for(;i<l;i++) {
+			current = bucket[i];
+			if(current[0] === obj[0]) {
+				bucket.splice(i, 1);
+				return;
+			}
+		}
+	}
+};
+

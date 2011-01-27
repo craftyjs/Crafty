@@ -299,6 +299,7 @@ Crafty.extend({
 		
 		interval = setInterval(function() {
 			Crafty.trigger("enterframe",{frame: frame++});
+			Crafty.trigger("drawframe");
 		}, 1000 / FPS);
 	},
 	
