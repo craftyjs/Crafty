@@ -6,7 +6,7 @@ Crafty.c("DOM", {
 		Crafty.stage.elem.appendChild(this._element);
 		this._element.style.position = "absolute";
 		this._element.id = "ent" + this[0];
-		this.bind("repaint", this.draw);
+		
 		this.bind("remove", this.undraw);
 	},
 	

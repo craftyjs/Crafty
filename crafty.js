@@ -21,6 +21,7 @@ var Crafty = function(selector) {
 	handlers = {}, //global event handlers
 	onloads = [], //temporary storage of onload handlers
 	interval,
+	tick,
 	
 	slice = Array.prototype.slice,
 	rlist = /\s*,\s*/,
@@ -298,22 +299,66 @@ Crafty.extend = Crafty.fn.extend = function(obj) {
 
 Crafty.extend({
 	init: function(f, w, h) {
-		if(f) FPS = f;
+		//two arguments equals the width and height
+		if(arguments.length === 2) {			
+			h = w;
+			w = f;
+			f = 100;
+		}
+		
+		FPS = f || 100;
 		
 		Crafty.viewport.init(w,h);
 		
 		//call all arbitrary functions attached to onload
 		this.onload();
 		
-		interval = setInterval(function() {
-			Crafty.trigger("enterframe",{frame: frame++});
-			Crafty.trigger("drawframe");
+		tick = setInterval(function() {
+			Crafty.trigger("enterframe", {frame: frame++});
+			
+			Crafty.timer.step();
+			
+			Crafty.DrawList.draw();
 		}, 1000 / FPS);
 	},
 	
 	stop: function() {
-		clearInterval(interval);
+		clearInterval(tick);
 	},
+	
+	timer: {
+		frames: 0,
+		prevTime: (new Date).getTime(),
+		currTime: (new Date).getTime(),
+		dt: 0,
+		prevFpsUpdate: 0,
+		fpsUpdateFrequency: 1,
+		fps: 0,
+		
+		getDelta: function () {
+			return this.dt
+		},
+		
+		getFPS: function () {
+			return this.fps
+		},
+		
+		getTime: function () {
+			return (new Date).getTime()
+		},
+		
+		step: function () {
+			this.frames += 1;
+			this.prevTime = this.currTime;
+			this.currTime = this.getTime();
+			this.dt = (this.currTime - this.prevTime) / 1E3;
+			if ((this.currTime - this.prevFpsUpdate) / 1E3 > this.fpsUpdateFrequency) {
+				this.fps = this.frames / this.fpsUpdateFrequency;
+				this.prevFpsUpdate = this.currTime;
+				this.frames = 0;
+			}
+		}
+    },
 	
 	e: function() {
 		var id = UID(), craft;
@@ -380,12 +425,9 @@ function UID() {
 	}
 	return id;
 }
-
-
 //make Crafty global
 window.Crafty = Crafty;
 })(window);
-
 
 //wrap around components
 (function(Crafty, window, document) {
@@ -542,6 +584,7 @@ Crafty.c("2D", {
 	_z: 0,
 	_rotation: 0,
 	_alpha: 1.0,
+	_visible: true,
 	_global: null,
 	
 	_origin: {x: 0, y: 0},
@@ -549,6 +592,7 @@ Crafty.c("2D", {
 	_entry: null,
 	_attachy: [],
 	_changed: false,
+	_offscreen: false,
 	
 	init: function() {
 		this._global = this[0];
@@ -561,6 +605,7 @@ Crafty.c("2D", {
 			this.__defineSetter__('z', function(v) { this._attr('_z',v); });
 			this.__defineSetter__('rotation', function(v) { this._attr('_rotation', v); });
 			this.__defineSetter__('alpha', function(v) { this._attr('_alpha',v); });
+			this.__defineSetter__('visible', function(v) { this._attr('_visible',v); });
 			
 			this.__defineGetter__('x', function() { return this._x; });
 			this.__defineGetter__('y', function() { return this._y; });
@@ -569,6 +614,7 @@ Crafty.c("2D", {
 			this.__defineGetter__('z', function() { return this._z; });
 			this.__defineGetter__('rotation', function() { return this._rotation; });
 			this.__defineGetter__('alpha', function() { return this._alpha; });
+			this.__defineGetter__('visible', function() { return this._visible; });
 			
 		//IE9 supports Object.defineProperty
 		} else if(Crafty.support.defineProperty) {
@@ -587,6 +633,10 @@ Crafty.c("2D", {
 				set: function(v) { this._attr('_alpha',v); }, get: function() { return this._alpha; } 
 			});
 			
+			Object.defineProperty(this, 'visible', { 
+				set: function(v) { this._attr('_visible',v); }, get: function() { return this._visible; } 
+			});
+			
 		} else {
 			/*
 			if no setters, check on every frame for a difference 
@@ -598,13 +648,15 @@ Crafty.c("2D", {
 			this.h = this._h;
 			this.z = this._z;
 			this.rotation = this._rotation;
+			this.alpha = this._alpha;
+			this.visible = this._visible;
 			
 			this.bind("enterframe", function() {
 				//if there are differences
 				if(this.x !== this._x || this.y !== this._y ||
 				   this.w !== this._w || this.h !== this._h ||
 				   this.z !== this._z || this.rotation !== this._rotation ||
-				   this.alpha !== this._alpha) {
+				   this.alpha !== this._alpha || this.visible !== this._visible) {
 					
 					var old = this.mbr() || this.pos();
 					
@@ -627,6 +679,8 @@ Crafty.c("2D", {
 					this._h = this.h;
 					this._z = this.z;
 					this._rotation = this.rotation;
+					this._alpha = this.alpha;
+					this._visible = this.visible;
 					
 					this.trigger("move", old);
 					this.trigger("change", old);
@@ -636,29 +690,42 @@ Crafty.c("2D", {
 		
 		//insert self into the HashMap
 		this._entry = Crafty.map.insert(this);
+		Crafty.DrawList.add(this);
 		
 		//when object changes, update HashMap
 		this.bind("move", function() {
 			this._entry.update(this);
+			
+			//if completely offscreen, remove from drawlist
+			if(this._x + this._w < 0 - this.buffer && 
+			   this._y + this._h < 0 - this.buffer && 
+			   this._x > Crafty.viewport.width + this.buffer && 
+			   this._y > Crafty.viewport.height + this.buffer) {
+			   
+				Crafty.DrawList.remove(this);
+				this._offscreen = true;
+			}
+			
+			//if within screen, add to list
+			if(this._offscreen && (this._x + this._w > 0 - this.buffer && 
+			   this._y + this._h > 0 - this.buffer && 
+			   this._x < Crafty.viewport.width + this.buffer && 
+			   this._y < Crafty.viewport.height + this.buffer)) {
+				
+				Crafty.DrawList.add(this);
+				this._offscreen = false;
+			}
 		});
 		
 		//when object is removed, remove from HashMap
 		this.bind("remove", function() {
 			Crafty.map.remove(this);
+			Crafty.DrawList.remove(this);
 			this.detach();
 		});
 		
-		this.bind("change", function(e) {
-			//when the change event is triggered, set the change flag
-			if(!this._changed) {
-				this._changed = e || this.pos();
-				//bind to enterframe
-				this.bind("drawframe", function draw() {
-					this.trigger("repaint", this._changed);
-					this._changed = false;
-					this.unbind("drawframe", draw);
-				});
-			}
+		this.bind("change", function() {
+			Crafty.DrawList.change = true;
 		});
 	},
 	
@@ -702,15 +769,15 @@ Crafty.c("2D", {
 	* Does a rect intersect this
 	*/
 	intersect: function(x,y,w,h) {
-		var rect;
+		var rect, obj = this._mbr || this;
 		if(typeof x === "object") {
 			rect = x;
 		} else {
 			rect = {x: x, y: y, w: w, h: h};
 		}
 		
-		return this._x < rect.x + rect.w && this._x + this._w > rect.x &&
-			   this._y < rect.y + rect.h && this._h + this._y > rect.y;
+		return obj._x < rect.x + rect.w && obj._x + obj._w > rect.x &&
+			   obj._y < rect.y + rect.h && obj._h + obj._y > rect.y;
 	},
 	
 	within: function(x,y,w,h) {
@@ -850,6 +917,12 @@ Crafty.c("2D", {
 		} else if(name === '_z') {
 			this._global = parseInt(value + Crafty.zeroFill(this[0], 5), 10); //magic number 10e5 is the max num of entities
 			this.trigger("reorder");
+		} else if(name === '_visible') {
+			if(value === false) {
+				Crafty.DrawList.remove(this);
+			} else if(value === true) {
+				Crafty.DrawList.add(this);
+			}
 		} else if(name !== '_alpha') {
 			var mbr = this._mbr;
 			if(mbr) {
@@ -1004,7 +1077,7 @@ Crafty.polygon.prototype = {
 		Crafty.stage.elem.appendChild(this._element);
 		this._element.style.position = "absolute";
 		this._element.id = "ent" + this[0];
-		this.bind("repaint", this.draw);
+		
 		this.bind("remove", this.undraw);
 	},
 	
@@ -1183,12 +1256,12 @@ Crafty.extend({
 					if(this.has("canvas")) {
 						//draw now
 						if(this.img.complete && this.img.width > 0) {
-							DrawBucket.draw(this.bucket);
+							Crafty.DrawList.change = true;
 						} else {
 							//draw when ready
 							var obj = this;
 							this.img.onload = function() {
-								DrawBucket.draw(this.bucket);
+								Crafty.DrawList.change = true;
 							};
 						}
 					}
@@ -1260,30 +1333,7 @@ Crafty.extend({
 		_y: 0,
 		
 		scroll: function(axis, v) {
-			var old = this[axis],
-				q,
-				i = 0, j = 0, l, m,
-				box,
-				dupes = {},
-				rect,
-				sorted = [];
-			
-			//clear screen
-			if(Crafty.context) Crafty.context.clearRect(0,0, this.width, this.height);
-			
-			rect = {x: axis == '_x' ? old : this._x, y: axis == '_y' ? old : this._y, w: this.width, h:this.height};
-			q = Crafty.map.search(rect, false);
-			
-			for(l=q.length;i<l;++i) {
-				box = q[i];
-				
-				if(!dupes[box[0]]) {
-					dupes[box[0]] = true;
-					if(!sorted[box._z]) sorted[box._z] = [];
-					
-					sorted[box._z].push(box);
-				}
-			}
+			var old = this[axis];
 			
 			Crafty("2D obj").each(function() {
 				var oldposition = this.pos();
@@ -1292,20 +1342,10 @@ Crafty.extend({
 				//if no setter available
 				if(Crafty.support.setter === false) {
 					this[axis.substr(1)] = this[axis]; 
-					this.trigger("change", oldposition);
 				}
 				this.trigger("move",oldposition);
 			});
-
-			m = sorted.length;
-			for(;j<m;j++) {
-				if(!sorted[j]) continue;
-				var k = 0, n = sorted[j].length;
-				for(;k<n;k++) {
-					if('draw' in sorted[j][k]) 
-						sorted[j][k].draw();
-				}
-			}
+			Crafty.DrawList.change = true;
 
 			this[axis] = v;
 		},
@@ -1322,6 +1362,20 @@ Crafty.extend({
 			//stop scrollbars
 			if(!w && !h) {
 				document.body.style.overflow = "hidden";
+				//add window resize
+				Crafty.addEvent(this, window, "resize", function() {
+					Crafty.window.init();
+					var w, h;
+					this.width = w = Crafty.window.width;
+					this.height = h = Crafty.window.height;
+					
+					Crafty.stage.elem.style.width = w;
+					Crafty.stage.elem.style.width = h;
+					if(Crafty._canvas) {
+						Crafty._canvas.width = w;
+						Crafty._canvas.height = h;
+					}
+				});
 			}
 			
 			//check if stage exists
@@ -1413,52 +1467,22 @@ Crafty.c("viewport", {
 * Canvas Components and Extensions
 */
 Crafty.c("canvas", {
-	isCanvas: true,
 	buffer: 50,
-	bucket: 0,
-	drawCount: 0,
 	
 	init: function() {
-		DrawBucket.add(this);
-		
 		this.bind("reorder", function() {
-			DrawBucket.move(this);
-		});
-		
-		//on change, redraw
-		this.bind("repaint", function() {
-			this.drawCount++;
-			
-			//add to the DrawBuffer if visible
-			if(this._x + this._w > 0 - this.buffer && 
-			   this._y + this._h > 0 - this.buffer && 
-			   this._x < Crafty.viewport.width + this.buffer && 
-			   this._y < Crafty.viewport.height + this.buffer) {
-				DrawBucket.draw(this.bucket);
-			}
-		});
-		
-		this.bind("remove", function() {
-			DrawBucket.remove(this);
+			Crafty.DrawList.resort();
 		});
 	},
 	
-	draw: function() {	
-		var co = {}, //cached obj of position in sprite with offset
-			pos = { //inlined pos() function, for speed
+	draw: function() {
+		var pos = { //inlined pos() function, for speed
 				_x: Math.floor(this._x),
 				_y: Math.floor(this._y),
 				_w: Math.floor(this._w),
 				_h: Math.floor(this._h)
 			},
-			coord = this.__coord || [],
-			context = Crafty.context[this.bucket];
-
-		//if offset
-		co.x = coord[0];
-		co.y = coord[1];
-		co.w = coord[2];
-		co.h = coord[3];
+			context = Crafty.context;
 			
 		if(this._mbr) {
 			context.save();
@@ -1471,145 +1495,65 @@ Crafty.c("canvas", {
 		}
 		
 		//draw with alpha
-		var globalpha = context.globalAlpha;
-		context.globalAlpha = this._alpha;
-		
-		this.trigger("draw", {type: "canvas", pos: pos});
+		if(this._alpha > 0) {
+			var globalpha = context.globalAlpha;
+			context.globalAlpha = this._alpha;
+		}
 		
 		//inline drawing of the sprite
 		if(this.__c.sprite) {
-			//don't draw if not loaded
-			if(!this.img.width) return;
+			var coord = this.__coord;
 			
 			//draw the image on the canvas element
 			context.drawImage(this.img, //image element
-									 co.x, //x position on sprite
-									 co.y, //y position on sprite
-									 co.w, //width on sprite
-									 co.h, //height on sprite
+									 coord[0], //x position on sprite
+									 coord[1], //y position on sprite
+									 coord[2], //width on sprite
+									 coord[3], //height on sprite
 									 pos._x, //x position on canvas
 									 pos._y, //y position on canvas
 									 pos._w, //width on canvas
 									 pos._h //height on canvas
 			);
-		}
+		} else this.trigger("draw", {type: "canvas", pos: pos});
 		
 		if(this._mbr) {
 			context.restore();
 		}
-		context.globalAlpha = globalpha;
+		if(this._alpha > 0) {
+			context.globalAlpha = globalpha;
+		}
 		return this;
 	}
 });
 
 Crafty.extend({
-	context: [],
-	_canvas: [],
+	context: null,
+	_canvas: null,
 	
 	/**
 	* Set the canvas element and 2D context
 	*/
-	canvas: function(buckets) {
-		var elem, i = 0;
-		buckets = buckets || 3; //default to 3
-		DrawBucket.init(buckets);
+	canvas: function() {
+		var elem = document.createElement("canvas");
 		
-		for(;i<buckets;i++) {
-			elem = document.createElement("canvas");
-			this.stage.elem.appendChild(elem);
-			
-			//check if is an actual canvas element
-			if(!('getContext' in elem)) {
-				Crafty.trigger("nocanvas");
-				return;
-			}
-			
-			this.context[i] = elem.getContext('2d');
-			this._canvas[i] = elem;
-			
-			//set canvas and viewport to the final dimensions
-			elem.width = this.viewport.width;
-			elem.height = this.viewport.height;
-			elem.style.position = "absolute";
+		this.stage.elem.appendChild(elem);
+		
+		//check if is an actual canvas element
+		if(!('getContext' in elem)) {
+			Crafty.trigger("nocanvas");
+			return;
 		}
+		
+		this.context = elem.getContext('2d');
+		this._canvas = elem;
+		
+		//set canvas and viewport to the final dimensions
+		elem.width = this.viewport.width;
+		elem.height = this.viewport.height;
+		elem.style.position = "absolute";
 	}
 });
-
-/**
-* Custom algorithm for canvas optimization 
-* using frequency buckets
-*/
-DrawBucket = {
-	buckets: [],
-	ents: [],
-	
-	init: function(size) {
-		var i = 0, z = 0;
-		for(;i<size;i++) {
-			this.buckets[i] = {
-				minZ: null,
-				maxZ: null
-			};
-			this.ents[i] = [];
-		}
-	},
-	
-	add: function(obj) {
-		var buckets = this.buckets,
-			bucket = buckets[1], //choose middle bucket first
-			z = obj._global;
-			
-		if(z < bucket.minZ || bucket.minZ === null) {
-			bucket.minZ = z;
-		}
-		if(z > bucket.maxZ || bucket.maxZ === null) {
-			bucket.maxZ = z;
-		}
-		obj.bucket = 1;
-		this.ents[1].push(obj);
-	},
-
-	draw: function(bucket) {
-		if(bucket === undefined) return;
-		
-		var ents = this.ents[bucket] || [],
-			i = 0, l = ents.length;
-		
-		Crafty.context[bucket].clearRect(0, 0, Crafty.viewport.width, Crafty.viewport.height);
-		ents.sort(function(a,b) { return a._global - b._global });
-		
-		for(;i<l;i++) {
-			ents[i].draw();
-		}
-	},
-	
-	remove: function(obj) {
-		var bucket = obj.bucket;
-		this.seekAndDestroy(bucket, obj);
-		this.draw(bucket);
-	},
-	
-	move: function(obj) {
-		this.seekAndDestroy(obj.bucket, obj);
-		this.add(obj);
-	},
-	
-	seekAndDestroy: function(b, obj) {
-		var bucket = this.ents[b],
-			i = 0, l = bucket.length,
-			current;
-			
-		for(;i<l;i++) {
-			current = bucket[i];
-			if(current[0] === obj[0]) {
-				bucket.splice(i, 1);
-				return;
-			}
-		}
-	}
-};
-
-
 
 Crafty.extend({
 	down: null, //object mousedown, waiting for up
@@ -1952,8 +1896,8 @@ Crafty.c("animate", {
 				e.style.background = this._color;
 				e.style.lineHeight = 0;
 			} else if(e.type === "canvas") {
-				if(this._color) Crafty.context[this.bucket].fillStyle = this._color;
-				Crafty.context[this.bucket].fillRect(e.pos._x,e.pos._y,e.pos._w,e.pos._h);
+				if(this._color) Crafty.context.fillStyle = this._color;
+				Crafty.context.fillRect(e.pos._x,e.pos._y,e.pos._w,e.pos._h);
 			}
 		});
 	},
@@ -1967,6 +1911,7 @@ Crafty.c("animate", {
 
 Crafty.c("image", {
 	_repeat: "repeat",
+	_ready: false,
 	
 	init: function() {
 		this.bind("draw", function(e) {
@@ -1984,64 +1929,42 @@ Crafty.c("image", {
 		this._repeat = repeat || "repeat";
 		
 		if(this.has("canvas")) {
-			this.img = new Image();
-			this.img.src = url;
+			this.img = Crafty.assets[url];
+			if(!this.img) {
+				this.img = new Image();
+				Crafty.assets[url] = this.img;
+				this.img.src = url;
+				var self = this;
+				
+				this.img.onload = function() {
+					self._pattern = Crafty.context.createPattern(self.img, self._repeat);
+					self._ready = true;
+					self.trigger("change");
+				};
+				
+				return this;
+			}
+			this._ready = true;
 			
-			//draw when ready
-			var self = this;
-			this.img.onload = function() {
-				DrawBucket.draw(self.bucket);
-			};
-		} else {
-			this.trigger("change");
+			this._pattern = Crafty.context.createPattern(this.img, this._repeat);
 		}
+		this.trigger("change");
 		
 		return this;
 	},
 	
 	canvasDraw: function(e) {
 		//skip if no image
-		if(!this.img) return;
+		if(!this._ready) return;
 		
-		var i = 0, l, j, k, 
-			obj = e.pos || this,
-			xoffcut = this._w % this.img.width || this.img.width,
-			yoffcut = this._h % this.img.height || this.img.height,
-			width = this._w < this.img.width ? xoffcut : this.img.width,
-			height = this._h < this.img.height ? yoffcut : this.img.height,
-			context =  Crafty.context[this.bucket];
+		var context = Crafty.context;
 		
-		if(this._repeat === "no-repeat") {
-			//draw once with no repeat
-			context.drawImage(this.img, 0,0, width, height, obj._x, obj._y, width, height);
-		} else if(this._repeat === "repeat-x") {
-			//repeat along the x axis
-			for(l = Math.ceil(this._w / this.img.width); i < l; i++) {
-				if(i === l-1) width = xoffcut;
-				
-				context.drawImage(this.img, 0, 0, width, height, obj._x + this.img.width * i, obj._y, width, height);
-			}
-		} else if(this._repeat === "repeat-y") {
-			//repeat along the y axis
-			for(l = Math.ceil(this._h / this.img.height); i < l; i++) {
-				//if the last image, determin how much to offcut
-				if(i === l-1) height = yoffcut;
-				
-				context.drawImage(this.img, 0,0, width, height, obj._x, obj._y + this.img.height * i, width, height);
-			}
-		} else {
-			//repeat all axis
-			for(l = Math.ceil(this._w / this.img.width); i < l; i++) {
-				if(i === l-1) width = xoffcut;
-				context.drawImage(this.img, 0,0, width, height, obj._x + this.img.width * i, obj._y, width, height);
-				height = this._h < this.img.height ? yoffcut : this.img.height;
-				
-				for(j = 0, k = Math.ceil(this._h / this.img.height); j < k; j++) {
-					if(j === k-1) height = yoffcut;
-					context.drawImage(this.img, 0,0, width, height, obj._x + this.img.width * i, obj._y + this.img.height * j, width, height);
-				}
-			}
-		}
+		context.fillStyle = this._pattern;
+		
+		context.save();
+		context.translate(e.pos._x, e.pos._y);
+		context.fillRect(0,0,e.pos._w,e.pos._h);
+		context.restore();
 	}
 });
 
@@ -2052,7 +1975,9 @@ Crafty.extend({
 	scene: function(name, fn) {
 		//play scene
 		if(arguments.length === 1) {
-			Crafty("2D").destroy(); //clear screen
+			Crafty("2D").each(function() {
+				if(!this.has("persist")) this.destroy();
+			}); //clear screen of all 2D objects except persist
 			this._scenes[name].call(this);
 			this._current = name;
 			return;
@@ -2062,6 +1987,58 @@ Crafty.extend({
 		return;
 	}
 });
+
+Crafty.DrawList = (function() {
+	var list = [];
+	
+	if(!Array.prototype.indexOf) {
+		Array.prototype.indexOf = function(obj, start) {
+			for (var i = (start || 0), j = this.length; i < j; i++) {
+				if (this[i] == obj) { return i; }
+			}
+			return -1;
+		};
+	}
+	
+	return {
+		add: function add(obj) {
+			if(list.indexOf(obj) === -1) {
+				list.push(obj);
+				list.sort(function(a,b) { return a._global - b._global; });
+			}
+		},
+		
+		remove: function remove(obj) {
+			var index = list.indexOf(obj);
+			if(index !== -1) {
+				list.splice(index, 1);
+			}
+		},
+		
+		draw: function draw() {
+			if(!this.change) return; //only draw if something changed
+			
+			Crafty.context.clearRect(0,0, Crafty._canvas.width, Crafty._canvas.height);
+			var i = 0, l = list.length;
+			for(;i<l;i++) {
+				if(!list[i] || !('draw' in list[i])) {
+					this.remove(list[i]);
+					continue;
+				}
+				list[i].draw();
+			}
+			this.change = false;
+		},
+		
+		resort: function resort() {
+			list.sort(function(a,b) { return a._global - b._global; });
+		},
+		
+		debug: function() { return list; },
+		
+		change: false,
+	};
+})();
 
 Crafty.c("group", {
 	_children: [],

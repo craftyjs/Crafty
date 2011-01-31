@@ -8,6 +8,7 @@ Crafty.c("2D", {
 	_z: 0,
 	_rotation: 0,
 	_alpha: 1.0,
+	_visible: true,
 	_global: null,
 	
 	_origin: {x: 0, y: 0},
@@ -15,6 +16,7 @@ Crafty.c("2D", {
 	_entry: null,
 	_attachy: [],
 	_changed: false,
+	_offscreen: false,
 	
 	init: function() {
 		this._global = this[0];
@@ -27,6 +29,7 @@ Crafty.c("2D", {
 			this.__defineSetter__('z', function(v) { this._attr('_z',v); });
 			this.__defineSetter__('rotation', function(v) { this._attr('_rotation', v); });
 			this.__defineSetter__('alpha', function(v) { this._attr('_alpha',v); });
+			this.__defineSetter__('visible', function(v) { this._attr('_visible',v); });
 			
 			this.__defineGetter__('x', function() { return this._x; });
 			this.__defineGetter__('y', function() { return this._y; });
@@ -35,6 +38,7 @@ Crafty.c("2D", {
 			this.__defineGetter__('z', function() { return this._z; });
 			this.__defineGetter__('rotation', function() { return this._rotation; });
 			this.__defineGetter__('alpha', function() { return this._alpha; });
+			this.__defineGetter__('visible', function() { return this._visible; });
 			
 		//IE9 supports Object.defineProperty
 		} else if(Crafty.support.defineProperty) {
@@ -53,6 +57,10 @@ Crafty.c("2D", {
 				set: function(v) { this._attr('_alpha',v); }, get: function() { return this._alpha; } 
 			});
 			
+			Object.defineProperty(this, 'visible', { 
+				set: function(v) { this._attr('_visible',v); }, get: function() { return this._visible; } 
+			});
+			
 		} else {
 			/*
 			if no setters, check on every frame for a difference 
@@ -64,13 +72,15 @@ Crafty.c("2D", {
 			this.h = this._h;
 			this.z = this._z;
 			this.rotation = this._rotation;
+			this.alpha = this._alpha;
+			this.visible = this._visible;
 			
 			this.bind("enterframe", function() {
 				//if there are differences
 				if(this.x !== this._x || this.y !== this._y ||
 				   this.w !== this._w || this.h !== this._h ||
 				   this.z !== this._z || this.rotation !== this._rotation ||
-				   this.alpha !== this._alpha) {
+				   this.alpha !== this._alpha || this.visible !== this._visible) {
 					
 					var old = this.mbr() || this.pos();
 					
@@ -93,6 +103,8 @@ Crafty.c("2D", {
 					this._h = this.h;
 					this._z = this.z;
 					this._rotation = this.rotation;
+					this._alpha = this.alpha;
+					this._visible = this.visible;
 					
 					this.trigger("move", old);
 					this.trigger("change", old);
@@ -102,29 +114,42 @@ Crafty.c("2D", {
 		
 		//insert self into the HashMap
 		this._entry = Crafty.map.insert(this);
+		Crafty.DrawList.add(this);
 		
 		//when object changes, update HashMap
 		this.bind("move", function() {
 			this._entry.update(this);
+			
+			//if completely offscreen, remove from drawlist
+			if(this._x + this._w < 0 - this.buffer && 
+			   this._y + this._h < 0 - this.buffer && 
+			   this._x > Crafty.viewport.width + this.buffer && 
+			   this._y > Crafty.viewport.height + this.buffer) {
+			   
+				Crafty.DrawList.remove(this);
+				this._offscreen = true;
+			}
+			
+			//if within screen, add to list
+			if(this._offscreen && (this._x + this._w > 0 - this.buffer && 
+			   this._y + this._h > 0 - this.buffer && 
+			   this._x < Crafty.viewport.width + this.buffer && 
+			   this._y < Crafty.viewport.height + this.buffer)) {
+				
+				Crafty.DrawList.add(this);
+				this._offscreen = false;
+			}
 		});
 		
 		//when object is removed, remove from HashMap
 		this.bind("remove", function() {
 			Crafty.map.remove(this);
+			Crafty.DrawList.remove(this);
 			this.detach();
 		});
 		
-		this.bind("change", function(e) {
-			//when the change event is triggered, set the change flag
-			if(!this._changed) {
-				this._changed = e || this.pos();
-				//bind to enterframe
-				this.bind("drawframe", function draw() {
-					this.trigger("repaint", this._changed);
-					this._changed = false;
-					this.unbind("drawframe", draw);
-				});
-			}
+		this.bind("change", function() {
+			Crafty.DrawList.change = true;
 		});
 	},
 	
@@ -168,15 +193,15 @@ Crafty.c("2D", {
 	* Does a rect intersect this
 	*/
 	intersect: function(x,y,w,h) {
-		var rect;
+		var rect, obj = this._mbr || this;
 		if(typeof x === "object") {
 			rect = x;
 		} else {
 			rect = {x: x, y: y, w: w, h: h};
 		}
 		
-		return this._x < rect.x + rect.w && this._x + this._w > rect.x &&
-			   this._y < rect.y + rect.h && this._h + this._y > rect.y;
+		return obj._x < rect.x + rect.w && obj._x + obj._w > rect.x &&
+			   obj._y < rect.y + rect.h && obj._h + obj._y > rect.y;
 	},
 	
 	within: function(x,y,w,h) {
@@ -316,6 +341,12 @@ Crafty.c("2D", {
 		} else if(name === '_z') {
 			this._global = parseInt(value + Crafty.zeroFill(this[0], 5), 10); //magic number 10e5 is the max num of entities
 			this.trigger("reorder");
+		} else if(name === '_visible') {
+			if(value === false) {
+				Crafty.DrawList.remove(this);
+			} else if(value === true) {
+				Crafty.DrawList.add(this);
+			}
 		} else if(name !== '_alpha') {
 			var mbr = this._mbr;
 			if(mbr) {

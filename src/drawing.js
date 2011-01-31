@@ -7,8 +7,8 @@ Crafty.c("color", {
 				e.style.background = this._color;
 				e.style.lineHeight = 0;
 			} else if(e.type === "canvas") {
-				if(this._color) Crafty.context[this.bucket].fillStyle = this._color;
-				Crafty.context[this.bucket].fillRect(e.pos._x,e.pos._y,e.pos._w,e.pos._h);
+				if(this._color) Crafty.context.fillStyle = this._color;
+				Crafty.context.fillRect(e.pos._x,e.pos._y,e.pos._w,e.pos._h);
 			}
 		});
 	},
@@ -22,6 +22,7 @@ Crafty.c("color", {
 
 Crafty.c("image", {
 	_repeat: "repeat",
+	_ready: false,
 	
 	init: function() {
 		this.bind("draw", function(e) {
@@ -39,64 +40,42 @@ Crafty.c("image", {
 		this._repeat = repeat || "repeat";
 		
 		if(this.has("canvas")) {
-			this.img = new Image();
-			this.img.src = url;
+			this.img = Crafty.assets[url];
+			if(!this.img) {
+				this.img = new Image();
+				Crafty.assets[url] = this.img;
+				this.img.src = url;
+				var self = this;
+				
+				this.img.onload = function() {
+					self._pattern = Crafty.context.createPattern(self.img, self._repeat);
+					self._ready = true;
+					self.trigger("change");
+				};
+				
+				return this;
+			}
+			this._ready = true;
 			
-			//draw when ready
-			var self = this;
-			this.img.onload = function() {
-				DrawBucket.draw(self.bucket);
-			};
-		} else {
-			this.trigger("change");
+			this._pattern = Crafty.context.createPattern(this.img, this._repeat);
 		}
+		this.trigger("change");
 		
 		return this;
 	},
 	
 	canvasDraw: function(e) {
 		//skip if no image
-		if(!this.img) return;
+		if(!this._ready) return;
 		
-		var i = 0, l, j, k, 
-			obj = e.pos || this,
-			xoffcut = this._w % this.img.width || this.img.width,
-			yoffcut = this._h % this.img.height || this.img.height,
-			width = this._w < this.img.width ? xoffcut : this.img.width,
-			height = this._h < this.img.height ? yoffcut : this.img.height,
-			context =  Crafty.context[this.bucket];
+		var context = Crafty.context;
 		
-		if(this._repeat === "no-repeat") {
-			//draw once with no repeat
-			context.drawImage(this.img, 0,0, width, height, obj._x, obj._y, width, height);
-		} else if(this._repeat === "repeat-x") {
-			//repeat along the x axis
-			for(l = Math.ceil(this._w / this.img.width); i < l; i++) {
-				if(i === l-1) width = xoffcut;
-				
-				context.drawImage(this.img, 0, 0, width, height, obj._x + this.img.width * i, obj._y, width, height);
-			}
-		} else if(this._repeat === "repeat-y") {
-			//repeat along the y axis
-			for(l = Math.ceil(this._h / this.img.height); i < l; i++) {
-				//if the last image, determin how much to offcut
-				if(i === l-1) height = yoffcut;
-				
-				context.drawImage(this.img, 0,0, width, height, obj._x, obj._y + this.img.height * i, width, height);
-			}
-		} else {
-			//repeat all axis
-			for(l = Math.ceil(this._w / this.img.width); i < l; i++) {
-				if(i === l-1) width = xoffcut;
-				context.drawImage(this.img, 0,0, width, height, obj._x + this.img.width * i, obj._y, width, height);
-				height = this._h < this.img.height ? yoffcut : this.img.height;
-				
-				for(j = 0, k = Math.ceil(this._h / this.img.height); j < k; j++) {
-					if(j === k-1) height = yoffcut;
-					context.drawImage(this.img, 0,0, width, height, obj._x + this.img.width * i, obj._y + this.img.height * j, width, height);
-				}
-			}
-		}
+		context.fillStyle = this._pattern;
+		
+		context.save();
+		context.translate(e.pos._x, e.pos._y);
+		context.fillRect(0,0,e.pos._w,e.pos._h);
+		context.restore();
 	}
 });
 
@@ -107,7 +86,9 @@ Crafty.extend({
 	scene: function(name, fn) {
 		//play scene
 		if(arguments.length === 1) {
-			Crafty("2D").destroy(); //clear screen
+			Crafty("2D").each(function() {
+				if(!this.has("persist")) this.destroy();
+			}); //clear screen of all 2D objects except persist
 			this._scenes[name].call(this);
 			this._current = name;
 			return;
@@ -117,3 +98,55 @@ Crafty.extend({
 		return;
 	}
 });
+
+Crafty.DrawList = (function() {
+	var list = [];
+	
+	if(!Array.prototype.indexOf) {
+		Array.prototype.indexOf = function(obj, start) {
+			for (var i = (start || 0), j = this.length; i < j; i++) {
+				if (this[i] == obj) { return i; }
+			}
+			return -1;
+		};
+	}
+	
+	return {
+		add: function add(obj) {
+			if(list.indexOf(obj) === -1) {
+				list.push(obj);
+				list.sort(function(a,b) { return a._global - b._global; });
+			}
+		},
+		
+		remove: function remove(obj) {
+			var index = list.indexOf(obj);
+			if(index !== -1) {
+				list.splice(index, 1);
+			}
+		},
+		
+		draw: function draw() {
+			if(!this.change) return; //only draw if something changed
+			
+			Crafty.context.clearRect(0,0, Crafty._canvas.width, Crafty._canvas.height);
+			var i = 0, l = list.length;
+			for(;i<l;i++) {
+				if(!list[i] || !('draw' in list[i])) {
+					this.remove(list[i]);
+					continue;
+				}
+				list[i].draw();
+			}
+			this.change = false;
+		},
+		
+		resort: function resort() {
+			list.sort(function(a,b) { return a._global - b._global; });
+		},
+		
+		debug: function() { return list; },
+		
+		change: false,
+	};
+})();

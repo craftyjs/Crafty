@@ -62,12 +62,12 @@ Crafty.extend({
 					if(this.has("canvas")) {
 						//draw now
 						if(this.img.complete && this.img.width > 0) {
-							DrawBucket.draw(this.bucket);
+							Crafty.DrawList.change = true;
 						} else {
 							//draw when ready
 							var obj = this;
 							this.img.onload = function() {
-								DrawBucket.draw(this.bucket);
+								Crafty.DrawList.change = true;
 							};
 						}
 					}
@@ -139,30 +139,7 @@ Crafty.extend({
 		_y: 0,
 		
 		scroll: function(axis, v) {
-			var old = this[axis],
-				q,
-				i = 0, j = 0, l, m,
-				box,
-				dupes = {},
-				rect,
-				sorted = [];
-			
-			//clear screen
-			if(Crafty.context) Crafty.context.clearRect(0,0, this.width, this.height);
-			
-			rect = {x: axis == '_x' ? old : this._x, y: axis == '_y' ? old : this._y, w: this.width, h:this.height};
-			q = Crafty.map.search(rect, false);
-			
-			for(l=q.length;i<l;++i) {
-				box = q[i];
-				
-				if(!dupes[box[0]]) {
-					dupes[box[0]] = true;
-					if(!sorted[box._z]) sorted[box._z] = [];
-					
-					sorted[box._z].push(box);
-				}
-			}
+			var old = this[axis];
 			
 			Crafty("2D obj").each(function() {
 				var oldposition = this.pos();
@@ -171,20 +148,10 @@ Crafty.extend({
 				//if no setter available
 				if(Crafty.support.setter === false) {
 					this[axis.substr(1)] = this[axis]; 
-					this.trigger("change", oldposition);
 				}
 				this.trigger("move",oldposition);
 			});
-
-			m = sorted.length;
-			for(;j<m;j++) {
-				if(!sorted[j]) continue;
-				var k = 0, n = sorted[j].length;
-				for(;k<n;k++) {
-					if('draw' in sorted[j][k]) 
-						sorted[j][k].draw();
-				}
-			}
+			Crafty.DrawList.change = true;
 
 			this[axis] = v;
 		},
@@ -201,6 +168,20 @@ Crafty.extend({
 			//stop scrollbars
 			if(!w && !h) {
 				document.body.style.overflow = "hidden";
+				//add window resize
+				Crafty.addEvent(this, window, "resize", function() {
+					Crafty.window.init();
+					var w, h;
+					this.width = w = Crafty.window.width;
+					this.height = h = Crafty.window.height;
+					
+					Crafty.stage.elem.style.width = w;
+					Crafty.stage.elem.style.width = h;
+					if(Crafty._canvas) {
+						Crafty._canvas.width = w;
+						Crafty._canvas.height = h;
+					}
+				});
 			}
 			
 			//check if stage exists

@@ -23,17 +23,16 @@ v0.2.1 - 21/1/2011
 v0.3
 
 * Unit tests
-* Better minification
 * Use the inbuilt canvas background repeat
 * SAT collision
-* Comment code
 * Window resize
 * defineProperty for IE9
-* Mobile
 * Variable frame rate
 * Alpha - thanks to Josh Tynjala
 * areaMap will automatically offset when a polygon is passed - thanks to Adrian Gaudebert
 * Drawing optimization
+* persistant entites through scenes
+* .visible
+* Collision uses MBR, not using Crafty() use Crafty.hashMap()
 * More Audio instances - thanks to Josh Tynjala
 * Loader accepts onProgress and onError callbacks with info on what is loaded and percentages - thanks to Josh Tynjala
-
