@@ -369,11 +369,13 @@ Crafty.c("collision", {
 			results = Crafty.map.search(area, false),
 			i = 0, l = results.length,
 			dupes = {},
-			id, obj,
+			id, obj, key,
 			hasMap = ('map' in this && 'containsPoint' in this.map),
 			finalresult = [];
 		
-		if(!l) return false;
+		if(!l) {
+			return false;
+		}
 		
 		for(;i<l;++i) {
 			obj = results[i];
@@ -386,17 +388,19 @@ Crafty.c("collision", {
 			   dupes[id] = obj;
 		}
 		
-		for(obj in dupes) {
-			if(!dupes.hasOwnProperty(obj)) continue;
+		for(key in dupes) {
+			obj = dupes[key];
 			
-			if(hasMap || map in obj) {
+			if(hasMap && 'map' in obj) {
 				finalresult.push(this.SAT(this.map, obj.map));
 			} else {
 				finalresult.push(obj);
 			}
 		}
 		
-		if(!finalresult.length) return false;
+		if(!finalresult.length) {
+			return false;
+		}
 		
 		return finalresult;
 	},
@@ -404,6 +408,7 @@ Crafty.c("collision", {
 	onhit: function(comp, fn) {
 		this.bind("enterframe", function() {
 			var hitdata = this.hit(comp);
+			//console.log(hitdata);
 			if(hitdata) {
 				fn.call(this, hitdata);
 			}
@@ -415,7 +420,7 @@ Crafty.c("collision", {
 		var points1 = poly1.points,
 			points2 = poly2.points,
 			i = 0, l = points1.length,
-			j, m = points2.length,
+			j, k = points2.length,
 			normal = {x: 0, y: 0},
 			length,
 			min1, min2,
@@ -446,14 +451,14 @@ Crafty.c("collision", {
 			
 			//project all vertices from poly1 onto axis
 			for(j = 0; j < l; ++j) {
-				dot = points1[i][0] * normal.x + points1[i][1] * normal.y;
+				dot = points1[j][0] * normal.x + points1[j][1] * normal.y;
 				if(dot > max1 || max1 === -1) max1 = dot;
 				if(dot < min1 || min1 === -1) min1 = dot;
 			}
 			
 			//project all vertices from poly2 onto axis
 			for(j = 0; j < k; ++j) {
-				dot = points2[i][0] * normal.x + points2[i][1] * normal.y;
+				dot = points2[j][0] * normal.x + points2[j][1] * normal.y;
 				if(dot > max2 || max2 === -1) max2 = dot;
 				if(dot < min2 || min2 === -1) min2 = dot;
 			}
@@ -462,7 +467,9 @@ Crafty.c("collision", {
 			interval = (min1 < min2) ? min2 - max1 : min1 - max2;
 			
 			//exit early if positive
-			if(interval > 0) return false;
+			if(interval > 0) {
+				return false;
+			}
 			if(interval > MTV) MTV = interval;
 		}
 		
@@ -486,14 +493,14 @@ Crafty.c("collision", {
 			
 			//project all vertices from poly1 onto axis
 			for(j = 0; j < l; ++j) {
-				dot = points1[i][0] * normal.x + points1[i][1] * normal.y;
+				dot = points1[j][0] * normal.x + points1[j][1] * normal.y;
 				if(dot > max1 || max1 === -1) max1 = dot;
 				if(dot < min1 || min1 === -1) min1 = dot;
 			}
 			
 			//project all vertices from poly2 onto axis
 			for(j = 0; j < k; ++j) {
-				dot = points2[i][0] * normal.x + points2[i][1] * normal.y;
+				dot = points2[j][0] * normal.x + points2[j][1] * normal.y;
 				if(dot > max2 || max2 === -1) max2 = dot;
 				if(dot < min2 || min2 === -1) min2 = dot;
 			}
@@ -502,7 +509,9 @@ Crafty.c("collision", {
 			interval = (min1 < min2) ? min2 - max1 : min1 - max2;
 			
 			//exit early if positive
-			if(interval > 0) return false;
+			if(interval > 0) {
+				return false;
+			}
 			if(interval > MTV) MTV = interval;
 		}
 		
