@@ -35,4 +35,6 @@ v0.3
 * .visible
 * Collision uses MBR, not using Crafty() use Crafty.hashMap()
 * More Audio instances - thanks to Josh Tynjala
+* drag n drop
+* physics
 * Loader accepts onProgress and onError callbacks with info on what is loaded and percentages - thanks to Josh Tynjala

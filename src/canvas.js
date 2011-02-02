@@ -12,6 +12,8 @@ Crafty.c("canvas", {
 	},
 	
 	draw: function() {
+		if(!this.ready) return;
+		
 		var pos = { //inlined pos() function, for speed
 				_x: Math.floor(this._x),
 				_y: Math.floor(this._y),

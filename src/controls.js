@@ -106,6 +106,31 @@ Crafty.c("mouse", {
 	}
 });
 
+Crafty.c("draggable", {
+	init: function() {
+		function drag(e) {
+			this.x = e.clientX - Crafty.stage.x;
+			this.y = e.clientY - Crafty.stage.y;
+		}
+		var dragged = false;
+		if(!this.has("mouse")) this.addComponent("mouse");
+				
+		this.bind("mousedown", function(e) {
+			//start drag
+			dragged = true;
+			Crafty.addEvent(this, Crafty.stage.elem, "mousemove", drag);
+		});
+		
+		Crafty.addEvent(this, Crafty.stage.elem, "mouseup", function() {
+			//stop drag
+			if(dragged) {
+				Crafty.removeEvent(dragged, Crafty.stage.elem, "mousemove", drag);
+				this.unbind("mousedown");
+			}
+		});
+	}
+});
+
 Crafty.c("controls", {
 	init: function() {
 		function dispatch(e) {

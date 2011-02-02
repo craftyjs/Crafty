@@ -55,6 +55,7 @@ Crafty.extend({
 				__tile: tile,
 				__padding: [paddingX, paddingY],
 				img: img,
+				ready: false,
 				
 				init: function() {
 					this.addComponent("sprite");
@@ -62,11 +63,13 @@ Crafty.extend({
 					if(this.has("canvas")) {
 						//draw now
 						if(this.img.complete && this.img.width > 0) {
+							this.ready = true;
 							Crafty.DrawList.change = true;
 						} else {
 							//draw when ready
 							var obj = this;
 							this.img.onload = function() {
+								obj.ready = true;
 								Crafty.DrawList.change = true;
 							};
 						}

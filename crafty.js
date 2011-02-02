@@ -587,7 +587,7 @@ Crafty.c("2D", {
 	_visible: true,
 	_global: null,
 	
-	_origin: {x: 0, y: 0},
+	_origin: null,
 	_mbr: null,
 	_entry: null,
 	_attachy: [],
@@ -596,6 +596,7 @@ Crafty.c("2D", {
 	
 	init: function() {
 		this._global = this[0];
+		this._origin = {x: 0, y: 0};
 		if(Crafty.support.setter) {
 			//create getters and setters on x,y,w,h,z
 			this.__defineSetter__('x', function(v) { this._attr('_x',v); });
@@ -889,11 +890,10 @@ Crafty.c("2D", {
 			}
 			
 			
-		} else if(x > this._w || y > this._h || x < 0 || y < 0) return;
+		} else if(x > this._w || y > this._h || x < 0 || y < 0) return this;
 		
-		var o = this._origin;
-		o.x = x;
-		o.y = y;
+		this._origin.x = x;
+		this._origin.y = y;
 		
 		return this;
 	},
@@ -937,103 +937,157 @@ Crafty.c("2D", {
 	}
 });
 
-Crafty.c("gravity", {
-	_gravity: 0.2,
-	_gy: 0,
-	_bounce: 0.8,
-	_friction: 0.8,
-	_falling: true,
-	_anti: null,
-	
-	init: function() {
-		if(!this.has("2D")) this.addComponent("2D");		
-	},
-	
-	gravity: function(comp) {
-		if(comp) this._anti = comp;
-		
-		this.bind("enterframe", this._enterframe);
-		
-		return this;
-	},
-	
-	_enterframe: function() {
-		if(this._falling) {
-			//if falling, move the players Y
-			this._gy += this._gravity * 2;
-			this.y += this._gy;
-		} else {
-			this._gy = 0; //reset change in y
-		}
-		
-		var obj = this, hit = false;
-		Crafty(this._anti).each(function() {
-			//check for an intersection directly below the player
-			if(this.intersect(obj.x,obj.y+1,obj.w,obj.h) && obj !== this) {
-				hit = this;
-			}
-		});
-		
-		if(hit) { //stop falling if found
-			if(this._falling) this.stopFalling(hit);
-		} else {
-			this._falling = true; //keep falling otherwise
-		}
-	},
-	
-	stopFalling: function(e) {
-		if(e) this.y = e.y - this.h ; //move object
-		
-		//this._gy = -1 * this._bounce;
-		this._falling = false;
-		if(this.__move && this.__move.up) this.__move.up = false;
-		this.trigger("hit");
-		
-		return this;
-	},
-	
-	antigravity: function() {
-		this.unbind("enterframe", this._enterframe);
-		return this;
-	}
-});
-
 Crafty.c("collision", {
 	_collided: false,
 	
-	collision: function(comp, fn, fnoff) {
-		var obj = this,
-			found = false;
+	hit: function(comp) {
+		var area = this._mbr || this,
+			results = Crafty.map.search(area, false),
+			i = 0, l = results.length,
+			dupes = {},
+			id, obj,
+			hasMap = ('map' in this && 'containsPoint' in this.map),
+			finalresult = [];
+		
+		if(!l) return false;
+		
+		for(;i<l;++i) {
+			obj = results[i];
+			if(!obj) continue;
+			id = obj[0];
 			
-		//on change, check for collision
+			//check if not added to hash and that actually intersects
+			if(!dupes[id] && obj.__c[comp] && obj.x < area.x + area.w && obj.x + obj.w > area.x &&
+							 obj.y < area.y + area.h && obj.h + obj.y > area.y) 
+			   dupes[id] = obj;
+		}
+		
+		for(obj in dupes) {
+			if(!dupes.hasOwnProperty(obj)) continue;
+			
+			if(hasMap || map in obj) {
+				finalresult.push(this.SAT(this.map, obj.map));
+			} else {
+				finalresult.push(obj);
+			}
+		}
+		
+		if(!finalresult.length) return false;
+		
+		return finalresult;
+	},
+	
+	onhit: function(comp, fn) {
 		this.bind("enterframe", function() {
-			//for each collidable entity
-			if(typeof comp === "string") {
-				found = false;
-				
-				Crafty(comp).each(function() {
-					if(this.intersect(obj)) { //check intersection
-						obj._collided = true;
-						found = this;
-					}
-				});
-				
-				if(found) {
-					fn.call(this, found);
-				} else {
-					if(fnoff && this._collided) {
-						fnoff.call(this);
-					}
-				}
-			} else if(typeof comp === "object") {
-				if(comp.intersect(obj)) {
-					fn.call(obj,comp);
-				}
+			var hitdata = this.hit(comp);
+			if(hitdata) {
+				fn.call(this, hitdata);
 			}
 		});
-		
 		return this;
+	},
+	
+	SAT: function(poly1, poly2) {
+		var points1 = poly1.points,
+			points2 = poly2.points,
+			i = 0, l = points1.length,
+			j, m = points2.length,
+			normal = {x: 0, y: 0},
+			length,
+			min1, min2,
+			max1, max2,
+			interval,
+			MTV,
+			dot,
+			nextPoint,
+			currentPoint;
+		
+		//loop through the edges of Polygon 1
+		for(;i<l;i++) {
+			nextPoint = points1[(i==l-1 ? 0 : i+1)];
+			currentPoint = points1[i];
+			
+			//generate the normal for the current edge
+			normal.x = -(nextPoint[1] - currentPoint[1]);
+			normal.y = (nextPoint[0] - currentPoint[0]);
+			
+			//normalize the vector
+			length = Math.sqrt(normal.x * normal.x + normal.y * normal.y);
+			normal.x /= length;
+			normal.y /= length;
+			
+			//default min max
+			min1 = min2 = -1;
+			max1 = max2 = -1;
+			
+			//project all vertices from poly1 onto axis
+			for(j = 0; j < l; ++j) {
+				dot = points1[i][0] * normal.x + points1[i][1] * normal.y;
+				if(dot > max1 || max1 === -1) max1 = dot;
+				if(dot < min1 || min1 === -1) min1 = dot;
+			}
+			
+			//project all vertices from poly2 onto axis
+			for(j = 0; j < k; ++j) {
+				dot = points2[i][0] * normal.x + points2[i][1] * normal.y;
+				if(dot > max2 || max2 === -1) max2 = dot;
+				if(dot < min2 || min2 === -1) min2 = dot;
+			}
+			
+			//calculate the minimum translation vector should be negative
+			interval = (min1 < min2) ? min2 - max1 : min1 - max2;
+			
+			//exit early if positive
+			if(interval > 0) return false;
+			if(interval > MTV) MTV = interval;
+		}
+		
+		//loop through the edges of Polygon 1
+		for(i=0;i<k;i++) {
+			nextPoint = points2[(i==k-1 ? 0 : i+1)];
+			currentPoint = points2[i];
+			
+			//generate the normal for the current edge
+			normal.x = -(nextPoint[1] - currentPoint[1]);
+			normal.y = (nextPoint[0] - currentPoint[0]);
+			
+			//normalize the vector
+			length = Math.sqrt(normal.x * normal.x + normal.y * normal.y);
+			normal.x /= length;
+			normal.y /= length;
+			
+			//default min max
+			min1 = min2 = -1;
+			max1 = max2 = -1;
+			
+			//project all vertices from poly1 onto axis
+			for(j = 0; j < l; ++j) {
+				dot = points1[i][0] * normal.x + points1[i][1] * normal.y;
+				if(dot > max1 || max1 === -1) max1 = dot;
+				if(dot < min1 || min1 === -1) min1 = dot;
+			}
+			
+			//project all vertices from poly2 onto axis
+			for(j = 0; j < k; ++j) {
+				dot = points2[i][0] * normal.x + points2[i][1] * normal.y;
+				if(dot > max2 || max2 === -1) max2 = dot;
+				if(dot < min2 || min2 === -1) min2 = dot;
+			}
+			
+			//calculate the minimum translation vector should be negative
+			interval = (min1 < min2) ? min2 - max1 : min1 - max2;
+			
+			//exit early if positive
+			if(interval > 0) return false;
+			if(interval > MTV) MTV = interval;
+		}
+		
+		return {overlap: MTV};
 	}
+});
+
+Crafty.c("physics", {
+	
 });
 
 /**
@@ -1249,6 +1303,7 @@ Crafty.extend({
 				__tile: tile,
 				__padding: [paddingX, paddingY],
 				img: img,
+				ready: false,
 				
 				init: function() {
 					this.addComponent("sprite");
@@ -1256,11 +1311,13 @@ Crafty.extend({
 					if(this.has("canvas")) {
 						//draw now
 						if(this.img.complete && this.img.width > 0) {
+							this.ready = true;
 							Crafty.DrawList.change = true;
 						} else {
 							//draw when ready
 							var obj = this;
 							this.img.onload = function() {
+								obj.ready = true;
 								Crafty.DrawList.change = true;
 							};
 						}
@@ -1476,6 +1533,8 @@ Crafty.c("canvas", {
 	},
 	
 	draw: function() {
+		if(!this.ready) return;
+		
 		var pos = { //inlined pos() function, for speed
 				_x: Math.floor(this._x),
 				_y: Math.floor(this._y),
@@ -1660,6 +1719,31 @@ Crafty.c("mouse", {
 		
 		this.attach(this.map);
 		return this;
+	}
+});
+
+Crafty.c("draggable", {
+	init: function() {
+		function drag(e) {
+			this.x = e.clientX - Crafty.stage.x;
+			this.y = e.clientY - Crafty.stage.y;
+		}
+		var dragged = false;
+		if(!this.has("mouse")) this.addComponent("mouse");
+				
+		this.bind("mousedown", function(e) {
+			//start drag
+			dragged = true;
+			Crafty.addEvent(this, Crafty.stage.elem, "mousemove", drag);
+		});
+		
+		Crafty.addEvent(this, Crafty.stage.elem, "mouseup", function() {
+			//stop drag
+			if(dragged) {
+				Crafty.removeEvent(dragged, Crafty.stage.elem, "mousemove", drag);
+				this.unbind("mousedown");
+			}
+		});
 	}
 });
 
