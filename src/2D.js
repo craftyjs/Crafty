@@ -182,8 +182,9 @@ Crafty.c("2D", {
 			maxy = Math.ceil(Math.max(y0,y1,y2,y3));
 			
 		this._mbr = {_x: minx, _y: miny, _w: maxx - minx, _h: maxy - miny};
-		//update coords
 		
+		//update coords
+		this.trigger("rotate", {});
 	},
 	
 	area: function() {
@@ -267,6 +268,7 @@ Crafty.c("2D", {
 		
 		//attach obj to this so when this moves, move by same amount
 		this.bind("move", callback);
+		this.bind("rotate", callback);
 		
 		this._attachy[obj[0]] = callback;
 		
@@ -362,7 +364,11 @@ Crafty.c("2D", {
 });
 
 Crafty.c("collision", {
-	_collided: false,
+	
+	collision: function(poly) {
+		this.map = poly;
+		this.attach(this.map);
+	},
 	
 	hit: function(comp) {
 		var area = this._mbr || this,
@@ -392,7 +398,8 @@ Crafty.c("collision", {
 			obj = dupes[key];
 			
 			if(hasMap && 'map' in obj) {
-				finalresult.push(this.SAT(this.map, obj.map));
+				var SAT = this.SAT(this.map, obj.map);
+				if(SAT) finalresult.push(SAT);
 			} else {
 				finalresult.push(obj);
 			}
@@ -426,7 +433,7 @@ Crafty.c("collision", {
 			min1, min2,
 			max1, max2,
 			interval,
-			MTV,
+			MTV = null,
 			dot,
 			nextPoint,
 			currentPoint;
@@ -470,7 +477,7 @@ Crafty.c("collision", {
 			if(interval > 0) {
 				return false;
 			}
-			if(interval > MTV) MTV = interval;
+			if(interval > MTV || MTV === null) MTV = interval;
 		}
 		
 		//loop through the edges of Polygon 1
@@ -512,7 +519,7 @@ Crafty.c("collision", {
 			if(interval > 0) {
 				return false;
 			}
-			if(interval > MTV) MTV = interval;
+			if(interval > MTV || MTV === null) MTV = interval;
 		}
 		
 		return {overlap: MTV};

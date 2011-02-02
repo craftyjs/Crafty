@@ -968,7 +968,8 @@ Crafty.c("collision", {
 			obj = dupes[key];
 			
 			if(hasMap && 'map' in obj) {
-				finalresult.push(this.SAT(this.map, obj.map));
+				var SAT = this.SAT(this.map, obj.map);
+				if(SAT) finalresult.push(SAT);
 			} else {
 				finalresult.push(obj);
 			}
@@ -1002,7 +1003,7 @@ Crafty.c("collision", {
 			min1, min2,
 			max1, max2,
 			interval,
-			MTV,
+			MTV = null,
 			dot,
 			nextPoint,
 			currentPoint;
@@ -1044,10 +1045,9 @@ Crafty.c("collision", {
 			
 			//exit early if positive
 			if(interval > 0) {
-				//console.log("poly1", interval);
 				return false;
 			}
-			if(interval > MTV) MTV = interval;
+			if(interval > MTV || MTV === null) MTV = interval;
 		}
 		
 		//loop through the edges of Polygon 1
@@ -1087,10 +1087,9 @@ Crafty.c("collision", {
 			
 			//exit early if positive
 			if(interval > 0) {
-				//console.log("poly2", interval);
 				return false;
 			}
-			if(interval > MTV) MTV = interval;
+			if(interval > MTV || MTV === null) MTV = interval;
 		}
 		
 		return {overlap: MTV};
