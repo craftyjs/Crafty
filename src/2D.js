@@ -1,4 +1,10 @@
 Crafty.map = new Crafty.HashMap();
+var M = Math,
+	Mc = M.cos,
+	Ms = M.sin,
+	PI = M.PI,
+	DEG_TO_RAD = PI / 180;
+
 
 Crafty.c("2D", {
 	_x: 0,
@@ -21,6 +27,7 @@ Crafty.c("2D", {
 	init: function() {
 		this._global = this[0];
 		this._origin = {x: 0, y: 0};
+		
 		if(Crafty.support.setter) {
 			//create getters and setters on x,y,w,h,z
 			this.__defineSetter__('x', function(v) { this._attr('_x',v); });
@@ -118,8 +125,8 @@ Crafty.c("2D", {
 		Crafty.DrawList.add(this);
 		
 		//when object changes, update HashMap
-		this.bind("move", function() {
-			this._entry.update(this);
+		this.bind("move", function(e) {
+			this._entry.update(e);
 			
 			//if completely offscreen, remove from drawlist
 			if(this._x + this._w < 0 - this.buffer && 
@@ -142,6 +149,11 @@ Crafty.c("2D", {
 			}
 		});
 		
+		this.bind("rotate", function(e) {
+			var old = this._mbr || this;
+			this._entry.update(old);
+		});
+		
 		//when object is removed, remove from HashMap
 		this.bind("remove", function() {
 			Crafty.map.remove(this);
@@ -156,7 +168,7 @@ Crafty.c("2D", {
 	
 	_rotate: function(v) {
 		var theta = -1 * (v % 360), //angle always between 0 and 359
-			rad = theta * (Math.PI / 180),
+			rad = theta * DEG_TO_RAD,
 			ct = Math.cos(rad), //cache the sin and cosine of theta
 			st = Math.sin(rad),
 			o = {x: this._origin.x + this._x, 
@@ -183,8 +195,10 @@ Crafty.c("2D", {
 			
 		this._mbr = {_x: minx, _y: miny, _w: maxx - minx, _h: maxy - miny};
 		
-		//update coords
-		this.trigger("rotate", {});
+		//trigger rotation event
+		var difference = this._rotation - v,
+			drad = difference * DEG_TO_RAD;
+		this.trigger("rotate", {cos: Math.cos(drad), sin: Math.sin(drad), deg: difference, rad: drad, o: {x: o.x, y: o.y}});
 	},
 	
 	area: function() {
@@ -258,12 +272,19 @@ Crafty.c("2D", {
 		function callback(e) {
 			if(!e) return; //no change in position
 			
-			var dx = this.x - e._x,
-				dy = this.y - e._y,
-				dw = this.w - e._w,
-				dh = this.h - e._h;
-			
-			obj.shift(dx,dy,dw,dh);
+			//rotation
+			if(e.cos) {
+				obj.rotate(e);
+			} else { //move
+				//use MBR or current
+				var rect = this._mbr || this;
+					dx = rect._x - e._x,
+					dy = rect._y - e._y,
+					dw = rect._w - e._w,
+					dh = rect._h - e._h;
+				
+				obj.shift(dx,dy,dw,dh);
+			}
 		}
 		
 		//attach obj to this so when this moves, move by same amount
@@ -335,8 +356,16 @@ Crafty.c("2D", {
 		};
 	},
 	
+	rotate: function(e) {
+		this._origin.x = e.o.x - this._x;
+		this._origin.y = e.o.y - this._y;
+		
+		this._attr('_rotation', e.theta);
+	},
+	
 	_attr: function(name,value) {	
-		var old = this.mbr() || this.pos();
+		var pos = this.pos(),
+			old = this.mbr() || pos;
 		
 		if(name === '_rotation') {
 			this._rotate(value);
@@ -354,175 +383,14 @@ Crafty.c("2D", {
 			if(mbr) {
 				mbr[name] -= this[name] - value;
 			}
+			this[name] = value;
+			this.trigger("move", old);
 		}
 		
 		this[name] = value;
 		
-		this.trigger("move", old);
+		
 		this.trigger("change", old);
-	}
-});
-
-Crafty.c("collision", {
-	
-	collision: function(poly) {
-		this.map = poly;
-		this.attach(this.map);
-	},
-	
-	hit: function(comp) {
-		var area = this._mbr || this,
-			results = Crafty.map.search(area, false),
-			i = 0, l = results.length,
-			dupes = {},
-			id, obj, key,
-			hasMap = ('map' in this && 'containsPoint' in this.map),
-			finalresult = [];
-		
-		if(!l) {
-			return false;
-		}
-		
-		for(;i<l;++i) {
-			obj = results[i];
-			if(!obj) continue;
-			id = obj[0];
-			
-			//check if not added to hash and that actually intersects
-			if(!dupes[id] && obj.__c[comp] && obj.x < area.x + area.w && obj.x + obj.w > area.x &&
-							 obj.y < area.y + area.h && obj.h + obj.y > area.y) 
-			   dupes[id] = obj;
-		}
-		
-		for(key in dupes) {
-			obj = dupes[key];
-			
-			if(hasMap && 'map' in obj) {
-				var SAT = this.SAT(this.map, obj.map);
-				if(SAT) finalresult.push(SAT);
-			} else {
-				finalresult.push(obj);
-			}
-		}
-		
-		if(!finalresult.length) {
-			return false;
-		}
-		
-		return finalresult;
-	},
-	
-	onhit: function(comp, fn) {
-		this.bind("enterframe", function() {
-			var hitdata = this.hit(comp);
-			//console.log(hitdata);
-			if(hitdata) {
-				fn.call(this, hitdata);
-			}
-		});
-		return this;
-	},
-	
-	SAT: function(poly1, poly2) {
-		var points1 = poly1.points,
-			points2 = poly2.points,
-			i = 0, l = points1.length,
-			j, k = points2.length,
-			normal = {x: 0, y: 0},
-			length,
-			min1, min2,
-			max1, max2,
-			interval,
-			MTV = null,
-			dot,
-			nextPoint,
-			currentPoint;
-		
-		//loop through the edges of Polygon 1
-		for(;i<l;i++) {
-			nextPoint = points1[(i==l-1 ? 0 : i+1)];
-			currentPoint = points1[i];
-			
-			//generate the normal for the current edge
-			normal.x = -(nextPoint[1] - currentPoint[1]);
-			normal.y = (nextPoint[0] - currentPoint[0]);
-			
-			//normalize the vector
-			length = Math.sqrt(normal.x * normal.x + normal.y * normal.y);
-			normal.x /= length;
-			normal.y /= length;
-			
-			//default min max
-			min1 = min2 = -1;
-			max1 = max2 = -1;
-			
-			//project all vertices from poly1 onto axis
-			for(j = 0; j < l; ++j) {
-				dot = points1[j][0] * normal.x + points1[j][1] * normal.y;
-				if(dot > max1 || max1 === -1) max1 = dot;
-				if(dot < min1 || min1 === -1) min1 = dot;
-			}
-			
-			//project all vertices from poly2 onto axis
-			for(j = 0; j < k; ++j) {
-				dot = points2[j][0] * normal.x + points2[j][1] * normal.y;
-				if(dot > max2 || max2 === -1) max2 = dot;
-				if(dot < min2 || min2 === -1) min2 = dot;
-			}
-			
-			//calculate the minimum translation vector should be negative
-			interval = (min1 < min2) ? min2 - max1 : min1 - max2;
-			
-			//exit early if positive
-			if(interval > 0) {
-				return false;
-			}
-			if(interval > MTV || MTV === null) MTV = interval;
-		}
-		
-		//loop through the edges of Polygon 1
-		for(i=0;i<k;i++) {
-			nextPoint = points2[(i==k-1 ? 0 : i+1)];
-			currentPoint = points2[i];
-			
-			//generate the normal for the current edge
-			normal.x = -(nextPoint[1] - currentPoint[1]);
-			normal.y = (nextPoint[0] - currentPoint[0]);
-			
-			//normalize the vector
-			length = Math.sqrt(normal.x * normal.x + normal.y * normal.y);
-			normal.x /= length;
-			normal.y /= length;
-			
-			//default min max
-			min1 = min2 = -1;
-			max1 = max2 = -1;
-			
-			//project all vertices from poly1 onto axis
-			for(j = 0; j < l; ++j) {
-				dot = points1[j][0] * normal.x + points1[j][1] * normal.y;
-				if(dot > max1 || max1 === -1) max1 = dot;
-				if(dot < min1 || min1 === -1) min1 = dot;
-			}
-			
-			//project all vertices from poly2 onto axis
-			for(j = 0; j < k; ++j) {
-				dot = points2[j][0] * normal.x + points2[j][1] * normal.y;
-				if(dot > max2 || max2 === -1) max2 = dot;
-				if(dot < min2 || min2 === -1) min2 = dot;
-			}
-			
-			//calculate the minimum translation vector should be negative
-			interval = (min1 < min2) ? min2 - max1 : min1 - max2;
-			
-			//exit early if positive
-			if(interval > 0) {
-				return false;
-			}
-			if(interval > MTV || MTV === null) MTV = interval;
-		}
-		
-		return {overlap: MTV};
 	}
 });
 
@@ -559,6 +427,34 @@ Crafty.polygon.prototype = {
 			current = this.points[i];
 			current[0] += x;
 			current[1] += y;
+		}
+	},
+	
+	rotate: function(e) {
+		var i = 0, l = this.points.length, 
+			current, x, y;
+			
+		for(;i<l;i++) {
+			current = this.points[i];
+			console.log(e);
+			
+			x = e.o.x + (current[0] - e.o.x) * e.cos + (current[1] - e.o.y) * e.sin;
+			y = e.o.y - (current[0] - e.o.x) * e.sin + (current[1] - e.o.y) * e.cos;
+			
+			current[0] = Math.floor(x);
+			current[1] = Math.floor(y);
+		}
+		//this.draw();
+	},
+	
+	draw: function(e) {
+		var i = 0, l = this.points.length, 
+			current, x, y;
+			
+		for(;i<l;i++) {
+			current = this.points[i];
+			
+			Crafty.e("2D, DOM, color").attr({x: current[0], y: current[1], w:5, h: 5}).color("red");
 		}
 	}
 };

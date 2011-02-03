@@ -502,8 +502,8 @@ HashMap.prototype = {
 				id = obj[0]; //unique ID
 				
 				//check if not added to hash and that actually intersects
-				if(!found[id] && obj.x < rect.x + rect.w && obj.x + obj.w > rect.x &&
-								 obj.y < rect.y + rect.h && obj.h + obj.y > rect.y) 
+				if(!found[id] && obj.x < rect._x + rect._w && obj._x + obj._w > rect._x &&
+								 obj.y < rect._y + rect._h && obj._h + obj._y > rect._y) 
 				   found[id] = results[i];
 			}
 			
@@ -542,10 +542,10 @@ HashMap.prototype = {
 };
 
 HashMap.key = function(obj) {
-	var x1 = Mathfloor(obj.x / cellsize),
-		y1 = Mathfloor(obj.y / cellsize),
-		x2 = Mathfloor((obj.w + obj.x) / cellsize),
-		y2 = Mathfloor((obj.h + obj.y) / cellsize);
+	var x1 = Mathfloor(obj._x / cellsize),
+		y1 = Mathfloor(obj._y / cellsize),
+		x2 = Mathfloor((obj._w + obj._x) / cellsize),
+		y2 = Mathfloor((obj._h + obj._y) / cellsize);
 	return {x1: x1, y1: y1, x2: x2, y2: y2};
 };
 
@@ -575,6 +575,12 @@ parent.HashMap = HashMap;
 })(Crafty);
 
 Crafty.map = new Crafty.HashMap();
+var M = Math,
+	Mc = M.cos,
+	Ms = M.sin,
+	PI = M.PI,
+	DEG_TO_RAD = PI / 180;
+
 
 Crafty.c("2D", {
 	_x: 0,
@@ -597,6 +603,7 @@ Crafty.c("2D", {
 	init: function() {
 		this._global = this[0];
 		this._origin = {x: 0, y: 0};
+		
 		if(Crafty.support.setter) {
 			//create getters and setters on x,y,w,h,z
 			this.__defineSetter__('x', function(v) { this._attr('_x',v); });
@@ -694,8 +701,8 @@ Crafty.c("2D", {
 		Crafty.DrawList.add(this);
 		
 		//when object changes, update HashMap
-		this.bind("move", function() {
-			this._entry.update(this);
+		this.bind("move", function(e) {
+			this._entry.update(e);
 			
 			//if completely offscreen, remove from drawlist
 			if(this._x + this._w < 0 - this.buffer && 
@@ -718,6 +725,11 @@ Crafty.c("2D", {
 			}
 		});
 		
+		this.bind("rotate", function(e) {
+			var old = this._mbr || this;
+			this._entry.update(old);
+		});
+		
 		//when object is removed, remove from HashMap
 		this.bind("remove", function() {
 			Crafty.map.remove(this);
@@ -732,7 +744,7 @@ Crafty.c("2D", {
 	
 	_rotate: function(v) {
 		var theta = -1 * (v % 360), //angle always between 0 and 359
-			rad = theta * (Math.PI / 180),
+			rad = theta * DEG_TO_RAD,
 			ct = Math.cos(rad), //cache the sin and cosine of theta
 			st = Math.sin(rad),
 			o = {x: this._origin.x + this._x, 
@@ -758,8 +770,11 @@ Crafty.c("2D", {
 			maxy = Math.ceil(Math.max(y0,y1,y2,y3));
 			
 		this._mbr = {_x: minx, _y: miny, _w: maxx - minx, _h: maxy - miny};
-		//update coords
 		
+		//trigger rotation event
+		var difference = this._rotation - v,
+			drad = difference * DEG_TO_RAD;
+		this.trigger("rotate", {cos: Math.cos(drad), sin: Math.sin(drad), deg: difference, rad: drad, o: {x: o.x, y: o.y}});
 	},
 	
 	area: function() {
@@ -833,16 +848,24 @@ Crafty.c("2D", {
 		function callback(e) {
 			if(!e) return; //no change in position
 			
-			var dx = this.x - e._x,
-				dy = this.y - e._y,
-				dw = this.w - e._w,
-				dh = this.h - e._h;
-			
-			obj.shift(dx,dy,dw,dh);
+			//rotation
+			if(e.cos) {
+				obj.rotate(e);
+			} else { //move
+				//use MBR or current
+				var rect = this._mbr || this;
+					dx = rect._x - e._x,
+					dy = rect._y - e._y,
+					dw = rect._w - e._w,
+					dh = rect._h - e._h;
+				
+				obj.shift(dx,dy,dw,dh);
+			}
 		}
 		
 		//attach obj to this so when this moves, move by same amount
 		this.bind("move", callback);
+		this.bind("rotate", callback);
 		
 		this._attachy[obj[0]] = callback;
 		
@@ -909,8 +932,16 @@ Crafty.c("2D", {
 		};
 	},
 	
+	rotate: function(e) {
+		this._origin.x = e.o.x - this._x;
+		this._origin.y = e.o.y - this._y;
+		
+		this._attr('_rotation', e.theta);
+	},
+	
 	_attr: function(name,value) {	
-		var old = this.mbr() || this.pos();
+		var pos = this.pos(),
+			old = this.mbr() || pos;
 		
 		if(name === '_rotation') {
 			this._rotate(value);
@@ -928,24 +959,96 @@ Crafty.c("2D", {
 			if(mbr) {
 				mbr[name] -= this[name] - value;
 			}
+			this[name] = value;
+			this.trigger("move", old);
 		}
 		
 		this[name] = value;
 		
-		this.trigger("move", old);
+		
 		this.trigger("change", old);
 	}
 });
 
+Crafty.c("physics", {
+	
+});
+
+/**
+* Polygon Object
+*/
+Crafty.polygon = function(poly) {
+	if(arguments.length > 1) {
+		poly = Array.prototype.slice.call(arguments, 0);
+	}
+	this.points = poly;
+};
+
+Crafty.polygon.prototype = {
+	containsPoint: function(x, y) {
+		var p = this.points, i, j, c = false;
+
+		for (i = 0, j = p.length - 1; i < p.length; j = i++) {
+			if (((p[i][1] > y) != (p[j][1] > y)) && (x < (p[j][0] - p[i][0]) * (y - p[i][1]) / (p[j][1] - p[i][1]) + p[i][0])) {
+				c = !c;
+			}
+		}
+
+		return c;
+	},
+	
+	shift: function(x,y) {
+		var i = 0, l = this.points.length, current;
+		for(;i<l;i++) {
+			current = this.points[i];
+			current[0] += x;
+			current[1] += y;
+		}
+	},
+	
+	rotate: function(e) {
+		var i = 0, l = this.points.length, 
+			current, x, y;
+			
+		for(;i<l;i++) {
+			current = this.points[i];
+			console.log(e);
+			
+			x = e.o.x + (current[0] - e.o.x) * e.cos + (current[1] - e.o.y) * e.sin;
+			y = e.o.y - (current[0] - e.o.x) * e.sin + (current[1] - e.o.y) * e.cos;
+			
+			current[0] = Math.floor(x);
+			current[1] = Math.floor(y);
+		}
+		//this.draw();
+	},
+	
+	draw: function(e) {
+		var i = 0, l = this.points.length, 
+			current, x, y;
+			
+		for(;i<l;i++) {
+			current = this.points[i];
+			
+			Crafty.e("2D, DOM, color").attr({x: current[0], y: current[1], w:5, h: 5}).color("red");
+		}
+	}
+};
+
+ITERATOR = 0;
 Crafty.c("collision", {
-	_collided: false,
+	
+	collision: function(poly) {
+		this.map = poly;
+		this.attach(this.map);
+	},
 	
 	hit: function(comp) {
 		var area = this._mbr || this,
 			results = Crafty.map.search(area, false),
 			i = 0, l = results.length,
 			dupes = {},
-			id, obj, key,
+			id, obj, oarea, key,
 			hasMap = ('map' in this && 'containsPoint' in this.map),
 			finalresult = [];
 		
@@ -955,18 +1058,21 @@ Crafty.c("collision", {
 		
 		for(;i<l;++i) {
 			obj = results[i];
+			oarea = obj._mbr || obj; //use the mbr
+			
 			if(!obj) continue;
 			id = obj[0];
 			
 			//check if not added to hash and that actually intersects
-			if(!dupes[id] && obj.__c[comp] && obj.x < area.x + area.w && obj.x + obj.w > area.x &&
-							 obj.y < area.y + area.h && obj.h + obj.y > area.y) 
+			if(!dupes[id] && this[0] !== id && obj.__c[comp] && 
+							 oarea._x < area._x + area._w && oarea._x + oarea._w > area._x &&
+							 oarea._y < area._y + area._h && oarea._h + oarea._y > area._y) 
 			   dupes[id] = obj;
 		}
 		
 		for(key in dupes) {
 			obj = dupes[key];
-			
+
 			if(hasMap && 'map' in obj) {
 				var SAT = this.SAT(this.map, obj.map);
 				if(SAT) finalresult.push(SAT);
@@ -1095,43 +1201,6 @@ Crafty.c("collision", {
 		return {overlap: MTV};
 	}
 });
-
-Crafty.c("physics", {
-	
-});
-
-/**
-* Polygon Object
-*/
-Crafty.polygon = function(poly) {
-	if(arguments.length > 1) {
-		poly = Array.prototype.slice.call(arguments, 0);
-	}
-	this.points = poly;
-};
-
-Crafty.polygon.prototype = {
-	containsPoint: function(x, y) {
-		var p = this.points, i, j, c = false;
-
-		for (i = 0, j = p.length - 1; i < p.length; j = i++) {
-			if (((p[i][1] > y) != (p[j][1] > y)) && (x < (p[j][0] - p[i][0]) * (y - p[i][1]) / (p[j][1] - p[i][1]) + p[i][0])) {
-				c = !c;
-			}
-		}
-
-		return c;
-	},
-	
-	shift: function(x,y) {
-		var i = 0, l = this.points.length, current;
-		for(;i<l;i++) {
-			current = this.points[i];
-			current[0] += x;
-			current[1] += y;
-		}
-	}
-};
 
 Crafty.c("DOM", {
 	_element: null,

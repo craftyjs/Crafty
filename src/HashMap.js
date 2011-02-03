@@ -67,8 +67,8 @@ HashMap.prototype = {
 				id = obj[0]; //unique ID
 				
 				//check if not added to hash and that actually intersects
-				if(!found[id] && obj.x < rect.x + rect.w && obj.x + obj.w > rect.x &&
-								 obj.y < rect.y + rect.h && obj.h + obj.y > rect.y) 
+				if(!found[id] && obj.x < rect._x + rect._w && obj._x + obj._w > rect._x &&
+								 obj.y < rect._y + rect._h && obj._h + obj._y > rect._y) 
 				   found[id] = results[i];
 			}
 			
@@ -107,10 +107,10 @@ HashMap.prototype = {
 };
 
 HashMap.key = function(obj) {
-	var x1 = Mathfloor(obj.x / cellsize),
-		y1 = Mathfloor(obj.y / cellsize),
-		x2 = Mathfloor((obj.w + obj.x) / cellsize),
-		y2 = Mathfloor((obj.h + obj.y) / cellsize);
+	var x1 = Mathfloor(obj._x / cellsize),
+		y1 = Mathfloor(obj._y / cellsize),
+		x2 = Mathfloor((obj._w + obj._x) / cellsize),
+		y2 = Mathfloor((obj._h + obj._y) / cellsize);
 	return {x1: x1, y1: y1, x2: x2, y2: y2};
 };
 
