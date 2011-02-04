@@ -12,6 +12,7 @@ var cellsize,
 	},
 	M = Math,
 	Mathfloor = M.floor,
+	Mathceil = M.ceil,
 	SPACE = " ";
 
 HashMap.prototype = {
@@ -109,8 +110,8 @@ HashMap.prototype = {
 HashMap.key = function(obj) {
 	var x1 = Mathfloor(obj._x / cellsize),
 		y1 = Mathfloor(obj._y / cellsize),
-		x2 = Mathfloor((obj._w + obj._x) / cellsize),
-		y2 = Mathfloor((obj._h + obj._y) / cellsize);
+		x2 = Mathceil((obj._w + obj._x) / cellsize),
+		y2 = Mathceil((obj._h + obj._y) / cellsize);
 	return {x1: x1, y1: y1, x2: x2, y2: y2};
 };
 

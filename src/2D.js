@@ -125,8 +125,9 @@ Crafty.c("2D", {
 		Crafty.DrawList.add(this);
 		
 		//when object changes, update HashMap
-		this.bind("move", function(e) {
-			this._entry.update(e);
+		this.bind("move", function() {
+			var area = this._mbr || this;
+			this._entry.update(area);
 			
 			//if completely offscreen, remove from drawlist
 			if(this._x + this._w < 0 - this.buffer && 

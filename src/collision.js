@@ -46,9 +46,11 @@ Crafty.c("collision", {
 
 			if(hasMap && 'map' in obj) {
 				var SAT = this.SAT(this.map, obj.map);
+				SAT.obj = obj;
+				SAT.type = "SAT";
 				if(SAT) finalresult.push(SAT);
 			} else {
-				finalresult.push(obj);
+				finalresult.push({obj: obj, type: "MBR"});
 			}
 		}
 		

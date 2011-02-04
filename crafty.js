@@ -447,6 +447,7 @@ var cellsize,
 	},
 	M = Math,
 	Mathfloor = M.floor,
+	Mathceil = M.ceil,
 	SPACE = " ";
 
 HashMap.prototype = {
@@ -544,8 +545,8 @@ HashMap.prototype = {
 HashMap.key = function(obj) {
 	var x1 = Mathfloor(obj._x / cellsize),
 		y1 = Mathfloor(obj._y / cellsize),
-		x2 = Mathfloor((obj._w + obj._x) / cellsize),
-		y2 = Mathfloor((obj._h + obj._y) / cellsize);
+		x2 = Mathceil((obj._w + obj._x) / cellsize),
+		y2 = Mathceil((obj._h + obj._y) / cellsize);
 	return {x1: x1, y1: y1, x2: x2, y2: y2};
 };
 
@@ -701,8 +702,9 @@ Crafty.c("2D", {
 		Crafty.DrawList.add(this);
 		
 		//when object changes, update HashMap
-		this.bind("move", function(e) {
-			this._entry.update(e);
+		this.bind("move", function() {
+			var area = this._mbr || this;
+			this._entry.update(area);
 			
 			//if completely offscreen, remove from drawlist
 			if(this._x + this._w < 0 - this.buffer && 
@@ -1083,9 +1085,11 @@ Crafty.c("collision", {
 
 			if(hasMap && 'map' in obj) {
 				var SAT = this.SAT(this.map, obj.map);
+				SAT.obj = obj;
+				SAT.type = "SAT";
 				if(SAT) finalresult.push(SAT);
 			} else {
-				finalresult.push(obj);
+				finalresult.push({obj: obj, type: "MBR"});
 			}
 		}
 		
