@@ -2,8 +2,16 @@ ITERATOR = 0;
 Crafty.c("collision", {
 	
 	collision: function(poly) {
+		//if no polygon presented, create a square
+		if(!poly) {
+			var area = this._mbr || this;
+			poly = new Crafty.polygon([0,0],[area._w,0],[area._w,area._h],[0,area._h]);
+			poly.shift(area._x, area._y);
+		}
 		this.map = poly;
 		this.attach(this.map);
+		
+		return this;
 	},
 	
 	hit: function(comp) {
