@@ -437,7 +437,6 @@ Crafty.polygon.prototype = {
 			
 		for(;i<l;i++) {
 			current = this.points[i];
-			console.log(e);
 			
 			x = e.o.x + (current[0] - e.o.x) * e.cos + (current[1] - e.o.y) * e.sin;
 			y = e.o.y - (current[0] - e.o.x) * e.sin + (current[1] - e.o.y) * e.cos;

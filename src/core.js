@@ -304,14 +304,7 @@ Crafty.extend({
 		
 		//call all arbitrary functions attached to onload
 		this.onload();
-		
-		tick = setInterval(function() {
-			Crafty.trigger("enterframe", {frame: frame++});
-			
-			Crafty.timer.step();
-			
-			Crafty.DrawList.draw();
-		}, 1000 / FPS);
+		this.timer.init();
 	},
 	
 	stop: function() {
@@ -319,38 +312,56 @@ Crafty.extend({
 	},
 	
 	timer: {
-		frames: 0,
-		prevTime: (new Date).getTime(),
-		currTime: (new Date).getTime(),
-		dt: 0,
-		prevFpsUpdate: 0,
-		fpsUpdateFrequency: 1,
+		prev: (+new Date),
+		current: (+new Date),
 		fps: 0,
 		
-		getDelta: function () {
-			return this.dt
-		},
-		
-		getFPS: function () {
-			return this.fps
-		},
-		
-		getTime: function () {
-			return (new Date).getTime()
-		},
-		
-		step: function () {
-			this.frames += 1;
-			this.prevTime = this.currTime;
-			this.currTime = this.getTime();
-			this.dt = (this.currTime - this.prevTime) / 1E3;
-			if ((this.currTime - this.prevFpsUpdate) / 1E3 > this.fpsUpdateFrequency) {
-				this.fps = this.frames / this.fpsUpdateFrequency;
-				this.prevFpsUpdate = this.currTime;
-				this.frames = 0;
+		init: function() {
+			var onEachFrame;
+			if (window.webkitRequestAnimationFrame) {
+				onEachFrame = function(cb) {
+					var _cb = function() { cb(); webkitRequestAnimationFrame(_cb); }
+					_cb();
+				};
+			} else if (window.mozRequestAnimationFrame) {
+				onEachFrame = function(cb) {
+					var _cb = function() { cb(); mozRequestAnimationFrame(_cb); }
+					_cb();
+				};
+			} else {
+				onEachFrame = function(cb) {
+					setInterval(cb, 1000 / FPS);
+				}
 			}
+
+			onEachFrame(Crafty.timer.step);
+		},
+		
+		step: (function() {
+			var loops = 0, 
+				skipTicks = 1000 / FPS,
+				nextGameTick = (new Date).getTime();
+			
+			return function() {
+				loops = 0;
+				this.prev = this.current;
+				this.current = (+new Date);
+
+				while((new Date).getTime() > nextGameTick) {
+					Crafty.trigger("enterframe", {frame: frame++});
+					nextGameTick += skipTicks;
+					loops++;
+					this.fps = loops / this.fpsUpdateFrequency;
+				}
+
+				if(loops) Crafty.DrawList.draw();
+			};
+		})(),
+		
+		getFPS: function() {
+			return this.fps;
 		}
-    },
+	},
 	
 	e: function() {
 		var id = UID(), craft;
