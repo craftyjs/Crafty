@@ -1881,26 +1881,31 @@ Crafty.c("mouse", {
 });
 
 Crafty.c("draggable", {
+	_startX: 0,
+	_startY: 0,
+	
 	init: function() {
 		if(!this.has("mouse")) this.addComponent("mouse");
 		
 		function drag(e) {
-			this.x = (e.clientX - Crafty.stage.x);
-			this.y = (e.clientY - Crafty.stage.y);
+			this.x = e.clientX - this._startX;
+			this.y = e.clientY - this._startY;
 		}
 				
 		this.bind("mousedown", function(e) {
 			//start drag
-			console.log("MOUSEDOWN");
+			this._startX = (e.clientX - Crafty.stage.x) - this._x;
+			this._startY = (e.clientY - Crafty.stage.y) - this._y;
 			Crafty.addEvent(this, Crafty.stage.elem, "mousemove", drag);
 		});
 		
 		Crafty.addEvent(this, Crafty.stage.elem, "mouseup", function() {
-			//stop drag
-			console.log("MOUSEUP");
 			Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", drag);
-			this.unbind("mousedown");
 		});
+	},
+	
+	disable: function() {
+		this.unbind("mousedown");
 	}
 });
 
@@ -2187,11 +2192,8 @@ Crafty.c("image", {
 				return this;
 			} else {
 				this.ready = true;
-				try {
 				this._pattern = Crafty.context.createPattern(this.img, this._repeat);
-				} catch(e) {
-					console.log(e, this.img, this._repeat);
-				}
+					
 			}
 		}
 		this.trigger("change");

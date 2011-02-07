@@ -57,11 +57,8 @@ Crafty.c("image", {
 				return this;
 			} else {
 				this.ready = true;
-				try {
 				this._pattern = Crafty.context.createPattern(this.img, this._repeat);
-				} catch(e) {
-					console.log(e, this.img, this._repeat);
-				}
+					
 			}
 		}
 		this.trigger("change");
