@@ -53,7 +53,9 @@ Crafty.c("canvas", {
 									 pos._w, //width on canvas
 									 pos._h //height on canvas
 			);
-		} else this.trigger("draw", {type: "canvas", pos: pos});
+		} else {
+			this.trigger("draw", {type: "canvas", pos: pos});
+		}
 		
 		if(this._mbr) {
 			context.restore();

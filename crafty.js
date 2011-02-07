@@ -556,8 +556,8 @@ HashMap.prototype = {
 HashMap.key = function(obj) {
 	var x1 = Mathfloor(obj._x / cellsize),
 		y1 = Mathfloor(obj._y / cellsize),
-		x2 = Mathceil((obj._w + obj._x) / cellsize),
-		y2 = Mathceil((obj._h + obj._y) / cellsize);
+		x2 = Mathfloor((obj._w + obj._x) / cellsize),
+		y2 = Mathfloor((obj._h + obj._y) / cellsize);
 	return {x1: x1, y1: y1, x2: x2, y2: y2};
 };
 
@@ -983,8 +983,60 @@ Crafty.c("2D", {
 	}
 });
 
-Crafty.c("physics", {
-	
+Crafty.c("gravity", {
+	_gravity: 0.2,
+	_gy: 0,
+	_falling: true,
+	_anti: null,
+
+	init: function() {
+		if(!this.has("2D")) this.addComponent("2D");		
+	},
+
+	gravity: function(comp) {
+		if(comp) this._anti = comp;
+
+		this.bind("enterframe", this._enterframe);
+
+		return this;
+	},
+
+	_enterframe: function() {
+		if(this._falling) {
+			//if falling, move the players Y
+			this._gy += this._gravity * 2;
+			this.y += this._gy;
+		} else {
+			this._gy = 0; //reset change in y
+		}
+
+		var obj = this, hit = false;
+		Crafty(this._anti).each(function() {
+			//check for an intersection directly below the player
+			if(this.intersect(obj.x,obj.y+1,obj.w,obj.h) && obj !== this) {
+				hit = this;
+			}
+		});
+
+		if(hit) { //stop falling if found
+			if(this._falling) this.stopFalling(hit);
+		} else {
+			this._falling = true; //keep falling otherwise
+		}
+	},
+
+	stopFalling: function(e) {
+		if(e) this.y = e.y - this.h ; //move object
+
+		//this._gy = -1 * this._bounce;
+		this._falling = false;
+		if(this.__move && this.__move.up) this.__move.up = false;
+		this.trigger("hit");
+	},
+
+	antigravity: function() {
+		this.unbind("enterframe", this._enterframe);
+	}
 });
 
 /**
@@ -1386,6 +1438,15 @@ Crafty.extend({
 			img = new Image();
 			img.src = url;
 			Crafty.assets[url] = img;
+			img.onload = function() {
+				//all components with this img are now ready
+				for(var pos in map) {
+					Crafty(pos).each(function() {
+						this.ready = true;
+						this.trigger("change");
+					});
+				}
+			};
 		}
 		
 		for(pos in map) {
@@ -1413,14 +1474,7 @@ Crafty.extend({
 						//draw now
 						if(this.img.complete && this.img.width > 0) {
 							this.ready = true;
-							Crafty.DrawList.change = true;
-						} else {
-							//draw when ready
-							var obj = this;
-							this.img.onload = function() {
-								obj.ready = true;
-								Crafty.DrawList.change = true;
-							};
+							this.trigger("change");
 						}
 					}
 					this.w = this.__coord[2];
@@ -1509,7 +1563,7 @@ Crafty.extend({
 		},
 		
 		rect: function() {
-			return {x: this._x, y: this._y, w: this.width, h: this.height};
+			return {_x: this._x, _y: this._y, _w: this.width, _h: this.height};
 		},
 		
 		init: function(w,h) {
@@ -1675,7 +1729,9 @@ Crafty.c("canvas", {
 									 pos._w, //width on canvas
 									 pos._h //height on canvas
 			);
-		} else this.trigger("draw", {type: "canvas", pos: pos});
+		} else {
+			this.trigger("draw", {type: "canvas", pos: pos});
+		}
 		
 		if(this._mbr) {
 			context.restore();
@@ -1731,6 +1787,7 @@ Crafty.extend({
 		
 		//search for all mouse entities
 		q = Crafty.map.search(Crafty.viewport.rect());
+		
 		for(l=q.length;i<l;++i) {
 			//check if has mouse component
 			if(!q[i].has("mouse")) continue;
@@ -1850,7 +1907,7 @@ Crafty.c("draggable", {
 Crafty.c("controls", {
 	init: function() {
 		function dispatch(e) {
-			//e.keyCode = e.charCode || e.keyCode;
+			e.key = e.keyCode || e.which;
 			this.trigger(e.type, e);
 		}
 		
@@ -2073,6 +2130,7 @@ Crafty.c("animate", {
 
 Crafty.c("color", {
 	_color: "",
+	ready: true,
 	
 	init: function() {
 		this.bind("draw", function(e) {
@@ -2095,7 +2153,7 @@ Crafty.c("animate", {
 
 Crafty.c("image", {
 	_repeat: "repeat",
-	_ready: false,
+	ready: false,
 	
 	init: function() {
 		this.bind("draw", function(e) {
@@ -2122,15 +2180,19 @@ Crafty.c("image", {
 				
 				this.img.onload = function() {
 					self._pattern = Crafty.context.createPattern(self.img, self._repeat);
-					self._ready = true;
+					self.ready = true;
 					self.trigger("change");
 				};
 				
 				return this;
+			} else {
+				this.ready = true;
+				try {
+				this._pattern = Crafty.context.createPattern(this.img, this._repeat);
+				} catch(e) {
+					console.log(e, this.img, this._repeat);
+				}
 			}
-			this._ready = true;
-			
-			this._pattern = Crafty.context.createPattern(this.img, this._repeat);
 		}
 		this.trigger("change");
 		
@@ -2139,7 +2201,7 @@ Crafty.c("image", {
 	
 	canvasDraw: function(e) {
 		//skip if no image
-		if(!this._ready) return;
+		if(!this.ready || !this._pattern) return;
 		
 		var context = Crafty.context;
 		
@@ -2220,7 +2282,7 @@ Crafty.DrawList = (function() {
 		
 		debug: function() { return list; },
 		
-		change: false,
+		change: false
 	};
 })();
 

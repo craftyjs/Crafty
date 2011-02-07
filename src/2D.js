@@ -395,8 +395,60 @@ Crafty.c("2D", {
 	}
 });
 
-Crafty.c("physics", {
-	
+Crafty.c("gravity", {
+	_gravity: 0.2,
+	_gy: 0,
+	_falling: true,
+	_anti: null,
+
+	init: function() {
+		if(!this.has("2D")) this.addComponent("2D");		
+	},
+
+	gravity: function(comp) {
+		if(comp) this._anti = comp;
+
+		this.bind("enterframe", this._enterframe);
+
+		return this;
+	},
+
+	_enterframe: function() {
+		if(this._falling) {
+			//if falling, move the players Y
+			this._gy += this._gravity * 2;
+			this.y += this._gy;
+		} else {
+			this._gy = 0; //reset change in y
+		}
+
+		var obj = this, hit = false;
+		Crafty(this._anti).each(function() {
+			//check for an intersection directly below the player
+			if(this.intersect(obj.x,obj.y+1,obj.w,obj.h) && obj !== this) {
+				hit = this;
+			}
+		});
+
+		if(hit) { //stop falling if found
+			if(this._falling) this.stopFalling(hit);
+		} else {
+			this._falling = true; //keep falling otherwise
+		}
+	},
+
+	stopFalling: function(e) {
+		if(e) this.y = e.y - this.h ; //move object
+
+		//this._gy = -1 * this._bounce;
+		this._falling = false;
+		if(this.__move && this.__move.up) this.__move.up = false;
+		this.trigger("hit");
+	},
+
+	antigravity: function() {
+		this.unbind("enterframe", this._enterframe);
+	}
 });
 
 /**

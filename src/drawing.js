@@ -1,5 +1,6 @@
 Crafty.c("color", {
 	_color: "",
+	ready: true,
 	
 	init: function() {
 		this.bind("draw", function(e) {
@@ -22,7 +23,7 @@ Crafty.c("color", {
 
 Crafty.c("image", {
 	_repeat: "repeat",
-	_ready: false,
+	ready: false,
 	
 	init: function() {
 		this.bind("draw", function(e) {
@@ -49,15 +50,19 @@ Crafty.c("image", {
 				
 				this.img.onload = function() {
 					self._pattern = Crafty.context.createPattern(self.img, self._repeat);
-					self._ready = true;
+					self.ready = true;
 					self.trigger("change");
 				};
 				
 				return this;
+			} else {
+				this.ready = true;
+				try {
+				this._pattern = Crafty.context.createPattern(this.img, this._repeat);
+				} catch(e) {
+					console.log(e, this.img, this._repeat);
+				}
 			}
-			this._ready = true;
-			
-			this._pattern = Crafty.context.createPattern(this.img, this._repeat);
 		}
 		this.trigger("change");
 		
@@ -66,7 +71,7 @@ Crafty.c("image", {
 	
 	canvasDraw: function(e) {
 		//skip if no image
-		if(!this._ready) return;
+		if(!this.ready || !this._pattern) return;
 		
 		var context = Crafty.context;
 		
@@ -147,6 +152,6 @@ Crafty.DrawList = (function() {
 		
 		debug: function() { return list; },
 		
-		change: false,
+		change: false
 	};
 })();

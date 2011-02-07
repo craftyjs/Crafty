@@ -37,6 +37,15 @@ Crafty.extend({
 			img = new Image();
 			img.src = url;
 			Crafty.assets[url] = img;
+			img.onload = function() {
+				//all components with this img are now ready
+				for(var pos in map) {
+					Crafty(pos).each(function() {
+						this.ready = true;
+						this.trigger("change");
+					});
+				}
+			};
 		}
 		
 		for(pos in map) {
@@ -64,14 +73,7 @@ Crafty.extend({
 						//draw now
 						if(this.img.complete && this.img.width > 0) {
 							this.ready = true;
-							Crafty.DrawList.change = true;
-						} else {
-							//draw when ready
-							var obj = this;
-							this.img.onload = function() {
-								obj.ready = true;
-								Crafty.DrawList.change = true;
-							};
+							this.trigger("change");
 						}
 					}
 					this.w = this.__coord[2];
@@ -160,7 +162,7 @@ Crafty.extend({
 		},
 		
 		rect: function() {
-			return {x: this._x, y: this._y, w: this.width, h: this.height};
+			return {_x: this._x, _y: this._y, _w: this.width, _h: this.height};
 		},
 		
 		init: function(w,h) {

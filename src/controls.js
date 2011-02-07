@@ -14,6 +14,7 @@ Crafty.extend({
 		
 		//search for all mouse entities
 		q = Crafty.map.search(Crafty.viewport.rect());
+		
 		for(l=q.length;i<l;++i) {
 			//check if has mouse component
 			if(!q[i].has("mouse")) continue;
@@ -133,7 +134,7 @@ Crafty.c("draggable", {
 Crafty.c("controls", {
 	init: function() {
 		function dispatch(e) {
-			//e.keyCode = e.charCode || e.keyCode;
+			e.key = e.keyCode || e.which;
 			this.trigger(e.type, e);
 		}
 		
