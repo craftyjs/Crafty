@@ -1571,21 +1571,25 @@ Crafty.extend({
 			//stop scrollbars
 			if(!w && !h) {
 				document.body.style.overflow = "hidden";
-				//add window resize
-				Crafty.addEvent(this, window, "resize", function() {
-					Crafty.window.init();
-					var w, h;
-					this.width = w = Crafty.window.width;
-					this.height = h = Crafty.window.height;
-					
-					Crafty.stage.elem.style.width = w;
-					Crafty.stage.elem.style.width = h;
-					if(Crafty._canvas) {
-						Crafty._canvas.width = w;
-						Crafty._canvas.height = h;
-					}
-				});
 			}
+			
+			Crafty.addEvent(this, window, "resize", function() {
+				Crafty.window.init();
+				var w, h, offset;
+				this.width = w = Crafty.window.width;
+				this.height = h = Crafty.window.height;
+				
+				Crafty.stage.elem.style.width = w;
+				Crafty.stage.elem.style.width = h;
+				if(Crafty._canvas) {
+					Crafty._canvas.width = w;
+					Crafty._canvas.height = h;
+				}
+				
+				offset = Crafty.inner(Crafty.stage.elem);
+				Crafty.stage.x = offset.x;
+				Crafty.stage.y = offset.y;
+			});
 			
 			//check if stage exists
 			var crstage = document.getElementById("cr-stage");
