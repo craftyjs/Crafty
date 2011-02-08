@@ -129,7 +129,6 @@ Entry.prototype = {
 	update: function(rect) {
 		//check if buckets change
 		if(HashMap.hash(HashMap.key(rect)) != HashMap.hash(this.keys)) {
-			//console.log(this.keys, this.obj);
 			this.map.remove(this.keys, this.obj);
 			var e = this.map.insert(this.obj);
 			this.keys = e.keys;

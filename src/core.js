@@ -210,7 +210,6 @@ Crafty.fn = Crafty.prototype = {
 			
 			//if only one event logged or no function, delete all
 			if(l === 1 || !fn) {
-				//console.log("deleting all", fn, l, this);
 				delete hdl[this[0]];
 				return this;
 			}

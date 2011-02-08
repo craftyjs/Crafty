@@ -131,7 +131,7 @@ Crafty.DrawList = (function() {
 		draw: function draw() {
 			if(!this.change) return; //only draw if something changed
 			
-			Crafty.context.clearRect(0,0, Crafty._canvas.width, Crafty._canvas.height);
+			if(Crafty.context) Crafty.context.clearRect(0,0, Crafty._canvas.width, Crafty._canvas.height);
 			var i = 0, l = list.length;
 			for(;i<l;i++) {
 				if(!list[i] || !('draw' in list[i])) {

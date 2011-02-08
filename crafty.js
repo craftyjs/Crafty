@@ -218,7 +218,6 @@ Crafty.fn = Crafty.prototype = {
 			
 			//if only one event logged or no function, delete all
 			if(l === 1 || !fn) {
-				//console.log("deleting all", fn, l, this);
 				delete hdl[this[0]];
 				return this;
 			}
@@ -575,7 +574,6 @@ Entry.prototype = {
 	update: function(rect) {
 		//check if buckets change
 		if(HashMap.hash(HashMap.key(rect)) != HashMap.hash(this.keys)) {
-			//console.log(this.keys, this.obj);
 			this.map.remove(this.keys, this.obj);
 			var e = this.map.insert(this.obj);
 			this.keys = e.keys;
@@ -1165,7 +1163,6 @@ Crafty.c("collision", {
 	onhit: function(comp, fn) {
 		this.bind("enterframe", function() {
 			var hitdata = this.hit(comp);
-			//console.log(hitdata);
 			if(hitdata) {
 				fn.call(this, hitdata);
 			}
@@ -2266,7 +2263,7 @@ Crafty.DrawList = (function() {
 		draw: function draw() {
 			if(!this.change) return; //only draw if something changed
 			
-			Crafty.context.clearRect(0,0, Crafty._canvas.width, Crafty._canvas.height);
+			if(Crafty.context) Crafty.context.clearRect(0,0, Crafty._canvas.width, Crafty._canvas.height);
 			var i = 0, l = list.length;
 			for(;i<l;i++) {
 				if(!list[i] || !('draw' in list[i])) {

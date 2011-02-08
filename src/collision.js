@@ -64,7 +64,6 @@ Crafty.c("collision", {
 	onhit: function(comp, fn) {
 		this.bind("enterframe", function() {
 			var hitdata = this.hit(comp);
-			//console.log(hitdata);
 			if(hitdata) {
 				fn.call(this, hitdata);
 			}
