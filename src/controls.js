@@ -21,8 +21,8 @@ Crafty.extend({
 			
 			var current = q[i],
 				flag = false,
-				x = e.clientX - Crafty.stage.x,
-				y = e.clientY - Crafty.stage.y;
+				x = e.clientX - Crafty.stage.x + document.body.scrollLeft + document.documentElement.scrollLeft,
+				y = e.clientY - Crafty.stage.y + document.body.scrollTop + document.documentElement.scrollTop;
 			
 			if(current.map) {
 				if(current.map.containsPoint(x, y)) {
