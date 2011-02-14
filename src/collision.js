@@ -1,4 +1,3 @@
-ITERATOR = 0;
 Crafty.c("collision", {
 	
 	collision: function(poly) {

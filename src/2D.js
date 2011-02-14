@@ -275,7 +275,7 @@ Crafty.c("2D", {
 			
 			//rotation
 			if(e.cos) {
-				obj.rotate(e);
+				if('rotate' in obj) obj.rotate(e);
 			} else { //move
 				//use MBR or current
 				var rect = this._mbr || this;

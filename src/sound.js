@@ -11,7 +11,7 @@ Crafty.extend({
 		},
 		
 		add: function(id, url) {
-			if(!Crafty.support.audio) return;
+			if(!Crafty.support.audio) return this;
 			
 			var elem, 
 				key, 
