@@ -359,6 +359,10 @@ Crafty.extend({
 		
 		getFPS: function() {
 			return this.fps;
+		},
+		
+		getDesiredFPS: function() {
+			return FPS;
 		}
 	},
 	
