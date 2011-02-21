@@ -38,3 +38,17 @@ v0.3
 * Draggable component
 * Physics component
 * Loader accepts onProgress and onError callbacks with info on what is loaded and percentages - thanks to Josh Tynjala
+
+v0.3.1 
+
+* Window resize even on fullscreen
+* Use scrollTop and scrollLeft
+* Bug with .rotate()
+
+v1.0
+
+* Everything unit tested
+* Mobile devices
+* Only redraw canvas when a canvas element changed, not DOM
+* .css() should accept both JS and CSS notation
+* 2 redraw regions

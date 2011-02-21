@@ -55,12 +55,25 @@ Crafty.c("DOM", {
 		return this;
 	},
 	
-	css: function(obj) {
-		var key, elem = this._element, style = elem.style;
-		for(key in obj) {
-			if(!obj.hasOwnProperty(key)) continue;
-			style[key] = obj[key];
+	css: function(obj, value) {
+		var key,
+			elem = this._element, 
+			style = elem.style;
+		
+		//if an object passed
+		if(typeof obj === "object") {
+			for(key in obj) {
+				if(!obj.hasOwnProperty(key)) continue;
+				style[Crafty.camelize(key)] = obj[key];
+			}
+		} else {
+			//if a value is passed, set the property
+			if(value) style[Crafty.camelize(obj)] = value;
+			else { //otherwise return the computed property
+				return Crafty.getStyle(elem, obj);
+			}
 		}
+		
 		this.trigger("change");
 		
 		return this;
@@ -114,9 +127,25 @@ Crafty.extend({
 	getStyle: function(obj,prop) {
 		var result;
 		if(obj.currentStyle)
-			result = obj.currentStyle[prop];
+			result = obj.currentStyle[Crafty.camelize(prop)];
 		else if(window.getComputedStyle)
-			result = document.defaultView.getComputedStyle(obj,null).getPropertyValue(prop);
+			result = document.defaultView.getComputedStyle(obj,null).getPropertyValue(Crafty.csselize(prop));
 		return result;
+	},
+	
+	/**
+	* Used in the Zepto framework
+	*
+	* Converts CSS notation to JS notation
+	*/
+	camelize: function(str) { 
+		return str.replace(/-+(.)?/g, function(match, chr){ return chr ? chr.toUpperCase() : '' });
+	},
+	
+	/**
+	* Converts JS notation to CSS notation
+	*/
+	csselize: function(str) {
+		return str.replace(/[A-Z]/g, function(chr){ return chr ? '-' + chr.toLowerCase() : '' });
 	}
 });

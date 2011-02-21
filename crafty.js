@@ -861,7 +861,7 @@ Crafty.c("2D", {
 			
 			//rotation
 			if(e.cos) {
-				obj.rotate(e);
+				if('rotate' in obj) obj.rotate(e);
 			} else { //move
 				//use MBR or current
 				var rect = this._mbr || this;
@@ -1097,8 +1097,7 @@ Crafty.polygon.prototype = {
 	}
 };
 
-ITERATOR = 0;
-Crafty.c("collision", {
+Crafty.c("collision", {
 	
 	collision: function(poly) {
 		//if no polygon presented, create a square
@@ -2393,7 +2392,7 @@ Crafty.extend({
 		},
 		
 		add: function(id, url) {
-			if(!Crafty.support.audio) return;
+			if(!Crafty.support.audio) return this;
 			
 			var elem, 
 				key, 
