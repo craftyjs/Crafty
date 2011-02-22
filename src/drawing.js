@@ -51,6 +51,12 @@ Crafty.c("image", {
 				this.img.onload = function() {
 					self._pattern = Crafty.context.createPattern(self.img, self._repeat);
 					self.ready = true;
+					
+					if(repeat === "no-repeat") {
+						self.w = self.img.width;
+						self.h = self.img.height;
+					}
+					
 					self.trigger("change");
 				};
 				
@@ -58,9 +64,13 @@ Crafty.c("image", {
 			} else {
 				this.ready = true;
 				this._pattern = Crafty.context.createPattern(this.img, this._repeat);
-					
+				if(repeat === "no-repeat") {
+					this.w = this.img.width;
+					this.h = this.img.height;
+				}
 			}
 		}
+		
 		this.trigger("change");
 		
 		return this;

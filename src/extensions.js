@@ -69,13 +69,12 @@ Crafty.extend({
 				init: function() {
 					this.addComponent("sprite");
 					
-					if(this.has("canvas")) {
-						//draw now
-						if(this.img.complete && this.img.width > 0) {
-							this.ready = true;
-							this.trigger("change");
-						}
+					//draw now
+					if(this.img.complete && this.img.width > 0) {
+						this.ready = true;
+						this.trigger("change");
 					}
+					
 					this.w = this.__coord[2];
 					this.h = this.__coord[3];
 				},
