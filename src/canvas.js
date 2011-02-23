@@ -6,21 +6,42 @@ Crafty.c("canvas", {
 	buffer: 50,
 	
 	init: function() {
-		this.bind("reorder", function() {
-			Crafty.DrawList.resort();
+		//increment the amount of canvas objs
+		Crafty.DrawManager.total2D++;
+		
+		this.bind("change", function(e) {
+			//if within screen, add to list				
+			if(!this._changed) {
+				this._changed = true;
+				Crafty.DrawManager.add(e || this, this);
+			}
 		});
 	},
 	
-	draw: function() {
-		if(!this.ready) return;
+	draw: function(ctx,x,y,w,h) {
+		if(!this.ready) return; 
+		if(arguments.length === 4) {
+			h = w;
+			w = y;
+			y = x;
+			x = ctx;
+			ctx = Crafty.context;
+		}
 		
 		var pos = { //inlined pos() function, for speed
-				_x: Math.floor(this._x),
-				_y: Math.floor(this._y),
-				_w: Math.floor(this._w),
-				_h: Math.floor(this._h)
+				_x: ~~(this._x + (x || 0)),
+				_y: ~~(this._y + (y || 0)),
+				_w: ~~(w || this._w),
+				_h: ~~(h || this._h)
 			},
-			context = Crafty.context;
+			context = ctx || Crafty.context,
+			coord = this.__coord || [0,0,0,0],
+			co = {
+				x: coord[0] + (x || 0),
+				y: coord[1] + (y || 0),
+				w: w || coord[2],
+				h: h || coord[3]
+			};
 			
 		if(this._mbr) {
 			context.save();
@@ -38,24 +59,7 @@ Crafty.c("canvas", {
 			context.globalAlpha = this._alpha;
 		}
 		
-		//inline drawing of the sprite
-		if(this.__c.sprite) {
-			var coord = this.__coord;
-			
-			//draw the image on the canvas element
-			context.drawImage(this.img, //image element
-									 coord[0], //x position on sprite
-									 coord[1], //y position on sprite
-									 coord[2], //width on sprite
-									 coord[3], //height on sprite
-									 pos._x, //x position on canvas
-									 pos._y, //y position on canvas
-									 pos._w, //width on canvas
-									 pos._h //height on canvas
-			);
-		} else {
-			this.trigger("draw", {type: "canvas", pos: pos});
-		}
+		this.trigger("draw", {type: "canvas", pos: pos, co: co, ctx: context});
 		
 		if(this._mbr) {
 			context.restore();

@@ -294,10 +294,10 @@ Crafty.extend({
 		if(arguments.length === 2) {			
 			h = w;
 			w = f;
-			f = 100;
+			f = 60;
 		}
 		
-		FPS = f || 100;
+		FPS = f || 60;
 		
 		Crafty.viewport.init(w,h);
 		
@@ -316,23 +316,22 @@ Crafty.extend({
 		fps: 0,
 		
 		init: function() {
-			var onEachFrame;
-			if (window.webkitRequestAnimationFrame) {
-				onEachFrame = function(cb) {
-					var _cb = function() { cb(); webkitRequestAnimationFrame(_cb); }
+			var onFrame = window.requestAnimationFrame ||
+					window.webkitRequestAnimationFrame ||
+					window.mozRequestAnimationFrame ||
+					window.oRequestAnimationFrame ||
+					window.msRequestAnimationFrame ||
+					null;
+			
+			onEachFrame = function(cb) {
+				if(onFrame) {
+					var _cb = function() { cb(); onFrame(_cb); }
 					_cb();
-				};
-			} else if (window.mozRequestAnimationFrame) {
-				onEachFrame = function(cb) {
-					var _cb = function() { cb(); mozRequestAnimationFrame(_cb); }
-					_cb();
-				};
-			} else {
-				onEachFrame = function(cb) {
+				} else {
 					setInterval(cb, 1000 / FPS);
 				}
-			}
-
+			};
+			
 			onEachFrame(Crafty.timer.step);
 		},
 		
@@ -353,7 +352,7 @@ Crafty.extend({
 					this.fps = loops / this.fpsUpdateFrequency;
 				}
 
-				if(loops) Crafty.DrawList.draw();
+				if(loops) Crafty.DrawManager.draw();
 			};
 		})(),
 		

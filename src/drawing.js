@@ -8,8 +8,8 @@ Crafty.c("color", {
 				e.style.background = this._color;
 				e.style.lineHeight = 0;
 			} else if(e.type === "canvas") {
-				if(this._color) Crafty.context.fillStyle = this._color;
-				Crafty.context.fillRect(e.pos._x,e.pos._y,e.pos._w,e.pos._h);
+				if(this._color) e.ctx.fillStyle = this._color;
+				e.ctx.fillRect(e.pos._x,e.pos._y,e.pos._w,e.pos._h);
 			}
 		});
 	},
@@ -70,7 +70,7 @@ Crafty.c("image", {
 		//skip if no image
 		if(!this.ready || !this._pattern) return;
 		
-		var context = Crafty.context;
+		var context = e.ctx;
 		
 		context.fillStyle = this._pattern;
 		
@@ -101,6 +101,165 @@ Crafty.extend({
 	}
 });
 
+/**
+* Draw Manager will manage objects to be drawn and implement
+* the best method of drawing in both DOM and canvas
+*/
+Crafty.DrawManager = (function() {
+	/** array of dirty rects on screen */
+	var register = [],
+	/** array of DOMs needed updating */
+		dom = [],
+	/** temporary canvas object */
+		canv = document.createElement("canvas"),
+	/** context of canvas object */
+		ctx = canv.getContext('2d');
+	
+	return {
+		/** Quick count of 2D objects */
+		total2D: Crafty("2D").length,
+		
+		/**
+		* Calculate the bounding rect of dirty data
+		* and add to the register
+		*/
+		add: function add(old,current) {
+			if(!current) {
+				dom.push(old);
+				return;
+			}
+			
+			var rect,
+				before = old._mbr || old,
+				after = current._mbr || current;
+				
+			if(old === current) {
+				rect = old;
+			} else {
+				rect =  {
+					_x: ~~Math.min(before._x, after._x),
+					_y: ~~Math.min(before._y, after._y),
+					_w: Math.max(before._w, after._w) + Math.max(before._x, after._x),
+					_h: Math.max(before._h, after._h) + Math.max(before._y, after._y)
+				};
+				
+				rect._w = Math.ceil(rect._w - rect._x);
+				rect._h = Math.ceil(rect._h - rect._y);
+			}
+			
+			if(rect._w === 0 || rect._h === 0) {
+				current._changed = false;
+				return;
+			}
+			register.push(rect);
+		},
+		
+		debug: function() {
+			console.log(register, dom);
+		},
+		
+		drawAll: function() {
+			var q = Crafty.map.search(Crafty.viewport.rect()),
+				i = 0, l = q.length,
+				current;
+				
+			q.sort(function(a,b) { return a._global - b._global; });
+			for(;i<l;i++) {
+				current = q[i];
+				if(current.has("canvas")) current.draw();
+			}
+		},
+		
+		/**
+		* Redraw all the dirty regions
+		*/
+		draw: function draw() {
+			//if nothing in register, stop
+			if(!register.length && !dom.length) return;
+			
+			var i = 0, l = register.length, k = dom.length, rect, q,
+				j, len, dupes, obj, ent, objs = [];
+				
+			//loop over all DOM elements needing updating
+			for(;i<k;++i) {
+				dom[i].draw();
+			}
+			//reset counter and DOM array
+			dom.length = i = 0;
+			
+			//again, stop if nothing in register
+			if(!l) return;
+			
+			//if the amount of rects is over 60% of the total objects
+			//do the naive method redrawing
+			if(l / this.total2D > 0.6) {
+				console.log("NAIVE");
+				this.drawAll();
+			}
+				
+			for(;i<l;++i) { //loop over every dirty rect
+				rect = register[i];
+				q = Crafty.map.search(rect); //search for ents under dirty rect
+				
+				dupes = {};
+				
+				//loop over found objects removing dupes and adding to obj array
+				for(j = 0, len = q.length; j < len; ++j) {
+					obj = q[j];
+					if(dupes[obj[0]] || !obj.has("canvas") || !obj._visible)
+						continue;
+					dupes[obj[0]] = true;
+					
+					objs.push({obj: obj, rect: rect});
+				}
+				
+				//clear the rect from the main canvas
+				Crafty.context.clearRect(rect._x, rect._y, rect._w, rect._h);
+			}
+			
+			//sort the objects by the global Z
+			objs.sort(function(a,b) { return a.obj._global - b.obj._global; });
+			if(!objs.length) return;
+			
+			//loop over the objects
+			for(i = 0, l = objs.length; i < l; ++i) {
+				obj = objs[i];
+				rect = obj.rect;
+				ent = obj.obj;
+				
+				var area = ent._mbr || ent, 
+					x = (rect._x - area._x <= 0) ? 0 : (rect._x - area._x),
+					y = Math.ceil(rect._y - area._y < 0 ? 0 : (rect._y - area._y)),
+					w = Math.min(area._w - x, rect._w - (area._x - rect._x), rect._w),
+					h = Math.ceil(Math.min(area._h - y, rect._h - (area._y - rect._y), rect._h));
+				
+				//no point drawing with no width or height
+				if(h === 0 || w === 0) continue;
+				
+				//if it is a pattern or has some rotation, draw it on the temp canvas
+				if(ent.has('image') || ent.rotation % 360 !== 0) {
+					canv.width = area._w;
+					canv.height = area._h;
+					
+					ctx.save();
+					ctx.translate(-area._x, -area._y);
+					ent.draw(ctx);
+					Crafty.context.drawImage(canv, x, y, w, h, area._x + x, area._y + y, w, h);
+					ctx.restore();
+					ctx.clearRect(0,0,canv.width, canv.height);
+				//if it is axis-aligned and no pattern, draw subrect
+				} else ent.draw(x,y,w,h);
+				
+				//allow entity to re-register
+				ent._changed = false;
+			}
+			
+			//empty register
+			register.length = 0;
+		}
+	};
+})();
+	
 Crafty.DrawList = (function() {
 	var list = [];
 	

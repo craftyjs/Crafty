@@ -7,6 +7,13 @@ Crafty.c("DOM", {
 		this._element.style.position = "absolute";
 		this._element.id = "ent" + this[0];
 		
+		this.bind("change", function() {
+			if(!this._changed) {
+				Crafty.DrawManager.add(this);
+				this._changed = true;
+			}
+		});
+		
 		this.bind("remove", this.undraw);
 	},
 	
@@ -43,10 +50,6 @@ Crafty.c("DOM", {
 		
 		this.trigger("draw", {style: style, type: "DOM"});
 		
-		if(this.has("sprite")) {
-			co = this.__coord;
-			style.background = "url('" + this.__image + "') no-repeat -" + co[0] + "px -" + co[1] + "px";
-		}
 		return this;
 	},
 	

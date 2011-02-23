@@ -22,7 +22,6 @@ Crafty.c("2D", {
 	_entry: null,
 	_attachy: [],
 	_changed: false,
-	_offscreen: false,
 	
 	init: function() {
 		this._global = this[0];
@@ -122,32 +121,11 @@ Crafty.c("2D", {
 		
 		//insert self into the HashMap
 		this._entry = Crafty.map.insert(this);
-		Crafty.DrawList.add(this);
 		
 		//when object changes, update HashMap
 		this.bind("move", function() {
 			var area = this._mbr || this;
 			this._entry.update(area);
-			
-			//if completely offscreen, remove from drawlist
-			if(this._x + this._w < 0 - this.buffer && 
-			   this._y + this._h < 0 - this.buffer && 
-			   this._x > Crafty.viewport.width + this.buffer && 
-			   this._y > Crafty.viewport.height + this.buffer) {
-			   
-				Crafty.DrawList.remove(this);
-				this._offscreen = true;
-			}
-			
-			//if within screen, add to list
-			if(this._offscreen && (this._x + this._w > 0 - this.buffer && 
-			   this._y + this._h > 0 - this.buffer && 
-			   this._x < Crafty.viewport.width + this.buffer && 
-			   this._y < Crafty.viewport.height + this.buffer)) {
-				
-				Crafty.DrawList.add(this);
-				this._offscreen = false;
-			}
 		});
 		
 		this.bind("rotate", function(e) {
@@ -158,12 +136,8 @@ Crafty.c("2D", {
 		//when object is removed, remove from HashMap
 		this.bind("remove", function() {
 			Crafty.map.remove(this);
-			Crafty.DrawList.remove(this);
+			this.trigger("change");
 			this.detach();
-		});
-		
-		this.bind("change", function() {
-			Crafty.DrawList.change = true;
 		});
 	},
 	
@@ -374,11 +348,7 @@ Crafty.c("2D", {
 			this._global = parseInt(value + Crafty.zeroFill(this[0], 5), 10); //magic number 10e5 is the max num of entities
 			this.trigger("reorder");
 		} else if(name === '_visible') {
-			if(value === false) {
-				Crafty.DrawList.remove(this);
-			} else if(value === true) {
-				Crafty.DrawList.add(this);
-			}
+			
 		} else if(name !== '_alpha') {
 			var mbr = this._mbr;
 			if(mbr) {
