@@ -128,11 +128,21 @@ Crafty.DrawManager = (function() {
 			before = before._mbr || before;
 			after = after._mbr || after;
 			
-			console.log(rect, before, after);
 			rect._x = Math.min(rect._x, before._x, after._x);
 			rect._y = Math.min(rect._y, before._y, after._y);
 			rect._w = Math.max(rect._w, before._w, after._w) + Math.max(rect._x, before._x, after._x) - rect._x;
 			rect._h = Math.max(rect._h, before._h, after._h) + Math.max(rect._y, before._y, after._y) - rect._y;
+			
+			if(!this.onScreen(rect)) {
+				delete register[i];
+				return false;
+			}
+			return i;
+		},
+		
+		onScreen: function(rect) {
+			return rect._x + rect._w > 0 && rect._y + rect._h > 0 &&
+				   rect._x < Crafty.viewport.width && rect._y < Crafty.viewport.height;
 		},
 		
 		/**
@@ -169,6 +179,10 @@ Crafty.DrawManager = (function() {
 				current._changed = false;
 				return;
 			}
+			if(!this.onScreen(rect)) {
+				current._changed = false;
+				return;
+			}
 			
 			return register.push(rect);
 		},
@@ -187,7 +201,7 @@ Crafty.DrawManager = (function() {
 			q.sort(function(a,b) { return a._global - b._global; });
 			for(;i<l;i++) {
 				current = q[i];
-				if(current.has("canvas")) {
+				if(current._visible && current.has("canvas")) {
 					current.draw();
 					current._changed = false;
 				}
@@ -206,7 +220,7 @@ Crafty.DrawManager = (function() {
 				
 			//loop over all DOM elements needing updating
 			for(;i<k;++i) {
-				dom[i].draw();
+				dom[i].draw()._changed = false;
 			}
 			//reset counter and DOM array
 			dom.length = i = 0;
@@ -224,6 +238,7 @@ Crafty.DrawManager = (function() {
 				
 			for(;i<l;++i) { //loop over every dirty rect
 				rect = register[i];
+				if(!rect) continue;
 				q = Crafty.map.search(rect); //search for ents under dirty rect
 				
 				dupes = {};
@@ -256,12 +271,9 @@ Crafty.DrawManager = (function() {
 				var area = ent._mbr || ent, 
 					x = (rect._x - area._x <= 0) ? 0 : ~~(rect._x - area._x),
 					y = (rect._y - area._y < 0) ? 0 : ~~(rect._y - area._y),
-					w = Math.min(area._w - x, rect._w - (area._x - rect._x), rect._w, area._w),
-					h = Math.min(area._h - y, rect._h - (area._y - rect._y), rect._h, area._h);
+					w = ~~Math.min(area._w - x, rect._w - (area._x - rect._x), rect._w, area._w),
+					h = ~~Math.min(area._h - y, rect._h - (area._y - rect._y), rect._h, area._h);
 				
-				//optimized Math.ceil
-				w = (w === ~w) ? w : w + 1 | 0;
-				h = (h === ~h) ? h : h + 1 | 0;
 				
 				//no point drawing with no width or height
 				if(h === 0 || w === 0) continue;

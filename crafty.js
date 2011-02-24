@@ -143,6 +143,7 @@ Crafty.fn = Crafty.prototype = {
 			}
 		}
 		
+		this.trigger("component");
 		return this;
 	},
 	
@@ -264,6 +265,23 @@ Crafty.fn = Crafty.prototype = {
 			fn.call(entities[this[i]],i);
 		}
 		return this;
+	},
+	
+	clone: function() {
+		var comps = this.__c,
+			comp,
+			prop,
+			clone = Crafty.e();
+			
+		for(comp in comps) {
+			clone.addComponent(comp);
+		}
+		for(prop in this) {
+			
+			clone[prop] = this[prop];
+		}
+		
+		return clone;
 	},
 	
 	destroy: function() {
@@ -422,6 +440,17 @@ Crafty.extend({
 	
 	components: function() {
 		return components;
+	},
+	
+	clone: function(obj){
+		if(obj == null || typeof(obj) != 'object')
+			return obj;
+
+		var temp = obj.constructor(); // changed
+
+		for(var key in obj)
+			temp[key] = clone(obj[key]);
+		return temp;
 	}
 });
 
@@ -1254,8 +1283,8 @@ Crafty.polygon.prototype = {
 		
 		this.bind("change", function() {
 			if(!this._changed) {
-				Crafty.DrawManager.add(this);
 				this._changed = true;
+				Crafty.DrawManager.add(this);
 			}
 		});
 		
@@ -1463,12 +1492,13 @@ Crafty.extend({
 				__coord: [x,y,w,h],
 				__tile: tile,
 				__padding: [paddingX, paddingY],
+				__trim: null,
 				img: img,
 				ready: false,
 				
 				init: function() {
 					this.addComponent("sprite");
-					
+					this.__trim = [0,0,0,0];
 					//draw now if image is loaded
 					if(this.img.complete && this.img.width > 0) {
 						this.ready = true;
@@ -1476,8 +1506,8 @@ Crafty.extend({
 					}
 					
 					//set the width and height to the sprite size
-					this._w = this.__coord[2];
-					this._h = this.__coord[3];
+					this.w = this.__coord[2];
+					this.h = this.__coord[3];
 					
 					this.bind("draw", function(e) {
 						var co = e.co,
@@ -1498,6 +1528,7 @@ Crafty.extend({
 							);
 							} catch(er) {
 								console.log(er, e, co, pos);
+								throw err;
 							}
 						} else if(e.type === "DOM") {
 							this._element.style.background = "url('" + this.__image + "') no-repeat -" + co[0] + "px -" + co[1] + "px";
@@ -1506,8 +1537,30 @@ Crafty.extend({
 				},
 				
 				sprite: function(x,y,w,h) {
-					this.__coord = [x*this.__tile+this.__padding[0],y*this.__tile+this.__padding[1],w*this.__tile || this.__tile,h*this.__tile || this.__tile];
+					this.__coord = [x * this.__tile + this.__padding[0] + this.__trim[0],
+									y * this.__tile + this.__padding[1] + this.__trim[1],
+									this.__trim[2] || w * this.__tile || this.__tile,
+									this.__trim[3] || h * this.__tile || this.__tile];
 					this.trigger("change");
+				},
+				
+				crop: function(x,y,w,h) {
+					var old = this._mbr || this.pos();
+					this.__trim = [];
+					this.__trim[0] = x;
+					this.__trim[1] = y;
+					this.__trim[2] = w;
+					this.__trim[3] = h;
+					
+					this.__coord[0] += x;
+					this.__coord[1] += y;
+					this.__coord[2] = w;
+					this.__coord[3] = h;
+					this._w = w;
+					this._h = h;
+					
+					this.trigger("change", old);
+					return this;
 				}
 			});
 		}
@@ -1730,6 +1783,7 @@ Crafty.c("canvas", {
 			* Optimize so don't redraw if rectangle is out of bounds
 			* Register but if already registered, widen RECT
 			*/
+			
 			if(this._changed === false) {
 				this._changed = Crafty.DrawManager.add(e || this, this);
 			} else {
@@ -2114,9 +2168,13 @@ Crafty.c("twoway", {
 * Crafty(player).stop();
 */
 Crafty.c("animate", {
-	_reels: {},
+	_reels: null,
 	_frame: null,
 	_current: null,
+	
+	init: function() {
+		this._reels = {};
+	},
 
 	animate: function(id, fromx, y, tox) {
 		//play a reel
@@ -2165,6 +2223,8 @@ Crafty.c("animate", {
 		
 		if(data.frame === data.reel.length && this._frame.current === data.frameTime) {
 			data.frame = 0;
+			
+			this.trigger("animationend", {reel: data.reel});
 			this.stop();
 			return;
 		}
@@ -2174,8 +2234,20 @@ Crafty.c("animate", {
 	
 	stop: function() {
 		this.unbind("enterframe", this.drawFrame);
+		this.unbind("animationend");
 		this._current = null;
 		this._frame = null;
+		
+		return this;
+	},
+	
+	reset: function() {
+		if(!this._frame) return this;
+		
+		var co = this._frame.reel[0];
+		this.__coord[0] = co[0];
+		this.__coord[1] = co[1];
+		this.stop();
 		
 		return this;
 	},
@@ -2316,11 +2388,21 @@ Crafty.DrawManager = (function() {
 			before = before._mbr || before;
 			after = after._mbr || after;
 			
-			console.log(rect, before, after);
 			rect._x = Math.min(rect._x, before._x, after._x);
 			rect._y = Math.min(rect._y, before._y, after._y);
 			rect._w = Math.max(rect._w, before._w, after._w) + Math.max(rect._x, before._x, after._x) - rect._x;
 			rect._h = Math.max(rect._h, before._h, after._h) + Math.max(rect._y, before._y, after._y) - rect._y;
+			
+			if(!this.onScreen(rect)) {
+				delete register[i];
+				return false;
+			}
+			return i;
+		},
+		
+		onScreen: function(rect) {
+			return rect._x + rect._w > 0 && rect._y + rect._h > 0 &&
+				   rect._x < Crafty.viewport.width && rect._y < Crafty.viewport.height;
 		},
 		
 		/**
@@ -2357,6 +2439,10 @@ Crafty.DrawManager = (function() {
 				current._changed = false;
 				return;
 			}
+			if(!this.onScreen(rect)) {
+				current._changed = false;
+				return;
+			}
 			
 			return register.push(rect);
 		},
@@ -2375,7 +2461,7 @@ Crafty.DrawManager = (function() {
 			q.sort(function(a,b) { return a._global - b._global; });
 			for(;i<l;i++) {
 				current = q[i];
-				if(current.has("canvas")) {
+				if(current._visible && current.has("canvas")) {
 					current.draw();
 					current._changed = false;
 				}
@@ -2394,7 +2480,7 @@ Crafty.DrawManager = (function() {
 				
 			//loop over all DOM elements needing updating
 			for(;i<k;++i) {
-				dom[i].draw();
+				dom[i].draw()._changed = false;
 			}
 			//reset counter and DOM array
 			dom.length = i = 0;
@@ -2412,6 +2498,7 @@ Crafty.DrawManager = (function() {
 				
 			for(;i<l;++i) { //loop over every dirty rect
 				rect = register[i];
+				if(!rect) continue;
 				q = Crafty.map.search(rect); //search for ents under dirty rect
 				
 				dupes = {};
@@ -2444,12 +2531,9 @@ Crafty.DrawManager = (function() {
 				var area = ent._mbr || ent, 
 					x = (rect._x - area._x <= 0) ? 0 : ~~(rect._x - area._x),
 					y = (rect._y - area._y < 0) ? 0 : ~~(rect._y - area._y),
-					w = Math.min(area._w - x, rect._w - (area._x - rect._x), rect._w, area._w),
-					h = Math.min(area._h - y, rect._h - (area._y - rect._y), rect._h, area._h);
+					w = ~~Math.min(area._w - x, rect._w - (area._x - rect._x), rect._w, area._w),
+					h = ~~Math.min(area._h - y, rect._h - (area._y - rect._y), rect._h, area._h);
 				
-				//optimized Math.ceil
-				w = (w === ~w) ? w : w + 1 | 0;
-				h = (h === ~h) ? h : h + 1 | 0;
 				
 				//no point drawing with no width or height
 				if(h === 0 || w === 0) continue;

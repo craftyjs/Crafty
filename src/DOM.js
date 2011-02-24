@@ -9,8 +9,8 @@ Crafty.c("DOM", {
 		
 		this.bind("change", function() {
 			if(!this._changed) {
-				Crafty.DrawManager.add(this);
 				this._changed = true;
+				Crafty.DrawManager.add(this);
 			}
 		});
 		

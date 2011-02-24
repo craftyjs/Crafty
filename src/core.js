@@ -135,6 +135,7 @@ Crafty.fn = Crafty.prototype = {
 			}
 		}
 		
+		this.trigger("component");
 		return this;
 	},
 	
@@ -256,6 +257,23 @@ Crafty.fn = Crafty.prototype = {
 			fn.call(entities[this[i]],i);
 		}
 		return this;
+	},
+	
+	clone: function() {
+		var comps = this.__c,
+			comp,
+			prop,
+			clone = Crafty.e();
+			
+		for(comp in comps) {
+			clone.addComponent(comp);
+		}
+		for(prop in this) {
+			
+			clone[prop] = this[prop];
+		}
+		
+		return clone;
 	},
 	
 	destroy: function() {
@@ -414,6 +432,17 @@ Crafty.extend({
 	
 	components: function() {
 		return components;
+	},
+	
+	clone: function(obj){
+		if(obj == null || typeof(obj) != 'object')
+			return obj;
+
+		var temp = obj.constructor(); // changed
+
+		for(var key in obj)
+			temp[key] = clone(obj[key]);
+		return temp;
 	}
 });
 

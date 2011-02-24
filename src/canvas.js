@@ -16,6 +16,7 @@ Crafty.c("canvas", {
 			* Optimize so don't redraw if rectangle is out of bounds
 			* Register but if already registered, widen RECT
 			*/
+			
 			if(this._changed === false) {
 				this._changed = Crafty.DrawManager.add(e || this, this);
 			} else {
