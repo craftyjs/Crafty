@@ -70,12 +70,13 @@ Crafty.extend({
 				init: function() {
 					this.addComponent("sprite");
 					this.__trim = [0,0,0,0];
-					//draw now if image is loaded
+		
+					//draw now
 					if(this.img.complete && this.img.width > 0) {
 						this.ready = true;
 						this.trigger("change");
 					}
-					
+
 					//set the width and height to the sprite size
 					this.w = this.__coord[2];
 					this.h = this.__coord[3];

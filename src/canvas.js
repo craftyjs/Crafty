@@ -1,3 +1,13 @@
+var tempCanvas = {};
+function cachedCanvas(img) {
+	var c = document.createElement("canvas"),
+		ctx = c.getContext('2d');
+	c.width = img.width;
+	c.height = img.height;
+	ctx.drawImage(img,0,0);
+	
+	return ctx;
+}
 
 /**
 * Canvas Components and Extensions

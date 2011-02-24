@@ -1335,18 +1335,24 @@ Crafty.polygon.prototype = {
 	css: function(obj, value) {
 		var key,
 			elem = this._element, 
+			val,
 			style = elem.style;
 		
 		//if an object passed
 		if(typeof obj === "object") {
 			for(key in obj) {
 				if(!obj.hasOwnProperty(key)) continue;
-				style[Crafty.camelize(key)] = obj[key];
+				val = obj[key];
+				if(typeof val === "number") val += 'px';
+				
+				style[Crafty.camelize(key)] = val;
 			}
 		} else {
 			//if a value is passed, set the property
-			if(value) style[Crafty.camelize(obj)] = value;
-			else { //otherwise return the computed property
+			if(value) {
+				if(typeof value === "number") value += 'px';
+				style[Crafty.camelize(obj)] = value;
+			} else { //otherwise return the computed property
 				return Crafty.getStyle(elem, obj);
 			}
 		}
@@ -1499,12 +1505,13 @@ Crafty.extend({
 				init: function() {
 					this.addComponent("sprite");
 					this.__trim = [0,0,0,0];
-					//draw now if image is loaded
+		
+					//draw now
 					if(this.img.complete && this.img.width > 0) {
 						this.ready = true;
 						this.trigger("change");
 					}
-					
+
 					//set the width and height to the sprite size
 					this.w = this.__coord[2];
 					this.h = this.__coord[3];
@@ -1765,6 +1772,16 @@ Crafty.c("viewport", {
 });
 
 
+var tempCanvas = {};
+function cachedCanvas(img) {
+	var c = document.createElement("canvas"),
+		ctx = c.getContext('2d');
+	c.width = img.width;
+	c.height = img.height;
+	ctx.drawImage(img,0,0);
+	
+	return ctx;
+}
 
 /**
 * Canvas Components and Extensions
@@ -2311,6 +2328,12 @@ Crafty.c("image", {
 				this.img.onload = function() {
 					self._pattern = Crafty.context.createPattern(self.img, self._repeat);
 					self.ready = true;
+					
+					if(repeat === "no-repeat") {
+						self.w = self.img.width;
+						self.h = self.img.height;
+					}
+					
 					self.trigger("change");
 				};
 				
@@ -2318,9 +2341,13 @@ Crafty.c("image", {
 			} else {
 				this.ready = true;
 				this._pattern = Crafty.context.createPattern(this.img, this._repeat);
-					
+				if(repeat === "no-repeat") {
+					this.w = this.img.width;
+					this.h = this.img.height;
+				}
 			}
 		}
+		
 		this.trigger("change");
 		
 		return this;

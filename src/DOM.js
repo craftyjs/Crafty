@@ -61,18 +61,24 @@ Crafty.c("DOM", {
 	css: function(obj, value) {
 		var key,
 			elem = this._element, 
+			val,
 			style = elem.style;
 		
 		//if an object passed
 		if(typeof obj === "object") {
 			for(key in obj) {
 				if(!obj.hasOwnProperty(key)) continue;
-				style[Crafty.camelize(key)] = obj[key];
+				val = obj[key];
+				if(typeof val === "number") val += 'px';
+				
+				style[Crafty.camelize(key)] = val;
 			}
 		} else {
 			//if a value is passed, set the property
-			if(value) style[Crafty.camelize(obj)] = value;
-			else { //otherwise return the computed property
+			if(value) {
+				if(typeof value === "number") value += 'px';
+				style[Crafty.camelize(obj)] = value;
+			} else { //otherwise return the computed property
 				return Crafty.getStyle(elem, obj);
 			}
 		}
