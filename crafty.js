@@ -360,7 +360,9 @@ Crafty.extend({
 					this.fps = loops / this.fpsUpdateFrequency;
 				}
 
-				if(loops) Crafty.DrawManager.draw();
+				if(loops) {
+					Crafty.DrawManager.draw();
+				}
 			};
 		})(),
 		
@@ -721,7 +723,7 @@ Crafty.c("2D", {
 		//when object is removed, remove from HashMap
 		this.bind("remove", function() {
 			Crafty.map.remove(this);
-			this.trigger("change");
+			
 			this.detach();
 		});
 	},
@@ -794,10 +796,10 @@ Crafty.c("2D", {
 	
 	pos: function() {
 		return {
-			_x: Math.floor(this._x),
-			_y: Math.floor(this._y),
-			_w: Math.floor(this._w),
-			_h: Math.floor(this._h)
+			_x: (this._x),
+			_y: (this._y),
+			_w: (this._w),
+			_h: (this._h)
 		};
 	},
 	
@@ -980,7 +982,7 @@ Crafty.c("gravity", {
 		var obj = this, hit = false;
 		Crafty(this._anti).each(function() {
 			//check for an intersection directly below the player
-			if(this.intersect(obj.x,obj.y+1,obj.w,obj.h) && obj !== this) {
+			if(this.intersect(obj._x,obj._y+1,obj._w,obj._h) && obj !== this) {
 				hit = this;
 			}
 		});
@@ -993,7 +995,7 @@ Crafty.c("gravity", {
 	},
 
 	stopFalling: function(e) {
-		if(e) this.y = e.y - this.h ; //move object
+		if(e) this.y = e._y - this._h ; //move object
 
 		//this._gy = -1 * this._bounce;
 		this._falling = false;
@@ -1269,10 +1271,10 @@ Crafty.polygon.prototype = {
 	
 	draw: function() {
 		var style = this._element.style, co;
-		style.top = Math.floor(this._y) + "px";
-		style.left = Math.floor(this._x) + "px";
-		style.width = Math.floor(this._w) + "px";
-		style.height = Math.floor(this._h) + "px";
+		style.top = ~~(this._y) + "px";
+		style.left = ~~(this._x) + "px";
+		style.width = ~~(this._w) + "px";
+		style.height = ~~(this._h) + "px";
 		style.zIndex = this._z;
 		style.opacity = this._alpha;
 		
@@ -1483,6 +1485,7 @@ Crafty.extend({
 						
 						if(e.type === "canvas") {
 							//draw the image on the canvas element
+							try {
 							e.ctx.drawImage(this.img, //image element
 											 co.x, //x position on sprite
 											 co.y, //y position on sprite
@@ -1493,6 +1496,9 @@ Crafty.extend({
 											 pos._w, //width on canvas
 											 pos._h //height on canvas
 							);
+							} catch(er) {
+								console.log(er, e, co, pos);
+							}
 						} else if(e.type === "DOM") {
 							this._element.style.background = "url('" + this.__image + "') no-repeat -" + co[0] + "px -" + co[1] + "px";
 						}
@@ -1718,11 +1724,22 @@ Crafty.c("canvas", {
 		Crafty.DrawManager.total2D++;
 		
 		this.bind("change", function(e) {
-			//if within screen, add to list				
-			if(!this._changed) {
-				this._changed = true;
-				Crafty.DrawManager.add(e || this, this);
+			//if within screen, add to list			
+			/**
+			* TODO:
+			* Optimize so don't redraw if rectangle is out of bounds
+			* Register but if already registered, widen RECT
+			*/
+			if(this._changed === false) {
+				this._changed = Crafty.DrawManager.add(e || this, this);
+			} else {
+				this._changed = Crafty.DrawManager.grow(this._changed, e || this, this);
 			}
+		});
+		
+		this.bind("remove", function() {
+			Crafty.DrawManager.total2D--;
+			Crafty.DrawManager.add(this,this);
 		});
 	},
 	
@@ -1737,10 +1754,10 @@ Crafty.c("canvas", {
 		}
 		
 		var pos = { //inlined pos() function, for speed
-				_x: ~~(this._x + (x || 0)),
-				_y: ~~(this._y + (y || 0)),
-				_w: ~~(w || this._w),
-				_h: ~~(h || this._h)
+				_x: (this._x + (x || 0)),
+				_y: (this._y + (y || 0)),
+				_w: (w || this._w),
+				_h: (h || this._h)
 			},
 			context = ctx || Crafty.context,
 			coord = this.__coord || [0,0,0,0],
@@ -2290,6 +2307,22 @@ Crafty.DrawManager = (function() {
 		/** Quick count of 2D objects */
 		total2D: Crafty("2D").length,
 		
+		grow: function(i, before, after) {
+			var rect = register[i];
+			if(!rect) {
+				return this.add(before, after);
+			}
+			
+			before = before._mbr || before;
+			after = after._mbr || after;
+			
+			console.log(rect, before, after);
+			rect._x = Math.min(rect._x, before._x, after._x);
+			rect._y = Math.min(rect._y, before._y, after._y);
+			rect._w = Math.max(rect._w, before._w, after._w) + Math.max(rect._x, before._x, after._x) - rect._x;
+			rect._h = Math.max(rect._h, before._h, after._h) + Math.max(rect._y, before._y, after._y) - rect._y;
+		},
+		
 		/**
 		* Calculate the bounding rect of dirty data
 		* and add to the register
@@ -2314,15 +2347,18 @@ Crafty.DrawManager = (function() {
 					_h: Math.max(before._h, after._h) + Math.max(before._y, after._y)
 				};
 				
-				rect._w = Math.ceil(rect._w - rect._x);
-				rect._h = Math.ceil(rect._h - rect._y);
+				rect._w = (rect._w - rect._x);
+				rect._h = (rect._h - rect._y);
+				rect._w = (rect._w === ~~rect._w) ? rect._w : rect._w + 1 | 0;
+				rect._h = (rect._h === ~~rect._h) ? rect._h : rect._h + 1 | 0;
 			}
 			
 			if(rect._w === 0 || rect._h === 0) {
 				current._changed = false;
 				return;
 			}
-			register.push(rect);
+			
+			return register.push(rect);
 		},
 		
 		debug: function() {
@@ -2333,11 +2369,16 @@ Crafty.DrawManager = (function() {
 			var q = Crafty.map.search(Crafty.viewport.rect()),
 				i = 0, l = q.length,
 				current;
-				
+			
+			Crafty.context.clearRect(0,0, Crafty._canvas.width, Crafty._canvas.height);
+			
 			q.sort(function(a,b) { return a._global - b._global; });
 			for(;i<l;i++) {
 				current = q[i];
-				if(current.has("canvas")) current.draw();
+				if(current.has("canvas")) {
+					current.draw();
+					current._changed = false;
+				}
 			}
 		},
 		
@@ -2359,13 +2400,14 @@ Crafty.DrawManager = (function() {
 			dom.length = i = 0;
 			
 			//again, stop if nothing in register
-			if(!l) return;
+			if(!l) { console.log("NO REGISTERED"); return; }
 			
 			//if the amount of rects is over 60% of the total objects
 			//do the naive method redrawing
 			if(l / this.total2D > 0.6) {
-				console.log("NAIVE");
 				this.drawAll();
+				register.length = 0;
+				return;
 			}
 				
 			for(;i<l;++i) { //loop over every dirty rect
@@ -2377,7 +2419,8 @@ Crafty.DrawManager = (function() {
 				//loop over found objects removing dupes and adding to obj array
 				for(j = 0, len = q.length; j < len; ++j) {
 					obj = q[j];
-					if(dupes[obj[0]] || !obj.has("canvas") || !obj._visible)
+					//TODO: Add rectangle intersection check
+					if(dupes[obj[0]] || !obj._visible || !obj.has("canvas"))
 						continue;
 					dupes[obj[0]] = true;
 					
@@ -2390,7 +2433,7 @@ Crafty.DrawManager = (function() {
 			
 			//sort the objects by the global Z
 			objs.sort(function(a,b) { return a.obj._global - b.obj._global; });
-			if(!objs.length) return;
+			if(!objs.length){  return; }
 			
 			//loop over the objects
 			for(i = 0, l = objs.length; i < l; ++i) {
@@ -2399,16 +2442,20 @@ Crafty.DrawManager = (function() {
 				ent = obj.obj;
 				
 				var area = ent._mbr || ent, 
-					x = (rect._x - area._x <= 0) ? 0 : (rect._x - area._x),
-					y = Math.ceil(rect._y - area._y < 0 ? 0 : (rect._y - area._y)),
-					w = Math.min(area._w - x, rect._w - (area._x - rect._x), rect._w),
-					h = Math.ceil(Math.min(area._h - y, rect._h - (area._y - rect._y), rect._h));
+					x = (rect._x - area._x <= 0) ? 0 : ~~(rect._x - area._x),
+					y = (rect._y - area._y < 0) ? 0 : ~~(rect._y - area._y),
+					w = Math.min(area._w - x, rect._w - (area._x - rect._x), rect._w, area._w),
+					h = Math.min(area._h - y, rect._h - (area._y - rect._y), rect._h, area._h);
+				
+				//optimized Math.ceil
+				w = (w === ~w) ? w : w + 1 | 0;
+				h = (h === ~h) ? h : h + 1 | 0;
 				
 				//no point drawing with no width or height
 				if(h === 0 || w === 0) continue;
 				
 				//if it is a pattern or has some rotation, draw it on the temp canvas
-				if(ent.has('image') || ent.rotation % 360 !== 0) {
+				if(ent.has('image') || ent._mbr) {
 					canv.width = area._w;
 					canv.height = area._h;
 					

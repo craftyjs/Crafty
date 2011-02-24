@@ -10,11 +10,22 @@ Crafty.c("canvas", {
 		Crafty.DrawManager.total2D++;
 		
 		this.bind("change", function(e) {
-			//if within screen, add to list				
-			if(!this._changed) {
-				this._changed = true;
-				Crafty.DrawManager.add(e || this, this);
+			//if within screen, add to list			
+			/**
+			* TODO:
+			* Optimize so don't redraw if rectangle is out of bounds
+			* Register but if already registered, widen RECT
+			*/
+			if(this._changed === false) {
+				this._changed = Crafty.DrawManager.add(e || this, this);
+			} else {
+				this._changed = Crafty.DrawManager.grow(this._changed, e || this, this);
 			}
+		});
+		
+		this.bind("remove", function() {
+			Crafty.DrawManager.total2D--;
+			Crafty.DrawManager.add(this,this);
 		});
 	},
 	
@@ -29,10 +40,10 @@ Crafty.c("canvas", {
 		}
 		
 		var pos = { //inlined pos() function, for speed
-				_x: ~~(this._x + (x || 0)),
-				_y: ~~(this._y + (y || 0)),
-				_w: ~~(w || this._w),
-				_h: ~~(h || this._h)
+				_x: (this._x + (x || 0)),
+				_y: (this._y + (y || 0)),
+				_w: (w || this._w),
+				_h: (h || this._h)
 			},
 			context = ctx || Crafty.context,
 			coord = this.__coord || [0,0,0,0],

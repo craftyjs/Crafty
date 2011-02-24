@@ -136,7 +136,7 @@ Crafty.c("2D", {
 		//when object is removed, remove from HashMap
 		this.bind("remove", function() {
 			Crafty.map.remove(this);
-			this.trigger("change");
+			
 			this.detach();
 		});
 	},
@@ -209,10 +209,10 @@ Crafty.c("2D", {
 	
 	pos: function() {
 		return {
-			_x: Math.floor(this._x),
-			_y: Math.floor(this._y),
-			_w: Math.floor(this._w),
-			_h: Math.floor(this._h)
+			_x: (this._x),
+			_y: (this._y),
+			_w: (this._w),
+			_h: (this._h)
 		};
 	},
 	
@@ -395,7 +395,7 @@ Crafty.c("gravity", {
 		var obj = this, hit = false;
 		Crafty(this._anti).each(function() {
 			//check for an intersection directly below the player
-			if(this.intersect(obj.x,obj.y+1,obj.w,obj.h) && obj !== this) {
+			if(this.intersect(obj._x,obj._y+1,obj._w,obj._h) && obj !== this) {
 				hit = this;
 			}
 		});
@@ -408,7 +408,7 @@ Crafty.c("gravity", {
 	},
 
 	stopFalling: function(e) {
-		if(e) this.y = e.y - this.h ; //move object
+		if(e) this.y = e._y - this._h ; //move object
 
 		//this._gy = -1 * this._bounce;
 		this._falling = false;

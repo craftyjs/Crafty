@@ -26,10 +26,10 @@ Crafty.c("DOM", {
 	
 	draw: function() {
 		var style = this._element.style, co;
-		style.top = Math.floor(this._y) + "px";
-		style.left = Math.floor(this._x) + "px";
-		style.width = Math.floor(this._w) + "px";
-		style.height = Math.floor(this._h) + "px";
+		style.top = ~~(this._y) + "px";
+		style.left = ~~(this._x) + "px";
+		style.width = ~~(this._w) + "px";
+		style.height = ~~(this._h) + "px";
 		style.zIndex = this._z;
 		style.opacity = this._alpha;
 		

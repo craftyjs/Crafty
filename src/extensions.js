@@ -85,6 +85,7 @@ Crafty.extend({
 						
 						if(e.type === "canvas") {
 							//draw the image on the canvas element
+							try {
 							e.ctx.drawImage(this.img, //image element
 											 co.x, //x position on sprite
 											 co.y, //y position on sprite
@@ -95,6 +96,9 @@ Crafty.extend({
 											 pos._w, //width on canvas
 											 pos._h //height on canvas
 							);
+							} catch(er) {
+								console.log(er, e, co, pos);
+							}
 						} else if(e.type === "DOM") {
 							this._element.style.background = "url('" + this.__image + "') no-repeat -" + co[0] + "px -" + co[1] + "px";
 						}

@@ -352,7 +352,9 @@ Crafty.extend({
 					this.fps = loops / this.fpsUpdateFrequency;
 				}
 
-				if(loops) Crafty.DrawManager.draw();
+				if(loops) {
+					Crafty.DrawManager.draw();
+				}
 			};
 		})(),
 		

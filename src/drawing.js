@@ -119,6 +119,22 @@ Crafty.DrawManager = (function() {
 		/** Quick count of 2D objects */
 		total2D: Crafty("2D").length,
 		
+		grow: function(i, before, after) {
+			var rect = register[i];
+			if(!rect) {
+				return this.add(before, after);
+			}
+			
+			before = before._mbr || before;
+			after = after._mbr || after;
+			
+			console.log(rect, before, after);
+			rect._x = Math.min(rect._x, before._x, after._x);
+			rect._y = Math.min(rect._y, before._y, after._y);
+			rect._w = Math.max(rect._w, before._w, after._w) + Math.max(rect._x, before._x, after._x) - rect._x;
+			rect._h = Math.max(rect._h, before._h, after._h) + Math.max(rect._y, before._y, after._y) - rect._y;
+		},
+		
 		/**
 		* Calculate the bounding rect of dirty data
 		* and add to the register
@@ -143,15 +159,18 @@ Crafty.DrawManager = (function() {
 					_h: Math.max(before._h, after._h) + Math.max(before._y, after._y)
 				};
 				
-				rect._w = Math.ceil(rect._w - rect._x);
-				rect._h = Math.ceil(rect._h - rect._y);
+				rect._w = (rect._w - rect._x);
+				rect._h = (rect._h - rect._y);
+				rect._w = (rect._w === ~~rect._w) ? rect._w : rect._w + 1 | 0;
+				rect._h = (rect._h === ~~rect._h) ? rect._h : rect._h + 1 | 0;
 			}
 			
 			if(rect._w === 0 || rect._h === 0) {
 				current._changed = false;
 				return;
 			}
-			register.push(rect);
+			
+			return register.push(rect);
 		},
 		
 		debug: function() {
@@ -162,11 +181,16 @@ Crafty.DrawManager = (function() {
 			var q = Crafty.map.search(Crafty.viewport.rect()),
 				i = 0, l = q.length,
 				current;
-				
+			
+			Crafty.context.clearRect(0,0, Crafty._canvas.width, Crafty._canvas.height);
+			
 			q.sort(function(a,b) { return a._global - b._global; });
 			for(;i<l;i++) {
 				current = q[i];
-				if(current.has("canvas")) current.draw();
+				if(current.has("canvas")) {
+					current.draw();
+					current._changed = false;
+				}
 			}
 		},
 		
@@ -188,13 +212,14 @@ Crafty.DrawManager = (function() {
 			dom.length = i = 0;
 			
 			//again, stop if nothing in register
-			if(!l) return;
+			if(!l) { console.log("NO REGISTERED"); return; }
 			
 			//if the amount of rects is over 60% of the total objects
 			//do the naive method redrawing
 			if(l / this.total2D > 0.6) {
-				console.log("NAIVE");
 				this.drawAll();
+				register.length = 0;
+				return;
 			}
 				
 			for(;i<l;++i) { //loop over every dirty rect
@@ -206,7 +231,8 @@ Crafty.DrawManager = (function() {
 				//loop over found objects removing dupes and adding to obj array
 				for(j = 0, len = q.length; j < len; ++j) {
 					obj = q[j];
-					if(dupes[obj[0]] || !obj.has("canvas") || !obj._visible)
+					//TODO: Add rectangle intersection check
+					if(dupes[obj[0]] || !obj._visible || !obj.has("canvas"))
 						continue;
 					dupes[obj[0]] = true;
 					
@@ -219,7 +245,7 @@ Crafty.DrawManager = (function() {
 			
 			//sort the objects by the global Z
 			objs.sort(function(a,b) { return a.obj._global - b.obj._global; });
-			if(!objs.length) return;
+			if(!objs.length){  return; }
 			
 			//loop over the objects
 			for(i = 0, l = objs.length; i < l; ++i) {
@@ -228,16 +254,20 @@ Crafty.DrawManager = (function() {
 				ent = obj.obj;
 				
 				var area = ent._mbr || ent, 
-					x = (rect._x - area._x <= 0) ? 0 : (rect._x - area._x),
-					y = Math.ceil(rect._y - area._y < 0 ? 0 : (rect._y - area._y)),
-					w = Math.min(area._w - x, rect._w - (area._x - rect._x), rect._w),
-					h = Math.ceil(Math.min(area._h - y, rect._h - (area._y - rect._y), rect._h));
+					x = (rect._x - area._x <= 0) ? 0 : ~~(rect._x - area._x),
+					y = (rect._y - area._y < 0) ? 0 : ~~(rect._y - area._y),
+					w = Math.min(area._w - x, rect._w - (area._x - rect._x), rect._w, area._w),
+					h = Math.min(area._h - y, rect._h - (area._y - rect._y), rect._h, area._h);
+				
+				//optimized Math.ceil
+				w = (w === ~w) ? w : w + 1 | 0;
+				h = (h === ~h) ? h : h + 1 | 0;
 				
 				//no point drawing with no width or height
 				if(h === 0 || w === 0) continue;
 				
 				//if it is a pattern or has some rotation, draw it on the temp canvas
-				if(ent.has('image') || ent.rotation % 360 !== 0) {
+				if(ent.has('image') || ent._mbr) {
 					canv.width = area._w;
 					canv.height = area._h;
 					
