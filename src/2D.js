@@ -22,7 +22,6 @@ Crafty.c("2D", {
 	_entry: null,
 	_attachy: [],
 	_changed: false,
-	_offscreen: false,
 	
 	init: function() {
 		this._global = this[0];
@@ -122,32 +121,11 @@ Crafty.c("2D", {
 		
 		//insert self into the HashMap
 		this._entry = Crafty.map.insert(this);
-		Crafty.DrawList.add(this);
 		
 		//when object changes, update HashMap
 		this.bind("move", function() {
 			var area = this._mbr || this;
 			this._entry.update(area);
-			
-			//if completely offscreen, remove from drawlist
-			if(this._x + this._w < 0 - this.buffer && 
-			   this._y + this._h < 0 - this.buffer && 
-			   this._x > Crafty.viewport.width + this.buffer && 
-			   this._y > Crafty.viewport.height + this.buffer) {
-			   
-				Crafty.DrawList.remove(this);
-				this._offscreen = true;
-			}
-			
-			//if within screen, add to list
-			if(this._offscreen && (this._x + this._w > 0 - this.buffer && 
-			   this._y + this._h > 0 - this.buffer && 
-			   this._x < Crafty.viewport.width + this.buffer && 
-			   this._y < Crafty.viewport.height + this.buffer)) {
-				
-				Crafty.DrawList.add(this);
-				this._offscreen = false;
-			}
 		});
 		
 		this.bind("rotate", function(e) {
@@ -158,12 +136,8 @@ Crafty.c("2D", {
 		//when object is removed, remove from HashMap
 		this.bind("remove", function() {
 			Crafty.map.remove(this);
-			Crafty.DrawList.remove(this);
+			
 			this.detach();
-		});
-		
-		this.bind("change", function() {
-			Crafty.DrawList.change = true;
 		});
 	},
 	
@@ -235,10 +209,10 @@ Crafty.c("2D", {
 	
 	pos: function() {
 		return {
-			_x: Math.floor(this._x),
-			_y: Math.floor(this._y),
-			_w: Math.floor(this._w),
-			_h: Math.floor(this._h)
+			_x: (this._x),
+			_y: (this._y),
+			_w: (this._w),
+			_h: (this._h)
 		};
 	},
 	
@@ -374,11 +348,7 @@ Crafty.c("2D", {
 			this._global = parseInt(value + Crafty.zeroFill(this[0], 5), 10); //magic number 10e5 is the max num of entities
 			this.trigger("reorder");
 		} else if(name === '_visible') {
-			if(value === false) {
-				Crafty.DrawList.remove(this);
-			} else if(value === true) {
-				Crafty.DrawList.add(this);
-			}
+			
 		} else if(name !== '_alpha') {
 			var mbr = this._mbr;
 			if(mbr) {
@@ -425,7 +395,7 @@ Crafty.c("gravity", {
 		var obj = this, hit = false;
 		Crafty(this._anti).each(function() {
 			//check for an intersection directly below the player
-			if(this.intersect(obj.x,obj.y+1,obj.w,obj.h) && obj !== this) {
+			if(this.intersect(obj._x,obj._y+1,obj._w,obj._h) && obj !== this) {
 				hit = this;
 			}
 		});
@@ -438,7 +408,7 @@ Crafty.c("gravity", {
 	},
 
 	stopFalling: function(e) {
-		if(e) this.y = e.y - this.h ; //move object
+		if(e) this.y = e._y - this._h ; //move object
 
 		//this._gy = -1 * this._bounce;
 		this._falling = false;

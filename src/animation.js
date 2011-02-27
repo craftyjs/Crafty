@@ -6,9 +6,13 @@
 * Crafty(player).stop();
 */
 Crafty.c("animate", {
-	_reels: {},
+	_reels: null,
 	_frame: null,
 	_current: null,
+	
+	init: function() {
+		this._reels = {};
+	},
 
 	animate: function(id, fromx, y, tox) {
 		//play a reel
@@ -57,6 +61,8 @@ Crafty.c("animate", {
 		
 		if(data.frame === data.reel.length && this._frame.current === data.frameTime) {
 			data.frame = 0;
+			
+			this.trigger("animationend", {reel: data.reel});
 			this.stop();
 			return;
 		}
@@ -66,8 +72,20 @@ Crafty.c("animate", {
 	
 	stop: function() {
 		this.unbind("enterframe", this.drawFrame);
+		this.unbind("animationend");
 		this._current = null;
 		this._frame = null;
+		
+		return this;
+	},
+	
+	reset: function() {
+		if(!this._frame) return this;
+		
+		var co = this._frame.reel[0];
+		this.__coord[0] = co[0];
+		this.__coord[1] = co[1];
+		this.stop();
 		
 		return this;
 	},

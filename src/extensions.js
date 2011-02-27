@@ -63,26 +63,76 @@ Crafty.extend({
 				__coord: [x,y,w,h],
 				__tile: tile,
 				__padding: [paddingX, paddingY],
+				__trim: null,
 				img: img,
 				ready: false,
 				
 				init: function() {
 					this.addComponent("sprite");
-					
-					if(this.has("canvas")) {
-						//draw now
-						if(this.img.complete && this.img.width > 0) {
-							this.ready = true;
-							this.trigger("change");
-						}
+					this.__trim = [0,0,0,0];
+		
+					//draw now
+					if(this.img.complete && this.img.width > 0) {
+						this.ready = true;
+						this.trigger("change");
 					}
+
+					//set the width and height to the sprite size
 					this.w = this.__coord[2];
 					this.h = this.__coord[3];
+					
+					this.bind("draw", function(e) {
+						var co = e.co,
+							pos = e.pos;
+						
+						if(e.type === "canvas") {
+							//draw the image on the canvas element
+							try {
+							e.ctx.drawImage(this.img, //image element
+											 co.x, //x position on sprite
+											 co.y, //y position on sprite
+											 co.w, //width on sprite
+											 co.h, //height on sprite
+											 pos._x, //x position on canvas
+											 pos._y, //y position on canvas
+											 pos._w, //width on canvas
+											 pos._h //height on canvas
+							);
+							} catch(er) {
+								console.log(er, e, co, pos);
+								throw err;
+							}
+						} else if(e.type === "DOM") {
+							this._element.style.background = "url('" + this.__image + "') no-repeat -" + co[0] + "px -" + co[1] + "px";
+						}
+					});
 				},
 				
 				sprite: function(x,y,w,h) {
-					this.__coord = [x*this.__tile+this.__padding[0],y*this.__tile+this.__padding[1],w*this.__tile || this.__tile,h*this.__tile || this.__tile];
+					this.__coord = [x * this.__tile + this.__padding[0] + this.__trim[0],
+									y * this.__tile + this.__padding[1] + this.__trim[1],
+									this.__trim[2] || w * this.__tile || this.__tile,
+									this.__trim[3] || h * this.__tile || this.__tile];
 					this.trigger("change");
+				},
+				
+				crop: function(x,y,w,h) {
+					var old = this._mbr || this.pos();
+					this.__trim = [];
+					this.__trim[0] = x;
+					this.__trim[1] = y;
+					this.__trim[2] = w;
+					this.__trim[3] = h;
+					
+					this.__coord[0] += x;
+					this.__coord[1] += y;
+					this.__coord[2] = w;
+					this.__coord[3] = h;
+					this._w = w;
+					this._h = h;
+					
+					this.trigger("change", old);
+					return this;
 				}
 			});
 		}
@@ -169,30 +219,7 @@ Crafty.extend({
 			Crafty.window.init();
 			this.width = w || Crafty.window.width;
 			this.height = h || Crafty.window.height;
-			
-			//stop scrollbars
-			if(!w && !h) {
-				document.body.style.overflow = "hidden";
-			}
-			
-			Crafty.addEvent(this, window, "resize", function() {
-				Crafty.window.init();
-				var w, h, offset;
-				this.width = w = Crafty.window.width;
-				this.height = h = Crafty.window.height;
 				
-				Crafty.stage.elem.style.width = w;
-				Crafty.stage.elem.style.width = h;
-				if(Crafty._canvas) {
-					Crafty._canvas.width = w;
-					Crafty._canvas.height = h;
-				}
-				
-				offset = Crafty.inner(Crafty.stage.elem);
-				Crafty.stage.x = offset.x;
-				Crafty.stage.y = offset.y;
-			});
-			
 			//check if stage exists
 			var crstage = document.getElementById("cr-stage");
 			
@@ -200,8 +227,41 @@ Crafty.extend({
 			Crafty.stage = {
 				x: 0,
 				y: 0,
+				fullscreen: false,
 				elem: (crstage ? crstage : document.createElement("div"))
 			};
+			
+			//fullscreen, stop scrollbars
+			if(!w && !h) {
+				document.body.style.overflow = "hidden";
+				Crafty.stage.fullscreen = true;
+			}
+			
+			Crafty.addEvent(this, window, "resize", function() {
+				Crafty.window.init();
+				var w = Crafty.window.width;
+					h = Crafty.window.height,
+					offset;
+				
+				
+				if(Crafty.stage.fullscreen) {
+					this.width = w;
+					this.height = h;
+					Crafty.stage.elem.style.width = w;
+					Crafty.stage.elem.style.width = h;
+					
+					if(Crafty._canvas) {
+						Crafty._canvas.width = w;
+						Crafty._canvas.height = h;
+						Crafty.DrawManager.drawAll();
+					}
+				}
+				
+				offset = Crafty.inner(Crafty.stage.elem);
+				Crafty.stage.x = offset.x;
+				Crafty.stage.y = offset.y;
+			});
+			
 			
 			//add to the body and give it an ID if not exists
 			if(!crstage) {
