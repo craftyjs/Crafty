@@ -391,13 +391,17 @@ Crafty.c("gravity", {
 			this._gy = 0; //reset change in y
 		}
 
-		var obj = this, hit = false;
-		Crafty(this._anti).each(function() {
+		var obj, hit = false,
+			q = Crafty.map.search(this.pos()),
+			i = 0, l = q.length;
+			
+		for(;i<l;++i) {
+			obj = q[i];
 			//check for an intersection directly below the player
-			if(this.intersect(obj._x,obj._y+1,obj._w,obj._h) && obj !== this) {
-				hit = this;
+			if(obj !== this && obj.has(this._anti) && obj.intersect(this)) {
+				hit = obj;
 			}
-		});
+		}
 
 		if(hit) { //stop falling if found
 			if(this._falling) this.stopFalling(hit);

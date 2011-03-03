@@ -1007,13 +1007,17 @@ Crafty.c("gravity", {
 			this._gy = 0; //reset change in y
 		}
 
-		var obj = this, hit = false;
-		Crafty(this._anti).each(function() {
+		var obj, hit = false,
+			q = Crafty.map.search(this.pos()),
+			i = 0, l = q.length;
+			
+		for(;i<l;++i) {
+			obj = q[i];
 			//check for an intersection directly below the player
-			if(this.intersect(obj._x,obj._y+1,obj._w,obj._h) && obj !== this) {
-				hit = this;
+			if(obj !== this && obj.has(this._anti) && obj.intersect(this)) {
+				hit = obj;
 			}
-		});
+		}
 
 		if(hit) { //stop falling if found
 			if(this._falling) this.stopFalling(hit);
@@ -1888,8 +1892,10 @@ Crafty.extend({
 Crafty.extend({
 	down: null, //object mousedown, waiting for up
 	over: null, //object mouseover, waiting for out
+	mouseObjs: 0,
 		
 	mouseDispatch: function(e) {
+		if(!this.mouseObjs) return;
 		if(e.type === "touchstart") e.type = "mousedown";
 		else if(e.type === "touchmove") e.type = "mousemove";
 		else if(e.type === "touchend") e.type = "mouseup";
@@ -1978,6 +1984,13 @@ Crafty.onload(this, function() {
 });
 
 Crafty.c("mouse", {
+	init: function() {
+		Crafty.mouseObjs++;
+		this.bind("remove", function() {
+			Crafty.mouseObjs--;
+		});
+	},
+	
 	areaMap: function(poly) {
 		//create polygon
 		if(arguments.length > 1) {
@@ -2143,6 +2156,7 @@ Crafty.c("twoway", {
 				this._falling = true;
 				changed = true;
 			}
+			console.log(move.up);
 		}).bind("keydown", function(e) {
 			if(e.keyCode === Crafty.keys.RA || e.keyCode === Crafty.keys.D) {
 				move.right = true;
