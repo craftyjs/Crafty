@@ -99,7 +99,7 @@ Crafty.extend({
 											 pos._h //height on canvas
 							);
 							} catch(er) {
-								console.log(er, e, co, pos);
+								console.log(er, this, co, pos);
 								throw err;
 							}
 						} else if(e.type === "DOM") {

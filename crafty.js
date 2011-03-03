@@ -442,7 +442,7 @@ Crafty.extend({
 		return components;
 	},
 	
-	clone: function(obj){
+	clone: function clone(obj){
 		if(obj == null || typeof(obj) != 'object')
 			return obj;
 
@@ -832,6 +832,16 @@ Crafty.c("2D", {
 		};
 	},
 	
+	mbr: function() {
+		if(!this._mbr) return;
+		return {
+			_x: (this._mbr._x),
+			_y: (this._mbr._y),
+			_w: (this._mbr._w),
+			_h: (this._mbr._h)
+		};
+	},
+	
 	/**
 	* Is object at point
 	*/
@@ -934,17 +944,6 @@ Crafty.c("2D", {
 		this._origin.y = y;
 		
 		return this;
-	},
-	
-	mbr: function() {
-		var mbr = this._mbr;
-		if(!mbr) return;
-		return {
-			_x: mbr._x,
-			_y: mbr._y,
-			_w: mbr._w,
-			_h: mbr._h
-		};
 	},
 	
 	rotate: function(e) {
@@ -1534,7 +1533,7 @@ Crafty.extend({
 											 pos._h //height on canvas
 							);
 							} catch(er) {
-								console.log(er, e, co, pos);
+								console.log(er, this, co, pos);
 								throw err;
 							}
 						} else if(e.type === "DOM") {
@@ -1772,18 +1771,7 @@ Crafty.c("viewport", {
 });
 
 
-var tempCanvas = {};
-function cachedCanvas(img) {
-	var c = document.createElement("canvas"),
-		ctx = c.getContext('2d');
-	c.width = img.width;
-	c.height = img.height;
-	ctx.drawImage(img,0,0);
-	
-	return ctx;
-}
-
-/**
+/**
 * Canvas Components and Extensions
 */
 Crafty.c("canvas", {
@@ -1804,7 +1792,7 @@ Crafty.c("canvas", {
 			if(this._changed === false) {
 				this._changed = Crafty.DrawManager.add(e || this, this);
 			} else {
-				this._changed = Crafty.DrawManager.grow(this._changed, e || this, this);
+				if(e) this._changed = Crafty.DrawManager.add(e, this);
 			}
 		});
 		
@@ -1850,7 +1838,7 @@ Crafty.c("canvas", {
 		}
 		
 		//draw with alpha
-		if(this._alpha > 0) {
+		if(this._alpha < 1.0) {
 			var globalpha = context.globalAlpha;
 			context.globalAlpha = this._alpha;
 		}
@@ -1860,7 +1848,7 @@ Crafty.c("canvas", {
 		if(this._mbr) {
 			context.restore();
 		}
-		if(this._alpha > 0) {
+		if(this._alpha < 1.0) {
 			context.globalAlpha = globalpha;
 		}
 		return this;
@@ -1892,6 +1880,8 @@ Crafty.extend({
 		elem.width = this.viewport.width;
 		elem.height = this.viewport.height;
 		elem.style.position = "absolute";
+		elem.style.left = "0px";
+		elem.style.top = "0px";
 	}
 });
 
@@ -2298,6 +2288,36 @@ Crafty.c("animate", {
 	}
 });
 
+Crafty.c("tint", {
+	_color: null,
+	_strength: 1.0,
+	
+	init: function() {
+		this.bind("draw", function d(e) {
+			var context = e.ctx || Crafty.context,
+				ga = context.globalAlpha;
+			
+			
+			if(this._color) {
+				context.save();
+				context.fillStyle = Crafty.toRGB(this._color, this._strength);
+				
+				context.fillRect(e.pos._x, e.pos._y, e.pos._w, e.pos._h);
+				//context.globalAlpha = ga;
+				context.restore();
+			}
+			
+		});
+	},
+	
+	tint: function(color, strength) {
+		this._color = color;
+		this._strength = strength;
+		
+		this.trigger("change");
+	}
+});
+
 Crafty.c("image", {
 	_repeat: "repeat",
 	ready: false,
@@ -2385,6 +2405,17 @@ Crafty.extend({
 		//add scene
 		this._scenes[name] = fn;
 		return;
+	},
+	
+	toRGB: function(hex,alpha) {
+		var hex = (hex.charAt(0) === '#') ? hex.substr(1) : hex,
+			c = [];
+			
+		c[0] = parseInt(hex.substr(0, 2), 16);
+		c[1] = parseInt(hex.substr(2, 2), 16);
+		c[2] = parseInt(hex.substr(4, 2), 16);
+			
+		return alpha === undefined ? 'rgb('+c.join(',')+')' : 'rgba('+c.join(',')+','+alpha+')';
 	}
 });
 
@@ -2406,35 +2437,55 @@ Crafty.DrawManager = (function() {
 		/** Quick count of 2D objects */
 		total2D: Crafty("2D").length,
 		
-		grow: function(i, before, after) {
-			var rect = register[i];
-			if(!rect) {
-				return this.add(before, after);
-			}
-			
-			before = before._mbr || before;
-			after = after._mbr || after;
-			
-			rect._x = Math.min(rect._x, before._x, after._x);
-			rect._y = Math.min(rect._y, before._y, after._y);
-			rect._w = Math.max(rect._w, before._w, after._w) + Math.max(rect._x, before._x, after._x) - rect._x;
-			rect._h = Math.max(rect._h, before._h, after._h) + Math.max(rect._y, before._y, after._y) - rect._y;
-			
-			if(!this.onScreen(rect)) {
-				delete register[i];
-				return false;
-			}
-			return i;
-		},
-		
 		onScreen: function(rect) {
 			return rect._x + rect._w > 0 && rect._y + rect._h > 0 &&
 				   rect._x < Crafty.viewport.width && rect._y < Crafty.viewport.height;
 		},
 		
+		merge: function(set) {
+			do {
+				var newset = [], didMerge = false, i = 0,
+					l = set.length, current, next, merger;
+				
+				while(i < l) {
+					current = set[i];
+					next = set[i+1];
+					
+					if(i < l - 1 && current._x < next._x + next._w && current._x + current._w > next._x &&
+									current._y < next._y + next._h && current._h + current._y > next._y) {	
+						
+						merger = {
+							_x: ~~Math.min(current._x, next._x),
+							_y: ~~Math.min(current._y, next._y),
+							_w: Math.max(current._x, next._x) + Math.max(current._w, next._w),
+							_h: Math.max(current._y, next._y) + Math.max(current._h, next._h)
+						};
+						merger._w = merger._w - merger._x;
+						merger._h = merger._h - merger._y;
+						merger._w = (merger._w == ~~merger._w) ? merger._w : merger._w + 1 | 0;
+						merger._h = (merger._h == ~~merger._h) ? merger._h : merger._h + 1 | 0;
+						
+						newset.push(merger);
+					
+						i++;
+						didMerge = true;
+					} else newset.push(current);
+					i++;
+				}
+
+				set = newset.length ? Crafty.clone(newset) : set;
+				
+				if(didMerge) i = 0;
+			} while(didMerge);
+			
+			return set;
+		},
+		
 		/**
 		* Calculate the bounding rect of dirty data
 		* and add to the register
+		*
+		* Opacity error: Clears same area, redraws one section, redraws OVER the same area.
 		*/
 		add: function add(old,current) {
 			if(!current) {
@@ -2447,7 +2498,7 @@ Crafty.DrawManager = (function() {
 				after = current._mbr || current;
 				
 			if(old === current) {
-				rect = old;
+				rect = old.mbr() || old.pos();
 			} else {
 				rect =  {
 					_x: ~~Math.min(before._x, after._x),
@@ -2458,20 +2509,23 @@ Crafty.DrawManager = (function() {
 				
 				rect._w = (rect._w - rect._x);
 				rect._h = (rect._h - rect._y);
-				rect._w = (rect._w === ~~rect._w) ? rect._w : rect._w + 1 | 0;
-				rect._h = (rect._h === ~~rect._h) ? rect._h : rect._h + 1 | 0;
 			}
 			
-			if(rect._w === 0 || rect._h === 0) {
-				current._changed = false;
-				return;
-			}
-			if(!this.onScreen(rect)) {
-				current._changed = false;
-				return;
+			if(rect._w === 0 || rect._h === 0 || !this.onScreen(rect)) {
+				return false;
 			}
 			
-			return register.push(rect);
+			//floor/ceil
+			rect._x = ~~rect._x;
+			rect._y = ~~rect._y;
+			rect._w = (rect._w === ~~rect._w) ? rect._w : rect._w + 1 | 0;
+			rect._h = (rect._h === ~~rect._h) ? rect._h : rect._h + 1 | 0;
+			
+			//add to register, check for merging
+			register.push(rect);
+			
+			//if it got merged
+			return true;
 		},
 		
 		debug: function() {
@@ -2518,11 +2572,13 @@ Crafty.DrawManager = (function() {
 			//if the amount of rects is over 60% of the total objects
 			//do the naive method redrawing
 			if(l / this.total2D > 0.6) {
+				console.log("DRAW ALL");
 				this.drawAll();
 				register.length = 0;
 				return;
 			}
-				
+			
+			register = this.merge(register);
 			for(;i<l;++i) { //loop over every dirty rect
 				rect = register[i];
 				if(!rect) continue;
@@ -2561,7 +2617,6 @@ Crafty.DrawManager = (function() {
 					w = ~~Math.min(area._w - x, rect._w - (area._x - rect._x), rect._w, area._w),
 					h = ~~Math.min(area._h - y, rect._h - (area._y - rect._y), rect._h, area._h);
 				
-				
 				//no point drawing with no width or height
 				if(h === 0 || w === 0) continue;
 				
@@ -2585,59 +2640,9 @@ Crafty.DrawManager = (function() {
 			
 			//empty register
 			register.length = 0;
+			//all merged IDs are now invalid
+			merged = {};
 		}
-	};
-})();
-	
-Crafty.DrawList = (function() {
-	var list = [];
-	
-	if(!Array.prototype.indexOf) {
-		Array.prototype.indexOf = function(obj, start) {
-			for (var i = (start || 0), j = this.length; i < j; i++) {
-				if (this[i] == obj) { return i; }
-			}
-			return -1;
-		};
-	}
-	
-	return {
-		add: function add(obj) {
-			if(list.indexOf(obj) === -1) {
-				list.push(obj);
-				list.sort(function(a,b) { return a._global - b._global; });
-			}
-		},
-		
-		remove: function remove(obj) {
-			var index = list.indexOf(obj);
-			if(index !== -1) {
-				list.splice(index, 1);
-			}
-		},
-		
-		draw: function draw() {
-			if(!this.change) return; //only draw if something changed
-			
-			if(Crafty.context) Crafty.context.clearRect(0,0, Crafty._canvas.width, Crafty._canvas.height);
-			var i = 0, l = list.length;
-			for(;i<l;i++) {
-				if(!list[i] || !('draw' in list[i])) {
-					this.remove(list[i]);
-					continue;
-				}
-				list[i].draw();
-			}
-			this.change = false;
-		},
-		
-		resort: function resort() {
-			list.sort(function(a,b) { return a._global - b._global; });
-		},
-		
-		debug: function() { return list; },
-		
-		change: false
 	};
 })();
 

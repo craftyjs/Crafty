@@ -434,7 +434,7 @@ Crafty.extend({
 		return components;
 	},
 	
-	clone: function(obj){
+	clone: function clone(obj){
 		if(obj == null || typeof(obj) != 'object')
 			return obj;
 

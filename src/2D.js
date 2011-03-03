@@ -216,6 +216,16 @@ Crafty.c("2D", {
 		};
 	},
 	
+	mbr: function() {
+		if(!this._mbr) return;
+		return {
+			_x: (this._mbr._x),
+			_y: (this._mbr._y),
+			_w: (this._mbr._w),
+			_h: (this._mbr._h)
+		};
+	},
+	
 	/**
 	* Is object at point
 	*/
@@ -318,17 +328,6 @@ Crafty.c("2D", {
 		this._origin.y = y;
 		
 		return this;
-	},
-	
-	mbr: function() {
-		var mbr = this._mbr;
-		if(!mbr) return;
-		return {
-			_x: mbr._x,
-			_y: mbr._y,
-			_w: mbr._w,
-			_h: mbr._h
-		};
 	},
 	
 	rotate: function(e) {

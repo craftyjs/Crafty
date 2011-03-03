@@ -1,14 +1,3 @@
-var tempCanvas = {};
-function cachedCanvas(img) {
-	var c = document.createElement("canvas"),
-		ctx = c.getContext('2d');
-	c.width = img.width;
-	c.height = img.height;
-	ctx.drawImage(img,0,0);
-	
-	return ctx;
-}
-
 /**
 * Canvas Components and Extensions
 */
@@ -30,7 +19,7 @@ Crafty.c("canvas", {
 			if(this._changed === false) {
 				this._changed = Crafty.DrawManager.add(e || this, this);
 			} else {
-				this._changed = Crafty.DrawManager.grow(this._changed, e || this, this);
+				if(e) this._changed = Crafty.DrawManager.add(e, this);
 			}
 		});
 		
@@ -76,7 +65,7 @@ Crafty.c("canvas", {
 		}
 		
 		//draw with alpha
-		if(this._alpha > 0) {
+		if(this._alpha < 1.0) {
 			var globalpha = context.globalAlpha;
 			context.globalAlpha = this._alpha;
 		}
@@ -86,7 +75,7 @@ Crafty.c("canvas", {
 		if(this._mbr) {
 			context.restore();
 		}
-		if(this._alpha > 0) {
+		if(this._alpha < 1.0) {
 			context.globalAlpha = globalpha;
 		}
 		return this;
@@ -118,5 +107,7 @@ Crafty.extend({
 		elem.width = this.viewport.width;
 		elem.height = this.viewport.height;
 		elem.style.position = "absolute";
+		elem.style.left = "0px";
+		elem.style.top = "0px";
 	}
 });
