@@ -83,12 +83,12 @@ Crafty.extend({
 					
 					this.bind("draw", function(e) {
 						var co = e.co,
-							pos = e.pos;
-						
+							pos = e.pos,
+							context = e.ctx;
+							
 						if(e.type === "canvas") {
 							//draw the image on the canvas element
-							try {
-							e.ctx.drawImage(this.img, //image element
+							context.drawImage(this.img, //image element
 											 co.x, //x position on sprite
 											 co.y, //y position on sprite
 											 co.w, //width on sprite
@@ -98,12 +98,8 @@ Crafty.extend({
 											 pos._w, //width on canvas
 											 pos._h //height on canvas
 							);
-							} catch(er) {
-								console.log(er, this, co, pos);
-								throw err;
-							}
 						} else if(e.type === "DOM") {
-							this._element.style.background = "url('" + this.__image + "') no-repeat -" + co[0] + "px -" + co[1] + "px";
+							this._element.style.background = "url('" + this.__image + "') no-repeat -" + co.x + "px -" + co.y + "px";
 						}
 					});
 				},
@@ -194,21 +190,21 @@ Crafty.extend({
 		_y: 0,
 		
 		scroll: function(axis, v) {
-			var old = this[axis];
+			var old = this[axis],
+				context = Crafty.context,
+				change = -(old-v),
+				style = Crafty.stage.inner.style;
 			
-			Crafty("2D obj").each(function() {
-				var oldposition = this.pos();
-				
-				this[axis] -= old - v;
-				//if no setter available
-				if(Crafty.support.setter === false) {
-					this[axis.substr(1)] = this[axis]; 
-				}
-				this.trigger("move",oldposition);
-			});
-			Crafty.DrawList.change = true;
-
 			this[axis] = v;
+			if(axis == '_x') {
+				if(context) context.translate(change, 0);
+				style.left = ~~v + "px";
+			} else {
+				if(context) context.translate(0, change);
+				style.top = ~~v + "px";
+			}
+			
+			Crafty.DrawManager.drawAll();
 		},
 		
 		rect: function() {
@@ -228,7 +224,8 @@ Crafty.extend({
 				x: 0,
 				y: 0,
 				fullscreen: false,
-				elem: (crstage ? crstage : document.createElement("div"))
+				elem: (crstage ? crstage : document.createElement("div")),
+				inner: document.createElement("div")
 			};
 			
 			//fullscreen, stop scrollbars
@@ -272,6 +269,9 @@ Crafty.extend({
 			var elem = Crafty.stage.elem.style,
 				offset;
 			
+			Crafty.stage.elem.appendChild(Crafty.stage.inner);
+			Crafty.stage.inner.style.position = "absolute";
+			
 			//css style
 			elem.width = this.width + "px";
 			elem.height = this.height + "px";
@@ -283,14 +283,14 @@ Crafty.extend({
 			Crafty.stage.x = offset.x;
 			Crafty.stage.y = offset.y;
 			
-			if('__defineSetter__' in this && '__defineGetter__' in this) {
+			if(Crafty.support.setter) {
 				//define getters and setters to scroll the viewport
 				this.__defineSetter__('x', function(v) { this.scroll('_x', v); });
 				this.__defineSetter__('y', function(v) { this.scroll('_y', v); });
 				this.__defineGetter__('x', function() { return this._x; });
 				this.__defineGetter__('y', function() { return this._y; });
 			//IE9
-			} else if('defineProperty' in Object) {
+			} else if(Crafty.support.defineProperty) {
 				Object.defineProperty(this, 'x', {set: function(v) { this.scroll('_x', v); }, get: function() { return this._x; }});
 				Object.defineProperty(this, 'y', {set: function(v) { this.scroll('_y', v); }, get: function() { return this._y; }});
 			} else {
@@ -313,11 +313,33 @@ Crafty.extend({
 /**
 * Test support for various javascript and HTML features
 */
-Crafty.onload(this, function() {
-	Crafty.support.setter = ('__defineSetter__' in this && '__defineGetter__' in this);
-	Crafty.support.defineProperty = ('defineProperty' in Object);
-	Crafty.support.audio = ('Audio' in window);
-});
+(function testSupport() {
+	var support = Crafty.support,
+		ua = navigator.userAgent.toLowerCase(),
+		match = /(webkit)[ \/]([\w.]+)/.exec(ua) || 
+				/(o)pera(?:.*version)?[ \/]([\w.]+)/.exec(ua) || 
+				/(ms)ie ([\w.]+)/.exec(ua) || 
+				/(moz)illa(?:.*? rv:([\w.]+))?/.exec(ua) || [];
+		
+	support.setter = ('__defineSetter__' in this && '__defineGetter__' in this);
+	support.defineProperty = (function() {
+		if(!'defineProperty' in Object) return false;
+		try { Object.defineProperty({},'x',{}); }
+		catch(e) { return false };
+		return true;
+	})();
+	support.audio = ('Audio' in window);
+	
+	support.prefix = (match[1] || match[0]);
+	//browser specific quirks
+	if(support.prefix === "moz") support.prefix = "Moz";
+	
+	//record the version name an integer
+	if(match[2]) {
+		support.versionName = match[2];
+		support.version = +(match[2].split("."))[0];
+	}
+})();
 
 /**
 * Entity fixes the lack of setter support

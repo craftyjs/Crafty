@@ -33,12 +33,20 @@ Crafty.c("animate", {
 			return this;
 		}
 		if(typeof fromx === "number") {
-			var frames = tox + 1 - fromx, i = fromx,
+			var i = fromx,
 				reel = [],
 				tile = this.__tile;
-			for(;i<=tox;i++) {
-				reel.push([i * tile, y * tile]);
+				
+			if (tox > fromx) {
+				for(;i<=tox;i++) {
+					reel.push([i * tile, y * tile]);
+				}
+			} else {
+				for(;i>=tox;i--) {
+					reel.push([i * tile, y * tile]);
+				}
 			}
+			
 			this._reels[id] = reel;
 		} else if(typeof fromx === "object") {
 			this._reels[id] = fromx;

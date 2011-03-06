@@ -1,9 +1,10 @@
 Crafty.c("DOM", {
 	_element: null,
+	_filters: {},
 	
 	init: function() {
 		this._element = document.createElement("div");
-		Crafty.stage.elem.appendChild(this._element);
+		Crafty.stage.inner.appendChild(this._element);
 		this._element.style.position = "absolute";
 		this._element.id = "ent" + this[0];
 		
@@ -13,6 +14,20 @@ Crafty.c("DOM", {
 				Crafty.DrawManager.add(this);
 			}
 		});
+		
+		if(Crafty.support.prefix === "ms" && Crafty.support.version < 9) {
+			this.bind("rotate", function(e) {
+				var m = e.matrix,
+					elem = this._element.style,
+					M11 = m.M11.toFixed(8),
+					M12 = m.M12.toFixed(8),
+					M21 = m.M21.toFixed(8),
+					M22 = m.M22.toFixed(8);
+				
+				
+				this._filters.rotation = "progid:DXImageTransform.Microsoft.Matrix(M11="+M11+", M12="+M12+", M21="+M21+", M22="+M22+", sizingMethod='auto expand')";
+			});
+		}
 		
 		this.bind("remove", this.undraw);
 	},
@@ -25,36 +40,58 @@ Crafty.c("DOM", {
 	},
 	
 	draw: function() {
-		var style = this._element.style, co;
+		var style = this._element.style,
+			coord = this.__coord || [0,0,0,0],
+			co = {x: coord[0], y: coord[1] },
+			prefix = Crafty.support.prefix;
+			
 		style.top = ~~(this._y) + "px";
 		style.left = ~~(this._x) + "px";
 		style.width = ~~(this._w) + "px";
 		style.height = ~~(this._h) + "px";
 		style.zIndex = this._z;
+		
 		style.opacity = this._alpha;
+		style[prefix+"Opacity"] = this._alpha;
+		
+		//if not version 9 of IE
+		if(Crafty.support.prefix === "ms" && Crafty.support.version < 9) {
+			//for IE version 8, use ImageTransform filter
+			if(Crafty.support.version === 8) {
+				this._filters.alpha = "progid:DXImageTransform.Microsoft.Alpha(Opacity="+(this._alpha * 100)+")"; // first!
+			//all other versions use filter
+			} else {
+				this._filters.alpha = "alpha(opacity="+(this._alpha*100)+")";
+			}
+		}
+		this.applyFilters();
 		
 		if(this._mbr) {
 			var rstring = "rotate("+this._rotation+"deg)",
 				origin = this._origin.x + "px " + this._origin.y + "px";
 			
 			style.transformOrigin = origin;
-			style.mozTransformOrigin = origin;
-			style.webkitTransformOrigin = origin;
-			style.oTransformOrigin = origin;
+			style[prefix+"TransformOrigin"] = origin;
 			
 			style.transform = rstring;
-			style.mozTransform = rstring;
-			style.webkitTransform = rstring;
-			style.oTransform = rstring;
+			style[prefix+"Transform"] = rstring;
 		}
 		
-		this.trigger("draw", {style: style, type: "DOM"});
+		this.trigger("draw", {style: style, type: "DOM", co: co});
 		
 		return this;
 	},
 	
+	applyFilters: function() {
+		this._element.style.filter = "";
+		for(var filter in this._filters) {
+			if(!this._filters.hasOwnProperty(filter)) continue;
+			this._element.style.filter += this._filters[filter] + " ";
+		}
+	},
+	
 	undraw: function() {
-		Crafty.stage.elem.removeChild(this._element);
+		Crafty.stage.inner.removeChild(this._element);
 		return this;
 	},
 	

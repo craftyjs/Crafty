@@ -2,6 +2,7 @@ Crafty.extend({
 	down: null, //object mousedown, waiting for up
 	over: null, //object mouseover, waiting for out
 	mouseObjs: 0,
+	keydown: {},
 		
 	mouseDispatch: function(e) {
 		if(!this.mouseObjs) return;
@@ -149,6 +150,11 @@ Crafty.c("controls", {
 	init: function() {
 		function dispatch(e) {
 			e.key = e.keyCode || e.which;
+			if(e.type === "keydown") {
+				Crafty.keydown[e.key] = true;
+			} else if(e.type === "keyup") {
+				delete Crafty.keydown[e.key];
+			}
 			this.trigger(e.type, e);
 		}
 		
@@ -160,6 +166,18 @@ Crafty.c("controls", {
 			Crafty.removeEvent(this, "keydown", dispatch);
 			Crafty.removeEvent(this, "keyup", dispatch);
 		});
+	},
+	
+	/**
+	* Check if key is down
+	*
+	* @param key Key code or string representation
+	*/
+	isDown: function(key) {
+		if(typeof key === "string") {
+			key = Crafty.keys[key];
+		}
+		return !!Crafty.keydown[key];
 	},
 	
 	preventTypeaheadFind: function(e) {
@@ -265,7 +283,6 @@ Crafty.c("twoway", {
 				this._falling = true;
 				changed = true;
 			}
-			console.log(move.up);
 		}).bind("keydown", function(e) {
 			if(e.keyCode === Crafty.keys.RA || e.keyCode === Crafty.keys.D) {
 				move.right = true;

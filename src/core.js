@@ -12,7 +12,6 @@ var Crafty = function(selector) {
 	entities = {}, //map of entities and their data
 	handlers = {}, //global event handlers
 	onloads = [], //temporary storage of onload handlers
-	interval,
 	tick,
 	
 	slice = Array.prototype.slice,
@@ -137,6 +136,18 @@ Crafty.fn = Crafty.prototype = {
 		
 		this.trigger("component");
 		return this;
+	},
+	
+	requires: function(list) {
+		var comps = list.split(rlist),
+			i = 0, l = comps.length,
+			comp;
+		
+		//loop over the list of components and add if needed
+		for(;i<l;++i) {
+			comp = comps[i];
+			if(!this.has(comp)) this.addComponent(comp);
+		}
 	},
 	
 	removeComponent: function(id) {
@@ -326,6 +337,7 @@ Crafty.extend({
 	
 	stop: function() {
 		clearInterval(tick);
+		tick = null;
 	},
 	
 	timer: {
@@ -339,16 +351,16 @@ Crafty.extend({
 					window.mozRequestAnimationFrame ||
 					window.oRequestAnimationFrame ||
 					window.msRequestAnimationFrame ||
-					null;
+					null,
 			
-			onEachFrame = function(cb) {
-				if(onFrame) {
-					var _cb = function() { cb(); onFrame(_cb); }
-					_cb();
-				} else {
-					setInterval(cb, 1000 / FPS);
-				}
-			};
+				onEachFrame = function(cb) {
+					if(onFrame) {
+						tick = function() { cb(); onFrame(_cb); }
+						_cb();
+					} else {
+						tick = setInterval(cb, 1000 / FPS);
+					}
+				};
 			
 			onEachFrame(Crafty.timer.step);
 		},

@@ -73,6 +73,8 @@ Crafty.c("2D", {
 			if no setters, check on every frame for a difference 
 			between this._(x|y|w|h|z...) and this.(x|y|w|h|z)
 			*/
+			
+			//set the public properties to the current private properties
 			this.x = this._x;
 			this.y = this._y;
 			this.w = this._w;
@@ -82,28 +84,36 @@ Crafty.c("2D", {
 			this.alpha = this._alpha;
 			this.visible = this._visible;
 			
+			//on every frame check for a difference in any property
 			this.bind("enterframe", function() {
-				//if there are differences
+				//if there are differences between the public and private properties
 				if(this.x !== this._x || this.y !== this._y ||
 				   this.w !== this._w || this.h !== this._h ||
 				   this.z !== this._z || this.rotation !== this._rotation ||
 				   this.alpha !== this._alpha || this.visible !== this._visible) {
 					
+					//save the old positions
 					var old = this.mbr() || this.pos();
 					
+					//if rotation has changed, use the private rotate method
 					if(this.rotation !== this._rotation) {
 						this._rotate(this.rotation);
 					} else {
-						var mbr = this._mbr;
+						//update the MBR
+						var mbr = this._mbr, moved = false;
 						if(mbr) { //check each value to see which has changed
-							if(this.x !== this._x) { mbr._x -= this.x - this._x; }
-							else if(this.y !== this._y) { mbr._y -= this.y - this._y; }
-							else if(this.w !== this._w) { mbr._w -= this.w - this._w; }
-							else if(this.h !== this._h) { mbr._h -= this.h - this._h; }
-							else if(this.z !== this._z) { mbr._z -= this.z - this._z; }
+							if(this.x !== this._x) { mbr._x -= this.x - this._x; moved = true; }
+							else if(this.y !== this._y) { mbr._y -= this.y - this._y; moved = true; }
+							else if(this.w !== this._w) { mbr._w -= this.w - this._w; moved = true; }
+							else if(this.h !== this._h) { mbr._h -= this.h - this._h; moved = true; }
+							else if(this.z !== this._z) { mbr._z -= this.z - this._z; moved = true; }
 						}
+						
+						//if the moved flag is true, trigger a move
+						if(moved) this.trigger("move", old);
 					}
 					
+					//set the public properties to the private properties
 					this._x = this.x;
 					this._y = this.y;
 					this._w = this.w;
@@ -113,7 +123,7 @@ Crafty.c("2D", {
 					this._alpha = this.alpha;
 					this._visible = this.visible;
 					
-					this.trigger("move", old);
+					//trigger the changes
 					this.trigger("change", old);
 				}
 			});
@@ -141,6 +151,11 @@ Crafty.c("2D", {
 		});
 	},
 	
+	/**
+	* Calculates the MBR when rotated with an origin point
+	*
+	* @private
+	*/
 	_rotate: function(v) {
 		var theta = -1 * (v % 360), //angle always between 0 and 359
 			rad = theta * DEG_TO_RAD,
@@ -173,15 +188,31 @@ Crafty.c("2D", {
 		//trigger rotation event
 		var difference = this._rotation - v,
 			drad = difference * DEG_TO_RAD;
-		this.trigger("rotate", {cos: Math.cos(drad), sin: Math.sin(drad), deg: difference, rad: drad, o: {x: o.x, y: o.y}});
+			
+		this.trigger("rotate", {
+			cos: Math.cos(drad), 
+			sin: Math.sin(drad), 
+			deg: difference, 
+			rad: drad, 
+			o: {x: o.x, y: o.y},
+			matrix: {M11: ct, M12: st, M21: -st, M22: ct}
+		});
 	},
 	
+	/**
+	* Calculates the area of the entity
+	*/
 	area: function() {
 		return this._w * this._h;
 	},
 	
 	/**
-	* Does a rect intersect this
+	* Checks if this entity intersects a rect
+	*
+	* @param x X position of the rect or a Rect object
+	* @param y Y position of the rect
+	* @param w Width of the rect
+	* @param h Height of the rect
 	*/
 	intersect: function(x,y,w,h) {
 		var rect, obj = this._mbr || this;
@@ -195,6 +226,14 @@ Crafty.c("2D", {
 			   obj._y < rect.y + rect.h && obj._h + obj._y > rect.y;
 	},
 	
+	/**
+	* Checks if the entity is within a rect
+	*
+	* @param x X position of the rect or a Rect object
+	* @param y Y position of the rect
+	* @param w Width of the rect
+	* @param h Height of the rect
+	*/
 	within: function(x,y,w,h) {
 		var rect;
 		if(typeof x === "object") {
@@ -207,6 +246,10 @@ Crafty.c("2D", {
 			   rect.y >= this.y && rect.y + rect.h <= this.y + this.h;
 	},
 	
+	/**
+	* Returns an object containing the x and y position
+	* as well as width and height as w and h.
+	*/
 	pos: function() {
 		return {
 			_x: (this._x),
@@ -216,8 +259,12 @@ Crafty.c("2D", {
 		};
 	},
 	
+	/**
+	* Returns the minimum bounding rectangle. If there is no rotation
+	* on the entity it will return the rect.
+	*/
 	mbr: function() {
-		if(!this._mbr) return;
+		if(!this._mbr) return this.pos();
 		return {
 			_x: (this._mbr._x),
 			_y: (this._mbr._y),
@@ -227,13 +274,22 @@ Crafty.c("2D", {
 	},
 	
 	/**
-	* Is object at point
+	* Is a point within an entity
+	*
+	* @param x X position of the point
+	* @param y Y position of the point
 	*/
 	isAt: function(x,y) {
 		return this.x <= x && this.x + this.w >= x &&
 			   this.y <= y && this.y + this.h >= y;
 	},
 	
+	/**
+	* Move an object by direction in terms of n,s,e,w or a combination
+	*
+	* @param dir Direction to move (n,s,e,w,ne,nw,se,sw)
+	* @param by Amount to move in the specified direction
+	*/
 	move: function(dir, by) {
 		if(dir.charAt(0) === 'n') this.y -= by;
 		if(dir.charAt(0) === 's') this.y += by;
@@ -243,6 +299,15 @@ Crafty.c("2D", {
 		return this;
 	},
 	
+	/**
+	* Shift or move the entity by an amount. Use negative values
+	* for an opposite direction.
+	*
+	* @param x Amount to move X by. 
+	* @param y Amount to move Y
+	* @param w Amount to widen
+	* @param h Amount to increase height
+	*/
 	shift: function(x,y,w,h) {
 		//shift by amount
 		if(x) this.x += x;
@@ -253,6 +318,12 @@ Crafty.c("2D", {
 		return this;
 	},
 	
+	/**
+	* Attach an entity to replicate any movement or rotation
+	* of this entity
+	*
+	* @param obj Entity to attach
+	*/
 	attach: function(obj) {
 		function callback(e) {
 			if(!e) return; //no change in position
@@ -281,6 +352,11 @@ Crafty.c("2D", {
 		return this;
 	},
 	
+	/**
+	* Detach an object from following
+	*
+	* @param obj The entity to detach. Left blank will remove all attached entities
+	*/
 	detach: function(obj) {
 		//if nothing passed, remove all attached objects
 		if(!obj) {
@@ -304,6 +380,13 @@ Crafty.c("2D", {
 		return this;
 	},
 	
+	/**
+	* Set the origin point of an entity for it to rotate around
+	*
+	* @param x Pixel value or string based representation with combination of 
+	*		   center, bottom, middle, left and right
+	* @param y Pixel value of origin offset on the Y axis
+	*/
 	origin: function(x,y) {
 		//text based origin
 		if(typeof x === "string") {
@@ -330,25 +413,42 @@ Crafty.c("2D", {
 		return this;
 	},
 	
+	/**
+	* Method for rotation rather than through a setter
+	*
+	* @param e Rotation event data
+	*/
 	rotate: function(e) {
+		//assume event data origin
 		this._origin.x = e.o.x - this._x;
 		this._origin.y = e.o.y - this._y;
 		
+		//modify through the setter method
 		this._attr('_rotation', e.theta);
 	},
 	
+	/**
+	* Setter method for all 2D properties including 
+	* x, y, w, h, alpha, rotation and visible.
+	*
+	* @private
+	* @param name Name of property
+	* @param value Value of property
+	*/
 	_attr: function(name,value) {	
+		//keep a reference of the old positions
 		var pos = this.pos(),
 			old = this.mbr() || pos;
 		
+		//if rotation, use the rotate method
 		if(name === '_rotation') {
 			this._rotate(value);
+		//set the global Z and trigger reorder just incase
 		} else if(name === '_z') {
 			this._global = parseInt(value + Crafty.zeroFill(this[0], 5), 10); //magic number 10e5 is the max num of entities
 			this.trigger("reorder");
-		} else if(name === '_visible') {
-			
-		} else if(name !== '_alpha') {
+		//if the rect bounds change, update the MBR and trigger move
+		} else if(name == '_x' || name === '_y' || name === '_w' || name === '_h') {
 			var mbr = this._mbr;
 			if(mbr) {
 				mbr[name] -= this[name] - value;
@@ -357,9 +457,10 @@ Crafty.c("2D", {
 			this.trigger("move", old);
 		}
 		
+		//everything will assume the value
 		this[name] = value;
 		
-		
+		//trigger a change
 		this.trigger("change", old);
 	}
 });
@@ -400,6 +501,7 @@ Crafty.c("gravity", {
 			//check for an intersection directly below the player
 			if(obj !== this && obj.has(this._anti) && obj.intersect(this)) {
 				hit = obj;
+				break;
 			}
 		}
 

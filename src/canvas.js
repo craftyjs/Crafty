@@ -97,6 +97,7 @@ Crafty.extend({
 		//check if is an actual canvas element
 		if(!('getContext' in elem)) {
 			Crafty.trigger("nocanvas");
+			Crafty.stop();
 			return;
 		}
 		

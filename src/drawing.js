@@ -27,25 +27,16 @@ Crafty.c("tint", {
 	
 	init: function() {
 		this.bind("draw", function d(e) {
-			var context = e.ctx || Crafty.context,
-				ga = context.globalAlpha;
+			var context = e.ctx || Crafty.context;
 			
-			
-			if(this._color) {
-				context.save();
-				context.fillStyle = Crafty.toRGB(this._color, this._strength);
-				
-				context.fillRect(e.pos._x, e.pos._y, e.pos._w, e.pos._h);
-				//context.globalAlpha = ga;
-				context.restore();
-			}
-			
+			context.fillStyle = this._color || "rgb(0,0,0)";
+			context.fillRect(e.pos._x, e.pos._y, e.pos._w, e.pos._h);
 		});
 	},
 	
 	tint: function(color, strength) {
-		this._color = color;
 		this._strength = strength;
+		this._color = Crafty.toRGB(this._color, this._strength);
 		
 		this.trigger("change");
 	}
@@ -140,15 +131,23 @@ Crafty.extend({
 		return;
 	},
 	
+	rgbLookup:{},
+	
 	toRGB: function(hex,alpha) {
+		var lookup = this.rgbLookup[hex];
+		if(lookup) return lookup;
+		
 		var hex = (hex.charAt(0) === '#') ? hex.substr(1) : hex,
-			c = [];
+			c = [], result;
 			
 		c[0] = parseInt(hex.substr(0, 2), 16);
 		c[1] = parseInt(hex.substr(2, 2), 16);
 		c[2] = parseInt(hex.substr(4, 2), 16);
 			
-		return alpha === undefined ? 'rgb('+c.join(',')+')' : 'rgba('+c.join(',')+','+alpha+')';
+		result = alpha === undefined ? 'rgb('+c.join(',')+')' : 'rgba('+c.join(',')+','+alpha+')';
+		lookup = result;
+		
+		return result;
 	}
 });
 
@@ -162,17 +161,20 @@ Crafty.DrawManager = (function() {
 	/** array of DOMs needed updating */
 		dom = [],
 	/** temporary canvas object */
-		canv = document.createElement("canvas"),
+		canv,
 	/** context of canvas object */
-		ctx = canv.getContext('2d');
+		ctx;
+	
+	canv = document.createElement("canvas");
+	if('getContext' in canv) ctx = canv.getContext('2d');
 	
 	return {
 		/** Quick count of 2D objects */
 		total2D: Crafty("2D").length,
 		
 		onScreen: function(rect) {
-			return rect._x + rect._w > 0 && rect._y + rect._h > 0 &&
-				   rect._x < Crafty.viewport.width && rect._y < Crafty.viewport.height;
+			return Crafty.viewport._x + rect._x + rect._w > 0 && Crafty.viewport._y + rect._y + rect._h > 0 &&
+				   Crafty.viewport._x + rect._x < Crafty.viewport.width && Crafty.viewport._y + rect._y < Crafty.viewport.height;
 		},
 		
 		merge: function(set) {
@@ -266,16 +268,21 @@ Crafty.DrawManager = (function() {
 		},
 		
 		drawAll: function() {
-			var q = Crafty.map.search(Crafty.viewport.rect()),
-				i = 0, l = q.length,
+			var rect = Crafty.viewport.rect(), q,
+				i = 0, l,
 				current;
 			
-			Crafty.context.clearRect(0,0, Crafty._canvas.width, Crafty._canvas.height);
+			rect._x *= -1;
+			rect._y *= -1;
+			q = Crafty.map.search(rect);
+			l = q.length;
+			
+			Crafty.context.clearRect(-Crafty.viewport._x,-Crafty.viewport._y, Crafty._canvas.width, Crafty._canvas.height);
 			
 			q.sort(function(a,b) { return a._global - b._global; });
 			for(;i<l;i++) {
 				current = q[i];
-				if(current._visible && current.has("canvas")) {
+				if(current._visible && current.__c.canvas) {
 					current.draw();
 					current._changed = false;
 				}
@@ -300,7 +307,7 @@ Crafty.DrawManager = (function() {
 			dom.length = i = 0;
 			
 			//again, stop if nothing in register
-			if(!l) { console.log("NO REGISTERED"); return; }
+			if(!l) { return; }
 			
 			//if the amount of rects is over 60% of the total objects
 			//do the naive method redrawing
