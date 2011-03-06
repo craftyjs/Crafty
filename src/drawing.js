@@ -59,38 +59,38 @@ Crafty.c("image", {
 	
 	image: function(url, repeat) {
 		this.__image = url;
-		this._repeat = repeat || "repeat";
+		this._repeat = repeat || "no-repeat";
 		
-		if(this.has("canvas")) {
-			this.img = Crafty.assets[url];
-			if(!this.img) {
-				this.img = new Image();
-				Crafty.assets[url] = this.img;
-				this.img.src = url;
-				var self = this;
+		
+		this.img = Crafty.assets[url];
+		if(!this.img) {
+			this.img = new Image();
+			Crafty.assets[url] = this.img;
+			this.img.src = url;
+			var self = this;
+			
+			this.img.onload = function() {
+				if(self.has("canvas")) self._pattern = Crafty.context.createPattern(self.img, self._repeat);
+				self.ready = true;
 				
-				this.img.onload = function() {
-					self._pattern = Crafty.context.createPattern(self.img, self._repeat);
-					self.ready = true;
-					
-					if(repeat === "no-repeat") {
-						self.w = self.img.width;
-						self.h = self.img.height;
-					}
-					
-					self.trigger("change");
-				};
-				
-				return this;
-			} else {
-				this.ready = true;
-				this._pattern = Crafty.context.createPattern(this.img, this._repeat);
-				if(repeat === "no-repeat") {
-					this.w = this.img.width;
-					this.h = this.img.height;
+				if(self._repeat === "no-repeat") {
+					self.w = self.img.width;
+					self.h = self.img.height;
 				}
+				
+				self.trigger("change");
+			};
+			
+			return this;
+		} else {
+			this.ready = true;
+			if(this.has("canvas")) this._pattern = Crafty.context.createPattern(this.img, this._repeat);
+			if(this._repeat === "no-repeat") {
+				this.w = this.img.width;
+				this.h = this.img.height;
 			}
 		}
+		
 		
 		this.trigger("change");
 		

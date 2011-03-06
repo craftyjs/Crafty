@@ -2478,6 +2478,33 @@ Crafty.c("animate", {
 	}
 });
 
+Crafty.c("tween", {
+	tween: function(props, duration) {
+		var prop,
+			old = {},
+			step = {},
+			startFrame = Crafty.frame(),
+			endFrame = startFrame + duration;
+		
+		//store the old properties
+		for(prop in props) {
+			old[prop] = this['_'+prop];
+			step[prop] = (props[prop] - old[prop]) / duration;
+		}
+		console.log(step);
+		
+		this.bind("enterframe", function d(e) {
+			if(e.frame >= endFrame) {
+				this.unbind("enterframe", d);
+				return;
+			}
+			for(prop in props) {
+				this[prop] += step[prop];
+			}
+		});
+	}
+});
+
 Crafty.c("color", {
 	_color: "",
 	ready: true,
@@ -2539,38 +2566,38 @@ Crafty.c("image", {
 	
 	image: function(url, repeat) {
 		this.__image = url;
-		this._repeat = repeat || "repeat";
+		this._repeat = repeat || "no-repeat";
 		
-		if(this.has("canvas")) {
-			this.img = Crafty.assets[url];
-			if(!this.img) {
-				this.img = new Image();
-				Crafty.assets[url] = this.img;
-				this.img.src = url;
-				var self = this;
+		
+		this.img = Crafty.assets[url];
+		if(!this.img) {
+			this.img = new Image();
+			Crafty.assets[url] = this.img;
+			this.img.src = url;
+			var self = this;
+			
+			this.img.onload = function() {
+				if(self.has("canvas")) self._pattern = Crafty.context.createPattern(self.img, self._repeat);
+				self.ready = true;
 				
-				this.img.onload = function() {
-					self._pattern = Crafty.context.createPattern(self.img, self._repeat);
-					self.ready = true;
-					
-					if(repeat === "no-repeat") {
-						self.w = self.img.width;
-						self.h = self.img.height;
-					}
-					
-					self.trigger("change");
-				};
-				
-				return this;
-			} else {
-				this.ready = true;
-				this._pattern = Crafty.context.createPattern(this.img, this._repeat);
-				if(repeat === "no-repeat") {
-					this.w = this.img.width;
-					this.h = this.img.height;
+				if(self._repeat === "no-repeat") {
+					self.w = self.img.width;
+					self.h = self.img.height;
 				}
+				
+				self.trigger("change");
+			};
+			
+			return this;
+		} else {
+			this.ready = true;
+			if(this.has("canvas")) this._pattern = Crafty.context.createPattern(this.img, this._repeat);
+			if(this._repeat === "no-repeat") {
+				this.w = this.img.width;
+				this.h = this.img.height;
 			}
 		}
+		
 		
 		this.trigger("change");
 		
