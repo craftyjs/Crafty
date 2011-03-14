@@ -83,32 +83,36 @@ Crafty.c("canvas", {
 });
 
 Crafty.extend({
-	context: null,
-	_canvas: null,
-	
 	/**
 	* Set the canvas element and 2D context
 	*/
 	canvas: function() {
-		var elem = document.createElement("canvas");
-		
-		this.stage.elem.appendChild(elem);
-		
-		//check if is an actual canvas element
-		if(!('getContext' in elem)) {
+		//check if canvas is supported
+		if(!Crafty.support.canvas) {
 			Crafty.trigger("nocanvas");
 			Crafty.stop();
 			return;
 		}
 		
-		this.context = elem.getContext('2d');
-		this._canvas = elem;
+		//create 3 empty canvas elements
+		var i = 0, c, ctx;
+		for(;i<4;++i) {
+			c = document.createElement("canvas");
+			c.width = this.viewport.width;
+			c.height = this.viewport.height;
+			c.style.position = 'absolute';
+			
+			Crafty.stage.elem.appendChild(c);
+			
+			ctx = c.getContext('2d');
+			
+			//main canvas
+			if(!i) {
+				Crafty.viewport._used["0x0"] = {ctx:ctx, canvas:c, x: 0, y: 0};
+			} else {
+				Crafty.viewport._free.push({ctx:ctx, canvas:c, x: 0, y: 0});
+			}
+		}
 		
-		//set canvas and viewport to the final dimensions
-		elem.width = this.viewport.width;
-		elem.height = this.viewport.height;
-		elem.style.position = "absolute";
-		elem.style.left = "0px";
-		elem.style.top = "0px";
 	}
 });

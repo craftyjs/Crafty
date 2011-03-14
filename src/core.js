@@ -336,7 +336,7 @@ Crafty.extend({
 	},
 	
 	stop: function() {
-		clearInterval(tick);
+		if(typeof tick === "number") clearInterval(tick);
 		tick = null;
 	},
 	
@@ -355,8 +355,8 @@ Crafty.extend({
 			
 				onEachFrame = function(cb) {
 					if(onFrame) {
-						tick = function() { cb(); onFrame(_cb); }
-						_cb();
+						tick = function() { cb(); onFrame(tick); }
+						tick();
 					} else {
 						tick = setInterval(cb, 1000 / FPS);
 					}

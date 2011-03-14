@@ -186,29 +186,112 @@ Crafty.extend({
 	viewport: {
 		width: 0, 
 		height: 0,
+		_used: {},
+		_free: [],
 		_x: 0,
 		_y: 0,
 		
+		/**
+		* Psuedo scroll
+		*
+		* 1. Move main canvas
+		* 2. Any invisible canvases which can be freed (not on stage)
+		* 3. Find the direction to add a canvas
+		* 4. Pick a free canvas
+		* 5. In draw manager, figure out which canvases to draw on
+		*/
 		scroll: function(axis, v) {
-			var old = this[axis],
-				context = Crafty.context,
-				change = -(old-v),
-				style = Crafty.stage.inner.style;
+			var change = (v - this[axis]), //change in direction
+				style = Crafty.stage.inner.style,
+				xmod = axis == '_x' ? -change : 0, 
+				ymod = axis == '_y' ? -change : 0, //mods do inverse of change
+				current,
+				width = this.width,
+				height = this.height,
+				used = this._used,
+				i, l, hash,
+				cell,
+				canvas;
 			
+			//update viewport and DOM scroll
 			this[axis] = v;
-			if(axis == '_x') {
-				if(context) context.translate(change, 0);
-				style.left = ~~v + "px";
-			} else {
-				if(context) context.translate(0, change);
-				style.top = ~~v + "px";
-			}
+			style[axis == '_x' ? "left" : "top"] = ~~v + "px";
 			
-			Crafty.DrawManager.drawAll();
+			//if canvas
+			if(Crafty.support.canvas) {
+				for(i in used) {
+					current = used[i];
+					
+					//update the canvases
+					current.x -= xmod;
+					current.y -= ymod;
+					
+					//if out of bounds, delete
+					if(current.x + width <= -this._x || current.x >= -this._x + width ||
+					   current.y + height <= -this._y || current.y >= -this._y + height) {
+					   
+						this._free.push(current);
+						delete used[i];
+					}
+				}
+				
+				//add a canvas if needed
+				cell = [
+					[ Math.floor(-this._x / width), Math.floor(-this._y / height) ], //top left
+					[ Math.floor((-this._x + width) / width), Math.floor(-this._y / height) ], //top right
+					[ Math.floor(-this._x / width), Math.floor((-this._y + height) / height)], //bottom left
+					[ Math.floor((-this._x + width) / width), Math.floor((-this._y + height) / height) ] //bottom right
+				];
+				//console.log(cell);
+				
+				//for every cell
+				for(i = 0; i < 4; ++i) {
+					current = cell[i];
+					hash = current[0] + 'x' + current[1];
+					
+					if(!used[hash]) {
+						used[hash] = this._free.pop();
+					}
+					
+					canvas = used[hash];
+					canvas.x = current[0] * width + this._x;
+					canvas.y = current[1] * height + this._y;
+					canvas.canvas.style.left = canvas.x + "px";
+					canvas.canvas.style.top = canvas.y + "px";
+					
+					canvas.ctx.restore();
+					canvas.ctx.translate(current[0] * width, current[1] * height);
+				}
+			}
+		},
+		
+		intersect: function(obj,y,w,h) {
+			if(arguments.length > 1) {
+				obj = {
+					_x: obj,
+					_y: y,
+					_w: w,
+					_h: h
+				};
+			}
+			var temp = [
+					Math.floor((obj._x) / this.width) + 'x' + Math.floor((obj._y) / this.height),
+					Math.floor((obj._x + obj._w) / this.width) + 'x' + Math.floor((obj._y) / this.height),
+					Math.floor((obj._x) / this.width) + 'x' + Math.floor((obj._y + obj._h) / this.height),
+					Math.floor((obj._x + obj._w) / this.width) + 'x' + Math.floor((obj._y + obj._h) / this.height),
+				],
+				cells = {};
+				
+			cells[temp[0]] = true;
+			cells[temp[1]] = true;
+			cells[temp[2]] = true;
+			cells[temp[3]] = true;
+			
+			return cells;
 		},
 		
 		rect: function() {
-			return {_x: this._x, _y: this._y, _w: this.width, _h: this.height};
+			return {_x: -this._x, _y: -this._y, _w: this.width, _h: this.height};
 		},
 		
 		init: function(w,h) {
@@ -320,7 +403,8 @@ Crafty.extend({
 				/(o)pera(?:.*version)?[ \/]([\w.]+)/.exec(ua) || 
 				/(ms)ie ([\w.]+)/.exec(ua) || 
 				/(moz)illa(?:.*? rv:([\w.]+))?/.exec(ua) || [];
-		
+	
+	//start tests
 	support.setter = ('__defineSetter__' in this && '__defineGetter__' in this);
 	support.defineProperty = (function() {
 		if(!'defineProperty' in Object) return false;
@@ -339,6 +423,8 @@ Crafty.extend({
 		support.versionName = match[2];
 		support.version = +(match[2].split("."))[0];
 	}
+	
+	support.canvas = ('getContext' in document.createElement("canvas"));
 })();
 
 /**

@@ -344,7 +344,7 @@ Crafty.extend({
 	},
 	
 	stop: function() {
-		clearInterval(tick);
+		if(typeof tick === "number") clearInterval(tick);
 		tick = null;
 	},
 	
@@ -363,8 +363,8 @@ Crafty.extend({
 			
 				onEachFrame = function(cb) {
 					if(onFrame) {
-						tick = function() { cb(); onFrame(_cb); }
-						_cb();
+						tick = function() { cb(); onFrame(tick); }
+						tick();
 					} else {
 						tick = setInterval(cb, 1000 / FPS);
 					}
@@ -1775,29 +1775,112 @@ Crafty.extend({
 	viewport: {
 		width: 0, 
 		height: 0,
+		_used: {},
+		_free: [],
 		_x: 0,
 		_y: 0,
 		
+		/**
+		* Psuedo scroll
+		*
+		* 1. Move main canvas
+		* 2. Any invisible canvases which can be freed (not on stage)
+		* 3. Find the direction to add a canvas
+		* 4. Pick a free canvas
+		* 5. In draw manager, figure out which canvases to draw on
+		*/
 		scroll: function(axis, v) {
-			var old = this[axis],
-				context = Crafty.context,
-				change = -(old-v),
-				style = Crafty.stage.inner.style;
+			var change = (v - this[axis]), //change in direction
+				style = Crafty.stage.inner.style,
+				xmod = axis == '_x' ? -change : 0, 
+				ymod = axis == '_y' ? -change : 0, //mods do inverse of change
+				current,
+				width = this.width,
+				height = this.height,
+				used = this._used,
+				i, l, hash,
+				cell,
+				canvas;
 			
+			//update viewport and DOM scroll
 			this[axis] = v;
-			if(axis == '_x') {
-				if(context) context.translate(change, 0);
-				style.left = ~~v + "px";
-			} else {
-				if(context) context.translate(0, change);
-				style.top = ~~v + "px";
-			}
+			style[axis == '_x' ? "left" : "top"] = ~~v + "px";
 			
-			Crafty.DrawManager.drawAll();
+			//if canvas
+			if(Crafty.support.canvas) {
+				for(i in used) {
+					current = used[i];
+					
+					//update the canvases
+					current.x -= xmod;
+					current.y -= ymod;
+					
+					//if out of bounds, delete
+					if(current.x + width <= -this._x || current.x >= -this._x + width ||
+					   current.y + height <= -this._y || current.y >= -this._y + height) {
+					   
+						this._free.push(current);
+						delete used[i];
+					}
+				}
+				
+				//add a canvas if needed
+				cell = [
+					[ Math.floor(-this._x / width), Math.floor(-this._y / height) ], //top left
+					[ Math.floor((-this._x + width) / width), Math.floor(-this._y / height) ], //top right
+					[ Math.floor(-this._x / width), Math.floor((-this._y + height) / height)], //bottom left
+					[ Math.floor((-this._x + width) / width), Math.floor((-this._y + height) / height) ] //bottom right
+				];
+				//console.log(cell);
+				
+				//for every cell
+				for(i = 0; i < 4; ++i) {
+					current = cell[i];
+					hash = current[0] + 'x' + current[1];
+					
+					if(!used[hash]) {
+						used[hash] = this._free.pop();
+					}
+					
+					canvas = used[hash];
+					canvas.x = current[0] * width + this._x;
+					canvas.y = current[1] * height + this._y;
+					canvas.canvas.style.left = canvas.x + "px";
+					canvas.canvas.style.top = canvas.y + "px";
+					
+					canvas.ctx.restore();
+					canvas.ctx.translate(current[0] * width, current[1] * height);
+				}
+			}
+		},
+		
+		intersect: function(obj,y,w,h) {
+			if(arguments.length > 1) {
+				obj = {
+					_x: obj,
+					_y: y,
+					_w: w,
+					_h: h
+				};
+			}
+			var temp = [
+					Math.floor((obj._x) / this.width) + 'x' + Math.floor((obj._y) / this.height),
+					Math.floor((obj._x + obj._w) / this.width) + 'x' + Math.floor((obj._y) / this.height),
+					Math.floor((obj._x) / this.width) + 'x' + Math.floor((obj._y + obj._h) / this.height),
+					Math.floor((obj._x + obj._w) / this.width) + 'x' + Math.floor((obj._y + obj._h) / this.height),
+				],
+				cells = {};
+				
+			cells[temp[0]] = true;
+			cells[temp[1]] = true;
+			cells[temp[2]] = true;
+			cells[temp[3]] = true;
+			
+			return cells;
 		},
 		
 		rect: function() {
-			return {_x: this._x, _y: this._y, _w: this.width, _h: this.height};
+			return {_x: -this._x, _y: -this._y, _w: this.width, _h: this.height};
 		},
 		
 		init: function(w,h) {
@@ -1909,7 +1992,8 @@ Crafty.extend({
 				/(o)pera(?:.*version)?[ \/]([\w.]+)/.exec(ua) || 
 				/(ms)ie ([\w.]+)/.exec(ua) || 
 				/(moz)illa(?:.*? rv:([\w.]+))?/.exec(ua) || [];
-		
+	
+	//start tests
 	support.setter = ('__defineSetter__' in this && '__defineGetter__' in this);
 	support.defineProperty = (function() {
 		if(!'defineProperty' in Object) return false;
@@ -1928,6 +2012,8 @@ Crafty.extend({
 		support.versionName = match[2];
 		support.version = +(match[2].split("."))[0];
 	}
+	
+	support.canvas = ('getContext' in document.createElement("canvas"));
 })();
 
 /**
@@ -2033,33 +2119,37 @@ Crafty.c("canvas", {
 });
 
 Crafty.extend({
-	context: null,
-	_canvas: null,
-	
 	/**
 	* Set the canvas element and 2D context
 	*/
 	canvas: function() {
-		var elem = document.createElement("canvas");
-		
-		this.stage.elem.appendChild(elem);
-		
-		//check if is an actual canvas element
-		if(!('getContext' in elem)) {
+		//check if canvas is supported
+		if(!Crafty.support.canvas) {
 			Crafty.trigger("nocanvas");
 			Crafty.stop();
 			return;
 		}
 		
-		this.context = elem.getContext('2d');
-		this._canvas = elem;
+		//create 3 empty canvas elements
+		var i = 0, c, ctx;
+		for(;i<4;++i) {
+			c = document.createElement("canvas");
+			c.width = this.viewport.width;
+			c.height = this.viewport.height;
+			c.style.position = 'absolute';
+			
+			Crafty.stage.elem.appendChild(c);
+			
+			ctx = c.getContext('2d');
+			
+			//main canvas
+			if(!i) {
+				Crafty.viewport._used["0x0"] = {ctx:ctx, canvas:c, x: 0, y: 0};
+			} else {
+				Crafty.viewport._free.push({ctx:ctx, canvas:c, x: 0, y: 0});
+			}
+		}
 		
-		//set canvas and viewport to the final dimensions
-		elem.width = this.viewport.width;
-		elem.height = this.viewport.height;
-		elem.style.position = "absolute";
-		elem.style.left = "0px";
-		elem.style.top = "0px";
 	}
 });
 
@@ -2543,7 +2633,7 @@ Crafty.c("tint", {
 	
 	tint: function(color, strength) {
 		this._strength = strength;
-		this._color = Crafty.toRGB(this._color, this._strength);
+		this._color = Crafty.toRGB(color, this._strength);
 		
 		this.trigger("change");
 	}
@@ -2774,23 +2864,28 @@ Crafty.DrawManager = (function() {
 			console.log(register, dom);
 		},
 		
-		drawAll: function() {
-			var rect = Crafty.viewport.rect(), q,
-				i = 0, l,
-				current;
+		drawAll: function(rect) {
+			var rect = rect || Crafty.viewport.rect(), q,
+				i = 0, l, ctx, cnv = Crafty.viewport._used,
+				current, cells, cell;
 			
-			rect._x *= -1;
-			rect._y *= -1;
 			q = Crafty.map.search(rect);
 			l = q.length;
 			
-			Crafty.context.clearRect(-Crafty.viewport._x,-Crafty.viewport._y, Crafty._canvas.width, Crafty._canvas.height);
+			for(ctx in cnv) {
+				if(cnv[ctx])
+					cnv[ctx].ctx.clearRect(rect._x, rect._y, rect._w, rect._h);
+			}
 			
 			q.sort(function(a,b) { return a._global - b._global; });
 			for(;i<l;i++) {
 				current = q[i];
 				if(current._visible && current.__c.canvas) {
-					current.draw();
+					cells = Crafty.viewport.intersect(current);
+					for(cell in cells) {
+						if(cnv[cell])
+							current.draw(cnv[cell].ctx);
+					}
 					current._changed = false;
 				}
 			}
@@ -2804,7 +2899,7 @@ Crafty.DrawManager = (function() {
 			if(!register.length && !dom.length) return;
 			
 			var i = 0, l = register.length, k = dom.length, rect, q,
-				j, len, dupes, obj, ent, objs = [];
+				j, len, dupes, obj, ent, objs = [], vw = Crafty.viewport;
 				
 			//loop over all DOM elements needing updating
 			for(;i<k;++i) {
@@ -2836,7 +2931,7 @@ Crafty.DrawManager = (function() {
 				//loop over found objects removing dupes and adding to obj array
 				for(j = 0, len = q.length; j < len; ++j) {
 					obj = q[j];
-					//TODO: Add rectangle intersection check
+					
 					if(dupes[obj[0]] || !obj._visible || !obj.has("canvas"))
 						continue;
 					dupes[obj[0]] = true;
@@ -2845,7 +2940,11 @@ Crafty.DrawManager = (function() {
 				}
 				
 				//clear the rect from the main canvas
-				Crafty.context.clearRect(rect._x, rect._y, rect._w, rect._h);
+				cells = Crafty.viewport.intersect(rect);
+				for(cell in cells) {
+					if(Crafty.viewport._used[cell])
+						Crafty.viewport._used[cell].ctx.clearRect(rect._x, rect._y, rect._w, rect._h);
+				}
 			}
 			
 			//sort the objects by the global Z
@@ -2862,10 +2961,14 @@ Crafty.DrawManager = (function() {
 					x = (rect._x - area._x <= 0) ? 0 : ~~(rect._x - area._x),
 					y = (rect._y - area._y < 0) ? 0 : ~~(rect._y - area._y),
 					w = ~~Math.min(area._w - x, rect._w - (area._x - rect._x), rect._w, area._w),
-					h = ~~Math.min(area._h - y, rect._h - (area._y - rect._y), rect._h, area._h);
+					h = ~~Math.min(area._h - y, rect._h - (area._y - rect._y), rect._h, area._h),
+					cells, cell;
 				
 				//no point drawing with no width or height
 				if(h === 0 || w === 0) continue;
+				
+				//check which canvases to draw on
+				cells = Crafty.viewport.intersect(x,y,w,h);
 				
 				//if it is a pattern or has some rotation, draw it on the temp canvas
 				if(ent.has('image') || ent._mbr) {
@@ -2875,11 +2978,21 @@ Crafty.DrawManager = (function() {
 					ctx.save();
 					ctx.translate(-area._x, -area._y);
 					ent.draw(ctx);
-					Crafty.context.drawImage(canv, x, y, w, h, area._x + x, area._y + y, w, h);
+					for(cell in cells) {
+						if(Crafty.viewport._used[cell])
+							Crafty.viewport._used[cell].ctx.drawImage(canv, x, y, w, h, area._x + x, area._y + y, w, h);
+					}
 					ctx.restore();
 					ctx.clearRect(0,0,canv.width, canv.height);
 				//if it is axis-aligned and no pattern, draw subrect
-				} else ent.draw(x,y,w,h);
+				} else {
+					for(cell in cells) {
+						if(Crafty.viewport._used[cell]) {
+							//console.log(cell);
+							ent.draw(Crafty.viewport._used[cell].ctx,x,y,w,h);
+						}
+					}
+				}
 				
 				//allow entity to re-register
 				ent._changed = false;
