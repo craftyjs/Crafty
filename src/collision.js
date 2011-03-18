@@ -60,11 +60,18 @@ Crafty.c("collision", {
 		return finalresult;
 	},
 	
-	onhit: function(comp, fn) {
+	onhit: function(comp, fn, fn2) {
+		var justHit = false;
 		this.bind("enterframe", function() {
 			var hitdata = this.hit(comp);
 			if(hitdata) {
+				justHit = true;
 				fn.call(this, hitdata);
+			} else if (justHit) {
+				if (typeof fn2 == 'function') {
+					fn2.call(this);
+				}
+				justHit = false;
 			}
 		});
 		return this;
