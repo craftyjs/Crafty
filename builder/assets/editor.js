@@ -1,28 +1,23 @@
-(function(Crafty, window, $) {
+//(function(Crafty, window, $) {
 
-//global jQuery objects
-var $control,
-	$workbench,
+var $b = {},
+	glob = this,
 	$window,
-	$layout,
-	$editorcontainer,
-	$editor,
-	$stage,
-	$dialog,
-	$dialogtext,
-	$console,
-	$assets,
-	$scenes,
-	$components,
-	$entities,
-	$workarea,
-	$consoletext,
-	$frame,
-	frame,
-	CM,
+	CURRENT_ENTITY,
+	CURRENT_SCENE,
+	frame, //IFrame for preview
+	CM, //CodeMirror
 	CRAFTY_SRC = "../crafty.js",
 	LINT_OPTIONS = {evil: true, forin: true, sub: true, css: true, cap: true, on: true, fragment: true, es5: true, debug: true, browser: true},
-	craft;
+	craft,
+	
+	//array of Crafty objects
+	COMPS = {},
+	ENTS = {},
+	ASSETS = {},
+	SCENES = {},
+	
+	SETTINGS = {stage: [550, 440]};
 
 function createHTMLElement(el) {
 	if (document.createElementNS && document.documentElement.namespaceURI !== null)
@@ -32,36 +27,29 @@ function createHTMLElement(el) {
 }
   
 $(function() {
-	window.onbeforeunload = "Are you sure you want to leave?";
+	//create a collection of jQuery objects for buttons
+	var current, href, id;
+	$("a").each(function() {
+		current = $(this);
+		href = current.attr("href")
+		if(href) href = href.substr(1);
+		$b[href] = current;
+	});
 	
-	//cache jQuery objects
-	$control = $("#control"),
-	$workbench = $("#workbench");
-	$window = $(window);
-	$layout = $("#layout");
-	$editorcontainer = $("#editor-container");
-	$editor = $("#editor");
-	$stage = $("#stage");
-	$dialog = $("#dialog");
-	$dialogtext = $("#dialog-text");
-	$console = $("#console");
-	$assets = $("#assets");
-	$scenes = $("#scenes");
-	$components = $("#components");
-	$entities = $("#entities");
-	$consoletext = $("#console-text"),
-	$workarea = $("#workarea");
-		
-	$control.tabs();
-	$workbench.tabs({
-		show: function() {
-			fixHeight();
+	//create a collection of jQuery DIVs
+	$("*").each(function() {
+		id = $(this).attr("id");
+		if(id) {
+			id = '$' + id.replace(/-/g, "");
+			glob[id] = $(this);
 		}
 	});
 	
+	$window = $(window);
+	window.onbeforeunload = "Are you sure you want to leave?";
+		
 	CM = new CodeMirror(CodeMirror.replace($editor[0]), {
 		height: '100%',
-		content: $editor.val(),
 		parserfile: ["tokenizejavascript.js", "parsejavascript.js"],
 		stylesheet: "codemirror/css/jscolors.css",
 		path: "codemirror/js/",
@@ -74,170 +62,214 @@ $(function() {
 		indentUnit: 4
 	});
 	
+	$control.tabs();
+	$workbench.tabs({
+		show: function(e,ui) {
+			calculate();
+			console.log("LOAD", ui.index, CURRENT_ENTITY);
+			//when the code tab has been selected
+			if(ui.index === 1) {
+				//if nothing has been selected, don't change views
+				if(!CURRENT_ENTITY) {
+					console.log("GO AWAY");
+					$(this).tabs("select",0);
+				} else {
+					Editor.setCode();
+				}
+			} else {
+				console.log(CM, CURRENT_ENTITY);
+				if(CM && CURRENT_ENTITY) {
+					console.log("SAVE CODE");
+					CURRENT_ENTITY.actions = CM.getCode();
+				}
+			}
+		}
+	});
+	
 	//calculate heights
-	function fixHeight() {
-		var height = $window.height(),
-			sw,
-			sh;
+	function calculate() {
+		var height = $window.height(), sw, sh;
 			
-		$editorcontainer.css("height", height - 290);
-		$stage.css("height", height - 290);
-		$workarea.css("height", height - 290);
+		$editorcontainer.css("height", height - 320);
+		$stage.css("height", height - 320);
+		$workarea.css("height", height - 320);
 		
 		sw = $stage.width() - 6;
 		sh = $stage.height();
 		
+		$area.css({left: ($workarea.width() / 2 - $area.width() / 2), top: ($workarea.height() / 2 - $area.height() / 2)});
 	}
-	fixHeight();
-	$window.bind('resize', fixHeight);
+	calculate();
+	$window.bind('resize', calculate);
 	
-	//create a collection of jQuery objects for buttons
-	var $b = {}, current, href;
-	$("a").each(function() {
-		current = $(this);
-		href = current.attr("href").substr(1);
-		$b[href] = current;
-	});
+	/**
+	 * click handlers for UI buttons
+	 */
 	
-	//click handlers for UI buttons
+	//on new game
 	$b.newgame.click(function() {
-		Editor.dialog("Start a new game?", "Starting a new game will lose all current work. Are you sure?", {
+		Editor.alert("Start a new game?", "Starting a new game will lose all current work. Are you sure?", {
 			"Cancel": function() {
 				$(this).dialog("close");
 			},
 			
 			"New Game": function() {
-				CM.setCode("window.onload = function() {\r\n\tCrafty.init(50);\r\n\r\n\tCrafty.scene(\"main\", function() {\r\n\t\t//your code here\r\n\t});\r\n};");
 				$consoletext.html("");
 				$(this).dialog("close");
-				if(craft) Editor.detectObjects();
 			}
 		});
 	});
 	
+	//on running the game
 	$b.run.click(function() {
 		$workbench.tabs('select', 2);
 		Editor.run();
 	});
 	
+	//on clearing the console
 	$b.clear.click(function() {
 		$consoletext.html("");
 	});
+	
+	//on creating a new component
+	$b.newent.click(function() {
+		var comp, html = "";
+		
+		for(comp in COMPS) {
+			html += "<option value='"+comp+"'>"+comp+"</option>";
+		}
+		$necomps.html(html);
+		$nedialog.dialog({modal: true, buttons: {
+			Cancel: function() { $(this).dialog("close"); },
+			
+			Create: function() {
+				var inst = $instance.val().replace(/[0-9]*/,"").replace(/[^A-Za-z0-9]/g, ""),
+					comps = $necomps.val() || "",
+					block;
+				
+				comps = typeof comps === "object" ? comps.join(", ") : "";
+				block = new EntBlock("var "+inst+" = Crafty.e('"+comps+"');","",inst);
+				block.comps = comps;
+				
+				//name taken
+				if(ENTS[inst] || !inst.length) {
+					$instance.val("");
+				} else {
+					//append the entity in the selected scene
+					CURRENT_SCENE.append(block);
+					ENTS[inst] = block;
+					Editor.update();
+					
+					$instance.val("");
+					$(this).dialog("close");
+				}
+			}
+		}});
+	});
+	
+	$b.newscene.click(function() {
+		$nsdialog.dialog({
+			buttons: {
+				Cancel: function() { $(this).dialog("close"); },
+				Create: function() {
+					var name = $scname.val();
+					SCENES[name] = new Block("Crafty.scene(\""+ name + "\", function() {", "});", name);
+					Editor.update();
+					
+					$(this).dialog("close");
+				}
+			}
+		});
+	});
+	
+	//when clicking on a scene, select it
+	$("#scenes ul a").live("dblclick", function(e) {
+		var href = $(this).attr("href");
+		href = href.substr(1);
+		
+		CURRENT_SCENE = SCENES[href];
+		$("#scenes ul a").css("background", "transparent");
+		$(this).css("background", "#FFE4D9");
+		$currentscene.text(CURRENT_SCENE.name);
+	});
+	
+	$("#entities ul a").live("click", function(e) {
+		var href = $(this).attr("href"), selected = $workbench.tabs("option", "selected");
+		href = href.substr(1);
+		
+		//if an entity is selected, save the code
+		if(selected === 1) {
+			CURRENT_ENTITY.actions = CM.getCode();
+		}
+		
+		CURRENT_ENTITY = ENTS[href];
+		
+		if(selected === 1) {
+			Editor.setCode();
+		}
+		
+		$("#entities ul a").css("background", "transparent");
+		$(this).css("background", "#FFE4D9");
+	}).live("dblclick", function() {
+		var href = $(this).attr("href");
+		href = href.substr(1);
+		
+		CURRENT_ENTITY = ENTS[href];
+		
+		Editor.setCode();
+	});
+	
+	SCENES.main = MAIN;
+	COMPS = Crafty.components();
+	Editor.update();
+	
+	//start Crafty
+	Crafty.init(SETTINGS.stage[0], SETTINGS.stage[1]);
+	Crafty.stop();
 });
 
 
 var Editor = (function() {
-	var assets = [],
-		scenes = [],
-		ents = [],
-		comps = {};
 	
 	return {
-		detectObjects: function() {
-			assets = [];
-			scenes = [];
+	
+		update: function() {
+			var i, ul, html = "";
 			
-			var dupes = {},
-				url,
-				name,
-				elems = craft.assets,
-				lscenes = craft._scenes;
-				
-			craft("sprite, image").each(function() {
-				if(!dupes[this.__image]) dupes[this.__image] = true;
-			});
-			
-			for(url in dupes) {
-				assets.push({url: url, type: "image"});
+			//list components
+			for(i in COMPS) {
+				html += "<li><a href='#"+i+"'><img src='assets/images/plugin.png'/> "+i+"</a></li>";
 			}
+			$components.find("ul").html(html);
 			
-			for(url in elems) {
-				if(dupes[url]) continue;
-				
-				var ext = url.substr(url.lastIndexOf('.')+1).toLowerCase(),
-					type;
-					
-				if(ext === "mp3" || ext === "wav" || ext === "ogg" || ext === "mp4") {
-					type = "sound";
-				} else if(ext === "jpg" || ext === "jpeg" || ext === "gif" || ext === "png") {
-					type = "image";
-				} else continue;
-				
-				assets.push({url: url, type: type});
+			//list entities
+			html = "";
+			for(i in ENTS) {
+				html += "<li><a href='#"+i+"'><img src='assets/images/bullet.png'/> "+i+" <b>"+ENTS[i].comps+"</b></a></li>";
 			}
+			$entities.find("ul").html(html);
 			
-			//add scenes
-			for(name in lscenes) {
-				scenes.push(name);
+			//list scenes
+			html = "";
+			for(i in SCENES) {
+				html += "<li><a href='#"+i+"'><img src='assets/images/world.png'/> "+i+"</a></li>";
 			}
+			$scenes.find("ul").html(html);
 			
-			//get all entities
-			ents = craft('*');
-			
-			//get all components
-			comps = craft.components();
-			
-			this.updateAssets();
-			this.updateScenes();
-			this.updateEntities();
-			this.updateComponents();
-		},
-		
-		updateAssets: function() {
-			var html = "",
-				i = 0, l = assets.length,
-				current,
-				file;
-				
-			for(;i<l;i++) {
-				current = assets[i];
-				file = current.url.substr(current.url.lastIndexOf('/')+1);
-				html += "<li><a href='#' title='"+current.url+"'><img src='assets/images/"+current.type+".png'/> "+file+"</a></li>";
+			//list assets
+			html = "";
+			for(i in ASSETS) {
+				html += "<li><a href='#"+i+"'><img src='assets/images/sound.png'/> "+i+"</a></li>";
 			}
 			$assets.find("ul").html(html);
 		},
 		
-		updateScenes: function() {
-			var html = "",
-				i = 0, l = scenes.length,
-				current;
-				
-			for(;i<l;i++) {
-				current = scenes[i];
-				
-				html += "<li><a href='#'><img src='assets/images/world.png'/> "+current+"</a></li>";
+		setCode: function() {
+			if(CURRENT_ENTITY) {
+				CM.setCode(CURRENT_ENTITY.actions);
+				$current.text(CURRENT_ENTITY.name);
+				$workbench.tabs("select", 1);
 			}
-			$scenes.find("ul").html(html);
-		},
-		
-		updateEntities: function() {
-			var html = "",
-				i = 1, l = ents.length,
-				comps = "",
-				current;
-				
-			for(;i<=l;i++) {
-				comps = "";
-				current = ents[i];
-				
-				for(var comp in current.__c) comps += comp + ", ";
-				comps = comps.substring(0, comps.length - 2);
-				
-				html += "<li><a href='#'><img src='assets/images/bullet.png'/> Ent #"+current[0]+" <b>"+ comps +"</b></a></li>";
-			}
-			$entities.find("ul").html(html);
-		},
-		
-		updateComponents: function() {
-			var html = "",
-				current;
-				
-			for(comp in comps) {
-				current = comps[comp];
-				
-				html += "<li><a href='#'><img src='assets/images/plugin.png'/> "+comp+" <b>"+ comps +"</b></a></li>";
-			}
-			$components.find("ul").html(html);
 		},
 		
 		run: function run() {
@@ -288,13 +320,12 @@ var Editor = (function() {
 			//when loaded, grab the Crafty instance
 			function handler() {
 				craft = win.Crafty;
-				Editor.detectObjects();	
 			}
 		},
 		
-		dialog: function dialog(title, msg, buttons) {
-			$dialog.attr("title", title).dialog({draggable: false, resizable: false, modal: true, buttons: buttons});
-			$dialogtext.text(msg);
+		alert: function dialog(title, msg, buttons) {
+			$alert.attr("title", title).dialog({draggable: false, resizable: false, modal: true, buttons: buttons});
+			$alerttext.text(msg);
 		},
 		
 		log: function(msg) {
@@ -305,4 +336,4 @@ var Editor = (function() {
 
 window.Builder = Editor;
 
-})(Crafty, window, jQuery);
+//})(Crafty, window, jQuery);

@@ -54,3 +54,5 @@ v1.0
 * Make sure IE browser can still attempt things. Add option for filters to do rotation and opacity?
 * Kick Ass Draw Manager
 * tween
+* Fixed an error in addEvent (thanks to Leo Koppelkamm)
+* Collision now has a justStoppedHitting (thanks to Leo Koppelkamm)

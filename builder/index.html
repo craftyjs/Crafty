@@ -10,14 +10,17 @@
 <script type="text/javascript" src="codemirror/js/codemirror.js"></script>
 <script type="text/javascript" src="assets/jslint.js"></script>
 <script type="text/javascript" src="assets/editor.js"></script>
+<script type="text/javascript" src="assets/compiler.js"></script>
 </head>
 <body>
 <div id="header">
 <ul>
 	<li><a href="#newgame">New Game</a></li>
+	<li><a href="#build">Build</a></li>
 	<li><a href="#run">Run</a></li>
 	<li><a href="#save">Save</a></li>
-	<li><a href="#about">About</a></li>
+	<li><a href="#settings">Settings</a></li>
+	<li><a href="#help">Help</a></li>
 </ul>
 </div>
 <table id="layout">
@@ -65,42 +68,30 @@
 </td><td id="layout-right">
 
 <div id="workbench">
+	<div id="currentscene" title="Current Scene">main</div>
 	<ul class="tabs">
-		<li><a href="#code">Code</a></li>
 		<li><a href="#designer">Designer</a></li>
+		<li><a href="#code">Code</a></li>
 		<li><a href="#preview">Preview</a></li>
 	</ul>
 	
 	<div id="code">
+	<div class="toolbar">
+		<a id="current"></a>
+	</div>
 <div id="editor-container">
 <textarea id="editor">
-Getting Started
-================
-
-1. Paste your Crafty code here or click 'New Game' to build from scratch
-2. Use the builder to make your game
-3. Copy the game code generated here into your game logic
-
-Interface
-==========
-
-There are 3 views: Code, Designer and Preview. 
-	Code view allows you to modify code and is the soul of the game. 
-	Designer view allows you to visible move around entities.
-	Preview view is a preview of how the game will play.
-	
-The four tabs on the left are game objects you can modify including
-components (which augment the functionality of entities). Entities
-which are the objects in the game such as players and enemies. Assets
-are a list of images, sounds and animations used in the game. Scenes
-encapsulate blocks of game logic to easily create levels and different
-areas of your game.
 </textarea>
 </div>
 	</div>
 	
 	<div id="designer">
-		<div id="workarea"></div>
+		<div id="workarea">
+			<div id="inner">
+				<div id="cr-stage"></div>
+				<div id="area"></div>
+			</div>
+		</div>
 	</div>
 	
 	<div id="preview">
@@ -117,10 +108,34 @@ areas of your game.
 </td></tr>
 </table>
 
-<div id="dialog" title="">
+<div id="alert" title="" class="dialog">
 	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>
-	<span id="dialog-text"></span>
+	<span id="alert-text"></span>
 	</p>
+</div>
+
+<div id="ne-dialog" title="New Entity" class="dialog">
+<label>Instance Name: <input type="text" id="instance" /></label><br />
+<label>Components:<br/>
+	<select id="ne-comps" multiple="multiple">
+
+	</select>
+</label>
+<div class="clearer"></div>
+</div>
+
+<div id="pr-dialog" title="Properties" class="dialog">
+<table>
+
+</table>
+</div>
+
+<div id="nc-dialog" title="New Component" class="dialog">
+<label>Component Name: <input type="text" id="compname" /></label><br />
+</div>
+
+<div id="ns-dialog" title="New Scene" class="dialog">
+<label>Scene Name: <input type="text" id="scname" /></label><br />
 </div>
 </body>
 </html>

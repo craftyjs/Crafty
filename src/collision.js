@@ -1,14 +1,15 @@
 Crafty.c("collision", {
 	
 	collision: function(poly) {
+		var area = this._mbr || this;
+		
 		//if no polygon presented, create a square
 		if(!poly) {
-			var area = this._mbr || this;
 			poly = new Crafty.polygon([0,0],[area._w,0],[area._w,area._h],[0,area._h]);
-			poly.shift(area._x, area._y);
 		}
 		this.map = poly;
 		this.attach(this.map);
+		this.map.shift(area._x, area._y);
 		
 		return this;
 	},
@@ -60,11 +61,18 @@ Crafty.c("collision", {
 		return finalresult;
 	},
 	
-	onhit: function(comp, fn) {
+	onhit: function(comp, fn, fnOff) {
+		var justHit = false;
 		this.bind("enterframe", function() {
 			var hitdata = this.hit(comp);
 			if(hitdata) {
+				justHit = true;
 				fn.call(this, hitdata);
+			} else if(justHit) {
+				if (typeof fn2 == 'function') {
+					fn2.call(this);
+				}
+				justHit = false;
 			}
 		});
 		return this;

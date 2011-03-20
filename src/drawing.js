@@ -285,6 +285,7 @@ Crafty.DrawManager = (function() {
 				current = q[i];
 				if(current._visible && current.__c.canvas) {
 					cells = Crafty.viewport.intersect(current);
+					//console.log("DRAW ON:",cells, current._x);
 					for(cell in cells) {
 						if(cnv[cell])
 							current.draw(cnv[cell].ctx);

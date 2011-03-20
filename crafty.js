@@ -1217,14 +1217,15 @@ Crafty.polygon.prototype = {
 Crafty.c("collision", {
 	
 	collision: function(poly) {
+		var area = this._mbr || this;
+		
 		//if no polygon presented, create a square
 		if(!poly) {
-			var area = this._mbr || this;
 			poly = new Crafty.polygon([0,0],[area._w,0],[area._w,area._h],[0,area._h]);
-			poly.shift(area._x, area._y);
 		}
 		this.map = poly;
 		this.attach(this.map);
+		this.map.shift(area._x, area._y);
 		
 		return this;
 	},
@@ -1276,11 +1277,18 @@ Crafty.polygon.prototype = {
 		return finalresult;
 	},
 	
-	onhit: function(comp, fn) {
+	onhit: function(comp, fn, fnOff) {
+		var justHit = false;
 		this.bind("enterframe", function() {
 			var hitdata = this.hit(comp);
 			if(hitdata) {
+				justHit = true;
 				fn.call(this, hitdata);
+			} else if(justHit) {
+				if (typeof fn2 == 'function') {
+					fn2.call(this);
+				}
+				justHit = false;
 			}
 		});
 		return this;
@@ -1739,8 +1747,10 @@ Crafty.extend({
 		}
 		
 		//save anonymous function to be able to remove
-		var afn = function(e) { var e = e || window.event; fn.call(ctx,e) };
-		if(!this._events[obj+type+fn]) this._events[obj+type+fn] = afn;
+		var afn = function(e) { var e = e || window.event; fn.call(ctx,e) },
+			id = ctx[0] || "";
+			
+		if(!this._events[id+obj+type+fn]) this._events[id+obj+type+fn] = afn;
 		else return;
 		
 		if (obj.attachEvent) { //IE
@@ -1758,13 +1768,14 @@ Crafty.extend({
 		}
 		
 		//retrieve anonymouse function
-		var afn = this._events[obj+type+fn];
+		var id = ctx[0] || "",
+			afn = this._events[id+obj+type+fn];
 
 		if(afn) {
 			if (obj.detachEvent) {
 				obj.detachEvent('on'+type, afn);
 			} else obj.removeEventListener(type, afn, false);
-			delete this._events[obj+type+fn];
+			delete this._events[id+obj+type+fn];
 		}
 	},
 	
@@ -1790,6 +1801,7 @@ Crafty.extend({
 		* 5. In draw manager, figure out which canvases to draw on
 		*/
 		scroll: function(axis, v) {
+			v = Math.floor(v);
 			var change = (v - this[axis]), //change in direction
 				style = Crafty.stage.inner.style,
 				xmod = axis == '_x' ? -change : 0, 
@@ -1799,7 +1811,7 @@ Crafty.extend({
 				height = this.height,
 				used = this._used,
 				i, l, hash,
-				cell,
+				cell, todraw,
 				canvas;
 			
 			//update viewport and DOM scroll
@@ -1809,6 +1821,7 @@ Crafty.extend({
 			//if canvas
 			if(Crafty.support.canvas) {
 				for(i in used) {
+					todraw = false;
 					current = used[i];
 					
 					//update the canvases
@@ -1816,9 +1829,9 @@ Crafty.extend({
 					current.y -= ymod;
 					
 					//if out of bounds, delete
-					if(current.x + width <= -this._x || current.x >= -this._x + width ||
-					   current.y + height <= -this._y || current.y >= -this._y + height) {
-					   
+					if(current.x + width <= -this._x || current.x > -this._x + width ||
+					   current.y + height <= -this._y || current.y > -this._y + height) {
+						console.log("DELETE", i);
 						this._free.push(current);
 						delete used[i];
 					}
@@ -1840,6 +1853,7 @@ Crafty.extend({
 					
 					if(!used[hash]) {
 						used[hash] = this._free.pop();
+						todraw = true;
 					}
 					
 					canvas = used[hash];
@@ -1850,6 +1864,21 @@ Crafty.extend({
 					
 					canvas.ctx.restore();
 					canvas.ctx.translate(current[0] * width, current[1] * height);
+					
+					if(todraw) {
+						console.log({
+							_x: current[0] * width,
+							_y: current[1] * height,
+							_w: width,
+							_h: height
+						});
+						Crafty.DrawManager.drawAll({
+							_x: current[0] * width,
+							_y: current[1] * height,
+							_w: width,
+							_h: height
+						});
+					}
 				}
 			}
 		},
@@ -2882,6 +2911,7 @@ Crafty.DrawManager = (function() {
 				current = q[i];
 				if(current._visible && current.__c.canvas) {
 					cells = Crafty.viewport.intersect(current);
+					//console.log("DRAW ON:",cells, current._x);
 					for(cell in cells) {
 						if(cnv[cell])
 							current.draw(cnv[cell].ctx);
