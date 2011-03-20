@@ -69,8 +69,8 @@ Crafty.c("collision", {
 				justHit = true;
 				fn.call(this, hitdata);
 			} else if(justHit) {
-				if (typeof fn2 == 'function') {
-					fn2.call(this);
+				if (typeof fnOff == 'function') {
+					fnOff.call(this);
 				}
 				justHit = false;
 			}
