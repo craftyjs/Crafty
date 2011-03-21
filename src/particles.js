@@ -28,30 +28,26 @@ Crafty.c("particles", {
 
 		this._Particles.init(options);
 
-
 		relativeX = this.x + Crafty.viewport.x;
 		relativeY = this.y + Crafty.viewport.y;
 		this._Particles.position = this._Particles.vectorHelpers.create(relativeX, relativeY);
-		this._Particles.update();
 
+		var oldViewport = {x: Crafty.viewport.x, y:Crafty.viewport.y};
+		
 		this.bind('enterframe', function () {
 			relativeX = this.x + Crafty.viewport.x;
 			relativeY = this.y + Crafty.viewport.y;
+			this._Particles.viewportDelta = {x: Crafty.viewport.x - oldViewport.x, y: Crafty.viewport.y - oldViewport.y};
+
+			oldViewport = {x: Crafty.viewport.x, y:Crafty.viewport.y};
+				
 			this._Particles.position = this._Particles.vectorHelpers.create(relativeX, relativeY);
 
-
-			//Version A
-			//Clear area around all rects
-			// for (var i=0; i < this._Particles.register.length; i++) {
-			// 	curpar=this._Particles.register[i];
-			// 	ctx.clearRect( curpar._x,curpar._y, curpar._w,curpar._h );
-			// };
-			//Version B
+			//Selective clearing
 			if (typeof Crafty.DrawManager.boundingRect == 'function') {
 				bounding = Crafty.DrawManager.boundingRect(this._Particles.register);
 				if (bounding) ctx.clearRect(bounding._x, bounding._y, bounding._w, bounding._h);
 			} else {
-				//Version C
 				ctx.clearRect(0, 0, Crafty.viewport.width, Crafty.viewport.height);
 			}
 
@@ -192,6 +188,7 @@ Crafty.c("particles", {
 					// Calculate the new direction based on gravity
 					currentParticle.direction = this.vectorHelpers.add(currentParticle.direction, this.gravity);
 					currentParticle.position = this.vectorHelpers.add(currentParticle.position, currentParticle.direction);
+					currentParticle.position = this.vectorHelpers.add(currentParticle.position, this.viewportDelta);
 					currentParticle.timeToLive--;
 
 					// Update colours

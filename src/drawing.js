@@ -292,7 +292,7 @@ Crafty.DrawManager = (function() {
 		* Returns coords
 		*/
 		boundingRect: function(set) {
-			if (!set.length) return;
+			if (!set || !set.length) return;
 			var newset = [], i = 1,
 			l = set.length, current, master=set[0], tmp;
 			master=[master._x, master._y, master._x + master._w, master._y + master._h];
