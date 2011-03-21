@@ -226,7 +226,7 @@ Crafty.fn = Crafty.prototype = {
 		this.each(function() {
 			var hdl = handlers[event], i = 0, l, current;
 			//if no events, cancel
-			if(hdl[this[0]]) l = hdl[this[0]].length;
+			if(hdl && hdl[this[0]]) l = hdl[this[0]].length;
 			else return this;
 			
 			//if only one event logged or no function, delete all
@@ -1149,8 +1149,6 @@ Crafty.c("gravity", {
 
 		if(hit) { //stop falling if found
 			if(this._falling) this.stopFalling(hit);
-		} else {
-			this._falling = true; //keep falling otherwise
 		}
 	},
 
@@ -1299,8 +1297,8 @@ Crafty.polygon.prototype = {
 				justHit = true;
 				fn.call(this, hitdata);
 			} else if(justHit) {
-				if (typeof fn2 == 'function') {
-					fn2.call(this);
+				if (typeof fnOff == 'function') {
+					fnOff.call(this);
 				}
 				justHit = false;
 			}
