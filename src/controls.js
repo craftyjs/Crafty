@@ -157,9 +157,12 @@ Crafty.c("controls", {
 				delete Crafty.keydown[e.key];
 			}
 			this.trigger(e.type, e);
-			
-			e.preventDefault();
-			return false;
+				
+			//prevent searchable keys
+			if(e.key >= 48 && e.key <= 111 && e.key >= 187 && e.key <= 190) {
+				e.preventDefault();
+				return false;
+			}
 		}
 		
 		Crafty.addEvent(this, "keydown", dispatch);
@@ -216,6 +219,7 @@ Crafty.c("fourway", {
 
 Crafty.c("twoway", {
 	_speed: 3,
+	_up: false,
 	
 	init: function() {
 		this.requires("controls");
@@ -232,10 +236,12 @@ Crafty.c("twoway", {
 			if(this.isDown("LA") || this.isDown("A")) {
 				this.x -= this._speed;
 			}
-			if(this.isDown("UA") || this.isDown("W")) {
+			if(this._up) {
 				this.y -= jump;
 				this._falling = true;
 			}
+		}).bind("keydown", function() {
+			if(this.isDown("UA") || this.isDown("W")) this._up = true;
 		});
 		
 		return this;
