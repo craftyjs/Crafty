@@ -217,7 +217,7 @@ Crafty.fn = Crafty.prototype = {
 		this.each(function() {
 			var hdl = handlers[event], i = 0, l, current;
 			//if no events, cancel
-			if(hdl[this[0]]) l = hdl[this[0]].length;
+			if(hdl && hdl[this[0]]) l = hdl[this[0]].length;
 			else return this;
 			
 			//if only one event logged or no function, delete all
