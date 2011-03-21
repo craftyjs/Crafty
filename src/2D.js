@@ -492,14 +492,25 @@ Crafty.c("gravity", {
 			this._gy = 0; //reset change in y
 		}
 
-		var obj, hit = false,
-			q = Crafty.map.search(this.pos()),
-			i = 0, l = q.length;
-			
+		var obj, hit = false, pos = this.pos(),
+			q, i = 0, l;
+
+		//Increase by 1 to make sure map.search() finds the floor
+		pos._y++;
+
+		//map.search wants _x and intersect wants x...
+		pos.x = pos._x;
+		pos.y = pos._y;
+		pos.w = pos._w;
+		pos.h = pos._h;
+
+		q = Crafty.map.search(pos);
+		l = q.length;
+
 		for(;i<l;++i) {
 			obj = q[i];
 			//check for an intersection directly below the player
-			if(obj !== this && obj.has(this._anti) && obj.intersect(this)) {
+			if(obj !== this && obj.has(this._anti) && obj.intersect(pos)) {
 				hit = obj;
 				break;
 			}
