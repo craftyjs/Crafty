@@ -286,7 +286,31 @@ Crafty.DrawManager = (function() {
 				}
 			}
 		},
-		
+
+		/**
+		* Calculate the common bounding rect of multiple canvas entities
+		* Returns coords
+		*/
+		boundingRect: function(set) {
+			if (!set.length) return;
+			var newset = [], i = 1,
+			l = set.length, current, master=set[0], tmp;
+			master=[master._x, master._y, master._x + master._w, master._y + master._h];
+			while(i < l) {
+				current = set[i];
+				tmp = [current._x, current._y, current._x + current._w, current._y + current._h];
+				if (tmp[0]<master[0]) master[0] = tmp[0];
+				if (tmp[1]<master[1]) master[1] = tmp[1];
+				if (tmp[2]>master[2]) master[2] = tmp[2];
+				if (tmp[3]>master[3]) master[3] = tmp[3];
+				i++;
+			}
+			tmp=master;
+			master={_x:tmp[0],_y:tmp[1],_w:tmp[2]-tmp[0],_h:tmp[3]-tmp[1]};
+
+			return master;
+		},
+
 		/**
 		* Redraw all the dirty regions
 		*/

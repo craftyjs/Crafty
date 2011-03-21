@@ -137,7 +137,7 @@ Crafty.extend({
 	},
 	
 	_events: {},
-	
+
 	/**
 	* Window Events credited to John Resig
 	* http://ejohn.org/projects/flexible-javascript-events
@@ -148,35 +148,37 @@ Crafty.extend({
 			type = obj;
 			obj = window.document;
 		}
-		
+
 		//save anonymous function to be able to remove
-		var afn = function(e) { var e = e || window.event; fn.call(ctx,e) };
-			
-		if(!this._events[obj+type+fn]) this._events[obj+type+fn] = afn;
+		var afn = function(e) { var e = e || window.event; fn.call(ctx,e) },
+			id = ctx[0] || "";
+
+		if(!this._events[id+obj+type+fn]) this._events[id+obj+type+fn] = afn;
 		else return;
-		
+
 		if (obj.attachEvent) { //IE
 			obj.attachEvent('on'+type, afn);
 		} else { //Everyone else
 			obj.addEventListener(type, afn, false);
 		}
 	},
-	
+
 	removeEvent: function(ctx, obj, type, fn) {
 		if(arguments.length === 3) {
 			fn = type;
 			type = obj;
 			obj = window.document;
 		}
-		
+
 		//retrieve anonymouse function
-		var afn = this._events[obj+type+fn];
+		var id = ctx[0] || "",
+			afn = this._events[id+obj+type+fn];
 
 		if(afn) {
 			if (obj.detachEvent) {
 				obj.detachEvent('on'+type, afn);
 			} else obj.removeEventListener(type, afn, false);
-			delete this._events[obj+type+fn];
+			delete this._events[id+obj+type+fn];
 		}
 	},
 	
