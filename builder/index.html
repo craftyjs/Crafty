@@ -11,6 +11,7 @@
 <script type="text/javascript" src="assets/jslint.js"></script>
 <script type="text/javascript" src="assets/editor.js"></script>
 <script type="text/javascript" src="assets/compiler.js"></script>
+<script type="text/javascript" src="assets/contextmenu.js"></script>
 </head>
 <body>
 <div id="header">
@@ -136,6 +137,27 @@
 
 <div id="ns-dialog" title="New Scene" class="dialog">
 <label>Scene Name: <input type="text" id="scname" /></label><br />
+</div>
+
+<div class="context-menu" id="sceneMenu">
+<ul>
+	<li><b>Open</b></li>
+	<li>Cut</li>
+	<li>Copy</li>
+	<li>Paste</li>
+</ul>
+</div>
+
+<div class="context-menu" id="entsMenu">
+<ul>
+	<li><a href="#actions"><b>Actions</b></a></li>
+	<li><a href="#cut">Cut</a></li>
+	<li><a href="#copy">Copy</a></li>
+	<li><a href="#paste">Paste</a></li>
+	<li><a href="#remove">Remove</a></li>
+	<li class="hr"></li>
+	<li><a href="#properties">Properties</a></li>
+</ul>
 </div>
 </body>
 </html>

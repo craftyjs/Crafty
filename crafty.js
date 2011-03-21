@@ -21,6 +21,7 @@ var Crafty = function(selector) {
 	handlers = {}, //global event handlers
 	onloads = [], //temporary storage of onload handlers
 	tick,
+	tickID,
 	
 	slice = Array.prototype.slice,
 	rlist = /\s*,\s*/,
@@ -341,11 +342,24 @@ Crafty.extend({
 		//call all arbitrary functions attached to onload
 		this.onload();
 		this.timer.init();
+		
+		return this;
 	},
 	
 	stop: function() {
 		if(typeof tick === "number") clearInterval(tick);
+		
+		var onFrame = window.cancelRequestAnimationFrame ||
+				window.webkitCancelRequestAnimationFrame ||
+				window.mozCancelRequestAnimationFrame ||
+				window.oCancelRequestAnimationFrame ||
+				window.msCancelRequestAnimationFrame ||
+				null;
+					
+		if(onFrame) onFrame(tickID);
 		tick = null;
+		
+		return this;
 	},
 	
 	timer: {
@@ -363,7 +377,7 @@ Crafty.extend({
 			
 				onEachFrame = function(cb) {
 					if(onFrame) {
-						tick = function() { cb(); onFrame(tick); }
+						tick = function() { cb(); tickID = onFrame(tick); }
 						tick();
 					} else {
 						tick = setInterval(cb, 1000 / FPS);
@@ -1747,10 +1761,9 @@ Crafty.extend({
 		}
 		
 		//save anonymous function to be able to remove
-		var afn = function(e) { var e = e || window.event; fn.call(ctx,e) },
-			id = ctx[0] || "";
+		var afn = function(e) { var e = e || window.event; fn.call(ctx,e) };
 			
-		if(!this._events[id+obj+type+fn]) this._events[id+obj+type+fn] = afn;
+		if(!this._events[obj+type+fn]) this._events[obj+type+fn] = afn;
 		else return;
 		
 		if (obj.attachEvent) { //IE
@@ -1768,14 +1781,13 @@ Crafty.extend({
 		}
 		
 		//retrieve anonymouse function
-		var id = ctx[0] || "",
-			afn = this._events[id+obj+type+fn];
+		var afn = this._events[obj+type+fn];
 
 		if(afn) {
 			if (obj.detachEvent) {
 				obj.detachEvent('on'+type, afn);
 			} else obj.removeEventListener(type, afn, false);
-			delete this._events[id+obj+type+fn];
+			delete this._events[obj+type+fn];
 		}
 	},
 	
@@ -1786,126 +1798,24 @@ Crafty.extend({
 	viewport: {
 		width: 0, 
 		height: 0,
-		_used: {},
-		_free: [],
 		_x: 0,
 		_y: 0,
 		
-		/**
-		* Psuedo scroll
-		*
-		* 1. Move main canvas
-		* 2. Any invisible canvases which can be freed (not on stage)
-		* 3. Find the direction to add a canvas
-		* 4. Pick a free canvas
-		* 5. In draw manager, figure out which canvases to draw on
-		*/
 		scroll: function(axis, v) {
-			v = Math.floor(v);
 			var change = (v - this[axis]), //change in direction
+				context = Crafty.context,
 				style = Crafty.stage.inner.style,
-				xmod = axis == '_x' ? -change : 0, 
-				ymod = axis == '_y' ? -change : 0, //mods do inverse of change
-				current,
-				width = this.width,
-				height = this.height,
-				used = this._used,
-				i, l, hash,
-				cell, todraw,
 				canvas;
 			
 			//update viewport and DOM scroll
 			this[axis] = v;
+			if(axis == '_x') {
+				if(context) context.translate(change, 0);
+			} else {
+				if(context) context.translate(0, change);
+			}
+			if(context) Crafty.DrawManager.drawAll();
 			style[axis == '_x' ? "left" : "top"] = ~~v + "px";
-			
-			//if canvas
-			if(Crafty.support.canvas) {
-				for(i in used) {
-					todraw = false;
-					current = used[i];
-					
-					//update the canvases
-					current.x -= xmod;
-					current.y -= ymod;
-					
-					//if out of bounds, delete
-					if(current.x + width <= -this._x || current.x > -this._x + width ||
-					   current.y + height <= -this._y || current.y > -this._y + height) {
-						console.log("DELETE", i);
-						this._free.push(current);
-						delete used[i];
-					}
-				}
-				
-				//add a canvas if needed
-				cell = [
-					[ Math.floor(-this._x / width), Math.floor(-this._y / height) ], //top left
-					[ Math.floor((-this._x + width) / width), Math.floor(-this._y / height) ], //top right
-					[ Math.floor(-this._x / width), Math.floor((-this._y + height) / height)], //bottom left
-					[ Math.floor((-this._x + width) / width), Math.floor((-this._y + height) / height) ] //bottom right
-				];
-				//console.log(cell);
-				
-				//for every cell
-				for(i = 0; i < 4; ++i) {
-					current = cell[i];
-					hash = current[0] + 'x' + current[1];
-					
-					if(!used[hash]) {
-						used[hash] = this._free.pop();
-						todraw = true;
-					}
-					
-					canvas = used[hash];
-					canvas.x = current[0] * width + this._x;
-					canvas.y = current[1] * height + this._y;
-					canvas.canvas.style.left = canvas.x + "px";
-					canvas.canvas.style.top = canvas.y + "px";
-					
-					canvas.ctx.restore();
-					canvas.ctx.translate(current[0] * width, current[1] * height);
-					
-					if(todraw) {
-						console.log({
-							_x: current[0] * width,
-							_y: current[1] * height,
-							_w: width,
-							_h: height
-						});
-						Crafty.DrawManager.drawAll({
-							_x: current[0] * width,
-							_y: current[1] * height,
-							_w: width,
-							_h: height
-						});
-					}
-				}
-			}
-		},
-		
-		intersect: function(obj,y,w,h) {
-			if(arguments.length > 1) {
-				obj = {
-					_x: obj,
-					_y: y,
-					_w: w,
-					_h: h
-				};
-			}
-			var temp = [
-					Math.floor((obj._x) / this.width) + 'x' + Math.floor((obj._y) / this.height),
-					Math.floor((obj._x + obj._w) / this.width) + 'x' + Math.floor((obj._y) / this.height),
-					Math.floor((obj._x) / this.width) + 'x' + Math.floor((obj._y + obj._h) / this.height),
-					Math.floor((obj._x + obj._w) / this.width) + 'x' + Math.floor((obj._y + obj._h) / this.height),
-				],
-				cells = {};
-				
-			cells[temp[0]] = true;
-			cells[temp[1]] = true;
-			cells[temp[2]] = true;
-			cells[temp[3]] = true;
-			
-			return cells;
 		},
 		
 		rect: function() {
@@ -2148,6 +2058,9 @@ Crafty.c("canvas", {
 });
 
 Crafty.extend({
+	context: null,
+	_canvas: null,
+	
 	/**
 	* Set the canvas element and 2D context
 	*/
@@ -2160,25 +2073,17 @@ Crafty.extend({
 		}
 		
 		//create 3 empty canvas elements
-		var i = 0, c, ctx;
-		for(;i<4;++i) {
-			c = document.createElement("canvas");
-			c.width = this.viewport.width;
-			c.height = this.viewport.height;
-			c.style.position = 'absolute';
-			
-			Crafty.stage.elem.appendChild(c);
-			
-			ctx = c.getContext('2d');
-			
-			//main canvas
-			if(!i) {
-				Crafty.viewport._used["0x0"] = {ctx:ctx, canvas:c, x: 0, y: 0};
-			} else {
-				Crafty.viewport._free.push({ctx:ctx, canvas:c, x: 0, y: 0});
-			}
-		}
+		var c;
+		c = document.createElement("canvas");
+		c.width = Crafty.viewport.width;
+		c.height = Crafty.viewport.height;
+		c.style.position = 'absolute';
+		c.style.left = "0px";
+		c.style.top = "0px";
 		
+		Crafty.stage.elem.appendChild(c);
+		Crafty.context = c.getContext('2d');
+		Crafty._canvas = c;
 	}
 });
 
@@ -2189,7 +2094,8 @@ Crafty.extend({
 	keydown: {},
 		
 	mouseDispatch: function(e) {
-		if(!this.mouseObjs) return;
+		if(!Crafty.mouseObjs) return;
+
 		if(e.type === "touchstart") e.type = "mousedown";
 		else if(e.type === "touchmove") e.type = "mousemove";
 		else if(e.type === "touchend") e.type = "mouseup";
@@ -2895,27 +2801,19 @@ Crafty.DrawManager = (function() {
 		
 		drawAll: function(rect) {
 			var rect = rect || Crafty.viewport.rect(), q,
-				i = 0, l, ctx, cnv = Crafty.viewport._used,
-				current, cells, cell;
+				i = 0, l, ctx = Crafty.context,
+				current;
 			
 			q = Crafty.map.search(rect);
 			l = q.length;
 			
-			for(ctx in cnv) {
-				if(cnv[ctx])
-					cnv[ctx].ctx.clearRect(rect._x, rect._y, rect._w, rect._h);
-			}
+			ctx.clearRect(rect._x, rect._y, rect._w, rect._h);
 			
 			q.sort(function(a,b) { return a._global - b._global; });
 			for(;i<l;i++) {
 				current = q[i];
 				if(current._visible && current.__c.canvas) {
-					cells = Crafty.viewport.intersect(current);
-					//console.log("DRAW ON:",cells, current._x);
-					for(cell in cells) {
-						if(cnv[cell])
-							current.draw(cnv[cell].ctx);
-					}
+					current.draw();
 					current._changed = false;
 				}
 			}
@@ -2929,7 +2827,7 @@ Crafty.DrawManager = (function() {
 			if(!register.length && !dom.length) return;
 			
 			var i = 0, l = register.length, k = dom.length, rect, q,
-				j, len, dupes, obj, ent, objs = [], vw = Crafty.viewport;
+				j, len, dupes, obj, ent, objs = [];
 				
 			//loop over all DOM elements needing updating
 			for(;i<k;++i) {
@@ -2970,11 +2868,7 @@ Crafty.DrawManager = (function() {
 				}
 				
 				//clear the rect from the main canvas
-				cells = Crafty.viewport.intersect(rect);
-				for(cell in cells) {
-					if(Crafty.viewport._used[cell])
-						Crafty.viewport._used[cell].ctx.clearRect(rect._x, rect._y, rect._w, rect._h);
-				}
+				Crafty.context.clearRect(rect._x, rect._y, rect._w, rect._h);
 			}
 			
 			//sort the objects by the global Z
@@ -2991,14 +2885,10 @@ Crafty.DrawManager = (function() {
 					x = (rect._x - area._x <= 0) ? 0 : ~~(rect._x - area._x),
 					y = (rect._y - area._y < 0) ? 0 : ~~(rect._y - area._y),
 					w = ~~Math.min(area._w - x, rect._w - (area._x - rect._x), rect._w, area._w),
-					h = ~~Math.min(area._h - y, rect._h - (area._y - rect._y), rect._h, area._h),
-					cells, cell;
+					h = ~~Math.min(area._h - y, rect._h - (area._y - rect._y), rect._h, area._h);
 				
 				//no point drawing with no width or height
 				if(h === 0 || w === 0) continue;
-				
-				//check which canvases to draw on
-				cells = Crafty.viewport.intersect(x,y,w,h);
 				
 				//if it is a pattern or has some rotation, draw it on the temp canvas
 				if(ent.has('image') || ent._mbr) {
@@ -3008,20 +2898,12 @@ Crafty.DrawManager = (function() {
 					ctx.save();
 					ctx.translate(-area._x, -area._y);
 					ent.draw(ctx);
-					for(cell in cells) {
-						if(Crafty.viewport._used[cell])
-							Crafty.viewport._used[cell].ctx.drawImage(canv, x, y, w, h, area._x + x, area._y + y, w, h);
-					}
+					Crafty.context.drawImage(canv, x, y, w, h, area._x + x, area._y + y, w, h);
 					ctx.restore();
 					ctx.clearRect(0,0,canv.width, canv.height);
 				//if it is axis-aligned and no pattern, draw subrect
 				} else {
-					for(cell in cells) {
-						if(Crafty.viewport._used[cell]) {
-							//console.log(cell);
-							ent.draw(Crafty.viewport._used[cell].ctx,x,y,w,h);
-						}
-					}
+					ent.draw(x,y,w,h);
 				}
 				
 				//allow entity to re-register

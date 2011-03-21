@@ -34,6 +34,7 @@ label input, label select { width:100%; float:left }
 #workarea { background:#eee; overflow:auto;  }
 #inner { width:100%; height:100%;  position:relative }
 #area { border:1px solid #aaa; background:#fff; position:absolute; width:550px; height:440px; }
+#cr-stage { z-index:100}
 
 .toolbar { background:#fff url('../assets/images/toolbar.png') repeat-x bottom; padding:5px; margin:-12px -20px 0 -20px; border-bottom:1px solid #ccc }
 .toolbar a { padding:5px 10px; text-decoration:none }
@@ -57,3 +58,12 @@ ul.list li a b { font-size:10px; color:#222; margin-left:15px }
 
 #bread { display:none }
 #currentscene { position:absolute; right:20px; top:10px; background:url('../assets/images/world.png') no-repeat; padding-left:20px; cursor:default }
+
+.context-menu { display:none; position:absolute; width:100px; border:1px solid #aaa; background:#f5f5f5; cursor:default }
+.context-menu ul { list-style:none; padding:0; margin:0 }
+.context-menu li a { padding:5px; display:block; text-decoration:none; color:#111 }
+.context-menu li:hover { background:#FFE4D9 }
+.context-menu li.hr { border-bottom:1px solid #aaa; width:80%; margin:5px auto }
+.context-menu li.hr:hover { background:transparent }
+
+#pr-dialog { overflow:auto; max-height:600px; width:400px }

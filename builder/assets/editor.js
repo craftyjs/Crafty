@@ -14,6 +14,7 @@ var $b = {},
 	//array of Crafty objects
 	COMPS = {},
 	ENTS = {},
+	CENTS = {},
 	ASSETS = {},
 	SCENES = {},
 	
@@ -24,6 +25,23 @@ function createHTMLElement(el) {
 	  return document.createElementNS("http://www.w3.org/1999/xhtml", el)
 	else
 	  return document.createElement(el)
+}
+
+function guessType(input) {
+	var trimmed = input.replace(/^\s+|\s+$/g, ''),
+		num = +trimmed;
+	
+	//if empty string
+	if(trimmed.length === 0) return input;
+	
+	//Number
+	if(!isNaN(num)) return num;
+	
+	//Boolean
+	if(input === "true") return true;
+	if(input === "false") return false;
+	
+	return input; //assume string
 }
   
 $(function() {
@@ -97,7 +115,9 @@ $(function() {
 		sw = $stage.width() - 6;
 		sh = $stage.height();
 		
-		$area.css({left: ($workarea.width() / 2 - $area.width() / 2), top: ($workarea.height() / 2 - $area.height() / 2)});
+		var dim = {left: ($workarea.width() / 2 - $area.width() / 2), top: ($workarea.height() / 2 - $area.height() / 2)};
+		$area.css(dim);
+		$crstage.css(dim);
 	}
 	calculate();
 	$window.bind('resize', calculate);
@@ -147,14 +167,16 @@ $(function() {
 					comps = $necomps.val() || "",
 					block;
 				
-				comps = typeof comps === "object" ? comps.join(", ") : "";
-				block = new EntBlock("var "+inst+" = Crafty.e('"+comps+"');","",inst);
-				block.comps = comps;
-				
 				//name taken
 				if(ENTS[inst] || !inst.length) {
 					$instance.val("");
 				} else {
+					comps = typeof comps === "object" ? comps.join(", ") : "";
+					block = new EntBlock("var "+inst+" = Crafty.e('"+comps+"');","",inst);
+					block.comps = comps;
+					
+					CENTS[inst] = Crafty.e(comps+", GUI");
+					
 					//append the entity in the selected scene
 					CURRENT_SCENE.append(block);
 					ENTS[inst] = block;
@@ -168,7 +190,7 @@ $(function() {
 	});
 	
 	$b.newscene.click(function() {
-		$nsdialog.dialog({
+		$nsdialog.dialog({modal: true,
 			buttons: {
 				Cancel: function() { $(this).dialog("close"); },
 				Create: function() {
@@ -185,38 +207,77 @@ $(function() {
 	//when clicking on a scene, select it
 	$("#scenes ul a").live("dblclick", function(e) {
 		var href = $(this).attr("href");
-		href = href.substr(1);
+		href = href.substr(1); //grab the scene ID
 		
-		CURRENT_SCENE = SCENES[href];
+		CURRENT_SCENE = SCENES[href]; //make it current
 		$("#scenes ul a").css("background", "transparent");
-		$(this).css("background", "#FFE4D9");
+		$(this).css("background", "#FFE4D9"); //change the selected color
 		$currentscene.text(CURRENT_SCENE.name);
-	});
+	}).contextMenu("sceneMenu");
 	
-	$("#entities ul a").live("click", function(e) {
-		var href = $(this).attr("href"), selected = $workbench.tabs("option", "selected");
-		href = href.substr(1);
-		
-		//if an entity is selected, save the code
-		if(selected === 1) {
-			CURRENT_ENTITY.actions = CM.getCode();
-		}
-		
-		CURRENT_ENTITY = ENTS[href];
-		
-		if(selected === 1) {
-			Editor.setCode();
-		}
-		
-		$("#entities ul a").css("background", "transparent");
-		$(this).css("background", "#FFE4D9");
-	}).live("dblclick", function() {
+	$("#entities ul a").live("dblclick", function() {
 		var href = $(this).attr("href");
 		href = href.substr(1);
 		
 		CURRENT_ENTITY = ENTS[href];
 		
 		Editor.setCode();
+	}).contextMenu("entsMenu", {
+		click: function() {
+			var href = $(this).attr("href"), selected = $workbench.tabs("option", "selected");
+			href = href.substr(1);
+			
+			//if an entity is selected, save the code
+			if(selected === 1) {
+				CURRENT_ENTITY.actions = CM.getCode();
+			}
+			
+			CURRENT_ENTITY = ENTS[href];
+			
+			if(selected === 1) {
+				Editor.setCode();
+			}
+			
+			$("#entities ul a").css("background", "transparent");
+			$(this).css("background", "#FFE4D9");
+		},
+		
+		actions: function() {
+			Editor.setCode();
+		},
+		
+		properties: function() {
+			$prdialog.dialog({modal: true, maxHeight:600, width:400,
+				buttons: {
+					Done: function() {
+						//when done is clicked, update the .attr
+						$prdialog.find("input").each(function() {
+						
+						});
+						$(this).dialog("close");
+					}
+				}
+			});
+			
+			var ent = CENTS[CURRENT_ENTITY.name], key, html = "";
+			for(key in ent) {
+				//no functions, private properties or properties starting with an int
+				if(typeof ent[key] === "function" || key === "length" || 
+				   key.charAt(0) === '_' || /^[0-9]+/.test(key)) continue;
+				
+				html += "<tr><th>"+key+":</th><td><input type='text' value='"+ent[key]+"' name='"+key+"'/></tr>";
+			}
+			//update the HTML
+			$prdialog.find("table").html(html);
+			
+			//set change events for all the inputs
+			$prdialog.find("input").change(function() {
+				var name = $(this).attr("name"),
+					val = $(this).val();
+					
+				ent[name] = guessType(val);
+			});
+		}
 	});
 	
 	SCENES.main = MAIN;
@@ -225,7 +286,6 @@ $(function() {
 	
 	//start Crafty
 	Crafty.init(SETTINGS.stage[0], SETTINGS.stage[1]);
-	Crafty.stop();
 });
 
 

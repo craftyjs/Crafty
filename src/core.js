@@ -13,6 +13,7 @@ var Crafty = function(selector) {
 	handlers = {}, //global event handlers
 	onloads = [], //temporary storage of onload handlers
 	tick,
+	tickID,
 	
 	slice = Array.prototype.slice,
 	rlist = /\s*,\s*/,
@@ -333,11 +334,24 @@ Crafty.extend({
 		//call all arbitrary functions attached to onload
 		this.onload();
 		this.timer.init();
+		
+		return this;
 	},
 	
 	stop: function() {
 		if(typeof tick === "number") clearInterval(tick);
+		
+		var onFrame = window.cancelRequestAnimationFrame ||
+				window.webkitCancelRequestAnimationFrame ||
+				window.mozCancelRequestAnimationFrame ||
+				window.oCancelRequestAnimationFrame ||
+				window.msCancelRequestAnimationFrame ||
+				null;
+					
+		if(onFrame) onFrame(tickID);
 		tick = null;
+		
+		return this;
 	},
 	
 	timer: {
@@ -355,7 +369,7 @@ Crafty.extend({
 			
 				onEachFrame = function(cb) {
 					if(onFrame) {
-						tick = function() { cb(); onFrame(tick); }
+						tick = function() { cb(); tickID = onFrame(tick); }
 						tick();
 					} else {
 						tick = setInterval(cb, 1000 / FPS);

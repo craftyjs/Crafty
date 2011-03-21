@@ -269,27 +269,19 @@ Crafty.DrawManager = (function() {
 		
 		drawAll: function(rect) {
 			var rect = rect || Crafty.viewport.rect(), q,
-				i = 0, l, ctx, cnv = Crafty.viewport._used,
-				current, cells, cell;
+				i = 0, l, ctx = Crafty.context,
+				current;
 			
 			q = Crafty.map.search(rect);
 			l = q.length;
 			
-			for(ctx in cnv) {
-				if(cnv[ctx])
-					cnv[ctx].ctx.clearRect(rect._x, rect._y, rect._w, rect._h);
-			}
+			ctx.clearRect(rect._x, rect._y, rect._w, rect._h);
 			
 			q.sort(function(a,b) { return a._global - b._global; });
 			for(;i<l;i++) {
 				current = q[i];
 				if(current._visible && current.__c.canvas) {
-					cells = Crafty.viewport.intersect(current);
-					//console.log("DRAW ON:",cells, current._x);
-					for(cell in cells) {
-						if(cnv[cell])
-							current.draw(cnv[cell].ctx);
-					}
+					current.draw();
 					current._changed = false;
 				}
 			}
@@ -303,7 +295,7 @@ Crafty.DrawManager = (function() {
 			if(!register.length && !dom.length) return;
 			
 			var i = 0, l = register.length, k = dom.length, rect, q,
-				j, len, dupes, obj, ent, objs = [], vw = Crafty.viewport;
+				j, len, dupes, obj, ent, objs = [];
 				
 			//loop over all DOM elements needing updating
 			for(;i<k;++i) {
@@ -344,11 +336,7 @@ Crafty.DrawManager = (function() {
 				}
 				
 				//clear the rect from the main canvas
-				cells = Crafty.viewport.intersect(rect);
-				for(cell in cells) {
-					if(Crafty.viewport._used[cell])
-						Crafty.viewport._used[cell].ctx.clearRect(rect._x, rect._y, rect._w, rect._h);
-				}
+				Crafty.context.clearRect(rect._x, rect._y, rect._w, rect._h);
 			}
 			
 			//sort the objects by the global Z
@@ -365,14 +353,10 @@ Crafty.DrawManager = (function() {
 					x = (rect._x - area._x <= 0) ? 0 : ~~(rect._x - area._x),
 					y = (rect._y - area._y < 0) ? 0 : ~~(rect._y - area._y),
 					w = ~~Math.min(area._w - x, rect._w - (area._x - rect._x), rect._w, area._w),
-					h = ~~Math.min(area._h - y, rect._h - (area._y - rect._y), rect._h, area._h),
-					cells, cell;
+					h = ~~Math.min(area._h - y, rect._h - (area._y - rect._y), rect._h, area._h);
 				
 				//no point drawing with no width or height
 				if(h === 0 || w === 0) continue;
-				
-				//check which canvases to draw on
-				cells = Crafty.viewport.intersect(x,y,w,h);
 				
 				//if it is a pattern or has some rotation, draw it on the temp canvas
 				if(ent.has('image') || ent._mbr) {
@@ -382,20 +366,12 @@ Crafty.DrawManager = (function() {
 					ctx.save();
 					ctx.translate(-area._x, -area._y);
 					ent.draw(ctx);
-					for(cell in cells) {
-						if(Crafty.viewport._used[cell])
-							Crafty.viewport._used[cell].ctx.drawImage(canv, x, y, w, h, area._x + x, area._y + y, w, h);
-					}
+					Crafty.context.drawImage(canv, x, y, w, h, area._x + x, area._y + y, w, h);
 					ctx.restore();
 					ctx.clearRect(0,0,canv.width, canv.height);
 				//if it is axis-aligned and no pattern, draw subrect
 				} else {
-					for(cell in cells) {
-						if(Crafty.viewport._used[cell]) {
-							//console.log(cell);
-							ent.draw(Crafty.viewport._used[cell].ctx,x,y,w,h);
-						}
-					}
+					ent.draw(x,y,w,h);
 				}
 				
 				//allow entity to re-register

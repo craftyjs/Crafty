@@ -83,6 +83,9 @@ Crafty.c("canvas", {
 });
 
 Crafty.extend({
+	context: null,
+	_canvas: null,
+	
 	/**
 	* Set the canvas element and 2D context
 	*/
@@ -95,24 +98,16 @@ Crafty.extend({
 		}
 		
 		//create 3 empty canvas elements
-		var i = 0, c, ctx;
-		for(;i<4;++i) {
-			c = document.createElement("canvas");
-			c.width = this.viewport.width;
-			c.height = this.viewport.height;
-			c.style.position = 'absolute';
-			
-			Crafty.stage.elem.appendChild(c);
-			
-			ctx = c.getContext('2d');
-			
-			//main canvas
-			if(!i) {
-				Crafty.viewport._used["0x0"] = {ctx:ctx, canvas:c, x: 0, y: 0};
-			} else {
-				Crafty.viewport._free.push({ctx:ctx, canvas:c, x: 0, y: 0});
-			}
-		}
+		var c;
+		c = document.createElement("canvas");
+		c.width = Crafty.viewport.width;
+		c.height = Crafty.viewport.height;
+		c.style.position = 'absolute';
+		c.style.left = "0px";
+		c.style.top = "0px";
 		
+		Crafty.stage.elem.appendChild(c);
+		Crafty.context = c.getContext('2d');
+		Crafty._canvas = c;
 	}
 });

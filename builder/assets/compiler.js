@@ -102,8 +102,39 @@ CURRENT_SCENE = MAIN;
 * Add all entities on the stage as DOM elements
 * Drag and drop updates its props
 * Context menu to copy/cut/paste/delete and properties
+* Snap to grid
 * 
 * //Saving
 * Save all objects into JSON
 * Load all JSON into object
 */
+
+Crafty.c("GUI", {
+	init: function() {
+		this.removeComponent("canvas");
+		this.requires("DOM, mouse");
+		
+		function drag(e) {
+			this.x = e.clientX - this._startX;
+			this.y = e.clientY - this._startY;
+			console.log("TEST");
+			this.draw();
+		}
+				
+		this.bind("mousedown", function(e) {
+			console.log("DON");
+			//start drag
+			this._startX = (e.clientX - Crafty.stage.x) - this._x;
+			this._startY = (e.clientY - Crafty.stage.y) - this._y;
+			Crafty.addEvent(this, Crafty.stage.elem, "mousemove", drag);
+		});
+		
+		Crafty.addEvent(this, Crafty.stage.elem, "mouseup", function() {
+			Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", drag);
+		});
+	},
+	
+	_startX: 0,
+	_startY: 0,
+});
+

@@ -150,10 +150,9 @@ Crafty.extend({
 		}
 		
 		//save anonymous function to be able to remove
-		var afn = function(e) { var e = e || window.event; fn.call(ctx,e) },
-			id = ctx[0] || "";
+		var afn = function(e) { var e = e || window.event; fn.call(ctx,e) };
 			
-		if(!this._events[id+obj+type+fn]) this._events[id+obj+type+fn] = afn;
+		if(!this._events[obj+type+fn]) this._events[obj+type+fn] = afn;
 		else return;
 		
 		if (obj.attachEvent) { //IE
@@ -171,14 +170,13 @@ Crafty.extend({
 		}
 		
 		//retrieve anonymouse function
-		var id = ctx[0] || "",
-			afn = this._events[id+obj+type+fn];
+		var afn = this._events[obj+type+fn];
 
 		if(afn) {
 			if (obj.detachEvent) {
 				obj.detachEvent('on'+type, afn);
 			} else obj.removeEventListener(type, afn, false);
-			delete this._events[id+obj+type+fn];
+			delete this._events[obj+type+fn];
 		}
 	},
 	
@@ -189,126 +187,24 @@ Crafty.extend({
 	viewport: {
 		width: 0, 
 		height: 0,
-		_used: {},
-		_free: [],
 		_x: 0,
 		_y: 0,
 		
-		/**
-		* Psuedo scroll
-		*
-		* 1. Move main canvas
-		* 2. Any invisible canvases which can be freed (not on stage)
-		* 3. Find the direction to add a canvas
-		* 4. Pick a free canvas
-		* 5. In draw manager, figure out which canvases to draw on
-		*/
 		scroll: function(axis, v) {
-			v = Math.floor(v);
 			var change = (v - this[axis]), //change in direction
+				context = Crafty.context,
 				style = Crafty.stage.inner.style,
-				xmod = axis == '_x' ? -change : 0, 
-				ymod = axis == '_y' ? -change : 0, //mods do inverse of change
-				current,
-				width = this.width,
-				height = this.height,
-				used = this._used,
-				i, l, hash,
-				cell, todraw,
 				canvas;
 			
 			//update viewport and DOM scroll
 			this[axis] = v;
+			if(axis == '_x') {
+				if(context) context.translate(change, 0);
+			} else {
+				if(context) context.translate(0, change);
+			}
+			if(context) Crafty.DrawManager.drawAll();
 			style[axis == '_x' ? "left" : "top"] = ~~v + "px";
-			
-			//if canvas
-			if(Crafty.support.canvas) {
-				for(i in used) {
-					todraw = false;
-					current = used[i];
-					
-					//update the canvases
-					current.x -= xmod;
-					current.y -= ymod;
-					
-					//if out of bounds, delete
-					if(current.x + width <= -this._x || current.x > -this._x + width ||
-					   current.y + height <= -this._y || current.y > -this._y + height) {
-						console.log("DELETE", i);
-						this._free.push(current);
-						delete used[i];
-					}
-				}
-				
-				//add a canvas if needed
-				cell = [
-					[ Math.floor(-this._x / width), Math.floor(-this._y / height) ], //top left
-					[ Math.floor((-this._x + width) / width), Math.floor(-this._y / height) ], //top right
-					[ Math.floor(-this._x / width), Math.floor((-this._y + height) / height)], //bottom left
-					[ Math.floor((-this._x + width) / width), Math.floor((-this._y + height) / height) ] //bottom right
-				];
-				//console.log(cell);
-				
-				//for every cell
-				for(i = 0; i < 4; ++i) {
-					current = cell[i];
-					hash = current[0] + 'x' + current[1];
-					
-					if(!used[hash]) {
-						used[hash] = this._free.pop();
-						todraw = true;
-					}
-					
-					canvas = used[hash];
-					canvas.x = current[0] * width + this._x;
-					canvas.y = current[1] * height + this._y;
-					canvas.canvas.style.left = canvas.x + "px";
-					canvas.canvas.style.top = canvas.y + "px";
-					
-					canvas.ctx.restore();
-					canvas.ctx.translate(current[0] * width, current[1] * height);
-					
-					if(todraw) {
-						console.log({
-							_x: current[0] * width,
-							_y: current[1] * height,
-							_w: width,
-							_h: height
-						});
-						Crafty.DrawManager.drawAll({
-							_x: current[0] * width,
-							_y: current[1] * height,
-							_w: width,
-							_h: height
-						});
-					}
-				}
-			}
-		},
-		
-		intersect: function(obj,y,w,h) {
-			if(arguments.length > 1) {
-				obj = {
-					_x: obj,
-					_y: y,
-					_w: w,
-					_h: h
-				};
-			}
-			var temp = [
-					Math.floor((obj._x) / this.width) + 'x' + Math.floor((obj._y) / this.height),
-					Math.floor((obj._x + obj._w) / this.width) + 'x' + Math.floor((obj._y) / this.height),
-					Math.floor((obj._x) / this.width) + 'x' + Math.floor((obj._y + obj._h) / this.height),
-					Math.floor((obj._x + obj._w) / this.width) + 'x' + Math.floor((obj._y + obj._h) / this.height),
-				],
-				cells = {};
-				
-			cells[temp[0]] = true;
-			cells[temp[1]] = true;
-			cells[temp[2]] = true;
-			cells[temp[3]] = true;
-			
-			return cells;
 		},
 		
 		rect: function() {
