@@ -507,8 +507,6 @@ Crafty.c("gravity", {
 
 		if(hit) { //stop falling if found
 			if(this._falling) this.stopFalling(hit);
-		} else {
-			this._falling = true; //keep falling otherwise
 		}
 	},
 
