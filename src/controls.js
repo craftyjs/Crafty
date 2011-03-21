@@ -159,8 +159,9 @@ Crafty.c("controls", {
 			this.trigger(e.type, e);
 				
 			//prevent searchable keys
-			if(e.key >= 48 && e.key <= 111 && e.key >= 187 && e.key <= 190) {
-				e.preventDefault();
+			if(!(e.metaKey || e.altKey || e.ctrlKey) && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
+				if(e.preventDefault) e.preventDefault();
+				else e.returnValue = false;
 				return false;
 			}
 		}

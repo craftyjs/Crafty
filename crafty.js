@@ -2338,7 +2338,7 @@ Crafty.c("controls", {
 			this.trigger(e.type, e);
 				
 			//prevent searchable keys
-			if(e.key >= 48 && e.key <= 111 && e.key >= 187 && e.key <= 190) {
+			if(!(e.key >= 8 && e.key <= 9 || e.key >= 112 && e.key <= 123)) {
 				e.preventDefault();
 				return false;
 			}
