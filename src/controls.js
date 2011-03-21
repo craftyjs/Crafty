@@ -157,6 +157,9 @@ Crafty.c("controls", {
 				delete Crafty.keydown[e.key];
 			}
 			this.trigger(e.type, e);
+			
+			e.preventDefault();
+			return false;
 		}
 		
 		Crafty.addEvent(this, "keydown", dispatch);
@@ -179,75 +182,32 @@ Crafty.c("controls", {
 			key = Crafty.keys[key];
 		}
 		return !!Crafty.keydown[key];
-	},
-	
-	preventTypeaheadFind: function(e) {
-		if(!(e.metaKey || e.altKey || e.shiftKey || e.ctrlKey) && e.preventDefault){
-			e.preventDefault();
-		}
-		return this;
- 	}
+	}
 });
 
-Crafty.c("fourway", {
-	__move: {left: false, right: false, up: false, down: false},	
+Crafty.c("fourway", {	
 	_speed: 3,
 	
 	init: function() {
-		if(!this.has("controls")) this.addComponent("controls");
+		this.requires("controls");
 	},
 	
 	fourway: function(speed) {
 		if(speed) this._speed = speed;
-		var move = this.__move;
 		
 		this.bind("enterframe", function() {
-			var old = this.pos(),
-				changed = false;
-			if(move.right) {
+			if(this.isDown("RA") || this.isDown("D")) {
 				this.x += this._speed;
-				changed = true;
 			}
-			if(move.left) {
+			if(this.isDown("LA") || this.isDown("A")) {
 				this.x -= this._speed;
-				changed = true;
 			}
-			if(move.up) {
+			if(this.isDown("UA") || this.isDown("W")) {
 				this.y -= this._speed;
-				changed = true;
 			}
-			if(move.down) {
+			if(this.isDown("DA") || this.isDown("S")) {
 				this.y += this._speed;
-				changed = true;
 			}
-		}).bind("keydown", function(e) {
-			if(e.keyCode === Crafty.keys.RA || e.keyCode === Crafty.keys.D) {
-				move.right = true;
-			}
-			if(e.keyCode === Crafty.keys.LA || e.keyCode === Crafty.keys.A) {
-				move.left = true;
-			}
-			if(e.keyCode === Crafty.keys.UA || e.keyCode === Crafty.keys.W) {
-				move.up = true;
-			}
-			if(e.keyCode === Crafty.keys.DA || e.keyCode === Crafty.keys.S) {
-				move.down = true;
-			}
-			this.preventTypeaheadFind(e);
-		}).bind("keyup", function(e) {
-			if(e.keyCode === Crafty.keys.RA || e.keyCode === Crafty.keys.D) {
-				move.right = false;
-			}
-			if(e.keyCode === Crafty.keys.LA || e.keyCode === Crafty.keys.A) {
-				move.left = false;
-			}
-			if(e.keyCode === Crafty.keys.UA || e.keyCode === Crafty.keys.W) {
-				move.up = false;
-			}
-			if(e.keyCode === Crafty.keys.DA || e.keyCode === Crafty.keys.S) {
-				move.down = false;
-			}
-			this.preventTypeaheadFind(e);
 		});
 		
 		return this;
@@ -255,51 +215,26 @@ Crafty.c("fourway", {
 });
 
 Crafty.c("twoway", {
-	__move: {left: false, right: false, up: false, falling: false},
 	_speed: 3,
 	
 	init: function() {
-		if(!this.has("controls")) this.addComponent("controls");
+		this.requires("controls");
 	},
 	
 	twoway: function(speed,jump) {
 		if(speed) this._speed = speed;
 		jump = jump || this._speed * 2;
 		
-		var move = this.__move;
-		
 		this.bind("enterframe", function() {
-			var old = this.pos(),
-				changed = false;
-			if(move.right) {
+			if(this.isDown("RA") || this.isDown("D")) {
 				this.x += this._speed;
-				changed = true;
 			}
-			if(move.left) {
+			if(this.isDown("LA") || this.isDown("A")) {
 				this.x -= this._speed;
-				changed = true;
 			}
-			if(move.up) {
+			if(this.isDown("UA") || this.isDown("W")) {
 				this.y -= jump;
 				this._falling = true;
-				changed = true;
-			}
-		}).bind("keydown", function(e) {
-			if(e.keyCode === Crafty.keys.RA || e.keyCode === Crafty.keys.D) {
-				move.right = true;
-			}
-			if(e.keyCode === Crafty.keys.LA || e.keyCode === Crafty.keys.A) {
-				move.left = true;
-			}
-			if(e.keyCode === Crafty.keys.UA || e.keyCode === Crafty.keys.W) {
-				move.up = true;
-			}
-		}).bind("keyup", function(e) {
-			if(e.keyCode === Crafty.keys.RA || e.keyCode === Crafty.keys.D) {
-				move.right = false;
-			}
-			if(e.keyCode === Crafty.keys.LA || e.keyCode === Crafty.keys.A) {
-				move.left = false;
 			}
 		});
 		
