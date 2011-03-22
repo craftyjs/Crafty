@@ -261,6 +261,13 @@ Crafty.extend({
 				Crafty.stage.y = offset.y;
 			});
 			
+			Crafty.addEvent(this, window, "blur", function() {
+				if (!Crafty.dontPauseOnBlur) Crafty.pause();
+			});
+			Crafty.addEvent(this, window, "focus", function() {
+				if (Crafty._paused) Crafty.pause();
+			});
+
 			
 			//add to the body and give it an ID if not exists
 			if(!crstage) {

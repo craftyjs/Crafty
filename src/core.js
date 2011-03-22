@@ -354,6 +354,28 @@ Crafty.extend({
 		return this;
 	},
 	
+	//Unbinds all enterframe handlers and stores them away
+	//Calling .pause() again will restore previously deactivated handlers.
+	pause: function() {
+		if (!this._paused){
+			this._paused = true;
+			Crafty._pausedEvents = {};
+			
+			for (handler in handlers['enterframe']){
+				Crafty._pausedEvents[handler] = handlers['enterframe'][handler];
+				delete handlers['enterframe'][handler];
+			};
+			Crafty.keydown={};
+		} else {
+			this._paused = false;
+			
+			for (handler in Crafty._pausedEvents){
+				handlers['enterframe'][handler] = Crafty._pausedEvents[handler];
+			};
+		}
+		return this;
+	},
+	
 	timer: {
 		prev: (+new Date),
 		current: (+new Date),
