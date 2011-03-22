@@ -200,16 +200,16 @@ Crafty.c("fourway", {
 		if(speed) this._speed = speed;
 		
 		this.bind("enterframe", function() {
-			if(this.isDown("RA") || this.isDown("D")) {
+			if(this.isDown("RIGHT_ARROW") || this.isDown("D")) {
 				this.x += this._speed;
 			}
-			if(this.isDown("LA") || this.isDown("A")) {
+			if(this.isDown("LEFT_ARROW") || this.isDown("A")) {
 				this.x -= this._speed;
 			}
-			if(this.isDown("UA") || this.isDown("W")) {
+			if(this.isDown("UP_ARROW") || this.isDown("W")) {
 				this.y -= this._speed;
 			}
-			if(this.isDown("DA") || this.isDown("S")) {
+			if(this.isDown("DOWN_ARROW") || this.isDown("S")) {
 				this.y += this._speed;
 			}
 		});
@@ -231,10 +231,10 @@ Crafty.c("twoway", {
 		jump = jump || this._speed * 2;
 		
 		this.bind("enterframe", function() {
-			if(this.isDown("RA") || this.isDown("D")) {
+			if(this.isDown("RIGHT_ARROW") || this.isDown("D")) {
 				this.x += this._speed;
 			}
-			if(this.isDown("LA") || this.isDown("A")) {
+			if(this.isDown("LEFT_ARROW") || this.isDown("A")) {
 				this.x -= this._speed;
 			}
 			if(this._up) {
@@ -242,7 +242,7 @@ Crafty.c("twoway", {
 				this._falling = true;
 			}
 		}).bind("keydown", function() {
-			if(this.isDown("UA") || this.isDown("W")) this._up = true;
+			if(this.isDown("UP_ARROW") || this.isDown("W")) this._up = true;
 		});
 		
 		return this;
