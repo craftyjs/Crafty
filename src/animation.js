@@ -16,7 +16,7 @@ Crafty.c("animate", {
 
 	animate: function(id, fromx, y, tox) {
 		//play a reel
-		if(arguments.length === 2 && typeof fromx === "number") {
+		if(arguments.length < 4 && typeof fromx === "number") {
 			//make sure not currently animating
 			this._current = id;
 			
@@ -26,9 +26,14 @@ Crafty.c("animate", {
 				reel: reel, //reel to play
 				frameTime: Math.ceil(duration / reel.length), //number of frames inbetween slides
 				frame: 0, //current slide/frame
-				current: 0
+				current: 0,
+				repeat: 0
 			};
-			
+			if (arguments.length === 3 && typeof y === "number") {
+				//User provided repetition count
+				if (y === -1) this._frame.repeatInfinitly = true;
+				else this._frame.repeat = y;
+			}
 			this.bind("enterframe", this.drawFrame);
 			return this;
 		}
@@ -69,10 +74,15 @@ Crafty.c("animate", {
 		
 		if(data.frame === data.reel.length && this._frame.current === data.frameTime) {
 			data.frame = 0;
-			
-			this.trigger("animationend", {reel: data.reel});
-			this.stop();
-			return;
+			if (this._frame.repeatInfinitly === true || this._frame.repeat > 0) {
+				if (this._frame.repeat) this._frame.repeat--;
+				this._frame.current = 0;
+				this._frame.frame = 0;
+			} else {
+				this.trigger("animationend", {reel: data.reel});
+				this.stop();
+				return;
+			}
 		}
 		
 		this.trigger("change");
