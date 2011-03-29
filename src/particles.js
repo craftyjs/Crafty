@@ -98,7 +98,8 @@ Crafty.c("particles", {
 
 			//Create current config by mergin given options and presets.
 			for (key in this.presets) {
-				this[key] = options[key] || this.presets[key];
+				if (typeof options[key] != 'undefined') this[key] = options[key];
+				else this[key] = this.presets[key];
 			}
 
 			this.emissionRate = this.maxParticles / this.lifeSpan;
@@ -129,7 +130,7 @@ Crafty.c("particles", {
 			particle.position.y = this.position.y + this.positionRandom.y * RANDM1TO1();
 
 			var newAngle = (this.angle + this.angleRandom * RANDM1TO1()) * (Math.PI / 180); // convert to radians
-			var vector = this.vectorHelpers.create(Math.cos(newAngle), Math.sin(newAngle)); // Could move to lookup for speed
+			var vector = this.vectorHelpers.create(Math.sin(newAngle), -Math.cos(newAngle)); // Could move to lookup for speed
 			var vectorSpeed = this.speed + this.speedRandom * RANDM1TO1();
 			particle.direction = this.vectorHelpers.multiply(vector, vectorSpeed);
 
