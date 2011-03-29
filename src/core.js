@@ -302,6 +302,21 @@ Crafty.fn = Crafty.prototype = {
 //give the init instances the Crafty prototype
 Crafty.fn.init.prototype = Crafty.fn;
 
+//FIXME
+Crafty.clone2 = function (obj){
+	if(obj == null || typeof(obj) != 'object')
+		return obj;
+		
+	if (obj.constructor) {
+		var temp = obj.constructor(); // changed
+	} else {
+		var temp = obj;
+	}
+	for(var key in obj)
+		temp[key] = Crafty.clone2(obj[key]);
+	return temp;
+};
+
 /**
 * Extension method to extend the namespace and
 * selector instances
@@ -312,8 +327,13 @@ Crafty.extend = Crafty.fn.extend = function(obj) {
 	if(!obj) return target;
 	
 	for(key in obj) {
+		//FIXME
 		if(target === obj[key]) continue; //handle circular reference
-		target[key] = obj[key];
+		if (typeof obj[key] == 'object' && key=="_Particles") {
+			target[key] = Crafty.clone2(obj[key]);
+		} else {
+			target[key] = obj[key];
+		}
 	}
 	return target;
 };
