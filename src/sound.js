@@ -84,8 +84,8 @@ Crafty.extend({
 				audio.load();
 				sounds.push(audio);
 			}
-			this._elems[key] = sounds;
-			if(!Crafty.assets[url]) Crafty.assets[url] = this._elems[key][0];
+			this._elems[id] = sounds;
+			if(!Crafty.assets[url]) Crafty.assets[url] = this._elems[id][0];
 			
 			return this;		
 		},
