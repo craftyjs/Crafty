@@ -62,33 +62,41 @@ Crafty.c("particles", {
 	_Particles: {
 		presets: {
 			maxParticles: 150,
-			particles: [],
-			active: true,
-
-			// Properties
 			size: 18,
 			sizeRandom: 4,
 			speed: 1,
 			speedRandom: 1.2,
+			// Lifespan in frames
 			lifeSpan: 29,
 			lifeSpanRandom: 7,
+			// Angle is calculated clockwise: 12pm is 0deg, 3pm is 90deg etc.
 			angle: 65,
 			angleRandom: 34,
 			startColour: [255, 131, 0, 1],
 			startColourRandom: [48, 50, 45, 0],
 			endColour: [245, 35, 0, 0],
 			endColourRandom: [60, 60, 60, 0],
+			// Only applies when fastMode is off, specifies how sharp the gradients are drawn
 			sharpness: 20,
 			sharpnessRandom: 10,
+			// Random spread from origin
 			spread: 10,
+			// How many frames should this last
+			duration: -1,
+			// Will draw squares instead of circle gradients
+			fastMode: false,
+			gravity:{x: 0, y: 0.1},
+			// sensible values are 0-3
+			jitter: 0,
+			
+			//Don't modify the following
+			particles: [],
+			active: true,
 			particleCount: 0,
 			elapsedFrames: 0,
-			duration: -1,
 			emissionRate: 0,
 			emitCounter: 0,
-			particleIndex: 0,
-			fastMode: false,
-			gravity:{x: 0, y: 0.1}
+			particleIndex: 0
 		},
 
 
@@ -120,40 +128,38 @@ Crafty.c("particles", {
 
 			return true;
 		},
-
+		RANDM1TO1: function() {
+			return Math.random() * 2 - 1;
+		},		
 		initParticle: function (particle) {
-			var RANDM1TO1 = function () {
-				return Math.random() * 2 - 1;
-			};
+			particle.position.x = this.position.x + this.positionRandom.x * this.RANDM1TO1();
+			particle.position.y = this.position.y + this.positionRandom.y * this.RANDM1TO1();
 
-			particle.position.x = this.position.x + this.positionRandom.x * RANDM1TO1();
-			particle.position.y = this.position.y + this.positionRandom.y * RANDM1TO1();
-
-			var newAngle = (this.angle + this.angleRandom * RANDM1TO1()) * (Math.PI / 180); // convert to radians
+			var newAngle = (this.angle + this.angleRandom * this.RANDM1TO1()) * (Math.PI / 180); // convert to radians
 			var vector = this.vectorHelpers.create(Math.sin(newAngle), -Math.cos(newAngle)); // Could move to lookup for speed
-			var vectorSpeed = this.speed + this.speedRandom * RANDM1TO1();
+			var vectorSpeed = this.speed + this.speedRandom * this.RANDM1TO1();
 			particle.direction = this.vectorHelpers.multiply(vector, vectorSpeed);
 
-			particle.size = this.size + this.sizeRandom * RANDM1TO1();
+			particle.size = this.size + this.sizeRandom * this.RANDM1TO1();
 			particle.size = particle.size < 0 ? 0 : ~~particle.size;
-			particle.timeToLive = this.lifeSpan + this.lifeSpanRandom * RANDM1TO1();
+			particle.timeToLive = this.lifeSpan + this.lifeSpanRandom * this.RANDM1TO1();
 
-			particle.sharpness = this.sharpness + this.sharpnessRandom * RANDM1TO1();
+			particle.sharpness = this.sharpness + this.sharpnessRandom * this.RANDM1TO1();
 			particle.sharpness = particle.sharpness > 100 ? 100 : particle.sharpness < 0 ? 0 : particle.sharpness;
 			// internal circle gradient size - affects the sharpness of the radial gradient
 			particle.sizeSmall = ~~ ((particle.size / 200) * particle.sharpness); //(size/2/100)
 			var start = [
-				this.startColour[0] + this.startColourRandom[0] * RANDM1TO1(),
-				this.startColour[1] + this.startColourRandom[1] * RANDM1TO1(),
-				this.startColour[2] + this.startColourRandom[2] * RANDM1TO1(),
-				this.startColour[3] + this.startColourRandom[3] * RANDM1TO1()
+				this.startColour[0] + this.startColourRandom[0] * this.RANDM1TO1(),
+				this.startColour[1] + this.startColourRandom[1] * this.RANDM1TO1(),
+				this.startColour[2] + this.startColourRandom[2] * this.RANDM1TO1(),
+				this.startColour[3] + this.startColourRandom[3] * this.RANDM1TO1()
 				];
 
 			var end = [
-				this.endColour[0] + this.endColourRandom[0] * RANDM1TO1(),
-				this.endColour[1] + this.endColourRandom[1] * RANDM1TO1(),
-				this.endColour[2] + this.endColourRandom[2] * RANDM1TO1(),
-				this.endColour[3] + this.endColourRandom[3] * RANDM1TO1()
+				this.endColour[0] + this.endColourRandom[0] * this.RANDM1TO1(),
+				this.endColour[1] + this.endColourRandom[1] * this.RANDM1TO1(),
+				this.endColour[2] + this.endColourRandom[2] * this.RANDM1TO1(),
+				this.endColour[3] + this.endColourRandom[3] * this.RANDM1TO1()
 				];
 
 			particle.colour = start;
@@ -162,7 +168,6 @@ Crafty.c("particles", {
 			particle.deltaColour[2] = (end[2] - start[2]) / particle.timeToLive;
 			particle.deltaColour[3] = (end[3] - start[3]) / particle.timeToLive;
 		},
-
 		update: function () {
 			if (this.active && this.emissionRate > 0) {
 				var rate = 1 / this.emissionRate;
@@ -179,6 +184,7 @@ Crafty.c("particles", {
 
 			this.particleIndex = 0;
 			this.register = [];
+			var draw;
 			while (this.particleIndex < this.particleCount) {
 
 				var currentParticle = this.particles[this.particleIndex];
@@ -190,6 +196,10 @@ Crafty.c("particles", {
 					currentParticle.direction = this.vectorHelpers.add(currentParticle.direction, this.gravity);
 					currentParticle.position = this.vectorHelpers.add(currentParticle.position, currentParticle.direction);
 					currentParticle.position = this.vectorHelpers.add(currentParticle.position, this.viewportDelta);
+					if (this.jitter) {
+						currentParticle.position.x += this.jitter * this.RANDM1TO1(); 
+						currentParticle.position.y += this.jitter * this.RANDM1TO1();
+					}
 					currentParticle.timeToLive--;
 
 					// Update colours
@@ -199,14 +209,18 @@ Crafty.c("particles", {
 					var a = currentParticle.colour[3] += currentParticle.deltaColour[3];
 
 					// Calculate the rgba string to draw.
-					var draw = [];
+					draw = [];
 					draw.push("rgba(" + (r > 255 ? 255 : r < 0 ? 0 : ~~r));
 					draw.push(g > 255 ? 255 : g < 0 ? 0 : ~~g);
 					draw.push(b > 255 ? 255 : b < 0 ? 0 : ~~b);
 					draw.push((a > 1 ? 1 : a < 0 ? 0 : a.toFixed(2)) + ")");
 					currentParticle.drawColour = draw.join(",");
-					draw[3] = "0)";
-					currentParticle.drawColourEnd = draw.join(",");
+
+					if (!this.fastMode) {
+						draw[3] = "0)";
+						currentParticle.drawColourEnd = draw.join(",");
+					}
+
 					this.particleIndex++;
 				} else {
 					// Replace particle with the last active 
