@@ -378,6 +378,7 @@ Crafty.extend({
 	//Calling .pause() again will restore previously deactivated handlers.
 	pause: function() {
 		if (!this._paused){
+			this.trigger('pause');
 			this._paused = true;
 			Crafty._pausedEvents = {};
 			
@@ -387,6 +388,7 @@ Crafty.extend({
 			};
 			Crafty.keydown={};
 		} else {
+			this.trigger('unpause');
 			this._paused = false;
 			
 			for (handler in Crafty._pausedEvents){
