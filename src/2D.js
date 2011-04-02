@@ -242,8 +242,8 @@ Crafty.c("2D", {
 			rect = {x: x, y: y, w: w, h: h};
 		}
 		
-		return rect.x >= this.x && rect.x + rect.w <= this.x + this.w &&
-			   rect.y >= this.y && rect.y + rect.h <= this.y + this.h;
+		return rect.x <= this.x && rect.x + rect.w >= this.x + this.w &&
+				rect.y <= this.y && rect.y + rect.h >= this.y + this.h;
 	},
 	
 	/**
