@@ -62,6 +62,8 @@ Crafty.extend({
 
 			if(Crafty.support.audio && (ext === "mp3" || ext === "wav" || ext === "ogg" || ext === "mp4")) {
 				obj = new Audio(current);
+				//Chrome doesn't trigger onload on audio, see http://code.google.com/p/chromium/issues/detail?id=77794
+				if (navigator.userAgent.indexOf('Chrome') != -1) j++;
 			} else if(ext === "jpg" || ext === "jpeg" || ext === "gif" || ext === "png") {
 				obj = new Image();
 				obj.src = current;
@@ -89,6 +91,12 @@ Crafty.extend({
 			obj.onerror = function() {
 				if(onerror) {
 					onerror.call(this, {loaded: j, total: total, percent: (j / total * 100)});
+				} else {
+					console.log('Failed to load ' + this.src);
+					j++;
+					if(j === total) {
+						if(oncomplete) oncomplete();
+					}
 				}
 			};
 		}

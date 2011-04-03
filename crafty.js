@@ -310,6 +310,21 @@ Crafty.fn = Crafty.prototype = {
 //give the init instances the Crafty prototype
 Crafty.fn.init.prototype = Crafty.fn;
 
+//FIXME
+Crafty.clone2 = function (obj){
+	if(obj == null || typeof(obj) != 'object')
+		return obj;
+		
+	if (obj.constructor) {
+		var temp = obj.constructor(); // changed
+	} else {
+		var temp = obj;
+	}
+	for(var key in obj)
+		temp[key] = Crafty.clone2(obj[key]);
+	return temp;
+};
+
 /**
 * Extension method to extend the namespace and
 * selector instances
@@ -322,8 +337,13 @@ Crafty.extend = Crafty.fn.extend = function(obj) {
 	if(!obj) return target;
 	
 	for(key in obj) {
+		//FIXME
 		if(target === obj[key]) continue; //handle circular reference
-		target[key] = obj[key];
+		if (typeof obj[key] == 'object' && key=="_Particles") {
+			target[key] = Crafty.clone2(obj[key]);
+		} else {
+			target[key] = obj[key];
+		}
 	}
 	
 	return target;
@@ -362,6 +382,30 @@ Crafty.extend({
 		if(onFrame) onFrame(tickID);
 		tick = null;
 		
+		return this;
+	},
+	
+	//Unbinds all enterframe handlers and stores them away
+	//Calling .pause() again will restore previously deactivated handlers.
+	pause: function() {
+		if (!this._paused){
+			this.trigger('pause');
+			this._paused = true;
+			Crafty._pausedEvents = {};
+			
+			for (handler in handlers['enterframe']){
+				Crafty._pausedEvents[handler] = handlers['enterframe'][handler];
+				delete handlers['enterframe'][handler];
+			};
+			Crafty.keydown={};
+		} else {
+			this.trigger('unpause');
+			this._paused = false;
+			
+			for (handler in Crafty._pausedEvents){
+				handlers['enterframe'][handler] = Crafty._pausedEvents[handler];
+			};
+		}
 		return this;
 	},
 	
@@ -892,8 +936,8 @@ Crafty.c("2D", {
 			rect = {x: x, y: y, w: w, h: h};
 		}
 		
-		return rect.x >= this.x && rect.x + rect.w <= this.x + this.w &&
-			   rect.y >= this.y && rect.y + rect.h <= this.y + this.h;
+		return rect.x <= this.x && rect.x + rect.w >= this.x + this.w &&
+				rect.y <= this.y && rect.y + rect.h >= this.y + this.h;
 	},
 	
 	/**
@@ -1142,14 +1186,25 @@ Crafty.c("gravity", {
 			this._gy = 0; //reset change in y
 		}
 
-		var obj, hit = false,
-			q = Crafty.map.search(this.pos()),
-			i = 0, l = q.length;
-			
+		var obj, hit = false, pos = this.pos(),
+			q, i = 0, l;
+
+		//Increase by 1 to make sure map.search() finds the floor
+		pos._y++;
+
+		//map.search wants _x and intersect wants x...
+		pos.x = pos._x;
+		pos.y = pos._y;
+		pos.w = pos._w;
+		pos.h = pos._h;
+
+		q = Crafty.map.search(pos);
+		l = q.length;
+
 		for(;i<l;++i) {
 			obj = q[i];
 			//check for an intersection directly below the player
-			if(obj !== this && obj.has(this._anti) && obj.intersect(this)) {
+			if(obj !== this && obj.has(this._anti) && obj.intersect(pos)) {
 				hit = obj;
 				break;
 			}
@@ -1880,6 +1935,13 @@ Crafty.extend({
 				Crafty.stage.y = offset.y;
 			});
 			
+			Crafty.addEvent(this, window, "blur", function() {
+				if (!Crafty.dontPauseOnBlur) Crafty.pause();
+			});
+			Crafty.addEvent(this, window, "focus", function() {
+				if (Crafty._paused) Crafty.pause();
+			});
+
 			
 			//add to the body and give it an ID if not exists
 			if(!crstage) {
@@ -2237,6 +2299,7 @@ Crafty.extend({
 			//click must mousedown and out on tile
 			if(e.type === "mousedown") {
 				this.down = closest;
+				this.down.trigger('mousedown', e);
 			}
 			if(e.type === "mouseup") {
 				//check that down exists and this is down
@@ -2387,16 +2450,17 @@ Crafty.c("fourway", {
 		if(speed) this._speed = speed;
 		
 		this.bind("enterframe", function() {
-			if(this.isDown("RA") || this.isDown("D")) {
+			if (this.disableControls) return;
+			if(this.isDown("RIGHT_ARROW") || this.isDown("D")) {
 				this.x += this._speed;
 			}
-			if(this.isDown("LA") || this.isDown("A")) {
+			if(this.isDown("LEFT_ARROW") || this.isDown("A")) {
 				this.x -= this._speed;
 			}
-			if(this.isDown("UA") || this.isDown("W")) {
+			if(this.isDown("UP_ARROW") || this.isDown("W")) {
 				this.y -= this._speed;
 			}
-			if(this.isDown("DA") || this.isDown("S")) {
+			if(this.isDown("DOWN_ARROW") || this.isDown("S")) {
 				this.y += this._speed;
 			}
 		});
@@ -2418,10 +2482,11 @@ Crafty.c("twoway", {
 		jump = jump || this._speed * 2;
 		
 		this.bind("enterframe", function() {
-			if(this.isDown("RA") || this.isDown("D")) {
+			if (this.disableControls) return;
+			if(this.isDown("RIGHT_ARROW") || this.isDown("D")) {
 				this.x += this._speed;
 			}
-			if(this.isDown("LA") || this.isDown("A")) {
+			if(this.isDown("LEFT_ARROW") || this.isDown("A")) {
 				this.x -= this._speed;
 			}
 			if(this._up) {
@@ -2429,7 +2494,7 @@ Crafty.c("twoway", {
 				this._falling = true;
 			}
 		}).bind("keydown", function() {
-			if(this.isDown("UA") || this.isDown("W")) this._up = true;
+			if(this.isDown("UP_ARROW") || this.isDown("W")) this._up = true;
 		});
 		
 		return this;
@@ -2455,7 +2520,7 @@ Crafty.c("animate", {
 
 	animate: function(id, fromx, y, tox) {
 		//play a reel
-		if(arguments.length === 2 && typeof fromx === "number") {
+		if(arguments.length < 4 && typeof fromx === "number") {
 			//make sure not currently animating
 			this._current = id;
 			
@@ -2465,9 +2530,14 @@ Crafty.c("animate", {
 				reel: reel, //reel to play
 				frameTime: Math.ceil(duration / reel.length), //number of frames inbetween slides
 				frame: 0, //current slide/frame
-				current: 0
+				current: 0,
+				repeat: 0
 			};
-			
+			if (arguments.length === 3 && typeof y === "number") {
+				//User provided repetition count
+				if (y === -1) this._frame.repeatInfinitly = true;
+				else this._frame.repeat = y;
+			}
 			this.bind("enterframe", this.drawFrame);
 			return this;
 		}
@@ -2508,10 +2578,15 @@ Crafty.c("animate", {
 		
 		if(data.frame === data.reel.length && this._frame.current === data.frameTime) {
 			data.frame = 0;
-			
-			this.trigger("animationend", {reel: data.reel});
-			this.stop();
-			return;
+			if (this._frame.repeatInfinitly === true || this._frame.repeat > 0) {
+				if (this._frame.repeat) this._frame.repeat--;
+				this._frame.current = 0;
+				this._frame.frame = 0;
+			} else {
+				this.trigger("animationend", {reel: data.reel});
+				this.stop();
+				return;
+			}
 		}
 		
 		this.trigger("change");
@@ -2864,7 +2939,7 @@ Crafty.DrawManager = (function() {
 		* Returns coords
 		*/
 		boundingRect: function(set) {
-			if (!set.length) return;
+			if (!set || !set.length) return;
 			var newset = [], i = 1,
 			l = set.length, current, master=set[0], tmp;
 			master=[master._x, master._y, master._x + master._w, master._y + master._h];
@@ -3103,30 +3178,26 @@ Crafty.c("particles", {
 
 		this._Particles.init(options);
 
-
 		relativeX = this.x + Crafty.viewport.x;
 		relativeY = this.y + Crafty.viewport.y;
 		this._Particles.position = this._Particles.vectorHelpers.create(relativeX, relativeY);
-		this._Particles.update();
 
+		var oldViewport = {x: Crafty.viewport.x, y:Crafty.viewport.y};
+		
 		this.bind('enterframe', function () {
 			relativeX = this.x + Crafty.viewport.x;
 			relativeY = this.y + Crafty.viewport.y;
+			this._Particles.viewportDelta = {x: Crafty.viewport.x - oldViewport.x, y: Crafty.viewport.y - oldViewport.y};
+
+			oldViewport = {x: Crafty.viewport.x, y:Crafty.viewport.y};
+				
 			this._Particles.position = this._Particles.vectorHelpers.create(relativeX, relativeY);
 
-
-			//Version A
-			//Clear area around all rects
-			// for (var i=0; i < this._Particles.register.length; i++) {
-			// 	curpar=this._Particles.register[i];
-			// 	ctx.clearRect( curpar._x,curpar._y, curpar._w,curpar._h );
-			// };
-			//Version B
+			//Selective clearing
 			if (typeof Crafty.DrawManager.boundingRect == 'function') {
 				bounding = Crafty.DrawManager.boundingRect(this._Particles.register);
 				if (bounding) ctx.clearRect(bounding._x, bounding._y, bounding._w, bounding._h);
 			} else {
-				//Version C
 				ctx.clearRect(0, 0, Crafty.viewport.width, Crafty.viewport.height);
 			}
 
@@ -3141,33 +3212,41 @@ Crafty.c("particles", {
 	_Particles: {
 		presets: {
 			maxParticles: 150,
-			particles: [],
-			active: true,
-
-			// Properties
 			size: 18,
 			sizeRandom: 4,
 			speed: 1,
 			speedRandom: 1.2,
+			// Lifespan in frames
 			lifeSpan: 29,
 			lifeSpanRandom: 7,
+			// Angle is calculated clockwise: 12pm is 0deg, 3pm is 90deg etc.
 			angle: 65,
 			angleRandom: 34,
 			startColour: [255, 131, 0, 1],
 			startColourRandom: [48, 50, 45, 0],
 			endColour: [245, 35, 0, 0],
 			endColourRandom: [60, 60, 60, 0],
+			// Only applies when fastMode is off, specifies how sharp the gradients are drawn
 			sharpness: 20,
 			sharpnessRandom: 10,
+			// Random spread from origin
 			spread: 10,
+			// How many frames should this last
+			duration: -1,
+			// Will draw squares instead of circle gradients
+			fastMode: false,
+			gravity:{x: 0, y: 0.1},
+			// sensible values are 0-3
+			jitter: 0,
+			
+			//Don't modify the following
+			particles: [],
+			active: true,
 			particleCount: 0,
 			elapsedFrames: 0,
-			duration: -1,
 			emissionRate: 0,
 			emitCounter: 0,
-			particleIndex: 0,
-			fastMode: false,
-			gravity:{x: 0, y: 0.1}
+			particleIndex: 0
 		},
 
 
@@ -3177,7 +3256,8 @@ Crafty.c("particles", {
 
 			//Create current config by mergin given options and presets.
 			for (key in this.presets) {
-				this[key] = options[key] || this.presets[key];
+				if (typeof options[key] != 'undefined') this[key] = options[key];
+				else this[key] = this.presets[key];
 			}
 
 			this.emissionRate = this.maxParticles / this.lifeSpan;
@@ -3198,40 +3278,38 @@ Crafty.c("particles", {
 
 			return true;
 		},
-
+		RANDM1TO1: function() {
+			return Math.random() * 2 - 1;
+		},		
 		initParticle: function (particle) {
-			var RANDM1TO1 = function () {
-				return Math.random() * 2 - 1;
-			};
+			particle.position.x = this.position.x + this.positionRandom.x * this.RANDM1TO1();
+			particle.position.y = this.position.y + this.positionRandom.y * this.RANDM1TO1();
 
-			particle.position.x = this.position.x + this.positionRandom.x * RANDM1TO1();
-			particle.position.y = this.position.y + this.positionRandom.y * RANDM1TO1();
-
-			var newAngle = (this.angle + this.angleRandom * RANDM1TO1()) * (Math.PI / 180); // convert to radians
-			var vector = this.vectorHelpers.create(Math.cos(newAngle), Math.sin(newAngle)); // Could move to lookup for speed
-			var vectorSpeed = this.speed + this.speedRandom * RANDM1TO1();
+			var newAngle = (this.angle + this.angleRandom * this.RANDM1TO1()) * (Math.PI / 180); // convert to radians
+			var vector = this.vectorHelpers.create(Math.sin(newAngle), -Math.cos(newAngle)); // Could move to lookup for speed
+			var vectorSpeed = this.speed + this.speedRandom * this.RANDM1TO1();
 			particle.direction = this.vectorHelpers.multiply(vector, vectorSpeed);
 
-			particle.size = this.size + this.sizeRandom * RANDM1TO1();
+			particle.size = this.size + this.sizeRandom * this.RANDM1TO1();
 			particle.size = particle.size < 0 ? 0 : ~~particle.size;
-			particle.timeToLive = this.lifeSpan + this.lifeSpanRandom * RANDM1TO1();
+			particle.timeToLive = this.lifeSpan + this.lifeSpanRandom * this.RANDM1TO1();
 
-			particle.sharpness = this.sharpness + this.sharpnessRandom * RANDM1TO1();
+			particle.sharpness = this.sharpness + this.sharpnessRandom * this.RANDM1TO1();
 			particle.sharpness = particle.sharpness > 100 ? 100 : particle.sharpness < 0 ? 0 : particle.sharpness;
 			// internal circle gradient size - affects the sharpness of the radial gradient
 			particle.sizeSmall = ~~ ((particle.size / 200) * particle.sharpness); //(size/2/100)
 			var start = [
-				this.startColour[0] + this.startColourRandom[0] * RANDM1TO1(),
-				this.startColour[1] + this.startColourRandom[1] * RANDM1TO1(),
-				this.startColour[2] + this.startColourRandom[2] * RANDM1TO1(),
-				this.startColour[3] + this.startColourRandom[3] * RANDM1TO1()
+				this.startColour[0] + this.startColourRandom[0] * this.RANDM1TO1(),
+				this.startColour[1] + this.startColourRandom[1] * this.RANDM1TO1(),
+				this.startColour[2] + this.startColourRandom[2] * this.RANDM1TO1(),
+				this.startColour[3] + this.startColourRandom[3] * this.RANDM1TO1()
 				];
 
 			var end = [
-				this.endColour[0] + this.endColourRandom[0] * RANDM1TO1(),
-				this.endColour[1] + this.endColourRandom[1] * RANDM1TO1(),
-				this.endColour[2] + this.endColourRandom[2] * RANDM1TO1(),
-				this.endColour[3] + this.endColourRandom[3] * RANDM1TO1()
+				this.endColour[0] + this.endColourRandom[0] * this.RANDM1TO1(),
+				this.endColour[1] + this.endColourRandom[1] * this.RANDM1TO1(),
+				this.endColour[2] + this.endColourRandom[2] * this.RANDM1TO1(),
+				this.endColour[3] + this.endColourRandom[3] * this.RANDM1TO1()
 				];
 
 			particle.colour = start;
@@ -3240,7 +3318,6 @@ Crafty.c("particles", {
 			particle.deltaColour[2] = (end[2] - start[2]) / particle.timeToLive;
 			particle.deltaColour[3] = (end[3] - start[3]) / particle.timeToLive;
 		},
-
 		update: function () {
 			if (this.active && this.emissionRate > 0) {
 				var rate = 1 / this.emissionRate;
@@ -3257,6 +3334,7 @@ Crafty.c("particles", {
 
 			this.particleIndex = 0;
 			this.register = [];
+			var draw;
 			while (this.particleIndex < this.particleCount) {
 
 				var currentParticle = this.particles[this.particleIndex];
@@ -3267,6 +3345,11 @@ Crafty.c("particles", {
 					// Calculate the new direction based on gravity
 					currentParticle.direction = this.vectorHelpers.add(currentParticle.direction, this.gravity);
 					currentParticle.position = this.vectorHelpers.add(currentParticle.position, currentParticle.direction);
+					currentParticle.position = this.vectorHelpers.add(currentParticle.position, this.viewportDelta);
+					if (this.jitter) {
+						currentParticle.position.x += this.jitter * this.RANDM1TO1(); 
+						currentParticle.position.y += this.jitter * this.RANDM1TO1();
+					}
 					currentParticle.timeToLive--;
 
 					// Update colours
@@ -3276,14 +3359,18 @@ Crafty.c("particles", {
 					var a = currentParticle.colour[3] += currentParticle.deltaColour[3];
 
 					// Calculate the rgba string to draw.
-					var draw = [];
+					draw = [];
 					draw.push("rgba(" + (r > 255 ? 255 : r < 0 ? 0 : ~~r));
 					draw.push(g > 255 ? 255 : g < 0 ? 0 : ~~g);
 					draw.push(b > 255 ? 255 : b < 0 ? 0 : ~~b);
 					draw.push((a > 1 ? 1 : a < 0 ? 0 : a.toFixed(2)) + ")");
 					currentParticle.drawColour = draw.join(",");
-					draw[3] = "0)";
-					currentParticle.drawColourEnd = draw.join(",");
+
+					if (!this.fastMode) {
+						draw[3] = "0)";
+						currentParticle.drawColourEnd = draw.join(",");
+					}
+
 					this.particleIndex++;
 				} else {
 					// Replace particle with the last active 
@@ -3455,8 +3542,8 @@ Crafty.c("particles", {
 				audio.load();
 				sounds.push(audio);
 			}
-			this._elems[key] = sounds;
-			if(!Crafty.assets[url]) Crafty.assets[url] = this._elems[key][0];
+			this._elems[id] = sounds;
+			if(!Crafty.assets[url]) Crafty.assets[url] = this._elems[id][0];
 			
 			return this;		
 		},
@@ -3595,6 +3682,8 @@ Crafty.extend({
 
 			if(Crafty.support.audio && (ext === "mp3" || ext === "wav" || ext === "ogg" || ext === "mp4")) {
 				obj = new Audio(current);
+				//Chrome doesn't trigger onload on audio, see http://code.google.com/p/chromium/issues/detail?id=77794
+				if (navigator.userAgent.indexOf('Chrome') != -1) j++;
 			} else if(ext === "jpg" || ext === "jpeg" || ext === "gif" || ext === "png") {
 				obj = new Image();
 				obj.src = current;
@@ -3622,6 +3711,12 @@ Crafty.extend({
 			obj.onerror = function() {
 				if(onerror) {
 					onerror.call(this, {loaded: j, total: total, percent: (j / total * 100)});
+				} else {
+					console.log('Failed to load ' + this.src);
+					j++;
+					if(j === total) {
+						if(oncomplete) oncomplete();
+					}
 				}
 			};
 		}
