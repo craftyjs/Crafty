@@ -3512,6 +3512,7 @@ Crafty.extend({
 	audio: {
 		_elems: {},
 		_muted: false,
+		_mutedAudio : [],
 		/**@
 		* #Crafty.audio.MAX_CHANNELS
 		* Amount of Audio objects for a sound so overlapping of the 
@@ -3752,8 +3753,8 @@ Crafty.extend({
 					sound = elem[i];
 					
 					//if playing, stop
-					if(!sound.ended || sound.currentTime) {
-						pausedAudio.push(sound);
+					if(!sound.ended && sound.currentTime) {
+						this._mutedAudio.push(sound);
 						sound.pause();
 						//sound.currentTime = 0;
 					}
@@ -3763,16 +3764,17 @@ Crafty.extend({
 		
 		unMute: function() {
 			this._muted = false;
-			for (var i=0; i < pausedAudio.length; i++) {
-				pausedAudio[i].play();
+			for (var i=0; i < this._mutedAudio.length; i++) {
+				this._mutedAudio[i].play();
 			}
+			this._mutedAudio = [];
 		}
 	}
 });
 
 //stop sounds on Pause
-Crafty.bind("Pause", Crafty.audio.mute);
-Crafty.bind("Unpause", Crafty.audio.mute);
+Crafty.bind("Pause", function() {Crafty.audio.mute()});
+Crafty.bind("Unpause", function() {Crafty.audio.unMute()});
 
 Crafty.c("Text", {
 	_text: "",
