@@ -33,9 +33,11 @@ Crafty.c("DOM", {
 	},
 	
 	DOM: function(elem) {
-		if(!this.has("2D")) this.addComponent("2D");
-		this._element = elem;
-		this._element.style.position = 'absolute';
+		if(elem && elem.nodeType) {
+			this.undraw();
+			this._element = elem;
+			this._element.style.position = 'absolute';
+		}
 		return this;
 	},
 	
@@ -63,8 +65,8 @@ Crafty.c("DOM", {
 			} else {
 				this._filters.alpha = "alpha(opacity="+(this._alpha*100)+")";
 			}
+			this.applyFilters();
 		}
-		this.applyFilters();
 		
 		if(this._mbr) {
 			var rstring = "rotate("+this._rotation+"deg)",
