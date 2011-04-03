@@ -138,6 +138,10 @@ Crafty.fn = Crafty.prototype = {
 		ul = uninit.length;
 		for(;c<ul;c++) {
 			comp = components[uninit[c]];
+			//Backward compat
+			if (typeof comp == 'undefined'){
+				comp = components[uninit[c].substr(0, 1).toUpperCase() + uninit[c].substr(1)];
+			} 
 			this.extend(comp);
 			
 			//if constructor, call it
@@ -963,6 +967,26 @@ Crafty.c("2D", {
 		
 		return rect.x <= this.x && rect.x + rect.w >= this.x + this.w &&
 				rect.y <= this.y && rect.y + rect.h >= this.y + this.h;
+	},
+	
+	/**
+	* Checks if the entity contains a rect
+	*
+	* @param x X position of the rect or a Rect object
+	* @param y Y position of the rect
+	* @param w Width of the rect
+	* @param h Height of the rect
+	*/
+	contains: function(x,y,w,h) {
+		var rect;
+		if(typeof x === "object") {
+			rect = x;
+		} else {
+			rect = {x: x, y: y, w: w, h: h};
+		}
+		
+		return rect.x >= this.x && rect.x + rect.w <= this.x + this.w &&
+				rect.y >= this.y && rect.y + rect.h <= this.y + this.h;
 	},
 	
 	/**
@@ -3182,7 +3206,8 @@ Crafty.extend({
 
 Crafty.c("particles", {
 	init: function () {
-		//nothing to do here...
+		//We need to clone it
+		this._Particles = Crafty.clone(this._Particles);
 	},
 	particles: function (options) {
 

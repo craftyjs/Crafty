@@ -5,7 +5,8 @@
 
 Crafty.c("particles", {
 	init: function () {
-		//nothing to do here...
+		//We need to clone it
+		this._Particles = Crafty.clone(this._Particles);
 	},
 	particles: function (options) {
 
