@@ -213,3 +213,6 @@ Crafty.extend({
 		}
 	}
 });
+
+//stop sounds on Pause
+Crafty.bind("Pause", Crafty.audio.mute);

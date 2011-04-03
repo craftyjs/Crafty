@@ -373,8 +373,10 @@ Crafty.extend({
 		return this;
 	},
 	
-	//Unbinds all enterframe handlers and stores them away
-	//Calling .pause() again will restore previously deactivated handlers.
+	/**
+	* Unbinds all enterframe handlers and stores them away
+	* Calling .pause() again will restore previously deactivated handlers.
+	*/
 	pause: function() {
 		if(!this._paused){
 			this.trigger('Pause');
