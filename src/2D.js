@@ -465,7 +465,7 @@ Crafty.c("2D", {
 	}
 });
 
-Crafty.c("gravity", {
+Crafty.c("Gravity", {
 	_gravity: 0.2,
 	_gy: 0,
 	_falling: true,

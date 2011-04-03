@@ -1,4 +1,4 @@
-Crafty.c("color", {
+Crafty.c("Color", {
 	_color: "",
 	ready: true,
 	
@@ -21,7 +21,7 @@ Crafty.c("color", {
 	}
 });
 
-Crafty.c("tint", {
+Crafty.c("Tint", {
 	_color: null,
 	_strength: 1.0,
 	
@@ -42,7 +42,7 @@ Crafty.c("tint", {
 	}
 });
 
-Crafty.c("image", {
+Crafty.c("Image", {
 	_repeat: "repeat",
 	ready: false,
 	
@@ -70,7 +70,7 @@ Crafty.c("image", {
 			var self = this;
 			
 			this.img.onload = function() {
-				if(self.has("canvas")) self._pattern = Crafty.context.createPattern(self.img, self._repeat);
+				if(self.has("Canvas")) self._pattern = Crafty.context.createPattern(self.img, self._repeat);
 				self.ready = true;
 				
 				if(self._repeat === "no-repeat") {
@@ -84,7 +84,7 @@ Crafty.c("image", {
 			return this;
 		} else {
 			this.ready = true;
-			if(this.has("canvas")) this._pattern = Crafty.context.createPattern(this.img, this._repeat);
+			if(this.has("Canvas")) this._pattern = Crafty.context.createPattern(this.img, this._repeat);
 			if(this._repeat === "no-repeat") {
 				this.w = this.img.width;
 				this.h = this.img.height;
@@ -280,7 +280,7 @@ Crafty.DrawManager = (function() {
 			q.sort(function(a,b) { return a._global - b._global; });
 			for(;i<l;i++) {
 				current = q[i];
-				if(current._visible && current.__c.canvas) {
+				if(current._visible && current.__c.Canvas) {
 					current.draw();
 					current._changed = false;
 				}
@@ -352,7 +352,7 @@ Crafty.DrawManager = (function() {
 				for(j = 0, len = q.length; j < len; ++j) {
 					obj = q[j];
 					
-					if(dupes[obj[0]] || !obj._visible || !obj.has("canvas"))
+					if(dupes[obj[0]] || !obj._visible || !obj.has("Canvas"))
 						continue;
 					dupes[obj[0]] = true;
 					

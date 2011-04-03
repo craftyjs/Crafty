@@ -1,4 +1,4 @@
-Crafty.c("collision", {
+Crafty.c("Collision", {
 	
 	collision: function(poly) {
 		var area = this._mbr || this;

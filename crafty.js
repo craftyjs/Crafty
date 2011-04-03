@@ -1196,7 +1196,7 @@ Crafty.c("2D", {
 	}
 });
 
-Crafty.c("gravity", {
+Crafty.c("Gravity", {
 	_gravity: 0.2,
 	_gy: 0,
 	_falling: true,
@@ -1328,7 +1328,7 @@ Crafty.polygon.prototype = {
 	}
 };
 
-Crafty.c("collision", {
+Crafty.c("Collision", {
 	
 	collision: function(poly) {
 		var area = this._mbr || this;
@@ -1781,7 +1781,7 @@ Crafty.extend({
 				ready: false,
 				
 				init: function() {
-					this.addComponent("sprite");
+					this.addComponent("Sprite");
 					this.__trim = [0,0,0,0];
 		
 					//draw now
@@ -2175,7 +2175,7 @@ Crafty.c("viewport", {
 /**
 * Canvas Components and Extensions
 */
-Crafty.c("canvas", {
+Crafty.c("Canvas", {
 	buffer: 50,
 	
 	init: function() {
@@ -2383,7 +2383,7 @@ Crafty.onload(this, function() {
 	Crafty.addEvent(this, Crafty.stage.elem, "touchend", Crafty.mouseDispatch);
 });
 
-Crafty.c("mouse", {
+Crafty.c("Mouse", {
 	init: function() {
 		Crafty.mouseObjs++;
 		this.bind("remove", function() {
@@ -2407,7 +2407,7 @@ Crafty.c("mouse", {
 	}
 });
 
-Crafty.c("draggable", {
+Crafty.c("Draggable", {
 	_startX: 0,
 	_startY: 0,
 	
@@ -2436,7 +2436,7 @@ Crafty.c("draggable", {
 	}
 });
 
-Crafty.c("controls", {
+Crafty.c("Controls", {
 	init: function() {
 		function dispatch(e) {
 			e.key = e.keyCode || e.which;
@@ -2478,7 +2478,7 @@ Crafty.c("controls", {
 	}
 });
 
-Crafty.c("fourway", {	
+Crafty.c("Fourway", {	
 	_speed: 3,
 	
 	init: function() {
@@ -2508,7 +2508,7 @@ Crafty.c("fourway", {
 	}
 });
 
-Crafty.c("twoway", {
+Crafty.c("Twoway", {
 	_speed: 3,
 	_up: false,
 	
@@ -2548,7 +2548,7 @@ Crafty.c("twoway", {
 * Crafty(player).animate("walk_left");
 * Crafty(player).stop();
 */
-Crafty.c("animate", {
+Crafty.c("Animate", {
 	_reels: null,
 	_frame: null,
 	_current: null,
@@ -2657,7 +2657,7 @@ Crafty.c("animate", {
 	}
 });
 
-Crafty.c("tween", {
+Crafty.c("Tween", {
 	tween: function(props, duration) {
 		var prop,
 			old = {},
@@ -2684,7 +2684,7 @@ Crafty.c("tween", {
 	}
 });
 
-Crafty.c("color", {
+Crafty.c("Color", {
 	_color: "",
 	ready: true,
 	
@@ -2707,7 +2707,7 @@ Crafty.c("tween", {
 	}
 });
 
-Crafty.c("tint", {
+Crafty.c("Tint", {
 	_color: null,
 	_strength: 1.0,
 	
@@ -2728,7 +2728,7 @@ Crafty.c("tint", {
 	}
 });
 
-Crafty.c("image", {
+Crafty.c("Image", {
 	_repeat: "repeat",
 	ready: false,
 	
@@ -2756,7 +2756,7 @@ Crafty.c("image", {
 			var self = this;
 			
 			this.img.onload = function() {
-				if(self.has("canvas")) self._pattern = Crafty.context.createPattern(self.img, self._repeat);
+				if(self.has("Canvas")) self._pattern = Crafty.context.createPattern(self.img, self._repeat);
 				self.ready = true;
 				
 				if(self._repeat === "no-repeat") {
@@ -2770,7 +2770,7 @@ Crafty.c("image", {
 			return this;
 		} else {
 			this.ready = true;
-			if(this.has("canvas")) this._pattern = Crafty.context.createPattern(this.img, this._repeat);
+			if(this.has("Canvas")) this._pattern = Crafty.context.createPattern(this.img, this._repeat);
 			if(this._repeat === "no-repeat") {
 				this.w = this.img.width;
 				this.h = this.img.height;
@@ -2966,7 +2966,7 @@ Crafty.DrawManager = (function() {
 			q.sort(function(a,b) { return a._global - b._global; });
 			for(;i<l;i++) {
 				current = q[i];
-				if(current._visible && current.__c.canvas) {
+				if(current._visible && current.__c.Canvas) {
 					current.draw();
 					current._changed = false;
 				}
@@ -3038,7 +3038,7 @@ Crafty.DrawManager = (function() {
 				for(j = 0, len = q.length; j < len; ++j) {
 					obj = q[j];
 					
-					if(dupes[obj[0]] || !obj._visible || !obj.has("canvas"))
+					if(dupes[obj[0]] || !obj._visible || !obj.has("Canvas"))
 						continue;
 					dupes[obj[0]] = true;
 					

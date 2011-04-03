@@ -1,7 +1,7 @@
 /**
 * Canvas Components and Extensions
 */
-Crafty.c("canvas", {
+Crafty.c("Canvas", {
 	buffer: 50,
 	
 	init: function() {

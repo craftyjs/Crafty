@@ -68,7 +68,7 @@ Crafty.extend({
 				ready: false,
 				
 				init: function() {
-					this.addComponent("sprite");
+					this.addComponent("Sprite");
 					this.__trim = [0,0,0,0];
 		
 					//draw now

@@ -5,7 +5,7 @@
 * Crafty(player).animate("walk_left");
 * Crafty(player).stop();
 */
-Crafty.c("animate", {
+Crafty.c("Animate", {
 	_reels: null,
 	_frame: null,
 	_current: null,
@@ -114,7 +114,7 @@ Crafty.c("animate", {
 	}
 });
 
-Crafty.c("tween", {
+Crafty.c("Tween", {
 	tween: function(props, duration) {
 		var prop,
 			old = {},

@@ -95,7 +95,7 @@ Crafty.onload(this, function() {
 	Crafty.addEvent(this, Crafty.stage.elem, "touchend", Crafty.mouseDispatch);
 });
 
-Crafty.c("mouse", {
+Crafty.c("Mouse", {
 	init: function() {
 		Crafty.mouseObjs++;
 		this.bind("remove", function() {
@@ -119,7 +119,7 @@ Crafty.c("mouse", {
 	}
 });
 
-Crafty.c("draggable", {
+Crafty.c("Draggable", {
 	_startX: 0,
 	_startY: 0,
 	
@@ -148,7 +148,7 @@ Crafty.c("draggable", {
 	}
 });
 
-Crafty.c("controls", {
+Crafty.c("Controls", {
 	init: function() {
 		function dispatch(e) {
 			e.key = e.keyCode || e.which;
@@ -190,7 +190,7 @@ Crafty.c("controls", {
 	}
 });
 
-Crafty.c("fourway", {	
+Crafty.c("Fourway", {	
 	_speed: 3,
 	
 	init: function() {
@@ -220,7 +220,7 @@ Crafty.c("fourway", {
 	}
 });
 
-Crafty.c("twoway", {
+Crafty.c("Twoway", {
 	_speed: 3,
 	_up: false,
 	
