@@ -6,7 +6,7 @@
  * Dual licensed under the MIT or GPL licenses.
  */
 
-(function(window, undefined) {
+(function(window, undefined) {
 
 var Crafty = function(selector) {
 		return new Crafty.fn.init(selector);
@@ -24,7 +24,6 @@ var Crafty = function(selector) {
 	tickID,
 	
 	pausedEvents = {},
-	pausedAudio = [],
 	
 	slice = Array.prototype.slice,
 	rlist = /\s*,\s*/,
@@ -313,6 +312,21 @@ Crafty.fn = Crafty.prototype = {
 //give the init instances the Crafty prototype
 Crafty.fn.init.prototype = Crafty.fn;
 
+//FIXME
+Crafty.clone2 = function (obj){
+	if(obj == null || typeof(obj) != 'object')
+		return obj;
+		
+	if (obj.constructor) {
+		var temp = obj.constructor(); // changed
+	} else {
+		var temp = obj;
+	}
+	for(var key in obj)
+		temp[key] = Crafty.clone2(obj[key]);
+	return temp;
+};
+
 /**
 * Extension method to extend the namespace and
 * selector instances
@@ -367,10 +381,8 @@ Crafty.extend({
 		return this;
 	},
 	
-	/**
-	* Unbinds all enterframe handlers and stores them away
-	* Calling .pause() again will restore previously deactivated handlers.
-	*/
+	//Unbinds all enterframe handlers and stores them away
+	//Calling .pause() again will restore previously deactivated handlers.
 	pause: function() {
 		if(!this._paused){
 			this.trigger('Pause');
@@ -572,11 +584,11 @@ function clone(obj){
 window.Crafty = Crafty;
 })(window);
 
-//wrap around components
+//wrap around components
 (function(Crafty, window, document) {
 
 
-/**
+/**
 * Spatial HashMap for broad phase collision
 *
 * @author Louis Stowasser
@@ -717,7 +729,7 @@ Entry.prototype = {
 parent.HashMap = HashMap;
 })(Crafty);
 
-Crafty.map = new Crafty.HashMap();
+Crafty.map = new Crafty.HashMap();
 var M = Math,
 	Mc = M.cos,
 	Ms = M.sin,
@@ -1316,7 +1328,7 @@ Crafty.polygon.prototype = {
 	}
 };
 
-Crafty.c("collision", {
+Crafty.c("collision", {
 	
 	collision: function(poly) {
 		var area = this._mbr || this;
@@ -1499,7 +1511,7 @@ Crafty.c("collision", {
 	}
 });
 
-Crafty.c("DOM", {
+Crafty.c("DOM", {
 	_element: null,
 	_filters: {},
 	
@@ -1699,7 +1711,7 @@ Crafty.extend({
 	}
 });
 
-Crafty.extend({
+Crafty.extend({
 	
 	randRange: function(from, to) {
 		return Math.round(Math.random() * (to - from) + from);
@@ -2160,7 +2172,7 @@ Crafty.c("viewport", {
 });
 
 
-/**
+/**
 * Canvas Components and Extensions
 */
 Crafty.c("canvas", {
@@ -2274,7 +2286,7 @@ Crafty.extend({
 	}
 });
 
-Crafty.extend({
+Crafty.extend({
 	down: null, //object mousedown, waiting for up
 	over: null, //object mouseover, waiting for out
 	mouseObjs: 0,
@@ -2529,7 +2541,7 @@ Crafty.c("twoway", {
 });
 
 
-/**
+/**
 * Animation component
 *
 * Crafty(player).animate("walk_left", 0, 1, 4, 100);
@@ -2672,7 +2684,7 @@ Crafty.c("tween", {
 	}
 });
 
-Crafty.c("color", {
+Crafty.c("color", {
 	_color: "",
 	ready: true,
 	
@@ -3084,7 +3096,7 @@ Crafty.DrawManager = (function() {
 	};
 })();
 
-Crafty.c("group", {
+Crafty.c("group", {
 	_children: [],
 	
 	group: function(children) {
@@ -3147,7 +3159,7 @@ Crafty.extend({
 	}
 });
 
-Crafty.extend({
+Crafty.extend({
 	isometric: {
 		_tile: 0,
 		_z: 0,
@@ -3175,7 +3187,7 @@ Crafty.extend({
 	}
 });
 
-//Particle component
+//Particle component
 //Based on Parcycle by Mr. Speaker, licensed under the MIT,
 //Ported by Leo Koppelkamm
 //**This is canvas only & won't do anything if the browser doesn't support it!**
@@ -3483,10 +3495,9 @@ Crafty.c("particles", {
 	}
 });
 
-Crafty.extend({
+Crafty.extend({
 	audio: {
 		_elems: {},
-		_muted: false,
 		/**@
 		* #Crafty.audio.MAX_CHANNELS
 		* Amount of Audio objects for a sound so overlapping of the 
@@ -3629,37 +3640,10 @@ Crafty.extend({
 			this._elems[id] = sounds;
 			if(!Crafty.assets[url]) Crafty.assets[url] = this._elems[id][0];
 			
-			return this;
+			return this;		
 		},
-		/**@
-		* #Crafty.audio.play
-		* 
-		* `public this Crafty.audio.play(String id)`
-		* 
-		* `public this Crafty.audio.play(String id, Number repeatCount)`
-		* 
-		* `public this Crafty.audio.add(Object map)`
-		* 
-		* **Parameters:**
-		* 
-		*> `id` - A string to reffer to sounds
-		*> 
-		*> `repeatCount` - Repeat count for the file, where -1 stands for repeat infinitively.
-		* 
-		* Will play a sound previously added by using the ID that was used to add.
-		* Has a default maximum of 5 channels so that the same sound can play simultaneously unless all of the channels are playing. 
-		* This can be increased by setting Crafty.audio.MAX_CHANNELS.
-		* Note that the implementation of HTML5 Audio is buggy at best so any inconsistencies is most likely the browsers fault.
-		*
-		* ##Use
-		*~~~
-		* Crafty.audio.play("walk");
-		*
-		* //play and repeat forever
-		* Crafty.audio.play("backgroundMusic", -1);
-		* ~~~
-		*/
-		play: function(id, repeat) {
+		
+		play: function(id) {
 			if(!Crafty.support.audio) return;
 			
 			var sounds = this._elems[id],
@@ -3677,16 +3661,7 @@ Crafty.extend({
 					sound.play();
 				}
 			}
-			if (typeof repeat == "number" && repeat > 1) {
-				var j=0;
-				//i is still set to the sound we played
-				sounds[i].addEventListener('ended', function(){
-					if (repeat == -1 || j <= repeat){
-						this.currentTime = 0;
-						j++;
-					}
-				}, false);
-			}
+			
 			return this;
 		},
 		
@@ -3715,7 +3690,6 @@ Crafty.extend({
 		},
 		
 		mute: function() {
-			this._muted = true;
 			var sounds, sound, i, l, elem;
 			
 			//loop over every sound
@@ -3728,28 +3702,16 @@ Crafty.extend({
 					
 					//if playing, stop
 					if(!sound.ended || sound.currentTime) {
-						pausedAudio.push(sound);
 						sound.pause();
-						//sound.currentTime = 0;
+						sound.currentTime = 0;
 					}
 				}
-			}
-		},
-		
-		unMute: function() {
-			this._muted = false;
-			for (var i=0; i < pausedAudio.length; i++) {
-				pausedAudio[i].play();
 			}
 		}
 	}
 });
 
-//stop sounds on Pause
-Crafty.bind("Pause", Crafty.audio.mute);
-Crafty.bind("Unpause", Crafty.audio.mute);
-
-Crafty.c("Text", {
+Crafty.c("Text", {
 	_text: "",
 	_font: "",
 	
@@ -3780,7 +3742,7 @@ Crafty.c("Text", {
 });
 
 
-Crafty.c("health", {
+Crafty.c("health", {
 	_mana: 100,
 	
 	health: function(mana) {
@@ -3805,7 +3767,7 @@ Crafty.c("health", {
 	}
 });
 
-/**@
+/**@
 * #Score
 * Keep a score for an entity.
 */
@@ -3853,7 +3815,7 @@ Crafty.c("Score", {
 	}
 });
 
-Crafty.extend({
+Crafty.extend({
 	/**@
 	* Crafty.assets
 	* ===
@@ -3958,5 +3920,6 @@ Crafty.extend({
 	}
 });
 
-})(Crafty,window,window.document);
+})(Crafty,window,window.document);
 
+

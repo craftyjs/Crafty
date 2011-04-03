@@ -10,7 +10,9 @@
 <script type="text/javascript" src="codemirror/js/codemirror.js"></script>
 <script type="text/javascript" src="assets/jslint.js"></script>
 <script type="text/javascript" src="assets/editor.js"></script>
+<script type="text/javascript" src="assets/buttons.js"></script>
 <script type="text/javascript" src="assets/compiler.js"></script>
+<script type="text/javascript" src="assets/spritify.js"></script>
 <script type="text/javascript" src="assets/contextmenu.js"></script>
 </head>
 <body>
@@ -66,7 +68,19 @@
 		<ul class="list"></ul>
 	</div>
 </div>
-</td><td id="layout-right">
+</td>
+<td id="layout-kit">
+<div id="toolkit">
+	<ul>
+		<li><a href="#pointer" title="Pointer"><img src="assets/images/cursor.png" alt="Pointer" /></a></li>
+		<li><a href="#text" title="Text"><img src="assets/images/text.png" alt="Text" /></a></li>
+		<li><a href="#spritebrush" title="Sprite Brush"><img src="assets/images/paintbrush.png" alt="Sprite Brush" /></a></li>
+		<li><a href="#scroll" title="Scroll"><img src="assets/images/move.png" alt="Scroll" /></a></li>
+		<li><a href="#polygon" title="Polygon"><img src="assets/images/vector.png" alt="Polygon" /></a></li>
+	</ul>
+</div>
+</td>
+<td id="layout-right">
 
 <div id="workbench">
 	<div id="currentscene" title="Current Scene">main</div>
@@ -139,12 +153,16 @@
 <label>Scene Name: <input type="text" id="scname" /></label><br />
 </div>
 
+<div id="as-dialog" title="Add Asset" class="dialog">
+<label>Asset Location: <input type="text" id="asname" /></label><br />
+</div>
+
 <div class="context-menu" id="sceneMenu">
 <ul>
-	<li><b>Open</b></li>
-	<li>Cut</li>
-	<li>Copy</li>
-	<li>Paste</li>
+	<li><a href="#open"><b>Open</b></a></li>
+	<li><a href="#cut">Cut</a></li>
+	<li><a href="#copy">Copy</a></li>
+	<li><a href="#paste">Paste</a></li>
 </ul>
 </div>
 
@@ -158,6 +176,44 @@
 	<li class="hr"></li>
 	<li><a href="#properties">Properties</a></li>
 </ul>
+</div>
+
+<div class="context-menu" id="imageMenu">
+<ul>
+	<li><a href="#spritify"><b>Spritify</b></a></li>
+	<li><a href="#remove">Remove</a></li>
+</ul>
+</div>
+
+<div class="context-menu" id="soundMenu">
+<ul>
+	<li><a href="#play"><b>Play</b></a></li>
+	<li><a href="#remove">Remove</a></li>
+</ul>
+</div>
+
+<div id="spritify" title="Spritify" class="dialog">
+
+<div id="grid"><span id="over"></span>
+<div id="inner"></div>
+</div>
+<img id="sprite"/>
+
+<div id="options">
+	<label>Tile Size: <input type="text" id="tilesize" value="1" /></label>
+	<label>Padding X: <input type="text" id="paddingx" value="0" /></label>
+	<label>Padding Y: <input type="text" id="paddingy" value="0" /></label>
+	<label>Width: <input type="text" id="width" value="1" /></label>
+	<label>Height: <input type="text" id="height" value="1" /></label>
+</div>
+<div id="sections">
+<label>Label: <input type="text" id="label" /></label>
+
+</div>
+</div>
+
+<div id="error" title="You broke something!">
+	<div></div>
 </div>
 </body>
 </html>
