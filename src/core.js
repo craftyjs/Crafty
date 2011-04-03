@@ -130,6 +130,10 @@ Crafty.fn = Crafty.prototype = {
 		ul = uninit.length;
 		for(;c<ul;c++) {
 			comp = components[uninit[c]];
+			//Backward compat
+			if (typeof comp == 'undefined'){
+				comp = components[uninit[c].substr(0, 1).toUpperCase() + uninit[c].substr(1)];
+			} 
 			this.extend(comp);
 			
 			//if constructor, call it
