@@ -138,6 +138,10 @@ Crafty.fn = Crafty.prototype = {
 		ul = uninit.length;
 		for(;c<ul;c++) {
 			comp = components[uninit[c]];
+			//Backward compat
+			if (typeof comp == 'undefined'){
+				comp = components[uninit[c].substr(0, 1).toUpperCase() + uninit[c].substr(1)];
+			} 
 			this.extend(comp);
 			
 			//if constructor, call it
@@ -963,6 +967,26 @@ Crafty.c("2D", {
 		
 		return rect.x <= this.x && rect.x + rect.w >= this.x + this.w &&
 				rect.y <= this.y && rect.y + rect.h >= this.y + this.h;
+	},
+	
+	/**
+	* Checks if the entity contains a rect
+	*
+	* @param x X position of the rect or a Rect object
+	* @param y Y position of the rect
+	* @param w Width of the rect
+	* @param h Height of the rect
+	*/
+	contains: function(x,y,w,h) {
+		var rect;
+		if(typeof x === "object") {
+			rect = x;
+		} else {
+			rect = {x: x, y: y, w: w, h: h};
+		}
+		
+		return rect.x >= this.x && rect.x + rect.w <= this.x + this.w &&
+				rect.y >= this.y && rect.y + rect.h <= this.y + this.h;
 	},
 	
 	/**
@@ -3182,7 +3206,8 @@ Crafty.extend({
 
 Crafty.c("particles", {
 	init: function () {
-		//nothing to do here...
+		//We need to clone it
+		this._Particles = Crafty.clone(this._Particles);
 	},
 	particles: function (options) {
 
@@ -3487,6 +3512,7 @@ Crafty.extend({
 	audio: {
 		_elems: {},
 		_muted: false,
+		_mutedAudio : [],
 		/**@
 		* #Crafty.audio.MAX_CHANNELS
 		* Amount of Audio objects for a sound so overlapping of the 
@@ -3727,8 +3753,8 @@ Crafty.extend({
 					sound = elem[i];
 					
 					//if playing, stop
-					if(!sound.ended || sound.currentTime) {
-						pausedAudio.push(sound);
+					if(!sound.ended && sound.currentTime) {
+						this._mutedAudio.push(sound);
 						sound.pause();
 						//sound.currentTime = 0;
 					}
@@ -3738,16 +3764,17 @@ Crafty.extend({
 		
 		unMute: function() {
 			this._muted = false;
-			for (var i=0; i < pausedAudio.length; i++) {
-				pausedAudio[i].play();
+			for (var i=0; i < this._mutedAudio.length; i++) {
+				this._mutedAudio[i].play();
 			}
+			this._mutedAudio = [];
 		}
 	}
 });
 
 //stop sounds on Pause
-Crafty.bind("Pause", Crafty.audio.mute);
-Crafty.bind("Unpause", Crafty.audio.mute);
+Crafty.bind("Pause", function() {Crafty.audio.mute()});
+Crafty.bind("Unpause", function() {Crafty.audio.unMute()});
 
 Crafty.c("Text", {
 	_text: "",
