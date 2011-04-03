@@ -86,9 +86,36 @@ EntBlock.prototype.toString = function() {
 	return output;
 };
 
+function LoaderBlock(open, close) {
+	this.open = open || "";
+	this.close = close || "";
+}
+
+LoaderBlock.prototype = new Block;
+LoaderBlock.prototype.assets = [];
+LoaderBlock.prototype.oncomplete = "";
+LoaderBlock.prototype.onprogress = "";
+LoaderBlock.prototype.onerror = "";
+LoaderBlock.prototype.toString = function() {
+	var output = "";
+	
+	output += this.open;
+	
+	if(this.assets.length) output += '["' + this.assets.join('","') + '"]';
+	else output += '[]';
+	
+	if(this.oncomplete) output += ',' + this.oncomplete;
+	if(this.onprogress) output += ',' + this.onprogress;
+	if(this.onerror) output += ',' + this.onerror;
+	output += this.close;
+	
+	return output;
+};
+
 var CODE = new Block("window.onload = function() {", "};"),
 	HEAD = CODE.append(new Block("Crafty.init(550,440);")),
-	MAIN = CODE.append(new Block("Crafty.scene(\"main\", function() {", "});", "main"));
+	MAIN = CODE.append(new Block("Crafty.scene(\"main\", function() {", "});", "main")),
+	LOADER = CODE.append(new LoaderBlock("Crafty.load(", ");"));
 
 CURRENT_SCENE = MAIN;
 

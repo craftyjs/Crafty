@@ -1,4 +1,4 @@
-Crafty.c("text", {
+Crafty.c("Text", {
 	_text: "",
 	_font: "",
 	

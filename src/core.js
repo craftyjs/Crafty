@@ -307,7 +307,9 @@ Crafty.fn.init.prototype = Crafty.fn;
 * selector instances
 */
 Crafty.extend = Crafty.fn.extend = function(obj) {
-	var target = this;
+	var target = this,
+		cloned;
+	
 	//don't bother with nulls
 	if(!obj) return target;
 	
@@ -315,6 +317,7 @@ Crafty.extend = Crafty.fn.extend = function(obj) {
 		if(target === obj[key]) continue; //handle circular reference
 		target[key] = obj[key];
 	}
+	
 	return target;
 };
 
@@ -460,16 +463,7 @@ Crafty.extend({
 		return components;
 	},
 	
-	clone: function clone(obj){
-		if(obj == null || typeof(obj) != 'object')
-			return obj;
-
-		var temp = obj.constructor(); // changed
-
-		for(var key in obj)
-			temp[key] = clone(obj[key]);
-		return temp;
-	}
+	clone: clone
 });
 
 /**
@@ -482,6 +476,20 @@ function UID() {
 		return UID(); //recurse until it is unique
 	}
 	return id;
+}
+
+/**
+* Clone an Object
+*/
+function clone(obj){
+	if(obj == null || typeof(obj) != 'object')
+		return obj;
+
+	var temp = obj.constructor(); // changed
+
+	for(var key in obj)
+		temp[key] = clone(obj[key]);
+	return temp;
 }
 //make Crafty global
 window.Crafty = Crafty;

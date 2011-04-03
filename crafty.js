@@ -315,7 +315,9 @@ Crafty.fn.init.prototype = Crafty.fn;
 * selector instances
 */
 Crafty.extend = Crafty.fn.extend = function(obj) {
-	var target = this;
+	var target = this,
+		cloned;
+	
 	//don't bother with nulls
 	if(!obj) return target;
 	
@@ -323,6 +325,7 @@ Crafty.extend = Crafty.fn.extend = function(obj) {
 		if(target === obj[key]) continue; //handle circular reference
 		target[key] = obj[key];
 	}
+	
 	return target;
 };
 
@@ -468,16 +471,7 @@ Crafty.extend({
 		return components;
 	},
 	
-	clone: function clone(obj){
-		if(obj == null || typeof(obj) != 'object')
-			return obj;
-
-		var temp = obj.constructor(); // changed
-
-		for(var key in obj)
-			temp[key] = clone(obj[key]);
-		return temp;
-	}
+	clone: clone
 });
 
 /**
@@ -490,6 +484,20 @@ function UID() {
 		return UID(); //recurse until it is unique
 	}
 	return id;
+}
+
+/**
+* Clone an Object
+*/
+function clone(obj){
+	if(obj == null || typeof(obj) != 'object')
+		return obj;
+
+	var temp = obj.constructor(); // changed
+
+	for(var key in obj)
+		temp[key] = clone(obj[key]);
+	return temp;
 }
 //make Crafty global
 window.Crafty = Crafty;
@@ -2338,8 +2346,9 @@ Crafty.c("controls", {
 			this.trigger(e.type, e);
 				
 			//prevent searchable keys
-			if(!(e.key >= 8 && e.key <= 9 || e.key >= 112 && e.key <= 123)) {
-				e.preventDefault();
+			if(!(e.metaKey || e.altKey || e.ctrlKey) && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
+				if(e.preventDefault) e.preventDefault();
+				else e.returnValue = false;
 				return false;
 			}
 		}

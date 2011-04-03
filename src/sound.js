@@ -1,6 +1,12 @@
 Crafty.extend({
 	audio: {
 		_elems: {},
+		/**@
+		* #Crafty.audio.MAX_CHANNELS
+		* Amount of Audio objects for a sound so overlapping of the 
+		* same sound can occur. More channels means more of the same sound
+		* playing at the same time.
+		*/
 		MAX_CHANNELS: 5,
 		
 		type: {
@@ -10,6 +16,56 @@ Crafty.extend({
 			'mp4': 'audio/mp4; codecs="mp4a.40.2"'
 		},
 		
+		/**@
+		* #Crafty.audio.add
+		* 
+		* `public this Crafty.audio.add(String id, String url)`
+		* 
+		* `public this Crafty.audio.add(String id, Array urls)`
+		* 
+		* `public this Crafty.audio.add(Object map)`
+		* 
+		* **Parameters:**
+		* 
+		*> `id` - A string to reffer to sounds
+		*> 
+		*> `url` - A string pointing to the sound file
+		*> 
+		*> `urls` - Array of urls pointing to different format of the same sound, selecting the first that is playable
+		*> 
+		*> `map` - key-value pairs where the key is the `id` and the value is either a `url` or `urls`
+		* 
+		* Loads a sound to be played. Due to the nature of HTML5 audio, 
+		* three types of audio files will be required for cross-browser capabilities. 
+		* These formats are MP3, Ogg and WAV.
+		*
+		* Passing an array of URLs will determine which format the browser can play and select it over any other.
+		*
+		* Accepts an object where the key is the audio name (needed to play) and 
+		* either a URL or an Array of URLs to determine which type to use.
+		*
+		* ##Use
+		*~~~
+		* //adding audio from an object
+		* Crafty.audio.add({
+		* 	shoot: ["sounds/shoot.wav",  
+		* 			"sounds/shoot.mp3", 
+		* 			"sounds/shoot.ogg"],
+		* 
+		* 	coin: "sounds/coin.mp3"
+		* });
+		* 
+		* //adding a single sound
+		* Crafty.audio.add("walk", [
+		* 	"sounds/walk.mp3",
+		* 	"sounds/walk.ogg",
+		* 	"sounds/walk.wav"
+		* ]);
+		* 
+		* //only one format
+		* Crafty.audio.add("jump", "sounds/jump.mp3");
+		* ~~~
+		*/
 		add: function(id, url) {
 			if(!Crafty.support.audio) return this;
 			
