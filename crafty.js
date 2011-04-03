@@ -928,8 +928,8 @@ Crafty.c("2D", {
 			rect = {x: x, y: y, w: w, h: h};
 		}
 		
-		return rect.x >= this.x && rect.x + rect.w <= this.x + this.w &&
-			   rect.y >= this.y && rect.y + rect.h <= this.y + this.h;
+		return rect.x <= this.x && rect.x + rect.w >= this.x + this.w &&
+				rect.y <= this.y && rect.y + rect.h >= this.y + this.h;
 	},
 	
 	/**
@@ -2291,6 +2291,7 @@ Crafty.extend({
 			//click must mousedown and out on tile
 			if(e.type === "mousedown") {
 				this.down = closest;
+				this.down.trigger('mousedown', e);
 			}
 			if(e.type === "mouseup") {
 				//check that down exists and this is down
@@ -2397,7 +2398,6 @@ Crafty.c("controls", {
 			} else if(e.type === "keyup") {
 				delete Crafty.keydown[e.key];
 			}
-			if (this.disableControls) return;
 			this.trigger(e.type, e);
 				
 			//prevent searchable keys
@@ -2442,6 +2442,7 @@ Crafty.c("fourway", {
 		if(speed) this._speed = speed;
 		
 		this.bind("enterframe", function() {
+			if (this.disableControls) return;
 			if(this.isDown("RIGHT_ARROW") || this.isDown("D")) {
 				this.x += this._speed;
 			}
@@ -2473,6 +2474,7 @@ Crafty.c("twoway", {
 		jump = jump || this._speed * 2;
 		
 		this.bind("enterframe", function() {
+			if (this.disableControls) return;
 			if(this.isDown("RIGHT_ARROW") || this.isDown("D")) {
 				this.x += this._speed;
 			}
