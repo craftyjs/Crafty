@@ -318,7 +318,7 @@ var gets = [], //contains [obj. ref, property, getter]
 
     initGetterSetter = function() {
         fallbackActive = true;
-        Crafty.e("getterSetter").bind("enterframe", function() {
+        Crafty.bind("enterframe", function() {
             //run the setter if a new value has been assigned and keep track of the new 'old value'
             for(var i = 0; i < sets.length; i++)
             {
