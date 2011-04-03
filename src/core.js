@@ -199,6 +199,7 @@ Crafty.fn = Crafty.prototype = {
 				fn.call(self);
 			}, duration);
 		});
+        return this;
 	},
 	
 	bind: function(event, fn) {
