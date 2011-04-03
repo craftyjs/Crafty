@@ -15,6 +15,8 @@ var Crafty = function(selector) {
 	tick,
 	tickID,
 	
+	pausedEvents = {},
+	
 	slice = Array.prototype.slice,
 	rlist = /\s*,\s*/,
 	rspace = /\s+/;
@@ -322,20 +324,14 @@ Crafty.clone2 = function (obj){
 * selector instances
 */
 Crafty.extend = Crafty.fn.extend = function(obj) {
-	var target = this,
-		cloned;
+	var target = this;
 	
 	//don't bother with nulls
 	if(!obj) return target;
 	
 	for(key in obj) {
-		//FIXME
 		if(target === obj[key]) continue; //handle circular reference
-		if (typeof obj[key] == 'object' && key=="_Particles") {
-			target[key] = Crafty.clone2(obj[key]);
-		} else {
-			target[key] = obj[key];
-		}
+		target[key] = obj[key];
 	}
 	
 	return target;
@@ -380,22 +376,22 @@ Crafty.extend({
 	//Unbinds all enterframe handlers and stores them away
 	//Calling .pause() again will restore previously deactivated handlers.
 	pause: function() {
-		if (!this._paused){
-			this.trigger('pause');
+		if(!this._paused){
+			this.trigger('Pause');
 			this._paused = true;
-			Crafty._pausedEvents = {};
+			pausedEvents = {};
 			
-			for (handler in handlers['enterframe']){
-				Crafty._pausedEvents[handler] = handlers['enterframe'][handler];
+			for(handler in handlers['enterframe']){
+				pausedEvents[handler] = handlers['enterframe'][handler];
 				delete handlers['enterframe'][handler];
 			};
 			Crafty.keydown={};
 		} else {
-			this.trigger('unpause');
+			this.trigger('Unpause');
 			this._paused = false;
 			
-			for (handler in Crafty._pausedEvents){
-				handlers['enterframe'][handler] = Crafty._pausedEvents[handler];
+			for(handler in pausedEvents){
+				handlers['enterframe'][handler] = pausedEvents[handler];
 			};
 		}
 		return this;
@@ -474,14 +470,55 @@ Crafty.extend({
 	
 	trigger: function(event, data) {
 		var hdl = handlers[event], h, i, l;
+		//loop over every object bound
 		for(h in hdl) {
 			if(!hdl.hasOwnProperty(h)) continue;
-			l = hdl[h].length;
-			for(i=0;i<l;i++) {
-				if(hdl[h] && hdl[h][i])
-					hdl[h][i].call(Crafty(+h),data);
+			
+			//loop over every handler within object
+			for(i = 0, l = hdl[h].length; i < l; i++) {
+				if(hdl[h] && hdl[h][i]) {
+					//if an entity, call with that context
+					if(entities[h]) {
+						hdl[h][i].call(Crafty(+h), data);
+					} else { //else call with Crafty context
+						hdl[h][i].call(Crafty, data);
+					}
+				}
 			}
 		}
+	},
+	
+	bind: function(event, callback) {
+		if(!handlers[event]) handlers[event] = {};
+		var hdl = handlers[event];
+		
+		if(!hdl.global) hdl.global = [];
+		return hdl.global.push(callback) - 1;
+	},
+	
+	unbind: function(event, callback) {
+		var hdl = handlers[event], h, i, l;
+		
+		//loop over every object bound
+		for(h in hdl) {
+			if(!hdl.hasOwnProperty(h)) continue;
+			
+			//if passed the ID
+			if(typeof callback === "number") {
+				delete hdl[h][callback];
+				return true;
+			}
+			
+			//loop over every handler within object
+			for(i = 0, l = hdl[h].length; i < l; i++) {
+				if(hdl[h][i] === callback) {
+					delete hdl[h][i];
+					return true;
+				}
+			}
+		}
+		
+		return false;
 	},
 	
 	frame: function() {

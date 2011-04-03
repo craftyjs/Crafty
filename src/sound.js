@@ -190,6 +190,26 @@ Crafty.extend({
 			}
 			
 			return this;
+		},
+		
+		mute: function() {
+			var sounds, sound, i, l, elem;
+			
+			//loop over every sound
+			for(sounds in this._elems) {
+				elem = this._elems[sounds];
+				
+				//loop over every channel for a sound
+				for(i = 0, l = elem.length; i < l; ++i) {
+					sound = elem[i];
+					
+					//if playing, stop
+					if(!sound.ended || sound.currentTime) {
+						sound.pause();
+						sound.currentTime = 0;
+					}
+				}
+			}
 		}
 	}
 });
