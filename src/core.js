@@ -16,6 +16,7 @@ var Crafty = function(selector) {
 	tickID,
 	
 	pausedEvents = {},
+	pausedAudio = [],
 	
 	slice = Array.prototype.slice,
 	rlist = /\s*,\s*/,
@@ -303,21 +304,6 @@ Crafty.fn = Crafty.prototype = {
 };
 //give the init instances the Crafty prototype
 Crafty.fn.init.prototype = Crafty.fn;
-
-//FIXME
-Crafty.clone2 = function (obj){
-	if(obj == null || typeof(obj) != 'object')
-		return obj;
-		
-	if (obj.constructor) {
-		var temp = obj.constructor(); // changed
-	} else {
-		var temp = obj;
-	}
-	for(var key in obj)
-		temp[key] = Crafty.clone2(obj[key]);
-	return temp;
-};
 
 /**
 * Extension method to extend the namespace and
