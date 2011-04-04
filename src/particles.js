@@ -10,7 +10,7 @@ Crafty.c("particles", {
 	},
 	particles: function (options) {
 
-		if (!Crafty.support.canvas) return this;
+		if (!Crafty.support.canvas || Crafty.deactivateParticles) return this;
 
 		//If we drew on the main canvas, we'd have to redraw 
 		//potentially huge sections of the screen every frame

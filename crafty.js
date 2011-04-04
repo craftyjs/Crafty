@@ -3211,7 +3211,7 @@ Crafty.c("particles", {
 	},
 	particles: function (options) {
 
-		if (!Crafty.support.canvas) return this;
+		if (!Crafty.support.canvas || Crafty.deactivateParticles) return this;
 
 		//If we drew on the main canvas, we'd have to redraw 
 		//potentially huge sections of the screen every frame
@@ -3703,7 +3703,7 @@ Crafty.extend({
 					sound.play();
 				}
 			}
-			if (typeof repeat == "number" && repeat > 1) {
+			if (typeof repeat == "number") {
 				var j=0;
 				//i is still set to the sound we played
 				sounds[i].addEventListener('ended', function(){
