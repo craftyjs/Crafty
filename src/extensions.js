@@ -262,10 +262,18 @@ Crafty.extend({
 			});
 			
 			Crafty.addEvent(this, window, "blur", function() {
-				if (!Crafty.dontPauseOnBlur) Crafty.pause();
+				if (!Crafty.dontPauseOnBlur) {
+					Crafty.trigger('Pause');
+					Crafty.stop();
+					Crafty._stopped = true;
+				}
 			});
 			Crafty.addEvent(this, window, "focus", function() {
-				if (Crafty._paused) Crafty.pause();
+				if (Crafty._paused && !Crafty.dontPauseOnBlur) {
+					Crafty.timer.init();
+					Crafty.trigger('Unpause');
+					Crafty._stopped = false;
+				}
 			});
 
 			
