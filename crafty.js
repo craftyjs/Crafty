@@ -431,25 +431,24 @@ Crafty.extend({
 				loops = 0;
 				this.prev = this.current;
 				this.current = (+new Date);
-
+				this.fps = (1000 / (this.current-this.prev));
 				while((new Date).getTime() > nextGameTick) {
 					Crafty.trigger("enterframe", {frame: frame++});
 					nextGameTick += skipTicks;
 					loops++;
-					this.fps = loops / this.fpsUpdateFrequency;
+					//this.fps = loops / this.fpsUpdateFrequency;
 				}
-
 				if(loops) {
 					Crafty.DrawManager.draw();
 				}
 			};
 		})(),
-		
+
 		getFPS: function() {
 			return this.fps;
 		}
 	},
-	
+
 	e: function() {
 		var id = UID(), craft;
 		
@@ -1987,10 +1986,18 @@ Crafty.extend({
 			});
 			
 			Crafty.addEvent(this, window, "blur", function() {
-				if (!Crafty.dontPauseOnBlur) Crafty.pause();
+				if (!Crafty.dontPauseOnBlur) {
+					Crafty.trigger('Pause');
+					Crafty.stop();
+					Crafty._stopped = true;
+				}
 			});
 			Crafty.addEvent(this, window, "focus", function() {
-				if (Crafty._paused) Crafty.pause();
+				if (Crafty._paused && !Crafty.dontPauseOnBlur) {
+					Crafty.timer.init();
+					Crafty.trigger('Unpause');
+					Crafty._stopped = false;
+				}
 			});
 
 			
@@ -3211,7 +3218,7 @@ Crafty.c("particles", {
 	},
 	particles: function (options) {
 
-		if (!Crafty.support.canvas) return this;
+		if (!Crafty.support.canvas || Crafty.deactivateParticles) return this;
 
 		//If we drew on the main canvas, we'd have to redraw 
 		//potentially huge sections of the screen every frame
@@ -3703,7 +3710,7 @@ Crafty.extend({
 					sound.play();
 				}
 			}
-			if (typeof repeat == "number" && repeat > 1) {
+			if (typeof repeat == "number") {
 				var j=0;
 				//i is still set to the sound we played
 				sounds[i].addEventListener('ended', function(){

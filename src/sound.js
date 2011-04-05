@@ -193,7 +193,7 @@ Crafty.extend({
 					sound.play();
 				}
 			}
-			if (typeof repeat == "number" && repeat > 1) {
+			if (typeof repeat == "number") {
 				var j=0;
 				//i is still set to the sound we played
 				sounds[i].addEventListener('ended', function(){

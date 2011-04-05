@@ -563,25 +563,24 @@ Crafty.extend({
 				loops = 0;
 				this.prev = this.current;
 				this.current = (+new Date);
-
+				this.fps = (1000 / (this.current-this.prev));
 				while((new Date).getTime() > nextGameTick) {
 					Crafty.trigger("enterframe", {frame: frame++});
 					nextGameTick += skipTicks;
 					loops++;
-					this.fps = loops / this.fpsUpdateFrequency;
+					//this.fps = loops / this.fpsUpdateFrequency;
 				}
-
 				if(loops) {
 					Crafty.DrawManager.draw();
 				}
 			};
 		})(),
-		
+
 		getFPS: function() {
 			return this.fps;
 		}
 	},
-	
+
 	e: function() {
 		var id = UID(), craft;
 		
