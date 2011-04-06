@@ -247,6 +247,26 @@ Crafty.c("2D", {
 	},
 	
 	/**
+	* Checks if the entity contains a rect
+	*
+	* @param x X position of the rect or a Rect object
+	* @param y Y position of the rect
+	* @param w Width of the rect
+	* @param h Height of the rect
+	*/
+	contains: function(x,y,w,h) {
+		var rect;
+		if(typeof x === "object") {
+			rect = x;
+		} else {
+			rect = {x: x, y: y, w: w, h: h};
+		}
+		
+		return rect.x >= this.x && rect.x + rect.w <= this.x + this.w &&
+				rect.y >= this.y && rect.y + rect.h <= this.y + this.h;
+	},
+	
+	/**
 	* Returns an object containing the x and y position
 	* as well as width and height as w and h.
 	*/

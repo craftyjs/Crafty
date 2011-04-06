@@ -5,11 +5,12 @@
 
 Crafty.c("particles", {
 	init: function () {
-		//nothing to do here...
+		//We need to clone it
+		this._Particles = Crafty.clone(this._Particles);
 	},
 	particles: function (options) {
 
-		if (!Crafty.support.canvas) return this;
+		if (!Crafty.support.canvas || Crafty.deactivateParticles) return this;
 
 		//If we drew on the main canvas, we'd have to redraw 
 		//potentially huge sections of the screen every frame

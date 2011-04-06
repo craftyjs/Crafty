@@ -1,6 +1,8 @@
 Crafty.extend({
 	audio: {
 		_elems: {},
+		_muted: false,
+		_mutedAudio : [],
 		/**@
 		* #Crafty.audio.MAX_CHANNELS
 		* Amount of Audio objects for a sound so overlapping of the 
@@ -143,10 +145,37 @@ Crafty.extend({
 			this._elems[id] = sounds;
 			if(!Crafty.assets[url]) Crafty.assets[url] = this._elems[id][0];
 			
-			return this;		
+			return this;
 		},
-		
-		play: function(id) {
+		/**@
+		* #Crafty.audio.play
+		* 
+		* `public this Crafty.audio.play(String id)`
+		* 
+		* `public this Crafty.audio.play(String id, Number repeatCount)`
+		* 
+		* `public this Crafty.audio.add(Object map)`
+		* 
+		* **Parameters:**
+		* 
+		*> `id` - A string to reffer to sounds
+		*> 
+		*> `repeatCount` - Repeat count for the file, where -1 stands for repeat infinitively.
+		* 
+		* Will play a sound previously added by using the ID that was used to add.
+		* Has a default maximum of 5 channels so that the same sound can play simultaneously unless all of the channels are playing. 
+		* This can be increased by setting Crafty.audio.MAX_CHANNELS.
+		* Note that the implementation of HTML5 Audio is buggy at best so any inconsistencies is most likely the browsers fault.
+		*
+		* ##Use
+		*~~~
+		* Crafty.audio.play("walk");
+		*
+		* //play and repeat forever
+		* Crafty.audio.play("backgroundMusic", -1);
+		* ~~~
+		*/
+		play: function(id, repeat) {
 			if(!Crafty.support.audio) return;
 			
 			var sounds = this._elems[id],
@@ -164,7 +193,16 @@ Crafty.extend({
 					sound.play();
 				}
 			}
-			
+			if (typeof repeat == "number") {
+				var j=0;
+				//i is still set to the sound we played
+				sounds[i].addEventListener('ended', function(){
+					if (repeat == -1 || j <= repeat){
+						this.currentTime = 0;
+						j++;
+					}
+				}, false);
+			}
 			return this;
 		},
 		
@@ -193,6 +231,7 @@ Crafty.extend({
 		},
 		
 		mute: function() {
+			this._muted = true;
 			var sounds, sound, i, l, elem;
 			
 			//loop over every sound
@@ -204,12 +243,25 @@ Crafty.extend({
 					sound = elem[i];
 					
 					//if playing, stop
-					if(!sound.ended || sound.currentTime) {
+					if(!sound.ended && sound.currentTime) {
+						this._mutedAudio.push(sound);
 						sound.pause();
-						sound.currentTime = 0;
+						//sound.currentTime = 0;
 					}
 				}
 			}
+		},
+		
+		unMute: function() {
+			this._muted = false;
+			for (var i=0; i < this._mutedAudio.length; i++) {
+				this._mutedAudio[i].play();
+			}
+			this._mutedAudio = [];
 		}
 	}
 });
+
+//stop sounds on Pause
+Crafty.bind("Pause", function() {Crafty.audio.mute()});
+Crafty.bind("Unpause", function() {Crafty.audio.unMute()});

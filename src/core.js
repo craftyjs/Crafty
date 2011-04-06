@@ -16,6 +16,7 @@ var Crafty = function(selector) {
 	tickID,
 	
 	pausedEvents = {},
+	pausedAudio = [],
 	
 	slice = Array.prototype.slice,
 	rlist = /\s*,\s*/,
@@ -129,6 +130,10 @@ Crafty.fn = Crafty.prototype = {
 		ul = uninit.length;
 		for(;c<ul;c++) {
 			comp = components[uninit[c]];
+			//Backward compat
+			if (typeof comp == 'undefined'){
+				comp = components[uninit[c].substr(0, 1).toUpperCase() + uninit[c].substr(1)];
+			} 
 			this.extend(comp);
 			
 			//if constructor, call it
@@ -304,21 +309,6 @@ Crafty.fn = Crafty.prototype = {
 //give the init instances the Crafty prototype
 Crafty.fn.init.prototype = Crafty.fn;
 
-//FIXME
-Crafty.clone2 = function (obj){
-	if(obj == null || typeof(obj) != 'object')
-		return obj;
-		
-	if (obj.constructor) {
-		var temp = obj.constructor(); // changed
-	} else {
-		var temp = obj;
-	}
-	for(var key in obj)
-		temp[key] = Crafty.clone2(obj[key]);
-	return temp;
-};
-
 /**
 * Extension method to extend the namespace and
 * selector instances
@@ -375,8 +365,10 @@ Crafty.extend({
 		return this;
 	},
 	
-	//Unbinds all enterframe handlers and stores them away
-	//Calling .pause() again will restore previously deactivated handlers.
+	/**
+	* Unbinds all enterframe handlers and stores them away
+	* Calling .pause() again will restore previously deactivated handlers.
+	*/
 	pause: function() {
 		if(!this._paused){
 			this.trigger('Pause');
@@ -433,25 +425,24 @@ Crafty.extend({
 				loops = 0;
 				this.prev = this.current;
 				this.current = (+new Date);
-
+				this.fps = (1000 / (this.current-this.prev));
 				while((new Date).getTime() > nextGameTick) {
 					Crafty.trigger("enterframe", {frame: frame++});
 					nextGameTick += skipTicks;
 					loops++;
-					this.fps = loops / this.fpsUpdateFrequency;
+					//this.fps = loops / this.fpsUpdateFrequency;
 				}
-
 				if(loops) {
 					Crafty.DrawManager.draw();
 				}
 			};
 		})(),
-		
+
 		getFPS: function() {
 			return this.fps;
 		}
 	},
-	
+
 	e: function() {
 		var id = UID(), craft;
 		
