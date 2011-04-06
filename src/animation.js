@@ -79,7 +79,7 @@ Crafty.c("Animate", {
 				this._frame.current = 0;
 				this._frame.frame = 0;
 			} else {
-				this.trigger("animationend", {reel: data.reel});
+				this.trigger("AnimationEnd", {reel: data.reel});
 				this.stop();
 				return;
 			}
@@ -90,7 +90,7 @@ Crafty.c("Animate", {
 	
 	stop: function() {
 		this.unbind("enterframe", this.drawFrame);
-		this.unbind("animationend");
+		this.unbind("AnimationEnd");
 		this._current = null;
 		this._frame = null;
 		

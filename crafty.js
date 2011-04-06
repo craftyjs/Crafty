@@ -359,7 +359,7 @@ Crafty.extend({
 		Crafty.viewport.init(w,h);
 		
 		//call all arbitrary functions attached to onload
-		this.onload();
+		this.trigger("Load");
 		this.timer.init();
 		
 		return this;
@@ -377,6 +377,8 @@ Crafty.extend({
 					
 		if(onFrame) onFrame(tickID);
 		tick = null;
+		
+		document.body.removeChild(Crafty.stage.elem);
 		
 		return this;
 	},
@@ -531,21 +533,6 @@ Crafty.extend({
 	
 	frame: function() {
 		return frame;
-	},
-	
-	onload: function(ctx,fn) {
-		if(!arguments.length) {
-			var i = 0, l = onloads.length,
-				current;
-			for(;i<l;++i) {
-				current = onloads[i];
-				if(current)
-					current.fn.call(current.ctx);
-			}
-			return this;
-		}
-		onloads.push({ctx: ctx, fn: fn});
-		return this;
 	},
 	
 	components: function() {
@@ -1906,6 +1893,7 @@ Crafty.extend({
 		_y: 0,
 		
 		scroll: function(axis, v) {
+			v = Math.floor(v);
 			var change = (v - this[axis]), //change in direction
 				context = Crafty.context,
 				style = Crafty.stage.inner.style,
@@ -2302,19 +2290,20 @@ Crafty.extend({
 		var maxz = -1,
 			closest,
 			q,
-			i = 0, l;
+			i = 0, l,
+			x = e.clientX - Crafty.stage.x + document.body.scrollLeft + document.documentElement.scrollLeft,
+			y = e.clientY - Crafty.stage.y + document.body.scrollTop + document.documentElement.scrollTop;
 		
 		//search for all mouse entities
-		q = Crafty.map.search(Crafty.viewport.rect());
+		q = Crafty.map.search({_x: x, _y:y, _w:1, _h:1});
 		
 		for(l=q.length;i<l;++i) {
 			//check if has mouse component
-			if(!q[i].has("mouse")) continue;
+			if(!q[i].has("Mouse")) continue;
 			
 			var current = q[i],
-				flag = false,
-				x = e.clientX - Crafty.stage.x + document.body.scrollLeft + document.documentElement.scrollLeft,
-				y = e.clientY - Crafty.stage.y + document.body.scrollTop + document.documentElement.scrollTop;
+				flag = false;
+				
 			
 			if(current.map) {
 				if(current.map.containsPoint(x, y)) {
@@ -2373,7 +2362,8 @@ Crafty.extend({
 });
 
 //initialize the mouse events onload
-Crafty.onload(this, function() {
+Crafty.bind("Load", function() {
+	console.log("test");
 	Crafty.addEvent(this, Crafty.stage.elem, "mousedown", Crafty.mouseDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "mouseup", Crafty.mouseDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "mousemove", Crafty.mouseDispatch);
@@ -2622,7 +2612,7 @@ Crafty.c("Animate", {
 				this._frame.current = 0;
 				this._frame.frame = 0;
 			} else {
-				this.trigger("animationend", {reel: data.reel});
+				this.trigger("AnimationEnd", {reel: data.reel});
 				this.stop();
 				return;
 			}
@@ -2633,7 +2623,7 @@ Crafty.c("Animate", {
 	
 	stop: function() {
 		this.unbind("enterframe", this.drawFrame);
-		this.unbind("animationend");
+		this.unbind("AnimationEnd");
 		this._current = null;
 		this._frame = null;
 		
@@ -3020,7 +3010,6 @@ Crafty.DrawManager = (function() {
 			//if the amount of rects is over 60% of the total objects
 			//do the naive method redrawing
 			if(l / this.total2D > 0.6) {
-				console.log("DRAW ALL");
 				this.drawAll();
 				register.length = 0;
 				return;

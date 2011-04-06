@@ -351,7 +351,7 @@ Crafty.extend({
 		Crafty.viewport.init(w,h);
 		
 		//call all arbitrary functions attached to onload
-		this.onload();
+		this.trigger("Load");
 		this.timer.init();
 		
 		return this;
@@ -369,6 +369,8 @@ Crafty.extend({
 					
 		if(onFrame) onFrame(tickID);
 		tick = null;
+		
+		document.body.removeChild(Crafty.stage.elem);
 		
 		return this;
 	},
@@ -523,21 +525,6 @@ Crafty.extend({
 	
 	frame: function() {
 		return frame;
-	},
-	
-	onload: function(ctx,fn) {
-		if(!arguments.length) {
-			var i = 0, l = onloads.length,
-				current;
-			for(;i<l;++i) {
-				current = onloads[i];
-				if(current)
-					current.fn.call(current.ctx);
-			}
-			return this;
-		}
-		onloads.push({ctx: ctx, fn: fn});
-		return this;
 	},
 	
 	components: function() {

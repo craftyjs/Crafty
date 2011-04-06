@@ -123,9 +123,9 @@ $(function() {
 		sw = $stage.width() - 6;
 		sh = $stage.height();
 		
-		var dim = {left: ($workarea.width() / 2 - $area.width() / 2), top: ($workarea.height() / 2 - $area.height() / 2)};
+		var dim = {"margin-left": ($workarea.width() / 2 - $area.width() / 2), "margin-top": ($workarea.height() / 2 - $area.height() / 2)};
 		$area.css(dim);
-		$crstage.css(dim);
+
 	}
 	calculate();
 	$window.bind('resize', calculate);

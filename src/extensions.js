@@ -193,6 +193,7 @@ Crafty.extend({
 		_y: 0,
 		
 		scroll: function(axis, v) {
+			v = Math.floor(v);
 			var change = (v - this[axis]), //change in direction
 				context = Crafty.context,
 				style = Crafty.stage.inner.style,

@@ -334,7 +334,6 @@ Crafty.DrawManager = (function() {
 			//if the amount of rects is over 60% of the total objects
 			//do the naive method redrawing
 			if(l / this.total2D > 0.6) {
-				console.log("DRAW ALL");
 				this.drawAll();
 				register.length = 0;
 				return;

@@ -138,18 +138,18 @@ CURRENT_SCENE = MAIN;
 
 Crafty.c("GUI", {
 	init: function() {
-		this.removeComponent("canvas");
-		this.requires("DOM, mouse");
+		this.removeComponent("Canvas");
+		this.requires("DOM, Mouse");
 		
 		function drag(e) {
-			this.x = e.clientX - this._startX;
-			this.y = e.clientY - this._startY;
+			this.x = (e.clientX - Crafty.stage.x) - this._startX;
+			this.y = (e.clientY - Crafty.stage.y) - this._startY;
 			console.log("TEST");
 			this.draw();
 		}
 				
 		this.bind("mousedown", function(e) {
-			console.log("DON");
+			console.log("DON", (e.clientX - Crafty.stage.x));
 			//start drag
 			this._startX = (e.clientX - Crafty.stage.x) - this._x;
 			this._startY = (e.clientY - Crafty.stage.y) - this._y;

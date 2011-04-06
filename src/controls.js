@@ -14,19 +14,20 @@ Crafty.extend({
 		var maxz = -1,
 			closest,
 			q,
-			i = 0, l;
+			i = 0, l,
+			x = e.clientX - Crafty.stage.x + document.body.scrollLeft + document.documentElement.scrollLeft,
+			y = e.clientY - Crafty.stage.y + document.body.scrollTop + document.documentElement.scrollTop;
 		
 		//search for all mouse entities
-		q = Crafty.map.search(Crafty.viewport.rect());
+		q = Crafty.map.search({_x: x, _y:y, _w:1, _h:1});
 		
 		for(l=q.length;i<l;++i) {
 			//check if has mouse component
-			if(!q[i].has("mouse")) continue;
+			if(!q[i].has("Mouse")) continue;
 			
 			var current = q[i],
-				flag = false,
-				x = e.clientX - Crafty.stage.x + document.body.scrollLeft + document.documentElement.scrollLeft,
-				y = e.clientY - Crafty.stage.y + document.body.scrollTop + document.documentElement.scrollTop;
+				flag = false;
+				
 			
 			if(current.map) {
 				if(current.map.containsPoint(x, y)) {
@@ -85,7 +86,8 @@ Crafty.extend({
 });
 
 //initialize the mouse events onload
-Crafty.onload(this, function() {
+Crafty.bind("Load", function() {
+	console.log("test");
 	Crafty.addEvent(this, Crafty.stage.elem, "mousedown", Crafty.mouseDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "mouseup", Crafty.mouseDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "mousemove", Crafty.mouseDispatch);
