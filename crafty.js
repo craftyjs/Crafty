@@ -1993,7 +1993,7 @@ Crafty.extend({
 				}
 			});
 			Crafty.addEvent(this, window, "focus", function() {
-				if (Crafty._paused && !Crafty.dontPauseOnBlur) {
+				if (Crafty._stopped && !Crafty.dontPauseOnBlur) {
 					Crafty.timer.init();
 					Crafty.trigger('Unpause');
 					Crafty._stopped = false;
