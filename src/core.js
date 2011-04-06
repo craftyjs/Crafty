@@ -16,7 +16,6 @@ var Crafty = function(selector) {
 	tickID,
 	
 	pausedEvents = {},
-	pausedAudio = [],
 	
 	slice = Array.prototype.slice,
 	rlist = /\s*,\s*/,

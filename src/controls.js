@@ -87,7 +87,6 @@ Crafty.extend({
 
 //initialize the mouse events onload
 Crafty.bind("Load", function() {
-	console.log("test");
 	Crafty.addEvent(this, Crafty.stage.elem, "mousedown", Crafty.mouseDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "mouseup", Crafty.mouseDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "mousemove", Crafty.mouseDispatch);

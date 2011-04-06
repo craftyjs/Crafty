@@ -127,7 +127,6 @@ Crafty.c("Tween", {
 			old[prop] = this['_'+prop];
 			step[prop] = (props[prop] - old[prop]) / duration;
 		}
-		console.log(step);
 		
 		this.bind("enterframe", function d(e) {
 			if(e.frame >= endFrame) {

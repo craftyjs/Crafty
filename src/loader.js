@@ -92,7 +92,6 @@ Crafty.extend({
 				if(onerror) {
 					onerror.call(this, {loaded: j, total: total, percent: (j / total * 100)});
 				} else {
-					console.log('Failed to load ' + this.src);
 					j++;
 					if(j === total) {
 						if(oncomplete) oncomplete();

@@ -45,14 +45,30 @@ v0.3.1
 * Use scrollTop and scrollLeft
 * Bug with .rotate()
 
-v1.0
+v0.3.2
 
-* Everything unit tested
-* Mobile devices
+* Fixed a collision bug
+
+v0.4
+
 * .css() should accept both JS and CSS notation
+* .requires() method for adding components if not already added
 * Detect the browser ext (moz, webkit, o)
-* Make sure IE browser can still attempt things. Add option for filters to do rotation and opacity?
-* Kick Ass Draw Manager
-* tween
-* Fixed an error in addEvent (thanks to Leo Koppelkamm)
-* Collision now has a justStoppedHitting (thanks to Leo Koppelkamm)
+* IE rotation and transparency support
+* Faster Draw Manager for canvas and Dom
+* Tween component
+* Fixed an error in addEvent (Leo Koppelkamm)
+* Collision now has a justStoppedHitting (Leo Koppelkamm)
+* Particles (Leo Koppelkamm)
+* Faster mouse events
+* Components now use title case
+* Crafty.pause method. Invoked when leaving the window or tab
+* Fixed crashing after inactivity
+* Global events, use Crafty.bind and Crafty.trigger
+* Repetition count for Animation component (Leo Koppelkamm)
+* Fixed typeahead find bug
+* .isDown() method for Controls component
+* Faster scrolling for DOM and canvas
+* .delay() and .requires() is chainable (sorenbs)
+* .DOM() will remove the previously created DOM element
+* Crafty.timer.getFPS() returns the current FPS (Leo Koppelkamm)
