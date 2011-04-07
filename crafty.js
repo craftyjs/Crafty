@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /*!
 * Crafty v0.4
 * http://craftyjs.com
@@ -8,17 +7,6 @@
 */
 
 (function(window, undefined) {
-=======
-/*!
-* Crafty v0.4
-* http://craftyjs.com
-*
-* Copyright 2010, Louis Stowasser
-* Dual licensed under the MIT or GPL licenses.
-*/
-
-(function(window, undefined) {
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 
 var Crafty = function(selector) {
 		return new Crafty.fn.init(selector);
@@ -175,11 +163,8 @@ Crafty.fn = Crafty.prototype = {
 			comp = comps[i];
 			if(!this.has(comp)) this.addComponent(comp);
 		}
-<<<<<<< HEAD
-=======
 
         return this;
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 	},
 	
 	removeComponent: function(id) {
@@ -221,10 +206,7 @@ Crafty.fn = Crafty.prototype = {
 				fn.call(self);
 			}, duration);
 		});
-<<<<<<< HEAD
-=======
         return this;
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 	},
 	
 	bind: function(event, fn) {
@@ -334,8 +316,6 @@ Crafty.fn = Crafty.prototype = {
 		});
 	}
 };
-<<<<<<< HEAD
-=======
 
 //Add getter and setter functionality to the Crafty prototype
 (function() {
@@ -473,7 +453,6 @@ var gets = [], //contains [obj. ref, property, getter]
 
 })();
 
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 //give the init instances the Crafty prototype
 Crafty.fn.init.prototype = Crafty.fn;
 
@@ -528,7 +507,6 @@ Crafty.extend({
 		if(onFrame) onFrame(tickID);
 		tick = null;
 		
-<<<<<<< HEAD
 		return this;
 	},
 	
@@ -545,16 +523,6 @@ Crafty.extend({
 	* 	Crafty.pause(); 
 	* });
 	* ~~~
-=======
-		document.body.removeChild(Crafty.stage.elem);
-		
-		return this;
-	},
-	
-	/**
-	* Unbinds all enterframe handlers and stores them away
-	* Calling .pause() again will restore previously deactivated handlers.
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 	*/
 	pause: function() {
 		if(!this._paused){
@@ -740,21 +708,12 @@ function clone(obj){
 //make Crafty global
 window.Crafty = Crafty;
 })(window);
-<<<<<<< HEAD
 
 //wrap around components
 (function(Crafty, window, document) {
 
 
 /**
-=======
-
-//wrap around components
-(function(Crafty, window, document) {
-
-
-/**
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 * Spatial HashMap for broad phase collision
 *
 * @author Louis Stowasser
@@ -894,13 +853,8 @@ Entry.prototype = {
 
 parent.HashMap = HashMap;
 })(Crafty);
-<<<<<<< HEAD
 
 Crafty.map = new Crafty.HashMap();
-=======
-
-Crafty.map = new Crafty.HashMap();
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 var M = Math,
 	Mc = M.cos,
 	Ms = M.sin,
@@ -1518,7 +1472,6 @@ Crafty.polygon.prototype = {
 		}
 	}
 };
-<<<<<<< HEAD
 
 /**@
 * #Collision
@@ -1527,15 +1480,10 @@ Crafty.polygon.prototype = {
 */
 Crafty.c("Collision", {
 	
-=======
-
-Crafty.c("Collision", {
-	
     init: function() {
         this.requires("2D");
     },
     
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 	collision: function(poly) {
 		var area = this._mbr || this;
 		
@@ -1550,7 +1498,6 @@ Crafty.c("Collision", {
 		return this;
 	},
 	
-<<<<<<< HEAD
 	/**@
 	* #.hit
 	* @comp Collision
@@ -1560,8 +1507,6 @@ Crafty.c("Collision", {
 	* returns an Array of objects that are colliding.
 	* @see .onHit
 	*/
-=======
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 	hit: function(comp) {
 		var area = this._mbr || this,
 			results = Crafty.map.search(area, false),
@@ -1593,11 +1538,7 @@ Crafty.c("Collision", {
 			obj = dupes[key];
 
 			if(hasMap && 'map' in obj) {
-<<<<<<< HEAD
 				var SAT = this._SAT(this.map, obj.map);
-=======
-				var SAT = this.SAT(this.map, obj.map);
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 				SAT.obj = obj;
 				SAT.type = "SAT";
 				if(SAT) finalresult.push(SAT);
@@ -1613,11 +1554,7 @@ Crafty.c("Collision", {
 		return finalresult;
 	},
 	
-<<<<<<< HEAD
 	onHit: function(comp, fn, fnOff) {
-=======
-	onhit: function(comp, fn, fnOff) {
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 		var justHit = false;
 		this.bind("enterframe", function() {
 			var hitdata = this.hit(comp);
@@ -1634,11 +1571,7 @@ Crafty.c("Collision", {
 		return this;
 	},
 	
-<<<<<<< HEAD
 	_SAT: function(poly1, poly2) {
-=======
-	SAT: function(poly1, poly2) {
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 		var points1 = poly1.points,
 			points2 = poly2.points,
 			i = 0, l = points1.length,
@@ -1740,13 +1673,8 @@ Crafty.c("Collision", {
 		return {overlap: MTV};
 	}
 });
-<<<<<<< HEAD
 
 Crafty.c("DOM", {
-=======
-
-Crafty.c("DOM", {
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 	_element: null,
 	_filters: {},
 	
@@ -1945,13 +1873,8 @@ Crafty.extend({
 		return str.replace(/[A-Z]/g, function(chr){ return chr ? '-' + chr.toLowerCase() : '' });
 	}
 });
-<<<<<<< HEAD
 
 Crafty.extend({
-=======
-
-Crafty.extend({
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 	
 	randRange: function(from, to) {
 		return Math.round(Math.random() * (to - from) + from);
@@ -2217,25 +2140,12 @@ Crafty.extend({
 			
 			Crafty.addEvent(this, window, "blur", function() {
 				if (!Crafty.dontPauseOnBlur) {
-<<<<<<< HEAD
 					Crafty.pause();
 				}
 			});
 			Crafty.addEvent(this, window, "focus", function() {
 				if(Crafty._paused && !Crafty.dontPauseOnBlur) {
 					Crafty.pause();
-=======
-					Crafty.trigger('Pause');
-					Crafty.stop();
-					Crafty._stopped = true;
-				}
-			});
-			Crafty.addEvent(this, window, "focus", function() {
-				if (Crafty._stopped && !Crafty.dontPauseOnBlur) {
-					Crafty.timer.init();
-					Crafty.trigger('Unpause');
-					Crafty._stopped = false;
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 				}
 			});
 
@@ -2429,13 +2339,8 @@ Crafty.c("viewport", {
 	}
 });
 
-<<<<<<< HEAD
 
 /**
-=======
-
-/**
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 * Canvas Components and Extensions
 */
 Crafty.c("Canvas", {
@@ -2548,13 +2453,8 @@ Crafty.extend({
 		Crafty._canvas = c;
 	}
 });
-<<<<<<< HEAD
 
 Crafty.extend({
-=======
-
-Crafty.extend({
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 	down: null, //object mousedown, waiting for up
 	over: null, //object mouseover, waiting for out
 	mouseObjs: 0,
@@ -2809,13 +2709,8 @@ Crafty.c("Twoway", {
 	}
 });
 
-<<<<<<< HEAD
 
 /**
-=======
-
-/**
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 * Animation component
 *
 * Crafty(player).animate("walk_left", 0, 1, 4, 100);
@@ -2956,13 +2851,8 @@ Crafty.c("Tween", {
 		});
 	}
 });
-<<<<<<< HEAD
 
 Crafty.c("Color", {
-=======
-
-Crafty.c("Color", {
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 	_color: "",
 	ready: true,
 	
@@ -3372,13 +3262,8 @@ Crafty.DrawManager = (function() {
 		}
 	};
 })();
-<<<<<<< HEAD
 
 Crafty.c("group", {
-=======
-
-Crafty.c("group", {
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 	_children: [],
 	
 	group: function(children) {
@@ -3440,13 +3325,8 @@ Crafty.extend({
 		return parent;
 	}
 });
-<<<<<<< HEAD
 
 Crafty.extend({
-=======
-
-Crafty.extend({
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 	isometric: {
 		_tile: 0,
 		_z: 0,
@@ -3473,13 +3353,8 @@ Crafty.extend({
 		}
 	}
 });
-<<<<<<< HEAD
 
 //Particle component
-=======
-
-//Particle component
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 //Based on Parcycle by Mr. Speaker, licensed under the MIT,
 //Ported by Leo Koppelkamm
 //**This is canvas only & won't do anything if the browser doesn't support it!**
@@ -3787,13 +3662,8 @@ Crafty.c("particles", {
 		}
 	}
 });
-<<<<<<< HEAD
 
 Crafty.extend({
-=======
-
-Crafty.extend({
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 	audio: {
 		_elems: {},
 		_muted: false,
@@ -3815,7 +3685,6 @@ Crafty.extend({
 		
 		/**@
 		* #Crafty.audio.add
-<<<<<<< HEAD
 		* @category Audio
 		* @sign public this Crafty.audio.add(String id, String url)
 		* @param id - A string to reffer to sounds
@@ -3824,24 +3693,6 @@ Crafty.extend({
 		* @param urls - Array of urls pointing to different format of the same sound, selecting the first that is playable
 		* @sign public this Crafty.audio.add(Object map)
 		* @param map - key-value pairs where the key is the `id` and the value is either a `url` or `urls`
-=======
-		* 
-		* `public this Crafty.audio.add(String id, String url)`
-		* 
-		* `public this Crafty.audio.add(String id, Array urls)`
-		* 
-		* `public this Crafty.audio.add(Object map)`
-		* 
-		* **Parameters:**
-		* 
-		*> `id` - A string to reffer to sounds
-		*> 
-		*> `url` - A string pointing to the sound file
-		*> 
-		*> `urls` - Array of urls pointing to different format of the same sound, selecting the first that is playable
-		*> 
-		*> `map` - key-value pairs where the key is the `id` and the value is either a `url` or `urls`
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 		* 
 		* Loads a sound to be played. Due to the nature of HTML5 audio, 
 		* three types of audio files will be required for cross-browser capabilities. 
@@ -3852,13 +3703,8 @@ Crafty.extend({
 		* Accepts an object where the key is the audio name (needed to play) and 
 		* either a URL or an Array of URLs to determine which type to use.
 		*
-<<<<<<< HEAD
 		* @example
 		* ~~~
-=======
-		* ##Use
-		*~~~
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 		* //adding audio from an object
 		* Crafty.audio.add({
 		* 	shoot: ["sounds/shoot.wav",  
@@ -3878,10 +3724,7 @@ Crafty.extend({
 		* //only one format
 		* Crafty.audio.add("jump", "sounds/jump.mp3");
 		* ~~~
-<<<<<<< HEAD
 		* @see Crafty.audio.play, Crafty.audio.settings
-=======
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 		*/
 		add: function(id, url) {
 			if(!Crafty.support.audio) return this;
@@ -4080,13 +3923,8 @@ Crafty.extend({
 //stop sounds on Pause
 Crafty.bind("Pause", function() {Crafty.audio.mute()});
 Crafty.bind("Unpause", function() {Crafty.audio.unMute()});
-<<<<<<< HEAD
 
 Crafty.c("Text", {
-=======
-
-Crafty.c("Text", {
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 	_text: "",
 	_font: "",
 	
@@ -4116,13 +3954,8 @@ Crafty.c("Text", {
 	}
 });
 
-<<<<<<< HEAD
 
 Crafty.c("health", {
-=======
-
-Crafty.c("health", {
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 	_mana: 100,
 	
 	health: function(mana) {
@@ -4146,13 +3979,8 @@ Crafty.c("health", {
 		return this;
 	}
 });
-<<<<<<< HEAD
 
 /**@
-=======
-
-/**@
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 * #Score
 * Keep a score for an entity.
 */
@@ -4199,13 +4027,8 @@ Crafty.c("Score", {
 		return this;
 	}
 });
-<<<<<<< HEAD
 
 Crafty.extend({
-=======
-
-Crafty.extend({
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
 	/**@
 	* Crafty.assets
 	* ===
@@ -4308,13 +4131,7 @@ Crafty.extend({
 		}
 	}
 });
-<<<<<<< HEAD
 
 })(Crafty,window,window.document);
 
-
-=======
-
-})(Crafty,window,window.document);
-
->>>>>>> b2004b37dde85339ad673a345dbe061da1b7bc65
+
