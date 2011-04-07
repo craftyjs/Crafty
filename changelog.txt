@@ -72,3 +72,9 @@ v0.4
 * .delay() and .requires() is chainable (sorenbs)
 * .DOM() will remove the previously created DOM element
 * Crafty.timer.getFPS() returns the current FPS (Leo Koppelkamm)
+
+v1.0 or 0.5
+
+* Mobile support
+* Test cases
+* Faster DOM

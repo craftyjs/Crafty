@@ -1,3 +1,8 @@
+/**@
+* #Collision
+* @category Collision
+* Component to detect collision between any two convex polygons.
+*/
 Crafty.c("Collision", {
 	
 	collision: function(poly) {
@@ -14,6 +19,15 @@ Crafty.c("Collision", {
 		return this;
 	},
 	
+	/**@
+	* #.hit
+	* @comp Collision
+	* @sign public Boolean/Array hit(String component)
+	* @param component - Collide with entities that has this component
+	* @return `false` if no collision. If a collision is detected, 
+	* returns an Array of objects that are colliding.
+	* @see .onHit
+	*/
 	hit: function(comp) {
 		var area = this._mbr || this,
 			results = Crafty.map.search(area, false),
@@ -45,7 +59,7 @@ Crafty.c("Collision", {
 			obj = dupes[key];
 
 			if(hasMap && 'map' in obj) {
-				var SAT = this.SAT(this.map, obj.map);
+				var SAT = this._SAT(this.map, obj.map);
 				SAT.obj = obj;
 				SAT.type = "SAT";
 				if(SAT) finalresult.push(SAT);
@@ -61,7 +75,7 @@ Crafty.c("Collision", {
 		return finalresult;
 	},
 	
-	onhit: function(comp, fn, fnOff) {
+	onHit: function(comp, fn, fnOff) {
 		var justHit = false;
 		this.bind("enterframe", function() {
 			var hitdata = this.hit(comp);
@@ -78,7 +92,7 @@ Crafty.c("Collision", {
 		return this;
 	},
 	
-	SAT: function(poly1, poly2) {
+	_SAT: function(poly1, poly2) {
 		var points1 = poly1.points,
 			points2 = poly2.points,
 			i = 0, l = points1.length,

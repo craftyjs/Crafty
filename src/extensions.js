@@ -264,16 +264,12 @@ Crafty.extend({
 			
 			Crafty.addEvent(this, window, "blur", function() {
 				if (!Crafty.dontPauseOnBlur) {
-					Crafty.trigger('Pause');
-					Crafty.stop();
-					Crafty._stopped = true;
+					Crafty.pause();
 				}
 			});
 			Crafty.addEvent(this, window, "focus", function() {
-				if (Crafty._paused && !Crafty.dontPauseOnBlur) {
-					Crafty.timer.init();
-					Crafty.trigger('Unpause');
-					Crafty._stopped = false;
+				if(Crafty._paused && !Crafty.dontPauseOnBlur) {
+					Crafty.pause();
 				}
 			});
 

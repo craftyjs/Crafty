@@ -20,22 +20,14 @@ Crafty.extend({
 		
 		/**@
 		* #Crafty.audio.add
-		* 
-		* `public this Crafty.audio.add(String id, String url)`
-		* 
-		* `public this Crafty.audio.add(String id, Array urls)`
-		* 
-		* `public this Crafty.audio.add(Object map)`
-		* 
-		* **Parameters:**
-		* 
-		*> `id` - A string to reffer to sounds
-		*> 
-		*> `url` - A string pointing to the sound file
-		*> 
-		*> `urls` - Array of urls pointing to different format of the same sound, selecting the first that is playable
-		*> 
-		*> `map` - key-value pairs where the key is the `id` and the value is either a `url` or `urls`
+		* @category Audio
+		* @sign public this Crafty.audio.add(String id, String url)
+		* @param id - A string to reffer to sounds
+		* @param url - A string pointing to the sound file
+		* @sign public this Crafty.audio.add(String id, Array urls)
+		* @param urls - Array of urls pointing to different format of the same sound, selecting the first that is playable
+		* @sign public this Crafty.audio.add(Object map)
+		* @param map - key-value pairs where the key is the `id` and the value is either a `url` or `urls`
 		* 
 		* Loads a sound to be played. Due to the nature of HTML5 audio, 
 		* three types of audio files will be required for cross-browser capabilities. 
@@ -46,8 +38,8 @@ Crafty.extend({
 		* Accepts an object where the key is the audio name (needed to play) and 
 		* either a URL or an Array of URLs to determine which type to use.
 		*
-		* ##Use
-		*~~~
+		* @example
+		* ~~~
 		* //adding audio from an object
 		* Crafty.audio.add({
 		* 	shoot: ["sounds/shoot.wav",  
@@ -67,6 +59,7 @@ Crafty.extend({
 		* //only one format
 		* Crafty.audio.add("jump", "sounds/jump.mp3");
 		* ~~~
+		* @see Crafty.audio.play, Crafty.audio.settings
 		*/
 		add: function(id, url) {
 			if(!Crafty.support.audio) return this;

@@ -359,14 +359,22 @@ Crafty.extend({
 		if(onFrame) onFrame(tickID);
 		tick = null;
 		
-		document.body.removeChild(Crafty.stage.elem);
-		
 		return this;
 	},
 	
-	/**
+	/**@
+	* #Crafty.pause
 	* Unbinds all enterframe handlers and stores them away
 	* Calling .pause() again will restore previously deactivated handlers.
+	* 
+	* @sign public this Crafty.pause()
+	* @example
+	* Have an entity pause the game when it is clicked.
+	* ~~~
+	* button.bind("click", function() {
+	* 	Crafty.pause(); 
+	* });
+	* ~~~
 	*/
 	pause: function() {
 		if(!this._paused){
