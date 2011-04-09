@@ -15,8 +15,11 @@ Crafty.extend({
 			closest,
 			q,
 			i = 0, l,
-			x = e.clientX - Crafty.stage.x + document.body.scrollLeft + document.documentElement.scrollLeft - Crafty.viewport._x,
-			y = e.clientY - Crafty.stage.y + document.body.scrollTop + document.documentElement.scrollTop - Crafty.viewport._y;
+			pos = Crafty.DOM.translate(e.clientX, e.clientY),
+			x, y;
+		
+		e.realX = x = pos.x;
+		e.realY = y = pos.y;
 		
 		//search for all mouse entities
 		q = Crafty.map.search({_x: x, _y:y, _w:1, _h:1});
@@ -120,19 +123,27 @@ Crafty.c("Draggable", {
 		if(!this.has("mouse")) this.addComponent("mouse");
 		
 		function drag(e) {
-			this.x = e.clientX - this._startX;
-			this.y = e.clientY - this._startY;
+			var pos = Crafty.DOM.translate(e.clientX, e.clientY);
+			this.x = pos.x - this._startX;
+			this.y = pos.y - this._startY;
+			
+			this.trigger("Dragging", e);
 		}
 				
 		this.bind("mousedown", function(e) {
+			console.log(e);
 			//start drag
-			this._startX = (e.clientX - Crafty.stage.x) - this._x;
-			this._startY = (e.clientY - Crafty.stage.y) - this._y;
+			this._startX = e.realX - this._x;
+			this._startY = e.realY - this._y;
+			
 			Crafty.addEvent(this, Crafty.stage.elem, "mousemove", drag);
+			
+			this.trigger("StartDrag", e);
 		});
 		
-		Crafty.addEvent(this, Crafty.stage.elem, "mouseup", function() {
+		Crafty.addEvent(this, Crafty.stage.elem, "mouseup", function(e) {
 			Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", drag);
+			this.trigger("StopDrag", e);
 		});
 	},
 	

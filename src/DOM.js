@@ -118,7 +118,7 @@ Crafty.c("DOM", {
 				if(typeof value === "number") value += 'px';
 				style[Crafty.camelize(obj)] = value;
 			} else { //otherwise return the computed property
-				return Crafty.getStyle(elem, obj);
+				return Crafty.DOM.getStyle(elem, obj);
 			}
 		}
 		
@@ -137,63 +137,82 @@ try {
 
 
 Crafty.extend({
-	window: {
-		init: function() {
-			this.width = window.innerWidth || (window.document.documentElement.clientWidth || window.document.body.clientWidth);
-			this.height = window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
+	DOM: {
+		window: {
+			init: function() {
+				this.width = window.innerWidth || (window.document.documentElement.clientWidth || window.document.body.clientWidth);
+				this.height = window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
+			},
+			
+			width: 0,
+			height: 0
 		},
 		
-		width: 0,
-		height: 0
-	},
-	
-	/**
-	* Find a DOM elements position including
-	* padding and border
-	*/
-	inner: function(obj) { 
-		var rect = obj.getBoundingClientRect(),
-			x = rect.left,
-			y = rect.top,
-			borderX,
-			borderY;
+		/**
+		* Find a DOM elements position including
+		* padding and border
+		*/
+		inner: function(obj) { 
+			var rect = obj.getBoundingClientRect(),
+				x = rect.left,
+				y = rect.top,
+				borderX,
+				borderY;
+			
+			//border left
+			borderX = parseInt(this.getStyle(obj, 'border-left-width') || 0, 10);
+			borderY = parseInt(this.getStyle(obj, 'border-top-width') || 0, 10);
+			if(!borderX || !borderY) { //JS notation for IE
+				borderX = parseInt(this.getStyle(obj, 'borderLeftWidth') || 0, 10);
+				borderY = parseInt(this.getStyle(obj, 'borderTopWidth') || 0, 10);
+			}
+			
+			x += borderX;
+			y += borderY;
+			
+			return {x: x, y: y}; 
+		},
 		
-		//border left
-		borderX = parseInt(this.getStyle(obj, 'border-left-width') || 0, 10);
-		borderY = parseInt(this.getStyle(obj, 'border-top-width') || 0, 10);
-		if(!borderX || !borderY) { //JS notation for IE
-			borderX = parseInt(this.getStyle(obj, 'borderLeftWidth') || 0, 10);
-			borderY = parseInt(this.getStyle(obj, 'borderTopWidth') || 0, 10);
+		getStyle: function(obj,prop) {
+			var result;
+			if(obj.currentStyle)
+				result = obj.currentStyle[this.camelize(prop)];
+			else if(window.getComputedStyle)
+				result = document.defaultView.getComputedStyle(obj,null).getPropertyValue(this.csselize(prop));
+			return result;
+		},
+		
+		/**
+		* Used in the Zepto framework
+		*
+		* Converts CSS notation to JS notation
+		*/
+		camelize: function(str) { 
+			return str.replace(/-+(.)?/g, function(match, chr){ return chr ? chr.toUpperCase() : '' });
+		},
+		
+		/**
+		* Converts JS notation to CSS notation
+		*/
+		csselize: function(str) {
+			return str.replace(/[A-Z]/g, function(chr){ return chr ? '-' + chr.toLowerCase() : '' });
+		},
+		
+		/**@
+		* #Crafty.DOM.translate
+		* @sign public Object Crafty.DOM.translate(Number x, Number y)
+		* @param x - x position to translate
+		* @param y - y position to translate
+		* @return Object with x and y as keys and translated values
+		*
+		* Method will translate x and y positions to positions on the
+		* stage. Useful for mouse events with `e.clientX` and `e.clientY`.
+		*/
+		translate: function(x,y) {
+			return {
+				x: x - Crafty.stage.x + document.body.scrollLeft + document.documentElement.scrollLeft - Crafty.viewport._x,
+				y: y - Crafty.stage.y + document.body.scrollTop + document.documentElement.scrollTop - Crafty.viewport._y
+			}
 		}
-		
-		x += borderX;
-		y += borderY;
-		
-		return {x: x, y: y}; 
-	},
-	
-	getStyle: function(obj,prop) {
-		var result;
-		if(obj.currentStyle)
-			result = obj.currentStyle[Crafty.camelize(prop)];
-		else if(window.getComputedStyle)
-			result = document.defaultView.getComputedStyle(obj,null).getPropertyValue(Crafty.csselize(prop));
-		return result;
-	},
-	
-	/**
-	* Used in the Zepto framework
-	*
-	* Converts CSS notation to JS notation
-	*/
-	camelize: function(str) { 
-		return str.replace(/-+(.)?/g, function(match, chr){ return chr ? chr.toUpperCase() : '' });
-	},
-	
-	/**
-	* Converts JS notation to CSS notation
-	*/
-	csselize: function(str) {
-		return str.replace(/[A-Z]/g, function(chr){ return chr ? '-' + chr.toLowerCase() : '' });
 	}
 });

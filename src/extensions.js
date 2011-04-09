@@ -215,9 +215,9 @@ Crafty.extend({
 		},
 		
 		init: function(w,h) {
-			Crafty.window.init();
-			this.width = w || Crafty.window.width;
-			this.height = h || Crafty.window.height;
+			Crafty.DOM.window.init();
+			this.width = w || Crafty.DOM.window.width;
+			this.height = h || Crafty.DOM.window.height;
 				
 			//check if stage exists
 			var crstage = document.getElementById("cr-stage");
@@ -238,9 +238,9 @@ Crafty.extend({
 			}
 			
 			Crafty.addEvent(this, window, "resize", function() {
-				Crafty.window.init();
-				var w = Crafty.window.width;
-					h = Crafty.window.height,
+				Crafty.DOM.window.init();
+				var w = Crafty.DOM.window.width;
+					h = Crafty.DOM.window.height,
 					offset;
 				
 				
@@ -257,7 +257,7 @@ Crafty.extend({
 					}
 				}
 				
-				offset = Crafty.inner(Crafty.stage.elem);
+				offset = Crafty.DOM.inner(Crafty.stage.elem);
 				Crafty.stage.x = offset.x;
 				Crafty.stage.y = offset.y;
 			});
@@ -293,7 +293,7 @@ Crafty.extend({
 			elem.position = "relative";
 			
 			//find out the offset position of the stage
-			offset = Crafty.inner(Crafty.stage.elem);
+			offset = Crafty.DOM.inner(Crafty.stage.elem);
 			Crafty.stage.x = offset.x;
 			Crafty.stage.y = offset.y;
 			

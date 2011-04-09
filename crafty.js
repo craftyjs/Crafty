@@ -1807,7 +1807,7 @@ Crafty.c("Collision", {
 				if(typeof value === "number") value += 'px';
 				style[Crafty.camelize(obj)] = value;
 			} else { //otherwise return the computed property
-				return Crafty.getStyle(elem, obj);
+				return Crafty.DOM.getStyle(elem, obj);
 			}
 		}
 		
@@ -1826,64 +1826,83 @@ try {
 
 
 Crafty.extend({
-	window: {
-		init: function() {
-			this.width = window.innerWidth || (window.document.documentElement.clientWidth || window.document.body.clientWidth);
-			this.height = window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
+	DOM: {
+		window: {
+			init: function() {
+				this.width = window.innerWidth || (window.document.documentElement.clientWidth || window.document.body.clientWidth);
+				this.height = window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
+			},
+			
+			width: 0,
+			height: 0
 		},
 		
-		width: 0,
-		height: 0
-	},
-	
-	/**
-	* Find a DOM elements position including
-	* padding and border
-	*/
-	inner: function(obj) { 
-		var rect = obj.getBoundingClientRect(),
-			x = rect.left,
-			y = rect.top,
-			borderX,
-			borderY;
+		/**
+		* Find a DOM elements position including
+		* padding and border
+		*/
+		inner: function(obj) { 
+			var rect = obj.getBoundingClientRect(),
+				x = rect.left,
+				y = rect.top,
+				borderX,
+				borderY;
+			
+			//border left
+			borderX = parseInt(this.getStyle(obj, 'border-left-width') || 0, 10);
+			borderY = parseInt(this.getStyle(obj, 'border-top-width') || 0, 10);
+			if(!borderX || !borderY) { //JS notation for IE
+				borderX = parseInt(this.getStyle(obj, 'borderLeftWidth') || 0, 10);
+				borderY = parseInt(this.getStyle(obj, 'borderTopWidth') || 0, 10);
+			}
+			
+			x += borderX;
+			y += borderY;
+			
+			return {x: x, y: y}; 
+		},
 		
-		//border left
-		borderX = parseInt(this.getStyle(obj, 'border-left-width') || 0, 10);
-		borderY = parseInt(this.getStyle(obj, 'border-top-width') || 0, 10);
-		if(!borderX || !borderY) { //JS notation for IE
-			borderX = parseInt(this.getStyle(obj, 'borderLeftWidth') || 0, 10);
-			borderY = parseInt(this.getStyle(obj, 'borderTopWidth') || 0, 10);
+		getStyle: function(obj,prop) {
+			var result;
+			if(obj.currentStyle)
+				result = obj.currentStyle[this.camelize(prop)];
+			else if(window.getComputedStyle)
+				result = document.defaultView.getComputedStyle(obj,null).getPropertyValue(this.csselize(prop));
+			return result;
+		},
+		
+		/**
+		* Used in the Zepto framework
+		*
+		* Converts CSS notation to JS notation
+		*/
+		camelize: function(str) { 
+			return str.replace(/-+(.)?/g, function(match, chr){ return chr ? chr.toUpperCase() : '' });
+		},
+		
+		/**
+		* Converts JS notation to CSS notation
+		*/
+		csselize: function(str) {
+			return str.replace(/[A-Z]/g, function(chr){ return chr ? '-' + chr.toLowerCase() : '' });
+		},
+		
+		/**@
+		* #Crafty.DOM.translate
+		* @sign public Object Crafty.DOM.translate(Number x, Number y)
+		* @param x - x position to translate
+		* @param y - y position to translate
+		* @return Object with x and y as keys and translated values
+		*
+		* Method will translate x and y positions to positions on the
+		* stage. Useful for mouse events with `e.clientX` and `e.clientY`.
+		*/
+		translate: function(x,y) {
+			return {
+				x: x - Crafty.stage.x + document.body.scrollLeft + document.documentElement.scrollLeft - Crafty.viewport._x,
+				y: y - Crafty.stage.y + document.body.scrollTop + document.documentElement.scrollTop - Crafty.viewport._y
+			}
 		}
-		
-		x += borderX;
-		y += borderY;
-		
-		return {x: x, y: y}; 
-	},
-	
-	getStyle: function(obj,prop) {
-		var result;
-		if(obj.currentStyle)
-			result = obj.currentStyle[Crafty.camelize(prop)];
-		else if(window.getComputedStyle)
-			result = document.defaultView.getComputedStyle(obj,null).getPropertyValue(Crafty.csselize(prop));
-		return result;
-	},
-	
-	/**
-	* Used in the Zepto framework
-	*
-	* Converts CSS notation to JS notation
-	*/
-	camelize: function(str) { 
-		return str.replace(/-+(.)?/g, function(match, chr){ return chr ? chr.toUpperCase() : '' });
-	},
-	
-	/**
-	* Converts JS notation to CSS notation
-	*/
-	csselize: function(str) {
-		return str.replace(/[A-Z]/g, function(chr){ return chr ? '-' + chr.toLowerCase() : '' });
 	}
 });
 
@@ -2104,9 +2123,9 @@ Crafty.extend({
 		},
 		
 		init: function(w,h) {
-			Crafty.window.init();
-			this.width = w || Crafty.window.width;
-			this.height = h || Crafty.window.height;
+			Crafty.DOM.window.init();
+			this.width = w || Crafty.DOM.window.width;
+			this.height = h || Crafty.DOM.window.height;
 				
 			//check if stage exists
 			var crstage = document.getElementById("cr-stage");
@@ -2127,9 +2146,9 @@ Crafty.extend({
 			}
 			
 			Crafty.addEvent(this, window, "resize", function() {
-				Crafty.window.init();
-				var w = Crafty.window.width;
-					h = Crafty.window.height,
+				Crafty.DOM.window.init();
+				var w = Crafty.DOM.window.width;
+					h = Crafty.DOM.window.height,
 					offset;
 				
 				
@@ -2146,7 +2165,7 @@ Crafty.extend({
 					}
 				}
 				
-				offset = Crafty.inner(Crafty.stage.elem);
+				offset = Crafty.DOM.inner(Crafty.stage.elem);
 				Crafty.stage.x = offset.x;
 				Crafty.stage.y = offset.y;
 			});
@@ -2182,7 +2201,7 @@ Crafty.extend({
 			elem.position = "relative";
 			
 			//find out the offset position of the stage
-			offset = Crafty.inner(Crafty.stage.elem);
+			offset = Crafty.DOM.inner(Crafty.stage.elem);
 			Crafty.stage.x = offset.x;
 			Crafty.stage.y = offset.y;
 			
@@ -2484,11 +2503,16 @@ Crafty.extend({
 			closest,
 			q,
 			i = 0, l,
-			x = e.clientX - Crafty.stage.x + document.body.scrollLeft + document.documentElement.scrollLeft - Crafty.viewport._x,
-			y = e.clientY - Crafty.stage.y + document.body.scrollTop + document.documentElement.scrollTop - Crafty.viewport._y;
+			pos = Crafty.DOM.translate(e.clientX, e.clientY),
+			x, y;
+		
+		e.realX = x = pos.x;
+		e.realY = y = pos.y;
 		
 		//search for all mouse entities
 		q = Crafty.map.search({_x: x, _y:y, _w:1, _h:1});
+		
+		console.log(pos);
 		
 		for(l=q.length;i<l;++i) {
 			//check if has mouse component
@@ -2589,19 +2613,27 @@ Crafty.c("Draggable", {
 		if(!this.has("mouse")) this.addComponent("mouse");
 		
 		function drag(e) {
-			this.x = e.clientX - this._startX;
-			this.y = e.clientY - this._startY;
+			var pos = Crafty.DOM.translate(e.clientX, e.clientY);
+			this.x = pos.x - this._startX;
+			this.y = pos.y - this._startY;
+			
+			this.trigger("Dragging", e);
 		}
 				
 		this.bind("mousedown", function(e) {
+			console.log(e);
 			//start drag
-			this._startX = (e.clientX - Crafty.stage.x) - this._x;
-			this._startY = (e.clientY - Crafty.stage.y) - this._y;
+			this._startX = e.realX - this._x;
+			this._startY = e.realY - this._y;
+			
 			Crafty.addEvent(this, Crafty.stage.elem, "mousemove", drag);
+			
+			this.trigger("StartDrag", e);
 		});
 		
-		Crafty.addEvent(this, Crafty.stage.elem, "mouseup", function() {
+		Crafty.addEvent(this, Crafty.stage.elem, "mouseup", function(e) {
 			Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", drag);
+			this.trigger("StopDrag", e);
 		});
 	},
 	
