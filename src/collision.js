@@ -1,6 +1,6 @@
 /**@
 * #Collision
-* @category Collision
+* @category 2D
 * Component to detect collision between any two convex polygons.
 */
 Crafty.c("Collision", {

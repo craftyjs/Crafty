@@ -1488,7 +1488,7 @@ Crafty.polygon.prototype = {
 
 /**@
 * #Collision
-* @category Collision
+* @category 2D
 * Component to detect collision between any two convex polygons.
 */
 Crafty.c("Collision", {
@@ -1799,13 +1799,13 @@ Crafty.c("Collision", {
 				val = obj[key];
 				if(typeof val === "number") val += 'px';
 				
-				style[Crafty.camelize(key)] = val;
+				style[Crafty.DOM.camelize(key)] = val;
 			}
 		} else {
 			//if a value is passed, set the property
 			if(value) {
 				if(typeof value === "number") value += 'px';
-				style[Crafty.camelize(obj)] = value;
+				style[Crafty.DOM.camelize(obj)] = value;
 			} else { //otherwise return the computed property
 				return Crafty.DOM.getStyle(elem, obj);
 			}
@@ -2511,8 +2511,6 @@ Crafty.extend({
 		
 		//search for all mouse entities
 		q = Crafty.map.search({_x: x, _y:y, _w:1, _h:1});
-		
-		console.log(pos);
 		
 		for(l=q.length;i<l;++i) {
 			//check if has mouse component

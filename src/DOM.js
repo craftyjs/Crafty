@@ -110,13 +110,13 @@ Crafty.c("DOM", {
 				val = obj[key];
 				if(typeof val === "number") val += 'px';
 				
-				style[Crafty.camelize(key)] = val;
+				style[Crafty.DOM.camelize(key)] = val;
 			}
 		} else {
 			//if a value is passed, set the property
 			if(value) {
 				if(typeof value === "number") value += 'px';
-				style[Crafty.camelize(obj)] = value;
+				style[Crafty.DOM.camelize(obj)] = value;
 			} else { //otherwise return the computed property
 				return Crafty.DOM.getStyle(elem, obj);
 			}
