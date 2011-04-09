@@ -268,7 +268,7 @@ Crafty.extend({
 				}
 			});
 			Crafty.addEvent(this, window, "focus", function() {
-				if(Crafty._paused && !Crafty.dontPauseOnBlur) {
+				if(Crafty._paused) {
 					Crafty.pause();
 				}
 			});

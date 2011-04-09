@@ -552,7 +552,7 @@ Crafty.extend({
 							cb(); 
 							tickID = onFrame(tick); 
 						}
-						console.log(tick, onFrame);
+						
 						tick();
 					} else {
 						tick = setInterval(cb, 1000 / FPS);
