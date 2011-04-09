@@ -120,7 +120,7 @@ Crafty.c("Draggable", {
 		if(!this.has("mouse")) this.addComponent("mouse");
 		
 		function drag(e) {
-			this.x = e.clientX - this._startX;
+			this.x = e.clientX - this._startX - e.currentTarget.offsetLeft;
 			this.y = e.clientY - this._startY;
 		}
 				
