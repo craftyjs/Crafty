@@ -487,17 +487,8 @@ Crafty.extend({
 	},
 	
 	stop: function() {
-		if(typeof tick === "number") clearInterval(tick);
-		
-		var onFrame = window.cancelRequestAnimationFrame ||
-				window.webkitCancelRequestAnimationFrame ||
-				window.mozCancelRequestAnimationFrame ||
-				window.oCancelRequestAnimationFrame ||
-				window.msCancelRequestAnimationFrame ||
-				null;
-					
-		if(onFrame) onFrame(tickID);
-		tick = null;
+		this.timer.stop();
+		Crafty.stage.elem.parentNode.removeChild(Crafty.stage.elem);
 		
 		return this;
 	},
@@ -517,7 +508,7 @@ Crafty.extend({
 	* ~~~
 	*/
 	pause: function() {
-		if(!this._paused){
+		if(!this._paused) {
 			this.trigger('Pause');
 			this._paused = true;
 			pausedEvents = {};
@@ -525,15 +516,19 @@ Crafty.extend({
 			for(handler in handlers['enterframe']){
 				pausedEvents[handler] = handlers['enterframe'][handler];
 				delete handlers['enterframe'][handler];
-			};
-			Crafty.keydown={};
+			}
+			
+			Crafty.timer.stop();
+			Crafty.keydown = {};
 		} else {
 			this.trigger('Unpause');
 			this._paused = false;
 			
 			for(handler in pausedEvents){
 				handlers['enterframe'][handler] = pausedEvents[handler];
-			};
+			}
+			
+			Crafty.timer.init();
 		}
 		return this;
 	},
@@ -553,7 +548,11 @@ Crafty.extend({
 			
 				onEachFrame = function(cb) {
 					if(onFrame) {
-						tick = function() { cb(); tickID = onFrame(tick); }
+						function tick() { 
+							cb(); 
+							tickID = onFrame(tick); 
+						}
+						console.log(tick, onFrame);
 						tick();
 					} else {
 						tick = setInterval(cb, 1000 / FPS);
@@ -561,6 +560,20 @@ Crafty.extend({
 				};
 			
 			onEachFrame(Crafty.timer.step);
+		},
+		
+		stop: function() {
+			if(typeof tick === "number") clearInterval(tick);
+		
+			var onFrame = window.cancelRequestAnimationFrame ||
+					window.webkitCancelRequestAnimationFrame ||
+					window.mozCancelRequestAnimationFrame ||
+					window.oCancelRequestAnimationFrame ||
+					window.msCancelRequestAnimationFrame ||
+					null;
+						
+			if(onFrame) onFrame(tickID);
+			tick = null;
 		},
 		
 		step: (function() {

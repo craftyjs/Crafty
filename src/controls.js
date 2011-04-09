@@ -6,7 +6,7 @@ Crafty.extend({
 		
 	mouseDispatch: function(e) {
 		if(!Crafty.mouseObjs) return;
-		if(e.type == "mousedown") console.log("DISPATCH");
+		
 		if(e.type === "touchstart") e.type = "mousedown";
 		else if(e.type === "touchmove") e.type = "mousemove";
 		else if(e.type === "touchend") e.type = "mouseup";
