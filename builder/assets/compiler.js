@@ -122,9 +122,6 @@ CURRENT_SCENE = MAIN;
 /**
 * TODO
 *
-* //object list
-* Update list when new, deleted or edited
-*
 * //wysiwyg
 * Add all entities on the stage as DOM elements
 * Drag and drop updates its props
@@ -136,32 +133,42 @@ CURRENT_SCENE = MAIN;
 * Load all JSON into object
 */
 
-Crafty.c("GUI", {
-	init: function() {
-		this.removeComponent("Canvas");
-		this.requires("DOM, Mouse");
+Crafty.c("_GUI", {
+	_GUI: function() {
+		this.requires("DOM");
 		
+		var self = this;
 		function drag(e) {
-			this.x = (e.clientX - Crafty.stage.x) - this._startX;
-			this.y = (e.clientY - Crafty.stage.y) - this._startY;
-			console.log("TEST");
-			this.draw();
+			self.x = (e.clientX - Crafty.stage.x) - self._startX;
+			self.y = (e.clientY - Crafty.stage.y) - self._startY;
+			self.draw();
 		}
 				
-		this.bind("mousedown", function(e) {
-			console.log("DON", (e.clientX - Crafty.stage.x));
-			//start drag
-			this._startX = (e.clientX - Crafty.stage.x) - this._x;
-			this._startY = (e.clientY - Crafty.stage.y) - this._y;
-			Crafty.addEvent(this, Crafty.stage.elem, "mousemove", drag);
+		$(this._element).mousedown(function(e) {
+			self._startX = (e.clientX - Crafty.stage.x) - self._x;
+			self._startY = (e.clientY - Crafty.stage.y) - self._y;
+			$workarea.mousemove(drag);
 		});
 		
-		Crafty.addEvent(this, Crafty.stage.elem, "mouseup", function() {
-			Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", drag);
+		$workarea.mouseup(function() {
+			$workarea.unbind("mousemove", drag);
 		});
 	},
 	
 	_startX: 0,
 	_startY: 0,
+	
+	comps: function(complist) {
+		var comps = complist.split(/\s*,\s*/),
+			i = 0, l = comps.length;
+		
+		for(;i<l;++i) {
+			if(comps[i] === "Canvas") continue;
+			this.addComponent(comps[i]);
+		}
+		
+		this._GUI();
+		return this;
+	}
 });
 

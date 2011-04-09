@@ -6,7 +6,7 @@ Crafty.extend({
 		
 	mouseDispatch: function(e) {
 		if(!Crafty.mouseObjs) return;
-
+		if(e.type == "mousedown") console.log("DISPATCH");
 		if(e.type === "touchstart") e.type = "mousedown";
 		else if(e.type === "touchmove") e.type = "mousemove";
 		else if(e.type === "touchend") e.type = "mouseup";
@@ -15,8 +15,8 @@ Crafty.extend({
 			closest,
 			q,
 			i = 0, l,
-			x = e.clientX - Crafty.stage.x + document.body.scrollLeft + document.documentElement.scrollLeft,
-			y = e.clientY - Crafty.stage.y + document.body.scrollTop + document.documentElement.scrollTop;
+			x = e.clientX - Crafty.stage.x + document.body.scrollLeft + document.documentElement.scrollLeft - Crafty.viewport._x,
+			y = e.clientY - Crafty.stage.y + document.body.scrollTop + document.documentElement.scrollTop - Crafty.viewport._y;
 		
 		//search for all mouse entities
 		q = Crafty.map.search({_x: x, _y:y, _w:1, _h:1});
@@ -27,7 +27,6 @@ Crafty.extend({
 			
 			var current = q[i],
 				flag = false;
-				
 			
 			if(current.map) {
 				if(current.map.containsPoint(x, y)) {
@@ -52,19 +51,14 @@ Crafty.extend({
 			if(e.type === "mousedown") {
 				this.down = closest;
 				this.down.trigger('mousedown', e);
-			}
-			if(e.type === "mouseup") {
+			} else if(e.type === "mouseup") {
 				//check that down exists and this is down
 				if(this.down && closest === this.down) {
 					this.down.trigger("click", e);
-					this.down = null;
-					return; //exit early
 				}
 				//reset down
 				this.down = null;
-			}
-			
-			if(e.type === "mousemove") {
+			} else if(e.type === "mousemove") {
 				if(this.over !== closest) { //if new mousemove, it is over
 					if(this.over) {
 						this.over.trigger("mouseout", e); //if over wasn't null, send mouseout
@@ -72,10 +66,8 @@ Crafty.extend({
 					}
 					this.over = closest;
 					closest.trigger("mouseover", e);
-					return;
 				}
-			}
-			closest.trigger(e.type, e);
+			} else closest.trigger(e.type, e); //trigger whatever it is
 		} else {
 			if(e.type === "mousemove" && this.over) {
 				this.over.trigger("mouseout", e);

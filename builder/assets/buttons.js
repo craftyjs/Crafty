@@ -49,7 +49,7 @@ $b.newent.click(function() {
 				block = new EntBlock("var "+inst+" = Crafty.e('"+comps+"');","",inst);
 				block.comps = comps;
 				
-				CENTS[inst] = Crafty.e(comps+", GUI");
+				CENTS[inst] = Crafty.e("_GUI").comps(comps);
 				
 				//append the entity in the selected scene
 				CURRENT_SCENE.append(block);

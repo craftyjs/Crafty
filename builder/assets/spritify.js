@@ -4,6 +4,16 @@ var inneroffset,
 	labels = {},
 	file;
 
+function resetSprite() {
+	$sprite.attr("src","");
+	file = selected = inneroffset = null;
+	labels = {};
+	$inner.html("");
+	$over.css("border-color", "red");
+	$grid.mousemove(overHandler);
+	$label.val("");
+}	
+
 function spritify(f) {
 	file = f;
 	
@@ -13,6 +23,17 @@ function spritify(f) {
 	$sprite.attr("src", file).load(function() {
 		width = this.width;
 		
+		//reload the labels
+		if(ASSETS[f].spritify) {
+			var assets = ASSETS[f].spritify;
+			labels = assets.labels;
+			grid(assets.size, assets.paddingx, assets.paddingy);
+			$tilesize.val(assets.size);
+			$paddingx.val(assets.paddingx);
+			$paddingy.val(assets.paddingy);
+		}
+		
+		//start the spritify dialog
 		$spritify.dialog({
 			modal: true,
 			width: width + controls_width,
@@ -20,16 +41,58 @@ function spritify(f) {
 			resizable: false,
 			buttons: {
 				'Save' : function() {
+					var code = "Crafty.sprite(\""+$tilesize.val()+"\","+f+",{",
+						label,
+						assets = ASSETS[f],
+						map = {},
+						block;
 					
+					for(label in labels) {
+						code += "'" + labels[label] + "': ["+label.split("x").join(",")+"],";
+						map[labels[label]] = label.split("x");
+						COMPS[labels[label]] = {};
+					}
+					code = code.substr(0, code.length - 1);
+					code += "}";
+					if(+$paddingx.val() > 0) {
+						code += ","+$paddingx.val();
+					}
+					if(+$paddingy.val() > 0) {
+						code += ","+$paddingy.val();
+					}
+					code += ");";
+					
+					Crafty.sprite(+$tilesize.val(), f, map, +$paddingx.val(), +$paddingy.val());
+					
+					if(assets.block) {
+						block = assets.block;
+						block.open = code;
+					} else {
+						block = new Block(code);
+						CODE.append(block);
+					}
+					assets.spritify = {
+						labels: labels,
+						size: +$tilesize.val(),
+						paddingx: +$paddingx.val(),
+						paddingy: +$paddingy.val()
+					};
+					
+					Editor.update();
+					resetSprite();
+					$(this).dialog("close");
 				},
 				
 				'Cancel': function() {
+					resetSprite();
 					$(this).dialog("close");
 				}
 			},
 			dragStop: function() {
 				inneroffset = $grid.offset();
-			}
+			},
+			
+			beforeClose: function() { resetSprite(); }
 		});
 		
 		//init grid
@@ -38,24 +101,7 @@ function spritify(f) {
 	}).error(function() {
 		errorz("Image not found!", "We can't find the image <code>"+file+"</code>");
 	});
-	$grid.mousemove(overHandler).click(clickHandler);
 	
-	$tilesize.keydown(intOnly).keyup(gridHandler);
-	$paddingx.keydown(intOnly).keyup(gridHandler);
-	$paddingy.keydown(intOnly).keyup(gridHandler);
-	$width.keydown(intOnly).keyup(gridHandler);
-	$height.keydown(intOnly).keyup(gridHandler);
-	
-	$label.keypress(function() {
-		if(!selected) {
-			$(this).blur();
-			return false;
-		}
-	}).keyup(function() {
-		if(!selected) return false;
-		
-		labels[selected[0]+"x"+selected[1]+"x"+selected[2]+"x"+selected[3]] = $(this).val();
-	});
 }
 
 function intOnly(e) {
@@ -132,3 +178,24 @@ function overHandler(e) {
 		
 	$over.css({left: x, top: y, width: (width * (tile + paddingx) - paddingx-1), height: (height * (tile + paddingy) - paddingy-1)});
 }
+
+$(function() {
+	$grid.mousemove(overHandler).click(clickHandler);
+	
+	$tilesize.keydown(intOnly).keyup(gridHandler);
+	$paddingx.keydown(intOnly).keyup(gridHandler);
+	$paddingy.keydown(intOnly).keyup(gridHandler);
+	$width.keydown(intOnly).keyup(gridHandler);
+	$height.keydown(intOnly).keyup(gridHandler);
+	
+	$label.keypress(function() {
+		if(!selected) {
+			$(this).blur();
+			return false;
+		}
+	}).keyup(function() {
+		if(!selected) return false;
+		
+		labels[selected[0]+"x"+selected[1]+"x"+selected[2]+"x"+selected[3]] = $(this).val();
+	});
+});
