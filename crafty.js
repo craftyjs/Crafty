@@ -6,7 +6,8 @@
 * Dual licensed under the MIT or GPL licenses.
 */
 
-(function(window, undefined) {
+
+(function(window, undefined) {
 
 var Crafty = function(selector) {
 		return new Crafty.fn.init(selector);
@@ -722,11 +723,13 @@ function clone(obj){
 window.Crafty = Crafty;
 })(window);
 
-//wrap around components
+
+//wrap around components
 (function(Crafty, window, document) {
 
 
-/**
+
+/**
 * Spatial HashMap for broad phase collision
 *
 * @author Louis Stowasser
@@ -867,7 +870,8 @@ Entry.prototype = {
 parent.HashMap = HashMap;
 })(Crafty);
 
-Crafty.map = new Crafty.HashMap();
+
+Crafty.map = new Crafty.HashMap();
 var M = Math,
 	Mc = M.cos,
 	Ms = M.sin,
@@ -1486,7 +1490,8 @@ Crafty.polygon.prototype = {
 	}
 };
 
-/**@
+
+/**@
 * #Collision
 * @category Collision
 * Component to detect collision between any two convex polygons.
@@ -1687,7 +1692,8 @@ Crafty.c("Collision", {
 	}
 });
 
-Crafty.c("DOM", {
+
+Crafty.c("DOM", {
 	_element: null,
 	_filters: {},
 	
@@ -1887,7 +1893,8 @@ Crafty.extend({
 	}
 });
 
-Crafty.extend({
+
+Crafty.extend({
 	
 	randRange: function(from, to) {
 		return Math.round(Math.random() * (to - from) + from);
@@ -2353,7 +2360,8 @@ Crafty.c("viewport", {
 });
 
 
-/**
+
+/**
 * Canvas Components and Extensions
 */
 Crafty.c("Canvas", {
@@ -2467,7 +2475,8 @@ Crafty.extend({
 	}
 });
 
-Crafty.extend({
+
+Crafty.extend({
 	down: null, //object mousedown, waiting for up
 	over: null, //object mouseover, waiting for out
 	mouseObjs: 0,
@@ -2589,7 +2598,7 @@ Crafty.c("Draggable", {
 		if(!this.has("mouse")) this.addComponent("mouse");
 		
 		function drag(e) {
-			this.x = e.clientX - this._startX;
+			this.x = e.clientX - this._startX - e.currentTarget.offsetLeft;
 			this.y = e.clientY - this._startY;
 		}
 				
@@ -2715,7 +2724,8 @@ Crafty.c("Twoway", {
 });
 
 
-/**
+
+/**
 * Animation component
 *
 * Crafty(player).animate("walk_left", 0, 1, 4, 100);
@@ -2857,7 +2867,8 @@ Crafty.c("Tween", {
 	}
 });
 
-Crafty.c("Color", {
+
+Crafty.c("Color", {
 	_color: "",
 	ready: true,
 	
@@ -3268,7 +3279,8 @@ Crafty.DrawManager = (function() {
 	};
 })();
 
-Crafty.c("group", {
+
+Crafty.c("group", {
 	_children: [],
 	
 	group: function(children) {
@@ -3331,7 +3343,8 @@ Crafty.extend({
 	}
 });
 
-Crafty.extend({
+
+Crafty.extend({
 	isometric: {
 		_tile: 0,
 		_z: 0,
@@ -3359,7 +3372,8 @@ Crafty.extend({
 	}
 });
 
-//Particle component
+
+//Particle component
 //Based on Parcycle by Mr. Speaker, licensed under the MIT,
 //Ported by Leo Koppelkamm
 //**This is canvas only & won't do anything if the browser doesn't support it!**
@@ -3668,7 +3682,8 @@ Crafty.c("particles", {
 	}
 });
 
-Crafty.extend({
+
+Crafty.extend({
 	audio: {
 		_elems: {},
 		_muted: false,
@@ -3929,7 +3944,8 @@ Crafty.c("particles", {
 Crafty.bind("Pause", function() {Crafty.audio.mute()});
 Crafty.bind("Unpause", function() {Crafty.audio.unMute()});
 
-Crafty.c("Text", {
+
+Crafty.c("Text", {
 	_text: "",
 	_font: "",
 	
@@ -3960,7 +3976,8 @@ Crafty.bind("Unpause", function() {Crafty.audio.unMute()});
 });
 
 
-Crafty.c("health", {
+
+Crafty.c("health", {
 	_mana: 100,
 	
 	health: function(mana) {
@@ -3985,7 +4002,8 @@ Crafty.bind("Unpause", function() {Crafty.audio.unMute()});
 	}
 });
 
-/**@
+
+/**@
 * #Score
 * Keep a score for an entity.
 */
@@ -4033,7 +4051,8 @@ Crafty.c("Score", {
 	}
 });
 
-Crafty.extend({
+
+Crafty.extend({
 	/**@
 	* Crafty.assets
 	* ===
@@ -4137,6 +4156,7 @@ Crafty.c("Score", {
 	}
 });
 
-})(Crafty,window,window.document);
 
-
+})(Crafty,window,window.document);
+
+
