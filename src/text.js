@@ -7,9 +7,7 @@ Crafty.c("Text", {
 			if(e.type === "DOM") {
 				var el = this._element, style = el.style;
 				el.innerHTML = this._text;
-				style.font = this._font;
-			} else {
-				
+				if(this._font) style.font = this._font;
 			}
 		});
 	},

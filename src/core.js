@@ -16,6 +16,7 @@ var Crafty = function(selector) {
 	tickID,
 	
 	pausedEvents = {},
+	noSetter,
 	
 	slice = Array.prototype.slice,
 	rlist = /\s*,\s*/,
@@ -298,6 +299,23 @@ Crafty.fn = Crafty.prototype = {
 		return clone;
 	},
 	
+	setter: function(prop, fn) {
+		if(Crafty.support.setter) {
+			this.__defineSetter__(property, fn);
+		} else if(Crafty.support.defineProperty) {
+			Object.defineProperty(this, property, {
+                set: fn,
+                configurable : true
+			});
+		} else {
+			noSetter.push({
+				prop: prop,
+				obj: this,
+				fn: fn
+			});
+		}
+	},
+	
 	destroy: function() {
 		//remove all event handlers, delete from entities
 		this.each(function() {
@@ -309,142 +327,6 @@ Crafty.fn = Crafty.prototype = {
 		});
 	}
 };
-
-//Add getter and setter functionality to the Crafty prototype
-(function() {
-var gets = [], //contains [obj. ref, property, getter]
-    sets = [], //contains [obj. ref, property, setter, old value]
-    fallbackActive = false,
-
-    initGetterSetter = function() {
-        fallbackActive = true;
-        Crafty.bind("enterframe", function() {
-            //run the setter if a new value has been assigned and keep track of the new 'old value'
-            for(var i = 0; i < sets.length; i++)
-            {
-                if(sets[i][0][sets[i][1]] !== sets[i][3]) {
-                    sets[i][2].apply(sets[i][0], [ sets[i][0][sets[i][1]] ]);
-                    sets[i][3] = sets[i][0][sets[i][1]];
-                    sets[i][0].trigger("change");
-                }
-            }
-
-            //All setters are evaluated on each frame to pick up external state change.
-            //Therefore side effects should be avoided
-            for(var i = 0; i < gets.length; i++)
-            {
-                var getValue = gets[i][2].apply(gets[i][0], []);
-                if(gets[i][0][gets[i][1]] !== getValue) {
-                    gets[i][0][gets[i][1]] = getValue;
-
-                    //Change in external state must not cause evaluation of setter
-                    for(var j = 0; j < sets.length; j++) {
-                        if(sets[j][1] === gets[i][1]) {
-                            sets[j][3] = getValue;
-                            break;
-                        }
-                    }
-                }
-            }
-        });
-    };
-
-    /**@
-    * #setter
-    * `public object setter(String property, function setter)`
-    *
-    * **Parameters:**
-    *
-    * `property` - `String` The property to gain setter functionality
-    *
-    * `setter` - `function(v)` The function to invoke when a new value is set
-    *
-    * **Returns:**
-    *
-    * Returns the object it was invoked on
-    *
-    * Will use standard javascript functionality to add setter functionality to a property on the object it is invoked on.
-    * In IE<9 a fallback with lower performance will be used.
-    *
-    * ##Use
-    *   this.setter("col", function(v) {
-    *       this.x = 16*v;
-     *  };
-    */
-    Crafty.prototype.setter = function(property, setter) {
-        if(Crafty.support.setter) {
-            this.__defineSetter__(property, function(v) {
-                setter.apply(this, [v]);
-                this.trigger("change");
-            });
-
-            //IE9 supports Object.defineProperty
-        } else if(Crafty.support.defineProperty) {
-
-            Object.defineProperty(this, property, {
-                set: function(v) {
-                    setter.apply(this, [v]);
-                    this.trigger("change");
-                },
-                configurable : true});
-
-        } else {
-
-            //Initialise getter and setter support for IE<9.
-            if(!fallbackActive)
-                initGetterSetter();
-            sets.push([this, property, setter, this[property]]);
-        }
-        return this;
-    };
-
-    /**@
-    * #getter
-    * `public object getter(String property, function getter)`
-    *
-    * **Parameters:**
-    *
-    * `property` - `String` The property to gain getter functionality
-    *
-    * `getter` - `function` The function that returns the value of the property
-    *
-    * **Returns:**
-    *
-    * Returns the object it was invoked on
-    *
-    * Will use standard javascript functionality to add getter functionality to a property on the object it is invoked on.
-    * In IE<9 a fallback that evaluates the getter function in each frame is used.
-    *
-    * ##Use
-    *   this.getter("col", function(v) {
-    *       return this.x / 16;
-     *  };
-    */
-    Crafty.prototype.getter = function(property, getter) {
-        if(Crafty.support.setter) {
-            this.__defineGetter__(property, getter);
-
-            //IE9 supports Object.defineProperty
-        } else if(Crafty.support.defineProperty) {
-
-            Object.defineProperty(this, property, {
-                get: getter,
-                configurable : true
-            });
-        } else {
-
-            //Initialise getter and setter support for IE<9.
-            if(!fallbackActive)
-                initGetterSetter();
-
-            this[property] = getter();
-            gets.push([this, property, getter]);
-        }
-
-        return this;
-    };
-
-})();
 
 //give the init instances the Crafty prototype
 Crafty.fn.init.prototype = Crafty.fn;
@@ -711,6 +593,22 @@ function clone(obj){
 		temp[key] = clone(obj[key]);
 	return temp;
 }
+
+Crafty.bind("Load", function() {
+	if(!Crafty.support.setter && Crafty.support.defineProperty) {
+		noSetter = [];
+		Crafty.bind("enterframe", function() {
+			var i = 0, l = noSetter.length, current;
+			for(;i<l;++i) {
+				current = noSetter[i];
+				if(current.obj[current.prop] !== current.obj['_'+current.prop]) {
+					current.fn.call(current.obj, current.obj[current.prop]);
+				}
+			}
+		});
+	}
+});
+
 //make Crafty global
 window.Crafty = Crafty;
 })(window);

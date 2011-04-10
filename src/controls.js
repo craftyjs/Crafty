@@ -131,7 +131,6 @@ Crafty.c("Draggable", {
 		}
 				
 		this.bind("mousedown", function(e) {
-			console.log(e);
 			//start drag
 			this._startX = e.realX - this._x;
 			this._startY = e.realY - this._y;

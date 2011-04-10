@@ -1,7 +1,6 @@
 Crafty.c("DOM", {
 	_element: null,
-	_filters: {},
-	
+
 	init: function() {
 		this._element = document.createElement("div");
 		Crafty.stage.inner.appendChild(this._element);
@@ -16,6 +15,8 @@ Crafty.c("DOM", {
 		});
 		
 		if(Crafty.support.prefix === "ms" && Crafty.support.version < 9) {
+			this._filters = {};
+			
 			this.bind("rotate", function(e) {
 				var m = e.matrix,
 					elem = this._element.style,
