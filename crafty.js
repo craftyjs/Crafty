@@ -3299,69 +3299,6 @@ Crafty.DrawManager = (function() {
 	};
 })();
 
-Crafty.c("group", {
-	_children: [],
-	
-	group: function(children) {
-		this._children = children;
-		
-		this.bind("move", function(e) {
-			//when parent is changed, affect children
-			var dx = e._x - this.x,
-				dy = e._y - this.y,
-				dw = e._w - this.w,
-				dh = e._h - this.h,
-				i = 0, l = this._children.length,
-				current;
-				
-			for(;i<l;i++) {
-				current = this._children[i];
-				if(dx)  current.x -= dx;
-				if(dy)  current.y -= dy;
-				if(dw)  current.w -= dw;
-				if(dh)  current.h -= dh;
-			}
-		});
-		
-		this.bind("remove", function() {
-			var i = 0, l = this._children.length,
-				current;
-				
-			for(;i<l;i++) {
-				current.destroy();
-			}
-		});
-		
-		return this;
-	}
-});
-
-Crafty.extend({
-	group: function() {
-		var parent = Crafty.e("2D, group"), //basic parent entity
-			args = Array.prototype.slice.call(arguments), //turn args into array
-			i = 0, l = args.length,
-			minX, maxW, minY, maxH,
-			current;
-		
-		for(;i<l;i++) {
-			current = args[i];
-			current.removeComponent("obj"); //no longer an obj
-			
-			//create MBR
-			if(current.x < minX || !minX) minX = current.x;
-			if(current.x + current.w > minX + maxW || !maxW) maxW = current.x + current.w - minX;
-			if(current.y < minY || !minY) minY = current.y;
-			if(current.y + current.h < minY + maxH || !maxH) maxH = current.y + current.h - minY;
-		}
-		
-		//set parent to the minimum bounding rectangle
-		parent.attr({x: minX, y: minY, w: maxW, h: maxH}).group(args);
-		
-		return parent;
-	}
-});
-
 Crafty.extend({
 	isometric: {
 		_tile: 0,
@@ -3990,79 +3927,6 @@ Crafty.bind("Unpause", function() {Crafty.audio.unMute()});
 	}
 });
 
-
-Crafty.c("health", {
-	_mana: 100,
-	
-	health: function(mana) {
-		this._mana = mana;
-		return this;
-	},
-	
-	hurt: function(by) {
-		this._mana -= by;
-		
-		this.trigger("hurt", {by: by, mana: this._mana});
-		if(this._mana <= 0) {
-			this.trigger("die");
-		}
-		return this;
-	},
-	
-	heal: function(by) {
-		this._mana += by;
-		this.trigger("heal");
-		return this;
-	}
-});
-
-/**@
-* #Score
-* Keep a score for an entity.
-*/
-Crafty.c("Score", {
-	score: 0,
-	
-	/**@
-	* #incrementScore
-	* `public this incrementScore(Number by)`
-	*
-	* **Parameters:**
-	* `by`
-	* :   Number Amount to increment the score
-	* **Events:**
-	* `ScoreDown`
-	* : Throws event when subtracted with the score and difference
-	*
-	* Adds a value onto the overall score for the current entity.
-	*/
-	incrementScore: function(by) {
-		this.score += by;
-		
-		this.trigger("ScoreUp", {score: this._score, diff: by});
-		return this;
-	},
-	
-	/**@
-	* #decrementScore
-	* `public this decrementScore(Number by)`
-	*
-	* **Parameters:**
-	* `by`
-	* :   Number Amount to decrement the score
-	* **Events:**
-	* `ScoreDown`
-	* : Throws event when subtracted with the score and difference
-	*
-	* Subtracts a value onto the overall score for the current entity.
-	*/
-	decrementScore: function(by) {
-		this.score -= by;
-		
-		this.trigger("ScoreDown", {score: this._score, diff: by});
-		return this;
-	}
-});
 
 Crafty.extend({
 	/**@
