@@ -283,6 +283,8 @@ Crafty.fn = Crafty.prototype = {
 	each: function(fn) {
 		var i = 0, l = this.length;
 		for(;i<l;i++) {
+			//skip if not exists
+			if(!entities[this[i]]) continue;
 			fn.call(entities[this[i]],i);
 		}
 		return this;
@@ -298,7 +300,6 @@ Crafty.fn = Crafty.prototype = {
 			clone.addComponent(comp);
 		}
 		for(prop in this) {
-			
 			clone[prop] = this[prop];
 		}
 		
