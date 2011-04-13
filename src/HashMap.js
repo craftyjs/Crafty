@@ -46,7 +46,6 @@ HashMap.prototype = {
 			finalresult = [],
 			found = {};
 			if(filter === undefined) filter = true; //default filter to true
-			
 		
 		//search in all x buckets
 		for(i=keys.x1;i<=keys.x2;i++) {
@@ -108,10 +107,10 @@ HashMap.prototype = {
 };
 
 HashMap.key = function(obj) {
-	var x1 = Mathfloor(obj._x / cellsize),
-		y1 = Mathfloor(obj._y / cellsize),
-		x2 = Mathfloor((obj._w + obj._x) / cellsize),
-		y2 = Mathfloor((obj._h + obj._y) / cellsize);
+	var x1 = ~~(obj._x / cellsize),
+		y1 = ~~(obj._y / cellsize),
+		x2 = ~~((obj._w + obj._x) / cellsize),
+		y2 = ~~((obj._h + obj._y) / cellsize);
 	return {x1: x1, y1: y1, x2: x2, y2: y2};
 };
 

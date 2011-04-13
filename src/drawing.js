@@ -219,8 +219,6 @@ Crafty.DrawManager = (function() {
 		/**
 		* Calculate the bounding rect of dirty data
 		* and add to the register
-		*
-		* Opacity error: Clears same area, redraws one section, redraws OVER the same area.
 		*/
 		add: function add(old,current) {
 			if(!current) {

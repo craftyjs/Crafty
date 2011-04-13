@@ -28,9 +28,8 @@ Crafty.c("Collision", {
 	* @comp Collision
 	* @sign public Boolean/Array hit(String component)
 	* @param component - Collide with entities that has this component
-	* @return `false` if no collision. If a collision is detected, 
-	* returns an Array of objects that are colliding.
-	* @see .onHit
+	* @return `false` if no collision. If a collision is detected, returns an Array of objects that are colliding.
+	* @see .onHit, 2D
 	*/
 	hit: function(comp) {
 		var area = this._mbr || this,

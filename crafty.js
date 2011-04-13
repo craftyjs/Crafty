@@ -22,9 +22,12 @@ var Crafty = function(selector) {
 	onloads = [], //temporary storage of onload handlers
 	tick,
 	tickID,
-	
-	pausedEvents = {},
+
 	noSetter,
+	
+	loops = 0, 
+	skipTicks = 1000 / FPS,
+	nextGameTick = (new Date).getTime(),
 	
 	slice = Array.prototype.slice,
 	rlist = /\s*,\s*/,
@@ -402,22 +405,12 @@ Crafty.extend({
 		if(!this._paused) {
 			this.trigger('Pause');
 			this._paused = true;
-			pausedEvents = {};
-			
-			for(handler in handlers['enterframe']){
-				pausedEvents[handler] = handlers['enterframe'][handler];
-				delete handlers['enterframe'][handler];
-			}
 			
 			Crafty.timer.stop();
 			Crafty.keydown = {};
 		} else {
 			this.trigger('Unpause');
 			this._paused = false;
-			
-			for(handler in pausedEvents){
-				handlers['enterframe'][handler] = pausedEvents[handler];
-			}
 			
 			Crafty.timer.init();
 		}
@@ -467,27 +460,17 @@ Crafty.extend({
 			tick = null;
 		},
 		
-		step: (function() {
-			var loops = 0, 
-				skipTicks = 1000 / FPS,
-				nextGameTick = (new Date).getTime();
-			
-			return function() {
-				loops = 0;
-				this.prev = this.current;
-				this.current = (+new Date);
-				this.fps = (1000 / (this.current-this.prev));
-				while((new Date).getTime() > nextGameTick) {
-					Crafty.trigger("enterframe", {frame: frame++});
-					nextGameTick += skipTicks;
-					loops++;
-					//this.fps = loops / this.fpsUpdateFrequency;
-				}
-				if(loops) {
-					Crafty.DrawManager.draw();
-				}
-			};
-		})(),
+		step: function() {
+			loops = 0;
+			while((new Date).getTime() > nextGameTick) {
+				Crafty.trigger("enterframe", {frame: frame++});
+				nextGameTick += skipTicks;
+				loops++;
+			}
+			if(loops) {
+				Crafty.DrawManager.draw();
+			}
+		},
 
 		getFPS: function() {
 			return this.fps;
@@ -673,7 +656,6 @@ HashMap.prototype = {
 			finalresult = [],
 			found = {};
 			if(filter === undefined) filter = true; //default filter to true
-			
 		
 		//search in all x buckets
 		for(i=keys.x1;i<=keys.x2;i++) {
@@ -735,10 +717,10 @@ HashMap.prototype = {
 };
 
 HashMap.key = function(obj) {
-	var x1 = Mathfloor(obj._x / cellsize),
-		y1 = Mathfloor(obj._y / cellsize),
-		x2 = Mathfloor((obj._w + obj._x) / cellsize),
-		y2 = Mathfloor((obj._h + obj._y) / cellsize);
+	var x1 = ~~(obj._x / cellsize),
+		y1 = ~~(obj._y / cellsize),
+		x2 = ~~((obj._w + obj._x) / cellsize),
+		y2 = ~~((obj._h + obj._y) / cellsize);
 	return {x1: x1, y1: y1, x2: x2, y2: y2};
 };
 
@@ -1415,9 +1397,8 @@ Crafty.c("Collision", {
 	* @comp Collision
 	* @sign public Boolean/Array hit(String component)
 	* @param component - Collide with entities that has this component
-	* @return `false` if no collision. If a collision is detected, 
-	* returns an Array of objects that are colliding.
-	* @see .onHit
+	* @return `false` if no collision. If a collision is detected, returns an Array of objects that are colliding.
+	* @see .onHit, 2D
 	*/
 	hit: function(comp) {
 		var area = this._mbr || this,
@@ -2024,9 +2005,11 @@ Crafty.extend({
 		
 		init: function(w,h) {
 			Crafty.DOM.window.init();
-			this.width = w || Crafty.DOM.window.width;
-			this.height = h || Crafty.DOM.window.height;
-				
+			
+			//fullscreen if mobile or not specified
+			this.width = (!w || Crafty.mobile) ? Crafty.DOM.window.width : w;
+			this.height = (!h || Crafty.mobile) ? Crafty.DOM.window.height : h;
+			
 			//check if stage exists
 			var crstage = document.getElementById("cr-stage");
 			
@@ -2040,14 +2023,14 @@ Crafty.extend({
 			};
 			
 			//fullscreen, stop scrollbars
-			if(!w && !h) {
+			if((!w && !h) || Crafty.mobile) {
 				document.body.style.overflow = "hidden";
 				Crafty.stage.fullscreen = true;
 			}
 			
 			Crafty.addEvent(this, window, "resize", function() {
 				Crafty.DOM.window.init();
-				var w = Crafty.DOM.window.width;
+				var w = Crafty.DOM.window.width,
 					h = Crafty.DOM.window.height,
 					offset;
 				
@@ -2093,12 +2076,23 @@ Crafty.extend({
 			
 			Crafty.stage.elem.appendChild(Crafty.stage.inner);
 			Crafty.stage.inner.style.position = "absolute";
+			Crafty.stage.inner.style.zIndex = "1";
 			
 			//css style
 			elem.width = this.width + "px";
 			elem.height = this.height + "px";
 			elem.overflow = "hidden";
 			elem.position = "relative";
+			if(Crafty.mobile) {
+				elem.position = "absolute";
+				elem.left = "0px";
+				elem.top = "0px";
+				
+				document.getElementsByTagName("HEAD")[0].innerHTML += '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">';
+				Crafty.addEvent(this, window, "touchmove", function(e) {
+					e.preventDefault();
+				});
+			}
 			
 			//find out the offset position of the stage
 			offset = Crafty.DOM.inner(Crafty.stage.elem);
@@ -2229,7 +2223,10 @@ Crafty.extend({
 		match = /(webkit)[ \/]([\w.]+)/.exec(ua) || 
 				/(o)pera(?:.*version)?[ \/]([\w.]+)/.exec(ua) || 
 				/(ms)ie ([\w.]+)/.exec(ua) || 
-				/(moz)illa(?:.*? rv:([\w.]+))?/.exec(ua) || [];
+				/(moz)illa(?:.*? rv:([\w.]+))?/.exec(ua) || [],
+		mobile = /iPad|iPod|iPhone|Android|webOS/i.exec(ua);
+	
+	if(mobile) Crafty.mobile = mobile[0];
 	
 	//start tests
 	support.setter = ('__defineSetter__' in this && '__defineGetter__' in this);
@@ -3007,8 +3004,6 @@ Crafty.DrawManager = (function() {
 		/**
 		* Calculate the bounding rect of dirty data
 		* and add to the register
-		*
-		* Opacity error: Clears same area, redraws one section, redraws OVER the same area.
 		*/
 		add: function add(old,current) {
 			if(!current) {

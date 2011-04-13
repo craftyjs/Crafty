@@ -14,9 +14,12 @@ var Crafty = function(selector) {
 	onloads = [], //temporary storage of onload handlers
 	tick,
 	tickID,
-	
-	pausedEvents = {},
+
 	noSetter,
+	
+	loops = 0, 
+	skipTicks = 1000 / FPS,
+	nextGameTick = (new Date).getTime(),
 	
 	slice = Array.prototype.slice,
 	rlist = /\s*,\s*/,
@@ -394,22 +397,12 @@ Crafty.extend({
 		if(!this._paused) {
 			this.trigger('Pause');
 			this._paused = true;
-			pausedEvents = {};
-			
-			for(handler in handlers['enterframe']){
-				pausedEvents[handler] = handlers['enterframe'][handler];
-				delete handlers['enterframe'][handler];
-			}
 			
 			Crafty.timer.stop();
 			Crafty.keydown = {};
 		} else {
 			this.trigger('Unpause');
 			this._paused = false;
-			
-			for(handler in pausedEvents){
-				handlers['enterframe'][handler] = pausedEvents[handler];
-			}
 			
 			Crafty.timer.init();
 		}
@@ -459,27 +452,17 @@ Crafty.extend({
 			tick = null;
 		},
 		
-		step: (function() {
-			var loops = 0, 
-				skipTicks = 1000 / FPS,
-				nextGameTick = (new Date).getTime();
-			
-			return function() {
-				loops = 0;
-				this.prev = this.current;
-				this.current = (+new Date);
-				this.fps = (1000 / (this.current-this.prev));
-				while((new Date).getTime() > nextGameTick) {
-					Crafty.trigger("enterframe", {frame: frame++});
-					nextGameTick += skipTicks;
-					loops++;
-					//this.fps = loops / this.fpsUpdateFrequency;
-				}
-				if(loops) {
-					Crafty.DrawManager.draw();
-				}
-			};
-		})(),
+		step: function() {
+			loops = 0;
+			while((new Date).getTime() > nextGameTick) {
+				Crafty.trigger("enterframe", {frame: frame++});
+				nextGameTick += skipTicks;
+				loops++;
+			}
+			if(loops) {
+				Crafty.DrawManager.draw();
+			}
+		},
 
 		getFPS: function() {
 			return this.fps;
