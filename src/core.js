@@ -304,9 +304,9 @@ Crafty.fn = Crafty.prototype = {
 	
 	setter: function(prop, fn) {
 		if(Crafty.support.setter) {
-			this.__defineSetter__(property, fn);
+			this.__defineSetter__(prop, fn);
 		} else if(Crafty.support.defineProperty) {
-			Object.defineProperty(this, property, {
+			Object.defineProperty(this, prop, {
                 set: fn,
                 configurable : true
 			});
@@ -317,6 +317,7 @@ Crafty.fn = Crafty.prototype = {
 				fn: fn
 			});
 		}
+        return this;
 	},
 	
 	destroy: function() {
