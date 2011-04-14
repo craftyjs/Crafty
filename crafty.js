@@ -562,6 +562,7 @@ Crafty.extend({
 			},
 			
 			modify: function(setting, value) {
+				if(!callback[setting]) return;
 				callbacks[setting].call(states[setting], value);
 				states[setting] = value;
 			},
@@ -2088,6 +2089,9 @@ Crafty.extend({
 				Crafty.stage.elem.oncontextmenu = v ? function() { return true; } : function() { return false; };
 			});
 			Crafty.settings.modify("stageContextMenu", false);
+			
+			Crafty.settings.register("autoPause", function(){});
+			Crafty.settings.modify("autoPause", false);
 
 			//add to the body and give it an ID if not exists
 			if(!crstage) {
@@ -2458,12 +2462,11 @@ Crafty.extend({
 		
 		//found closest object to mouse
 		if(closest) {
-			
 			//click must mousedown and out on tile
 			if(e.type === "mousedown") {
 				this.down = closest;
 				this.down.trigger('mousedown', e);
-			} else if(e.type === "mouseup") {
+			} if(e.type === "mouseup") {
 				//check that down exists and this is down
 				if(this.down && closest === this.down) {
 					this.down.trigger("click", e);
