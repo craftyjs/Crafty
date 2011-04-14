@@ -562,7 +562,7 @@ Crafty.extend({
 			},
 			
 			modify: function(setting, value) {
-				if(!callback[setting]) return;
+				if(!callbacks[setting]) return;
 				callbacks[setting].call(states[setting], value);
 				states[setting] = value;
 			},
