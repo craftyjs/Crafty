@@ -249,12 +249,12 @@ Crafty.extend({
 				if(Crafty.stage.fullscreen) {
 					this.width = w;
 					this.height = h;
-					Crafty.stage.elem.style.width = w;
-					Crafty.stage.elem.style.width = h;
+					Crafty.stage.elem.style.width = w + "px";
+					Crafty.stage.elem.style.height = h + "px";
 					
 					if(Crafty._canvas) {
-						Crafty._canvas.width = w;
-						Crafty._canvas.height = h;
+						Crafty._canvas.width = w + "px";
+						Crafty._canvas.height = h + "px";
 						Crafty.DrawManager.drawAll();
 					}
 				}
@@ -265,7 +265,7 @@ Crafty.extend({
 			});
 			
 			Crafty.addEvent(this, window, "blur", function() {
-				if (!Crafty.dontPauseOnBlur) {
+				if(Crafty.settings.get("autoPause")) {
 					Crafty.pause();
 				}
 			});
@@ -274,8 +274,19 @@ Crafty.extend({
 					Crafty.pause();
 				}
 			});
-
 			
+			//make the stage unselectable
+			Crafty.settings.register("stageSelectable", function(v) {
+				Crafty.stage.elem.onselectstart = v ? function() { return true; } : function() { return false; };
+			});
+			Crafty.settings.modify("stageSelectable", false);
+			
+			//make the stage have no context menu
+			Crafty.settings.register("stageContextMenu", function(v) {
+				Crafty.stage.elem.oncontextmenu = v ? function() { return true; } : function() { return false; };
+			});
+			Crafty.settings.modify("stageContextMenu", false);
+
 			//add to the body and give it an ID if not exists
 			if(!crstage) {
 				document.body.appendChild(Crafty.stage.elem);

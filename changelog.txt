@@ -73,6 +73,27 @@ v0.4
 * .DOM() will remove the previously created DOM element
 * Crafty.timer.getFPS() returns the current FPS (Leo Koppelkamm)
 
+v0.4.1
+
+* Pause bug fixed
+
+v0.4.2
+
+* Faster redraw for rotated entities and repeating background in canvas
+* Added a Crafty.settings object
+* Smaller game loop
+* Started mobile support (not ready yet)
+* Fixed a bug with DOM z-indexes being lower than the canvas
+* Added a smaller setter function. Removed getter
+* Removed unused components, Group, Health and Score.
+* Fixed rotation bug for IE6
+* .css bug fixed
+* Added a namespace for DOM methods (Crafty.DOM)
+* Fixed bug with viewport triggering mousedown twice
+* Mouse events take into account the viewport
+* Bugs in Draggable component fixed
+* Fixed Full screen mode resize bug
+
 v1.0 or 0.5
 
 * Mobile support

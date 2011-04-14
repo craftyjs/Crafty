@@ -428,22 +428,18 @@ Crafty.extend({
 					window.mozRequestAnimationFrame ||
 					window.oRequestAnimationFrame ||
 					window.msRequestAnimationFrame ||
-					null,
+					null;
 			
-				onEachFrame = function(cb) {
-					if(onFrame) {
-						function tick() { 
-							cb(); 
-							tickID = onFrame(tick); 
-						}
-						
-						tick();
-					} else {
-						tick = setInterval(cb, 1000 / FPS);
-					}
-				};
-			
-			onEachFrame(Crafty.timer.step);
+			if(onFrame) {
+				function tick() { 
+					Crafty.timer.step();
+					tickID = onFrame(tick); 
+				}
+				
+				tick();
+			} else {
+				tick = setInterval(Crafty.timer.step, 1000 / FPS);
+			}
 		},
 		
 		stop: function() {
@@ -556,6 +552,26 @@ Crafty.extend({
 		return components;
 	},
 	
+	settings: (function() {
+		var states = {},
+			callbacks = {};
+		
+		return {
+			register: function(setting, callback) {
+				callbacks[setting] = callback;
+			},
+			
+			modify: function(setting, value) {
+				callbacks[setting].call(states[setting], value);
+				states[setting] = value;
+			},
+			
+			get: function(setting) {
+				return states[setting];
+			}
+		}
+	})(),
+	
 	clone: clone
 });
 
@@ -620,9 +636,6 @@ var cellsize,
 		cellsize = cell || 64;
 		this.map = {};
 	},
-	M = Math,
-	Mathfloor = M.floor,
-	Mathceil = M.ceil,
 	SPACE = " ";
 
 HashMap.prototype = {
@@ -2038,12 +2051,12 @@ Crafty.extend({
 				if(Crafty.stage.fullscreen) {
 					this.width = w;
 					this.height = h;
-					Crafty.stage.elem.style.width = w;
-					Crafty.stage.elem.style.width = h;
+					Crafty.stage.elem.style.width = w + "px";
+					Crafty.stage.elem.style.height = h + "px";
 					
 					if(Crafty._canvas) {
-						Crafty._canvas.width = w;
-						Crafty._canvas.height = h;
+						Crafty._canvas.width = w + "px";
+						Crafty._canvas.height = h + "px";
 						Crafty.DrawManager.drawAll();
 					}
 				}
@@ -2054,7 +2067,7 @@ Crafty.extend({
 			});
 			
 			Crafty.addEvent(this, window, "blur", function() {
-				if (!Crafty.dontPauseOnBlur) {
+				if(Crafty.settings.get("autoPause")) {
 					Crafty.pause();
 				}
 			});
@@ -2063,8 +2076,19 @@ Crafty.extend({
 					Crafty.pause();
 				}
 			});
-
 			
+			//make the stage unselectable
+			Crafty.settings.register("stageSelectable", function(v) {
+				Crafty.stage.elem.onselectstart = v ? function() { return true; } : function() { return false; };
+			});
+			Crafty.settings.modify("stageSelectable", false);
+			
+			//make the stage have no context menu
+			Crafty.settings.register("stageContextMenu", function(v) {
+				Crafty.stage.elem.oncontextmenu = v ? function() { return true; } : function() { return false; };
+			});
+			Crafty.settings.modify("stageContextMenu", false);
+
 			//add to the body and give it an ID if not exists
 			if(!crstage) {
 				document.body.appendChild(Crafty.stage.elem);
@@ -2525,8 +2549,9 @@ Crafty.c("Draggable", {
 			this.trigger("StartDrag", e);
 		});
 		
-		Crafty.addEvent(this, Crafty.stage.elem, "mouseup", function(e) {
+		Crafty.addEvent(this, Crafty.stage.elem, "mouseup", function upper(e) {
 			Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", drag);
+			Crafty.removeEvent(this, Crafty.stage.elem, "mouseup", upper);
 			this.trigger("StopDrag", e);
 		});
 	},

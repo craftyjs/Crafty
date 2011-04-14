@@ -420,22 +420,18 @@ Crafty.extend({
 					window.mozRequestAnimationFrame ||
 					window.oRequestAnimationFrame ||
 					window.msRequestAnimationFrame ||
-					null,
+					null;
 			
-				onEachFrame = function(cb) {
-					if(onFrame) {
-						function tick() { 
-							cb(); 
-							tickID = onFrame(tick); 
-						}
-						
-						tick();
-					} else {
-						tick = setInterval(cb, 1000 / FPS);
-					}
-				};
-			
-			onEachFrame(Crafty.timer.step);
+			if(onFrame) {
+				function tick() { 
+					Crafty.timer.step();
+					tickID = onFrame(tick); 
+				}
+				
+				tick();
+			} else {
+				tick = setInterval(Crafty.timer.step, 1000 / FPS);
+			}
 		},
 		
 		stop: function() {
@@ -547,6 +543,26 @@ Crafty.extend({
 	components: function() {
 		return components;
 	},
+	
+	settings: (function() {
+		var states = {},
+			callbacks = {};
+		
+		return {
+			register: function(setting, callback) {
+				callbacks[setting] = callback;
+			},
+			
+			modify: function(setting, value) {
+				callbacks[setting].call(states[setting], value);
+				states[setting] = value;
+			},
+			
+			get: function(setting) {
+				return states[setting];
+			}
+		}
+	})(),
 	
 	clone: clone
 });

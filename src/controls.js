@@ -140,8 +140,9 @@ Crafty.c("Draggable", {
 			this.trigger("StartDrag", e);
 		});
 		
-		Crafty.addEvent(this, Crafty.stage.elem, "mouseup", function(e) {
+		Crafty.addEvent(this, Crafty.stage.elem, "mouseup", function upper(e) {
 			Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", drag);
+			Crafty.removeEvent(this, Crafty.stage.elem, "mouseup", upper);
 			this.trigger("StopDrag", e);
 		});
 	},

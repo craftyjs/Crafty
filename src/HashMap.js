@@ -10,9 +10,6 @@ var cellsize,
 		cellsize = cell || 64;
 		this.map = {};
 	},
-	M = Math,
-	Mathfloor = M.floor,
-	Mathceil = M.ceil,
 	SPACE = " ";
 
 HashMap.prototype = {
