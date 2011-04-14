@@ -286,6 +286,9 @@ Crafty.extend({
 				Crafty.stage.elem.oncontextmenu = v ? function() { return true; } : function() { return false; };
 			});
 			Crafty.settings.modify("stageContextMenu", false);
+			
+			Crafty.settings.register("autoPause", function(){});
+			Crafty.settings.modify("autoPause", false);
 
 			//add to the body and give it an ID if not exists
 			if(!crstage) {

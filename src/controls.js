@@ -49,12 +49,11 @@ Crafty.extend({
 		
 		//found closest object to mouse
 		if(closest) {
-			
 			//click must mousedown and out on tile
 			if(e.type === "mousedown") {
 				this.down = closest;
 				this.down.trigger('mousedown', e);
-			} else if(e.type === "mouseup") {
+			} if(e.type === "mouseup") {
 				//check that down exists and this is down
 				if(this.down && closest === this.down) {
 					this.down.trigger("click", e);
