@@ -155,14 +155,7 @@ Crafty.DrawManager = (function() {
 	/** array of dirty rects on screen */
 	var register = [],
 	/** array of DOMs needed updating */
-		dom = [],
-	/** temporary canvas object */
-		canv,
-	/** context of canvas object */
-		ctx;
-	
-	canv = document.createElement("canvas");
-	if('getContext' in canv) ctx = canv.getContext('2d');
+		dom = [];
 	
 	return {
 		/** Quick count of 2D objects */
