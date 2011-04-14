@@ -2834,7 +2834,17 @@ Crafty.c("Image", {
 	init: function() {
 		this.bind("draw", function(e) {
 			if(e.type === "canvas") {
-				this.canvasDraw(e);
+				//skip if no image
+				if(!this.ready || !this._pattern) return;
+				
+				var context = e.ctx;
+				
+				context.fillStyle = this._pattern;
+				
+				//context.save();
+				//context.translate(e.pos._x, e.pos._y);
+				context.fillRect(this._x,this._y,this._w, this._h);
+				//context.restore();
 			} else if(e.type === "DOM") {
 				if(this.__image) 
 					e.style.background = "url(" + this.__image + ") "+this._repeat;
@@ -2880,20 +2890,6 @@ Crafty.c("Image", {
 		this.trigger("change");
 		
 		return this;
-	},
-	
-	canvasDraw: function(e) {
-		//skip if no image
-		if(!this.ready || !this._pattern) return;
-		
-		var context = e.ctx;
-		
-		context.fillStyle = this._pattern;
-		
-		context.save();
-		context.translate(e.pos._x, e.pos._y);
-		context.fillRect(0,0,e.pos._w,e.pos._h);
-		context.restore();
 	}
 });
 
@@ -3102,7 +3098,7 @@ Crafty.DrawManager = (function() {
 			if(!register.length && !dom.length) return;
 			
 			var i = 0, l = register.length, k = dom.length, rect, q,
-				j, len, dupes, obj, ent, objs = [];
+				j, len, dupes, obj, ent, objs = [], ctx = Crafty.context;
 				
 			//loop over all DOM elements needing updating
 			for(;i<k;++i) {
@@ -3142,7 +3138,7 @@ Crafty.DrawManager = (function() {
 				}
 				
 				//clear the rect from the main canvas
-				Crafty.context.clearRect(rect._x, rect._y, rect._w, rect._h);
+				ctx.clearRect(rect._x, rect._y, rect._w, rect._h);
 			}
 			
 			//sort the objects by the global Z
@@ -3165,16 +3161,18 @@ Crafty.DrawManager = (function() {
 				if(h === 0 || w === 0) continue;
 				
 				//if it is a pattern or has some rotation, draw it on the temp canvas
-				if(ent.has('image') || ent._mbr) {
-					canv.width = area._w;
-					canv.height = area._h;
-					
+				if(ent.has('Image') || ent._mbr) {
 					ctx.save();
-					ctx.translate(-area._x, -area._y);
-					ent.draw(ctx);
-					Crafty.context.drawImage(canv, x, y, w, h, area._x + x, area._y + y, w, h);
+					ctx.beginPath();
+					ctx.moveTo(x, y);
+					ctx.lineTo(x + w, y);
+					ctx.lineTo(x + w, h + y);
+					ctx.lineTo(x, h + y);
+					ctx.lineTo(x, y);
+					
+					ctx.clip();
+					ent.draw();
 					ctx.restore();
-					ctx.clearRect(0,0,canv.width, canv.height);
 				//if it is axis-aligned and no pattern, draw subrect
 				} else {
 					ent.draw(x,y,w,h);
