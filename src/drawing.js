@@ -1,3 +1,8 @@
+/**@
+* #Color
+* @category Graphics
+* Draw a solid color for the entity
+*/
 Crafty.c("Color", {
 	_color: "",
 	ready: true,
@@ -14,6 +19,16 @@ Crafty.c("Color", {
 		});
 	},
 	
+	/**@
+	* #.color
+	* @comp Color
+	* @sign public this .color(String color)
+	* @param color - Color of the rectangle
+	* Will create a rectangle of solid color for the entity.
+	*
+	* The argument must be a color readable depending on how it's drawn. Canvas requires 
+	* using `rgb(0 - 255, 0 - 255, 0 - 255)` or `rgba()` whereas DOM can be hex or any other desired format.
+	*/
 	color: function(color) {
 		this._color = color;
 		this.trigger("change");
@@ -21,6 +36,13 @@ Crafty.c("Color", {
 	}
 });
 
+/**@
+* #Tint
+* @category Graphics
+* Similar to Color by adding an overlay of semi-transparent color.
+*
+* *Note: Currently one works for Canvas*
+*/
 Crafty.c("Tint", {
 	_color: null,
 	_strength: 1.0,
@@ -34,14 +56,28 @@ Crafty.c("Tint", {
 		});
 	},
 	
+	/**@
+	* #.tint
+	* @comp Tint
+	* @sign public this .tint(String color, Number strength)
+	* @param color - The color in hexidecimal
+	* @param strength - Level of opacity
+	* Modify the color and level opacity to give a tint on the entity.
+	*/
 	tint: function(color, strength) {
 		this._strength = strength;
 		this._color = Crafty.toRGB(color, this._strength);
 		
 		this.trigger("change");
+		return this;
 	}
 });
 
+/**@
+* #Image
+* @category Graphics
+* Draw an image with or without repeating (tiling).
+*/
 Crafty.c("Image", {
 	_repeat: "repeat",
 	ready: false,
@@ -67,6 +103,32 @@ Crafty.c("Image", {
 		});
 	},
 	
+	/**@
+	* #image
+	* @comp Image
+	* @sign public this .image(String url[, String repeat])
+	* @param url - URL of the image
+	* @param repeat - If the image should be repeated to fill the entity.
+	* Draw specified image. Repeat follows CSS syntax (`"no-repeat", "repeat", "repeat-x", "repeat-y"`);
+	*
+	* *Note: Default repeat is `no-repeat` which is different to standard DOM (which is `repeat`)*
+	*
+	* If the width and height are `0` and repeat is set to `no-repeat` the width and 
+	* height will automatically assume that of the image. This is an 
+	* easy way to create an image without needing sprites.
+	* @example
+	* Will default to no-repeat. Entity width and height will be set to the images width and height
+	* ~~~
+	* var ent = Crafty.e("2D, DOM, image").image("myimage.png");
+	* ~~~
+	* Create a repeating background.
+	* ~~~
+    * var bg = Crafty.e("2D, DOM, image")
+	*              .attr({w: Crafty.viewport.width, h: Crafty.viewport.height})
+	*              .image("bg.png", "repeat");
+	* ~~~
+	* @see Crafty.sprite
+	*/
 	image: function(url, repeat) {
 		this.__image = url;
 		this._repeat = repeat || "no-repeat";
@@ -112,6 +174,22 @@ Crafty.extend({
 	_scenes: [],
 	_current: null,
 	
+	/**@
+	* #Crafty.scene
+	* @category Scenes, Stage
+	* @sign public void Crafty.scene(String sceneName, Function init)
+	* @param sceneName - Name of the scene to add
+	* @param init - Function execute when scene is played
+	* @sign public void Crafty.scene(String sceneName)
+	* @param sceneName - Name of scene to play
+	* Method to create scenes on the stage. Pass an ID and function to register a scene. 
+	*
+	* To play a scene, just pass the ID. When a scene is played, all 
+	* entities with the `2D` component on the stage are destroyed.
+	*
+	* If you want some entities to persist over scenes (as in not be destroyed) 
+	* simply add the component `persist`.
+	*/
 	scene: function(name, fn) {
 		//play scene
 		if(arguments.length === 1) {

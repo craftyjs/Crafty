@@ -1,5 +1,12 @@
 Crafty.extend({
-	
+	/**@
+	* #Crafty.randRange
+	* @category Misc
+	* @sign public Number Crafty.randRange(Number from, Number to)
+	* @param from - Lower bound of the range
+	* @param to - Upper bound of the range
+	* Returns a random number between (and including) the two numbers.
+	*/
 	randRange: function(from, to) {
 		return Math.round(Math.random() * (to - from) + from);
 	},
@@ -11,11 +18,29 @@ Crafty.extend({
 		return number.toString();
 	},
 	
-	/**
-	* Sprite generator.
+	/**@
+	* #Crafty.sprite
+	* @category Graphics
+	* @sign public this Crafty.sprite([Number tile], String url, Object map[, Number paddingX[, Number paddingY]])
+	* @param tile - Tile size of the sprite map, defaults to 1
+	* @param url - URL of the sprite image
+	* @param map - Object where the key is what becomes a new component and the value points to a position on the sprite map
+	* @param paddingX - Horizontal space inbetween tiles. Defaults to 0.
+	* @param paddingY - Vertical space inbetween tiles. Defaults to paddingX.
+	* Generates components based on positions in a sprite image to be applied to entities.
 	*
-	* Extends Crafty for producing components
-	* based on sprites and tiles
+	* Accepts a tile size, URL and map for the name of the sprite and it's position. 
+	*
+	* The position must be an array containing the position of the sprite where index `0` 
+	* is the `x` position, `1` is the `y` position and optionally `2` is the width and `3` 
+	* is the height. If the sprite map has padding, pass the values for the `x` padding 
+	* or `y` padding. If they are the same, just add one value.
+	*
+	* If the sprite image has no consistent tile size, `1` or no argument need be 
+	* passed for tile size.
+	*
+	* Entities that add the generated components are also given a component called `Sprite`.
+	* @see Sprite
 	*/
 	sprite: function(tile, url, map, paddingX, paddingY) {
 		var pos, temp, x, y, w, h, img;
@@ -57,7 +82,11 @@ Crafty.extend({
 			w = temp[2] * tile || tile;
 			h = temp[3] * tile || tile;
 			
-			//create a component for the sprite
+			/**@
+			* #Sprite
+			* @category Graphics
+			* Component for using tiles in a sprite map.
+			*/
 			Crafty.c(pos, {
 				__image: url,
 				__coord: [x,y,w,h],
@@ -104,14 +133,39 @@ Crafty.extend({
 					});
 				},
 				
+				/**@
+				* #.sprite
+				* @comp Sprite
+				* @sign public this .sprite(Number x, Number y, Number w, Number h)
+				* @param x - X cell position 
+				* @param y - Y cell position
+				* @param w - Width in cells
+				* @param h - Height in cells
+				* Uses a new location on the sprite map as its sprite.
+				*
+				* Values should be in tiles or cells (not pixels).
+				*/
 				sprite: function(x,y,w,h) {
 					this.__coord = [x * this.__tile + this.__padding[0] + this.__trim[0],
 									y * this.__tile + this.__padding[1] + this.__trim[1],
 									this.__trim[2] || w * this.__tile || this.__tile,
 									this.__trim[3] || h * this.__tile || this.__tile];
 					this.trigger("change");
+					return this;
 				},
 				
+				/**@
+				* #.crop
+				* @comp Sprite
+				* @sign public this .crop(Number x, Number y, Number w, Number h)
+				* @param x - Offset x position
+				* @param y - Offset y position
+				* @param w - New width
+				* @param h - New height
+				* If the entity needs to be smaller than the tile size, use this method to crop it.
+				*
+				* The values should be in pixels rather than tiles.
+				*/
 				crop: function(x,y,w,h) {
 					var old = this._mbr || this.pos();
 					this.__trim = [];
@@ -138,9 +192,23 @@ Crafty.extend({
 	
 	_events: {},
 
-	/**
-	* Window Events credited to John Resig
-	* http://ejohn.org/projects/flexible-javascript-events
+	/**@
+	* #Crafty.addEvent
+	* @category Events, Misc
+	* @sign public this Crafty.addEvent(Object ctx, HTMLElement obj, String event, Function callback)
+	* @param ctx - Context of the callback or the value of `this`
+	* @param obj - Element to add the DOM event to
+	* @param event - Event name to bind to
+	* @param callback - Method to execute when triggered
+	* Adds DOM level 3 events to elements. The arguments it accepts are the call 
+	* context (the value of `this`), the DOM element to attach the event to, 
+	* the event name (without `on` (`click` rather than `onclick`)) and 
+	* finally the callback method. 
+	*
+	* If no element is passed, the default element will be `window.document`.
+	* 
+	* Callbacks are passed with event data.
+	* @see Crafty.removeEvent
 	*/
 	addEvent: function(ctx, obj, type, fn) {
 		if(arguments.length === 3) {
@@ -163,6 +231,19 @@ Crafty.extend({
 		}
 	},
 
+	/**@
+	* #Crafty.removeEvent
+	* @category Events, Misc
+	* @sign public this Crafty.removeEvent(Object ctx, HTMLElement obj, String event, Function callback)
+	* @param ctx - Context of the callback or the value of `this`
+	* @param obj - Element the event is on
+	* @param event - Name of the event
+	* @param callback - Method executed when triggered
+	* Removes events attached by `Crafty.addEvent()`. All parameters must 
+	* be the same that were used to attach the event including a reference 
+	* to the callback method.
+	* @see Crafty.addEvent
+	*/
 	removeEvent: function(ctx, obj, type, fn) {
 		if(arguments.length === 3) {
 			fn = type;
@@ -182,14 +263,48 @@ Crafty.extend({
 		}
 	},
 	
+	/**@
+	* #Crafty.background
+	* @category Graphics, Stage
+	* @sign public void Crafty.background(String value)
+	* @param color - Modify the background with a color or image
+	* This method is essentially a shortcut for adding a background
+	* style to the stage element.
+	*/
 	background: function(color) {
 		Crafty.stage.elem.style.background = color;
 	},
 	
+	/**@
+	* #Crafty.viewport
+	* @category Stage
+	* Viewport is essentially a 2D camera looking at the stage. Can be moved which
+	* in turn will react just like a camera moving in that direction.
+	*/
 	viewport: {
 		width: 0, 
 		height: 0,
+		/**@
+		* #Crafty.viewport.x
+		* @comp Crafty.viewport
+		* Will move the stage and therefore every visible entity along the `x` 
+		* axis in the opposite direction.
+		*
+		* When this value is set, it will shift the entire stage. This means that entity 
+		* positions are not exactly where they are on screen. To get the exact position, 
+		* simply add `Crafty.viewport.x` onto the entities `x` position.
+		*/
 		_x: 0,
+		/**@
+		* #Crafty.viewport.y
+		* @comp Crafty.viewport
+		* Will move the stage and therefore every visible entity along the `y` 
+		* axis in the opposite direction.
+		*
+		* When this value is set, it will shift the entire stage. This means that entity 
+		* positions are not exactly where they are on screen. To get the exact position, 
+		* simply add `Crafty.viewport.y` onto the entities `y` position.
+		*/
 		_y: 0,
 		
 		scroll: function(axis, v) {
@@ -345,8 +460,99 @@ Crafty.extend({
 	
 	support: {},
 	
-	/**
-	* Map key names to key codes
+	/**@
+	* #Crafty.keys
+	* @category Input
+	* Object of key names and the corresponding key code.
+	* ~~~
+	* BACKSPACE: 8,
+    * TAB: 9,
+    * ENTER: 13,
+    * PAUSE: 19,
+    * CAPS: 20,
+    * ESC: 27,
+    * SPACE: 32,
+    * PAGE_UP: 33,
+    * PAGE_DOWN: 34,
+    * END: 35,
+    * HOME: 36,
+    * LEFT_ARROW: 37,
+    * UP_ARROW: 38,
+    * RIGHT_ARROW: 39,
+    * DOWN_ARROW: 40,
+    * INSERT: 45,
+    * DELETE: 46,
+    * 0: 48,
+    * 1: 49,
+    * 2: 50,
+    * 3: 51,
+    * 4: 52,
+    * 5: 53,
+    * 6: 54,
+    * 7: 55,
+    * 8: 56,
+    * 9: 57,
+    * A: 65,
+    * B: 66,
+    * C: 67,
+    * D: 68,
+    * E: 69,
+    * F: 70,
+    * G: 71,
+    * H: 72,
+    * I: 73,
+    * J: 74,
+    * K: 75,
+    * L: 76,
+    * M: 77,
+    * N: 78,
+    * O: 79,
+    * P: 80,
+    * Q: 81,
+    * R: 82,
+    * S: 83,
+    * T: 84,
+    * U: 85,
+    * V: 86,
+    * W: 87,
+    * X: 88,
+    * Y: 89,
+    * Z: 90,
+    * NUMPAD_0: 96,
+    * NUMPAD_1: 97,
+    * NUMPAD_2: 98,
+    * NUMPAD_3: 99,
+    * NUMPAD_4: 100,
+    * NUMPAD_5: 101,
+    * NUMPAD_6: 102,
+    * NUMPAD_7: 103,
+    * NUMPAD_8: 104,
+    * NUMPAD_9: 105,
+    * MULTIPLY: 106,
+    * ADD: 107,
+    * SUBSTRACT: 109,
+    * DECIMAL: 110,
+    * DIVIDE: 111,
+    * F1: 112,
+    * F2: 113,
+    * F3: 114,
+    * F4: 115,
+    * F5: 116,
+    * F6: 117,
+    * F7: 118,
+    * F8: 119,
+    * F9: 120,
+    * F10: 121,
+    * F11: 122,
+    * F12: 123,
+    * SHIFT: 16,
+    * CTRL: 17,
+    * ALT: 18,
+    * PLUS: 187,
+    * COMMA: 188,
+    * MINUS: 189,
+    * PERIOD: 190 
+	* ~~~
 	*/
 	keys: {
 		'BACKSPACE': 8,
@@ -439,8 +645,10 @@ Crafty.extend({
 	}
 });
 
-/**
-* Test support for various javascript and HTML features
+/**@
+* #Crafty.support
+* @category Misc, Core
+* Determines feature support for what Crafty can do.
 */
 (function testSupport() {
 	var support = Crafty.support,
@@ -453,26 +661,62 @@ Crafty.extend({
 	
 	if(mobile) Crafty.mobile = mobile[0];
 	
-	//start tests
+	/**@
+	* #Crafty.support.setter
+	* @comp Crafty.support
+	* Is `__defineSetter__` supported?
+	*/
 	support.setter = ('__defineSetter__' in this && '__defineGetter__' in this);
+	
+	/**@
+	* #Crafty.support.defineProperty
+	* @comp Crafty.support
+	* Is `Object.defineProperty` supported?
+	*/
 	support.defineProperty = (function() {
 		if(!'defineProperty' in Object) return false;
 		try { Object.defineProperty({},'x',{}); }
 		catch(e) { return false };
 		return true;
 	})();
+	
+	/**@
+	* #Crafty.support.audio
+	* @comp Crafty.support
+	* Is HTML5 `Audio` supported?
+	*/
 	support.audio = ('Audio' in window);
 	
+	/**@
+	* #Crafty.support.prefix
+	* @comp Crafty.support
+	* Returns the browser specific prefix (`Moz`, `o`, `ms`, `webkit`).
+	*/
 	support.prefix = (match[1] || match[0]);
 	//browser specific quirks
 	if(support.prefix === "moz") support.prefix = "Moz";
 	
-	//record the version name an integer
 	if(match[2]) {
+		/**@
+		* #Crafty.support.versionName
+		* @comp Crafty.support
+		* Version of the browser
+		*/
 		support.versionName = match[2];
+		
+		/**@
+		* #Crafty.support.version
+		* @comp Crafty.support
+		* Version number of the browser as an Integer (first number)
+		*/
 		support.version = +(match[2].split("."))[0];
 	}
 	
+	/**@
+	* #Crafty.support.canvas
+	* @comp Crafty.support
+	* Is the `canvas` element supported?
+	*/
 	support.canvas = ('getContext' in document.createElement("canvas"));
 })();
 

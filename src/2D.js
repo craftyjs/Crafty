@@ -477,7 +477,7 @@ Crafty.c("2D", {
 	* #.detach
 	* @comp 2D
 	* @sign public this .detach([Entity obj])
-	* @param obj The entity to detach. Left blank will remove all attached entities
+	* @param obj - The entity to detach. Left blank will remove all attached entities
 	* Stop an entity from following the current entity. Passing no arguments will stop
 	* every entity attached.
 	*/

@@ -96,7 +96,7 @@ Crafty.bind("Load", function() {
 /**@
 * #Mouse
 * @category Input
-* Used to give entities mouse events such as 
+* Give entities mouse events such as 
 * `mouseover`, `mousedown`, `mouseout`, `mouseup` and `click`.
 */
 Crafty.c("Mouse", {
@@ -236,7 +236,12 @@ Crafty.c("Draggable", {
 	}
 });
 
-Crafty.c("Controls", {
+/**@
+* #Keyboard
+* @category Input
+* Give entities keyboard events (`keydown` and `keyup`).
+*/
+Crafty.c("Keyboard", {
 	init: function() {
 		function dispatch(e) {
 			e.key = e.keyCode || e.which;
@@ -265,10 +270,14 @@ Crafty.c("Controls", {
 		});
 	},
 	
-	/**
-	* Check if key is down
-	*
-	* @param key Key code or string representation
+	/**@
+	* #.isDown
+	* @comp Keyboard
+	* @sign public Boolean isDown(String keyName)
+	* @param keyName - Name of the key to check. See `Crafty.keys`.
+	* @sign public Boolean isDown(Number keyCode)
+	* @param keyCode - Key code in `Crafty.keys`.
+	* Determine if a certain key is currently down.
 	*/
 	isDown: function(key) {
 		if(typeof key === "string") {
@@ -278,13 +287,29 @@ Crafty.c("Controls", {
 	}
 });
 
+/**@
+* #Fourway
+* @category Input
+* Move an entity in four directions by using the
+* arrow keys or `W`, `A`, `S`, `D`.
+*/
 Crafty.c("Fourway", {	
 	_speed: 3,
 	
 	init: function() {
-		this.requires("Controls");
+		this.requires("Keyboard");
 	},
 	
+	/**@
+	* #.fourway
+	* @comp Fourway
+	* @sign public this .fourway(Number speed)
+	* @param speed - Amount of pixels to move the entity whilst a key is down
+	* Constructor to initialize the speed. Component will listen for key events and move the entity appropriately. 
+	* This includes `Up Arrow`, `Right Arrow`, `Down Arrow`, `Left Arrow` as well as `W`, `A`, `S`, `D`.
+	*
+	* The key presses will move the entity in that direction by the speed passed in the argument.
+	*/
 	fourway: function(speed) {
 		if(speed) this._speed = speed;
 		
@@ -308,14 +333,35 @@ Crafty.c("Fourway", {
 	}
 });
 
+/**@
+* #Twoway
+* @category Input
+* Move an entity in two directions: left or right as well as
+* jump.
+*/
 Crafty.c("Twoway", {
 	_speed: 3,
 	_up: false,
 	
 	init: function() {
-		this.requires("Controls");
+		this.requires("Keyboard");
 	},
 	
+	/**@
+	* #.twoway
+	* @comp Twoway
+	* @sign public this .twoway(Number speed[, Number jumpSpeed])
+	* @param speed - Amount of pixels to move left or right
+	* @param jumpSpeed - How high the entity should jump
+	* Constructor to initialize the speed and power of jump. Component will 
+	* listen for key events and move the entity appropriately. This includes 
+	* `Up Arrow`, `Right Arrow`, `Left Arrow` as well as W, A, D. Used with the 
+	* `gravity` component to simulate jumping.
+	*
+	* The key presses will move the entity in that direction by the speed passed in 
+	* the argument. Pressing the `Up Arrow` or `W` will cause the entiy to jump.
+	* @see Gravity, Fourway
+	*/
 	twoway: function(speed,jump) {
 		if(speed) this._speed = speed;
 		jump = jump || this._speed * 2;

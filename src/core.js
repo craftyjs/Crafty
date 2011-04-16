@@ -1,5 +1,30 @@
 (function(window, undefined) {
 
+/**@
+* #Crafty
+* @category Core
+* Select a set of or single entities by components or an entity's ID.
+*
+* Crafty uses syntax similar to jQuery by having a selector engine to select entities by their components.
+*
+* @example
+* ~~~
+*    Crafty("mycomponent")
+*    Crafty("hello 2D component")
+*    Crafty("hello, 2D, component")
+* ~~~
+* The first selector will return all entities that has the component `mycomponent`. The second will return all entities that has `hello` and `2D` and `component` whereas the last will return all entities that has at least one of those components (or).
+* ~~~
+*   Crafty(1)
+* ~~~
+* Passing an integer will select the entity with that `ID`.
+*
+* Finding out the `ID` of an entity can be done by returning the property `0`.
+* ~~~
+*    var ent = Crafty.e("2D");
+*    ent[0]; //ID
+* ~~~
+*/
 var Crafty = function(selector) {
 		return new Crafty.fn.init(selector);
 	},
@@ -25,6 +50,11 @@ var Crafty = function(selector) {
 	rlist = /\s*,\s*/,
 	rspace = /\s+/;
 
+/**@
+* #Crafty Core
+* @category Core
+* Set of methods added to every single entity.
+*/
 Crafty.fn = Crafty.prototype = {
 
 	init: function(selector) {
@@ -106,6 +136,29 @@ Crafty.fn = Crafty.prototype = {
 		return this;
 	},
 	
+	/**@
+	* #.addComponent
+	* @comp Crafty Core
+	* @sign public this .addComponent(String componentList)
+	* @param componentList - A string of components to add seperated by a comma `,`
+	* @sign public this .addComponent(String component1[, .., String componentN])
+	* @param component# - Component ID to add.
+	* Adds a component to the selected entities or entity. 
+	*
+	* Components are used to extend the functionality of entities. 
+	* This means it will copy properties and assign methods to 
+	* augment the functionality of the entity.
+	* 
+	* There are multiple methods of adding components. Passing a 
+	* string with a list of component names or passing multiple 
+	* arguments with the component names.
+	*
+	* @example
+	* ~~~
+	* this.addComponent("2D, canvas, health");
+	* this.addComponent("2D", "canvas", "health");
+	* ~~~
+	*/
 	addComponent: function(id) {
 		var uninit = [], c = 0, ul; //array of components to init
 		
@@ -133,10 +186,6 @@ Crafty.fn = Crafty.prototype = {
 		ul = uninit.length;
 		for(;c<ul;c++) {
 			comp = components[uninit[c]];
-			//Backward compat
-			if (typeof comp == 'undefined'){
-				comp = components[uninit[c].substr(0, 1).toUpperCase() + uninit[c].substr(1)];
-			} 
 			this.extend(comp);
 			
 			//if constructor, call it
@@ -149,6 +198,14 @@ Crafty.fn = Crafty.prototype = {
 		return this;
 	},
 	
+	/**@
+	* #.requires
+	* @comp Crafty Core
+	* @sign public this .requires(String componentList)
+	* @param componentList - List of components that must be added
+	* Makes sure the entity has the components listed. If the entity does not
+	* have the component, it will add it.
+	*/
 	requires: function(list) {
 		var comps = list.split(rlist),
 			i = 0, l = comps.length,
@@ -163,15 +220,61 @@ Crafty.fn = Crafty.prototype = {
         return this;
 	},
 	
-	removeComponent: function(id) {
+	/**@
+	* #.removeComponent
+	* @comp Crafty Core
+	* @sign public this .removeComponent(String component[, soft])
+	* @param component - Component to remove
+	* @param soft - Whether to soft remove it (defaults to `true`)
+	* Removes a component from an entity. A soft remove will only 
+	* refrain `.has()` from returning true. Hard will remove all
+	* associated properties and methods.
+	*/
+	removeComponent: function(id, soft) {
+		if(soft === false) {
+			var props = components[id], prop;
+			for(prop in props) {
+				delete this[prop];
+			}
+		}
 		delete this.__c[id];
 		return this;
 	},
 	
+	/**@
+	* #.has
+	* @comp Crafty Core
+	* @sign public Boolean .has(String component)
+	* Returns `true` or `false` depending on if the 
+	* entity has the given component.
+	*
+	* For better performance, simply use the `.__c` object 
+	* which will be `true` if the entity has the component or 
+	* will not exist (or be `false`).
+	*/
 	has: function(id) {
 		return !!this.__c[id];
 	},
 	
+	/**@
+	* #.attr
+	* @comp Crafty Core
+	* @sign public this .attr(String property, * value)
+	* @param property - Property of the entity to modify
+	* @param value - Value to set the property to
+	* @sign public this .attr(Object map)
+	* @param map - Object where the key is the property to modify and the value as the property value
+	* Use this method to set any property of the entity.
+	* @example
+	* ~~~
+	* this.attr({key: "value", prop: 5});
+	* this.key; //value
+	* this.prop; //5
+	*
+	* this.attr("key", "newvalue");
+	* this.key; //newvalue
+	* ~~~
+	*/
 	attr: function(key, value) {
 		if(arguments.length === 1) {
 			//if just the key, return the value
@@ -191,10 +294,34 @@ Crafty.fn = Crafty.prototype = {
 		return this;
 	},
 	
+	/**@
+	* #.toArray
+	* @comp Crafty Core
+	* @sign public this .toArray(void)
+	* This method will simply return the found entities as an array.
+	*/
 	toArray: function() {
 		return slice.call(this, 0);
 	},
 	
+	/**@
+	* #.delay
+	* @comp Crafty Core
+	* @sign public this .delay(Function callback, Number delay)
+	* @param callback - Method to execute after given amount of milliseconds
+	* @param delay - Amount of milliseconds to execute the method
+	* The delay method will execute a function after a given amount of time in milliseconds.
+	*
+	* Essentially a wrapper for `setTimeout`.
+	*
+	* @example
+    * Destroy itself after 100 milliseconds
+	* ~~~
+	* this.delay(function() {
+	     this.destroy();
+	* }, 100);
+	* ~~~
+	*/
 	delay: function(fn, duration) {
 		this.each(function() {
 			var self = this;
@@ -205,6 +332,36 @@ Crafty.fn = Crafty.prototype = {
         return this;
 	},
 	
+	/**@
+	* #.bind
+	* @comp Crafty Core
+	* @sign public this .bind(String eventName, Function callback)
+	* @param eventName - Name of the event to bind to
+	* @param callback - Method to execute when the event is triggered
+	* Attach the current entity (or entities) to listen for an event.
+	*
+	* Callback will be invoked when an event with the event name passed 
+	* is triggered. Depending on the event, some data may be passed 
+	* via an argument to the callback function.
+	*
+	* The first argument is the event name (can be anything) whilst the 
+	* second argument is the callback. If the event has data, the 
+	* callback should have an argument.
+	*
+	* Events are arbitrary and provide communication between components. 
+	* You can trigger or bind an event even if it doesn't exist yet.
+	* @example
+	* ~~~
+	* this.attr("triggers", 0); //set a trigger count
+	* this.bind("myevent", function() {
+	*     this.triggers++; //whenever myevent is triggered, increment
+	* });
+	* this.bind("enterframe", function() {
+	*     this.trigger("myevent"); //trigger myeven on every frame
+	* });
+	* ~~~
+	* @see .trigger, .unbind
+	*/
 	bind: function(event, fn) {
 		//optimization for 1 entity
 		if(this.length === 1) {
@@ -227,6 +384,19 @@ Crafty.fn = Crafty.prototype = {
 		return this;
 	},
 	
+	/**@
+	* #.unbind
+	* @comp Crafty Core
+	* @sign public this .unbind(String eventName[, Function callback])
+	* @param eventName - Name of the event to unbind
+	* @param callback - Function to unbind
+	* Removes binding with an event from current entity. 
+	*
+	* Passing an event name will remove all events binded to 
+	* that event. Passing a reference to the callback will 
+	* unbind only that callback.
+	* @see .bind, .trigger
+	*/
 	unbind: function(event, fn) {
 		this.each(function() {
 			var hdl = handlers[event], i = 0, l, current;
@@ -252,6 +422,20 @@ Crafty.fn = Crafty.prototype = {
 		return this;
 	},
 	
+	/**@
+	* #.trigger
+	* @comp Crafty Core
+	* @sign public this .trigger(String eventName[, Object data])
+	* @param eventName - Event to trigger
+	* @param data - Arbitrary data that will be passed into every callback as an argument
+	* Trigger an event with arbitrary data. Will invoke all callbacks with 
+	* the context (value of `this`) of the current entity object.
+	*
+	* *Note: This will only execute callbacks within the current entity, no other entity.*
+	*
+	* The first argument is the event name to trigger and the optional 
+	* second argument is the arbitrary event data. This can be absolutely anything.
+	*/
 	trigger: function(event, data) {
 		if(this.length === 1) {
 			//find the handlers assigned to the event and entity
@@ -276,6 +460,25 @@ Crafty.fn = Crafty.prototype = {
 		return this;
 	},
 	
+	/**@
+	* #.each
+	* @sign public this .each(Function method)
+	* @param method - Method to call on each iteration
+	* Iterates over found entities, calling a function for every entity. 
+	*
+	* The function will be called for every entity and will pass the index 
+	* in the iteration as an argument. The context (value of `this`) of the 
+	* function will be the current entity in the iteration.
+	* @example
+	* Destroy every second 2D entity
+	* ~~~
+	* Crafty("2D").each(function(i) {
+	*     if(i % 2 === 0) {
+	*         this.destroy();
+	*     }
+	* });
+	* ~~~
+	*/
 	each: function(fn) {
 		var i = 0, l = this.length;
 		for(;i<l;i++) {
@@ -286,6 +489,14 @@ Crafty.fn = Crafty.prototype = {
 		return this;
 	},
 	
+	/**@
+	* #.clone
+	* @comp Crafty Core
+	* @sign public Entity .clone(void)
+	* @returns Cloned entity of the current entity
+	* Method will create another entity with the exact same
+	* properties, components and methods as the current entity.
+	*/
 	clone: function() {
 		var comps = this.__c,
 			comp,
@@ -302,6 +513,18 @@ Crafty.fn = Crafty.prototype = {
 		return clone;
 	},
 	
+	/**@
+	* #.setter
+	* @comp Crafty Core
+	* @sign public this .setter(String property, Function callback)
+	* @param property - Property to watch for modification
+	* @param callback - Method to execute if the property is modified
+	* Will watch a property waiting for modification and will then invoke the
+	* given callback when attempting to modify.
+	*
+	* *Note: Support in IE<9 is slightly different. The method will be execute
+	* after the property has been set*
+	*/
 	setter: function(prop, fn) {
 		if(Crafty.support.setter) {
 			this.__defineSetter__(prop, fn);
@@ -320,6 +543,13 @@ Crafty.fn = Crafty.prototype = {
         return this;
 	},
 	
+	/**@
+	* #.destroy
+	* @comp Crafty Core
+	* @sign public this .destroy(void)
+	* @triggers Remove
+	* Will remove all event listeners and delete all properties as well as removing from the stage
+	*/
 	destroy: function() {
 		//remove all event handlers, delete from entities
 		this.each(function() {
@@ -353,17 +583,28 @@ Crafty.extend = Crafty.fn.extend = function(obj) {
 	return target;
 };
 
+/**@
+* #Crafty.extend
+* @category Core
+* Used to extend the Crafty namespace.
+*/
 Crafty.extend({
-	init: function(f, w, h) {
-		//two arguments equals the width and height
-		if(arguments.length === 2) {			
-			h = w;
-			w = f;
-			f = 60;
-		}
-		
-		FPS = f || 60;
-		
+	/**@
+	* #Crafty.init
+	* @category Core
+	* @sign public this Crafty.init([Number width, Number height])
+	* @param width - Width of the stage
+	* @param height - Height of the stage
+	* Starts the `EnterFrame` interval. This will call the `EnterFrame` event for every frame.
+	*
+	* Can pass width and height values for the stage otherwise will default to window size (see `Crafty.DOM.window`).
+	*
+	* All `Load` events will be executed.
+	*
+	* Uses `requestAnimationFrame` to sync the drawing with the browser but will default to `setInterval` if the browser does not support it.
+	* @see Crafty.stop
+	*/
+	init: function(w, h) {
 		Crafty.viewport.init(w,h);
 		
 		//call all arbitrary functions attached to onload
@@ -373,6 +614,15 @@ Crafty.extend({
 		return this;
 	},
 	
+	/**@
+	* #Crafty.stop
+	* @category Core
+	* @sign public this Crafty.stop(void)
+	* Stops the Enterframe interval and removes the stage element. 
+	*
+	* To restart, use `Crafty.init()`.
+	* @see Crafty.init
+	*/
 	stop: function() {
 		this.timer.stop();
 		Crafty.stage.elem.parentNode.removeChild(Crafty.stage.elem);
@@ -382,10 +632,10 @@ Crafty.extend({
 	
 	/**@
 	* #Crafty.pause
-	* Unbinds all enterframe handlers and stores them away
-	* Calling .pause() again will restore previously deactivated handlers.
-	* 
-	* @sign public this Crafty.pause()
+	* @comp Core
+	* @sign public this Crafty.pause(void)
+	* Pauses the game by stoping the EnterFrame event from firing. Pauses automatically
+	* when the user navigates away from the window. This can be turned off in `Crafty.settings`.
 	* @example
 	* Have an entity pause the game when it is clicked.
 	* ~~~
@@ -466,6 +716,19 @@ Crafty.extend({
 		}
 	},
 
+	/**@
+	* #Crafty.e
+	* @category Core
+	* @sign public Entity Crafty.e(String componentList)
+	* @param componentList - List of components to assign to new entity
+	* @sign public Entity Crafty.e(String component1[, .., String componentN])
+	* @param component# - Component to add
+	* Creates an entity. Any arguments will be applied in the same 
+	* way `.addComponent()` is applied as a quick way to add components.
+	*
+	* From here, any component added will augment the functionality of 
+	* that entity by assigning the properties and methods to that entity. 
+	*/
 	e: function() {
 		var id = UID(), craft;
 		
@@ -480,10 +743,37 @@ Crafty.extend({
 		return craft;
 	},
 	
+	/**@
+	* #Crafty.c
+	* @category Core
+	* @sign public void Crafty.c(String name, Object component)
+	* @param name - Name of the component
+	* @param component - Object with the components properties and methods
+	* Creates a component where the first argument is the ID and the second 
+	* is the object that will be inherited by entities.
+	*
+	* There is a convention for writing components. For instance properties or 
+	* methods that start with an underscore are considered private. A method called 
+	* `init` will automatically be called as soon as the component is added to 
+	* an entity. 
+	* 
+	* A method with the same name as the component ID is considered to be a constructor 
+	* and is generally used when data is needed before executing.
+	*/
 	c: function(id, fn) {
 		components[id] = fn;
 	},
 	
+	/**@
+	* #Crafty.trigger
+	* @category Core
+	* @sign public void Crafty.trigger(String eventName, * data)
+	* @param eventName - Name of the event to trigger
+	* @param data - Arbitrary data to pass into the callback as an argument
+	* This method will trigger every single callback attached to the event name. This means
+	* every global event and every entity that has a callback.
+	* @see Crafty.bind
+	*/
 	trigger: function(event, data) {
 		var hdl = handlers[event], h, i, l;
 		//loop over every object bound
@@ -504,6 +794,17 @@ Crafty.extend({
 		}
 	},
 	
+	/**@
+	* #Crafty.bind
+	* @category Core
+	* @sign public Number bind(String eventName, Function callback)
+	* @param eventName - Name of the event to bind to
+	* @param callback - Method to execute upon event triggered
+	* @returns ID of the current callback used to unbind
+	* Binds to a global event. Method will be executed when `Crafty.trigger` is used
+	* with the event name.
+	* @see Crafty.trigger, Crafty.unbind
+	*/
 	bind: function(event, callback) {
 		if(!handlers[event]) handlers[event] = {};
 		var hdl = handlers[event];
@@ -512,6 +813,17 @@ Crafty.extend({
 		return hdl.global.push(callback) - 1;
 	},
 	
+	/**@
+	* #Crafty.unbind
+	* @category Core
+	* @sign public Boolean Crafty.unbind(String eventName, Function callback)
+	* @param eventName - Name of the event to unbind
+	* @param callback - Function to unbind
+	* @sign public Boolean Crafty.unbind(String eventName, Number callbackID)
+	* @param callbackID - ID of the callback
+	* @returns True or false depending on if a callback was unbound
+	* Unbind any event from any entity or global event.
+	*/
 	unbind: function(event, callback) {
 		var hdl = handlers[event], h, i, l;
 		
@@ -537,6 +849,12 @@ Crafty.extend({
 		return false;
 	},
 	
+	/**@
+	* #Crafty.frame
+	* @category Core
+	* @sign public Number Crafty.frame(void)
+	* Returns the current frame number
+	*/
 	frame: function() {
 		return frame;
 	},
@@ -545,21 +863,53 @@ Crafty.extend({
 		return components;
 	},
 	
+	/**@
+	* #Crafty.settings
+	* @category Core
+	* Modify the inner workings of Crafty through the settings.
+	*/
 	settings: (function() {
 		var states = {},
 			callbacks = {};
 		
 		return {
+			/**@
+			* #Crafty.settings.register
+			* @comp Crafty.settings
+			* @sign public void Crafty.settings.register(String settingName, Function callback)
+			* @param settingName - Name of the setting
+			* @param callback - Function to execute when use modifies setting
+			* Use this to register custom settings. Callback will be executed when `Crafty.settings.modify` is used.
+			* @see Crafty.settings.modify
+			*/
 			register: function(setting, callback) {
 				callbacks[setting] = callback;
 			},
 			
+			/**@
+			* #Crafty.settings.modify
+			* @comp Crafty.settings
+			* @sign public void Crafty.settings.modify(String settingName, * value)
+			* @param settingName - Name of the setting
+			* @param value - Value to set the setting to
+			* Modify settings through this method.
+			* @see Crafty.settings.register, Crafty.settings.get
+			*/
 			modify: function(setting, value) {
 				if(!callbacks[setting]) return;
 				callbacks[setting].call(states[setting], value);
 				states[setting] = value;
 			},
 			
+			/**@
+			* #Crafty.settings.get
+			* @comp Crafty.settings
+			* @sign public * Crafty.settings.get(String settingName)
+			* @param settingName - Name of the setting
+			* @returns Current value of the setting
+			* Returns the current value of the setting.
+			* @see Crafty.settings.register, Crafty.settings.get
+			*/
 			get: function(setting) {
 				return states[setting];
 			}
