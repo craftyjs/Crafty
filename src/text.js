@@ -1,26 +1,32 @@
+/**@
+* #Text
+* @category Graphics
+* @requires DOM
+* Component to draw text inside the body of an entity. Only works for DOM elements.
+*/
 Crafty.c("Text", {
 	_text: "",
-	_font: "",
 	
 	init: function() {
 		this.bind("draw", function(e) {
 			if(e.type === "DOM") {
 				var el = this._element, style = el.style;
 				el.innerHTML = this._text;
-				if(this._font) style.font = this._font;
 			}
 		});
 	},
 	
+	/**@
+	* #.text
+	* @comp Text
+	* @sign public this .text(String text)
+	* @param text - String of text that will be inseretd into the DOM element. Can use HTML.
+	* This method will update the text inside the entity. To modify the font, use the `.css` method
+	* inherited from the DOM component.
+	*/
 	text: function(text) {
 		if(!text) return this._text;
 		this._text = text;
-		this.trigger("change");
-		return this;
-	},
-	
-	font: function(font) {
-		this._font = font;
 		this.trigger("change");
 		return this;
 	}

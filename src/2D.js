@@ -6,26 +6,87 @@ var M = Math,
 	DEG_TO_RAD = PI / 180;
 
 
+/**@
+* #2D
+* @comp 2D
+* Component for any entity that has a position on the stage.
+*/
 Crafty.c("2D", {
+	/**@
+	* #.x
+	* The `x` position on the stage. When modified, will automatically be redrawn.
+	* Is actually a getter/setter so when using this value for calculations and not modifying it,
+	* use the `._x` property.
+	*/
 	_x: 0,
+	/**@
+	* #.y
+	* The `y` position on the stage. When modified, will automatically be redrawn.
+	* Is actually a getter/setter so when using this value for calculations and not modifying it,
+	* use the `._y` property.
+	*/
 	_y: 0,
+	/**@
+	* #.w
+	* The width of the entity. When modified, will automatically be redrawn.
+	* Is actually a getter/setter so when using this value for calculations and not modifying it,
+	* use the `._w` property.
+	*
+	* Changing this value is not recommended as canvas has terrible resize quality and DOM will just clip the image.
+	*/
 	_w: 0,
+	/**@
+	* #.x
+	* The height of the entity. When modified, will automatically be redrawn.
+	* Is actually a getter/setter so when using this value for calculations and not modifying it,
+	* use the `._h` property.
+	*
+	* Changing this value is not recommended as canvas has terrible resize quality and DOM will just clip the image.
+	*/
 	_h: 0,
+	/**@
+	* #.z
+	* The `z` index on the stage. When modified, will automatically be redrawn.
+	* Is actually a getter/setter so when using this value for calculations and not modifying it,
+	* use the `._z` property.
+	*
+	* A higher `z` value will be closer to the front of the stage. A smaller `z` value will be closer to the back.
+	* A global Z index is produced based on its `z` value as well as the GID (which entity was created first).
+	* Therefore entities will naturally maintain order depending on when it was created if same z value.
+	*/
 	_z: 0,
+	/**@
+	* #.rotation
+	* Set the rotation of your entity. Rotation takes degrees in a clockwise direction.
+	* It is important to note there is no limit on the rotation value. Setting a rotation 
+	* mod 360 will give the same rotation without reaching huge numbers.
+	*/
 	_rotation: 0,
+	/**@
+	* #.alpha
+	* Transparency of an entity. Must be a decimal value between 0.0 being fully transparent to 1.0 being fully opaque.
+	*/
 	_alpha: 1.0,
+	/**@
+	* #.visible
+	* If the entity is visible or not. Accepts a true or false value.
+	* Can be used for optimization by setting an entities visibility to false when not needed to be drawn.
+	*
+	* The entity will still exist and can be collided with but just won't be drawn.
+	*/
 	_visible: true,
 	_global: null,
 	
 	_origin: null,
 	_mbr: null,
 	_entry: null,
-	_attachy: [],
+	_children: null,
 	_changed: false,
 	
 	init: function() {
 		this._global = this[0];
 		this._origin = {x: 0, y: 0};
+		this._children = {};
 		
 		if(Crafty.support.setter) {
 			//create getters and setters on x,y,w,h,z
@@ -133,14 +194,16 @@ Crafty.c("2D", {
 		this._entry = Crafty.map.insert(this);
 		
 		//when object changes, update HashMap
-		this.bind("move", function() {
+		this.bind("move", function(e) {
 			var area = this._mbr || this;
 			this._entry.update(area);
+			this._cascade(e);
 		});
 		
 		this.bind("rotate", function(e) {
 			var old = this._mbr || this;
 			this._entry.update(old);
+			this._cascade(e);
 		});
 		
 		//when object is removed, remove from HashMap
@@ -153,8 +216,6 @@ Crafty.c("2D", {
 	
 	/**
 	* Calculates the MBR when rotated with an origin point
-	*
-	* @private
 	*/
 	_rotate: function(v) {
 		var theta = -1 * (v % 360), //angle always between 0 and 359
@@ -199,20 +260,27 @@ Crafty.c("2D", {
 		});
 	},
 	
-	/**
+	/**@
+	* #.area
+	* @comp 2D
+	* @sign public Number .area(void)
 	* Calculates the area of the entity
 	*/
 	area: function() {
 		return this._w * this._h;
 	},
 	
-	/**
-	* Checks if this entity intersects a rect
-	*
-	* @param x X position of the rect or a Rect object
-	* @param y Y position of the rect
-	* @param w Width of the rect
-	* @param h Height of the rect
+	/**@
+	* #.intersect
+	* @comp 2D
+	* @sign public Boolean .intersect(Number x, Number y, Number w, Number h)
+	* @param x - X position of the rect
+	* @param y - Y position of the rect
+	* @param w - Width of the rect
+	* @param h - Height of the rect
+	* @sign public Boolean .intersect(Object rect)
+	* @param rect - An object that must have the `x, y, w, h` values as properties
+	* Determines if this entity intersects a rectangle.
 	*/
 	intersect: function(x,y,w,h) {
 		var rect, obj = this._mbr || this;
@@ -226,13 +294,17 @@ Crafty.c("2D", {
 			   obj._y < rect.y + rect.h && obj._h + obj._y > rect.y;
 	},
 	
-	/**
-	* Checks if the entity is within a rect
-	*
-	* @param x X position of the rect or a Rect object
-	* @param y Y position of the rect
-	* @param w Width of the rect
-	* @param h Height of the rect
+	/**@
+	* #.within
+	* @comp 2D
+	* @sign public Boolean .within(Number x, Number y, Number w, Number h)
+	* @param x - X position of the rect
+	* @param y - Y position of the rect
+	* @param w - Width of the rect
+	* @param h - Height of the rect
+	* @sign public Boolean .within(Object rect)
+	* @param rect - An object that must have the `x, y, w, h` values as properties
+	* Determines if this current entity is within another rectangle.
 	*/
 	within: function(x,y,w,h) {
 		var rect;
@@ -246,13 +318,17 @@ Crafty.c("2D", {
 				rect.y <= this.y && rect.y + rect.h >= this.y + this.h;
 	},
 	
-	/**
-	* Checks if the entity contains a rect
-	*
-	* @param x X position of the rect or a Rect object
-	* @param y Y position of the rect
-	* @param w Width of the rect
-	* @param h Height of the rect
+	/**@
+	* #.contains
+	* @comp 2D
+	* @sign public Boolean .contains(Number x, Number y, Number w, Number h)
+	* @param x - X position of the rect
+	* @param y - Y position of the rect
+	* @param w - Width of the rect
+	* @param h - Height of the rect
+	* @sign public Boolean .contains(Object rect)
+	* @param rect - An object that must have the `x, y, w, h` values as properties
+	* Determines if the rectangle is within the current entity.
 	*/
 	contains: function(x,y,w,h) {
 		var rect;
@@ -266,9 +342,15 @@ Crafty.c("2D", {
 				rect.y >= this.y && rect.y + rect.h <= this.y + this.h;
 	},
 	
-	/**
-	* Returns an object containing the x and y position
-	* as well as width and height as w and h.
+	/**@
+	* #.pos
+	* @comp 2D
+	* @sign public Object .pos(void)
+	* Returns the x, y, w, h properties as a rect object 
+	* (a rect object is just an object with the keys _x, _y, _w, _h).
+	*
+	* The keys have an underscore prefix. This is due to the x, y, w, h 
+	* properties being merely setters and getters that wrap the properties with an underscore (_x, _y, _w, _h).
 	*/
 	pos: function() {
 		return {
@@ -293,22 +375,27 @@ Crafty.c("2D", {
 		};
 	},
 	
-	/**
-	* Is a point within an entity
-	*
-	* @param x X position of the point
-	* @param y Y position of the point
+	/**@
+	* #.isAt
+	* @comp 2D
+	* @sign public Boolean .isAt(Number x, Number y)
+	* @param x - X position of the point
+	* @param y - Y position of the point
+	* Determines whether a point is contained by the entity. Unlike other methods, 
+	* an object can't be passed. The arguments require the x and y value
 	*/
 	isAt: function(x,y) {
 		return this.x <= x && this.x + this.w >= x &&
 			   this.y <= y && this.y + this.h >= y;
 	},
 	
-	/**
-	* Move an object by direction in terms of n,s,e,w or a combination
-	*
-	* @param dir Direction to move (n,s,e,w,ne,nw,se,sw)
-	* @param by Amount to move in the specified direction
+	/**@
+	* #.move
+	* @comp 2D
+	* @sign public this .move(String dir, Number by)
+	* @param dir - Direction to move (n,s,e,w,ne,nw,se,sw)
+	* @param by - Amount to move in the specified direction
+	* Quick method to move the entity in a direction (n, s, e, w, ne, nw, se, sw) by an amount of pixels.
 	*/
 	move: function(dir, by) {
 		if(dir.charAt(0) === 'n') this.y -= by;
@@ -319,17 +406,18 @@ Crafty.c("2D", {
 		return this;
 	},
 	
-	/**
+	/**@
+	* #.shift
+	* @comp 2D
+	* @sign public this .shift(Number x, Number y, Number w, Number h)
+	* @param x - Amount to move X 
+	* @param y - Amount to move Y
+	* @param w - Amount to widen
+	* @param h - Amount to increase height
 	* Shift or move the entity by an amount. Use negative values
 	* for an opposite direction.
-	*
-	* @param x Amount to move X by. 
-	* @param y Amount to move Y
-	* @param w Amount to widen
-	* @param h Amount to increase height
 	*/
 	shift: function(x,y,w,h) {
-		//shift by amount
 		if(x) this.x += x;
 		if(y) this.y += y;
 		if(w) this.w += w;
@@ -339,73 +427,89 @@ Crafty.c("2D", {
 	},
 	
 	/**
-	* Attach an entity to replicate any movement or rotation
-	* of this entity
-	*
-	* @param obj Entity to attach
+	* Move or rotate all the children for this entity
 	*/
-	attach: function(obj) {
-		function callback(e) {
-			if(!e) return; //no change in position
-			
-			//rotation
-			if(e.cos) {
+	_cascade: function(e) {
+		if(!e) return; //no change in position
+		var i = 0, children = this._children, l = children.length, obj;
+		//rotation
+		if(e.cos) {
+			for(;i<l;++i) {
+				obj = children[i];
 				if('rotate' in obj) obj.rotate(e);
-			} else { //move
-				//use MBR or current
-				var rect = this._mbr || this;
-					dx = rect._x - e._x,
-					dy = rect._y - e._y,
-					dw = rect._w - e._w,
-					dh = rect._h - e._h;
-				
+			}
+		} else {
+			//use MBR or current
+			var rect = this._mbr || this;
+				dx = rect._x - e._x,
+				dy = rect._y - e._y,
+				dw = rect._w - e._w,
+				dh = rect._h - e._h;
+			
+			for(;i<l;++i) {
+				obj = children[i];
 				obj.shift(dx,dy,dw,dh);
 			}
 		}
-		
-		//attach obj to this so when this moves, move by same amount
-		this.bind("move", callback);
-		this.bind("rotate", callback);
-		
-		this._attachy[obj[0]] = callback;
+	}
+	
+	/**
+	* #.attach
+	* @comp 2D
+	* @sign public this .attach(Entity obj[, .., Entity objN])
+	* @param obj - Entity(s) to attach
+	* Attaches an entities position and rotation to current entity. When the current entity moves, 
+	* the attached entity will move by the same amount.
+	*
+	* As many objects as wanted can be attached and a hierarchy of objects is possible by attaching.
+	*/
+	attach: function() {
+		var i = 0, arg = arguments, l = arguments.length, obj;
+		for(;i<l;++i) {
+			obj = arg[i];
+			this._children[obj[0]] = obj;
+		}
 		
 		return this;
 	},
 	
-	/**
-	* Detach an object from following
-	*
+	/**@
+	* #.detach
+	* @comp 2D
+	* @sign public this .detach([Entity obj])
 	* @param obj The entity to detach. Left blank will remove all attached entities
+	* Stop an entity from following the current entity. Passing no arguments will stop
+	* every entity attached.
 	*/
 	detach: function(obj) {
 		//if nothing passed, remove all attached objects
 		if(!obj) {
-			var key, a = this._attachy;
-			for(key in a) {
-				if(!a.hasOwnProperty(key)) continue;
-				this.unbind("move", a[key]);
-				
-				this._attachy[key] = null;
-				delete this._attachy[key];
-			}
-			
+			this._children = {};
 			return this;
 		}
 		//if obj passed, find the handler and unbind
-		var handle = this._attachy[obj[0]];
-		this.unbind("move", handle);
-		this._attachy[obj[0]] = null;
-		delete this._attachy[obj[0]];
+		delete this._children[obj[0]];
 		
 		return this;
 	},
 	
-	/**
-	* Set the origin point of an entity for it to rotate around
-	*
-	* @param x Pixel value or string based representation with combination of 
-	*		   center, bottom, middle, left and right
-	* @param y Pixel value of origin offset on the Y axis
+	/**@
+	* #.origin
+	* @comp 2D
+	* @sign public this .origin(Number x, Number y)
+	* @param x - Pixel value of origin offset on the X axis
+	* @param y - Pixel value of origin offset on the Y axis
+	* @sign public this .origin(String offset)
+	* @param offset - Combination of center, top, bottom, middle, left and right
+	* Set the origin point of an entity for it to rotate around. 
+	* @example
+	* ~~~
+	* this.origin("top left")
+	* this.origin("center")
+	* this.origin("bottom right")
+	* this.origin("middle right")
+	* ~~~
+	* @see .rotation
 	*/
 	origin: function(x,y) {
 		//text based origin
@@ -435,8 +539,6 @@ Crafty.c("2D", {
 	
 	/**
 	* Method for rotation rather than through a setter
-	*
-	* @param e Rotation event data
 	*/
 	rotate: function(e) {
 		//assume event data origin
@@ -450,10 +552,6 @@ Crafty.c("2D", {
 	/**
 	* Setter method for all 2D properties including 
 	* x, y, w, h, alpha, rotation and visible.
-	*
-	* @private
-	* @param name Name of property
-	* @param value Value of property
 	*/
 	_attr: function(name,value) {	
 		//keep a reference of the old positions

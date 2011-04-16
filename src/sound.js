@@ -1,10 +1,18 @@
 Crafty.extend({
+	/**@
+	* #Crafty.audio
+	* @category Audio
+	* Add sound files and play them. Chooses best format for browser support.
+	* Due to the nature of HTML5 audio, three types of audio files will be 
+	* required for cross-browser capabilities. These formats are MP3, Ogg and WAV.
+	*/
 	audio: {
 		_elems: {},
 		_muted: false,
-		_mutedAudio : [],
+		
 		/**@
 		* #Crafty.audio.MAX_CHANNELS
+		* @comp Crafty.audio
 		* Amount of Audio objects for a sound so overlapping of the 
 		* same sound can occur. More channels means more of the same sound
 		* playing at the same time.
@@ -20,7 +28,7 @@ Crafty.extend({
 		
 		/**@
 		* #Crafty.audio.add
-		* @category Audio
+		* @comp Crafty.audio
 		* @sign public this Crafty.audio.add(String id, String url)
 		* @param id - A string to reffer to sounds
 		* @param url - A string pointing to the sound file
@@ -35,8 +43,10 @@ Crafty.extend({
 		*
 		* Passing an array of URLs will determine which format the browser can play and select it over any other.
 		*
-		* Accepts an object where the key is the audio name (needed to play) and 
-		* either a URL or an Array of URLs to determine which type to use.
+		* Accepts an object where the key is the audio name and 
+		* either a URL or an Array of URLs (to determine which type to use).
+		*
+		* The ID you use will be how you refer to that sound when using `Crafty.audio.play`.
 		*
 		* @example
 		* ~~~
@@ -142,31 +152,24 @@ Crafty.extend({
 		},
 		/**@
 		* #Crafty.audio.play
+		* @sign public this Crafty.audio.play(String id)
+		* @sign public this Crafty.audio.play(String id, Number repeatCount)
+		* @param id - A string to reffer to sounds
+		* @param repeatCount - Repeat count for the file, where -1 stands for repeat forever.
 		* 
-		* `public this Crafty.audio.play(String id)`
-		* 
-		* `public this Crafty.audio.play(String id, Number repeatCount)`
-		* 
-		* `public this Crafty.audio.add(Object map)`
-		* 
-		* **Parameters:**
-		* 
-		*> `id` - A string to reffer to sounds
-		*> 
-		*> `repeatCount` - Repeat count for the file, where -1 stands for repeat infinitively.
-		* 
-		* Will play a sound previously added by using the ID that was used to add.
+		* Will play a sound previously added by using the ID that was used in `Crafty.audio.add`.
 		* Has a default maximum of 5 channels so that the same sound can play simultaneously unless all of the channels are playing. 
-		* This can be increased by setting Crafty.audio.MAX_CHANNELS.
-		* Note that the implementation of HTML5 Audio is buggy at best so any inconsistencies is most likely the browsers fault.
+		
+		* *Note that the implementation of HTML5 Audio is buggy at best.*
 		*
-		* ##Use
-		*~~~
+		* @example
+		* ~~~
 		* Crafty.audio.play("walk");
 		*
 		* //play and repeat forever
 		* Crafty.audio.play("backgroundMusic", -1);
 		* ~~~
+		* @see Crafty.audio.add, Crafty.audio.settings
 		*/
 		play: function(id, repeat) {
 			if(!Crafty.support.audio) return;
@@ -199,6 +202,15 @@ Crafty.extend({
 			return this;
 		},
 		
+		/**@
+		* #Crafty.audio.settings
+		* @comp Crafty.audio
+		* @sign public this Crafty.audio.settings(String id, Object settings)
+		* @param id - The audio instance added by `Crafty.audio.add`
+		* @param settings - An object where the key is the setting and the value is what to modify the setting with
+		* Used to modify settings of the HTML5 `Audio` object. For a list of all the settings available,
+		* see the [Mozilla Documentation](https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIDOMHTMLMediaElement).
+		*/
 		settings: function(id, settings) {
 			//apply to all
 			if(!settings) {
@@ -223,8 +235,13 @@ Crafty.extend({
 			return this;
 		},
 		
+		/**@
+		* #Crafty.audio.mute
+		* @sign public this Crafty.audio.mute(void)
+		* Mute or unmute every Audio instance that is playing. Toggles between
+		* pausing or playing depending on the state.
+		*/
 		mute: function() {
-			this._muted = true;
 			var sounds, sound, i, l, elem;
 			
 			//loop over every sound
@@ -237,24 +254,17 @@ Crafty.extend({
 					
 					//if playing, stop
 					if(!sound.ended && sound.currentTime) {
-						this._mutedAudio.push(sound);
-						sound.pause();
-						//sound.currentTime = 0;
+						if(this._muted) sound.pause();
+						else sound.play();
 					}
 				}
 			}
-		},
-		
-		unMute: function() {
-			this._muted = false;
-			for (var i=0; i < this._mutedAudio.length; i++) {
-				this._mutedAudio[i].play();
-			}
-			this._mutedAudio = [];
+			this._muted = !this._muted;
+			return this;
 		}
 	}
 });
 
 //stop sounds on Pause
 Crafty.bind("Pause", function() {Crafty.audio.mute()});
-Crafty.bind("Unpause", function() {Crafty.audio.unMute()});
+Crafty.bind("Unpause", function() {Crafty.audio.mute()});
