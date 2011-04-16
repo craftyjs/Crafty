@@ -1,9 +1,9 @@
-/**@
-* #Crafty.isometric
-* @category 2D
-* Place entities in a 45deg isometric fashion.
-*/
 Crafty.extend({
+	/**@
+	* #Crafty.isometric
+	* @category 2D
+	* Place entities in a 45deg isometric fashion.
+	*/
 	isometric: {
 		_tile: 0,
 		_z: 0,

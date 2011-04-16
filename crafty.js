@@ -312,9 +312,9 @@ Crafty.fn = Crafty.prototype = {
 	
 	setter: function(prop, fn) {
 		if(Crafty.support.setter) {
-			this.__defineSetter__(property, fn);
+			this.__defineSetter__(prop, fn);
 		} else if(Crafty.support.defineProperty) {
-			Object.defineProperty(this, property, {
+			Object.defineProperty(this, prop, {
                 set: fn,
                 configurable : true
 			});
@@ -325,6 +325,7 @@ Crafty.fn = Crafty.prototype = {
 				fn: fn
 			});
 		}
+        return this;
 	},
 	
 	destroy: function() {
@@ -2469,7 +2470,7 @@ Crafty.extend({
 			if(e.type === "mousedown") {
 				this.down = closest;
 				this.down.trigger('mousedown', e);
-			} if(e.type === "mouseup") {
+			} else if(e.type === "mouseup") {
 				closest.trigger("mouseup", e);
 				
 				//check that down exists and this is down
@@ -3218,28 +3219,47 @@ Crafty.DrawManager = (function() {
 })();
 
 Crafty.extend({
+	/**@
+	* #Crafty.isometric
+	* @category 2D
+	* Place entities in a 45deg isometric fashion.
+	*/
 	isometric: {
 		_tile: 0,
 		_z: 0,
 		
-		init: function(tile) {
+		/**@
+		* #Crafty.isometric.size
+		* @comp Crafty.isometric
+		* @sign public this Crafty.isometric.size(Number tileSize)
+		* @param tileSize - The size of the tiles to place.
+		* Method used to initialize the size of the isometric placement.
+		* Recommended to use a size alues in the power of `2` (128, 64 or 32). 
+		* This makes it easy to calculate positions and implement zooming.
+		* @see Crafty.isometric.place
+		*/
+		size: function(tile) {
 			this._tile = tile;
 			return this;
 		},
 		
+		/**@
+		* #Crafty.isometric.place
+		* @comp Crafty.isometric
+		* @sign public this Crafty.isometric.size(Number x, Number y, Number z, Entity tile)
+		* @param x - The `x` position to place the tile
+		* @param y - The `y` position to place the tile
+		* @param z - The `z` position or height to place the tile
+		* @param tile - The entity that should be position in the isometric fashion
+		* Use this method to place an entity in an isometric grid.
+		* @see Crafty.isometric.size
+		*/
 		place: function(x,y,z, obj) {
-			
 			var m = x * this._tile + (y & 1) * (this._tile / 2),
 				n = y * this._tile / 4,
 				n = n - z * (this._tile / 2);
 				
 			obj.attr({x: m  + Crafty.viewport._x, y: n  + Crafty.viewport._y}).z += z;
-			return this;
-		},
-		
-		zoom: function(tile) {
-			this._tile = tile;
-			Crafty.trigger("zoom", {tile: tile});
 			return this;
 		}
 	}
@@ -3846,35 +3866,27 @@ Crafty.bind("Unpause", function() {Crafty.audio.unMute()});
 
 Crafty.extend({
 	/**@
-	* Crafty.assets
-	* ===
+	* #Crafty.assets
+	* @category Assets
 	* An object containing every asset used in the current Crafty game. 
-	* The key is the URL and the value is the Audio or Image object.
+	* The key is the URL and the value is the `Audio` or `Image` object.
     *
-	* If loading an asset, check that it is in this object first to avoid loading.
-	*
-	* Use
-	* ---
-	*     var isLoaded = !!Crafty.assets["images/sprite.png"];
+	* If loading an asset, check that it is in this object first to avoid loading twice.
+	* @example
+	* ~~~
+	* var isLoaded = !!Crafty.assets["images/sprite.png"];
+	* ~~~
 	*/
 	assets: {},
 	
 	/**@
 	* #Crafty.loader
-	* `public void Crafty.load(Array assets, Function onLoad[, Function onProgress, Function onError])`
-	* **Parameters:**
-	* `assets`
-	* : Array of assets to load (accepts sounds and images)
-	*
-	* `onLoad`
-	* : Callback when the assets are loaded
-	* 
-	* `onProgress`
-	* : Callback when an asset is loaded. Contains information about assets loaded
-	*
-	* `onError`
-	* : Callback when an asset fails to load
-	* 
+	* @category Assets
+	* @sign public void Crafty.load(Array assets, Function onLoad[, Function onProgress, Function onError])`
+	* @param assets - Array of assets to load (accepts sounds and images)
+	* @param onLoad - Callback when the assets are loaded
+	* @param onProgress - Callback when an asset is loaded. Contains information about assets loaded
+	* @param onError - Callback when an asset fails to load
 	* Preloader for all assets. Takes an array of URLs and 
 	* adds them to the `Crafty.assets` object.
 	* 
@@ -3884,21 +3896,22 @@ Crafty.bind("Unpause", function() {Crafty.audio.unMute()});
     *
 	* `onError` will be passed with the asset that couldn't load.
 	* 
-	* ##Use
-	*	 Crafty.load(["images/sprite.png", "sounds/jump.mp3"], 
-	*        function() {
-	*            //when loaded
-	*            Crafty.scene("main"); //go to main scene
-	*        },
+	* @example
+	* Crafty.load(["images/sprite.png", "sounds/jump.mp3"], 
+	*     function() {
+	*         //when loaded
+	*         Crafty.scene("main"); //go to main scene
+	*     },
 	*
-	*        function(e) {
-	*		 	 //progress
-	*        },
+	*     function(e) {
+	*		  //progress
+	*     },
 	*
-	*        function(e) {
-	*			//uh oh, error loading
-	*        }
-	*	 );
+	*     function(e) {
+	*	      //uh oh, error loading
+	*     }
+	* );
+	* @see Crafty.assets
 	*/
 	load: function(data, oncomplete, onprogress, onerror) {
 		var i = 0, l = data.length, current, obj, total = l, j = 0;

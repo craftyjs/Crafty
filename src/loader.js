@@ -45,6 +45,7 @@ Crafty.extend({
 	*	      //uh oh, error loading
 	*     }
 	* );
+	* @see Crafty.assets
 	*/
 	load: function(data, oncomplete, onprogress, onerror) {
 		var i = 0, l = data.length, current, obj, total = l, j = 0;
