@@ -1,34 +1,26 @@
 Crafty.extend({
 	/**@
-	* Crafty.assets
-	* ===
+	* #Crafty.assets
+	* @category Assets
 	* An object containing every asset used in the current Crafty game. 
-	* The key is the URL and the value is the Audio or Image object.
+	* The key is the URL and the value is the `Audio` or `Image` object.
     *
-	* If loading an asset, check that it is in this object first to avoid loading.
-	*
-	* Use
-	* ---
-	*     var isLoaded = !!Crafty.assets["images/sprite.png"];
+	* If loading an asset, check that it is in this object first to avoid loading twice.
+	* @example
+	* ~~~
+	* var isLoaded = !!Crafty.assets["images/sprite.png"];
+	* ~~~
 	*/
 	assets: {},
 	
 	/**@
 	* #Crafty.loader
-	* `public void Crafty.load(Array assets, Function onLoad[, Function onProgress, Function onError])`
-	* **Parameters:**
-	* `assets`
-	* : Array of assets to load (accepts sounds and images)
-	*
-	* `onLoad`
-	* : Callback when the assets are loaded
-	* 
-	* `onProgress`
-	* : Callback when an asset is loaded. Contains information about assets loaded
-	*
-	* `onError`
-	* : Callback when an asset fails to load
-	* 
+	* @category Assets
+	* @sign public void Crafty.load(Array assets, Function onLoad[, Function onProgress, Function onError])`
+	* @param assets - Array of assets to load (accepts sounds and images)
+	* @param onLoad - Callback when the assets are loaded
+	* @param onProgress - Callback when an asset is loaded. Contains information about assets loaded
+	* @param onError - Callback when an asset fails to load
 	* Preloader for all assets. Takes an array of URLs and 
 	* adds them to the `Crafty.assets` object.
 	* 
@@ -38,21 +30,21 @@ Crafty.extend({
     *
 	* `onError` will be passed with the asset that couldn't load.
 	* 
-	* ##Use
-	*	 Crafty.load(["images/sprite.png", "sounds/jump.mp3"], 
-	*        function() {
-	*            //when loaded
-	*            Crafty.scene("main"); //go to main scene
-	*        },
+	* @example
+	* Crafty.load(["images/sprite.png", "sounds/jump.mp3"], 
+	*     function() {
+	*         //when loaded
+	*         Crafty.scene("main"); //go to main scene
+	*     },
 	*
-	*        function(e) {
-	*		 	 //progress
-	*        },
+	*     function(e) {
+	*		  //progress
+	*     },
 	*
-	*        function(e) {
-	*			//uh oh, error loading
-	*        }
-	*	 );
+	*     function(e) {
+	*	      //uh oh, error loading
+	*     }
+	* );
 	*/
 	load: function(data, oncomplete, onprogress, onerror) {
 		var i = 0, l = data.length, current, obj, total = l, j = 0;

@@ -47,7 +47,10 @@ Crafty.c("DOM", {
 			coord = this.__coord || [0,0,0,0],
 			co = {x: coord[0], y: coord[1] },
 			prefix = Crafty.support.prefix;
-			
+		
+		if(!this._visible) style.visibility = "hidden";
+		else style.visibility = "visible";
+		
 		style.top = ~~(this._y) + "px";
 		style.left = ~~(this._x) + "px";
 		style.width = ~~(this._w) + "px";

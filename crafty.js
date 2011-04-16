@@ -1630,7 +1630,10 @@ Crafty.c("Collision", {
 			coord = this.__coord || [0,0,0,0],
 			co = {x: coord[0], y: coord[1] },
 			prefix = Crafty.support.prefix;
-			
+		
+		if(!this._visible) style.visibility = "hidden";
+		else style.visibility = "visible";
+		
 		style.top = ~~(this._y) + "px";
 		style.left = ~~(this._x) + "px";
 		style.width = ~~(this._w) + "px";
@@ -2467,10 +2470,13 @@ Crafty.extend({
 				this.down = closest;
 				this.down.trigger('mousedown', e);
 			} if(e.type === "mouseup") {
+				closest.trigger("mouseup", e);
+				
 				//check that down exists and this is down
 				if(this.down && closest === this.down) {
 					this.down.trigger("click", e);
 				}
+				
 				//reset down
 				this.down = null;
 			} else if(e.type === "mousemove") {
@@ -2610,7 +2616,7 @@ Crafty.c("Fourway", {
 	_speed: 3,
 	
 	init: function() {
-		this.requires("controls");
+		this.requires("Controls");
 	},
 	
 	fourway: function(speed) {
@@ -2641,7 +2647,7 @@ Crafty.c("Twoway", {
 	_up: false,
 	
 	init: function() {
-		this.requires("controls");
+		this.requires("Controls");
 	},
 	
 	twoway: function(speed,jump) {
