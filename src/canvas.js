@@ -1,8 +1,10 @@
-/**
-* Canvas Components and Extensions
+/**@
+* #Canvas
+* @category Graphics
+* Draws itself onto a canvas. Crafty.canvas() must be called before hand to initialize
+* the canvas element.
 */
 Crafty.c("Canvas", {
-	buffer: 50,
 	
 	init: function() {
 		//increment the amount of canvas objs
@@ -29,6 +31,18 @@ Crafty.c("Canvas", {
 		});
 	},
 	
+	/**@
+	* #.draw
+	* @comp Canvas
+	* @sign public this .draw([[Context ctx, ]Number x, Number y, Number w, Number h])
+	* @param ctx - Canvas 2D context if drawing on another canvas is required
+	* @param x - X offset for drawing a segment
+	* @param y - Y offset for drawing a segment
+	* @param w - Width of the segement to draw
+	* @param h - Height of the segment to draw
+	* @triggers Draw
+	* Method to draw the entity on the canvas element. Can pass rect values for redrawing a segment of the entity.
+	*/
 	draw: function(ctx,x,y,w,h) {
 		if(!this.ready) return; 
 		if(arguments.length === 4) {
@@ -83,11 +97,26 @@ Crafty.c("Canvas", {
 });
 
 Crafty.extend({
+	/**@
+	* #Crafty.context
+	* @category Graphics
+	* This will return the 2D context of the main canvas element. 
+	* The value returned from `Crafty._canvas.getContext('2d')`.
+	*/
 	context: null,
+	/**@
+	* #Crafty._canvas
+	* @category Graphics
+	* Main Canvas element
+	*/
 	_canvas: null,
 	
-	/**
-	* Set the canvas element and 2D context
+	/**@
+	* #Crafty.canvas
+	* @category Graphics
+	* @sign public void Crafty.canvas(void)
+	* Creates a `canvas` element inside the stage element. Must be called
+	* before any entities with the Canvas component can be drawn.
 	*/
 	canvas: function() {
 		//check if canvas is supported

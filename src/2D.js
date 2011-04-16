@@ -583,80 +583,28 @@ Crafty.c("2D", {
 	}
 });
 
-Crafty.c("Gravity", {
-	_gravity: 0.2,
-	_gy: 0,
-	_falling: true,
-	_anti: null,
-
-	init: function() {
-		if(!this.has("2D")) this.addComponent("2D");		
-	},
-
-	gravity: function(comp) {
-		if(comp) this._anti = comp;
-
-		this.bind("enterframe", this._enterframe);
-
-		return this;
-	},
-
-	_enterframe: function() {
-		if(this._falling) {
-			//if falling, move the players Y
-			this._gy += this._gravity * 2;
-			this.y += this._gy;
-		} else {
-			this._gy = 0; //reset change in y
-		}
-
-		var obj, hit = false, pos = this.pos(),
-			q, i = 0, l;
-
-		//Increase by 1 to make sure map.search() finds the floor
-		pos._y++;
-
-		//map.search wants _x and intersect wants x...
-		pos.x = pos._x;
-		pos.y = pos._y;
-		pos.w = pos._w;
-		pos.h = pos._h;
-
-		q = Crafty.map.search(pos);
-		l = q.length;
-
-		for(;i<l;++i) {
-			obj = q[i];
-			//check for an intersection directly below the player
-			if(obj !== this && obj.has(this._anti) && obj.intersect(pos)) {
-				hit = obj;
-				break;
-			}
-		}
-
-		if(hit) { //stop falling if found
-			if(this._falling) this.stopFalling(hit);
-		} else { 	
-			this._falling = true; //keep falling otherwise
-		}
-	},
-
-	stopFalling: function(e) {
-		if(e) this.y = e._y - this._h ; //move object
-
-		//this._gy = -1 * this._bounce;
-		this._falling = false;
-		if(this._up) this._up = false;
-		this.trigger("hit");
-	},
-
-	antigravity: function() {
-		this.unbind("enterframe", this._enterframe);
+Crafty.c("Physics", {
+	_gravity: 0.4,
+	_friction: 0.2,
+	_bounce: 0.5,
+	
+	gravity: function(gravity) {
+		this._gravity = gravity;
 	}
 });
 
-/**
-* Polygon Object
+/**@
+* #Crafty.Polygon
+* @category 2D
+* Polygon object used for hitboxes and click maps. Must pass an Array for each point as an 
+* argument where index 0 is the x position and index 1 is the y position.
+*
+* For example one point of a polygon will look like this: `[0,5]` where the `x` is `0` and the `y` is `5`.
+*
+* Can pass an array of the points or simply put each point as an argument.
+*
+* When creating a polygon for an entity, each point should be offset or relative from the entities `x` and `y` 
+* (don't include the absolute values as it will automatically calculate this).
 */
 Crafty.polygon = function(poly) {
 	if(arguments.length > 1) {
@@ -666,6 +614,20 @@ Crafty.polygon = function(poly) {
 };
 
 Crafty.polygon.prototype = {
+	/**@
+	* #.containsPoint
+	* @comp Crafty.Polygon
+	* @sign public Boolean .containsPoint(Number x, Number y)
+	* @param x - X position of the point
+	* @param y - Y position of the point
+	* Method is used to determine if a given point is contained by the polygon.
+	* @example
+	* ~~~
+	* var poly = new Crafty.polygon([50,0],[100,100],[0,100]);
+	* poly.containsPoint(50, 50); //TRUE
+	* poly.containsPoint(0, 0); //FALSE
+	* ~~~
+	*/
 	containsPoint: function(x, y) {
 		var p = this.points, i, j, c = false;
 
@@ -678,6 +640,20 @@ Crafty.polygon.prototype = {
 		return c;
 	},
 	
+	/**@
+	* #.shift
+	* @comp Crafty.Polygon
+	* @sign public void .shift(Number x, Number y)
+	* @param x - Amount to shift the `x` axis
+	* @param y - Amount to shift the `y` axis
+	* Shifts every single point in the polygon by the specified amount.
+	* @example
+	* ~~~
+	* var poly = new Crafty.polygon([50,0],[100,100],[0,100]);
+	* poly.shift(5,5);
+	* //[[55,5], [105,5], [5,105]];
+	* ~~~
+	*/
 	shift: function(x,y) {
 		var i = 0, l = this.points.length, current;
 		for(;i<l;i++) {
@@ -699,18 +675,6 @@ Crafty.polygon.prototype = {
 			
 			current[0] = Math.floor(x);
 			current[1] = Math.floor(y);
-		}
-		//this.draw();
-	},
-	
-	draw: function(e) {
-		var i = 0, l = this.points.length, 
-			current, x, y;
-			
-		for(;i<l;i++) {
-			current = this.points[i];
-			
-			Crafty.e("2D, DOM, color").attr({x: current[0], y: current[1], w:5, h: 5}).color("red");
 		}
 	}
 };
