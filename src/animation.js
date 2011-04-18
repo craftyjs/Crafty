@@ -19,7 +19,7 @@ Crafty.c("SpriteAnimation", {
 	* @param id - ID of the animation reel being created
 	* @param fromX - Starting `x` position on the sprite map
 	* @param y - `y` position on the sprite map. Will remain constant through the animation.
-	* @param toX - End 'x' position on the sprite map
+	* @param toX - End `x` position on the sprite map
 	* @sign public this .animate(String id, Array frames)
 	* @param frames - Array of containing an array with the `x` and `y` values
 	* @sign public this .animate(String id, Number duration[, Number repeatCount])

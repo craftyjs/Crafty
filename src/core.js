@@ -205,6 +205,7 @@ Crafty.fn = Crafty.prototype = {
 	* @param componentList - List of components that must be added
 	* Makes sure the entity has the components listed. If the entity does not
 	* have the component, it will add it.
+	* @see .addComponent
 	*/
 	requires: function(list) {
 		var comps = list.split(rlist),
@@ -766,7 +767,7 @@ Crafty.extend({
 	
 	/**@
 	* #Crafty.trigger
-	* @category Core
+	* @category Core, Events
 	* @sign public void Crafty.trigger(String eventName, * data)
 	* @param eventName - Name of the event to trigger
 	* @param data - Arbitrary data to pass into the callback as an argument
@@ -796,7 +797,7 @@ Crafty.extend({
 	
 	/**@
 	* #Crafty.bind
-	* @category Core
+	* @category Core, Events
 	* @sign public Number bind(String eventName, Function callback)
 	* @param eventName - Name of the event to bind to
 	* @param callback - Method to execute upon event triggered
@@ -815,7 +816,7 @@ Crafty.extend({
 	
 	/**@
 	* #Crafty.unbind
-	* @category Core
+	* @category Core, Events
 	* @sign public Boolean Crafty.unbind(String eventName, Function callback)
 	* @param eventName - Name of the event to unbind
 	* @param callback - Function to unbind

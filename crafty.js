@@ -213,6 +213,7 @@ Crafty.fn = Crafty.prototype = {
 	* @param componentList - List of components that must be added
 	* Makes sure the entity has the components listed. If the entity does not
 	* have the component, it will add it.
+	* @see .addComponent
 	*/
 	requires: function(list) {
 		var comps = list.split(rlist),
@@ -774,7 +775,7 @@ Crafty.extend({
 	
 	/**@
 	* #Crafty.trigger
-	* @category Core
+	* @category Core, Events
 	* @sign public void Crafty.trigger(String eventName, * data)
 	* @param eventName - Name of the event to trigger
 	* @param data - Arbitrary data to pass into the callback as an argument
@@ -804,7 +805,7 @@ Crafty.extend({
 	
 	/**@
 	* #Crafty.bind
-	* @category Core
+	* @category Core, Events
 	* @sign public Number bind(String eventName, Function callback)
 	* @param eventName - Name of the event to bind to
 	* @param callback - Method to execute upon event triggered
@@ -823,7 +824,7 @@ Crafty.extend({
 	
 	/**@
 	* #Crafty.unbind
-	* @category Core
+	* @category Core, Events
 	* @sign public Boolean Crafty.unbind(String eventName, Function callback)
 	* @param eventName - Name of the event to unbind
 	* @param callback - Function to unbind
@@ -3088,17 +3089,15 @@ Crafty.c(\"viewport\", {
 Crafty.c(\"Canvas\", {
 	
 	init: function() {
+		if(!Crafty.canvas.context) {
+			Crafty.canvas.init();
+		}
+		
 		//increment the amount of canvas objs
 		Crafty.DrawManager.total2D++;
 		
 		this.bind(\"change\", function(e) {
-			//if within screen, add to list			
-			/**
-			* TODO:
-			* Optimize so don\'t redraw if rectangle is out of bounds
-			* Register but if already registered, widen RECT
-			*/
-			
+			//if within screen, add to list	
 			if(this._changed === false) {
 				this._changed = Crafty.DrawManager.add(e || this, this);
 			} else {
@@ -3177,48 +3176,59 @@ Crafty.c(\"Canvas\", {
 	}
 });
 
+/**@
+* #Crafty.canvas
+* @category Graphics
+* Collection of methods to draw on canvas.
+*/
 Crafty.extend({
-	/**@
-	* #Crafty.context
-	* @category Graphics
-	* This will return the 2D context of the main canvas element. 
-	* The value returned from `Crafty._canvas.getContext(\'2d\')`.
-	*/
-	context: null,
-	/**@
-	* #Crafty._canvas
-	* @category Graphics
-	* Main Canvas element
-	*/
-	_canvas: null,
-	
-	/**@
-	* #Crafty.canvas
-	* @category Graphics
-	* @sign public void Crafty.canvas(void)
-	* Creates a `canvas` element inside the stage element. Must be called
-	* before any entities with the Canvas component can be drawn.
-	*/
-	canvas: function() {
-		//check if canvas is supported
-		if(!Crafty.support.canvas) {
-			Crafty.trigger(\"nocanvas\");
-			Crafty.stop();
-			return;
+	canvas: {
+		/**@
+		* #Crafty.canvas.context
+		* @comp Crafty.canvas
+		* This will return the 2D context of the main canvas element. 
+		* The value returned from `Crafty.canvas.elem.getContext(\'2d\')`.
+		*/
+		context: null,
+		/**@
+		* #Crafty.canvas.elem
+		* @comp Crafty.canvas
+		* Main Canvas element
+		*/
+		elem: null,
+		
+		/**@
+		* #Crafty.canvas.init
+		* @comp Crafty.canvas
+		* @sign public void Crafty.canvas.init(void)
+		* @triggers NoCanvas
+		* Creates a `canvas` element inside the stage element. Must be called
+		* before any entities with the Canvas component can be drawn.
+		*
+		* This method will automatically be called if no `Crafty.canvas.context` is
+		* found.
+		*/
+		init: function() {
+			//check if canvas is supported
+			if(!Crafty.support.canvas) {
+				Crafty.trigger(\"NoCanvas\");
+				Crafty.stop();
+				return;
+			}
+			
+			//create 3 empty canvas elements
+			var c;
+			c = document.createElement(\"canvas\");
+			c.width = Crafty.viewport.width;
+			c.height = Crafty.viewport.height;
+			c.style.position = \'absolute\';
+			c.style.left = \"0px\";
+			c.style.top = \"0px\";
+			
+			Crafty.stage.elem.appendChild(c);
+			Crafty.context = c.getContext(\'2d\');
+			Crafty._canvas = c;
 		}
-		
-		//create 3 empty canvas elements
-		var c;
-		c = document.createElement(\"canvas\");
-		c.width = Crafty.viewport.width;
-		c.height = Crafty.viewport.height;
-		c.style.position = \'absolute\';
-		c.style.left = \"0px\";
-		c.style.top = \"0px\";
-		
-		Crafty.stage.elem.appendChild(c);
-		Crafty.context = c.getContext(\'2d\');
-		Crafty._canvas = c;
 	}
 });
 
@@ -3632,7 +3642,7 @@ Crafty.c(\"SpriteAnimation\", {
 	* @param id - ID of the animation reel being created
 	* @param fromX - Starting `x` position on the sprite map
 	* @param y - `y` position on the sprite map. Will remain constant through the animation.
-	* @param toX - End \'x\' position on the sprite map
+	* @param toX - End `x` position on the sprite map
 	* @sign public this .animate(String id, Array frames)
 	* @param frames - Array of containing an array with the `x` and `y` values
 	* @sign public this .animate(String id, Number duration[, Number repeatCount])
@@ -4980,7 +4990,7 @@ Crafty.c(\"Text\", {
 	/**@
 	* #Crafty.loader
 	* @category Assets
-	* @sign public void Crafty.load(Array assets, Function onLoad[, Function onProgress, Function onError])`
+	* @sign public void Crafty.load(Array assets, Function onLoad[, Function onProgress, Function onError])
 	* @param assets - Array of assets to load (accepts sounds and images)
 	* @param onLoad - Callback when the assets are loaded
 	* @param onProgress - Callback when an asset is loaded. Contains information about assets loaded
@@ -4995,6 +5005,7 @@ Crafty.c(\"Text\", {
 	* `onError` will be passed with the asset that couldn\'t load.
 	* 
 	* @example
+	* ~~~
 	* Crafty.load([\"images/sprite.png\", \"sounds/jump.mp3\"], 
 	*     function() {
 	*         //when loaded
@@ -5009,6 +5020,7 @@ Crafty.c(\"Text\", {
 	*	      //uh oh, error loading
 	*     }
 	* );
+	* ~~~
 	* @see Crafty.assets
 	*/
 	load: function(data, oncomplete, onprogress, onerror) {

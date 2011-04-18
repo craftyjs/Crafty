@@ -16,7 +16,7 @@ Crafty.extend({
 	/**@
 	* #Crafty.loader
 	* @category Assets
-	* @sign public void Crafty.load(Array assets, Function onLoad[, Function onProgress, Function onError])`
+	* @sign public void Crafty.load(Array assets, Function onLoad[, Function onProgress, Function onError])
 	* @param assets - Array of assets to load (accepts sounds and images)
 	* @param onLoad - Callback when the assets are loaded
 	* @param onProgress - Callback when an asset is loaded. Contains information about assets loaded
@@ -31,6 +31,7 @@ Crafty.extend({
 	* `onError` will be passed with the asset that couldn't load.
 	* 
 	* @example
+	* ~~~
 	* Crafty.load(["images/sprite.png", "sounds/jump.mp3"], 
 	*     function() {
 	*         //when loaded
@@ -45,6 +46,7 @@ Crafty.extend({
 	*	      //uh oh, error loading
 	*     }
 	* );
+	* ~~~
 	* @see Crafty.assets
 	*/
 	load: function(data, oncomplete, onprogress, onerror) {
