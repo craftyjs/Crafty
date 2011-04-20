@@ -247,11 +247,12 @@ Crafty.c("Keyboard", {
 			e.key = e.keyCode || e.which;
 			if(e.type === "keydown") {
 				Crafty.keydown[e.key] = true;
+				this.trigger("KeyDown", e);
 			} else if(e.type === "keyup") {
 				delete Crafty.keydown[e.key];
+				this.trigger("KeyUp", e);
 			}
-			this.trigger(e.type, e);
-				
+			
 			//prevent searchable keys
 			if(!(e.metaKey || e.altKey || e.ctrlKey) && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
 				if(e.preventDefault) e.preventDefault();

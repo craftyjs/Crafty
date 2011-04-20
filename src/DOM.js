@@ -24,6 +24,17 @@ Crafty.c("DOM", {
 			}
 		});
 		
+		function updateClass() {
+			var i = 0, c = this.__c, str = "";
+			for(i in c) {
+				str += ' ' + i;
+			}
+			str = str.substr(1);
+			this._element.className = str;
+		}
+		
+		this.bind("NewComponent", updateClass).bind("RemoveComponent", updateClass);
+		
 		if(Crafty.support.prefix === "ms" && Crafty.support.version < 9) {
 			this._filters = {};
 			

@@ -194,7 +194,7 @@ Crafty.fn = Crafty.prototype = {
 			}
 		}
 		
-		this.trigger("component");
+		this.trigger("NewComponent", ul);
 		return this;
 	},
 	
@@ -239,6 +239,8 @@ Crafty.fn = Crafty.prototype = {
 			}
 		}
 		delete this.__c[id];
+		
+		this.trigger("RemoveComponent", id);
 		return this;
 	},
 	
@@ -687,6 +689,8 @@ Crafty.extend({
 		},
 		
 		stop: function() {
+			Crafty.trigger("CraftyStop");
+			
 			if(typeof tick === "number") clearInterval(tick);
 		
 			var onFrame = window.cancelRequestAnimationFrame ||

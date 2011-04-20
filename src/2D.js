@@ -451,7 +451,7 @@ Crafty.c("2D", {
 				obj.shift(dx,dy,dw,dh);
 			}
 		}
-	}
+	},
 	
 	/**
 	* #.attach
