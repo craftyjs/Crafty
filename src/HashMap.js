@@ -37,11 +37,8 @@ HashMap.prototype = {
 		var keys = HashMap.key(rect),
 			i,j,
 			hash,
-			obj,
-			id,
-			results = [],
-			finalresult = [],
-			found = {};
+			results = [];
+			
 			if(filter === undefined) filter = true; //default filter to true
 		
 		//search in all x buckets
@@ -57,6 +54,7 @@ HashMap.prototype = {
 		}
 		
 		if(filter) {
+			var obj, id, finalresult = [], found = {};
 			//add unique elements to lookup table with the entity ID as unique key
 			for(i=0,l=results.length;i<l;i++) {
 				obj = results[i];

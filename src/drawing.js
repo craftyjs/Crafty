@@ -49,7 +49,7 @@ Crafty.c("Tint", {
 	
 	init: function() {
 		this.bind("draw", function d(e) {
-			var context = e.ctx || Crafty.context;
+			var context = e.ctx || Crafty.canvas.context;
 			
 			context.fillStyle = this._color || "rgb(0,0,0)";
 			context.fillRect(e.pos._x, e.pos._y, e.pos._w, e.pos._h);
@@ -142,7 +142,7 @@ Crafty.c("Image", {
 			var self = this;
 			
 			this.img.onload = function() {
-				if(self.has("Canvas")) self._pattern = Crafty.context.createPattern(self.img, self._repeat);
+				if(self.has("Canvas")) self._pattern = Crafty.canvas.context.createPattern(self.img, self._repeat);
 				self.ready = true;
 				
 				if(self._repeat === "no-repeat") {
@@ -156,7 +156,7 @@ Crafty.c("Image", {
 			return this;
 		} else {
 			this.ready = true;
-			if(this.has("Canvas")) this._pattern = Crafty.context.createPattern(this.img, this._repeat);
+			if(this.has("Canvas")) this._pattern = Crafty.canvas.context.createPattern(this.img, this._repeat);
 			if(this._repeat === "no-repeat") {
 				this.w = this.img.width;
 				this.h = this.img.height;
@@ -334,7 +334,7 @@ Crafty.DrawManager = (function() {
 		
 		drawAll: function(rect) {
 			var rect = rect || Crafty.viewport.rect(), q,
-				i = 0, l, ctx = Crafty.context,
+				i = 0, l, ctx = Crafty.canvas.context,
 				current;
 			
 			q = Crafty.map.search(rect);
@@ -384,7 +384,7 @@ Crafty.DrawManager = (function() {
 			if(!register.length && !dom.length) return;
 			
 			var i = 0, l = register.length, k = dom.length, rect, q,
-				j, len, dupes, obj, ent, objs = [], ctx = Crafty.context;
+				j, len, dupes, obj, ent, objs = [], ctx = Crafty.canvas.context;
 				
 			//loop over all DOM elements needing updating
 			for(;i<k;++i) {
@@ -408,7 +408,7 @@ Crafty.DrawManager = (function() {
 			for(;i<l;++i) { //loop over every dirty rect
 				rect = register[i];
 				if(!rect) continue;
-				q = Crafty.map.search(rect); //search for ents under dirty rect
+				q = Crafty.map.search(rect, false); //search for ents under dirty rect
 				
 				dupes = {};
 				
@@ -416,7 +416,7 @@ Crafty.DrawManager = (function() {
 				for(j = 0, len = q.length; j < len; ++j) {
 					obj = q[j];
 					
-					if(dupes[obj[0]] || !obj._visible || !obj.has("Canvas"))
+					if(dupes[obj[0]] || !obj._visible || !obj.__c.Canvas)
 						continue;
 					dupes[obj[0]] = true;
 					
@@ -425,6 +425,7 @@ Crafty.DrawManager = (function() {
 				
 				//clear the rect from the main canvas
 				ctx.clearRect(rect._x, rect._y, rect._w, rect._h);
+				
 			}
 			
 			//sort the objects by the global Z
@@ -446,24 +447,20 @@ Crafty.DrawManager = (function() {
 				//no point drawing with no width or height
 				if(h === 0 || w === 0) continue;
 				
-				//if it is a pattern or has some rotation, draw it on the temp canvas
-				if(ent.has('Image') || ent._mbr) {
-					ctx.save();
-					ctx.beginPath();
-					ctx.moveTo(x, y);
-					ctx.lineTo(x + w, y);
-					ctx.lineTo(x + w, h + y);
-					ctx.lineTo(x, h + y);
-					ctx.lineTo(x, y);
-					
-					ctx.clip();
-					ent.draw();
-					ctx.restore();
-				//if it is axis-aligned and no pattern, draw subrect
-				} else {
-					ent.draw(x,y,w,h);
-				}
+				ctx.save();
+				ctx.beginPath();
+				ctx.moveTo(rect._x, rect._y);
+				ctx.lineTo(rect._x + rect._w, rect._y);
+				ctx.lineTo(rect._x + rect._w, rect._h + rect._y);
+				ctx.lineTo(rect._x, rect._h + rect._y);
+				ctx.lineTo(rect._x, rect._y);
 				
+				ctx.clip();
+				
+				ent.draw();
+				ctx.closePath();
+				ctx.restore();
+
 				//allow entity to re-register
 				ent._changed = false;
 			}

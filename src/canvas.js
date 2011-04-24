@@ -48,7 +48,7 @@ Crafty.c("Canvas", {
 			w = y;
 			y = x;
 			x = ctx;
-			ctx = Crafty.context;
+			ctx = Crafty.canvas.context;
 		}
 		
 		var pos = { //inlined pos() function, for speed
@@ -57,7 +57,7 @@ Crafty.c("Canvas", {
 				_w: (w || this._w),
 				_h: (h || this._h)
 			},
-			context = ctx || Crafty.context,
+			context = ctx || Crafty.canvas.context,
 			coord = this.__coord || [0,0,0,0],
 			co = {
 				x: coord[0] + (x || 0),
@@ -87,7 +87,7 @@ Crafty.c("Canvas", {
 		if(this._mbr) {
 			context.restore();
 		}
-		if(this._alpha < 1.0) {
+		if(globalpha) {
 			context.globalAlpha = globalpha;
 		}
 		return this;
@@ -144,8 +144,8 @@ Crafty.extend({
 			c.style.top = "0px";
 			
 			Crafty.stage.elem.appendChild(c);
-			Crafty.context = c.getContext('2d');
-			Crafty._canvas = c;
+			Crafty.canvas.context = c.getContext('2d');
+			Crafty.canvas._canvas = c;
 		}
 	}
 });

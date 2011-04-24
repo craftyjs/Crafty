@@ -117,7 +117,7 @@ Crafty.extend({
 							
 						if(e.type === "canvas") {
 							//draw the image on the canvas element
-							context.drawImage(this.img, //image element
+							try { context.drawImage(this.img, //image element
 											 co.x, //x position on sprite
 											 co.y, //y position on sprite
 											 co.w, //width on sprite
@@ -126,7 +126,7 @@ Crafty.extend({
 											 pos._y, //y position on canvas
 											 pos._w, //width on canvas
 											 pos._h //height on canvas
-							);
+							); }catch(err) { console.log(err, co, pos) }
 						} else if(e.type === "DOM") {
 							this._element.style.background = "url('" + this.__image + "') no-repeat -" + co.x + "px -" + co.y + "px";
 						}
@@ -310,7 +310,7 @@ Crafty.extend({
 		scroll: function(axis, v) {
 			v = Math.floor(v);
 			var change = (v - this[axis]), //change in direction
-				context = Crafty.context,
+				context = Crafty.canvas.context,
 				style = Crafty.stage.inner.style,
 				canvas;
 			
@@ -422,22 +422,41 @@ Crafty.extend({
 			elem.width = this.width + "px";
 			elem.height = this.height + "px";
 			elem.overflow = "hidden";
-			elem.position = "relative";
+			
 			if(Crafty.mobile) {
 				elem.position = "absolute";
 				elem.left = "0px";
 				elem.top = "0px";
 				
-				document.getElementsByTagName("HEAD")[0].innerHTML += '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">';
+				var meta = document.createElement("meta"),
+					head = document.getElementsByTagName("HEAD")[0];
+				
+				//stop mobile zooming and scrolling
+				meta.setAttribute("name", "viewport");
+				meta.setAttribute("content", "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no");
+				head.appendChild(meta);
+				
+				//hide the address bar
+				meta = document.createElement("meta");
+				meta.setAttribute("name", "apple-mobile-web-app-capable");
+				meta.setAttribute("content", "yes");
+				head.appendChild(meta);
+				setTimeout(function() { window.scrollTo(0,1); }, 0);
+				
 				Crafty.addEvent(this, window, "touchmove", function(e) {
 					e.preventDefault();
 				});
+				
+				Crafty.stage.x = 0;
+				Crafty.stage.y = 0;
+				
+			} else {
+				elem.position = "relative";
+				//find out the offset position of the stage
+				offset = Crafty.DOM.inner(Crafty.stage.elem);
+				Crafty.stage.x = offset.x;
+				Crafty.stage.y = offset.y;
 			}
-			
-			//find out the offset position of the stage
-			offset = Crafty.DOM.inner(Crafty.stage.elem);
-			Crafty.stage.x = offset.x;
-			Crafty.stage.y = offset.y;
 			
 			if(Crafty.support.setter) {
 				//define getters and setters to scroll the viewport
@@ -718,6 +737,8 @@ Crafty.extend({
 	* Is the `canvas` element supported?
 	*/
 	support.canvas = ('getContext' in document.createElement("canvas"));
+	
+	support.css3dtransform = (typeof document.createElement("div").style[support.prefix + "Perspective"] !== "undefined");
 })();
 
 /**

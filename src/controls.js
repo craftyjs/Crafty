@@ -16,20 +16,25 @@ Crafty.extend({
 			q,
 			i = 0, l,
 			pos = Crafty.DOM.translate(e.clientX, e.clientY),
-			x, y;
+			x, y,
+			dupes = {};
 		
 		e.realX = x = pos.x;
 		e.realY = y = pos.y;
 		
 		//search for all mouse entities
-		q = Crafty.map.search({_x: x, _y:y, _w:1, _h:1});
+		q = Crafty.map.search({_x: x, _y:y, _w:1, _h:1}, false);
 		
 		for(l=q.length;i<l;++i) {
 			//check if has mouse component
-			if(!q[i].has("Mouse")) continue;
+			if(!q[i].__c.Mouse) continue;
 			
 			var current = q[i],
 				flag = false;
+				
+			//weed out duplicates
+			if(dupes[current[0]]) continue;
+			else dupes[current[0]] = true;
 			
 			if(current.map) {
 				if(current.map.containsPoint(x, y)) {

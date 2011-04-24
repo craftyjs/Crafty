@@ -81,13 +81,19 @@ Crafty.c("DOM", {
 		var style = this._element.style,
 			coord = this.__coord || [0,0,0,0],
 			co = {x: coord[0], y: coord[1] },
-			prefix = Crafty.support.prefix;
+			prefix = Crafty.support.prefix,
+			trans = [];
 		
 		if(!this._visible) style.visibility = "hidden";
 		else style.visibility = "visible";
 		
-		style.top = ~~(this._y) + "px";
-		style.left = ~~(this._x) + "px";
+		if(Crafty.mobile) {
+			if(Crafty.support.css3dtransform) trans.push("translate3d("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
+			else trans.push("translate("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
+		} else {
+			style.top = ~~(this._y) + "px";
+			style.left = ~~(this._x) + "px";
+		}
 		style.width = ~~(this._w) + "px";
 		style.height = ~~(this._h) + "px";
 		style.zIndex = this._z;
@@ -108,15 +114,15 @@ Crafty.c("DOM", {
 		}
 		
 		if(this._mbr) {
-			var rstring = "rotate("+this._rotation+"deg)",
-				origin = this._origin.x + "px " + this._origin.y + "px";
-			
-			style.transformOrigin = origin;
-			style[prefix+"TransformOrigin"] = origin;
-			
-			style.transform = rstring;
-			style[prefix+"Transform"] = rstring;
+			var origin = this._origin.x + "px " + this._origin.y + "px";
+			if(Crafty.support.css3dtransform) trans.push( "rotateZ("+this._rotation+"deg)" );
+			else trans.push( "rotate("+this._rotation+"deg)" );
+			//style.transformOrigin = origin;
+			//style[prefix+"TransformOrigin"] = origin;
 		}
+		
+		style.transform = trans.join(" ");
+		style[prefix+"Transform"] = trans.join(" ");
 		
 		this.trigger("draw", {style: style, type: "DOM", co: co});
 		

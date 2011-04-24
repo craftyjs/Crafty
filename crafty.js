@@ -1020,11 +1020,8 @@ HashMap.prototype = {
 		var keys = HashMap.key(rect),
 			i,j,
 			hash,
-			obj,
-			id,
-			results = [],
-			finalresult = [],
-			found = {};
+			results = [];
+			
 			if(filter === undefined) filter = true; //default filter to true
 		
 		//search in all x buckets
@@ -1040,6 +1037,7 @@ HashMap.prototype = {
 		}
 		
 		if(filter) {
+			var obj, id, finalresult = [], found = {};
 			//add unique elements to lookup table with the entity ID as unique key
 			for(i=0,l=results.length;i<l;i++) {
 				obj = results[i];
@@ -1713,6 +1711,78 @@ Crafty.c("Physics", {
 	}
 });
 
+Crafty.c("Gravity", {
+	_gravity: 0.2,
+	_gy: 0,
+	_falling: true,
+	_anti: null,
+
+	init: function() {
+		if(!this.has("2D")) this.addComponent("2D");		
+	},
+
+	gravity: function(comp) {
+		if(comp) this._anti = comp;
+
+		this.bind("enterframe", this._enterframe);
+
+		return this;
+	},
+
+	_enterframe: function() {
+		if(this._falling) {
+			//if falling, move the players Y
+			this._gy += this._gravity * 2;
+			this.y += this._gy;
+		} else {
+			this._gy = 0; //reset change in y
+		}
+
+		var obj, hit = false, pos = this.pos(),
+			q, i = 0, l;
+
+		//Increase by 1 to make sure map.search() finds the floor
+		pos._y++;
+
+		//map.search wants _x and intersect wants x...
+		pos.x = pos._x;
+		pos.y = pos._y;
+		pos.w = pos._w;
+		pos.h = pos._h;
+
+		q = Crafty.map.search(pos);
+		l = q.length;
+
+		for(;i<l;++i) {
+			obj = q[i];
+			//check for an intersection directly below the player
+			if(obj !== this && obj.has(this._anti) && obj.intersect(pos)) {
+				hit = obj;
+				break;
+			}
+		}
+
+		if(hit) { //stop falling if found
+			if(this._falling) this.stopFalling(hit);
+		} else { 	
+			this._falling = true; //keep falling otherwise
+		}
+	},
+
+	stopFalling: function(e) {
+		if(e) this.y = e._y - this._h ; //move object
+
+		//this._gy = -1 * this._bounce;
+		this._falling = false;
+		if(this._up) this._up = false;
+		this.trigger("hit");
+	},
+
+	antigravity: function() {
+		this.unbind("enterframe", this._enterframe);
+	}
+});
+
 /**@
 * #Crafty.Polygon
 * @category 2D
@@ -2126,13 +2196,19 @@ Crafty.c("DOM", {
 		var style = this._element.style,
 			coord = this.__coord || [0,0,0,0],
 			co = {x: coord[0], y: coord[1] },
-			prefix = Crafty.support.prefix;
+			prefix = Crafty.support.prefix,
+			trans = [];
 		
 		if(!this._visible) style.visibility = "hidden";
 		else style.visibility = "visible";
 		
-		style.top = ~~(this._y) + "px";
-		style.left = ~~(this._x) + "px";
+		if(Crafty.mobile) {
+			if(Crafty.support.css3dtransform) trans.push("translate3d("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
+			else trans.push("translate("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
+		} else {
+			style.top = ~~(this._y) + "px";
+			style.left = ~~(this._x) + "px";
+		}
 		style.width = ~~(this._w) + "px";
 		style.height = ~~(this._h) + "px";
 		style.zIndex = this._z;
@@ -2153,15 +2229,15 @@ Crafty.c("DOM", {
 		}
 		
 		if(this._mbr) {
-			var rstring = "rotate("+this._rotation+"deg)",
-				origin = this._origin.x + "px " + this._origin.y + "px";
-			
-			style.transformOrigin = origin;
-			style[prefix+"TransformOrigin"] = origin;
-			
-			style.transform = rstring;
-			style[prefix+"Transform"] = rstring;
+			var origin = this._origin.x + "px " + this._origin.y + "px";
+			if(Crafty.support.css3dtransform) trans.push( "rotateZ("+this._rotation+"deg)" );
+			else trans.push( "rotate("+this._rotation+"deg)" );
+			//style.transformOrigin = origin;
+			//style[prefix+"TransformOrigin"] = origin;
 		}
+		
+		style.transform = trans.join(" ");
+		style[prefix+"Transform"] = trans.join(" ");
 		
 		this.trigger("draw", {style: style, type: "DOM", co: co});
 		
@@ -2474,7 +2550,7 @@ Crafty.extend({
 							
 						if(e.type === "canvas") {
 							//draw the image on the canvas element
-							context.drawImage(this.img, //image element
+							try { context.drawImage(this.img, //image element
 											 co.x, //x position on sprite
 											 co.y, //y position on sprite
 											 co.w, //width on sprite
@@ -2483,7 +2559,7 @@ Crafty.extend({
 											 pos._y, //y position on canvas
 											 pos._w, //width on canvas
 											 pos._h //height on canvas
-							);
+							); }catch(err) { console.log(err, co, pos) }
 						} else if(e.type === "DOM") {
 							this._element.style.background = "url('" + this.__image + "') no-repeat -" + co.x + "px -" + co.y + "px";
 						}
@@ -2667,7 +2743,7 @@ Crafty.extend({
 		scroll: function(axis, v) {
 			v = Math.floor(v);
 			var change = (v - this[axis]), //change in direction
-				context = Crafty.context,
+				context = Crafty.canvas.context,
 				style = Crafty.stage.inner.style,
 				canvas;
 			
@@ -2779,22 +2855,41 @@ Crafty.extend({
 			elem.width = this.width + "px";
 			elem.height = this.height + "px";
 			elem.overflow = "hidden";
-			elem.position = "relative";
+			
 			if(Crafty.mobile) {
 				elem.position = "absolute";
 				elem.left = "0px";
 				elem.top = "0px";
 				
-				document.getElementsByTagName("HEAD")[0].innerHTML += '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">';
+				var meta = document.createElement("meta"),
+					head = document.getElementsByTagName("HEAD")[0];
+				
+				//stop mobile zooming and scrolling
+				meta.setAttribute("name", "viewport");
+				meta.setAttribute("content", "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no");
+				head.appendChild(meta);
+				
+				//hide the address bar
+				meta = document.createElement("meta");
+				meta.setAttribute("name", "apple-mobile-web-app-capable");
+				meta.setAttribute("content", "yes");
+				head.appendChild(meta);
+				setTimeout(function() { window.scrollTo(0,1); }, 0);
+				
 				Crafty.addEvent(this, window, "touchmove", function(e) {
 					e.preventDefault();
 				});
+				
+				Crafty.stage.x = 0;
+				Crafty.stage.y = 0;
+				
+			} else {
+				elem.position = "relative";
+				//find out the offset position of the stage
+				offset = Crafty.DOM.inner(Crafty.stage.elem);
+				Crafty.stage.x = offset.x;
+				Crafty.stage.y = offset.y;
 			}
-			
-			//find out the offset position of the stage
-			offset = Crafty.DOM.inner(Crafty.stage.elem);
-			Crafty.stage.x = offset.x;
-			Crafty.stage.y = offset.y;
 			
 			if(Crafty.support.setter) {
 				//define getters and setters to scroll the viewport
@@ -3075,6 +3170,8 @@ Crafty.extend({
 	* Is the `canvas` element supported?
 	*/
 	support.canvas = ('getContext' in document.createElement("canvas"));
+	
+	support.css3dtransform = (typeof document.createElement("div").style[support.prefix + "Perspective"] !== "undefined");
 })();
 
 /**
@@ -3145,7 +3242,7 @@ Crafty.c("Canvas", {
 			w = y;
 			y = x;
 			x = ctx;
-			ctx = Crafty.context;
+			ctx = Crafty.canvas.context;
 		}
 		
 		var pos = { //inlined pos() function, for speed
@@ -3154,7 +3251,7 @@ Crafty.c("Canvas", {
 				_w: (w || this._w),
 				_h: (h || this._h)
 			},
-			context = ctx || Crafty.context,
+			context = ctx || Crafty.canvas.context,
 			coord = this.__coord || [0,0,0,0],
 			co = {
 				x: coord[0] + (x || 0),
@@ -3184,7 +3281,7 @@ Crafty.c("Canvas", {
 		if(this._mbr) {
 			context.restore();
 		}
-		if(this._alpha < 1.0) {
+		if(globalpha) {
 			context.globalAlpha = globalpha;
 		}
 		return this;
@@ -3241,8 +3338,8 @@ Crafty.extend({
 			c.style.top = "0px";
 			
 			Crafty.stage.elem.appendChild(c);
-			Crafty.context = c.getContext('2d');
-			Crafty._canvas = c;
+			Crafty.canvas.context = c.getContext('2d');
+			Crafty.canvas._canvas = c;
 		}
 	}
 });
@@ -3265,20 +3362,25 @@ Crafty.extend({
 			q,
 			i = 0, l,
 			pos = Crafty.DOM.translate(e.clientX, e.clientY),
-			x, y;
+			x, y,
+			dupes = {};
 		
 		e.realX = x = pos.x;
 		e.realY = y = pos.y;
 		
 		//search for all mouse entities
-		q = Crafty.map.search({_x: x, _y:y, _w:1, _h:1});
+		q = Crafty.map.search({_x: x, _y:y, _w:1, _h:1}, false);
 		
 		for(l=q.length;i<l;++i) {
 			//check if has mouse component
-			if(!q[i].has("Mouse")) continue;
+			if(!q[i].__c.Mouse) continue;
 			
 			var current = q[i],
 				flag = false;
+				
+			//weed out duplicates
+			if(dupes[current[0]]) continue;
+			else dupes[current[0]] = true;
 			
 			if(current.map) {
 				if(current.map.containsPoint(x, y)) {
@@ -3502,7 +3604,6 @@ Crafty.c("Keyboard", {
 				this.trigger("KeyUp", e);
 			}
 			
-				
 			//prevent searchable keys
 			if(!(e.metaKey || e.altKey || e.ctrlKey) && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
 				if(e.preventDefault) e.preventDefault();
@@ -3900,7 +4001,7 @@ Crafty.c("Tint", {
 	
 	init: function() {
 		this.bind("draw", function d(e) {
-			var context = e.ctx || Crafty.context;
+			var context = e.ctx || Crafty.canvas.context;
 			
 			context.fillStyle = this._color || "rgb(0,0,0)";
 			context.fillRect(e.pos._x, e.pos._y, e.pos._w, e.pos._h);
@@ -3993,7 +4094,7 @@ Crafty.c("Image", {
 			var self = this;
 			
 			this.img.onload = function() {
-				if(self.has("Canvas")) self._pattern = Crafty.context.createPattern(self.img, self._repeat);
+				if(self.has("Canvas")) self._pattern = Crafty.canvas.context.createPattern(self.img, self._repeat);
 				self.ready = true;
 				
 				if(self._repeat === "no-repeat") {
@@ -4007,7 +4108,7 @@ Crafty.c("Image", {
 			return this;
 		} else {
 			this.ready = true;
-			if(this.has("Canvas")) this._pattern = Crafty.context.createPattern(this.img, this._repeat);
+			if(this.has("Canvas")) this._pattern = Crafty.canvas.context.createPattern(this.img, this._repeat);
 			if(this._repeat === "no-repeat") {
 				this.w = this.img.width;
 				this.h = this.img.height;
@@ -4185,7 +4286,7 @@ Crafty.DrawManager = (function() {
 		
 		drawAll: function(rect) {
 			var rect = rect || Crafty.viewport.rect(), q,
-				i = 0, l, ctx = Crafty.context,
+				i = 0, l, ctx = Crafty.canvas.context,
 				current;
 			
 			q = Crafty.map.search(rect);
@@ -4235,7 +4336,7 @@ Crafty.DrawManager = (function() {
 			if(!register.length && !dom.length) return;
 			
 			var i = 0, l = register.length, k = dom.length, rect, q,
-				j, len, dupes, obj, ent, objs = [], ctx = Crafty.context;
+				j, len, dupes, obj, ent, objs = [], ctx = Crafty.canvas.context;
 				
 			//loop over all DOM elements needing updating
 			for(;i<k;++i) {
@@ -4259,7 +4360,7 @@ Crafty.DrawManager = (function() {
 			for(;i<l;++i) { //loop over every dirty rect
 				rect = register[i];
 				if(!rect) continue;
-				q = Crafty.map.search(rect); //search for ents under dirty rect
+				q = Crafty.map.search(rect, false); //search for ents under dirty rect
 				
 				dupes = {};
 				
@@ -4267,7 +4368,7 @@ Crafty.DrawManager = (function() {
 				for(j = 0, len = q.length; j < len; ++j) {
 					obj = q[j];
 					
-					if(dupes[obj[0]] || !obj._visible || !obj.has("Canvas"))
+					if(dupes[obj[0]] || !obj._visible || !obj.__c.Canvas)
 						continue;
 					dupes[obj[0]] = true;
 					
@@ -4276,6 +4377,7 @@ Crafty.DrawManager = (function() {
 				
 				//clear the rect from the main canvas
 				ctx.clearRect(rect._x, rect._y, rect._w, rect._h);
+				
 			}
 			
 			//sort the objects by the global Z
@@ -4297,24 +4399,20 @@ Crafty.DrawManager = (function() {
 				//no point drawing with no width or height
 				if(h === 0 || w === 0) continue;
 				
-				//if it is a pattern or has some rotation, draw it on the temp canvas
-				if(ent.has('Image') || ent._mbr) {
-					ctx.save();
-					ctx.beginPath();
-					ctx.moveTo(x, y);
-					ctx.lineTo(x + w, y);
-					ctx.lineTo(x + w, h + y);
-					ctx.lineTo(x, h + y);
-					ctx.lineTo(x, y);
-					
-					ctx.clip();
-					ent.draw();
-					ctx.restore();
-				//if it is axis-aligned and no pattern, draw subrect
-				} else {
-					ent.draw(x,y,w,h);
-				}
+				ctx.save();
+				ctx.beginPath();
+				ctx.moveTo(rect._x, rect._y);
+				ctx.lineTo(rect._x + rect._w, rect._y);
+				ctx.lineTo(rect._x + rect._w, rect._h + rect._y);
+				ctx.lineTo(rect._x, rect._h + rect._y);
+				ctx.lineTo(rect._x, rect._y);
 				
+				ctx.clip();
+				
+				ent.draw();
+				ctx.closePath();
+				ctx.restore();
+
 				//allow entity to re-register
 				ent._changed = false;
 			}
