@@ -243,8 +243,8 @@ Crafty.extend({
 		*/
 		inner: function(obj) { 
 			var rect = obj.getBoundingClientRect(),
-				x = rect.left,
-				y = rect.top,
+				x = rect.left + window.pageXOffset,
+				y = rect.top + window.pageYOffset,
 				borderX,
 				borderY;
 			
