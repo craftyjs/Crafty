@@ -86,7 +86,7 @@ Crafty.c("2D", {
 	init: function() {
 		this._global = this[0];
 		this._origin = {x: 0, y: 0};
-		this._children = {};
+		this._children = [];
 		
 		if(Crafty.support.setter) {
 			//create getters and setters on x,y,w,h,z
@@ -467,7 +467,7 @@ Crafty.c("2D", {
 		var i = 0, arg = arguments, l = arguments.length, obj;
 		for(;i<l;++i) {
 			obj = arg[i];
-			this._children[obj[0]] = obj;
+			this._children.push(obj);
 		}
 		
 		return this;
@@ -484,11 +484,15 @@ Crafty.c("2D", {
 	detach: function(obj) {
 		//if nothing passed, remove all attached objects
 		if(!obj) {
-			this._children = {};
+			this._children = [];
 			return this;
 		}
 		//if obj passed, find the handler and unbind
-		delete this._children[obj[0]];
+    for (var i = 0; i < this._children.length; i++) {
+			if (this._children[i] == obj) {
+				this._children.splice(i, 1);
+			}
+		}
 		
 		return this;
 	},
