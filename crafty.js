@@ -876,6 +876,10 @@ Crafty.extend({
 		return components;
 	},
 	
+	debug: function() {
+		return entities;
+	},
+	
 	/**@
 	* #Crafty.settings
 	* @category Core
@@ -2358,8 +2362,8 @@ Crafty.extend({
 		*/
 		inner: function(obj) { 
 			var rect = obj.getBoundingClientRect(),
-				x = rect.left,
-				y = rect.top,
+				x = rect.left + window.pageXOffset,
+				y = rect.top + window.pageYOffset,
 				borderX,
 				borderY;
 			

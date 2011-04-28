@@ -10,6 +10,7 @@
 <script type="text/javascript" src="codemirror/js/codemirror.js"></script>
 <script type="text/javascript" src="assets/jslint.js"></script>
 <script type="text/javascript" src="assets/editor.js"></script>
+<script type="text/javascript" src="assets/iframe.js"></script>
 <script type="text/javascript" src="assets/buttons.js"></script>
 <script type="text/javascript" src="assets/compiler.js"></script>
 <script type="text/javascript" src="assets/spritify.js"></script>
@@ -18,8 +19,7 @@
 <body>
 <div id="header">
 <ul>
-	<li><a href="#newgame">New Game</a></li>
-	<li><a href="#build">Build</a></li>
+	<li><a href="#load">Load</a></li>
 	<li><a href="#run">Run</a></li>
 	<li><a href="#save">Save</a></li>
 	<li><a href="#settings">Settings</a></li>
@@ -153,6 +153,11 @@
 
 <div id="as-dialog" title="Add Asset" class="dialog">
 <label>Asset Location: <input type="text" id="asname" value="assets/logo.png" /></label><br />
+</div>
+
+<div id="load-dialog" title="Add Asset" class="dialog">
+<label>Game Root: <input type="text" id="groot" value="../../demos/fruitassassin/" /></label><br />
+<label>Main File: <input type="text" id="sloc" value="assassin.js" /></label><br />
 </div>
 
 <div class="context-menu" id="sceneMenu">

@@ -5,7 +5,7 @@ var inneroffset,
 	file;
 
 function resetSprite() {
-	$sprite.attr("src","");
+	$sprite.removeAttr("src");
 	file = selected = inneroffset = null;
 	labels = {};
 	$inner.html("");
@@ -19,18 +19,19 @@ function spritify(f) {
 	
 	var controls_width = 150,
 		width;
-		
+	
+	console.log("FILE", file);
 	$sprite.attr("src", file).load(function() {
 		width = this.width;
 		
 		//reload the labels
 		if(ASSETS[f].spritify) {
-			var assets = ASSETS[f].spritify;
-			labels = assets.labels;
-			grid(assets.size, assets.paddingx, assets.paddingy);
-			$tilesize.val(assets.size);
-			$paddingx.val(assets.paddingx);
-			$paddingy.val(assets.paddingy);
+			var sprite = ASSETS[f].spritify;
+			labels = sprite.labels;
+			grid(sprite.size, sprite.paddingx, sprite.paddingy);
+			$tilesize.val(sprite.size);
+			$paddingx.val(sprite.paddingx);
+			$paddingy.val(sprite.paddingy);
 		}
 		
 		//start the spritify dialog

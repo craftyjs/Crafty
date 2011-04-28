@@ -19,7 +19,8 @@ var $b = {},
 	SCENES = {},
 	
 	CURSOR = "pointer",
-	SETTINGS = {stage: [550, 440]};
+	SETTINGS = {stage: [550, 440]},
+	BASE;
 
 function createHTMLElement(el) {
 	if (document.createElementNS && document.documentElement.namespaceURI !== null)
@@ -29,7 +30,7 @@ function createHTMLElement(el) {
 }
 
 function errorz(title, msg, buttons) {
-	buttons = buttons || { Sorry: function() { $(this).dialog("close"); } };
+	buttons = buttons || { OK: function() { $(this).dialog("close"); } };
 	$error.attr("title", title).dialog({draggable: false, resizable: false, modal: true, buttons: buttons});
 	$error.parent().children(":first").addClass("errorz");
 	$error.find("div").html(msg);
@@ -241,6 +242,38 @@ var Editor = (function() {
 			}
 		},
 		
+		extract: function(obj) {
+			var i, 
+				comps = obj.components(), 
+				ass = obj.assets,
+				ents = obj("*"),
+				scenes = obj._scenes;
+			
+			//extract components
+			for(i in comps) {
+				COMPS[i] = comps[i];
+			}
+			
+			//extract assets
+			for(i in ass) {
+				ASSETS[i] = {type: Editor.media(i), obj: ass[i]};
+			}
+			
+			//extract entities
+			for(i in ents) {
+				if(!ents.hasOwnProperty(i) || i === "length") continue;
+				ENTS[i] = ents[i];
+				var comp, str = [];
+				for(comp in ents[i].__c) str.push(comp);
+				ENTS[i].comps = str.join(", ");
+			}
+			
+			//extract scenes
+			for(i in scenes) {
+				SCENES[i] = scenes[i];
+			}
+		},
+		
 		alert: function dialog(title, msg, buttons) {
 			$alert.attr("title", title).dialog({draggable: false, resizable: false, modal: true, buttons: buttons});
 			$alerttext.text(msg);
@@ -248,6 +281,18 @@ var Editor = (function() {
 		
 		log: function(msg) {
 			$consoletext[0].innerHTML += "<small>"+msg+"</small>";
+		},
+		
+		media: function(url) {
+			var ext = url.substr(url.lastIndexOf('.')+1).toLowerCase();
+			
+			if(ext === 'wav' || ext === 'mp3' || ext === 'ogg' || ext === 'm4a') {
+				return "sound";
+			} else if(ext === 'png' || ext === 'jpg' || ext === 'jpeg' || ext === 'gif' || ext === 'bmp') {
+				return "image";
+			} else {
+				return;
+			}
 		}
 	};
 })();

@@ -868,6 +868,10 @@ Crafty.extend({
 		return components;
 	},
 	
+	debug: function() {
+		return entities;
+	},
+	
 	/**@
 	* #Crafty.settings
 	* @category Core

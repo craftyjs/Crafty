@@ -1,19 +1,5 @@
 function initButtons() {
 
-//on new game
-$b.newgame.click(function() {
-	Editor.alert("Start a new game?", "Starting a new game will lose all current work. Are you sure?", {
-		"Cancel": function() {
-			$(this).dialog("close");
-		},
-		
-		"New Game": function() {
-			$consoletext.html("");
-			$(this).dialog("close");
-		}
-	});
-});
-
 //on running the game
 $b.run.click(function() {
 	$workbench.tabs('select', 2);
@@ -84,24 +70,35 @@ $b.addasset.click(function() {
 		buttons: {
 			Cancel: function() { $(this).dialog("close"); },
 			Add: function() {
-				var url = $asname.val(),
-					ext = url.substr(url.lastIndexOf('.')+1).toLowerCase(),
-					type;
-				
-				if(ext === 'wav' || ext === 'mp3' || ext === 'ogg' || ext === 'm4a') {
-					type = "sound";
-				} else if(ext === 'png' || ext === 'jpg' || ext === 'jpeg' || ext === 'gif' || ext === 'bmp') {
-					type = "image";
-				} else {
-					return;
-				}
+				var url = $asname.val();	
 				
 				LOADER.assets.push(url);
 				ASSETS[url] = {
-					type: type
+					type: Editor.media(url)
 				};
 				
 				Editor.update();
+				$(this).dialog("close");
+			}
+		}
+	});
+});
+
+$b.load.click(function() {
+	//open the dialog
+	$loaddialog.dialog({modal: true,
+		buttons: {
+			'Cancel': function() { $(this).dialog("close"); },
+			'Load': function() {
+				var root = $groot.val(),
+					file = $sloc.val();
+					
+				BASE = root;	
+				iframe(file, root, function() {
+					this.Crafty.stop();
+					Editor.extract(this.Crafty);
+					Editor.update();
+				});
 				$(this).dialog("close");
 			}
 		}
@@ -127,6 +124,7 @@ $("#scenes ul a").live("dblclick", openScene).contextMenu("sceneMenu", {
 function spritifyHandler() {
 	var href = $(this).attr("href");
 	href = href.substr(1); //grab the scene ID
+	console.log(href);
 	spritify(href);
 }
 
