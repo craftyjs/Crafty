@@ -155,7 +155,7 @@ Crafty.c("Draggable", {
 	
 	init: function() {
 		this.requires("Mouse");
-		this._ondrag = function() {
+		this._ondrag = function(e) {
 			var pos = Crafty.DOM.translate(e.clientX, e.clientY);
 			this.x = pos.x - this._startX;
 			this.y = pos.y - this._startY;
@@ -170,6 +170,7 @@ Crafty.c("Draggable", {
 			this._dragging = true;
 			
 			Crafty.addEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
+			Crafty.addEvent(this, Crafty.stage.elem, "mouseup", this._onup);
 			this.trigger("StartDrag", e);
 		};
 		
@@ -180,7 +181,7 @@ Crafty.c("Draggable", {
 			this.trigger("StopDrag", e);
 		}
 		
-		this.startDrag();
+		this.enableDrag();
 	},
 	
 	/**@
