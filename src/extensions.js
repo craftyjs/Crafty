@@ -99,6 +99,7 @@ Crafty.extend({
 				init: function() {
 					this.addComponent("Sprite");
 					this.__trim = [0,0,0,0];
+					this.__coord = [this.__coord[0], this.__coord[1], this.__coord[2], this.__coord[3]];
 		
 					//draw now
 					if(this.img.complete && this.img.width > 0) {
