@@ -407,8 +407,8 @@ Crafty.fn = Crafty.prototype = {
 			if(hdl && hdl[this[0]]) l = hdl[this[0]].length;
 			else return this;
 			
-			//if only one event logged or no function, delete all
-			if(l === 1 || !fn) {
+			//if no function, delete all
+			if(!fn) {
 				delete hdl[this[0]];
 				return this;
 			}
