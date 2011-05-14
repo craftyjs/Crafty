@@ -252,8 +252,10 @@ Crafty.c("Keyboard", {
 		function dispatch(e) {
 			e.key = e.keyCode || e.which;
 			if(e.type === "keydown") {
-				Crafty.keydown[e.key] = true;
-				this.trigger("KeyDown", e);
+				if(Crafty.keydown[e.key] !== true) {
+                                        Crafty.keydown[e.key] = true;
+                                        this.trigger("KeyDown", e);
+                                }
 			} else if(e.type === "keyup") {
 				delete Crafty.keydown[e.key];
 				this.trigger("KeyUp", e);
