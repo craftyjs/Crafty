@@ -384,10 +384,9 @@ Crafty.c("Multiway", {
 * arrow keys or `W`, `A`, `S`, `D`.
 */
 Crafty.c("Fourway", {	
-	_speed: 3,
 	
 	init: function() {
-		this.requires("Keyboard");
+		this.requires("Multiway");
 	},
 	
 	/**@
@@ -401,24 +400,9 @@ Crafty.c("Fourway", {
 	* The key presses will move the entity in that direction by the speed passed in the argument.
 	*/
 	fourway: function(speed) {
-		if(speed) this._speed = speed;
-		
-		this.bind("enterframe", function() {
-			if (this.disableControls) return;
-			if(this.isDown("RIGHT_ARROW") || this.isDown("D")) {
-				this.x += this._speed;
-			}
-			if(this.isDown("LEFT_ARROW") || this.isDown("A")) {
-				this.x -= this._speed;
-			}
-			if(this.isDown("UP_ARROW") || this.isDown("W")) {
-				this.y -= this._speed;
-			}
-			if(this.isDown("DOWN_ARROW") || this.isDown("S")) {
-				this.y += this._speed;
-			}
-		});
-		
+		this.multiway(speed, { UP_ARROW: -90, DOWN_ARROW: 90, RIGHT_ARROW: 0, LEFT_ARROW: 180,
+                                       W: -90, S: 90, D: 0, A: 180})
+                
 		return this;
 	}
 });
