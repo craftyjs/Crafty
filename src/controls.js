@@ -84,11 +84,33 @@ Crafty.extend({
 				this.over = null;
 			}
 		}
-	}
+	},
+        keyboardDispatch: function(e) {
+                e.key = e.keyCode || e.which;
+                if(e.type === "keydown") {
+                        if(Crafty.keydown[e.key] !== true) {
+                                Crafty.keydown[e.key] = true;
+                                Crafty.trigger("KeyDown", e);
+                        }
+                } else if(e.type === "keyup") {
+                        delete Crafty.keydown[e.key];
+                        Crafty.trigger("KeyUp", e);
+                }
+                
+                //prevent searchable keys
+                if(!(e.metaKey || e.altKey || e.ctrlKey) && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
+                        if(e.preventDefault) e.preventDefault();
+                        else e.returnValue = false;
+                        return false;
+                }
+        }
 });
 
-//initialize the mouse events onload
+//initialize the input events onload
 Crafty.bind("Load", function() {
+	Crafty.addEvent(this, "keydown", Crafty.keyboardDispatch);
+	Crafty.addEvent(this, "keyup", Crafty.keyboardDispatch);
+        
 	Crafty.addEvent(this, Crafty.stage.elem, "mousedown", Crafty.mouseDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "mouseup", Crafty.mouseDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "mousemove", Crafty.mouseDispatch);
@@ -248,37 +270,6 @@ Crafty.c("Draggable", {
 * Give entities keyboard events (`keydown` and `keyup`).
 */
 Crafty.c("Keyboard", {
-	init: function() {
-		function dispatch(e) {
-			e.key = e.keyCode || e.which;
-			if(e.type === "keydown") {
-				if(Crafty.keydown[e.key] !== true) {
-                                        Crafty.keydown[e.key] = true;
-                                        this.trigger("KeyDown", e);
-                                }
-			} else if(e.type === "keyup") {
-				delete Crafty.keydown[e.key];
-				this.trigger("KeyUp", e);
-			}
-			
-			//prevent searchable keys
-			if(!(e.metaKey || e.altKey || e.ctrlKey) && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
-				if(e.preventDefault) e.preventDefault();
-				else e.returnValue = false;
-				return false;
-			}
-		}
-		
-		Crafty.addEvent(this, "keydown", dispatch);
-		Crafty.addEvent(this, "keyup", dispatch);
-		
-		//remove events
-		this.bind("remove", function() {
-			Crafty.removeEvent(this, "keydown", dispatch);
-			Crafty.removeEvent(this, "keyup", dispatch);
-		});
-	},
-	
 	/**@
 	* #.isDown
 	* @comp Keyboard
