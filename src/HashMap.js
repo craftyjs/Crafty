@@ -102,6 +102,9 @@ HashMap.prototype = {
 };
 
 HashMap.key = function(obj) {
+	if (obj.hasOwnProperty('mbr')) {
+		obj = obj.mbr();
+	}
 	var x1 = ~~(obj._x / cellsize),
 		y1 = ~~(obj._y / cellsize),
 		x2 = ~~((obj._w + obj._x) / cellsize),
