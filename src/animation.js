@@ -56,6 +56,10 @@ Crafty.c("SpriteAnimation", {
 				if (y === -1) this._frame.repeatInfinitly = true;
 				else this._frame.repeat = y;
 			}
+                        var pos = this._frame.reel[0];
+                        this.__coord[0] = pos[0];
+                        this.__coord[1] = pos[1];
+
 			this.bind("enterframe", this.drawFrame);
 			return this;
 		}
