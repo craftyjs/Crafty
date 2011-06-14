@@ -190,29 +190,29 @@ Crafty.c("Tween", {
 	* ~~~
 	*/
 	tween: function(props, duration) {
-		var prop,
-			old = {},
-			step = {},
-			startFrame = Crafty.frame(),
-			endFrame = startFrame + duration;
-		
-		//store the old properties
-		for(prop in props) {
-			old[prop] = this['_'+prop];
-			step[prop] = (props[prop] - old[prop]) / duration;
-		}
-		
-		this.bind("enterframe", function d(e) {
-            var prop;
-            if(e.frame >= endFrame) {
-				this.unbind("enterframe", d);
-				return;
-			}
-			for(prop in props) {
-				this[prop] += step[prop];
-			}
-		});
-		
-		return this;
+        this.each(function() {
+            var prop,
+            old = {},
+            step = {},
+            startFrame = Crafty.frame(),
+            endFrame = startFrame + duration;
+            
+            //store the old properties
+            for(prop in props) {
+                old[prop] = this['_'+prop];
+                step[prop] = (props[prop] - old[prop]) / duration;
+            }
+            
+            this.bind("enterframe", function d(e) {
+                if(e.frame >= endFrame) {
+                    this.unbind("enterframe", d);
+                    return;
+                }
+                for(var prop in props) {
+                    this[prop] += step[prop];
+                }
+            });
+        });
+        return this;
 	}
 });
