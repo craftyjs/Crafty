@@ -47,7 +47,7 @@ Crafty.extend({
 				if(current._z === maxz && current[0] < closest[0]) {
 					continue;
 				}
-				maxz = current._z
+				maxz = current._z;
 				closest = current;
 			}
 		}
@@ -201,7 +201,7 @@ Crafty.c("Draggable", {
 			Crafty.removeEvent(this, Crafty.stage.elem, "mouseup", this._onup);
 			this._dragging = false;
 			this.trigger("StopDrag", e);
-		}
+		};
 		
 		this.enableDrag();
 	},
@@ -357,15 +357,16 @@ Crafty.c("Multiway", {
 		return this;
 	},
         
-        speed: function(speed) {
-                for(var k in this._keyDirection) {
-                   var keyCode = Crafty.keys[k] || k;
-                   this._keys[keyCode] = { x: Math.round(Math.cos(this._keyDirection[k]*(Math.PI/180))*1000 * speed)/1000,
-                                           y: Math.round(Math.sin(this._keyDirection[k]*(Math.PI/180))*1000 * speed)/1000}
-                }
-
-                return this;
+    speed: function(speed) {
+        for(var k in this._keyDirection) {
+            var keyCode = Crafty.keys[k] || k;
+            this._keys[keyCode] = { 
+                x: Math.round(Math.cos(this._keyDirection[k]*(Math.PI/180))*1000 * speed)/1000,
+                y: Math.round(Math.sin(this._keyDirection[k]*(Math.PI/180))*1000 * speed)/1000
+            };
         }
+        return this;
+    }
 });
 
 /**@
@@ -391,8 +392,16 @@ Crafty.c("Fourway", {
 	* The key presses will move the entity in that direction by the speed passed in the argument.
 	*/
 	fourway: function(speed) {
-		this.multiway(speed, { UP_ARROW: -90, DOWN_ARROW: 90, RIGHT_ARROW: 0, LEFT_ARROW: 180,
-                                       W: -90, S: 90, D: 0, A: 180})
+		this.multiway(speed, { 
+            UP_ARROW: -90, 
+            DOWN_ARROW: 90, 
+            RIGHT_ARROW: 0, 
+            LEFT_ARROW: 180,
+            W: -90, 
+            S: 90, 
+            D: 0, 
+            A: 180
+        });
                 
 		return this;
 	}

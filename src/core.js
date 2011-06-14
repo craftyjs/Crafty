@@ -65,7 +65,10 @@ Crafty.fn = Crafty.prototype = {
 				current,
 				and = false, //flags for multiple
 				or = false,
-				del;
+				del,
+                comps,
+                score,
+                i, l;
 			
 			if(selector === '*') {
 				for(e in entities) {
@@ -92,7 +95,10 @@ Crafty.fn = Crafty.prototype = {
 				current = entities[e];
 				
 				if(and || or) { //multiple components
-					var comps = selector.split(del), i = 0, l = comps.length, score = 0;
+					comps = selector.split(del); 
+                    i = 0;
+                    l = comps.length;
+                    score = 0;
 					
 					for(;i<l;i++) //loop over components
 						if(current.__c[comps[i]]) score++; //if component exists add to score 
@@ -160,18 +166,20 @@ Crafty.fn = Crafty.prototype = {
 	* ~~~
 	*/
 	addComponent: function(id) {
-		var uninit = [], c = 0, ul; //array of components to init
+		var uninit = [], c = 0, ul, //array of components to init
+            i = 0, l, comps;
 		
 		//add multiple arguments
 		if(arguments.length > 1) {
-			var i = 0, l = arguments.length;
+            l = arguments.length;
 			for(;i<l;i++) {
 				this.__c[arguments[i]] = true;
 				uninit.push(arguments[i]);
 			}
 		//split components if contains comma
 		} else if(id.indexOf(',') !== -1) {
-			var comps = id.split(rlist), i = 0, l = comps.length;
+			comps = id.split(rlist);
+            l = comps.length;
 			for(;i<l;i++) {
 				this.__c[comps[i]] = true;
 				uninit.push(comps[i]);
@@ -677,7 +685,7 @@ Crafty.extend({
 					null;
 			
 			if(onFrame) {
-				function tick() { 
+				tick = function() { 
 					Crafty.timer.step();
 					tickID = onFrame(tick); 
 				}
@@ -922,7 +930,7 @@ Crafty.extend({
 			get: function(setting) {
 				return states[setting];
 			}
-		}
+		};
 	})(),
 	
 	clone: clone
@@ -944,7 +952,7 @@ function UID() {
 * Clone an Object
 */
 function clone(obj){
-	if(obj == null || typeof(obj) != 'object')
+	if(obj === null || typeof(obj) != 'object')
 		return obj;
 
 	var temp = obj.constructor(); // changed

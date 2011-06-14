@@ -440,7 +440,7 @@ Crafty.c("2D", {
 			}
 		} else {
 			//use MBR or current
-			var rect = this._mbr || this;
+			var rect = this._mbr || this,
 				dx = rect._x - e._x,
 				dy = rect._y - e._y,
 				dw = rect._w - e._w,
@@ -650,7 +650,7 @@ Crafty.c("Gravity", {
 
 		if(hit) { //stop falling if found
 			if(this._falling) this.stopFalling(hit);
-		} else { 	
+		} else {
 			this._falling = true; //keep falling otherwise
 		}
 	},

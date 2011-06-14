@@ -37,13 +37,16 @@ Crafty.c("SpriteAnimation", {
 	* @triggers AnimationEnd - When the animation finishes
 	*/
 	animate: function(id, fromx, y, tox) {
-		//play a reel
+		var reel, i, tile, duration;
+        
+        //play a reel
 		if(arguments.length < 4 && typeof fromx === "number") {
 			//make sure not currently animating
 			this._current = id;
 			
-			var reel = this._reels[id],
-				duration = fromx;
+			reel = this._reels[id];
+			duration = fromx;
+            
 			this._frame = {
 				reel: reel, //reel to play
 				frameTime: Math.ceil(duration / reel.length), //number of frames inbetween slides
@@ -64,9 +67,9 @@ Crafty.c("SpriteAnimation", {
 			return this;
 		}
 		if(typeof fromx === "number") {
-			var i = fromx,
-				reel = [],
-				tile = this.__tile;
+			i = fromx;
+			reel = [];
+			tile = this.__tile;
 				
 			if (tox > fromx) {
 				for(;i<=tox;i++) {
@@ -200,7 +203,8 @@ Crafty.c("Tween", {
 		}
 		
 		this.bind("enterframe", function d(e) {
-			if(e.frame >= endFrame) {
+            var prop;
+            if(e.frame >= endFrame) {
 				this.unbind("enterframe", d);
 				return;
 			}
