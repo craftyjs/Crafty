@@ -573,7 +573,7 @@ Crafty.fn.init.prototype = Crafty.fn;
 * selector instances
 */
 Crafty.extend = Crafty.fn.extend = function(obj) {
-	var target = this;
+	var target = this, key;
 	
 	//don't bother with nulls
 	if(!obj) return target;
