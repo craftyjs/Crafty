@@ -48,12 +48,16 @@ Crafty.c("Tint", {
 	_strength: 1.0,
 	
 	init: function() {
-		this.bind("draw", function d(e) {
-			var context = e.ctx || Crafty.canvas.context;
+        var draw = function d(e) {
+    		var context = e.ctx || Crafty.canvas.context;
 			
 			context.fillStyle = this._color || "rgb(0,0,0)";
 			context.fillRect(e.pos._x, e.pos._y, e.pos._w, e.pos._h);
-		});
+		};
+        
+		this.bind("draw", draw).bind("RemoveComponent", function(id) {
+            if(id === "Tint") this.unbind("draw", draw);  
+        });
 	},
 	
 	/**@
@@ -83,8 +87,8 @@ Crafty.c("Image", {
 	ready: false,
 	
 	init: function() {
-		this.bind("draw", function(e) {
-			if(e.type === "canvas") {
+        var draw = function(e) {
+    		if(e.type === "canvas") {
 				//skip if no image
 				if(!this.ready || !this._pattern) return;
 				
@@ -100,7 +104,11 @@ Crafty.c("Image", {
 				if(this.__image) 
 					e.style.background = "url(" + this.__image + ") "+this._repeat;
 			}
-		});
+		};
+        
+		this.bind("draw", draw).bind("RemoveComponent", function(id) {
+            if(id === "Image") this.unbind("draw", draw);  
+        });
 	},
 	
 	/**@

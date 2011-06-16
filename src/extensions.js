@@ -111,8 +111,8 @@ Crafty.extend({
 					this.w = this.__coord[2];
 					this.h = this.__coord[3];
 					
-					this.bind("draw", function(e) {
-						var co = e.co,
+                    var draw = function(e) {
+    					var co = e.co,
 							pos = e.pos,
 							context = e.ctx;
 							
@@ -131,7 +131,11 @@ Crafty.extend({
 						} else if(e.type === "DOM") {
 							this._element.style.background = "url('" + this.__image + "') no-repeat -" + co.x + "px -" + co.y + "px";
 						}
-					});
+					};
+                    
+					this.bind("draw", draw).bind("RemoveComponent", function(id) {
+                        if(id === pos) this.unbind("draw", draw);  
+                    });
 				},
 				
 				/**@
