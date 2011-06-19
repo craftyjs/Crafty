@@ -93,7 +93,7 @@ $(function() {
 	$workbench.tabs({
 		show: function(e,ui) {
 			calculate();
-			console.log("LOAD", ui.index, CURRENT_ENTITY);
+			
 			//when the code tab has been selected
 			if(ui.index === 1) {
 				//if nothing has been selected, don't change views
@@ -138,7 +138,6 @@ $(function() {
 	
 	initButtons();
 	
-	SCENES.main = MAIN;
 	COMPS = Crafty.components();
 	Editor.update();
 	

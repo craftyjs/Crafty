@@ -32,14 +32,10 @@ $b.newent.click(function() {
 				$instance.val("");
 			} else {
 				comps = typeof comps === "object" ? comps.join(", ") : "";
-				block = new EntBlock("var "+inst+" = Crafty.e('"+comps+"');","",inst);
-				block.comps = comps;
-				
 				CENTS[inst] = Crafty.e("_GUI").comps(comps);
 				
 				//append the entity in the selected scene
-				CURRENT_SCENE.append(block);
-				ENTS[inst] = block;
+				ENTS[inst] = {comps: comps};
 				Editor.update();
 				
 				$instance.val("");
@@ -55,8 +51,7 @@ $b.newscene.click(function() {
 			Cancel: function() { $(this).dialog("close"); },
 			Create: function() {
 				var name = $scname.val();
-				SCENES[name] = new Block("Crafty.scene(\""+ name + "\", function() {", "});", name);
-				CODE.append(SCENES[name]);
+				SCENES[name] = {};
 				Editor.update();
 				
 				$(this).dialog("close");
@@ -72,7 +67,6 @@ $b.addasset.click(function() {
 			Add: function() {
 				var url = $asname.val();	
 				
-				LOADER.assets.push(url);
 				ASSETS[url] = {
 					type: Editor.media(url)
 				};
@@ -106,14 +100,13 @@ $b.load.click(function() {
 });
 
 function openScene(e) {
-	console.log(this);
 	var href = $(this).attr("href");
 	href = href.substr(1); //grab the scene ID
 	
-	CURRENT_SCENE = SCENES[href]; //make it current
+	CURRENT_SCENE = href; //make it current
 	$("#scenes ul a").css("background", "transparent");
 	$(this).css("background", "#FFE4D9"); //change the selected color
-	$currentscene.text(CURRENT_SCENE.name);
+	$currentscene.text(CURRENT_SCENE);
 }
 
 //when clicking on a scene, select it
@@ -146,47 +139,28 @@ $("#entities ul a").live("dblclick", function() {
 	var href = $(this).attr("href");
 	href = href.substr(1);
 	
-	CURRENT_ENTITY = ENTS[href];
-	
-	Editor.setCode();
+	CURRENT_ENTITY = href;
 }).contextMenu("entsMenu", {
 	click: function() {
 		var href = $(this).attr("href"), selected = $workbench.tabs("option", "selected");
 		href = href.substr(1);
-		
-		//if an entity is selected, save the code
-		if(selected === 1) {
-			CURRENT_ENTITY.actions = CM.getCode();
-		}
-		
-		CURRENT_ENTITY = ENTS[href];
-		
-		if(selected === 1) {
-			Editor.setCode();
-		}
+				
+		CURRENT_ENTITY = href;
 		
 		$("#entities ul a").css("background", "transparent");
 		$(this).css("background", "#FFE4D9");
-	},
-	
-	actions: function() {
-		Editor.setCode();
 	},
 	
 	properties: function() {
 		$prdialog.dialog({modal: true, maxHeight:600, width:400,
 			buttons: {
 				Done: function() {
-					//when done is clicked, update the .attr
-					$prdialog.find("input").each(function() {
-					
-					});
 					$(this).dialog("close");
 				}
 			}
 		});
 		
-		var ent = CENTS[CURRENT_ENTITY.name], key, html = "";
+		var ent = CENTS[CURRENT_ENTITY], key, html = "";
 		for(key in ent) {
 			//no functions, private properties or properties starting with an int
 			if(typeof ent[key] === "function" || key === "length" || 

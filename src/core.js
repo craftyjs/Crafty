@@ -295,13 +295,13 @@ Crafty.fn = Crafty.prototype = {
 			
 			//extend if object
 			this.extend(key);
-			this.trigger("change"); //trigger change event
+			this.trigger("Change"); //trigger change event
 			return this;
 		}
 		//if key value pair
 		this[key] = value;
 		
-		this.trigger("change"); //trigger change event
+		this.trigger("Change"); //trigger change event
 		return this;
 	},
 	
@@ -367,7 +367,7 @@ Crafty.fn = Crafty.prototype = {
 	* this.bind("myevent", function() {
 	*     this.triggers++; //whenever myevent is triggered, increment
 	* });
-	* this.bind("enterframe", function() {
+	* this.bind("EnterFrame", function() {
 	*     this.trigger("myevent"); //trigger myeven on every frame
 	* });
 	* ~~~
@@ -564,7 +564,7 @@ Crafty.fn = Crafty.prototype = {
 	destroy: function() {
 		//remove all event handlers, delete from entities
 		this.each(function() {
-			this.trigger("remove");
+			this.trigger("Remove");
 			for(var e in handlers) {
 				this.unbind(e);
 			}
@@ -715,7 +715,7 @@ Crafty.extend({
 		step: function() {
 			loops = 0;
 			while((new Date).getTime() > nextGameTick) {
-				Crafty.trigger("enterframe", {frame: frame++});
+				Crafty.trigger("EnterFrame", {frame: frame++});
 				nextGameTick += skipTicks;
 				loops++;
 			}
@@ -965,7 +965,7 @@ function clone(obj){
 Crafty.bind("Load", function() {
 	if(!Crafty.support.setter && Crafty.support.defineProperty) {
 		noSetter = [];
-		Crafty.bind("enterframe", function() {
+		Crafty.bind("EnterFrame", function() {
 			var i = 0, l = noSetter.length, current;
 			for(;i<l;++i) {
 				current = noSetter[i];

@@ -1,5 +1,5 @@
 /*!
-* Crafty v0.4.2
+* Crafty v0.4.3
 * http://craftyjs.com
 *
 * Copyright 2010, Louis Stowasser
@@ -73,7 +73,10 @@ Crafty.fn = Crafty.prototype = {
 				current,
 				and = false, //flags for multiple
 				or = false,
-				del;
+				del,
+                comps,
+                score,
+                i, l;
 			
 			if(selector === '*') {
 				for(e in entities) {
@@ -100,7 +103,10 @@ Crafty.fn = Crafty.prototype = {
 				current = entities[e];
 				
 				if(and || or) { //multiple components
-					var comps = selector.split(del), i = 0, l = comps.length, score = 0;
+					comps = selector.split(del); 
+                    i = 0;
+                    l = comps.length;
+                    score = 0;
 					
 					for(;i<l;i++) //loop over components
 						if(current.__c[comps[i]]) score++; //if component exists add to score 
@@ -168,18 +174,20 @@ Crafty.fn = Crafty.prototype = {
 	* ~~~
 	*/
 	addComponent: function(id) {
-		var uninit = [], c = 0, ul; //array of components to init
+		var uninit = [], c = 0, ul, //array of components to init
+            i = 0, l, comps;
 		
 		//add multiple arguments
 		if(arguments.length > 1) {
-			var i = 0, l = arguments.length;
+            l = arguments.length;
 			for(;i<l;i++) {
 				this.__c[arguments[i]] = true;
 				uninit.push(arguments[i]);
 			}
 		//split components if contains comma
 		} else if(id.indexOf(',') !== -1) {
-			var comps = id.split(rlist), i = 0, l = comps.length;
+			comps = id.split(rlist);
+            l = comps.length;
 			for(;i<l;i++) {
 				this.__c[comps[i]] = true;
 				uninit.push(comps[i]);
@@ -295,13 +303,13 @@ Crafty.fn = Crafty.prototype = {
 			
 			//extend if object
 			this.extend(key);
-			this.trigger("change"); //trigger change event
+			this.trigger("Change"); //trigger change event
 			return this;
 		}
 		//if key value pair
 		this[key] = value;
 		
-		this.trigger("change"); //trigger change event
+		this.trigger("Change"); //trigger change event
 		return this;
 	},
 	
@@ -367,7 +375,7 @@ Crafty.fn = Crafty.prototype = {
 	* this.bind("myevent", function() {
 	*     this.triggers++; //whenever myevent is triggered, increment
 	* });
-	* this.bind("enterframe", function() {
+	* this.bind("EnterFrame", function() {
 	*     this.trigger("myevent"); //trigger myeven on every frame
 	* });
 	* ~~~
@@ -415,8 +423,8 @@ Crafty.fn = Crafty.prototype = {
 			if(hdl && hdl[this[0]]) l = hdl[this[0]].length;
 			else return this;
 			
-			//if only one event logged or no function, delete all
-			if(l === 1 || !fn) {
+			//if no function, delete all
+			if(!fn) {
 				delete hdl[this[0]];
 				return this;
 			}
@@ -564,7 +572,7 @@ Crafty.fn = Crafty.prototype = {
 	destroy: function() {
 		//remove all event handlers, delete from entities
 		this.each(function() {
-			this.trigger("remove");
+			this.trigger("Remove");
 			for(var e in handlers) {
 				this.unbind(e);
 			}
@@ -581,7 +589,7 @@ Crafty.fn.init.prototype = Crafty.fn;
 * selector instances
 */
 Crafty.extend = Crafty.fn.extend = function(obj) {
-	var target = this;
+	var target = this, key;
 	
 	//don't bother with nulls
 	if(!obj) return target;
@@ -685,7 +693,7 @@ Crafty.extend({
 					null;
 			
 			if(onFrame) {
-				function tick() { 
+				tick = function() { 
 					Crafty.timer.step();
 					tickID = onFrame(tick); 
 				}
@@ -715,7 +723,7 @@ Crafty.extend({
 		step: function() {
 			loops = 0;
 			while((new Date).getTime() > nextGameTick) {
-				Crafty.trigger("enterframe", {frame: frame++});
+				Crafty.trigger("EnterFrame", {frame: frame++});
 				nextGameTick += skipTicks;
 				loops++;
 			}
@@ -930,7 +938,7 @@ Crafty.extend({
 			get: function(setting) {
 				return states[setting];
 			}
-		}
+		};
 	})(),
 	
 	clone: clone
@@ -952,7 +960,7 @@ function UID() {
 * Clone an Object
 */
 function clone(obj){
-	if(obj == null || typeof(obj) != 'object')
+	if(obj === null || typeof(obj) != 'object')
 		return obj;
 
 	var temp = obj.constructor(); // changed
@@ -965,7 +973,7 @@ function clone(obj){
 Crafty.bind("Load", function() {
 	if(!Crafty.support.setter && Crafty.support.defineProperty) {
 		noSetter = [];
-		Crafty.bind("enterframe", function() {
+		Crafty.bind("EnterFrame", function() {
 			var i = 0, l = noSetter.length, current;
 			for(;i<l;++i) {
 				current = noSetter[i];
@@ -1089,6 +1097,9 @@ HashMap.prototype = {
 };
 
 HashMap.key = function(obj) {
+	if (obj.hasOwnProperty('mbr')) {
+		obj = obj.mbr();
+	}
 	var x1 = ~~(obj._x / cellsize),
 		y1 = ~~(obj._y / cellsize),
 		x2 = ~~((obj._w + obj._x) / cellsize),
@@ -1208,7 +1219,7 @@ Crafty.c("2D", {
 	init: function() {
 		this._global = this[0];
 		this._origin = {x: 0, y: 0};
-		this._children = {};
+		this._children = [];
 		
 		if(Crafty.support.setter) {
 			//create getters and setters on x,y,w,h,z
@@ -1268,7 +1279,7 @@ Crafty.c("2D", {
 			this.visible = this._visible;
 			
 			//on every frame check for a difference in any property
-			this.bind("enterframe", function() {
+			this.bind("EnterFrame", function() {
 				//if there are differences between the public and private properties
 				if(this.x !== this._x || this.y !== this._y ||
 				   this.w !== this._w || this.h !== this._h ||
@@ -1293,7 +1304,7 @@ Crafty.c("2D", {
 						}
 						
 						//if the moved flag is true, trigger a move
-						if(moved) this.trigger("move", old);
+						if(moved) this.trigger("Move", old);
 					}
 					
 					//set the public properties to the private properties
@@ -1307,7 +1318,7 @@ Crafty.c("2D", {
 					this._visible = this.visible;
 					
 					//trigger the changes
-					this.trigger("change", old);
+					this.trigger("Change", old);
 				}
 			});
 		}
@@ -1316,20 +1327,20 @@ Crafty.c("2D", {
 		this._entry = Crafty.map.insert(this);
 		
 		//when object changes, update HashMap
-		this.bind("move", function(e) {
+		this.bind("Move", function(e) {
 			var area = this._mbr || this;
 			this._entry.update(area);
 			this._cascade(e);
 		});
 		
-		this.bind("rotate", function(e) {
+		this.bind("Rotate", function(e) {
 			var old = this._mbr || this;
 			this._entry.update(old);
 			this._cascade(e);
 		});
 		
 		//when object is removed, remove from HashMap
-		this.bind("remove", function() {
+		this.bind("Remove", function() {
 			Crafty.map.remove(this);
 			
 			this.detach();
@@ -1372,7 +1383,7 @@ Crafty.c("2D", {
 		var difference = this._rotation - v,
 			drad = difference * DEG_TO_RAD;
 			
-		this.trigger("rotate", {
+		this.trigger("Rotate", {
 			cos: Math.cos(drad), 
 			sin: Math.sin(drad), 
 			deg: difference, 
@@ -1562,7 +1573,7 @@ Crafty.c("2D", {
 			}
 		} else {
 			//use MBR or current
-			var rect = this._mbr || this;
+			var rect = this._mbr || this,
 				dx = rect._x - e._x,
 				dy = rect._y - e._y,
 				dw = rect._w - e._w,
@@ -1589,7 +1600,7 @@ Crafty.c("2D", {
 		var i = 0, arg = arguments, l = arguments.length, obj;
 		for(;i<l;++i) {
 			obj = arg[i];
-			this._children[obj[0]] = obj;
+			this._children.push(obj);
 		}
 		
 		return this;
@@ -1606,11 +1617,15 @@ Crafty.c("2D", {
 	detach: function(obj) {
 		//if nothing passed, remove all attached objects
 		if(!obj) {
-			this._children = {};
+			this._children = [];
 			return this;
 		}
 		//if obj passed, find the handler and unbind
-		delete this._children[obj[0]];
+    for (var i = 0; i < this._children.length; i++) {
+			if (this._children[i] == obj) {
+				this._children.splice(i, 1);
+			}
+		}
 		
 		return this;
 	},
@@ -1694,14 +1709,14 @@ Crafty.c("2D", {
 				mbr[name] -= this[name] - value;
 			}
 			this[name] = value;
-			this.trigger("move", old);
+			this.trigger("Move", old);
 		}
 		
 		//everything will assume the value
 		this[name] = value;
 		
 		//trigger a change
-		this.trigger("change", old);
+		this.trigger("Change", old);
 	}
 });
 
@@ -1728,7 +1743,7 @@ Crafty.c("Gravity", {
 	gravity: function(comp) {
 		if(comp) this._anti = comp;
 
-		this.bind("enterframe", this._enterframe);
+		this.bind("EnterFrame", this._enterframe);
 
 		return this;
 	},
@@ -1768,7 +1783,7 @@ Crafty.c("Gravity", {
 
 		if(hit) { //stop falling if found
 			if(this._falling) this.stopFalling(hit);
-		} else { 	
+		} else {
 			this._falling = true; //keep falling otherwise
 		}
 	},
@@ -1783,7 +1798,7 @@ Crafty.c("Gravity", {
 	},
 
 	antigravity: function() {
-		this.unbind("enterframe", this._enterframe);
+		this.unbind("EnterFrame", this._enterframe);
 	}
 });
 
@@ -1999,7 +2014,7 @@ Crafty.c("Collision", {
 	*/
 	onHit: function(comp, fn, fnOff) {
 		var justHit = false;
-		this.bind("enterframe", function() {
+		this.bind("EnterFrame", function() {
 			var hitdata = this.hit(comp);
 			if(hitdata) {
 				justHit = true;
@@ -2136,7 +2151,7 @@ Crafty.c("DOM", {
 		this._element.style.position = "absolute";
 		this._element.id = "ent" + this[0];
 		
-		this.bind("change", function() {
+		this.bind("Change", function() {
 			if(!this._changed) {
 				this._changed = true;
 				Crafty.DrawManager.add(this);
@@ -2157,7 +2172,7 @@ Crafty.c("DOM", {
 		if(Crafty.support.prefix === "ms" && Crafty.support.version < 9) {
 			this._filters = {};
 			
-			this.bind("rotate", function(e) {
+			this.bind("Rotate", function(e) {
 				var m = e.matrix,
 					elem = this._element.style,
 					M11 = m.M11.toFixed(8),
@@ -2170,7 +2185,7 @@ Crafty.c("DOM", {
 			});
 		}
 		
-		this.bind("remove", this.undraw);
+		this.bind("Remove", this.undraw);
 	},
 	
 	/**@
@@ -2206,13 +2221,8 @@ Crafty.c("DOM", {
 		if(!this._visible) style.visibility = "hidden";
 		else style.visibility = "visible";
 		
-		if(Crafty.mobile) {
-			if(Crafty.support.css3dtransform) trans.push("translate3d("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
-			else trans.push("translate("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
-		} else {
-			style.top = ~~(this._y) + "px";
-			style.left = ~~(this._x) + "px";
-		}
+		if(Crafty.support.css3dtransform) trans.push("translate3d("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
+		else trans.push("translate("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
 		style.width = ~~(this._w) + "px";
 		style.height = ~~(this._h) + "px";
 		style.zIndex = this._z;
@@ -2221,7 +2231,7 @@ Crafty.c("DOM", {
 		style[prefix+"Opacity"] = this._alpha;
 		
 		//if not version 9 of IE
-		if(Crafty.support.prefix === "ms" && Crafty.support.version < 9) {
+		if(prefix === "ms" && Crafty.support.version < 9) {
 			//for IE version 8, use ImageTransform filter
 			if(Crafty.support.version === 8) {
 				this._filters.alpha = "progid:DXImageTransform.Microsoft.Alpha(Opacity="+(this._alpha * 100)+")"; // first!
@@ -2234,16 +2244,16 @@ Crafty.c("DOM", {
 		
 		if(this._mbr) {
 			var origin = this._origin.x + "px " + this._origin.y + "px";
-			if(Crafty.support.css3dtransform) trans.push( "rotateZ("+this._rotation+"deg)" );
-			else trans.push( "rotate("+this._rotation+"deg)" );
-			//style.transformOrigin = origin;
-			//style[prefix+"TransformOrigin"] = origin;
+			style.transformOrigin = origin;
+			style[prefix+"TransformOrigin"] = origin;
+			if(Crafty.support.css3dtransform) trans.push("rotateZ("+this._rotation+"deg)");
+			else trans.push("rotate("+this._rotation+"deg)");
 		}
 		
 		style.transform = trans.join(" ");
 		style[prefix+"Transform"] = trans.join(" ");
 		
-		this.trigger("draw", {style: style, type: "DOM", co: co});
+		this.trigger("Draw", {style: style, type: "DOM", co: co});
 		
 		return this;
 	},
@@ -2315,7 +2325,7 @@ Crafty.c("DOM", {
 			}
 		}
 		
-		this.trigger("change");
+		this.trigger("Change");
 		
 		return this;
 	}
@@ -2479,14 +2489,21 @@ Crafty.extend({
 	* Entities that add the generated components are also given a component called `Sprite`.
 	* @see Sprite
 	*/
-	sprite: function(tile, url, map, paddingX, paddingY) {
+	sprite: function(tile, tileh, url, map, paddingX, paddingY) {
 		var pos, temp, x, y, w, h, img;
 		
 		//if no tile value, default to 16
 		if(typeof tile === "string") {
 			map = url;
-			url = tile;
+			url = tileh;
 			tile = 1;
+			tileh = 1;
+		}
+		
+		if(typeof tileh == "string") {
+			map = url;
+			url = tileh;
+			tileh = tile;
 		}
 		
 		//if no paddingY, use paddingX
@@ -2504,7 +2521,7 @@ Crafty.extend({
 				for(var pos in map) {
 					Crafty(pos).each(function() {
 						this.ready = true;
-						this.trigger("change");
+						this.trigger("Change");
 					});
 				}
 			};
@@ -2515,9 +2532,9 @@ Crafty.extend({
 			
 			temp = map[pos];
 			x = temp[0] * tile + paddingX;
-			y = temp[1] * tile + paddingY;
+			y = temp[1] * tileh + paddingY;
 			w = temp[2] * tile || tile;
-			h = temp[3] * tile || tile;
+			h = temp[3] * tileh || tileh;
 			
 			/**@
 			* #Sprite
@@ -2528,6 +2545,7 @@ Crafty.extend({
 				__image: url,
 				__coord: [x,y,w,h],
 				__tile: tile,
+				__tileh: tileh,
 				__padding: [paddingX, paddingY],
 				__trim: null,
 				img: img,
@@ -2536,25 +2554,26 @@ Crafty.extend({
 				init: function() {
 					this.addComponent("Sprite");
 					this.__trim = [0,0,0,0];
+					this.__coord = [this.__coord[0], this.__coord[1], this.__coord[2], this.__coord[3]];
 		
 					//draw now
 					if(this.img.complete && this.img.width > 0) {
 						this.ready = true;
-						this.trigger("change");
+						this.trigger("Change");
 					}
 
 					//set the width and height to the sprite size
 					this.w = this.__coord[2];
 					this.h = this.__coord[3];
 					
-					this.bind("draw", function(e) {
-						var co = e.co,
+                    var draw = function(e) {
+    					var co = e.co,
 							pos = e.pos,
 							context = e.ctx;
 							
 						if(e.type === "canvas") {
 							//draw the image on the canvas element
-							try { context.drawImage(this.img, //image element
+							context.drawImage(this.img, //image element
 											 co.x, //x position on sprite
 											 co.y, //y position on sprite
 											 co.w, //width on sprite
@@ -2563,11 +2582,15 @@ Crafty.extend({
 											 pos._y, //y position on canvas
 											 pos._w, //width on canvas
 											 pos._h //height on canvas
-							); }catch(err) { console.log(err, co, pos) }
+							);
 						} else if(e.type === "DOM") {
 							this._element.style.background = "url('" + this.__image + "') no-repeat -" + co.x + "px -" + co.y + "px";
 						}
-					});
+					};
+                    
+					this.bind("Draw", draw).bind("RemoveComponent", function(id) {
+                        if(id === pos) this.unbind("Draw", draw);  
+                    });
 				},
 				
 				/**@
@@ -2584,10 +2607,11 @@ Crafty.extend({
 				*/
 				sprite: function(x,y,w,h) {
 					this.__coord = [x * this.__tile + this.__padding[0] + this.__trim[0],
-									y * this.__tile + this.__padding[1] + this.__trim[1],
+									y * this.__tileh + this.__padding[1] + this.__trim[1],
 									this.__trim[2] || w * this.__tile || this.__tile,
-									this.__trim[3] || h * this.__tile || this.__tile];
-					this.trigger("change");
+									this.__trim[3] || h * this.__tileh || this.__tileh];
+					
+					this.trigger("Change");
 					return this;
 				},
 				
@@ -2618,7 +2642,7 @@ Crafty.extend({
 					this._w = w;
 					this._h = h;
 					
-					this.trigger("change", old);
+					this.trigger("Change", old);
 					return this;
 				}
 			});
@@ -3183,7 +3207,7 @@ Crafty.extend({
 */
 Crafty.c("viewport", {
 	init: function() {
-		this.bind("enterframe", function() {
+		this.bind("EnterFrame", function() {
 			if(Crafty.viewport._x !== Crafty.viewport.x) {
 				Crafty.viewport.scroll('_x', Crafty.viewport.x);
 			}
@@ -3212,7 +3236,7 @@ Crafty.c("Canvas", {
 		//increment the amount of canvas objs
 		Crafty.DrawManager.total2D++;
 		
-		this.bind("change", function(e) {
+		this.bind("Change", function(e) {
 			//if within screen, add to list	
 			if(this._changed === false) {
 				this._changed = Crafty.DrawManager.add(e || this, this);
@@ -3221,7 +3245,7 @@ Crafty.c("Canvas", {
 			}
 		});
 		
-		this.bind("remove", function() {
+		this.bind("Remove", function() {
 			Crafty.DrawManager.total2D--;
 			Crafty.DrawManager.add(this,this);
 		});
@@ -3280,7 +3304,7 @@ Crafty.c("Canvas", {
 			context.globalAlpha = this._alpha;
 		}
 		
-		this.trigger("draw", {type: "canvas", pos: pos, co: co, ctx: context});
+		this.trigger("Draw", {type: "canvas", pos: pos, co: co, ctx: context});
 		
 		if(this._mbr) {
 			context.restore();
@@ -3397,7 +3421,7 @@ Crafty.extend({
 				if(current._z === maxz && current[0] < closest[0]) {
 					continue;
 				}
-				maxz = current._z
+				maxz = current._z;
 				closest = current;
 			}
 		}
@@ -3407,13 +3431,13 @@ Crafty.extend({
 			//click must mousedown and out on tile
 			if(e.type === "mousedown") {
 				this.down = closest;
-				this.down.trigger('mousedown', e);
+				this.down.trigger("MouseDown", e);
 			} else if(e.type === "mouseup") {
-				closest.trigger("mouseup", e);
+				closest.trigger("MouseUp", e);
 				
 				//check that down exists and this is down
 				if(this.down && closest === this.down) {
-					this.down.trigger("click", e);
+					this.down.trigger("Click", e);
 				}
 				
 				//reset down
@@ -3421,24 +3445,47 @@ Crafty.extend({
 			} else if(e.type === "mousemove") {
 				if(this.over !== closest) { //if new mousemove, it is over
 					if(this.over) {
-						this.over.trigger("mouseout", e); //if over wasn't null, send mouseout
+						this.over.trigger("MouseOut", e); //if over wasn't null, send mouseout
 						this.over = null;
 					}
 					this.over = closest;
-					closest.trigger("mouseover", e);
+					closest.trigger("MouseOver", e);
 				}
 			} else closest.trigger(e.type, e); //trigger whatever it is
 		} else {
 			if(e.type === "mousemove" && this.over) {
-				this.over.trigger("mouseout", e);
+				this.over.trigger("MouseOut", e);
 				this.over = null;
 			}
+		}
+	},
+	
+	keyboardDispatch: function(e) {
+		e.key = e.keyCode || e.which;
+		if(e.type === "keydown") {
+			if(Crafty.keydown[e.key] !== true) {
+				Crafty.keydown[e.key] = true;
+				Crafty.trigger("KeyDown", e);
+			}
+		} else if(e.type === "keyup") {
+			delete Crafty.keydown[e.key];
+			Crafty.trigger("KeyUp", e);
+		}
+		
+		//prevent searchable keys
+		if(!(e.metaKey || e.altKey || e.ctrlKey) && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
+			if(e.preventDefault) e.preventDefault();
+			else e.returnValue = false;
+			return false;
 		}
 	}
 });
 
-//initialize the mouse events onload
+//initialize the input events onload
 Crafty.bind("Load", function() {
+	Crafty.addEvent(this, "keydown", Crafty.keyboardDispatch);
+	Crafty.addEvent(this, "keyup", Crafty.keyboardDispatch);
+        
 	Crafty.addEvent(this, Crafty.stage.elem, "mousedown", Crafty.mouseDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "mouseup", Crafty.mouseDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "mousemove", Crafty.mouseDispatch);
@@ -3457,7 +3504,7 @@ Crafty.bind("Load", function() {
 Crafty.c("Mouse", {
 	init: function() {
 		Crafty.mouseObjs++;
-		this.bind("remove", function() {
+		this.bind("Remove", function() {
 			Crafty.mouseObjs--;
 		});
 	},
@@ -3505,7 +3552,7 @@ Crafty.c("Draggable", {
 	
 	init: function() {
 		this.requires("Mouse");
-		this._ondrag = function() {
+		this._ondrag = function(e) {
 			var pos = Crafty.DOM.translate(e.clientX, e.clientY);
 			this.x = pos.x - this._startX;
 			this.y = pos.y - this._startY;
@@ -3520,6 +3567,7 @@ Crafty.c("Draggable", {
 			this._dragging = true;
 			
 			Crafty.addEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
+			Crafty.addEvent(this, Crafty.stage.elem, "mouseup", this._onup);
 			this.trigger("StartDrag", e);
 		};
 		
@@ -3528,9 +3576,9 @@ Crafty.c("Draggable", {
 			Crafty.removeEvent(this, Crafty.stage.elem, "mouseup", this._onup);
 			this._dragging = false;
 			this.trigger("StopDrag", e);
-		}
+		};
 		
-		this.startDrag();
+		this.enableDrag();
 	},
 	
 	/**@
@@ -3571,7 +3619,7 @@ Crafty.c("Draggable", {
 	* @see .disableDrag
 	*/
 	enableDrag: function() {		
-		this.bind("mousedown", this._ondown);
+		this.bind("MouseDown", this._ondown);
 		
 		Crafty.addEvent(this, Crafty.stage.elem, "mouseup", this._onup);
 		return this;
@@ -3585,7 +3633,7 @@ Crafty.c("Draggable", {
 	* @see .enableDrag
 	*/
 	disableDrag: function() {
-		this.unbind("mousedown", this._ondown);
+		this.unbind("MouseDown", this._ondown);
 		this.stopDrag();
 		return this;
 	}
@@ -3597,35 +3645,6 @@ Crafty.c("Draggable", {
 * Give entities keyboard events (`keydown` and `keyup`).
 */
 Crafty.c("Keyboard", {
-	init: function() {
-		function dispatch(e) {
-			e.key = e.keyCode || e.which;
-			if(e.type === "keydown") {
-				Crafty.keydown[e.key] = true;
-				this.trigger("KeyDown", e);
-			} else if(e.type === "keyup") {
-				delete Crafty.keydown[e.key];
-				this.trigger("KeyUp", e);
-			}
-			
-			//prevent searchable keys
-			if(!(e.metaKey || e.altKey || e.ctrlKey) && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
-				if(e.preventDefault) e.preventDefault();
-				else e.returnValue = false;
-				return false;
-			}
-		}
-		
-		Crafty.addEvent(this, "keydown", dispatch);
-		Crafty.addEvent(this, "keyup", dispatch);
-		
-		//remove events
-		this.bind("remove", function() {
-			Crafty.removeEvent(this, "keydown", dispatch);
-			Crafty.removeEvent(this, "keyup", dispatch);
-		});
-	},
-	
 	/**@
 	* #.isDown
 	* @comp Keyboard
@@ -3644,16 +3663,97 @@ Crafty.c("Keyboard", {
 });
 
 /**@
+* #Multiway
+* @category Input
+* Used to bind keys to directions and have the entity move acordingly 
+*/
+Crafty.c("Multiway", {	
+	_speed: 3,
+        
+	init: function() {
+            this._keyDirection = {};
+            this._keys = {};
+            this._movement= { x: 0, y: 0};
+	},
+	
+	/**@
+	* #.fourway
+	* @comp Multiway
+	* @sign public this .multiway([Number speed,] Object keyBindings )
+	* @param speed - Amount of pixels to move the entity whilst a key is down
+	* @param keyBindings - What keys should make the entity go in which direction. Direction is specified in degrees
+	* Constructor to initialize the speed and keyBindings. Component will listen for key events and move the entity appropriately. 
+	*
+	* When direction changes a NewDorection event is triggered with an object detailing the new direction: {x: x_movement, y: y_movement}
+	* When entity has moved on either x- or y-axis a Moved event is triggered with an object specifieng the old position {x: old_x, y: old_y}
+	* @example
+	* ~~~
+	* this.multiway(3, {UP_ARROW: -90, DOWN_ARROW: 90, RIGHT_ARROW: 0, LEFT_ARROW: 180});
+	* this.multiway({W: -90, S: 90, D: 0, A: 180});
+	* ~~~
+	*/
+	multiway: function(speed, keys) {
+		if(keys){
+			this._speed = speed;
+		} else {
+			keys = speed;
+		}
+		
+		this._keyDirection = keys;
+		this.speed(this._speed);
+
+		this.bind("KeyDown", function(e) {
+			if(this._keys[e.key]) {
+				this._movement.x = Math.round((this._movement.x + this._keys[e.keyCode].x)*1000)/1000;
+				this._movement.y = Math.round((this._movement.y + this._keys[e.keyCode].y)*1000)/1000;
+				this.trigger('NewDirection', this._movement);
+			}
+		})
+		.bind("KeyUp", function(e) {
+			if(this._keys[e.key]) {
+				this._movement.x = Math.round((this._movement.x - this._keys[e.keyCode].x)*1000)/1000;
+				this._movement.y = Math.round((this._movement.y - this._keys[e.keyCode].y)*1000)/1000;
+				this.trigger('NewDirection', this._movement);
+			}
+		})
+		.bind("EnterFrame",function() {
+			if (this.disableControls) return;
+	
+			if(this._movement.x !== 0) {
+				this.x += this._movement.x;
+				this.trigger('Moved', {x: this.x - this._movement.x, y: this.y});
+			}
+			if(this._movement.y !== 0) {
+				this.y += this._movement.y;
+				this.trigger('Moved', {x: this.x, y: this.y - this._movement.y});
+			}
+		});
+		
+		return this;
+	},
+        
+    speed: function(speed) {
+        for(var k in this._keyDirection) {
+            var keyCode = Crafty.keys[k] || k;
+            this._keys[keyCode] = { 
+                x: Math.round(Math.cos(this._keyDirection[k]*(Math.PI/180))*1000 * speed)/1000,
+                y: Math.round(Math.sin(this._keyDirection[k]*(Math.PI/180))*1000 * speed)/1000
+            };
+        }
+        return this;
+    }
+});
+
+/**@
 * #Fourway
 * @category Input
 * Move an entity in four directions by using the
 * arrow keys or `W`, `A`, `S`, `D`.
 */
 Crafty.c("Fourway", {	
-	_speed: 3,
 	
 	init: function() {
-		this.requires("Keyboard");
+		this.requires("Multiway");
 	},
 	
 	/**@
@@ -3667,24 +3767,17 @@ Crafty.c("Fourway", {
 	* The key presses will move the entity in that direction by the speed passed in the argument.
 	*/
 	fourway: function(speed) {
-		if(speed) this._speed = speed;
-		
-		this.bind("enterframe", function() {
-			if (this.disableControls) return;
-			if(this.isDown("RIGHT_ARROW") || this.isDown("D")) {
-				this.x += this._speed;
-			}
-			if(this.isDown("LEFT_ARROW") || this.isDown("A")) {
-				this.x -= this._speed;
-			}
-			if(this.isDown("UP_ARROW") || this.isDown("W")) {
-				this.y -= this._speed;
-			}
-			if(this.isDown("DOWN_ARROW") || this.isDown("S")) {
-				this.y += this._speed;
-			}
-		});
-		
+		this.multiway(speed, { 
+            UP_ARROW: -90, 
+            DOWN_ARROW: 90, 
+            RIGHT_ARROW: 0, 
+            LEFT_ARROW: 180,
+            W: -90, 
+            S: 90, 
+            D: 0, 
+            A: 180
+        });
+                
 		return this;
 	}
 });
@@ -3722,7 +3815,7 @@ Crafty.c("Twoway", {
 		if(speed) this._speed = speed;
 		jump = jump || this._speed * 2;
 		
-		this.bind("enterframe", function() {
+		this.bind("EnterFrame", function() {
 			if (this.disableControls) return;
 			if(this.isDown("RIGHT_ARROW") || this.isDown("D")) {
 				this.x += this._speed;
@@ -3782,13 +3875,16 @@ Crafty.c("SpriteAnimation", {
 	* @triggers AnimationEnd - When the animation finishes
 	*/
 	animate: function(id, fromx, y, tox) {
-		//play a reel
+		var reel, i, tile, duration;
+        
+        //play a reel
 		if(arguments.length < 4 && typeof fromx === "number") {
 			//make sure not currently animating
 			this._current = id;
 			
-			var reel = this._reels[id],
-				duration = fromx;
+			reel = this._reels[id];
+			duration = fromx;
+            
 			this._frame = {
 				reel: reel, //reel to play
 				frameTime: Math.ceil(duration / reel.length), //number of frames inbetween slides
@@ -3801,13 +3897,17 @@ Crafty.c("SpriteAnimation", {
 				if (y === -1) this._frame.repeatInfinitly = true;
 				else this._frame.repeat = y;
 			}
-			this.bind("enterframe", this.drawFrame);
+			var pos = this._frame.reel[0];
+			this.__coord[0] = pos[0];
+			this.__coord[1] = pos[1];
+
+			this.bind("EnterFrame", this.drawFrame);
 			return this;
 		}
 		if(typeof fromx === "number") {
-			var i = fromx,
-				reel = [],
-				tile = this.__tile;
+			i = fromx;
+			reel = [];
+			tile = this.__tile;
 				
 			if (tox > fromx) {
 				for(;i<=tox;i++) {
@@ -3852,7 +3952,7 @@ Crafty.c("SpriteAnimation", {
 			}
 		}
 		
-		this.trigger("change");
+		this.trigger("Change");
 	},
 	
 	/**@
@@ -3863,7 +3963,7 @@ Crafty.c("SpriteAnimation", {
 	* Stop any animation currently playing.
 	*/
 	stop: function() {
-		this.unbind("enterframe", this.drawFrame);
+		this.unbind("EnterFrame", this.drawFrame);
 		this.unbind("AnimationEnd");
 		this._current = null;
 		this._frame = null;
@@ -3928,31 +4028,34 @@ Crafty.c("Tween", {
 	* ~~~
 	*/
 	tween: function(props, duration) {
-		var prop,
-			old = {},
-			step = {},
-			startFrame = Crafty.frame(),
-			endFrame = startFrame + duration;
-		
-		//store the old properties
-		for(prop in props) {
-			old[prop] = this['_'+prop];
-			step[prop] = (props[prop] - old[prop]) / duration;
-		}
-		
-		this.bind("enterframe", function d(e) {
-			if(e.frame >= endFrame) {
-				this.unbind("enterframe", d);
-				return;
-			}
-			for(prop in props) {
-				this[prop] += step[prop];
-			}
-		});
-		
-		return this;
+        this.each(function() {
+            var prop,
+            old = {},
+            step = {},
+            startFrame = Crafty.frame(),
+            endFrame = startFrame + duration;
+            
+            //store the old properties
+            for(prop in props) {
+                old[prop] = this['_'+prop];
+                step[prop] = (props[prop] - old[prop]) / duration;
+            }
+            
+            this.bind("EnterFrame", function d(e) {
+                if(e.frame >= endFrame) {
+                    this.unbind("EnterFrame", d);
+                    return;
+                }
+                for(var prop in props) {
+                    this[prop] += step[prop];
+                }
+            });
+        });
+        return this;
 	}
 });
+
+
 
 /**@
 * #Color
@@ -3964,7 +4067,7 @@ Crafty.c("Color", {
 	ready: true,
 	
 	init: function() {
-		this.bind("draw", function(e) {
+		this.bind("Draw", function(e) {
 			if(e.type === "DOM") {
 				e.style.background = this._color;
 				e.style.lineHeight = 0;
@@ -3987,7 +4090,7 @@ Crafty.c("Color", {
 	*/
 	color: function(color) {
 		this._color = color;
-		this.trigger("change");
+		this.trigger("Change");
 		return this;
 	}
 });
@@ -4004,12 +4107,16 @@ Crafty.c("Tint", {
 	_strength: 1.0,
 	
 	init: function() {
-		this.bind("draw", function d(e) {
-			var context = e.ctx || Crafty.canvas.context;
+        var draw = function d(e) {
+    		var context = e.ctx || Crafty.canvas.context;
 			
 			context.fillStyle = this._color || "rgb(0,0,0)";
 			context.fillRect(e.pos._x, e.pos._y, e.pos._w, e.pos._h);
-		});
+		};
+        
+		this.bind("Draw", draw).bind("RemoveComponent", function(id) {
+            if(id === "Tint") this.unbind("Draw", draw);  
+        });
 	},
 	
 	/**@
@@ -4024,7 +4131,7 @@ Crafty.c("Tint", {
 		this._strength = strength;
 		this._color = Crafty.toRGB(color, this._strength);
 		
-		this.trigger("change");
+		this.trigger("Change");
 		return this;
 	}
 });
@@ -4039,8 +4146,8 @@ Crafty.c("Image", {
 	ready: false,
 	
 	init: function() {
-		this.bind("draw", function(e) {
-			if(e.type === "canvas") {
+        var draw = function(e) {
+    		if(e.type === "canvas") {
 				//skip if no image
 				if(!this.ready || !this._pattern) return;
 				
@@ -4056,7 +4163,11 @@ Crafty.c("Image", {
 				if(this.__image) 
 					e.style.background = "url(" + this.__image + ") "+this._repeat;
 			}
-		});
+		};
+        
+		this.bind("Draw", draw).bind("RemoveComponent", function(id) {
+            if(id === "Image") this.unbind("Draw", draw);  
+        });
 	},
 	
 	/**@
@@ -4106,7 +4217,7 @@ Crafty.c("Image", {
 					self.h = self.img.height;
 				}
 				
-				self.trigger("change");
+				self.trigger("Change");
 			};
 			
 			return this;
@@ -4120,7 +4231,7 @@ Crafty.c("Image", {
 		}
 		
 		
-		this.trigger("change");
+		this.trigger("Change");
 		
 		return this;
 	}
@@ -4513,7 +4624,7 @@ Crafty.c("particles", {
 
 		var oldViewport = {x: Crafty.viewport.x, y:Crafty.viewport.y};
 		
-		this.bind('enterframe', function () {
+		this.bind('EnterFrame', function () {
 			relativeX = this.x + Crafty.viewport.x;
 			relativeY = this.y + Crafty.viewport.y;
 			this._Particles.viewportDelta = {x: Crafty.viewport.x - oldViewport.x, y: Crafty.viewport.y - oldViewport.y};
@@ -5066,7 +5177,7 @@ Crafty.c("Text", {
 	_text: "",
 	
 	init: function() {
-		this.bind("draw", function(e) {
+		this.bind("Draw", function(e) {
 			if(e.type === "DOM") {
 				var el = this._element, style = el.style;
 				el.innerHTML = this._text;
@@ -5085,11 +5196,10 @@ Crafty.c("Text", {
 	text: function(text) {
 		if(!text) return this._text;
 		this._text = text;
-		this.trigger("change");
+		this.trigger("Change");
 		return this;
 	}
 });
-
 
 Crafty.extend({
 	/**@
@@ -5143,7 +5253,7 @@ Crafty.c("Text", {
 	* @see Crafty.assets
 	*/
 	load: function(data, oncomplete, onprogress, onerror) {
-		var i = 0, l = data.length, current, obj, total = l, j = 0;
+		var i = 0, l = data.length, current, obj, total = l, j = 0, ext;
 		for(;i<l;++i) {
 			current = data[i];
 			ext = current.substr(current.lastIndexOf('.')+1).toLowerCase();

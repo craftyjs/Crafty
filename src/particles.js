@@ -35,7 +35,7 @@ Crafty.c("particles", {
 
 		var oldViewport = {x: Crafty.viewport.x, y:Crafty.viewport.y};
 		
-		this.bind('enterframe', function () {
+		this.bind('EnterFrame', function () {
 			relativeX = this.x + Crafty.viewport.x;
 			relativeY = this.y + Crafty.viewport.y;
 			this._Particles.viewportDelta = {x: Crafty.viewport.x - oldViewport.x, y: Crafty.viewport.y - oldViewport.y};

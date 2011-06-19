@@ -57,13 +57,13 @@ Crafty.extend({
 			//click must mousedown and out on tile
 			if(e.type === "mousedown") {
 				this.down = closest;
-				this.down.trigger('mousedown', e);
+				this.down.trigger("MouseDown", e);
 			} else if(e.type === "mouseup") {
-				closest.trigger("mouseup", e);
+				closest.trigger("MouseUp", e);
 				
 				//check that down exists and this is down
 				if(this.down && closest === this.down) {
-					this.down.trigger("click", e);
+					this.down.trigger("Click", e);
 				}
 				
 				//reset down
@@ -71,39 +71,40 @@ Crafty.extend({
 			} else if(e.type === "mousemove") {
 				if(this.over !== closest) { //if new mousemove, it is over
 					if(this.over) {
-						this.over.trigger("mouseout", e); //if over wasn't null, send mouseout
+						this.over.trigger("MouseOut", e); //if over wasn't null, send mouseout
 						this.over = null;
 					}
 					this.over = closest;
-					closest.trigger("mouseover", e);
+					closest.trigger("MouseOver", e);
 				}
 			} else closest.trigger(e.type, e); //trigger whatever it is
 		} else {
 			if(e.type === "mousemove" && this.over) {
-				this.over.trigger("mouseout", e);
+				this.over.trigger("MouseOut", e);
 				this.over = null;
 			}
 		}
 	},
-        keyboardDispatch: function(e) {
-                e.key = e.keyCode || e.which;
-                if(e.type === "keydown") {
-                        if(Crafty.keydown[e.key] !== true) {
-                                Crafty.keydown[e.key] = true;
-                                Crafty.trigger("KeyDown", e);
-                        }
-                } else if(e.type === "keyup") {
-                        delete Crafty.keydown[e.key];
-                        Crafty.trigger("KeyUp", e);
-                }
-                
-                //prevent searchable keys
-                if(!(e.metaKey || e.altKey || e.ctrlKey) && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
-                        if(e.preventDefault) e.preventDefault();
-                        else e.returnValue = false;
-                        return false;
-                }
-        }
+	
+	keyboardDispatch: function(e) {
+		e.key = e.keyCode || e.which;
+		if(e.type === "keydown") {
+			if(Crafty.keydown[e.key] !== true) {
+				Crafty.keydown[e.key] = true;
+				Crafty.trigger("KeyDown", e);
+			}
+		} else if(e.type === "keyup") {
+			delete Crafty.keydown[e.key];
+			Crafty.trigger("KeyUp", e);
+		}
+		
+		//prevent searchable keys
+		if(!(e.metaKey || e.altKey || e.ctrlKey) && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
+			if(e.preventDefault) e.preventDefault();
+			else e.returnValue = false;
+			return false;
+		}
+	}
 });
 
 //initialize the input events onload
@@ -129,7 +130,7 @@ Crafty.bind("Load", function() {
 Crafty.c("Mouse", {
 	init: function() {
 		Crafty.mouseObjs++;
-		this.bind("remove", function() {
+		this.bind("Remove", function() {
 			Crafty.mouseObjs--;
 		});
 	},
@@ -244,7 +245,7 @@ Crafty.c("Draggable", {
 	* @see .disableDrag
 	*/
 	enableDrag: function() {		
-		this.bind("mousedown", this._ondown);
+		this.bind("MouseDown", this._ondown);
 		
 		Crafty.addEvent(this, Crafty.stage.elem, "mouseup", this._onup);
 		return this;
@@ -258,7 +259,7 @@ Crafty.c("Draggable", {
 	* @see .enableDrag
 	*/
 	disableDrag: function() {
-		this.unbind("mousedown", this._ondown);
+		this.unbind("MouseDown", this._ondown);
 		this.stopDrag();
 		return this;
 	}
@@ -319,39 +320,39 @@ Crafty.c("Multiway", {
 	*/
 	multiway: function(speed, keys) {
 		if(keys){
-                    this._speed = speed;
-                } else {
-                    keys = speed;
-                }
-                
-                this._keyDirection = keys;
-                this.speed(this._speed);
+			this._speed = speed;
+		} else {
+			keys = speed;
+		}
+		
+		this._keyDirection = keys;
+		this.speed(this._speed);
 
-                this.bind("KeyDown", function(e) {
-                    if(this._keys[e.key]) {
-                        this._movement.x = Math.round((this._movement.x + this._keys[e.keyCode].x)*1000)/1000;
-                        this._movement.y = Math.round((this._movement.y + this._keys[e.keyCode].y)*1000)/1000;
-                        this.trigger('NewDirection', this._movement);
-                    }
-                })
-                .bind("KeyUp", function(e) {
-                    if(this._keys[e.key]) {
-                        this._movement.x = Math.round((this._movement.x - this._keys[e.keyCode].x)*1000)/1000;
-                        this._movement.y = Math.round((this._movement.y - this._keys[e.keyCode].y)*1000)/1000;
-                        this.trigger('NewDirection', this._movement);
-                    }
-                })
-                .bind("enterframe",function() {
-                    if (this.disableControls) return;
-            
-                    if(this._movement.x !== 0) {
-                        this.x += this._movement.x;
-                        this.trigger('Moved', {x: this.x - this._movement.x, y: this.y});
-                    }
-                    if(this._movement.y !== 0) {
-                        this.y += this._movement.y;
-                        this.trigger('Moved', {x: this.x, y: this.y - this._movement.y});
-                    }
+		this.bind("KeyDown", function(e) {
+			if(this._keys[e.key]) {
+				this._movement.x = Math.round((this._movement.x + this._keys[e.keyCode].x)*1000)/1000;
+				this._movement.y = Math.round((this._movement.y + this._keys[e.keyCode].y)*1000)/1000;
+				this.trigger('NewDirection', this._movement);
+			}
+		})
+		.bind("KeyUp", function(e) {
+			if(this._keys[e.key]) {
+				this._movement.x = Math.round((this._movement.x - this._keys[e.keyCode].x)*1000)/1000;
+				this._movement.y = Math.round((this._movement.y - this._keys[e.keyCode].y)*1000)/1000;
+				this.trigger('NewDirection', this._movement);
+			}
+		})
+		.bind("EnterFrame",function() {
+			if (this.disableControls) return;
+	
+			if(this._movement.x !== 0) {
+				this.x += this._movement.x;
+				this.trigger('Moved', {x: this.x - this._movement.x, y: this.y});
+			}
+			if(this._movement.y !== 0) {
+				this.y += this._movement.y;
+				this.trigger('Moved', {x: this.x, y: this.y - this._movement.y});
+			}
 		});
 		
 		return this;
@@ -440,7 +441,7 @@ Crafty.c("Twoway", {
 		if(speed) this._speed = speed;
 		jump = jump || this._speed * 2;
 		
-		this.bind("enterframe", function() {
+		this.bind("EnterFrame", function() {
 			if (this.disableControls) return;
 			if(this.isDown("RIGHT_ARROW") || this.isDown("D")) {
 				this.x += this._speed;

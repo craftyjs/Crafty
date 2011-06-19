@@ -59,11 +59,11 @@ Crafty.c("SpriteAnimation", {
 				if (y === -1) this._frame.repeatInfinitly = true;
 				else this._frame.repeat = y;
 			}
-                        var pos = this._frame.reel[0];
-                        this.__coord[0] = pos[0];
-                        this.__coord[1] = pos[1];
+			var pos = this._frame.reel[0];
+			this.__coord[0] = pos[0];
+			this.__coord[1] = pos[1];
 
-			this.bind("enterframe", this.drawFrame);
+			this.bind("EnterFrame", this.drawFrame);
 			return this;
 		}
 		if(typeof fromx === "number") {
@@ -114,7 +114,7 @@ Crafty.c("SpriteAnimation", {
 			}
 		}
 		
-		this.trigger("change");
+		this.trigger("Change");
 	},
 	
 	/**@
@@ -125,7 +125,7 @@ Crafty.c("SpriteAnimation", {
 	* Stop any animation currently playing.
 	*/
 	stop: function() {
-		this.unbind("enterframe", this.drawFrame);
+		this.unbind("EnterFrame", this.drawFrame);
 		this.unbind("AnimationEnd");
 		this._current = null;
 		this._frame = null;
@@ -203,9 +203,9 @@ Crafty.c("Tween", {
                 step[prop] = (props[prop] - old[prop]) / duration;
             }
             
-            this.bind("enterframe", function d(e) {
+            this.bind("EnterFrame", function d(e) {
                 if(e.frame >= endFrame) {
-                    this.unbind("enterframe", d);
+                    this.unbind("EnterFrame", d);
                     return;
                 }
                 for(var prop in props) {
@@ -216,3 +216,4 @@ Crafty.c("Tween", {
         return this;
 	}
 });
+

@@ -17,7 +17,7 @@ Crafty.c("DOM", {
 		this._element.style.position = "absolute";
 		this._element.id = "ent" + this[0];
 		
-		this.bind("change", function() {
+		this.bind("Change", function() {
 			if(!this._changed) {
 				this._changed = true;
 				Crafty.DrawManager.add(this);
@@ -38,7 +38,7 @@ Crafty.c("DOM", {
 		if(Crafty.support.prefix === "ms" && Crafty.support.version < 9) {
 			this._filters = {};
 			
-			this.bind("rotate", function(e) {
+			this.bind("Rotate", function(e) {
 				var m = e.matrix,
 					elem = this._element.style,
 					M11 = m.M11.toFixed(8),
@@ -51,7 +51,7 @@ Crafty.c("DOM", {
 			});
 		}
 		
-		this.bind("remove", this.undraw);
+		this.bind("Remove", this.undraw);
 	},
 	
 	/**@
@@ -87,13 +87,8 @@ Crafty.c("DOM", {
 		if(!this._visible) style.visibility = "hidden";
 		else style.visibility = "visible";
 		
-		if(Crafty.mobile) {
-			if(Crafty.support.css3dtransform) trans.push("translate3d("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
-			else trans.push("translate("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
-		} else {
-			style.top = ~~(this._y) + "px";
-			style.left = ~~(this._x) + "px";
-		}
+		if(Crafty.support.css3dtransform) trans.push("translate3d("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
+		else trans.push("translate("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
 		style.width = ~~(this._w) + "px";
 		style.height = ~~(this._h) + "px";
 		style.zIndex = this._z;
@@ -102,7 +97,7 @@ Crafty.c("DOM", {
 		style[prefix+"Opacity"] = this._alpha;
 		
 		//if not version 9 of IE
-		if(Crafty.support.prefix === "ms" && Crafty.support.version < 9) {
+		if(prefix === "ms" && Crafty.support.version < 9) {
 			//for IE version 8, use ImageTransform filter
 			if(Crafty.support.version === 8) {
 				this._filters.alpha = "progid:DXImageTransform.Microsoft.Alpha(Opacity="+(this._alpha * 100)+")"; // first!
@@ -115,16 +110,16 @@ Crafty.c("DOM", {
 		
 		if(this._mbr) {
 			var origin = this._origin.x + "px " + this._origin.y + "px";
-			if(Crafty.support.css3dtransform) trans.push( "rotateZ("+this._rotation+"deg)" );
-			else trans.push( "rotate("+this._rotation+"deg)" );
-			//style.transformOrigin = origin;
-			//style[prefix+"TransformOrigin"] = origin;
+			style.transformOrigin = origin;
+			style[prefix+"TransformOrigin"] = origin;
+			if(Crafty.support.css3dtransform) trans.push("rotateZ("+this._rotation+"deg)");
+			else trans.push("rotate("+this._rotation+"deg)");
 		}
 		
 		style.transform = trans.join(" ");
 		style[prefix+"Transform"] = trans.join(" ");
 		
-		this.trigger("draw", {style: style, type: "DOM", co: co});
+		this.trigger("Draw", {style: style, type: "DOM", co: co});
 		
 		return this;
 	},
@@ -196,7 +191,7 @@ Crafty.c("DOM", {
 			}
 		}
 		
-		this.trigger("change");
+		this.trigger("Change");
 		
 		return this;
 	}

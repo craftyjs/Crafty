@@ -14,7 +14,7 @@ Crafty.c("Canvas", {
 		//increment the amount of canvas objs
 		Crafty.DrawManager.total2D++;
 		
-		this.bind("change", function(e) {
+		this.bind("Change", function(e) {
 			//if within screen, add to list	
 			if(this._changed === false) {
 				this._changed = Crafty.DrawManager.add(e || this, this);
@@ -23,7 +23,7 @@ Crafty.c("Canvas", {
 			}
 		});
 		
-		this.bind("remove", function() {
+		this.bind("Remove", function() {
 			Crafty.DrawManager.total2D--;
 			Crafty.DrawManager.add(this,this);
 		});
@@ -82,7 +82,7 @@ Crafty.c("Canvas", {
 			context.globalAlpha = this._alpha;
 		}
 		
-		this.trigger("draw", {type: "canvas", pos: pos, co: co, ctx: context});
+		this.trigger("Draw", {type: "canvas", pos: pos, co: co, ctx: context});
 		
 		if(this._mbr) {
 			context.restore();

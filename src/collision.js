@@ -124,7 +124,7 @@ Crafty.c("Collision", {
 	*/
 	onHit: function(comp, fn, fnOff) {
 		var justHit = false;
-		this.bind("enterframe", function() {
+		this.bind("EnterFrame", function() {
 			var hitdata = this.hit(comp);
 			if(hitdata) {
 				justHit = true;

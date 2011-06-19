@@ -8,7 +8,7 @@ Crafty.c("Text", {
 	_text: "",
 	
 	init: function() {
-		this.bind("draw", function(e) {
+		this.bind("Draw", function(e) {
 			if(e.type === "DOM") {
 				var el = this._element, style = el.style;
 				el.innerHTML = this._text;
@@ -27,7 +27,7 @@ Crafty.c("Text", {
 	text: function(text) {
 		if(!text) return this._text;
 		this._text = text;
-		this.trigger("change");
+		this.trigger("Change");
 		return this;
 	}
 });

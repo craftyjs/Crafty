@@ -42,14 +42,21 @@ Crafty.extend({
 	* Entities that add the generated components are also given a component called `Sprite`.
 	* @see Sprite
 	*/
-	sprite: function(tile, url, map, paddingX, paddingY) {
+	sprite: function(tile, tileh, url, map, paddingX, paddingY) {
 		var pos, temp, x, y, w, h, img;
 		
 		//if no tile value, default to 16
 		if(typeof tile === "string") {
 			map = url;
-			url = tile;
+			url = tileh;
 			tile = 1;
+			tileh = 1;
+		}
+		
+		if(typeof tileh == "string") {
+			map = url;
+			url = tileh;
+			tileh = tile;
 		}
 		
 		//if no paddingY, use paddingX
@@ -67,7 +74,7 @@ Crafty.extend({
 				for(var pos in map) {
 					Crafty(pos).each(function() {
 						this.ready = true;
-						this.trigger("change");
+						this.trigger("Change");
 					});
 				}
 			};
@@ -78,9 +85,9 @@ Crafty.extend({
 			
 			temp = map[pos];
 			x = temp[0] * tile + paddingX;
-			y = temp[1] * tile + paddingY;
+			y = temp[1] * tileh + paddingY;
 			w = temp[2] * tile || tile;
-			h = temp[3] * tile || tile;
+			h = temp[3] * tileh || tileh;
 			
 			/**@
 			* #Sprite
@@ -91,6 +98,7 @@ Crafty.extend({
 				__image: url,
 				__coord: [x,y,w,h],
 				__tile: tile,
+				__tileh: tileh,
 				__padding: [paddingX, paddingY],
 				__trim: null,
 				img: img,
@@ -104,7 +112,7 @@ Crafty.extend({
 					//draw now
 					if(this.img.complete && this.img.width > 0) {
 						this.ready = true;
-						this.trigger("change");
+						this.trigger("Change");
 					}
 
 					//set the width and height to the sprite size
@@ -118,7 +126,7 @@ Crafty.extend({
 							
 						if(e.type === "canvas") {
 							//draw the image on the canvas element
-							try { context.drawImage(this.img, //image element
+							context.drawImage(this.img, //image element
 											 co.x, //x position on sprite
 											 co.y, //y position on sprite
 											 co.w, //width on sprite
@@ -127,14 +135,14 @@ Crafty.extend({
 											 pos._y, //y position on canvas
 											 pos._w, //width on canvas
 											 pos._h //height on canvas
-							); }catch(err) { console.log(err, co, pos) }
+							);
 						} else if(e.type === "DOM") {
 							this._element.style.background = "url('" + this.__image + "') no-repeat -" + co.x + "px -" + co.y + "px";
 						}
 					};
                     
-					this.bind("draw", draw).bind("RemoveComponent", function(id) {
-                        if(id === pos) this.unbind("draw", draw);  
+					this.bind("Draw", draw).bind("RemoveComponent", function(id) {
+                        if(id === pos) this.unbind("Draw", draw);  
                     });
 				},
 				
@@ -152,10 +160,11 @@ Crafty.extend({
 				*/
 				sprite: function(x,y,w,h) {
 					this.__coord = [x * this.__tile + this.__padding[0] + this.__trim[0],
-									y * this.__tile + this.__padding[1] + this.__trim[1],
+									y * this.__tileh + this.__padding[1] + this.__trim[1],
 									this.__trim[2] || w * this.__tile || this.__tile,
-									this.__trim[3] || h * this.__tile || this.__tile];
-					this.trigger("change");
+									this.__trim[3] || h * this.__tileh || this.__tileh];
+					
+					this.trigger("Change");
 					return this;
 				},
 				
@@ -186,7 +195,7 @@ Crafty.extend({
 					this._w = w;
 					this._h = h;
 					
-					this.trigger("change", old);
+					this.trigger("Change", old);
 					return this;
 				}
 			});
@@ -751,7 +760,7 @@ Crafty.extend({
 */
 Crafty.c("viewport", {
 	init: function() {
-		this.bind("enterframe", function() {
+		this.bind("EnterFrame", function() {
 			if(Crafty.viewport._x !== Crafty.viewport.x) {
 				Crafty.viewport.scroll('_x', Crafty.viewport.x);
 			}

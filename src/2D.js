@@ -146,7 +146,7 @@ Crafty.c("2D", {
 			this.visible = this._visible;
 			
 			//on every frame check for a difference in any property
-			this.bind("enterframe", function() {
+			this.bind("EnterFrame", function() {
 				//if there are differences between the public and private properties
 				if(this.x !== this._x || this.y !== this._y ||
 				   this.w !== this._w || this.h !== this._h ||
@@ -171,7 +171,7 @@ Crafty.c("2D", {
 						}
 						
 						//if the moved flag is true, trigger a move
-						if(moved) this.trigger("move", old);
+						if(moved) this.trigger("Move", old);
 					}
 					
 					//set the public properties to the private properties
@@ -185,7 +185,7 @@ Crafty.c("2D", {
 					this._visible = this.visible;
 					
 					//trigger the changes
-					this.trigger("change", old);
+					this.trigger("Change", old);
 				}
 			});
 		}
@@ -194,20 +194,20 @@ Crafty.c("2D", {
 		this._entry = Crafty.map.insert(this);
 		
 		//when object changes, update HashMap
-		this.bind("move", function(e) {
+		this.bind("Move", function(e) {
 			var area = this._mbr || this;
 			this._entry.update(area);
 			this._cascade(e);
 		});
 		
-		this.bind("rotate", function(e) {
+		this.bind("Rotate", function(e) {
 			var old = this._mbr || this;
 			this._entry.update(old);
 			this._cascade(e);
 		});
 		
 		//when object is removed, remove from HashMap
-		this.bind("remove", function() {
+		this.bind("Remove", function() {
 			Crafty.map.remove(this);
 			
 			this.detach();
@@ -250,7 +250,7 @@ Crafty.c("2D", {
 		var difference = this._rotation - v,
 			drad = difference * DEG_TO_RAD;
 			
-		this.trigger("rotate", {
+		this.trigger("Rotate", {
 			cos: Math.cos(drad), 
 			sin: Math.sin(drad), 
 			deg: difference, 
@@ -576,14 +576,14 @@ Crafty.c("2D", {
 				mbr[name] -= this[name] - value;
 			}
 			this[name] = value;
-			this.trigger("move", old);
+			this.trigger("Move", old);
 		}
 		
 		//everything will assume the value
 		this[name] = value;
 		
 		//trigger a change
-		this.trigger("change", old);
+		this.trigger("Change", old);
 	}
 });
 
@@ -610,7 +610,7 @@ Crafty.c("Gravity", {
 	gravity: function(comp) {
 		if(comp) this._anti = comp;
 
-		this.bind("enterframe", this._enterframe);
+		this.bind("EnterFrame", this._enterframe);
 
 		return this;
 	},
@@ -665,7 +665,7 @@ Crafty.c("Gravity", {
 	},
 
 	antigravity: function() {
-		this.unbind("enterframe", this._enterframe);
+		this.unbind("EnterFrame", this._enterframe);
 	}
 });
 

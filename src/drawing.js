@@ -8,7 +8,7 @@ Crafty.c("Color", {
 	ready: true,
 	
 	init: function() {
-		this.bind("draw", function(e) {
+		this.bind("Draw", function(e) {
 			if(e.type === "DOM") {
 				e.style.background = this._color;
 				e.style.lineHeight = 0;
@@ -31,7 +31,7 @@ Crafty.c("Color", {
 	*/
 	color: function(color) {
 		this._color = color;
-		this.trigger("change");
+		this.trigger("Change");
 		return this;
 	}
 });
@@ -55,8 +55,8 @@ Crafty.c("Tint", {
 			context.fillRect(e.pos._x, e.pos._y, e.pos._w, e.pos._h);
 		};
         
-		this.bind("draw", draw).bind("RemoveComponent", function(id) {
-            if(id === "Tint") this.unbind("draw", draw);  
+		this.bind("Draw", draw).bind("RemoveComponent", function(id) {
+            if(id === "Tint") this.unbind("Draw", draw);  
         });
 	},
 	
@@ -72,7 +72,7 @@ Crafty.c("Tint", {
 		this._strength = strength;
 		this._color = Crafty.toRGB(color, this._strength);
 		
-		this.trigger("change");
+		this.trigger("Change");
 		return this;
 	}
 });
@@ -106,8 +106,8 @@ Crafty.c("Image", {
 			}
 		};
         
-		this.bind("draw", draw).bind("RemoveComponent", function(id) {
-            if(id === "Image") this.unbind("draw", draw);  
+		this.bind("Draw", draw).bind("RemoveComponent", function(id) {
+            if(id === "Image") this.unbind("Draw", draw);  
         });
 	},
 	
@@ -158,7 +158,7 @@ Crafty.c("Image", {
 					self.h = self.img.height;
 				}
 				
-				self.trigger("change");
+				self.trigger("Change");
 			};
 			
 			return this;
@@ -172,7 +172,7 @@ Crafty.c("Image", {
 		}
 		
 		
-		this.trigger("change");
+		this.trigger("Change");
 		
 		return this;
 	}
