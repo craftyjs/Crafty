@@ -88,7 +88,11 @@ Crafty.c("DOM", {
 		else style.visibility = "visible";
 		
 		if(Crafty.support.css3dtransform) trans.push("translate3d("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
-		else trans.push("translate("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
+		else {
+			style.top = Number(this._y)+"px";
+			style.left = Number(this._x)+"px";
+			//trans.push("translate("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
+		}
 		style.width = ~~(this._w) + "px";
 		style.height = ~~(this._h) + "px";
 		style.zIndex = this._z;
