@@ -46,8 +46,7 @@ Crafty.c("DOM", {
 					M21 = m.M21.toFixed(8),
 					M22 = m.M22.toFixed(8);
 				
-				
-				this._filters.rotation = "progid:DXImageTransform.Microsoft.Matrix(M11="+M11+", M12="+M12+", M21="+M21+", M22="+M22+", sizingMethod='auto expand')";
+				this._filters.rotation = "progid:DXImageTransform.Microsoft.Matrix(M11="+M11+", M12="+M12+", M21="+M21+", M22="+M22+",sizingMethod='auto expand')";
 			});
 		}
 		
@@ -59,7 +58,7 @@ Crafty.c("DOM", {
 	* @comp DOM
 	* @sign public this .DOM(HTMLElement elem)
 	* @param elem - HTML element that will replace the dynamically created one
-	* Pass a DOM element to use rather than one created. Will set  `._element` to this value. Removes the old element.
+	* Pass a DOM element to use rather than one created. Will set `._element` to this value. Removes the old element.
 	*/
 	DOM: function(elem) {
 		if(elem && elem.nodeType) {
@@ -87,8 +86,14 @@ Crafty.c("DOM", {
 		if(!this._visible) style.visibility = "hidden";
 		else style.visibility = "visible";
 		
-		if(Crafty.support.css3dtransform) trans.push("translate3d("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
-		else trans.push("translate("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
+		//utilize CSS3 if supported
+		if(Crafty.support.css3dtransform) {
+			trans.push("translate3d("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
+		} else {
+			style.left = ~~(this._x) + "px";
+			style.top = ~~(this._y) + "px";
+		}
+		
 		style.width = ~~(this._w) + "px";
 		style.height = ~~(this._h) + "px";
 		style.zIndex = this._z;
@@ -105,7 +110,6 @@ Crafty.c("DOM", {
 			} else {
 				this._filters.alpha = "alpha(opacity="+(this._alpha*100)+")";
 			}
-			this.applyFilters();
 		}
 		
 		if(this._mbr) {
@@ -114,6 +118,25 @@ Crafty.c("DOM", {
 			style[prefix+"TransformOrigin"] = origin;
 			if(Crafty.support.css3dtransform) trans.push("rotateZ("+this._rotation+"deg)");
 			else trans.push("rotate("+this._rotation+"deg)");
+		}
+		
+		if(this._flipX) {
+			trans.push("scaleX(-1)");
+			if(prefix === "ms" && Crafty.support.version < 9) {
+				this._filters.flipX = "fliph";
+			}
+		}
+		
+		if(this._flipY) {
+			trans.push("scaleY(-1)");
+			if(prefix === "ms" && Crafty.support.version < 9) {
+				this._filters.flipY = "flipv";
+			}
+		}
+		
+		//apply the filters if IE
+		if(prefix === "ms" && Crafty.support.version < 9) {
+			this.applyFilters();
 		}
 		
 		style.transform = trans.join(" ");
@@ -126,10 +149,14 @@ Crafty.c("DOM", {
 	
 	applyFilters: function() {
 		this._element.style.filter = "";
+		var str = "";
+		
 		for(var filter in this._filters) {
 			if(!this._filters.hasOwnProperty(filter)) continue;
-			this._element.style.filter += this._filters[filter] + " ";
+			str += this._filters[filter] + " ";
 		}
+		
+		this._element.style.filter = str;
 	},
 	
 	/**@

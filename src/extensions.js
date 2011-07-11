@@ -723,11 +723,13 @@ Crafty.extend({
 	/**@
 	* #Crafty.support.prefix
 	* @comp Crafty.support
-	* Returns the browser specific prefix (`Moz`, `o`, `ms`, `webkit`).
+	* Returns the browser specific prefix (`Moz`, `O`, `ms`, `webkit`).
 	*/
 	support.prefix = (match[1] || match[0]);
+	
 	//browser specific quirks
 	if(support.prefix === "moz") support.prefix = "Moz";
+	if(support.prefix === "o") support.prefix = "O";
 	
 	if(match[2]) {
 		/**@

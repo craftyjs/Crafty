@@ -99,11 +99,13 @@ Crafty.extend({
 		}
 		
 		//prevent searchable keys
-		if(!(e.metaKey || e.altKey || e.ctrlKey) && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
+		/*
+		if((e.metaKey || e.altKey || e.ctrlKey) && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
+			console.log(e);
 			if(e.preventDefault) e.preventDefault();
 			else e.returnValue = false;
 			return false;
-		}
+		}*/
 	}
 });
 
@@ -187,6 +189,8 @@ Crafty.c("Draggable", {
 		};
 		
 		this._ondown = function(e) {
+			if(e.button !== 0) return;
+			
 			//start drag
 			this._startX = e.realX - this._x;
 			this._startY = e.realY - this._y;

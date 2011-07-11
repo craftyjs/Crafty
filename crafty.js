@@ -884,6 +884,10 @@ Crafty.extend({
 		return components;
 	},
 	
+	isComp: function(comp) {
+		return comp in components;
+	},
+	
 	debug: function() {
 		return entities;
 	},
@@ -1664,14 +1668,18 @@ Crafty.c("2D", {
 				else if(cmd[1] === "left") x = 0;
 				else if(cmd[1] === "right") x = this._w;
 			}
-			
-			
-		} else if(x > this._w || y > this._h || x < 0 || y < 0) return this;
+		}
 		
 		this._origin.x = x;
 		this._origin.y = y;
 		
 		return this;
+	},
+	
+	flip: function(dir) {
+		dir = dir || "X";
+		this["_flip"+dir] = true;
+		this.trigger("Change");
 	},
 	
 	/**
@@ -1887,6 +1895,40 @@ Crafty.polygon.prototype = {
 		}
 	}
 };
+
+Crafty.matrix = function(m) {
+	this.mtx = m;
+	this.width = m[0].length;
+	this.height = m.length;
+};
+
+Crafty.matrix.prototype = {
+	x: function(other) {
+		if (this.width != other.height) {
+			return;
+		}
+	 
+		var result = [];
+		for (var i = 0; i < this.height; i++) {
+			result[i] = [];
+			for (var j = 0; j < other.width; j++) {
+				var sum = 0;
+				for (var k = 0; k < this.width; k++) {
+					sum += this.mtx[i][k] * other.mtx[k][j];
+				}
+				result[i][j] = sum;
+			}
+		}
+		return new Crafty.matrix(result); 
+	},
+	
+	
+	e: function(row, col) {
+		//test if out of bounds
+		if(row < 1 || row > this.mtx.length || col < 1 || col > this.mtx[0].length) return null;
+		return this.mtx[row - 1][col - 1];
+	}
+}
 
 /**@
 * #Collision
@@ -2180,8 +2222,7 @@ Crafty.c("DOM", {
 					M21 = m.M21.toFixed(8),
 					M22 = m.M22.toFixed(8);
 				
-				
-				this._filters.rotation = "progid:DXImageTransform.Microsoft.Matrix(M11="+M11+", M12="+M12+", M21="+M21+", M22="+M22+", sizingMethod='auto expand')";
+				this._filters.rotation = "progid:DXImageTransform.Microsoft.Matrix(M11="+M11+", M12="+M12+", M21="+M21+", M22="+M22+",sizingMethod='auto expand')";
 			});
 		}
 		
@@ -2193,7 +2234,7 @@ Crafty.c("DOM", {
 	* @comp DOM
 	* @sign public this .DOM(HTMLElement elem)
 	* @param elem - HTML element that will replace the dynamically created one
-	* Pass a DOM element to use rather than one created. Will set  `._element` to this value. Removes the old element.
+	* Pass a DOM element to use rather than one created. Will set `._element` to this value. Removes the old element.
 	*/
 	DOM: function(elem) {
 		if(elem && elem.nodeType) {
@@ -2221,8 +2262,14 @@ Crafty.c("DOM", {
 		if(!this._visible) style.visibility = "hidden";
 		else style.visibility = "visible";
 		
-		if(Crafty.support.css3dtransform) trans.push("translate3d("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
-		else trans.push("translate("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
+		//utilize CSS3 if supported
+		if(Crafty.support.css3dtransform) {
+			trans.push("translate3d("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
+		} else {
+			style.left = ~~(this._x) + "px";
+			style.top = ~~(this._y) + "px";
+		}
+		
 		style.width = ~~(this._w) + "px";
 		style.height = ~~(this._h) + "px";
 		style.zIndex = this._z;
@@ -2239,7 +2286,6 @@ Crafty.c("DOM", {
 			} else {
 				this._filters.alpha = "alpha(opacity="+(this._alpha*100)+")";
 			}
-			this.applyFilters();
 		}
 		
 		if(this._mbr) {
@@ -2248,6 +2294,25 @@ Crafty.c("DOM", {
 			style[prefix+"TransformOrigin"] = origin;
 			if(Crafty.support.css3dtransform) trans.push("rotateZ("+this._rotation+"deg)");
 			else trans.push("rotate("+this._rotation+"deg)");
+		}
+		
+		if(this._flipX) {
+			trans.push("scaleX(-1)");
+			if(prefix === "ms" && Crafty.support.version < 9) {
+				this._filters.flipX = "fliph";
+			}
+		}
+		
+		if(this._flipY) {
+			trans.push("scaleY(-1)");
+			if(prefix === "ms" && Crafty.support.version < 9) {
+				this._filters.flipY = "flipv";
+			}
+		}
+		
+		//apply the filters if IE
+		if(prefix === "ms" && Crafty.support.version < 9) {
+			this.applyFilters();
 		}
 		
 		style.transform = trans.join(" ");
@@ -2260,10 +2325,14 @@ Crafty.c("DOM", {
 	
 	applyFilters: function() {
 		this._element.style.filter = "";
+		var str = "";
+		
 		for(var filter in this._filters) {
 			if(!this._filters.hasOwnProperty(filter)) continue;
-			this._element.style.filter += this._filters[filter] + " ";
+			str += this._filters[filter] + " ";
 		}
+		
+		this._element.style.filter = str;
 	},
 	
 	/**@
@@ -3170,11 +3239,13 @@ Crafty.extend({
 	/**@
 	* #Crafty.support.prefix
 	* @comp Crafty.support
-	* Returns the browser specific prefix (`Moz`, `o`, `ms`, `webkit`).
+	* Returns the browser specific prefix (`Moz`, `O`, `ms`, `webkit`).
 	*/
 	support.prefix = (match[1] || match[0]);
+	
 	//browser specific quirks
 	if(support.prefix === "moz") support.prefix = "Moz";
+	if(support.prefix === "o") support.prefix = "O";
 	
 	if(match[2]) {
 		/**@
@@ -3473,11 +3544,13 @@ Crafty.extend({
 		}
 		
 		//prevent searchable keys
-		if(!(e.metaKey || e.altKey || e.ctrlKey) && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
+		/*
+		if((e.metaKey || e.altKey || e.ctrlKey) && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
+			console.log(e);
 			if(e.preventDefault) e.preventDefault();
 			else e.returnValue = false;
 			return false;
-		}
+		}*/
 	}
 });
 
@@ -3561,6 +3634,8 @@ Crafty.c("Draggable", {
 		};
 		
 		this._ondown = function(e) {
+			if(e.button !== 0) return;
+			
 			//start drag
 			this._startX = e.realX - this._x;
 			this._startY = e.realY - this._y;
@@ -3835,6 +3910,82 @@ Crafty.c("Twoway", {
 	}
 });
 
+
+Crafty.c("Animation", {
+	_reel: null,
+	
+	init: function() {
+		this._reel = {};
+	},
+	
+	addAnimation: function(label, skeleton) {
+		var key,
+			lastKey = 0,
+			i = 0, j,
+			frame,
+			prev,
+			prop,
+			diff = {},
+			p,
+			temp,
+			frames = [];
+		
+		//loop over every frame
+		for(key in skeleton) {
+			
+			frame = skeleton[key];
+			prev = skeleton[lastKey] || this;
+			diff = {};
+			
+			//find the difference
+			for(prop in frame) {
+				if(typeof frame[prop] !== "number") {
+					diff[prop] = frame[prop];
+					continue;
+				}
+				
+				diff[prop] = (frame[prop] - prev[prop]) / (key - lastKey);
+			}
+			
+			for(i = +lastKey + 1, j = 1; i <= +key; ++i, ++j) {
+				temp = {};
+				for(p in diff) {
+					if(typeof diff[p] === "number") {
+						temp[p] = prev[p] + diff[p] * j;
+					} else {
+						temp[p] = diff[p];
+					}
+				}
+				
+				frames[i] = temp;
+			}
+			lastKey = key;
+		}
+		
+		this._reel[label] = frames;
+		
+		return this;
+	},
+	
+	playAnimation: function(label) {
+		var reel = this._reel[label],
+			i = 0,
+			l = reel.length,
+			prop;
+		
+		this.bind("EnterFrame", function e() {
+			for(prop in reel[i]) {
+				this[prop] = reel[i][prop];
+			}
+			i++;
+			
+			if(i > l) {
+				this.trigger("AnimationEnd");
+				this.unbind("EnterFrame", e);
+			}
+		});
+	}
+});
 
 /**@
 * #SpriteAnimation

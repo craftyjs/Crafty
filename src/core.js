@@ -876,6 +876,10 @@ Crafty.extend({
 		return components;
 	},
 	
+	isComp: function(comp) {
+		return comp in components;
+	},
+	
 	debug: function() {
 		return entities;
 	},
