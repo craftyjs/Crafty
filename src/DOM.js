@@ -86,7 +86,7 @@ Crafty.c("DOM", {
 		if(!this._visible) style.visibility = "hidden";
 		else style.visibility = "visible";
 		
-<<<<<<< HEAD
+/*<<<<<<< HEAD
 		//utilize CSS3 if supported
 		if(Crafty.support.css3dtransform) {
 			trans.push("translate3d("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
@@ -95,14 +95,14 @@ Crafty.c("DOM", {
 			style.top = ~~(this._y) + "px";
 		}
 		
-=======
+=======*/
 		if(Crafty.support.css3dtransform) trans.push("translate3d("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
 		else {
 			style.top = Number(this._y)+"px";
 			style.left = Number(this._x)+"px";
 			//trans.push("translate("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
 		}
->>>>>>> 48ba1ac29df667845aac2e829f6024c0603a4ea6
+//>>>>>>> 48ba1ac29df667845aac2e829f6024c0603a4ea6
 		style.width = ~~(this._w) + "px";
 		style.height = ~~(this._h) + "px";
 		style.zIndex = this._z;
