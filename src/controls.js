@@ -464,7 +464,7 @@ Crafty.c("Twoway", {
 				this.y -= jump;
 				this._falling = true;
 			}
-		}).bind("keydown", function() {
+		}).bind("KeyDown", function() {
 			if(this.isDown("UP_ARROW") || this.isDown("W")) this._up = true;
 		});
 		
