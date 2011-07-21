@@ -1896,6 +1896,93 @@ Crafty.polygon.prototype = {
 	}
 };
 
+/**@
+* #Crafty.Circle
+* @category 2D
+* Circle object used for hitboxes and click maps. Must pass a `x`, a `y` and a `radius` value.
+*
+* ~~~
+* var centerX = 5,
+*     centerY = 10,
+*     radius = 25;
+*
+* new Crafty.circle(centerX, centerY, radius);
+* ~~~
+*
+* When creating a circle for an entity, each point should be offset or relative from the entities `x` and `y` 
+* (don't include the absolute values as it will automatically calculate this).
+*/
+Crafty.circle = function(x, y, radius) {
+	this.x = x;
+	this.y = y;
+	this.radius = radius;
+	
+	// Creates an octogon that aproximate the circle for backward compatibility.
+	this.points = [];
+	var theta;
+	
+	for(var i = 0; i < 8; i++) {
+		theta = i * Math.PI / 4;
+		this.points[i] = [Math.sin(theta) * radius, Math.cos(theta) * radius];
+	}
+};
+
+Crafty.circle.prototype = {
+	/**@
+	* #.containsPoint
+	* @comp Crafty.Circle
+	* @sign public Boolean .containsPoint(Number x, Number y)
+	* @param x - X position of the point
+	* @param y - Y position of the point
+	* Method is used to determine if a given point is contained by the circle.
+	* @example
+	* ~~~
+	* var circle = new Crafty.circle(0, 0, 10);
+	* circle.containsPoint(0, 0); //TRUE
+	* circle.containsPoint(50, 50); //FALSE
+	* ~~~
+	*/
+	containsPoint: function(x, y) {
+		var radius = this.radius,
+		    sqrt = Math.sqrt,
+		    deltaX = this.x - x,
+		    deltaY = this.y - y;
+
+		return (deltaX * deltaX + deltaY * deltaY) < (radius * radius);
+	},
+	
+	/**@
+	* #.shift
+	* @comp Crafty.Circle
+	* @sign public void .shift(Number x, Number y)
+	* @param x - Amount to shift the `x` axis
+	* @param y - Amount to shift the `y` axis
+	* Shifts the circle by the specified amount.
+	* @example
+	* ~~~
+	* var poly = new Crafty.circle(0, 0, 10);
+	* circle.shift(5,5);
+	* //{x: 5, y: 5, radius: 10};
+	* ~~~
+	*/
+	shift: function(x,y) {
+		this.x += x;
+		this.y += y;
+		
+		var i = 0, l = this.points.length, current;
+		for(;i<l;i++) {
+			current = this.points[i];
+			current[0] += x;
+			current[1] += y;
+		}
+	},
+	
+	rotate: function() {
+		// We are a circle, we don't have to rotate :)
+	}
+};
+
+
 Crafty.matrix = function(m) {
 	this.mtx = m;
 	this.width = m[0].length;
