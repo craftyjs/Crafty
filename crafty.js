@@ -6,7 +6,7 @@
 * Dual licensed under the MIT or GPL licenses.
 */
 
-(function(window, undefined) {
+(function(window, undefined) {
 
 /**@
 * #Crafty
@@ -993,11 +993,11 @@ Crafty.bind("Load", function() {
 window.Crafty = Crafty;
 })(window);
 
-//wrap around components
+//wrap around components
 (function(Crafty, window, document) {
 
 
-/**
+/**
 * Spatial HashMap for broad phase collision
 *
 * @author Louis Stowasser
@@ -1135,7 +1135,7 @@ Entry.prototype = {
 parent.HashMap = HashMap;
 })(Crafty);
 
-Crafty.map = new Crafty.HashMap();
+Crafty.map = new Crafty.HashMap();
 var M = Math,
 	Mc = M.cos,
 	Ms = M.sin,
@@ -1745,7 +1745,7 @@ Crafty.c("Gravity", {
 	_anti: null,
 
 	init: function() {
-		if(!this.has("2D")) this.addComponent("2D");		
+		this.requires("2D");		
 	},
 
 	gravity: function(comp) {
@@ -1930,7 +1930,7 @@ Crafty.matrix.prototype = {
 	}
 }
 
-/**@
+/**@
 * #Collision
 * @category 2D
 * Component to detect collision between any two convex polygons.
@@ -2174,7 +2174,7 @@ Crafty.c("Collision", {
 	}
 });
 
-/**@
+/**@
 * #DOM
 * @category Graphics
 * Draws entities as DOM nodes, specifically `<DIV>`s.
@@ -2262,6 +2262,7 @@ Crafty.c("DOM", {
 		if(!this._visible) style.visibility = "hidden";
 		else style.visibility = "visible";
 		
+/*<<<<<<< HEAD
 		//utilize CSS3 if supported
 		if(Crafty.support.css3dtransform) {
 			trans.push("translate3d("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
@@ -2270,6 +2271,14 @@ Crafty.c("DOM", {
 			style.top = ~~(this._y) + "px";
 		}
 		
+=======*/
+		if(Crafty.support.css3dtransform) trans.push("translate3d("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
+		else {
+			style.top = Number(this._y)+"px";
+			style.left = Number(this._x)+"px";
+			//trans.push("translate("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
+		}
+//>>>>>>> 48ba1ac29df667845aac2e829f6024c0603a4ea6
 		style.width = ~~(this._w) + "px";
 		style.height = ~~(this._h) + "px";
 		style.zIndex = this._z;
@@ -2514,7 +2523,7 @@ Crafty.extend({
 	}
 });
 
-Crafty.extend({
+Crafty.extend({
 	/**@
 	* #Crafty.randRange
 	* @category Misc
@@ -3291,7 +3300,7 @@ Crafty.c("viewport", {
 });
 
 
-/**@
+/**@
 * #Canvas
 * @category Graphics
 * Draws itself onto a canvas. Crafty.canvas() must be called before hand to initialize
@@ -3443,7 +3452,7 @@ Crafty.extend({
 	}
 });
 
-Crafty.extend({
+Crafty.extend({
 	down: null, //object mousedown, waiting for up
 	over: null, //object mouseover, waiting for out
 	mouseObjs: 0,
@@ -3752,15 +3761,15 @@ Crafty.c("Multiway", {
 	},
 	
 	/**@
-	* #.fourway
+	* #.multiway
 	* @comp Multiway
 	* @sign public this .multiway([Number speed,] Object keyBindings )
 	* @param speed - Amount of pixels to move the entity whilst a key is down
 	* @param keyBindings - What keys should make the entity go in which direction. Direction is specified in degrees
 	* Constructor to initialize the speed and keyBindings. Component will listen for key events and move the entity appropriately. 
 	*
-	* When direction changes a NewDorection event is triggered with an object detailing the new direction: {x: x_movement, y: y_movement}
-	* When entity has moved on either x- or y-axis a Moved event is triggered with an object specifieng the old position {x: old_x, y: old_y}
+	* When direction changes a NewDirection event is triggered with an object detailing the new direction: {x: x_movement, y: y_movement}
+	* When entity has moved on either x- or y-axis a Moved event is triggered with an object specifying the old position {x: old_x, y: old_y}
 	* @example
 	* ~~~
 	* this.multiway(3, {UP_ARROW: -90, DOWN_ARROW: 90, RIGHT_ARROW: 0, LEFT_ARROW: 180});
@@ -3779,15 +3788,15 @@ Crafty.c("Multiway", {
 
 		this.bind("KeyDown", function(e) {
 			if(this._keys[e.key]) {
-				this._movement.x = Math.round((this._movement.x + this._keys[e.keyCode].x)*1000)/1000;
-				this._movement.y = Math.round((this._movement.y + this._keys[e.keyCode].y)*1000)/1000;
+				this._movement.x = Math.round((this._movement.x + this._keys[e.key].x)*1000)/1000;
+				this._movement.y = Math.round((this._movement.y + this._keys[e.key].y)*1000)/1000;
 				this.trigger('NewDirection', this._movement);
 			}
 		})
 		.bind("KeyUp", function(e) {
 			if(this._keys[e.key]) {
-				this._movement.x = Math.round((this._movement.x - this._keys[e.keyCode].x)*1000)/1000;
-				this._movement.y = Math.round((this._movement.y - this._keys[e.keyCode].y)*1000)/1000;
+				this._movement.x = Math.round((this._movement.x - this._keys[e.key].x)*1000)/1000;
+				this._movement.y = Math.round((this._movement.y - this._keys[e.key].y)*1000)/1000;
 				this.trigger('NewDirection', this._movement);
 			}
 		})
@@ -3803,6 +3812,13 @@ Crafty.c("Multiway", {
 				this.trigger('Moved', {x: this.x, y: this.y - this._movement.y});
 			}
 		});
+
+        //Apply movement if key is down when created
+        for(var k in keys) {
+            if(Crafty.keydown[Crafty.keys[k]]) {
+                this.trigger("KeyDown", {key: Crafty.keys[k] });
+            }
+        }
 		
 		return this;
 	},
@@ -3902,7 +3918,7 @@ Crafty.c("Twoway", {
 				this.y -= jump;
 				this._falling = true;
 			}
-		}).bind("keydown", function() {
+		}).bind("KeyDown", function() {
 			if(this.isDown("UP_ARROW") || this.isDown("W")) this._up = true;
 		});
 		
@@ -3911,83 +3927,7 @@ Crafty.c("Twoway", {
 });
 
 
-Crafty.c("Animation", {
-	_reel: null,
-	
-	init: function() {
-		this._reel = {};
-	},
-	
-	addAnimation: function(label, skeleton) {
-		var key,
-			lastKey = 0,
-			i = 0, j,
-			frame,
-			prev,
-			prop,
-			diff = {},
-			p,
-			temp,
-			frames = [];
-		
-		//loop over every frame
-		for(key in skeleton) {
-			
-			frame = skeleton[key];
-			prev = skeleton[lastKey] || this;
-			diff = {};
-			
-			//find the difference
-			for(prop in frame) {
-				if(typeof frame[prop] !== "number") {
-					diff[prop] = frame[prop];
-					continue;
-				}
-				
-				diff[prop] = (frame[prop] - prev[prop]) / (key - lastKey);
-			}
-			
-			for(i = +lastKey + 1, j = 1; i <= +key; ++i, ++j) {
-				temp = {};
-				for(p in diff) {
-					if(typeof diff[p] === "number") {
-						temp[p] = prev[p] + diff[p] * j;
-					} else {
-						temp[p] = diff[p];
-					}
-				}
-				
-				frames[i] = temp;
-			}
-			lastKey = key;
-		}
-		
-		this._reel[label] = frames;
-		
-		return this;
-	},
-	
-	playAnimation: function(label) {
-		var reel = this._reel[label],
-			i = 0,
-			l = reel.length,
-			prop;
-		
-		this.bind("EnterFrame", function e() {
-			for(prop in reel[i]) {
-				this[prop] = reel[i][prop];
-			}
-			i++;
-			
-			if(i > l) {
-				this.trigger("AnimationEnd");
-				this.unbind("EnterFrame", e);
-			}
-		});
-	}
-});
-
-/**@
+/**@
 * #SpriteAnimation
 * @category Animation
 * Used to animate sprites by changing the sprites in the sprite map.
@@ -4208,7 +4148,7 @@ Crafty.c("Tween", {
 
 
 
-/**@
+/**@
 * #Color
 * @category Graphics
 * Draw a solid color for the entity
@@ -4691,7 +4631,9 @@ Crafty.DrawManager = (function() {
 	};
 })();
 
-Crafty.extend({
+
+
+Crafty.extend({
 	/**@
 	* #Crafty.isometric
 	* @category 2D
@@ -4738,7 +4680,7 @@ Crafty.DrawManager = (function() {
 	}
 });
 
-//Particle component
+//Particle component
 //Based on Parcycle by Mr. Speaker, licensed under the MIT,
 //Ported by Leo Koppelkamm
 //**This is canvas only & won't do anything if the browser doesn't support it!**
@@ -5047,7 +4989,7 @@ Crafty.c("particles", {
 	}
 });
 
-Crafty.extend({
+Crafty.extend({
 	/**@
 	* #Crafty.audio
 	* @category Audio
@@ -5318,7 +5260,7 @@ Crafty.c("particles", {
 Crafty.bind("Pause", function() {Crafty.audio.mute()});
 Crafty.bind("Unpause", function() {Crafty.audio.mute()});
 
-/**@
+/**@
 * #Text
 * @category Graphics
 * @requires DOM
@@ -5352,7 +5294,11 @@ Crafty.c("Text", {
 	}
 });
 
-Crafty.extend({
+
+
+
+
+Crafty.extend({
 	/**@
 	* #Crafty.assets
 	* @category Assets
@@ -5451,6 +5397,5 @@ Crafty.c("Text", {
 	}
 });
 
-})(Crafty,window,window.document);
+})(Crafty,window,window.document);
 
-
