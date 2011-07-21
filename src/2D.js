@@ -608,7 +608,7 @@ Crafty.c("Gravity", {
 	_anti: null,
 
 	init: function() {
-		if(!this.has("2D")) this.addComponent("2D");		
+		this.requires("2D");		
 	},
 
 	gravity: function(comp) {
