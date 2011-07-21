@@ -1922,7 +1922,7 @@ Crafty.circle = function(x, y, radius) {
 	var theta;
 	
 	for(var i = 0; i < 8; i++) {
-		theta = i * (Math.PI / 4)
+		theta = i * Math.PI / 4;
 		this.points[i] = [Math.sin(theta) * radius, Math.cos(theta) * radius];
 	}
 };
@@ -1943,7 +1943,8 @@ Crafty.circle.prototype = {
 	* ~~~
 	*/
 	containsPoint: function(x, y) {
-		var sqrt = Math.sqrt,
+		var radius = this.radius,
+		    sqrt = Math.sqrt,
 		    deltaX = this.x - x,
 		    deltaY = this.y - y;
 

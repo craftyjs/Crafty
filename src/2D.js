@@ -806,7 +806,8 @@ Crafty.circle.prototype = {
 	* ~~~
 	*/
 	containsPoint: function(x, y) {
-		var sqrt = Math.sqrt,
+		var radius = this.radius,
+		    sqrt = Math.sqrt,
 		    deltaX = this.x - x,
 		    deltaY = this.y - y;
 
