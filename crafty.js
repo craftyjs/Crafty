@@ -3543,6 +3543,8 @@ Crafty.extend({
 	down: null, //object mousedown, waiting for up
 	over: null, //object mouseover, waiting for out
 	mouseObjs: 0,
+	mousePos: {},
+	lastEvent: null,
 	keydown: {},
 		
 	mouseDispatch: function(e) {
@@ -3562,8 +3564,8 @@ Crafty.extend({
 			tar = e.target?e.target:e.srcElement,
 			ent = Crafty(parseInt(tar.id.replace('ent', '')));
 		
-		e.realX = x = pos.x;
-		e.realY = y = pos.y;
+		e.realX = x = Crafty.mousePos.x = pos.x;
+		e.realY = y = Crafty.mousePos.y = pos.y;
 		
 		if (tar.nodeName != "CANVAS") {
 			// we clicked on a dom element
@@ -3634,6 +3636,9 @@ Crafty.extend({
 				this.over = null;
 			}
 		}
+		
+		if (e.type === "mousemove")
+			this.lastEvent = e;
 	},
 	
 	keyboardDispatch: function(e) {
@@ -4229,8 +4234,23 @@ Crafty.c("Tween", {
             }
             
             this.bind("EnterFrame", function d(e) {
+				if (this.has('Mouse')) {
+					var over = Crafty.over,
+						mouse = Crafty.mousePos;
+					console.log(over);
+					console.log(mouse);
+					if (over != null && over[0] == this[0] && !this.isAt(mouse.x, mouse.y)) {
+						this.trigger('MouseOut', Crafty.lastEvent);
+						Crafty.over = null;
+					}
+					else if ((over == null || over[0] != this[0]) && this.isAt(mouse.x, mouse.y)) {
+						Crafty.over = this;
+						this.trigger('MouseOver', Crafty.lastEvent);
+					}
+				}
                 if(e.frame >= endFrame) {
                     this.unbind("EnterFrame", d);
+					this.trigger("TweenEnd");
                     return;
                 }
                 for(var prop in props) {

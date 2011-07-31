@@ -204,8 +204,21 @@ Crafty.c("Tween", {
             }
             
             this.bind("EnterFrame", function d(e) {
+				if (this.has('Mouse')) {
+					var over = Crafty.over,
+						mouse = Crafty.mousePos;
+					if (over && over[0] == this[0] && !this.isAt(mouse.x, mouse.y)) {
+						this.trigger('MouseOut');
+						Crafty.over = null;
+					}
+					else if (over || over[0] != this[0] && this.isAt(mouse.x, mouse.y)) {
+						Crafty.over = this;
+						this.trigger('MouseOver');
+					}
+				}
                 if(e.frame >= endFrame) {
                     this.unbind("EnterFrame", d);
+					this.trigger("TweenEnd");
                     return;
                 }
                 for(var prop in props) {
