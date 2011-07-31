@@ -17,38 +17,47 @@ Crafty.extend({
 			i = 0, l,
 			pos = Crafty.DOM.translate(e.clientX, e.clientY),
 			x, y,
-			dupes = {};
+			dupes = {},
+			tar = e.target?e.target:e.srcElement,
+			ent = Crafty(parseInt(tar.id.replace('ent', '')));
 		
 		e.realX = x = pos.x;
 		e.realY = y = pos.y;
 		
-		//search for all mouse entities
-		q = Crafty.map.search({_x: x, _y:y, _w:1, _h:1}, false);
-		
-		for(l=q.length;i<l;++i) {
-			//check if has mouse component
-			if(!q[i].__c.Mouse) continue;
+		if (tar.nodeName != "CANVAS") {
+			// we clicked on a dom element
+			if (ent.has('Mouse'))
+				closest = ent;
+		}
+		else {
+			//search for all mouse entities
+			q = Crafty.map.search({_x: x, _y:y, _w:1, _h:1}, false);
 			
-			var current = q[i],
-				flag = false;
+			for(l=q.length;i<l;++i) {
+				//check if has mouse component
+				if(!q[i].__c.Mouse) continue;
 				
-			//weed out duplicates
-			if(dupes[current[0]]) continue;
-			else dupes[current[0]] = true;
-			
-			if(current.map) {
-				if(current.map.containsPoint(x, y)) {
-					flag = true;
+				var current = q[i],
+					flag = false;
+					
+				//weed out duplicates
+				if(dupes[current[0]]) continue;
+				else dupes[current[0]] = true;
+				
+				if(current.map) {
+					if(current.map.containsPoint(x, y)) {
+						flag = true;
+					}
+				} else if(current.isAt(x, y)) flag = true;
+				
+				if(flag && (current._z >= maxz || maxz === -1)) {
+					//if the Z is the same, select the closest GUID
+					if(current._z === maxz && current[0] < closest[0]) {
+						continue;
+					}
+					maxz = current._z;
+					closest = current;
 				}
-			} else if(current.isAt(x, y)) flag = true;
-			
-			if(flag && (current._z >= maxz || maxz === -1)) {
-				//if the Z is the same, select the closest GUID
-				if(current._z === maxz && current[0] < closest[0]) {
-					continue;
-				}
-				maxz = current._z;
-				closest = current;
 			}
 		}
 		
