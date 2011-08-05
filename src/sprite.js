@@ -1,0 +1,122 @@
+/**@
+* #Sprite
+* @category Graphics
+* Component for using tiles in a sprite map.
+*/
+Crafty.c("Sprite", {
+	__image: '',
+	__coord: null,
+	__tile: 0,
+	__tileh: 0,
+	__padding: null,
+	__trim: null,
+	img: null,
+	ready: false,
+	
+	init: function() {
+		this.__trim = [0,0,0,0];
+		
+		var draw = function(e) {
+			var co = e.co,
+				pos = e.pos,
+				context = e.ctx;
+				
+			if(e.type === "canvas") {
+				//draw the image on the canvas element
+				context.drawImage(this.img, //image element
+								 co.x, //x position on sprite
+								 co.y, //y position on sprite
+								 co.w, //width on sprite
+								 co.h, //height on sprite
+								 pos._x, //x position on canvas
+								 pos._y, //y position on canvas
+								 pos._w, //width on canvas
+								 pos._h //height on canvas
+				);
+			} else if(e.type === "DOM") {
+				this._element.style.background = "url('" + this.__image + "') no-repeat -" + co.x + "px -" + co.y + "px";
+			}
+		};
+		
+		this.bind("Draw", draw).bind("RemoveComponent", function(id) {
+			if(id === pos) this.unbind("Draw", draw);  
+		});
+	},
+	
+	/**@
+	* #.sprite
+	* @comp Sprite
+	* @sign public this .sprite(Number x, Number y, Number w, Number h)
+	* @param x - X cell position 
+	* @param y - Y cell position
+	* @param w - Width in cells
+	* @param h - Height in cells
+	* Uses a new location on the sprite map as its sprite.
+	*
+	* Values should be in tiles or cells (not pixels).
+	*/
+	sprite: function(x,y,w,h) {
+		this.__coord = [x * this.__tile + this.__padding[0] + this.__trim[0],
+						y * this.__tileh + this.__padding[1] + this.__trim[1],
+						this.__trim[2] || w * this.__tile || this.__tile,
+						this.__trim[3] || h * this.__tileh || this.__tileh];
+		
+		this.trigger("Change");
+		return this;
+	},
+	
+	/**@
+	* #.crop
+	* @comp Sprite
+	* @sign public this .crop(Number x, Number y, Number w, Number h)
+	* @param x - Offset x position
+	* @param y - Offset y position
+	* @param w - New width
+	* @param h - New height
+	* If the entity needs to be smaller than the tile size, use this method to crop it.
+	*
+	* The values should be in pixels rather than tiles.
+	*/
+	crop: function(x,y,w,h) {
+		var old = this._mbr || this.pos();
+		this.__trim = [];
+		this.__trim[0] = x;
+		this.__trim[1] = y;
+		this.__trim[2] = w;
+		this.__trim[3] = h;
+		
+		this.__coord[0] += x;
+		this.__coord[1] += y;
+		this.__coord[2] = w;
+		this.__coord[3] = h;
+		this._w = w;
+		this._h = h;
+		
+		this.trigger("Change", old);
+		return this;
+	},
+	
+	/**@
+	* #.flipX 
+	* @comp Sprite
+	* @sign public this.flipX()
+	* Flips the entity along the X axis (upside-down)
+	*/
+	flipX: function() {
+		this._flip('X');
+	},
+	
+	/**@
+	* #.flipY 
+	* @comp Sprite
+	* @sign public this.flipY()
+	* Flips the entity along the Y axis (left-to-right)
+	*/
+	flipY: function() {
+		this._flip('Y');
+	},
+	
+	_flip: function(dir) {
+		
+	},
+});
