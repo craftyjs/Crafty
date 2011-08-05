@@ -95,28 +95,4 @@ Crafty.c("Sprite", {
 		this.trigger("Change", old);
 		return this;
 	},
-	
-	/**@
-	* #.flipX 
-	* @comp Sprite
-	* @sign public this.flipX()
-	* Flips the entity along the X axis (upside-down)
-	*/
-	flipX: function() {
-		this._flip('X');
-	},
-	
-	/**@
-	* #.flipY 
-	* @comp Sprite
-	* @sign public this.flipY()
-	* Flips the entity along the Y axis (left-to-right)
-	*/
-	flipY: function() {
-		this._flip('Y');
-	},
-	
-	_flip: function(dir) {
-		
-	},
 });
