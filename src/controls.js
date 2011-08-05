@@ -21,14 +21,17 @@ Crafty.extend({
 			pos = Crafty.DOM.translate(e.clientX, e.clientY),
 			x, y,
 			dupes = {},
-			tar = e.target?e.target:e.srcElement,
-			ent = Crafty(parseInt(tar.id.replace('ent', '')));
+			tar = e.target?e.target:e.srcElement;
 		
 		e.realX = x = Crafty.mousePos.x = pos.x;
 		e.realY = y = Crafty.mousePos.y = pos.y;
 		
 		if (tar.nodeName != "CANVAS") {
 			// we clicked on a dom element
+			while (typeof (tar.id) != 'string' && tar.id.indexOf('ent') == -1) {
+				tar = tar.parentNode;
+			}
+			ent = Crafty(parseInt(tar.id.replace('ent', '')))
 			if (ent.has('Mouse'))
 				closest = ent;
 		}
