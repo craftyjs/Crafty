@@ -96,12 +96,13 @@ Crafty.extend({
 			*/
 			Crafty.c(pos, {
 				ready: false,
+				__coord: [x,y,w,h],
 				
 				init: function() {
 					this.requires("Sprite");
 					this.__trim = [0,0,0,0];
 					this.__image = url;
-					this.__coord = [x,y,w,h];
+					this.__coord = [this.__coord[0], this.__coord[1], this.__coord[2], this.__coord[3]];
 					this.__tile = tile;
 					this.__tileh = tileh;
 					this.__padding = [paddingX, paddingY];

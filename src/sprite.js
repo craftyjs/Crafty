@@ -5,7 +5,6 @@
 */
 Crafty.c("Sprite", {
 	__image: '',
-	__coord: null,
 	__tile: 0,
 	__tileh: 0,
 	__padding: null,
