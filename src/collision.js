@@ -150,6 +150,8 @@ Crafty.c("Collision", {
 			max1, max2,
 			interval,
 			MTV = null,
+      MTV2 = 0,
+      MN = null,
 			dot,
 			nextPoint,
 			currentPoint;
@@ -236,8 +238,12 @@ Crafty.c("Collision", {
 				return false;
 			}
 			if(interval > MTV || MTV === null) MTV = interval;
+      if (interval < MTV2) {
+        MTV2 = interval;
+        MN = {x: normal.x, y: normal.y};
+      }
 		}
 		
-		return {overlap: MTV};
+		return {overlap: MTV, normal: MN};
 	}
 });
