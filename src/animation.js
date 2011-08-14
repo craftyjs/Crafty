@@ -37,7 +37,7 @@ Crafty.c("SpriteAnimation", {
 	* @triggers AnimationEnd - When the animation finishes
 	*/
 	animate: function(id, fromx, y, tox) {
-		var reel, i, tile, duration;
+		var reel, i, tile, tileh, duration, pos;
         
         //play a reel
 		if(arguments.length < 4 && typeof fromx === "number") {
@@ -59,7 +59,8 @@ Crafty.c("SpriteAnimation", {
 				if (y === -1) this._frame.repeatInfinitly = true;
 				else this._frame.repeat = y;
 			}
-			var pos = this._frame.reel[0];
+			
+			pos = this._frame.reel[0];
 			this.__coord[0] = pos[0];
 			this.__coord[1] = pos[1];
 
@@ -70,20 +71,32 @@ Crafty.c("SpriteAnimation", {
 			i = fromx;
 			reel = [];
 			tile = this.__tile;
+			tileh = this.__tileh;
 				
 			if (tox > fromx) {
 				for(;i<=tox;i++) {
-					reel.push([i * tile, y * tile]);
+					reel.push([i * tile, y * tileh]);
 				}
 			} else {
 				for(;i>=tox;i--) {
-					reel.push([i * tile, y * tile]);
+					reel.push([i * tile, y * tileh]);
 				}
 			}
 			
 			this._reels[id] = reel;
 		} else if(typeof fromx === "object") {
-			this._reels[id] = fromx;
+			i=0;
+			reel = [];
+			tox = fromx.length-1;
+			tile = this.__tile;
+			tileh = this.__tileh;
+			
+			for(;i<=tox;i++) {
+				pos = fromx[i];
+				reel.push([pos[0] * tile, pos[1] * tileh]);
+			}
+			
+			this._reels[id] = reel;
 		}
 		
 		return this;
