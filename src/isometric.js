@@ -35,12 +35,11 @@ Crafty.extend({
 		* @see Crafty.isometric.size
 		*/
 		place: function(x,y,z, obj) {
-			var m = x * this._tile + (y & 1) * (this._tile / 2),
-				n = y * this._tile / 4,
-				n = n - z * (this._tile / 2);
-				
-			obj.attr({x: m  + Crafty.viewport._x, y: n  + Crafty.viewport._y}).z += z;
-			return this;
+			var xPos = .5 * (x * this._tile) + (y * .5 * this._tile);
+      var yPos = ((.25 * this._tile) * (y - x)) + this._tile + (-1 * .5 * z * this._tile);
+
+      obj.attr({ x: xPos,  y: yPos }).z += z;
+      return this;
 		}
 	}
 });
