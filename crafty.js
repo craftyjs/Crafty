@@ -2696,8 +2696,8 @@ Crafty.extend({
 			if(!map.hasOwnProperty(pos)) continue;
 			
 			temp = map[pos];
-			x = temp[0] * tile + paddingX;
-			y = temp[1] * tileh + paddingY;
+			x = temp[0] * (tile + paddingX);
+			y = temp[1] * (tileh + paddingY);
 			w = temp[2] * tile || tile;
 			h = temp[3] * tileh || tileh;
 			
@@ -2707,19 +2707,18 @@ Crafty.extend({
 			* Component for using tiles in a sprite map.
 			*/
 			Crafty.c(pos, {
-				__image: url,
-				__coord: [x,y,w,h],
-				__tile: tile,
-				__tileh: tileh,
-				__padding: [paddingX, paddingY],
-				__trim: null,
-				img: img,
 				ready: false,
+				__coord: [x,y,w,h],
 				
 				init: function() {
-					this.addComponent("Sprite");
+					this.requires("Sprite");
 					this.__trim = [0,0,0,0];
+					this.__image = url;
 					this.__coord = [this.__coord[0], this.__coord[1], this.__coord[2], this.__coord[3]];
+					this.__tile = tile;
+					this.__tileh = tileh;
+					this.__padding = [paddingX, paddingY];
+					this.img = img;
 		
 					//draw now
 					if(this.img.complete && this.img.width > 0) {
@@ -2730,85 +2729,6 @@ Crafty.extend({
 					//set the width and height to the sprite size
 					this.w = this.__coord[2];
 					this.h = this.__coord[3];
-					
-                    var draw = function(e) {
-    					var co = e.co,
-							pos = e.pos,
-							context = e.ctx;
-							
-						if(e.type === "canvas") {
-							//draw the image on the canvas element
-							context.drawImage(this.img, //image element
-											 co.x, //x position on sprite
-											 co.y, //y position on sprite
-											 co.w, //width on sprite
-											 co.h, //height on sprite
-											 pos._x, //x position on canvas
-											 pos._y, //y position on canvas
-											 pos._w, //width on canvas
-											 pos._h //height on canvas
-							);
-						} else if(e.type === "DOM") {
-							this._element.style.background = "url('" + this.__image + "') no-repeat -" + co.x + "px -" + co.y + "px";
-						}
-					};
-                    
-					this.bind("Draw", draw).bind("RemoveComponent", function(id) {
-                        if(id === pos) this.unbind("Draw", draw);  
-                    });
-				},
-				
-				/**@
-				* #.sprite
-				* @comp Sprite
-				* @sign public this .sprite(Number x, Number y, Number w, Number h)
-				* @param x - X cell position 
-				* @param y - Y cell position
-				* @param w - Width in cells
-				* @param h - Height in cells
-				* Uses a new location on the sprite map as its sprite.
-				*
-				* Values should be in tiles or cells (not pixels).
-				*/
-				sprite: function(x,y,w,h) {
-					this.__coord = [x * this.__tile + this.__padding[0] + this.__trim[0],
-									y * this.__tileh + this.__padding[1] + this.__trim[1],
-									this.__trim[2] || w * this.__tile || this.__tile,
-									this.__trim[3] || h * this.__tileh || this.__tileh];
-					
-					this.trigger("Change");
-					return this;
-				},
-				
-				/**@
-				* #.crop
-				* @comp Sprite
-				* @sign public this .crop(Number x, Number y, Number w, Number h)
-				* @param x - Offset x position
-				* @param y - Offset y position
-				* @param w - New width
-				* @param h - New height
-				* If the entity needs to be smaller than the tile size, use this method to crop it.
-				*
-				* The values should be in pixels rather than tiles.
-				*/
-				crop: function(x,y,w,h) {
-					var old = this._mbr || this.pos();
-					this.__trim = [];
-					this.__trim[0] = x;
-					this.__trim[1] = y;
-					this.__trim[2] = w;
-					this.__trim[3] = h;
-					
-					this.__coord[0] += x;
-					this.__coord[1] += y;
-					this.__coord[2] = w;
-					this.__coord[3] = h;
-					this._w = w;
-					this._h = h;
-					
-					this.trigger("Change", old);
-					return this;
 				}
 			});
 		}
@@ -3549,6 +3469,7 @@ Crafty.extend({
 		
 	mouseDispatch: function(e) {
 		if(!Crafty.mouseObjs) return;
+		Crafty.lastEvent = e;
 		
 		if(e.type === "touchstart") e.type = "mousedown";
 		else if(e.type === "touchmove") e.type = "mousemove";
@@ -3561,19 +3482,22 @@ Crafty.extend({
 			pos = Crafty.DOM.translate(e.clientX, e.clientY),
 			x, y,
 			dupes = {},
-			tar = e.target?e.target:e.srcElement,
-			ent = Crafty(parseInt(tar.id.replace('ent', '')));
+			tar = e.target?e.target:e.srcElement;
 		
 		e.realX = x = Crafty.mousePos.x = pos.x;
 		e.realY = y = Crafty.mousePos.y = pos.y;
 		
 		if (tar.nodeName != "CANVAS") {
 			// we clicked on a dom element
+			while (typeof (tar.id) != 'string' && tar.id.indexOf('ent') == -1) {
+				tar = tar.parentNode;
+			}
+			ent = Crafty(parseInt(tar.id.replace('ent', '')))
 			if (ent.has('Mouse'))
 				closest = ent;
 		}
 		else {
-		//search for all mouse entities
+			//search for all mouse entities
 			q = Crafty.map.search({_x: x, _y:y, _w:1, _h:1}, false);
 			
 			for(l=q.length;i<l;++i) {
@@ -3637,8 +3561,9 @@ Crafty.extend({
 			}
 		}
 		
-		if (e.type === "mousemove")
+		if (e.type === "mousemove") {
 			this.lastEvent = e;
+		}
 	},
 	
 	keyboardDispatch: function(e) {
@@ -4067,7 +3992,7 @@ Crafty.c("SpriteAnimation", {
 	* @triggers AnimationEnd - When the animation finishes
 	*/
 	animate: function(id, fromx, y, tox) {
-		var reel, i, tile, duration;
+		var reel, i, tile, tileh, duration, pos;
         
         //play a reel
 		if(arguments.length < 4 && typeof fromx === "number") {
@@ -4089,7 +4014,8 @@ Crafty.c("SpriteAnimation", {
 				if (y === -1) this._frame.repeatInfinitly = true;
 				else this._frame.repeat = y;
 			}
-			var pos = this._frame.reel[0];
+			
+			pos = this._frame.reel[0];
 			this.__coord[0] = pos[0];
 			this.__coord[1] = pos[1];
 
@@ -4100,20 +4026,32 @@ Crafty.c("SpriteAnimation", {
 			i = fromx;
 			reel = [];
 			tile = this.__tile;
+			tileh = this.__tileh;
 				
 			if (tox > fromx) {
 				for(;i<=tox;i++) {
-					reel.push([i * tile, y * tile]);
+					reel.push([i * tile, y * tileh]);
 				}
 			} else {
 				for(;i>=tox;i--) {
-					reel.push([i * tile, y * tile]);
+					reel.push([i * tile, y * tileh]);
 				}
 			}
 			
 			this._reels[id] = reel;
 		} else if(typeof fromx === "object") {
-			this._reels[id] = fromx;
+			i=0;
+			reel = [];
+			tox = fromx.length-1;
+			tile = this.__tile;
+			tileh = this.__tileh;
+			
+			for(;i<=tox;i++) {
+				pos = fromx[i];
+				reel.push([pos[0] * tile, pos[1] * tileh]);
+			}
+			
+			this._reels[id] = reel;
 		}
 		
 		return this;
@@ -4237,15 +4175,13 @@ Crafty.c("Tween", {
 				if (this.has('Mouse')) {
 					var over = Crafty.over,
 						mouse = Crafty.mousePos;
-					console.log(over);
-					console.log(mouse);
-					if (over != null && over[0] == this[0] && !this.isAt(mouse.x, mouse.y)) {
-						this.trigger('MouseOut', Crafty.lastEvent);
+					if (over && over[0] == this[0] && !this.isAt(mouse.x, mouse.y)) {
+						this.trigger('MouseOut');
 						Crafty.over = null;
 					}
-					else if ((over == null || over[0] != this[0]) && this.isAt(mouse.x, mouse.y)) {
+					else if (over || over[0] != this[0] && this.isAt(mouse.x, mouse.y)) {
 						Crafty.over = this;
-						this.trigger('MouseOver', Crafty.lastEvent);
+						this.trigger('MouseOver');
 					}
 				}
                 if(e.frame >= endFrame) {
@@ -4263,6 +4199,104 @@ Crafty.c("Tween", {
 });
 
 
+
+/**@
+* #Sprite
+* @category Graphics
+* Component for using tiles in a sprite map.
+*/
+Crafty.c("Sprite", {
+	__image: '',
+	__tile: 0,
+	__tileh: 0,
+	__padding: null,
+	__trim: null,
+	img: null,
+	ready: false,
+	
+	init: function() {
+		this.__trim = [0,0,0,0];
+		
+		var draw = function(e) {
+			var co = e.co,
+				pos = e.pos,
+				context = e.ctx;
+				
+			if(e.type === "canvas") {
+				//draw the image on the canvas element
+				context.drawImage(this.img, //image element
+								 co.x, //x position on sprite
+								 co.y, //y position on sprite
+								 co.w, //width on sprite
+								 co.h, //height on sprite
+								 pos._x, //x position on canvas
+								 pos._y, //y position on canvas
+								 pos._w, //width on canvas
+								 pos._h //height on canvas
+				);
+			} else if(e.type === "DOM") {
+				this._element.style.background = "url('" + this.__image + "') no-repeat -" + co.x + "px -" + co.y + "px";
+			}
+		};
+		
+		this.bind("Draw", draw).bind("RemoveComponent", function(id) {
+			if(id === pos) this.unbind("Draw", draw);  
+		});
+	},
+	
+	/**@
+	* #.sprite
+	* @comp Sprite
+	* @sign public this .sprite(Number x, Number y, Number w, Number h)
+	* @param x - X cell position 
+	* @param y - Y cell position
+	* @param w - Width in cells
+	* @param h - Height in cells
+	* Uses a new location on the sprite map as its sprite.
+	*
+	* Values should be in tiles or cells (not pixels).
+	*/
+	sprite: function(x,y,w,h) {
+		this.__coord = [x * this.__tile + this.__padding[0] + this.__trim[0],
+						y * this.__tileh + this.__padding[1] + this.__trim[1],
+						this.__trim[2] || w * this.__tile || this.__tile,
+						this.__trim[3] || h * this.__tileh || this.__tileh];
+		
+		this.trigger("Change");
+		return this;
+	},
+	
+	/**@
+	* #.crop
+	* @comp Sprite
+	* @sign public this .crop(Number x, Number y, Number w, Number h)
+	* @param x - Offset x position
+	* @param y - Offset y position
+	* @param w - New width
+	* @param h - New height
+	* If the entity needs to be smaller than the tile size, use this method to crop it.
+	*
+	* The values should be in pixels rather than tiles.
+	*/
+	crop: function(x,y,w,h) {
+		var old = this._mbr || this.pos();
+		this.__trim = [];
+		this.__trim[0] = x;
+		this.__trim[1] = y;
+		this.__trim[2] = w;
+		this.__trim[3] = h;
+		
+		this.__coord[0] += x;
+		this.__coord[1] += y;
+		this.__coord[2] = w;
+		this.__coord[3] = h;
+		this._w = w;
+		this._h = h;
+		
+		this.trigger("Change", old);
+		return this;
+	},
+});
 
 /**@
 * #Color
@@ -4746,8 +4780,6 @@ Crafty.DrawManager = (function() {
 		}
 	};
 })();
-
-
 
 Crafty.extend({
 	/**@
@@ -5376,6 +5408,34 @@ Crafty.extend({
 Crafty.bind("Pause", function() {Crafty.audio.mute()});
 Crafty.bind("Unpause", function() {Crafty.audio.mute()});
 
+/**
+ * HTML Component
+ * --------------
+ * allows the insertion of arbitrary HTML into an entity
+ */
+Crafty.c("HTML", {
+	inner: '',
+	
+	init: function () {
+		this.requires('2D DOM');
+	},
+	
+	replace: function (new_html) {
+		this.inner = new_html;
+		this._elem.innerHTML = new_html;
+	},
+	
+	append: function (new_html) {
+		this.inner += new_html;
+		this._elem.innerHTML += new_html;
+	},
+	
+	prepend: function (new_html) {
+		this.inner = new_html + this.inner;
+		this._elemn.innerHTML = new_html + this.inner;
+	},
+});
+
 /**@
 * #Text
 * @category Graphics
@@ -5409,10 +5469,6 @@ Crafty.c("Text", {
 		return this;
 	}
 });
-
-
-
-
 
 Crafty.extend({
 	/**@

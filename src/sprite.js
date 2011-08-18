@@ -38,7 +38,7 @@ Crafty.c("Sprite", {
 		};
 		
 		this.bind("Draw", draw).bind("RemoveComponent", function(id) {
-			if(id === pos) this.unbind("Draw", draw);  
+			if(id === "Sprite") this.unbind("Draw", draw);  
 		});
 	},
 	
