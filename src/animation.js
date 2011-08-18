@@ -224,7 +224,7 @@ Crafty.c("Tween", {
 						this.trigger('MouseOut');
 						Crafty.over = null;
 					}
-					else if (over || over[0] != this[0] && this.isAt(mouse.x, mouse.y)) {
+					else if ((over || over[0] != this[0]) && this.isAt(mouse.x, mouse.y)) {
 						Crafty.over = this;
 						this.trigger('MouseOver');
 					}
