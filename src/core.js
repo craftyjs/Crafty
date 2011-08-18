@@ -295,13 +295,15 @@ Crafty.fn = Crafty.prototype = {
 			
 			//extend if object
 			this.extend(key);
-			this.trigger("Change"); //trigger change event
+			this.trigger("Change", key); //trigger change event
 			return this;
 		}
 		//if key value pair
 		this[key] = value;
-		
-		this.trigger("Change"); //trigger change event
+
+		var change = {};
+		change[key] = value;
+		this.trigger("Change", change ); //trigger change event
 		return this;
 	},
 	
