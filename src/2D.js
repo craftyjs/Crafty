@@ -385,6 +385,9 @@ Crafty.c("2D", {
 	* an object can't be passed. The arguments require the x and y value
 	*/
 	isAt: function(x,y) {
+		if(this.map) {
+			return this.map.containsPoint(x,y);
+		}
 		return this.x <= x && this.x + this.w >= x &&
 			   this.y <= y && this.y + this.h >= y;
 	},

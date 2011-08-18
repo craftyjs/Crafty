@@ -32,10 +32,10 @@ Crafty.extend({
 				tar = tar.parentNode;
 			}
 			ent = Crafty(parseInt(tar.id.replace('ent', '')))
-			if (ent.has('Mouse'))
+			if (ent.has('Mouse') && ent.isAt(x,y))
 				closest = ent;
 		}
-		else {
+		if(!closest) {
 			//search for all mouse entities
 			q = Crafty.map.search({_x: x, _y:y, _w:1, _h:1}, false);
 			
