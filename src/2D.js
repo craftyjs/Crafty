@@ -183,9 +183,12 @@ Crafty.c("2D", {
 					this._rotation = this.rotation;
 					this._alpha = this.alpha;
 					this._visible = this.visible;
-					
+
 					//trigger the changes
 					this.trigger("Change", old);
+					//without this entities weren't added correctly to Crafty.map.map in IE8.
+					//not entirely sure this is the best way to fix it though
+					this.trigger("Move", old);
 				}
 			});
 		}
