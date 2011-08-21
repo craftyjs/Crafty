@@ -183,6 +183,9 @@ Crafty.c("SpriteAnimation", {
 * Component to animate the change in 2D properties over time.
 */
 Crafty.c("Tween", {
+	_step: null,
+	_numProps: 0,
+	
 	/**@
 	* #.tween
 	* @comp Tween
@@ -204,6 +207,17 @@ Crafty.c("Tween", {
 	*/
 	tween: function(props, duration) {
         this.each(function() {
+			if (this._step == null) {
+				this._step = {};
+				this.bind('EnterFrame', tweenEnterFrame);
+			}
+			
+			for (var prop in props) {
+				this._step[prop] = {val: (props[prop] - this[prop] )/duration, rem: duration};
+				this._numProps++;
+			}
+		
+		/*
             var prop,
             old = {},
             step = {},
@@ -238,8 +252,37 @@ Crafty.c("Tween", {
                     this[prop] += step[prop];
                 }
             });
+		*/
         });
         return this;
 	}
 });
+
+function tweenEnterFrame(e) {
+	if (this._numProps <= 0) return;
+	
+	var prop, k;
+	for (k in this._step) {
+		prop = this._step[k];
+		this[k] += prop.val;
+		if (prop.rem-- == 0) {
+			this.trigger("TweenEnd", k);
+			delete prop;
+			this._numProps--;
+		}
+	}
+		
+	if (this.has('Mouse')) {
+		var over = Crafty.over,
+			mouse = Crafty.mousePos;
+		if (over && over[0] == this[0] && !this.isAt(mouse.x, mouse.y)) {
+			this.trigger('MouseOut', Crafty.lastEvent);
+			Crafty.over = null;
+		}
+		else if ((!over || over[0] != this[0]) && this.isAt(mouse.x, mouse.y)) {
+			Crafty.over = this;
+			this.trigger('MouseOver', Crafty.lastEvent);
+		}
+	}
+}
 
