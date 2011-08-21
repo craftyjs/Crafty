@@ -221,12 +221,12 @@ Crafty.c("Tween", {
 					var over = Crafty.over,
 						mouse = Crafty.mousePos;
 					if (over && over[0] == this[0] && !this.isAt(mouse.x, mouse.y)) {
-						this.trigger('MouseOut');
+						this.trigger('MouseOut', Crafty.lastEvent);
 						Crafty.over = null;
 					}
-					else if ((over || over[0] != this[0]) && this.isAt(mouse.x, mouse.y)) {
+					else if ((!over || over[0] != this[0]) && this.isAt(mouse.x, mouse.y)) {
 						Crafty.over = this;
-						this.trigger('MouseOver');
+						this.trigger('MouseOver', Crafty.lastEvent);
 					}
 				}
                 if(e.frame >= endFrame) {
