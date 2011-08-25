@@ -185,18 +185,22 @@ Crafty.c("SpriteAnimation", {
 Crafty.c("Tween", {
 	_step: null,
 	_numProps: 0,
+	_callback: null,
+	_params: null,
 	
 	/**@
 	* #.tween
 	* @comp Tween
-	* @sign public this .tween(Object properties, Number duration)
+	* @sign public this .tween(Object properties, Number duration, Function callback, Object params)
 	* @param properties - Object of 2D properties and what they should animate to
 	* @param duration - Duration to animate the properties over (in frames)
+	* @param callback - Function to call when finished
+	* @param params - Object with parameters to pass to the callback function
 	* This method will animate a 2D entities properties over the specified duration.
 	* These include `x`, `y`, `w`, `h`, `alpha` and `rotation`.
 	*
 	* The object passed should have the properties as keys and the value should be the resulting
-	* values of the properties.
+	* values of the properties. Optionally pass in a callback function to run when the tween finishes.
 	* @example
 	* Move an object to 100,100 and fade out in 200 frames.
 	* ~~~
@@ -205,7 +209,7 @@ Crafty.c("Tween", {
 	*    .tween({alpha: 0.0, x: 100, y: 100}, 200)
 	* ~~~
 	*/
-	tween: function(props, duration) {
+	tween: function(props, duration, callback, params) {
         this.each(function() {
 			if (this._step == null) {
 				this._step = {};
@@ -216,6 +220,9 @@ Crafty.c("Tween", {
 				this._step[prop] = {val: (props[prop] - this[prop] )/duration, rem: duration};
 				this._numProps++;
 			}
+			
+			this._callback = callback;
+			this._params = params;
 		
 		/*
             var prop,
@@ -245,6 +252,7 @@ Crafty.c("Tween", {
 				}
                 if(e.frame >= endFrame) {
                     this.unbind("EnterFrame", d);
+                    if (callback) {callback(params);}
 					this.trigger("TweenEnd");
                     return;
                 }
@@ -266,6 +274,7 @@ function tweenEnterFrame(e) {
 		prop = this._step[k];
 		this[k] += prop.val;
 		if (prop.rem-- == 0) {
+			if (this._callback) {this._callback(this._params);}
 			this.trigger("TweenEnd", k);
 			delete prop;
 			this._numProps--;

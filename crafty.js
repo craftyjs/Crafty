@@ -303,13 +303,15 @@ Crafty.fn = Crafty.prototype = {
 			
 			//extend if object
 			this.extend(key);
-			this.trigger("Change"); //trigger change event
+			this.trigger("Change", key); //trigger change event
 			return this;
 		}
 		//if key value pair
 		this[key] = value;
-		
-		this.trigger("Change"); //trigger change event
+
+		var change = {};
+		change[key] = value;
+		this.trigger("Change", change ); //trigger change event
 		return this;
 	},
 	
@@ -1320,9 +1322,12 @@ Crafty.c("2D", {
 					this._rotation = this.rotation;
 					this._alpha = this.alpha;
 					this._visible = this.visible;
-					
+
 					//trigger the changes
 					this.trigger("Change", old);
+					//without this entities weren't added correctly to Crafty.map.map in IE8.
+					//not entirely sure this is the best way to fix it though
+					this.trigger("Move", old);
 				}
 			});
 		}
@@ -1522,6 +1527,9 @@ Crafty.c("2D", {
 	* an object can't be passed. The arguments require the x and y value
 	*/
 	isAt: function(x,y) {
+		if(this.map) {
+			return this.map.containsPoint(x,y);
+		}
 		return this.x <= x && this.x + this.w >= x &&
 			   this.y <= y && this.y + this.h >= y;
 	},
@@ -2169,6 +2177,8 @@ Crafty.c("Collision", {
 			max1, max2,
 			interval,
 			MTV = null,
+      MTV2 = 0,
+      MN = null,
 			dot,
 			nextPoint,
 			currentPoint;
@@ -2255,11 +2265,16 @@ Crafty.c("Collision", {
 				return false;
 			}
 			if(interval > MTV || MTV === null) MTV = interval;
+      if (interval < MTV2) {
+        MTV2 = interval;
+        MN = {x: normal.x, y: normal.y};
+      }
 		}
 		
-		return {overlap: MTV};
+		return {overlap: MTV, normal: MN};
 	}
 });
+
 
 /**@
 * #DOM
@@ -2537,8 +2552,8 @@ Crafty.extend({
 		*/
 		inner: function(obj) { 
 			var rect = obj.getBoundingClientRect(),
-				x = rect.left + window.pageXOffset,
-				y = rect.top + window.pageYOffset,
+				x = rect.left + (window.pageXOffset ? window.pageXOffset : document.body.scrollTop),
+				y = rect.top + (window.pageYOffset ? window.pageYOffset : document.body.scrollLeft),
 				borderX,
 				borderY;
 			
@@ -3493,10 +3508,10 @@ Crafty.extend({
 				tar = tar.parentNode;
 			}
 			ent = Crafty(parseInt(tar.id.replace('ent', '')))
-			if (ent.has('Mouse'))
+			if (ent.has('Mouse') && ent.isAt(x,y))
 				closest = ent;
 		}
-		else {
+		if(!closest) {
 			//search for all mouse entities
 			q = Crafty.map.search({_x: x, _y:y, _w:1, _h:1}, false);
 			
@@ -4138,17 +4153,24 @@ Crafty.c("SpriteAnimation", {
 * Component to animate the change in 2D properties over time.
 */
 Crafty.c("Tween", {
+	_step: null,
+	_numProps: 0,
+	_callback: null,
+	_params: null,
+	
 	/**@
 	* #.tween
 	* @comp Tween
-	* @sign public this .tween(Object properties, Number duration)
+	* @sign public this .tween(Object properties, Number duration, Function callback, Object params)
 	* @param properties - Object of 2D properties and what they should animate to
 	* @param duration - Duration to animate the properties over (in frames)
+	* @param callback - Function to call when finished
+	* @param params - Object with parameters to pass to the callback function
 	* This method will animate a 2D entities properties over the specified duration.
 	* These include `x`, `y`, `w`, `h`, `alpha` and `rotation`.
 	*
 	* The object passed should have the properties as keys and the value should be the resulting
-	* values of the properties.
+	* values of the properties. Optionally pass in a callback function to run when the tween finishes.
 	* @example
 	* Move an object to 100,100 and fade out in 200 frames.
 	* ~~~
@@ -4157,8 +4179,22 @@ Crafty.c("Tween", {
 	*    .tween({alpha: 0.0, x: 100, y: 100}, 200)
 	* ~~~
 	*/
-	tween: function(props, duration) {
+	tween: function(props, duration, callback, params) {
         this.each(function() {
+			if (this._step == null) {
+				this._step = {};
+				this.bind('EnterFrame', tweenEnterFrame);
+			}
+			
+			for (var prop in props) {
+				this._step[prop] = {val: (props[prop] - this[prop] )/duration, rem: duration};
+				this._numProps++;
+			}
+			
+			this._callback = callback;
+			this._params = params;
+		
+		/*
             var prop,
             old = {},
             step = {},
@@ -4176,16 +4212,17 @@ Crafty.c("Tween", {
 					var over = Crafty.over,
 						mouse = Crafty.mousePos;
 					if (over && over[0] == this[0] && !this.isAt(mouse.x, mouse.y)) {
-						this.trigger('MouseOut');
+						this.trigger('MouseOut', Crafty.lastEvent);
 						Crafty.over = null;
 					}
-					else if (over || over[0] != this[0] && this.isAt(mouse.x, mouse.y)) {
+					else if ((!over || over[0] != this[0]) && this.isAt(mouse.x, mouse.y)) {
 						Crafty.over = this;
-						this.trigger('MouseOver');
+						this.trigger('MouseOver', Crafty.lastEvent);
 					}
 				}
                 if(e.frame >= endFrame) {
                     this.unbind("EnterFrame", d);
+                    if (callback) {callback(params);}
 					this.trigger("TweenEnd");
                     return;
                 }
@@ -4193,10 +4230,40 @@ Crafty.c("Tween", {
                     this[prop] += step[prop];
                 }
             });
+		*/
         });
         return this;
 	}
 });
+
+function tweenEnterFrame(e) {
+	if (this._numProps <= 0) return;
+	
+	var prop, k;
+	for (k in this._step) {
+		prop = this._step[k];
+		this[k] += prop.val;
+		if (prop.rem-- == 0) {
+			if (this._callback) {this._callback(this._params);}
+			this.trigger("TweenEnd", k);
+			delete prop;
+			this._numProps--;
+		}
+	}
+		
+	if (this.has('Mouse')) {
+		var over = Crafty.over,
+			mouse = Crafty.mousePos;
+		if (over && over[0] == this[0] && !this.isAt(mouse.x, mouse.y)) {
+			this.trigger('MouseOut', Crafty.lastEvent);
+			Crafty.over = null;
+		}
+		else if ((!over || over[0] != this[0]) && this.isAt(mouse.x, mouse.y)) {
+			Crafty.over = this;
+			this.trigger('MouseOver', Crafty.lastEvent);
+		}
+	}
+}
 
 
 
@@ -4240,7 +4307,7 @@ Crafty.c("Sprite", {
 		};
 		
 		this.bind("Draw", draw).bind("RemoveComponent", function(id) {
-			if(id === pos) this.unbind("Draw", draw);  
+			if(id === "Sprite") this.unbind("Draw", draw);  
 		});
 	},
 	
