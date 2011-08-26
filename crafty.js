@@ -1248,6 +1248,7 @@ Crafty.c("2D", {
 			this.__defineGetter__('alpha', function() { return this._alpha; });
 			this.__defineGetter__('visible', function() { return this._visible; });
 			this.__defineGetter__('parent', function() { return this._parent; });
+			this.__defineGetter__('numChildren', function() { return this._children.length; });
 			
 		//IE9 supports Object.defineProperty
 		} else if(Crafty.support.defineProperty) {
