@@ -476,6 +476,7 @@ Crafty.c("2D", {
 		var i = 0, arg = arguments, l = arguments.length, obj;
 		for(;i<l;++i) {
 			obj = arg[i];
+			if (obj._parent) {obj._parent.detach(obj);}
 			obj._parent = this;
 			this._children.push(obj);
 		}
