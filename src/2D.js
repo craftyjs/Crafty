@@ -81,6 +81,7 @@ Crafty.c("2D", {
 	_mbr: null,
 	_entry: null,
 	_children: null,
+	_parent: null,
 	_changed: false,
 	
 	init: function() {
@@ -89,7 +90,7 @@ Crafty.c("2D", {
 		this._children = [];
 		
 		if(Crafty.support.setter) {
-			//create getters and setters on x,y,w,h,z
+			//create getters and setters
 			this.__defineSetter__('x', function(v) { this._attr('_x',v); });
 			this.__defineSetter__('y', function(v) { this._attr('_y',v); });
 			this.__defineSetter__('w', function(v) { this._attr('_w',v); });
@@ -107,6 +108,8 @@ Crafty.c("2D", {
 			this.__defineGetter__('rotation', function() { return this._rotation; });
 			this.__defineGetter__('alpha', function() { return this._alpha; });
 			this.__defineGetter__('visible', function() { return this._visible; });
+			this.__defineGetter__('parent', function() { return this._parent; });
+			this.__defineGetter__('numChildren', function() { return this._children.length; });
 			
 		//IE9 supports Object.defineProperty
 		} else if(Crafty.support.defineProperty) {
@@ -473,6 +476,8 @@ Crafty.c("2D", {
 		var i = 0, arg = arguments, l = arguments.length, obj;
 		for(;i<l;++i) {
 			obj = arg[i];
+			if (obj._parent) {obj._parent.detach(obj);}
+			obj._parent = this;
 			this._children.push(obj);
 		}
 		
@@ -490,15 +495,20 @@ Crafty.c("2D", {
 	detach: function(obj) {
 		//if nothing passed, remove all attached objects
 		if(!obj) {
+			for (var i = 0; i < this._children.length; i++) {
+				this._children[i]._parent = null;
+			}
 			this._children = [];
 			return this;
 		}
+		
 		//if obj passed, find the handler and unbind
-    for (var i = 0; i < this._children.length; i++) {
+		for (var i = 0; i < this._children.length; i++) {
 			if (this._children[i] == obj) {
 				this._children.splice(i, 1);
 			}
 		}
+		obj._parent = null;
 		
 		return this;
 	},
