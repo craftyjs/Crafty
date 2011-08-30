@@ -181,6 +181,7 @@ Crafty.c("DOM", {
 	
 	/**@
 	* #.css
+	* @comp DOM
 	* @sign public * css(String property, String value)
 	* @param property - CSS property to modify
 	* @param value - Value to give the CSS property

@@ -27,7 +27,7 @@ Crafty.c("Color", {
 	* Will create a rectangle of solid color for the entity.
 	*
 	* The argument must be a color readable depending on how it's drawn. Canvas requires 
-	* using `rgb(0 - 255, 0 - 255, 0 - 255)` or `rgba()` whereas DOM can be hex or any other desired format.
+	* using `rgb(0 - 255, 0 - 255, 0 - 255)` or `rgba()` whereas DOM can be hex or any other css format.
 	*/
 	color: function(color) {
 		this._color = color;
@@ -41,7 +41,7 @@ Crafty.c("Color", {
 * @category Graphics
 * Similar to Color by adding an overlay of semi-transparent color.
 *
-* *Note: Currently one works for Canvas*
+* *Note: Currently only works for Canvas*
 */
 Crafty.c("Tint", {
 	_color: null,
@@ -112,7 +112,7 @@ Crafty.c("Image", {
 	},
 	
 	/**@
-	* #image
+	* #.image
 	* @comp Image
 	* @sign public this .image(String url[, String repeat])
 	* @param url - URL of the image
@@ -127,11 +127,11 @@ Crafty.c("Image", {
 	* @example
 	* Will default to no-repeat. Entity width and height will be set to the images width and height
 	* ~~~
-	* var ent = Crafty.e("2D, DOM, image").image("myimage.png");
+	* var ent = Crafty.e("2D, DOM, Image").image("myimage.png");
 	* ~~~
 	* Create a repeating background.
 	* ~~~
-    * var bg = Crafty.e("2D, DOM, image")
+    * var bg = Crafty.e("2D, DOM, Image")
 	*              .attr({w: Crafty.viewport.width, h: Crafty.viewport.height})
 	*              .image("bg.png", "repeat");
 	* ~~~

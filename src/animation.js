@@ -197,7 +197,7 @@ Crafty.c("Tween", {
 	* @example
 	* Move an object to 100,100 and fade out in 200 frames.
 	* ~~~
-	* Crafty.e("2D")
+	* Crafty.e("2D, Tween")
 	*    .attr({alpha: 1.0, x: 0, y: 0})
 	*    .tween({alpha: 0.0, x: 100, y: 100}, 200)
 	* ~~~

@@ -1,8 +1,10 @@
-//Particle component
-//Based on Parcycle by Mr. Speaker, licensed under the MIT,
-//Ported by Leo Koppelkamm
-//**This is canvas only & won't do anything if the browser doesn't support it!**
-
+/**@
+* #Particles
+* @category Graphics
+* Based on Parcycle by Mr. Speaker, licensed under the MIT, Ported by Leo Koppelkamm
+* **This is canvas only & won't do anything if the browser doesn't support it!**
+* To see how this works take a look in https://github.com/louisstow/Crafty/blob/master/src/particles.js
+*/
 Crafty.c("particles", {
 	init: function () {
 		//We need to clone it

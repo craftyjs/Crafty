@@ -9,11 +9,11 @@
 *
 * @example
 * ~~~
-*    Crafty("mycomponent")
-*    Crafty("hello 2D component")
-*    Crafty("hello, 2D, component")
+*    Crafty("MyComponent")
+*    Crafty("Hello 2D Component")
+*    Crafty("Hello, 2D, Component")
 * ~~~
-* The first selector will return all entities that has the component `mycomponent`. The second will return all entities that has `hello` and `2D` and `component` whereas the last will return all entities that has at least one of those components (or).
+* The first selector will return all entities that has the component `MyComponent`. The second will return all entities that has `Hello` and `2D` and `Component` whereas the last will return all entities that has at least one of those components (or).
 * ~~~
 *   Crafty(1)
 * ~~~
@@ -147,8 +147,8 @@ Crafty.fn = Crafty.prototype = {
 	* @comp Crafty Core
 	* @sign public this .addComponent(String componentList)
 	* @param componentList - A string of components to add seperated by a comma `,`
-	* @sign public this .addComponent(String component1[, .., String componentN])
-	* @param component# - Component ID to add.
+	* @sign public this .addComponent(String Component1[, .., String ComponentN])
+	* @param Component# - Component ID to add.
 	* Adds a component to the selected entities or entity. 
 	*
 	* Components are used to extend the functionality of entities. 
@@ -161,8 +161,8 @@ Crafty.fn = Crafty.prototype = {
 	*
 	* @example
 	* ~~~
-	* this.addComponent("2D, canvas, health");
-	* this.addComponent("2D", "canvas", "health");
+	* this.addComponent("2D, Canvas");
+	* this.addComponent("2D", "Canvas");
 	* ~~~
 	*/
 	addComponent: function(id) {
@@ -232,7 +232,7 @@ Crafty.fn = Crafty.prototype = {
 	/**@
 	* #.removeComponent
 	* @comp Crafty Core
-	* @sign public this .removeComponent(String component[, soft])
+	* @sign public this .removeComponent(String Component[, soft])
 	* @param component - Component to remove
 	* @param soft - Whether to soft remove it (defaults to `true`)
 	* Removes a component from an entity. A soft remove will only 
@@ -370,7 +370,7 @@ Crafty.fn = Crafty.prototype = {
 	*     this.triggers++; //whenever myevent is triggered, increment
 	* });
 	* this.bind("EnterFrame", function() {
-	*     this.trigger("myevent"); //trigger myeven on every frame
+	*     this.trigger("myevent"); //trigger myevent on every frame
 	* });
 	* ~~~
 	* @see .trigger, .unbind
@@ -535,7 +535,7 @@ Crafty.fn = Crafty.prototype = {
 	* Will watch a property waiting for modification and will then invoke the
 	* given callback when attempting to modify.
 	*
-	* *Note: Support in IE<9 is slightly different. The method will be execute
+	* *Note: Support in IE<9 is slightly different. The method will be executed
 	* after the property has been set*
 	*/
 	setter: function(prop, fn) {
@@ -631,7 +631,7 @@ Crafty.extend({
 	* #Crafty.stop
 	* @category Core
 	* @sign public this Crafty.stop(void)
-	* Stops the Enterframe interval and removes the stage element. 
+	* Stops the EnterFrame interval and removes the stage element.
 	*
 	* To restart, use `Crafty.init()`.
 	* @see Crafty.init

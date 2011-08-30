@@ -20,7 +20,7 @@ Crafty.c("Text", {
 	* #.text
 	* @comp Text
 	* @sign public this .text(String text)
-	* @param text - String of text that will be inseretd into the DOM element. Can use HTML.
+	* @param text - String of text that will be inserted into the DOM element. Can use HTML.
 	* This method will update the text inside the entity. To modify the font, use the `.css` method
 	* inherited from the DOM component.
 	*/

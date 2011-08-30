@@ -93,5 +93,5 @@ Crafty.c("Sprite", {
 		
 		this.trigger("Change", old);
 		return this;
-	},
+	}
 });

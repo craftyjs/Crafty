@@ -23,7 +23,7 @@ Crafty.c("Collision", {
 	* for the collision detection to work.
 	* @example
 	* ~~~
-	* this.collision(
+	* Crafty.e("2D, Collision").collision(
 	*     new Crafty.polygon([50,0], [100,100], [0,100])
 	* );
 	* ~~~
