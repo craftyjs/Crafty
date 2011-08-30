@@ -303,13 +303,15 @@ Crafty.fn = Crafty.prototype = {
 			
 			//extend if object
 			this.extend(key);
-			this.trigger("Change"); //trigger change event
+			this.trigger("Change", key); //trigger change event
 			return this;
 		}
 		//if key value pair
 		this[key] = value;
-		
-		this.trigger("Change"); //trigger change event
+
+		var change = {};
+		change[key] = value;
+		this.trigger("Change", change ); //trigger change event
 		return this;
 	},
 	
@@ -1218,6 +1220,7 @@ Crafty.c("2D", {
 	_mbr: null,
 	_entry: null,
 	_children: null,
+	_parent: null,
 	_changed: false,
 	
 	init: function() {
@@ -1226,7 +1229,7 @@ Crafty.c("2D", {
 		this._children = [];
 		
 		if(Crafty.support.setter) {
-			//create getters and setters on x,y,w,h,z
+			//create getters and setters
 			this.__defineSetter__('x', function(v) { this._attr('_x',v); });
 			this.__defineSetter__('y', function(v) { this._attr('_y',v); });
 			this.__defineSetter__('w', function(v) { this._attr('_w',v); });
@@ -1244,6 +1247,8 @@ Crafty.c("2D", {
 			this.__defineGetter__('rotation', function() { return this._rotation; });
 			this.__defineGetter__('alpha', function() { return this._alpha; });
 			this.__defineGetter__('visible', function() { return this._visible; });
+			this.__defineGetter__('parent', function() { return this._parent; });
+			this.__defineGetter__('numChildren', function() { return this._children.length; });
 			
 		//IE9 supports Object.defineProperty
 		} else if(Crafty.support.defineProperty) {
@@ -1320,9 +1325,12 @@ Crafty.c("2D", {
 					this._rotation = this.rotation;
 					this._alpha = this.alpha;
 					this._visible = this.visible;
-					
+
 					//trigger the changes
 					this.trigger("Change", old);
+					//without this entities weren't added correctly to Crafty.map.map in IE8.
+					//not entirely sure this is the best way to fix it though
+					this.trigger("Move", old);
 				}
 			});
 		}
@@ -1522,6 +1530,9 @@ Crafty.c("2D", {
 	* an object can't be passed. The arguments require the x and y value
 	*/
 	isAt: function(x,y) {
+		if(this.map) {
+			return this.map.containsPoint(x,y);
+		}
 		return this.x <= x && this.x + this.w >= x &&
 			   this.y <= y && this.y + this.h >= y;
 	},
@@ -1604,6 +1615,8 @@ Crafty.c("2D", {
 		var i = 0, arg = arguments, l = arguments.length, obj;
 		for(;i<l;++i) {
 			obj = arg[i];
+			if (obj._parent) {obj._parent.detach(obj);}
+			obj._parent = this;
 			this._children.push(obj);
 		}
 		
@@ -1621,15 +1634,20 @@ Crafty.c("2D", {
 	detach: function(obj) {
 		//if nothing passed, remove all attached objects
 		if(!obj) {
+			for (var i = 0; i < this._children.length; i++) {
+				this._children[i]._parent = null;
+			}
 			this._children = [];
 			return this;
 		}
+		
 		//if obj passed, find the handler and unbind
-    for (var i = 0; i < this._children.length; i++) {
+		for (var i = 0; i < this._children.length; i++) {
 			if (this._children[i] == obj) {
 				this._children.splice(i, 1);
 			}
 		}
+		obj._parent = null;
 		
 		return this;
 	},
@@ -2169,6 +2187,8 @@ Crafty.c("Collision", {
 			max1, max2,
 			interval,
 			MTV = null,
+      MTV2 = 0,
+      MN = null,
 			dot,
 			nextPoint,
 			currentPoint;
@@ -2255,11 +2275,16 @@ Crafty.c("Collision", {
 				return false;
 			}
 			if(interval > MTV || MTV === null) MTV = interval;
+      if (interval < MTV2) {
+        MTV2 = interval;
+        MN = {x: normal.x, y: normal.y};
+      }
 		}
 		
-		return {overlap: MTV};
+		return {overlap: MTV, normal: MN};
 	}
 });
+
 
 /**@
 * #DOM
@@ -2537,8 +2562,8 @@ Crafty.extend({
 		*/
 		inner: function(obj) { 
 			var rect = obj.getBoundingClientRect(),
-				x = rect.left + window.pageXOffset,
-				y = rect.top + window.pageYOffset,
+				x = rect.left + (window.pageXOffset ? window.pageXOffset : document.body.scrollTop),
+				y = rect.top + (window.pageYOffset ? window.pageYOffset : document.body.scrollLeft),
 				borderX,
 				borderY;
 			
@@ -3493,10 +3518,10 @@ Crafty.extend({
 				tar = tar.parentNode;
 			}
 			ent = Crafty(parseInt(tar.id.replace('ent', '')))
-			if (ent.has('Mouse'))
+			if (ent.has('Mouse') && ent.isAt(x,y))
 				closest = ent;
 		}
-		else {
+		if(!closest) {
 			//search for all mouse entities
 			q = Crafty.map.search({_x: x, _y:y, _w:1, _h:1}, false);
 			
@@ -4138,6 +4163,9 @@ Crafty.c("SpriteAnimation", {
 * Component to animate the change in 2D properties over time.
 */
 Crafty.c("Tween", {
+	_step: null,
+	_numProps: 0,
+	
 	/**@
 	* #.tween
 	* @comp Tween
@@ -4159,6 +4187,17 @@ Crafty.c("Tween", {
 	*/
 	tween: function(props, duration) {
         this.each(function() {
+			if (this._step == null) {
+				this._step = {};
+				this.bind('EnterFrame', tweenEnterFrame);
+			}
+			
+			for (var prop in props) {
+				this._step[prop] = {val: (props[prop] - this[prop] )/duration, rem: duration};
+				this._numProps++;
+			}
+		
+		/*
             var prop,
             old = {},
             step = {},
@@ -4176,12 +4215,12 @@ Crafty.c("Tween", {
 					var over = Crafty.over,
 						mouse = Crafty.mousePos;
 					if (over && over[0] == this[0] && !this.isAt(mouse.x, mouse.y)) {
-						this.trigger('MouseOut');
+						this.trigger('MouseOut', Crafty.lastEvent);
 						Crafty.over = null;
 					}
-					else if (over || over[0] != this[0] && this.isAt(mouse.x, mouse.y)) {
+					else if ((!over || over[0] != this[0]) && this.isAt(mouse.x, mouse.y)) {
 						Crafty.over = this;
-						this.trigger('MouseOver');
+						this.trigger('MouseOver', Crafty.lastEvent);
 					}
 				}
                 if(e.frame >= endFrame) {
@@ -4193,10 +4232,39 @@ Crafty.c("Tween", {
                     this[prop] += step[prop];
                 }
             });
+		*/
         });
         return this;
 	}
 });
+
+function tweenEnterFrame(e) {
+	if (this._numProps <= 0) return;
+	
+	var prop, k;
+	for (k in this._step) {
+		prop = this._step[k];
+		this[k] += prop.val;
+		if (prop.rem-- == 0) {
+			this.trigger("TweenEnd", k);
+			delete prop;
+			this._numProps--;
+		}
+	}
+		
+	if (this.has('Mouse')) {
+		var over = Crafty.over,
+			mouse = Crafty.mousePos;
+		if (over && over[0] == this[0] && !this.isAt(mouse.x, mouse.y)) {
+			this.trigger('MouseOut', Crafty.lastEvent);
+			Crafty.over = null;
+		}
+		else if ((!over || over[0] != this[0]) && this.isAt(mouse.x, mouse.y)) {
+			Crafty.over = this;
+			this.trigger('MouseOver', Crafty.lastEvent);
+		}
+	}
+}
 
 
 
@@ -4240,7 +4308,7 @@ Crafty.c("Sprite", {
 		};
 		
 		this.bind("Draw", draw).bind("RemoveComponent", function(id) {
-			if(id === pos) this.unbind("Draw", draw);  
+			if(id === "Sprite") this.unbind("Draw", draw);  
 		});
 	},
 	
