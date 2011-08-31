@@ -210,49 +210,17 @@ Crafty.c("Tween", {
 			if (this._step == null) {
 				this._step = {};
 				this.bind('EnterFrame', tweenEnterFrame);
+				this.bind('RemoveComponent', function (c) {
+					if (c == 'Tween') {
+						this.unbind('EnterFrame', tweenEnterFrame);
+					}
+				});
 			}
 			
 			for (var prop in props) {
 				this._step[prop] = {val: (props[prop] - this[prop] )/duration, rem: duration};
 				this._numProps++;
 			}
-		
-		/*
-            var prop,
-            old = {},
-            step = {},
-            startFrame = Crafty.frame(),
-            endFrame = startFrame + duration;
-            
-            //store the old properties
-            for(prop in props) {
-                old[prop] = this['_'+prop];
-                step[prop] = (props[prop] - old[prop]) / duration;
-            }
-            
-            this.bind("EnterFrame", function d(e) {
-				if (this.has('Mouse')) {
-					var over = Crafty.over,
-						mouse = Crafty.mousePos;
-					if (over && over[0] == this[0] && !this.isAt(mouse.x, mouse.y)) {
-						this.trigger('MouseOut', Crafty.lastEvent);
-						Crafty.over = null;
-					}
-					else if ((!over || over[0] != this[0]) && this.isAt(mouse.x, mouse.y)) {
-						Crafty.over = this;
-						this.trigger('MouseOver', Crafty.lastEvent);
-					}
-				}
-                if(e.frame >= endFrame) {
-                    this.unbind("EnterFrame", d);
-					this.trigger("TweenEnd");
-                    return;
-                }
-                for(var prop in props) {
-                    this[prop] += step[prop];
-                }
-            });
-		*/
         });
         return this;
 	}
