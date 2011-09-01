@@ -83,7 +83,7 @@
 	 * });
 	 */
  
-Crafty.storage: (function () {
+Crafty.storage = (function () {
 	var db = null, external = '', gameName;
 	
 	function process(obj) {
@@ -159,8 +159,8 @@ Crafty.storage: (function () {
 			load: function (key, type) {
 				if (type != 'save') return;
 				var reg = new RegExp(gameName+'_'+key+'=[^;]*'),
-					result = reg.exec(document.cookie),
-					data = unserialize(result);
+					result = reg.exec(document.cookie);
+					data = unserialize(result[0].replace(gameName+'_'+key+'=', ''));
 					
 				return data;
 			},
