@@ -8,7 +8,7 @@ Crafty.extend({
 	* Returns a random number between (and including) the two numbers.
 	*/
 	randRange: function(from, to) {
-		return Math.round(Math.random() * (to - from) + from);
+		return Math.floor(Math.random() * (to - from + 1) + from);
 	},
 	
 	zeroFill: function(number, width) {
