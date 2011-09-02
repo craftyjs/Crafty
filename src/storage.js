@@ -131,6 +131,7 @@ Crafty.storage = (function () {
 	
 	function serialize(e) {
 		if (JSON) {
+			if (typeof e != 'string') return null;
 			var data = prep(e);
 			return JSON.stringify(data);
 		}
@@ -141,6 +142,26 @@ Crafty.storage = (function () {
 	}
 	
 	if (0) {
+	}
+	else if (typeof window.localStorage == 'object') {
+		return {
+			open: function (gameName_n) {
+				gameName = gameName_n;
+			},
+			
+			save: function (key, type, data) {
+				var k = gameName+'.'+type+'.'+key,
+					str = serialize(data);
+				window.localStorage[k] = str;
+			},
+			
+			load: function (key, type) {
+				var k = gameName+'.'+type+'.'+key,
+					str = window.localStorage[k];
+				
+				return unserialize(str);
+			},
+		};
 	}
 	else {
 		// default fallback to cookies
