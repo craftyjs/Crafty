@@ -1,7 +1,7 @@
 /**@
  * #Storage
  * @category Utilities
- * Utility to allow data to be saved to a permanent storage solution: IndexedDB, WebSQL, localstorage or cookies
+ * Utility to allow data to be saved to a permanent storage solution: IndexedDB, WebSql, localstorage or cookies
  */
 	/**@
 	 * #.open
@@ -102,6 +102,7 @@ Crafty.storage = (function () {
 	}
 	
 	function unserialize(str) {
+		if (typeof str != 'string') return null;
 		var data = (JSON?JSON.parse(str):eval('('+str+')'));
 		return process(data);
 	}
@@ -131,7 +132,6 @@ Crafty.storage = (function () {
 	
 	function serialize(e) {
 		if (JSON) {
-			if (typeof e != 'string') return null;
 			var data = prep(e);
 			return JSON.stringify(data);
 		}
@@ -142,6 +142,62 @@ Crafty.storage = (function () {
 	}
 	
 	if (0) {
+	}
+	else if (typeof openDatabase == 'function') {
+		return {
+			open: function (gameName_n) {
+				gameName = gameName_n;
+				if (arguments.length == 1) {
+					db = {
+						save: openDatabase(gameName_n+'_save', '1.0', 'Saves games for '+gameName_n, 5 * 1024 * 1024),
+						cache: openDatabase(gameName_n+'_cache', '1.0', 'Cache for '+gameName_n, 5 * 1024 * 1024),
+					}
+				}
+				else {
+					// allows for any other types that can be thought of
+					var args = arguments, i=0;
+					args.shift();
+					for (;i<args.length; i++) {
+						if (typeof db[args[i]] == 'undefined')
+							db[args[i]] = openDatabase(gameName+'_'+args[i], '1.0', type, 5 * 1024 * 1024);
+					}
+				}
+			},
+			
+			save: function (key, type, data) {
+				if (typeof db[type] == 'undefined') {
+					this.open(gameName, type);
+				}
+				
+				var str = serialize(data);
+				db[type].transaction(function (tx) {
+					tx.executeSql('CREATE TABLE IF NOT EXISTS data (key unique, text)');
+					tx.executeSql('SELECT * FROM data WHERE key = ?', [key], function (tx, results) {
+						if (results.rows.length) {
+							tx.executeSql('UPDATE data SET text = ? WHERE key = ?', [str, key]);
+						}
+						else {
+							tx.executeSql('INSERT INTO data VALUES (?, ?)', [key, str]);
+						}
+					});
+				});
+			},
+			
+			load: function (key, type) {
+				var res;
+				
+				db[type].transaction(function (tx) {
+					tx.executeSql('SELECT text FROM data WHERE key = ?', [key], function (tx, results) {
+						// this is run asynchronously. Which is not what I want.
+						if (results.rows.length) {
+							res = unserialize(results.rows.item(0).text);
+						}
+					});
+				});
+				
+				return res;
+			},
+		};
 	}
 	else if (typeof window.localStorage == 'object') {
 		return {
