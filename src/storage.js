@@ -40,6 +40,7 @@
 	 * @sign .load(String key, String type)
 	 * @param key - A unique key to search for
 	 * @param type - 'save' or 'cache'
+	 * @param callback - Do things with the data you get back
 	 * Loads a piece of data from the database. 
 	 * Entities will be reconstructed from the serialized string
 	 
@@ -47,7 +48,7 @@
 	 * Loads an entity from the database
 	 * ------------------
 	 * Crafty.storage.open('MyGame');
-	 * var ent = Crafty.storage.load('MyEntity', 'save');
+	 * Crafty.storage.load('MyEntity', 'save', function (data) { // do things });
 	 */
 	 
 	/**@
@@ -141,7 +142,57 @@ Crafty.storage = (function () {
 		}
 	}
 	
-	if (0) {
+	// everyone names their object different. Fix that nonsense.
+	if (typeof indexedDB != 'object') {
+		if (typeof mozIndexedDB == 'object') window.indexedDB = mozIndexedDB;
+		if (typeof webkitIndexedDB == 'object') window.indexedDB = webkitIndexedDB;
+	}
+	
+	if (typeof indexedDB == 'object') {
+		function createStores() {
+			var request = db.setVersion("1.0");
+			request.onsuccess = function (e) {
+				for (var i=0; i<stores.length; i++) {
+					var st = stores[i];
+					if (db.objectStoreNames.contains(st)) continue;
+					db.createObjectStore(st, {keyPath: "key"});
+				}
+			};
+		}
+		
+		return {
+			open: function (gameName_n) {
+				gameName = gameName_n;
+				
+				if (arguments.length == 1) {
+					stores.push('save');
+					stores.push('cache');
+				}
+				else {
+					stores = arguments, i=0;
+					stores.shift();
+					stores.push('save');
+					stores.push('cache');
+				}
+				
+				if (!db) {
+					var request = indexedDB.open(gameName, "Database for "+gameName), stores = [];
+					request.onsuccess = function (e) {
+						db = e.target.result;
+						createStores();
+					};
+				}
+				else {
+					createStores();
+				}
+			},
+			
+			save: function (key, type, data) {
+			},
+			
+			load: function (key, type, callback) {
+			},
+		};
 	}
 	else if (typeof openDatabase == 'function') {
 		return {
