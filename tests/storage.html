@@ -17,9 +17,16 @@ window.onload = function() {
 						console.log(data);
 					 })
 					 .bind("Click", function (e) {
+						Crafty.storage.save('test1', 'save', this);
+						this.color('#00FF00');
 						Crafty.storage.save('test2', 'save', this);
 					 });
-	var ent2 = Crafty.storage.load('test1', 'save').attr({x: 120});
+	var ent2 = Crafty.storage.load('test1', 'save', function (data) {
+		data.attr({x: 120});
+	});
+	var ent3 = Crafty.storage.load('test2', 'save', function (data) {
+		data.attr({y: 120});
+	});
 };
 </script>
 </head>
