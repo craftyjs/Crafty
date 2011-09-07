@@ -183,19 +183,16 @@ Crafty.storage = (function () {
 				});
 			},
 			
-			load: function (key, type) {
-				var res;
-				
+			load: function (key, type, callback) {
 				db[type].transaction(function (tx) {
 					tx.executeSql('SELECT text FROM data WHERE key = ?', [key], function (tx, results) {
 						// this is run asynchronously. Which is not what I want.
 						if (results.rows.length) {
 							res = unserialize(results.rows.item(0).text);
+							callback(res);
 						}
 					});
 				});
-				
-				return res;
 			},
 		};
 	}
@@ -211,11 +208,11 @@ Crafty.storage = (function () {
 				window.localStorage[k] = str;
 			},
 			
-			load: function (key, type) {
+			load: function (key, type, callback) {
 				var k = gameName+'.'+type+'.'+key,
 					str = window.localStorage[k];
 				
-				return unserialize(str);
+				callback(unserialize(str));
 			},
 		};
 	}
@@ -233,13 +230,13 @@ Crafty.storage = (function () {
 				document.cookie = gameName+'_'+key+'='+str+'; expires=Thur, 31 Dec 2099 23:59:59 UTC; path=/';
 			},
 			
-			load: function (key, type) {
+			load: function (key, type, callback) {
 				if (type != 'save') return;
 				var reg = new RegExp(gameName+'_'+key+'=[^;]*'),
 					result = reg.exec(document.cookie);
 					data = unserialize(result[0].replace(gameName+'_'+key+'=', ''));
 					
-				return data;
+				callback(data);
 			},
 		};
 	}
