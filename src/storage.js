@@ -144,53 +144,75 @@ Crafty.storage = (function () {
 	
 	// everyone names their object different. Fix that nonsense.
 	if (typeof indexedDB != 'object') {
-		if (typeof mozIndexedDB == 'object') window.indexedDB = mozIndexedDB;
-		if (typeof webkitIndexedDB == 'object') window.indexedDB = webkitIndexedDB;
+		if (typeof mozIndexedDB == 'object') {
+			window.indexedDB = mozIndexedDB;
+		}
+		if (typeof webkitIndexedDB == 'object') {
+			window.indexedDB = webkitIndexedDB;
+			window.IDBTransaction = webkitIDBTransaction;
+		}
 	}
 	
 	if (typeof indexedDB == 'object') {
-		function createStores() {
-			var request = db.setVersion("1.0");
-			request.onsuccess = function (e) {
-				for (var i=0; i<stores.length; i++) {
-					var st = stores[i];
-					if (db.objectStoreNames.contains(st)) continue;
-					db.createObjectStore(st, {keyPath: "key"});
-				}
-			};
-		}
 		
 		return {
 			open: function (gameName_n) {
 				gameName = gameName_n;
+				var stores = [];
 				
 				if (arguments.length == 1) {
 					stores.push('save');
 					stores.push('cache');
 				}
 				else {
-					stores = arguments, i=0;
+					stores = arguments;
 					stores.shift();
 					stores.push('save');
 					stores.push('cache');
 				}
-				
-				if (!db) {
-					var request = indexedDB.open(gameName, "Database for "+gameName), stores = [];
+				console.log(db);
+				if (db == null) {
+					var request = indexedDB.open(gameName, "Database for "+gameName);
 					request.onsuccess = function (e) {
 						db = e.target.result;
+						console.log(db);
 						createStores();
 					};
 				}
 				else {
 					createStores();
 				}
+				
+				function createStores() {
+					var request = db.setVersion("1.0");
+					request.onsuccess = function (e) {
+						console.log(stores);
+						for (var i=0; i<stores.length; i++) {
+							var st = stores[i];
+							if (db.objectStoreNames.contains(st)) continue;
+							db.createObjectStore(st, {keyPath: "key"});
+						}
+						console.log(db);
+					};
+				}
 			},
 			
 			save: function (key, type, data) {
+				var trans = db.transaction([type], IDBTransaction.READ_WRITE, 0), 
+				store = trans.objectStore(type),
+				request = store.put({
+					"data": serialize(data),
+					"key": key
+				});
 			},
 			
 			load: function (key, type, callback) {
+				var trans = db.transaction([type], IDBTransaction.READ, 0),
+				store = trans.objectStore(type),
+				request = store.get(key);
+				request.onsuccess = function (e) {
+					console.log(e);
+				};
 			},
 		};
 	}
