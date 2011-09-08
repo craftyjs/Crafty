@@ -52,9 +52,22 @@
 	 */
 	 
 	/**@
+	 * #.getAllKeys
+	 * @sign .getAllKeys(String type)
+	 * @param type - 'save' or 'cache'
+	 * Gets all the keys for a given type
+	 
+	 * @example
+	 * Gets all the save games saved
+	 * ------------------
+	 * Crafty.storage.open('MyGame');
+	 * var saves = Crafty.storage.getAllKeys('save');
+	 */
+	 
+	/**@
 	 * SaveData event
 	 * @param data - An object containing all of the data to be serialized
-	 * Any data a component wants to save should be added to this object.
+	 * Any data a component wants to save when it's serialized should be added to this object.
 	 * Straight attribute should be set in data.attr.
 	 * Anything that requires a special handler should be set in a unique property.
 	 * 
