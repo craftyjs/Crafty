@@ -481,7 +481,7 @@ Crafty.c("Twoway", {
 			if(this.isDown("LEFT_ARROW") || this.isDown("A")) {
 				this.x -= this._speed;
 			}
-			if(this._up) {
+			if(this._up && !this._falling) {
 				this.y -= jump;
 				this._falling = true;
 			}
