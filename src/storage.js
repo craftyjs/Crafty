@@ -220,11 +220,15 @@ Crafty.storage = (function () {
 			},
 			
 			load: function (key, type, callback) {
+				if (db == null) {
+					setTimeout(function () { Crafty.storage.load(key, type, callback); }, 1);
+					return;
+				}
 				var trans = db.transaction([type], IDBTransaction.READ, 0),
 				store = trans.objectStore(type),
 				request = store.get(key);
 				request.onsuccess = function (e) {
-					console.log(e);
+					callback(unserialize(data));
 				};
 			},
 		};
