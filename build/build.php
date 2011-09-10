@@ -177,8 +177,26 @@ function merge($files, $path = "", $save) {
 	file_put_contents($save."crafty.js", $src);
 }
 
-$files = array("license.txt", "core.js","intro.js", "HashMap.js", "2D.js", "collision.js", "DOM.js","extensions.js","canvas.js","controls.js", "animate.js", "animation.js",
-		"drawing.js", "isometric.js", "sound.js", "text.js", "loader.js", "outro.js");
+$files = array("license.txt", 
+			   "core.js",
+			   "intro.js", 
+			   "HashMap.js", 
+			   "2D.js", 
+			   "collision.js", 
+			   "DOM.js",
+			   "html.js",
+			   "extensions.js",
+			   "sprite.js",
+			   "canvas.js",
+			   "controls.js", 
+			   "animate.js", 
+			   "animation.js",
+			   "drawing.js", 
+			   "isometric.js", 
+			   "sound.js", 
+			   "text.js", 
+			   "loader.js", 
+			   "outro.js");
 
 docs($files, "../src/", "api/");
 merge($files, "../src/",  "../");
