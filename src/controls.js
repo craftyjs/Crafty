@@ -43,7 +43,7 @@ Crafty.extend({
 			
 			for(l=q.length;i<l;++i) {
 				//check if has mouse component
-				if(!q[i].__c.Mouse) continue;
+				if(!q[i].__c.Mouse || !q[i]._visible) continue;
 				
 				var current = q[i],
 					flag = false;
