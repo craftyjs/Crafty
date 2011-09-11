@@ -211,6 +211,10 @@ Crafty.storage = (function () {
 			},
 			
 			save: function (key, type, data) {
+				if(db == null) {
+					setTimeout(function() { Crafty.storage.save(key, type, data); }, 1);
+					return;
+				}
 				var trans = db.transaction([type], IDBTransaction.READ_WRITE, 0), 
 				store = trans.objectStore(type),
 				request = store.put({
@@ -228,9 +232,9 @@ Crafty.storage = (function () {
 				store = trans.objectStore(type),
 				request = store.get(key);
 				request.onsuccess = function (e) {
-					callback(unserialize(data));
+					callback(unserialize(e.target.result.data));
 				};
-			},
+			}
 		};
 	}
 	else if (typeof openDatabase == 'function') {
@@ -283,7 +287,7 @@ Crafty.storage = (function () {
 						}
 					});
 				});
-			},
+			}
 		};
 	}
 	else if (typeof window.localStorage == 'object') {
@@ -303,7 +307,7 @@ Crafty.storage = (function () {
 					str = window.localStorage[k];
 				
 				callback(unserialize(str));
-			},
+			}
 		};
 	}
 	else {
@@ -327,7 +331,7 @@ Crafty.storage = (function () {
 					data = unserialize(result[0].replace(gameName+'_'+key+'=', ''));
 					
 				callback(data);
-			},
+			}
 		};
 	}
 	/* template
