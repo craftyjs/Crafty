@@ -196,16 +196,21 @@ Crafty.extend({
 	* entities with the `2D` component on the stage are destroyed.
 	*
 	* If you want some entities to persist over scenes (as in not be destroyed) 
-	* simply add the component `persist`.
+	* simply add the component `Persist`.
+	*
+	* When a scene is played a SceneChange event is triggered. The callback object has
+	* the properties oldScene and newScene, which are string names of the scenes.
 	*/
 	scene: function(name, fn) {
 		//play scene
 		if(arguments.length === 1) {
 			Crafty("2D").each(function() {
-				if(!this.has("persist")) this.destroy();
-			}); //clear screen of all 2D objects except persist
+				if(!this.has("Persist")) this.destroy();
+			});
 			this._scenes[name].call(this);
+			var oldScene = this._current;
 			this._current = name;
+			Crafty.trigger("SceneChange", {oldScene: oldScene, newScene: name });
 			return;
 		}
 		//add scene
