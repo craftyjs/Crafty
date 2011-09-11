@@ -281,6 +281,11 @@ Crafty.storage = (function () {
 			},
 			
 			save: function (key, type, data) {
+				if (db == null) {
+					setTimeout(function() { Crafty.storage.save(key, type, data); }, 1);
+					return;
+				}
+				
 				var str = serialize(data);
 				saveExternal(str);
 				try {
@@ -306,7 +311,7 @@ Crafty.storage = (function () {
 					store = trans.objectStore(type),
 					request = store.get(key);
 					request.onsuccess = function (e) {
-						callback(unserialize(e.result.data));
+						callback(unserialize(e.target.result.data));
 					};
 				}
 				catch (e) {
