@@ -260,6 +260,7 @@ Crafty.c("Draggable", {
 			this._dragging = true;
 			Crafty.addEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
 		}
+		return this;
 	},
 	
 	/**@
