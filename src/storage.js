@@ -286,14 +286,14 @@ Crafty.storage = (function () {
 					return;
 				}
 				
-				var str = serialize(data);
-				saveExternal(str);
+				var str = serialize(data), t = ts();
+				saveExternal(key, str, t);
 				try {
 					var trans = db.transaction([type], IDBTransaction.READ_WRITE, 0), 
 					store = trans.objectStore(type),
 					request = store.put({
 						"data": str,
-						"timestamp": ts(),
+						"timestamp": t,
 						"key": key
 					});
 				}
@@ -353,16 +353,16 @@ Crafty.storage = (function () {
 					this.open(gameName, type);
 				}
 				
-				var str = serialize(data);
-				saveExternal(str);
+				var str = serialize(data), t = ts();
+				saveExternal(key, str, t);
 				db[type].transaction(function (tx) {
 					tx.executeSql('CREATE TABLE IF NOT EXISTS data (key unique, text, timestamp)');
 					tx.executeSql('SELECT * FROM data WHERE key = ?', [key], function (tx, results) {
 						if (results.rows.length) {
-							tx.executeSql('UPDATE data SET text = ?, timestamp = ? WHERE key = ?', [str, ts(), key]);
+							tx.executeSql('UPDATE data SET text = ?, timestamp = ? WHERE key = ?', [str, t, key]);
 						}
 						else {
-							tx.executeSql('INSERT INTO data VALUES (?, ?, ?)', [key, str, ts()]);
+							tx.executeSql('INSERT INTO data VALUES (?, ?, ?)', [key, str, t]);
 						}
 					});
 				});
