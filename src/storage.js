@@ -115,7 +115,7 @@
 	 */
  
 Crafty.storage = (function () {
-	var db = null, url, gameName;
+	var db = null, url, gameName, timestamps = {};
 	
 	/*
 	 * Processes a retrieved object. 
@@ -203,7 +203,7 @@ Crafty.storage = (function () {
 		xhr.send("mode=timestamps");
 	}
 	
-	function saveExternal(key, date, ts) {
+	function saveExternal(key, data, ts) {
 		if (typeof url == "undefined") return;
 	}
 	
@@ -262,10 +262,29 @@ Crafty.storage = (function () {
 					request.onsuccess = function (e) {
 						db = e.target.result;
 						createStores();
+						getTimestamps();
 					};
 				}
 				else {
 					createStores();
+					getTimestamps();
+				}
+				
+				// get all the timestamps for existing keys
+				function getTimestamps() {
+					try {
+						var trans = db.transaction(['save'], IDBTransaction.READ, 0),
+						store = trans.objectStore('save'),
+						request = store.getAll();
+						request.onsuccess = function (e) {
+							var i=0, a=event.target.result, l=a.length;
+							for (;i<l;i++) {
+								timestamps[a[i].key] = a[i].timestamp;
+							}
+						};
+					}
+					catch (e) {
+					}
 				}
 				
 				function createStores() {
@@ -286,14 +305,14 @@ Crafty.storage = (function () {
 					return;
 				}
 				
-				var str = serialize(data);
-				saveExternal(str);
+				var str = serialize(data), time = ts();
+				saveExternal(key, str, time);
 				try {
 					var trans = db.transaction([type], IDBTransaction.READ_WRITE, 0), 
 					store = trans.objectStore(type),
 					request = store.put({
 						"data": str,
-						"timestamp": ts(),
+						"timestamp": time,
 						"key": key
 					});
 				}
@@ -346,6 +365,15 @@ Crafty.storage = (function () {
 							db[args[i]] = openDatabase(gameName+'_'+args[i], '1.0', type, 5 * 1024 * 1024);
 					}
 				}
+				
+				db['save'].transaction(function (tx) {
+					tx.executeSql('SELECT key, timestamp FROM data', [], function (tx, res) {
+						var i=0, a=res.rows, l=a.length;
+						for (; i<l; i++) {
+							timestamps[a.item(i).key] = a.item(i).timestamp;
+						}
+					});
+				});
 			},
 			
 			save: function (key, type, data) {
@@ -384,6 +412,15 @@ Crafty.storage = (function () {
 			},
 			
 			getAllKeys: function (type, callback) {
+				if (db[type] == null) {
+					setTimeout(function () { Crafty.storage.getAllKeys(type, callback); }, 1);
+					return;
+				}
+				db[type].transaction(function (tx) {
+					tx.executeSql('SELECT key FROM data', [], function (tx, results) {
+						callback(results.rows);
+					});
+				});
 			},
 			
 			check: function (key, timestamp) {
