@@ -205,10 +205,14 @@ Crafty.storage = (function () {
 	
 	function saveExternal(key, data, ts) {
 		if (typeof url == "undefined") return;
+		var xhr = new XMLHttpRequest();
+		xhr.open("POST", url);
+		xhr.send("mode=save&key="+key+"&data="+encodeURIComponent(data)+"&ts="+ts);
 	}
 	
 	function loadExternal(key) {
-		var xml = new XMLHttpRequest();
+		if (typeof url == "undefined") return;
+		var xhr = new XMLHttpRequest();
 		xhr.open("POST", url);
 		xhr.onreadystatechange = function (evt) {
 			if (xhr.readyState == 4) {
@@ -263,11 +267,13 @@ Crafty.storage = (function () {
 						db = e.target.result;
 						createStores();
 						getTimestamps();
+						openExternal();
 					};
 				}
 				else {
 					createStores();
 					getTimestamps();
+					openExternal();
 				}
 				
 				// get all the timestamps for existing keys
@@ -306,7 +312,7 @@ Crafty.storage = (function () {
 				}
 				
 				var str = serialize(data), t = ts();
-				saveExternal(key, str, t);
+				if (type == 'save')	saveExternal(key, str, t);
 				try {
 					var trans = db.transaction([type], IDBTransaction.READ_WRITE, 0), 
 					store = trans.objectStore(type),
@@ -337,10 +343,32 @@ Crafty.storage = (function () {
 				}
 			},
 			
-			getAllKeys: function (type) {
+			getAllKeys: function (type, callback) {
+				if (db == null) {
+					setTimeout(function () { Crafty.storage.getAllkeys(type, callback); }, 1);
+				}
+				try {
+					var trans = db.transaction([type], IDBTransaction.READ, 0),
+					store = trans.objectStore(type),
+					request = store.getCursor(),
+					res = [];
+					request.onsuccess = function (e) {
+						var cursor = e.target.result;
+						if (cursor) {
+							res.push(cursor.key);
+							cursor.continue();
+						}
+						else {
+							callback(res);
+						}
+					};
+				}
+				catch (e) {
+				}
 			},
 			
 			check: function (key, timestamp) {
+				return (timestamps[key] > timestamp);
 			},
 			
 			external: external,
@@ -382,7 +410,7 @@ Crafty.storage = (function () {
 				}
 				
 				var str = serialize(data), t = ts();
-				saveExternal(key, str, t);
+				if (type == 'save')	saveExternal(key, str, t);
 				db[type].transaction(function (tx) {
 					tx.executeSql('CREATE TABLE IF NOT EXISTS data (key unique, text, timestamp)');
 					tx.executeSql('SELECT * FROM data WHERE key = ?', [key], function (tx, results) {
@@ -424,6 +452,7 @@ Crafty.storage = (function () {
 			},
 			
 			check: function (key, timestamp) {
+				return (timestamps[key] > timestamp);
 			},
 			
 			external: external,
@@ -437,10 +466,12 @@ Crafty.storage = (function () {
 			
 			save: function (key, type, data) {
 				var k = gameName+'.'+type+'.'+key,
-					str = serialize(data);
+					str = serialize(data),
+					t = ts();
+				if (type == 'save')	saveExternal(key, str, t);
 				window.localStorage[k] = str;
 				if (type == 'save')
-					window.localStorage[k+'.ts'] = ts();
+					window.localStorage[k+'.ts'] = t;
 			},
 			
 			load: function (key, type, callback) {
@@ -483,8 +514,9 @@ Crafty.storage = (function () {
 			save: function (key, type, data) {
 				// cookies are very limited in space. we can only keep saves there
 				if (type != 'save') return;
-				var str = serialize(data);
-				document.cookie = gameName+'_'+key+'='+str+'; '+gameName+'_'+key+'_ts='+ts()+'; expires=Thur, 31 Dec 2099 23:59:59 UTC; path=/';
+				var str = serialize(data), t=ts();
+				if (type == 'save')	saveExternal(key, str, t);
+				document.cookie = gameName+'_'+key+'='+str+'; '+gameName+'_'+key+'_ts='+t+'; expires=Thur, 31 Dec 2099 23:59:59 UTC; path=/';
 			},
 			
 			load: function (key, type, callback) {
