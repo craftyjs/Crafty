@@ -263,13 +263,57 @@ Crafty.extend({
 			return {_x: -this._x, _y: -this._y, _w: this.width, _h: this.height};
 		},
 		
+		/**
+		 * #Crafty.viewport.pan
+		 * @comp Crafty.viewport
+		 * @sign public void Crafty.viewport.pan(String axis, Number v, Number time)
+		 * @param String axis - 'x' or 'y'. The axis to move the camera on
+		 * @param Number v - the distance to move the camera by
+		 * @param Number time - The number of frames to move the camera over
+		 *
+		 * Pans the camera a given number of pixels over a given number of frames
+		 */
 		pan: function (axis, v, time) {
 		},
 		
-		follow: function (target) {
+		/** 
+		 * #Crafty.viewport.follow
+		 * @comp Crafty.viewport
+		 * @sign public void Crafty.viewport.follow(Object target, Number offsetx, Number offsety)
+		 * @param Object target - An entity with the 2D component
+		 * @param Number offsetx - Follow target should be offsetx pixels away from center
+		 * @param Number offsety - see above
+		 *
+		 * Follows a given entity with the 2D component. If following target will take a portion of
+		 * the viewport out of bounds of the world, following will stop until the target moves away.
+		 */
+		follow: function (target, offsetx, offsety) {
 		},
 		
-		zoom: function (amt) {
+		/** 
+		 * #Crafty.viewport.centerOn
+		 * @comp Crafty.viewport
+		 * @sign public void Crafty.viewport.centerOn(Object target)
+		 * @param Object target - An entity with the 2D component
+		 *
+		 * Centers the viewport on the given entity
+		 */
+		 centerOn: function (target) {
+		 },
+		
+		/**
+		 * #Crafty.viewport.zoom
+		 * @comp Crafty.viewport
+		 * @sign public void Crafty.viewport.zoom(Number amt, Number cent_x, Number cent_y)
+		 * @param Number amt - amount to zoom in on the target by (eg. 2, 4, 0.5)
+		 * @param Number cent_x - the center to zoom on
+		 * @param Number cent_y - the center to zoom on
+		 *
+		 * Zooms the camera in on a given point. amt > 1 will bring the camera closer to the subject
+		 * amt < 1 will bring it farther away. amt = 0 will do nothing. 
+		 * Zooming is multiplicative. To reset the zoom amount, pass 0.
+		 */
+		zoom: function (amt, cent_x, cent_y) {
 		},
 		
 		init: function(w,h) {
