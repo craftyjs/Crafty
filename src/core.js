@@ -716,7 +716,11 @@ Crafty.extend({
 		
 		step: function() {
 			loops = 0;
-			while((new Date).getTime() > nextGameTick) {
+			var curTime = (new Date).getTime();
+			if(curTime - nextGameTick > 60 * skipTicks) {
+					nextGameTick = curTime - skipTicks;
+				}
+			while(curTime > nextGameTick) {
 				Crafty.trigger("EnterFrame", {frame: frame++});
 				nextGameTick += skipTicks;
 				loops++;

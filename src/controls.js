@@ -10,10 +10,6 @@ Crafty.extend({
 		if(!Crafty.mouseObjs) return;
 		Crafty.lastEvent = e;
 		
-		if(e.type === "touchstart") e.type = "mousedown";
-		else if(e.type === "touchmove") e.type = "mousemove";
-		else if(e.type === "touchend") e.type = "mouseup";
-		
 		var maxz = -1,
 			closest,
 			q,
@@ -21,12 +17,17 @@ Crafty.extend({
 			pos = Crafty.DOM.translate(e.clientX, e.clientY),
 			x, y,
 			dupes = {},
-			tar = e.target?e.target:e.srcElement;
+			tar = e.target?e.target:e.srcElement,
+			type = e.type;
+			
+		if(type === "touchstart") type = "mousedown";
+		else if(type === "touchmove") type = "mousemove";
+		else if(type === "touchend") type = "mouseup";
 		
 		e.realX = x = Crafty.mousePos.x = pos.x;
 		e.realY = y = Crafty.mousePos.y = pos.y;
 		
-		if (tar.nodeName != "CANVAS") {
+		if(tar.nodeName != "CANVAS") {
 			// we clicked on a dom element
 			while (typeof (tar.id) != 'string' && tar.id.indexOf('ent') == -1) {
 				tar = tar.parentNode;
@@ -35,13 +36,14 @@ Crafty.extend({
 			if (ent.has('Mouse') && ent.isAt(x,y))
 				closest = ent;
 		}
+		
 		if(!closest) {
 			//search for all mouse entities
 			q = Crafty.map.search({_x: x, _y:y, _w:1, _h:1}, false);
 			
 			for(l=q.length;i<l;++i) {
 				//check if has mouse component
-				if(!q[i].__c.Mouse) continue;
+				if(!q[i].__c.Mouse || !q[i]._visible) continue;
 				
 				var current = q[i],
 					flag = false;
@@ -70,10 +72,10 @@ Crafty.extend({
 		//found closest object to mouse
 		if(closest) {
 			//click must mousedown and out on tile
-			if(e.type === "mousedown") {
+			if(type === "mousedown") {
 				this.down = closest;
 				this.down.trigger("MouseDown", e);
-			} else if(e.type === "mouseup") {
+			} else if(type === "mouseup") {
 				closest.trigger("MouseUp", e);
 				
 				//check that down exists and this is down
@@ -83,7 +85,7 @@ Crafty.extend({
 				
 				//reset down
 				this.down = null;
-			} else if(e.type === "mousemove") {
+			} else if(type === "mousemove") {
 				if(this.over !== closest) { //if new mousemove, it is over
 					if(this.over) {
 						this.over.trigger("MouseOut", e); //if over wasn't null, send mouseout
@@ -92,15 +94,15 @@ Crafty.extend({
 					this.over = closest;
 					closest.trigger("MouseOver", e);
 				}
-			} else closest.trigger(e.type, e); //trigger whatever it is
+			} else closest.trigger(type, e); //trigger whatever it is
 		} else {
-			if(e.type === "mousemove" && this.over) {
+			if(type === "mousemove" && this.over) {
 				this.over.trigger("MouseOut", e);
 				this.over = null;
 			}
 		}
 		
-		if (e.type === "mousemove") {
+		if (type === "mousemove") {
 			this.lastEvent = e;
 		}
 	},
@@ -258,6 +260,7 @@ Crafty.c("Draggable", {
 			this._dragging = true;
 			Crafty.addEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
 		}
+		return this;
 	},
 	
 	/**@
@@ -479,7 +482,7 @@ Crafty.c("Twoway", {
 			if(this.isDown("LEFT_ARROW") || this.isDown("A")) {
 				this.x -= this._speed;
 			}
-			if(this._up) {
+			if(this._up && !this._falling) {
 				this.y -= jump;
 				this._falling = true;
 			}
