@@ -200,14 +200,14 @@ Crafty.storage = (function () {
 				}
 			}
 		}
-		xhr.send("mode=timestamps");
+		xhr.send("mode=timestamps&game="+gameName);
 	}
 	
 	function saveExternal(key, data, ts) {
 		if (typeof url == "undefined") return;
 		var xhr = new XMLHttpRequest();
 		xhr.open("POST", url);
-		xhr.send("mode=save&key="+key+"&data="+encodeURIComponent(data)+"&ts="+ts);
+		xhr.send("mode=save&key="+key+"&data="+encodeURIComponent(data)+"&ts="+ts+"&game="+gameName);
 	}
 	
 	function loadExternal(key) {
@@ -222,7 +222,7 @@ Crafty.storage = (function () {
 				}
 			}
 		}
-		xhr.send("mode=load&key="+key);
+		xhr.send("mode=load&key="+key+"&game="+gameName);
 	}
 	
 	/**
