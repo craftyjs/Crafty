@@ -250,7 +250,7 @@ Crafty.extend({
 		 * 
 		 * Will move the viewport to the position given on the axis given
 		 * @example Crafty.viewport.scroll('x', 500);
-		 * Will move the viewport 500 pixels to the left
+		 * Will shift everything in the viewport 500 pixels to the left
 		 */
 		scroll: function(axis, v) {
 			v = Math.floor(v);
@@ -290,12 +290,13 @@ Crafty.extend({
 			function enterFrame(e) {
 				for (i in tweens) {
 					var prop = tweens[i];
-					if (prop.remTime > 0) {
+					if (prop.remTime >= 0) {
 						prop.current += prop.diff;
 						prop.remTime--;
-						Crafty.viewport.scroll(i, Math.floor(prop.current) - Crafty.viewport[i]);
+						Crafty.viewport.scroll(i, Math.floor(prop.current));
 					}
 				}
+				Crafty.viewport._clamp();
 			}
 			
 			return function (axis, v, time) {
@@ -323,24 +324,67 @@ Crafty.extend({
 		 * @sign public void Crafty.viewport.follow(Object target, Number offsetx, Number offsety)
 		 * @param Object target - An entity with the 2D component
 		 * @param Number offsetx - Follow target should be offsetx pixels away from center
-		 * @param Number offsety - see above
+		 * @param Number offsety - Positive puts targ to the right of center
 		 *
 		 * Follows a given entity with the 2D component. If following target will take a portion of
 		 * the viewport out of bounds of the world, following will stop until the target moves away.
+		 * @example
+		 * var ent = Crafty.e('2D, DOM').attr({w: 100, h: 100:});
+		 * Crafty.viewport.follow(ent, 0, 0);
 		 */
-		follow: function (target, offsetx, offsety) {
+		follow: (function (){
+			var targ, offx, offy;
 			
-		},
+			function change() {
+				var x = targ.x, 
+					y = targ.y, 
+					mid_x = targ.w/2, 
+					mid_y = targ.h/2, 
+					cent_x = Crafty.viewport.width/2, 
+					cent_y = Crafty.viewport.height/2,
+					new_x = x + mid_x - cent_x - offx,
+					new_y = y + mid_y - cent_y - offy;
+				
+				Crafty.viewport.scroll('x', new_x);
+				Crafty.viewport.scroll('y', new_y);
+				Crafty.viewport._clamp();
+			}
+			
+			return function (target, offsetx, offsety) {
+				if (target && target.has('2D')) {
+					Crafty.viewport.pan('reset');
+					target.bind('Change', change);
+				}				
+				if (targ) {
+					targ.unbind('Cchange', change);
+				}
+				targ = target;
+				offx = offsetx;
+				offy = offsety;
+			}
+		})(),
 		
 		/** 
 		 * #Crafty.viewport.centerOn
 		 * @comp Crafty.viewport
 		 * @sign public void Crafty.viewport.centerOn(Object target)
 		 * @param Object target - An entity with the 2D component
+		 * @param Number time - The number of frames to perform the centering over
 		 *
 		 * Centers the viewport on the given entity
 		 */
 		 centerOn: function (target, time) {
+				var x = targ.x, 
+					y = targ.y, 
+					mid_x = targ.w/2, 
+					mid_y = targ.h/2, 
+					cent_x = Crafty.viewport.width/2, 
+					cent_y = Crafty.viewport.height/2,
+					new_x = x + mid_x - cent_x,
+					new_y = y + mid_y - cent_y;
+				
+				Crafty.viewport.pan('x', new_x, time);
+				Crafty.viewport.pan('y', new_y, time);
 		 },
 		
 		/**
@@ -356,6 +400,41 @@ Crafty.extend({
 		 * Zooming is multiplicative. To reset the zoom amount, pass 0.
 		 */
 		zoom: function (amt, cent_x, cent_y, time) {
+		},
+		
+		/** 
+		 * #Crafty.viewport.mouselook
+		 * @comp Crafty.viewport
+		 * @sign public void Crafty.viewport.mouselook()
+		 *
+		 * Begin dragging the viewport to match the movements of the mouse.
+		 * Mouselook will end with the mouse button is released.
+		 *
+		 * @example Crafty.e('Mouse').bind('MouseDown', function (e) { Crafty.viewport.mouselook(); });
+		 */
+		mouselook: function() {
+		},
+		 
+		_clamp: function() {
+			// clamps the viewport to the viewable area
+			// under no circumstances should the viewport see something outside the boundary of the 'world'
+			var bound_x = Crafty.stage.inner.clientWidth - Crafty.viewport.width, 
+				bound_y = Crafty.stage.inner.clientHeight - Crafty.viewport.height;
+				
+			if (Crafty.viewport.x > bound_x) {
+				Crafty.viewport.x = bound_x;
+			}
+			else if (Crafty.viewport.x < 0) {
+				Crafty.viewport.x = 0;
+			}
+			
+			if (Crafty.viewport.y > bound_y) {
+				Crafty.viewport.y = bound_y;
+			}
+			else if (Crafty.viewport.y < 0) {
+				Crafty.viewport.y = 0;
+			}
+			
 		},
 		
 		init: function(w,h) {
@@ -414,7 +493,7 @@ Crafty.extend({
 				}
 			});
 			Crafty.addEvent(this, window, "focus", function() {
-				if(Crafty._paused) {
+				if(Crafty._paused && Crafty.settings.get("autoPause")) {
 					Crafty.pause();
 				}
 			});
