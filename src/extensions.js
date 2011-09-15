@@ -241,6 +241,17 @@ Crafty.extend({
 		*/
 		_y: 0,
 		
+		/**@
+		 * #Crafty.viewport.scroll
+		 * @comp Crafty.viewport
+		 * @sign Crafty.viewport.scroll(String axis, Number v)
+		 * @param axis - 'x' or 'y' 
+		 * @param v - The new absolute position on the axis
+		 * 
+		 * Will move the viewport to the position given on the axis given
+		 * @example Crafty.viewport.scroll('x', 500);
+		 * Will move the viewport 500 pixels to the left
+		 */
 		scroll: function(axis, v) {
 			v = Math.floor(v);
 			var change = (v - this[axis]), //change in direction
@@ -273,8 +284,38 @@ Crafty.extend({
 		 *
 		 * Pans the camera a given number of pixels over a given number of frames
 		 */
-		pan: function (axis, v, time) {
-		},
+		pan: (function () {
+			var tweens = {}, i, bound=false;
+			
+			function enterFrame(e) {
+				for (i in tweens) {
+					var prop = tweens[i];
+					if (prop.remTime > 0) {
+						prop.current += prop.diff;
+						prop.remTime--;
+						Crafty.viewport.scroll(i, Math.floor(prop.current) - Crafty.viewport[i]);
+					}
+				}
+			}
+			
+			return function (axis, v, time) {
+				if (axis == 'reset') {
+					for (i in tweens) {
+						tweens[i].remTime = 0;
+					}
+					return;
+				}
+				tweens[axis] = {
+					diff: v/time,
+					current: Crafty.viewport[axis],
+					remTime: time,
+				};
+				if (!bound) {
+					Crafty.bind("EnterFrame", enterFrame);
+					bound = true;
+				}
+			}
+		})(),
 		
 		/** 
 		 * #Crafty.viewport.follow
@@ -288,6 +329,7 @@ Crafty.extend({
 		 * the viewport out of bounds of the world, following will stop until the target moves away.
 		 */
 		follow: function (target, offsetx, offsety) {
+			
 		},
 		
 		/** 
@@ -298,7 +340,7 @@ Crafty.extend({
 		 *
 		 * Centers the viewport on the given entity
 		 */
-		 centerOn: function (target) {
+		 centerOn: function (target, time) {
 		 },
 		
 		/**
@@ -313,7 +355,7 @@ Crafty.extend({
 		 * amt < 1 will bring it farther away. amt = 0 will do nothing. 
 		 * Zooming is multiplicative. To reset the zoom amount, pass 0.
 		 */
-		zoom: function (amt, cent_x, cent_y) {
+		zoom: function (amt, cent_x, cent_y, time) {
 		},
 		
 		init: function(w,h) {
