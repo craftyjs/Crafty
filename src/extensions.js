@@ -306,6 +306,7 @@ Crafty.extend({
 					}
 					return;
 				}
+				Crafty.viewport.follow();
 				tweens[axis] = {
 					diff: v/time,
 					current: Crafty.viewport[axis],
@@ -356,7 +357,7 @@ Crafty.extend({
 					target.bind('Change', change);
 				}				
 				if (targ) {
-					targ.unbind('Cchange', change);
+					targ.unbind('Change', change);
 				}
 				targ = target;
 				offx = offsetx;
@@ -412,8 +413,19 @@ Crafty.extend({
 		 *
 		 * @example Crafty.e('Mouse').bind('MouseDown', function (e) { Crafty.viewport.mouselook(); });
 		 */
-		mouselook: function() {
-		},
+		mouselook: (function() {
+			var orig_cam = {}, orig_mouse = {};
+			
+			function mousemove(e) {
+			}
+			
+			function mouseup(e) {
+			}
+			
+			return function () {
+				
+			};
+		})(),
 		 
 		_clamp: function() {
 			// clamps the viewport to the viewable area
