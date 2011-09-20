@@ -108,11 +108,21 @@ Crafty.extend({
 				this.over.trigger("MouseOut", e);
 				this.over = null;
 			}
+			if (type === "mousedown") {
+				Crafty.viewport.mouselook('start', e);
+			}
+			else if (type === "mousemove") {
+				Crafty.viewport.mouselook('drag', e);
+			}
+			else if (type == "mouseup") {
+				Crafty.viewport.mouselook('stop');
+			}
 		}
 		
 		if (type === "mousemove") {
 			this.lastEvent = e;
 		}
+
 	},
 	
 	keyboardDispatch: function(e) {
