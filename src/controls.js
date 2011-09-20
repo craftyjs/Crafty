@@ -5,6 +5,8 @@ Crafty.extend({
 	mousePos: {},
 	lastEvent: null,
 	keydown: {},
+	lastClicked: null,
+	lastClickedTime: null,
 		
 	mouseDispatch: function(e) {
 		if(!Crafty.mouseObjs) return;
@@ -81,6 +83,12 @@ Crafty.extend({
 				//check that down exists and this is down
 				if(this.down && closest === this.down) {
 					this.down.trigger("Click", e);
+
+					//handle double click
+					if (this.lastClicked && this.lastClicked == this.down && (new Date).getTime() - this.lastClickedTime < 500)
+						this.down.trigger("DoubleClick", e);
+					this.lastClicked = this.down;
+					this.lastClickedTime = (new Date).getTime();
 				}
 				
 				//reset down
