@@ -306,8 +306,9 @@ Crafty.extend({
 					}
 					return;
 				}
+				Crafty.viewport.follow();
 				tweens[axis] = {
-					diff: v/time,
+					diff: (v-Crafty.viewport[axis])/time,
 					current: Crafty.viewport[axis],
 					remTime: time,
 				};
@@ -356,7 +357,7 @@ Crafty.extend({
 					target.bind('Change', change);
 				}				
 				if (targ) {
-					targ.unbind('Cchange', change);
+					targ.unbind('Change', change);
 				}
 				targ = target;
 				offx = offsetx;
@@ -405,15 +406,46 @@ Crafty.extend({
 		/** 
 		 * #Crafty.viewport.mouselook
 		 * @comp Crafty.viewport
-		 * @sign public void Crafty.viewport.mouselook()
+		 * @sign public void Crafty.viewport.mouselook(Boolean active)
+		 * @param Boolean active - Activate or deactivate mouselook
 		 *
-		 * Begin dragging the viewport to match the movements of the mouse.
-		 * Mouselook will end with the mouse button is released.
-		 *
-		 * @example Crafty.e('Mouse').bind('MouseDown', function (e) { Crafty.viewport.mouselook(); });
+		 * Toggle mouselook on the current viewport.
+		 * Simply call this function and the user will be able to
+		 * drag the viewport around.
 		 */
-		mouselook: function() {
-		},
+		mouselook: (function() {
+			var active = false,
+				dragging = false,
+				lastMouse = {};
+			
+			
+			return function (op, arg) {
+				if (typeof op == 'Boolean') {
+					active = op;
+					return;
+				}
+				if (!active) return;
+				switch (op) {
+					case 'move':
+						if (!dragging) return;
+						diff = {
+							x: arg.clientX - lastMouse.x,
+							y: arg.clientY - lastMouse.y,
+						};
+						Crafty.viewport.x = diff.x;
+						Crafty.viewport.y = diff.y;
+						Crafty.viewport._clamp();
+					case 'start':
+						lastMouse.x = arg.clientX;
+						lastMouse.y = arg.clientY;
+						dragging = true;
+					break;
+					case 'stop':
+						dragging = false;
+					break;
+				}
+			};
+		})(),
 		 
 		_clamp: function() {
 			// clamps the viewport to the viewable area
