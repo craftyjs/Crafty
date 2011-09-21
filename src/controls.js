@@ -21,7 +21,7 @@ Crafty.extend({
 			dupes = {},
 			tar = e.target?e.target:e.srcElement,
 			type = e.type;
-			
+
 		if(type === "touchstart") type = "mousedown";
 		else if(type === "touchmove") type = "mousemove";
 		else if(type === "touchend") type = "mouseup";
@@ -83,19 +83,14 @@ Crafty.extend({
 				//check that down exists and this is down
 				if(this.down && closest === this.down) {
 					this.down.trigger("Click", e);
-
-					//handle double click
-					if (this.lastClicked && this.lastClicked == this.down && (new Date).getTime() - this.lastClickedTime < 500)
-						this.down.trigger("DoubleClick", e);
-					this.lastClicked = this.down;
-					this.lastClickedTime = (new Date).getTime();
 				}
-				
 				//reset down
 				this.down = null;
-			} else if(type === "mousemove") {
-				if(this.over !== closest) { //if new mousemove, it is over
-					if(this.over) {
+			} else if (type == "dblclick") {
+				closest.trigger("DoubleClick", e);
+			}else if (type === "mousemove") {
+				if (this.over !== closest) { //if new mousemove, it is over
+					if (this.over) {
 						this.over.trigger("MouseOut", e); //if over wasn't null, send mouseout
 						this.over = null;
 					}
@@ -156,6 +151,7 @@ Crafty.bind("Load", function() {
 	Crafty.addEvent(this, Crafty.stage.elem, "mousedown", Crafty.mouseDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "mouseup", Crafty.mouseDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "mousemove", Crafty.mouseDispatch);
+	Crafty.addEvent(this, Crafty.stage.elem, "dblclick", Crafty.mouseDispatch);
 	
 	Crafty.addEvent(this, Crafty.stage.elem, "touchstart", Crafty.mouseDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "touchmove", Crafty.mouseDispatch);
