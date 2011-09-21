@@ -400,8 +400,16 @@ Crafty.extend({
 		 * amt < 1 will bring it farther away. amt = 0 will do nothing. 
 		 * Zooming is multiplicative. To reset the zoom amount, pass 0.
 		 */
-		zoom: function (amt, cent_x, cent_y, time) {
-		},
+		zoom: (function () {
+			var zoom = 1;
+			// what's going on:
+			// 1. Log the position of the point relative to the corner of the viewing space
+			// 2. Scale the stage
+			// 3. Somehow, get the distance that our point moved (wat, how, huh?)
+			// 4. Offset inner by that much
+			return function (amt, cent_x, cent_y, time) {
+			}
+		})(),
 		
 		/** 
 		 * #Crafty.viewport.mouselook
