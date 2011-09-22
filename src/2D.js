@@ -8,7 +8,7 @@ var M = Math,
 
 /**@
 * #2D
-* @comp 2D
+* @category 2D
 * Component for any entity that has a position on the stage.
 */
 Crafty.c("2D", {
