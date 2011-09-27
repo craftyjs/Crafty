@@ -235,7 +235,7 @@ function tweenEnterFrame(e) {
 		this[k] += prop.val;
 		if (prop.rem-- == 0) {
 			this.trigger("TweenEnd", k);
-			delete prop;
+			delete this._step[k];
 			this._numProps--;
 		}
 	}
