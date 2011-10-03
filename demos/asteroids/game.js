@@ -122,12 +122,12 @@ $(document).ready(function() {
 			lastCount;
 		
 		//Asteroid component
-		Crafty.c("asteroid", {
+		Crafty.c("asteroid", {   
 			init: function() {
 				this.origin("center");
 				this.attr({
 					x: Crafty.randRange(0, Crafty.viewport.width), //give it random positions, rotation and speed
-					x: Crafty.randRange(0, Crafty.viewport.height),
+					y: Crafty.randRange(0, Crafty.viewport.height),
 					xspeed: Crafty.randRange(1, 5), 
 					yspeed: Crafty.randRange(1, 5), 
 					rspeed: Crafty.randRange(-5, 5)
