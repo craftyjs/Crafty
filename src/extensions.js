@@ -401,13 +401,27 @@ Crafty.extend({
 		 * Zooming is multiplicative. To reset the zoom amount, pass 0.
 		 */
 		zoom: (function () {
-			var zoom = 1;
+			var zoom = 1,
+				tweens = {},
+				prop = Crafty.support.prefix+"Transform";
 			// what's going on:
-			// 1. Log the position of the point relative to the corner of the viewing space
+			// 1. Get the original point as a percentage of the stage
 			// 2. Scale the stage
-			// 3. Somehow, get the distance that our point moved (wat, how, huh?)
+			// 3. Get the new size of the stage
+			// 4. Get the absolute position of our point using previous percentage
 			// 4. Offset inner by that much
+			
+			function enterFrame () {
+			}
+			
 			return function (amt, cent_x, cent_y, time) {
+				var width = Crafty.stage.inner.clientWidth,
+					height = Crafty.stage.inner.clientHeight,
+					prct_width = cent_x/width,
+					prct_height = cent_y/height,
+					final_zoom = zoom * amt;
+				
+				Crafty.stage.inner.style[prop] = "scale("+final_zoom+")";
 			}
 		})(),
 		
