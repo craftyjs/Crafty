@@ -769,8 +769,8 @@ Crafty.polygon.prototype = {
 			x = e.o.x + (current[0] - e.o.x) * e.cos + (current[1] - e.o.y) * e.sin;
 			y = e.o.y - (current[0] - e.o.x) * e.sin + (current[1] - e.o.y) * e.cos;
 			
-			current[0] = Math.floor(x);
-			current[1] = Math.floor(y);
+			current[0] = x;
+			current[1] = y;
 		}
 	}
 };
