@@ -114,22 +114,22 @@ Crafty.c("2D", {
 		//IE9 supports Object.defineProperty
 		} else if(Crafty.support.defineProperty) {
 			
-			Object.defineProperty(this, 'x', { set: function(v) { this._attr('_x',v); }, get: function() { return this._x; } });
-			Object.defineProperty(this, 'y', { set: function(v) { this._attr('_y',v); }, get: function() { return this._y; } });
-			Object.defineProperty(this, 'w', { set: function(v) { this._attr('_w',v); }, get: function() { return this._w; } });
-			Object.defineProperty(this, 'h', { set: function(v) { this._attr('_h',v); }, get: function() { return this._h; } });
-			Object.defineProperty(this, 'z', { set: function(v) { this._attr('_z',v); }, get: function() { return this._z; } });
+			Object.defineProperty(this, 'x', { set: function(v) { this._attr('_x',v); }, get: function() { return this._x; }, configurable:true });
+			Object.defineProperty(this, 'y', { set: function(v) { this._attr('_y',v); }, get: function() { return this._y; }, configurable:true });
+			Object.defineProperty(this, 'w', { set: function(v) { this._attr('_w',v); }, get: function() { return this._w; }, configurable:true });
+			Object.defineProperty(this, 'h', { set: function(v) { this._attr('_h',v); }, get: function() { return this._h; }, configurable:true });
+			Object.defineProperty(this, 'z', { set: function(v) { this._attr('_z',v); }, get: function() { return this._z; }, configurable:true });
 			
 			Object.defineProperty(this, 'rotation', { 
-				set: function(v) { this._attr('_rotation',v); }, get: function() { return this._rotation; } 
+				set: function(v) { this._attr('_rotation',v); }, get: function() { return this._rotation; }, configurable: true 
 			});
 			
 			Object.defineProperty(this, 'alpha', { 
-				set: function(v) { this._attr('_alpha',v); }, get: function() { return this._alpha; } 
+				set: function(v) { this._attr('_alpha',v); }, get: function() { return this._alpha; }, configurable: true 
 			});
 			
 			Object.defineProperty(this, 'visible', { 
-				set: function(v) { this._attr('_visible',v); }, get: function() { return this._visible; } 
+				set: function(v) { this._attr('_visible',v); }, get: function() { return this._visible; }, configurable: true 
 			});
 			
 		} else {
@@ -769,8 +769,8 @@ Crafty.polygon.prototype = {
 			x = e.o.x + (current[0] - e.o.x) * e.cos + (current[1] - e.o.y) * e.sin;
 			y = e.o.y - (current[0] - e.o.x) * e.sin + (current[1] - e.o.y) * e.cos;
 			
-			current[0] = Math.floor(x);
-			current[1] = Math.floor(y);
+			current[0] = x;
+			current[1] = y;
 		}
 	}
 };

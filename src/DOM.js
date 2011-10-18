@@ -268,16 +268,10 @@ Crafty.extend({
 			var rect = obj.getBoundingClientRect(),
 				x = rect.left + (window.pageXOffset ? window.pageXOffset : document.body.scrollTop),
 				y = rect.top + (window.pageYOffset ? window.pageYOffset : document.body.scrollLeft),
-				borderX,
-				borderY;
-			
+
 			//border left
-			borderX = parseInt(this.getStyle(obj, 'border-left-width') || 0, 10);
-			borderY = parseInt(this.getStyle(obj, 'border-top-width') || 0, 10);
-			if(!borderX || !borderY) { //JS notation for IE
-				borderX = parseInt(this.getStyle(obj, 'borderLeftWidth') || 0, 10);
-				borderY = parseInt(this.getStyle(obj, 'borderTopWidth') || 0, 10);
-			}
+				borderX = parseInt(this.getStyle(obj, 'border-left-width') || 0, 10) || parseInt(this.getStyle(obj, 'borderLeftWidth') || 0, 10) || 0,
+				borderY = parseInt(this.getStyle(obj, 'border-top-width') || 0, 10) || parseInt(this.getStyle(obj, 'borderTopWidth') || 0, 10) || 0;
 			
 			x += borderX;
 			y += borderY;
