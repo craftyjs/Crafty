@@ -371,7 +371,7 @@ Crafty.extend({
 					if (prop.remTime >= 0) {
 						prop.current += prop.diff;
 						prop.remTime--;
-						Crafty.viewport.scroll(i, Math.floor(prop.current));
+						Crafty.viewport[i] += Math.floor(prop.current);
 					}
 					else {
 						delete tweens[i];
@@ -427,8 +427,8 @@ Crafty.extend({
 					new_x = x + mid_x - cent_x - offx,
 					new_y = y + mid_y - cent_y - offy;
 				
-				Crafty.viewport.scroll('x', -new_x);
-				Crafty.viewport.scroll('y', -new_y);
+				Crafty.viewport.x -= new_x;
+				Crafty.viewport.y -= new_y;
 				//Crafty.viewport._clamp();
 			}
 			
