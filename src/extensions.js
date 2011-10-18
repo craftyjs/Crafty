@@ -526,13 +526,21 @@ Crafty.extend({
 			
 			
 			return function (op, arg) {
-				if (typeof op == 'Boolean') {
+				if (typeof op == 'boolean') {
 					active = op;
+					if (active) {
+						Crafty.mouseObjs++;
+					}
+					else {
+						Crafty.mouseObjs = Math.max(0, Crafty.mouseObjs-1);
+					}
 					return;
 				}
 				if (!active) return;
 				switch (op) {
 					case 'move':
+					case 'drag':
+						console.log(Crafty.stage.inner);
 						if (!dragging) return;
 						diff = {
 							x: arg.clientX - lastMouse.x,
@@ -540,10 +548,11 @@ Crafty.extend({
 						};
 						Crafty.viewport.x = diff.x;
 						Crafty.viewport.y = diff.y;
-						Crafty.viewport._clamp();
+						//Crafty.viewport._clamp();
+					break;
 					case 'start':
-						lastMouse.x = arg.clientX;
-						lastMouse.y = arg.clientY;
+						lastMouse.x = arg.clientX - Crafty.viewport.x;
+						lastMouse.y = arg.clientY - Crafty.viewport.y;
 						dragging = true;
 					break;
 					case 'stop':
@@ -556,8 +565,8 @@ Crafty.extend({
 		_clamp: function() {
 			// clamps the viewport to the viewable area
 			// under no circumstances should the viewport see something outside the boundary of the 'world'
-			var bound_x = Crafty.stage.inner.clientWidth - Crafty.viewport.width, 
-				bound_y = Crafty.stage.inner.clientHeight - Crafty.viewport.height;
+			var bound_x = Crafty.stage.inner.scrollWidth - Crafty.viewport.width, 
+				bound_y = Crafty.stage.inner.scrollHeight - Crafty.viewport.height;
 				
 			if (Crafty.viewport.x > bound_x) {
 				Crafty.viewport.x = bound_x;
