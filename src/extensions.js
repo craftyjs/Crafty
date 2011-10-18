@@ -295,6 +295,9 @@ Crafty.extend({
 						prop.remTime--;
 						Crafty.viewport.scroll(i, Math.floor(prop.current));
 					}
+					else {
+						delete tweens[i];
+					}
 				}
 				Crafty.viewport._clamp();
 			}
@@ -384,6 +387,7 @@ Crafty.extend({
 					new_x = x + mid_x - cent_x,
 					new_y = y + mid_y - cent_y;
 				
+				Crafty.viewport.pan('reset');
 				Crafty.viewport.pan('x', new_x, time);
 				Crafty.viewport.pan('y', new_y, time);
 		 },
@@ -419,8 +423,10 @@ Crafty.extend({
 					height = Crafty.stage.inner.clientHeight,
 					prct_width = cent_x/width,
 					prct_height = cent_y/height,
-					final_zoom = zoom * amt;
+					final_zoom = zoom * amt,
+					zoom_tick = (final_zoom - zoom)/time;
 				
+				Crafty.viewport.pan('reset');
 				Crafty.stage.inner.style[prop] = "scale("+final_zoom+")";
 			}
 		})(),
