@@ -427,9 +427,9 @@ Crafty.extend({
 					new_x = x + mid_x - cent_x - offx,
 					new_y = y + mid_y - cent_y - offy;
 				
-				Crafty.viewport.scroll('x', new_x);
-				Crafty.viewport.scroll('y', new_y);
-				Crafty.viewport._clamp();
+				Crafty.viewport.scroll('x', -new_x);
+				Crafty.viewport.scroll('y', -new_y);
+				//Crafty.viewport._clamp();
 			}
 			
 			return function (target, offsetx, offsety) {
@@ -441,8 +441,8 @@ Crafty.extend({
 					targ.unbind('Change', change);
 				}
 				targ = target;
-				offx = offsetx;
-				offy = offsety;
+				offx = (typeof offsetx != 'undefined')?offsetx:0;
+				offy = (typeof offsety != 'undefined')?offsety:0;
 			}
 		})(),
 		
