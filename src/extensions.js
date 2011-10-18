@@ -371,13 +371,13 @@ Crafty.extend({
 					if (prop.remTime >= 0) {
 						prop.current += prop.diff;
 						prop.remTime--;
-						Crafty.viewport[i] += Math.floor(prop.current);
+						Crafty.viewport[i] = Math.floor(prop.current);
 					}
 					else {
 						delete tweens[i];
 					}
 				}
-				Crafty.viewport._clamp();
+				//Crafty.viewport._clamp();
 			}
 			
 			return function (axis, v, time) {
@@ -389,7 +389,7 @@ Crafty.extend({
 				}
 				Crafty.viewport.follow();
 				tweens[axis] = {
-					diff: (v-Crafty.viewport[axis])/time,
+					diff: -v/time,
 					current: Crafty.viewport[axis],
 					remTime: time,
 				};
@@ -455,7 +455,7 @@ Crafty.extend({
 		 *
 		 * Centers the viewport on the given entity
 		 */
-		 centerOn: function (target, time) {
+		 centerOn: function (targ, time) {
 				var x = targ.x, 
 					y = targ.y, 
 					mid_x = targ.w/2, 
