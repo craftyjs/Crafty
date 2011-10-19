@@ -366,18 +366,20 @@ Crafty.extend({
 			var tweens = {}, i, bound=false;
 			
 			function enterFrame(e) {
+				var l = 0;
 				for (i in tweens) {
 					var prop = tweens[i];
 					if (prop.remTime >= 0) {
 						prop.current += prop.diff;
 						prop.remTime--;
 						Crafty.viewport[i] = Math.floor(prop.current);
+						l++;
 					}
 					else {
 						delete tweens[i];
 					}
 				}
-				//Crafty.viewport._clamp();
+				if (l) Crafty.viewport._clamp();
 			}
 			
 			return function (axis, v, time) {
@@ -540,7 +542,6 @@ Crafty.extend({
 				switch (op) {
 					case 'move':
 					case 'drag':
-						console.log(Crafty.stage.inner);
 						if (!dragging) return;
 						diff = {
 							x: arg.clientX - lastMouse.x,
@@ -548,7 +549,7 @@ Crafty.extend({
 						};
 						Crafty.viewport.x = diff.x;
 						Crafty.viewport.y = diff.y;
-						//Crafty.viewport._clamp();
+						Crafty.viewport._clamp();
 					break;
 					case 'start':
 						lastMouse.x = arg.clientX - Crafty.viewport.x;
@@ -565,22 +566,24 @@ Crafty.extend({
 		_clamp: function() {
 			// clamps the viewport to the viewable area
 			// under no circumstances should the viewport see something outside the boundary of the 'world'
-			var bound_x = Crafty.stage.inner.scrollWidth - Crafty.viewport.width, 
-				bound_y = Crafty.stage.inner.scrollHeight - Crafty.viewport.height;
+			var bound = Crafty.map.boundaries();
+			bound.max.x -= Crafty.viewport.width;
+			bound.max.y -= Crafty.viewport.height;
 				
-			if (Crafty.viewport.x > bound_x) {
-				Crafty.viewport.x = bound_x;
+			if (Crafty.viewport.x > bound.max.x) {
+				Crafty.viewport.x = -bound.max.x;
 			}
-			else if (Crafty.viewport.x < 0) {
-				Crafty.viewport.x = 0;
+			else if (Crafty.viewport.x < bound.min.x) {
+				Crafty.viewport.x = -bound.min.x;
 			}
 			
-			if (Crafty.viewport.y > bound_y) {
-				Crafty.viewport.y = bound_y;
+			if (Crafty.viewport.y > bound.max.y) {
+				Crafty.viewport.y = -bound.max.y;
 			}
-			else if (Crafty.viewport.y < 0) {
-				Crafty.viewport.y = 0;
+			else if (Crafty.viewport.y < bound.min.y) {
+				Crafty.viewport.y = -bound.min.y;
 			}
+			console.log(Crafty.viewport.y+' - ('+bound.max.y+' '+bound.min.y+')');
 			
 		},
 		
@@ -717,12 +720,12 @@ Crafty.extend({
 				//define getters and setters to scroll the viewport
 				this.__defineSetter__('x', function(v) { this.scroll('_x', v); });
 				this.__defineSetter__('y', function(v) { this.scroll('_y', v); });
-				this.__defineGetter__('x', function() { return this._x; });
-				this.__defineGetter__('y', function() { return this._y; });
+				this.__defineGetter__('x', function() { return -this._x; });
+				this.__defineGetter__('y', function() { return -this._y; });
 			//IE9
 			} else if(Crafty.support.defineProperty) {
-				Object.defineProperty(this, 'x', {set: function(v) { this.scroll('_x', v); }, get: function() { return this._x; }});
-				Object.defineProperty(this, 'y', {set: function(v) { this.scroll('_y', v); }, get: function() { return this._y; }});
+				Object.defineProperty(this, 'x', {set: function(v) { this.scroll('_x', v); }, get: function() { return -this._x; }});
+				Object.defineProperty(this, 'y', {set: function(v) { this.scroll('_y', v); }, get: function() { return -this._y; }});
 			} else {
 				//create empty entity waiting for enterframe
 				this.x = this._x;
