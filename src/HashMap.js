@@ -98,7 +98,28 @@ HashMap.prototype = {
 				}
 			}
 		}
-	}
+	},
+	
+	boundaries: function() {
+		var max = {x: 0, y: 0},
+			min = {x: 0, y: 0};
+			
+		for (var hash in this.map) {
+			if (!this.map[hash].length) continue;
+			
+			var coord = hash.split(' ');
+			if (coord[0] > max.x) max.x = coord[0];
+			if (coord[0] < min.x) min.x = coord[0];
+			if (coord[1] > max.y) max.y = coord[1];
+			if (coord[1] < min.y) min.y = coord[1];
+		}
+		
+		max.x *= cellsize;
+		max.y *= cellsize;
+		min.x *= cellsize;
+		min.y *= cellsize;
+		return {max: max, min: min};
+	},
 };
 
 HashMap.key = function(obj) {
