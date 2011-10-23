@@ -26,8 +26,8 @@ Crafty.c("Color", {
 	* @param color - Color of the rectangle
 	* Will create a rectangle of solid color for the entity.
 	*
-	* The argument must be a color readable depending on how it's drawn. Canvas requires 
-	* using `rgb(0 - 255, 0 - 255, 0 - 255)` or `rgba()` whereas DOM can be hex or any other css format.
+	* The argument must be a color readable depending on which browser you
+	* choose to support. IE 8 and below doesn't support the rgb() syntax.
 	*/
 	color: function(color) {
 		this._color = color;
