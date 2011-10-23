@@ -86,7 +86,6 @@ Crafty.c("DOM", {
 		if(!this._visible) style.visibility = "hidden";
 		else style.visibility = "visible";
 		
-/*<<<<<<< HEAD
 		//utilize CSS3 if supported
 		if(Crafty.support.css3dtransform) {
 			trans.push("translate3d("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
@@ -94,15 +93,7 @@ Crafty.c("DOM", {
 			style.left = ~~(this._x) + "px";
 			style.top = ~~(this._y) + "px";
 		}
-		
-=======*/
-		if(Crafty.support.css3dtransform) trans.push("translate3d("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
-		else {
-			style.top = Number(this._y)+"px";
-			style.left = Number(this._x)+"px";
-			//trans.push("translate("+(~~this._x)+"px,"+(~~this._y)+"px,0)");
-		}
-//>>>>>>> 48ba1ac29df667845aac2e829f6024c0603a4ea6
+
 		style.width = ~~(this._w) + "px";
 		style.height = ~~(this._h) + "px";
 		style.zIndex = this._z;
@@ -277,16 +268,10 @@ Crafty.extend({
 			var rect = obj.getBoundingClientRect(),
 				x = rect.left + (window.pageXOffset ? window.pageXOffset : document.body.scrollTop),
 				y = rect.top + (window.pageYOffset ? window.pageYOffset : document.body.scrollLeft),
-				borderX,
-				borderY;
-			
+
 			//border left
-			borderX = parseInt(this.getStyle(obj, 'border-left-width') || 0, 10);
-			borderY = parseInt(this.getStyle(obj, 'border-top-width') || 0, 10);
-			if(!borderX || !borderY) { //JS notation for IE
-				borderX = parseInt(this.getStyle(obj, 'borderLeftWidth') || 0, 10);
-				borderY = parseInt(this.getStyle(obj, 'borderTopWidth') || 0, 10);
-			}
+				borderX = parseInt(this.getStyle(obj, 'border-left-width') || 0, 10) || parseInt(this.getStyle(obj, 'borderLeftWidth') || 0, 10) || 0,
+				borderY = parseInt(this.getStyle(obj, 'border-top-width') || 0, 10) || parseInt(this.getStyle(obj, 'borderTopWidth') || 0, 10) || 0;
 			
 			x += borderX;
 			y += borderY;
