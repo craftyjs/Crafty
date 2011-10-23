@@ -331,7 +331,6 @@ Crafty.extend({
 		 * Will shift everything in the viewport 500 pixels to the left
 		 */
 		scroll: function(axis, v) {
-			v = Math.floor(v);
 			var change = (v - this[axis]), //change in direction
 				context = Crafty.canvas.context,
 				style = Crafty.stage.inner.style,
