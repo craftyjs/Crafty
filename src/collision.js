@@ -150,8 +150,7 @@ Crafty.c("Collision", {
 			max1, max2,
 			interval,
 			MTV = null,
-      MTV2 = 0,
-      MN = null,
+            MN = null,
 			dot,
 			nextPoint,
 			currentPoint;
@@ -189,13 +188,27 @@ Crafty.c("Collision", {
 			}
 			
 			//calculate the minimum translation vector should be negative
-			interval = (min1 < min2) ? min2 - max1 : min1 - max2;
+			if(min1 < min2) {
+			    interval = min2 - max1;
+			} else {
+			    interval = min1 - max2;
+			    
+			    normal.x = -normal.x;
+			    normal.y = -normal.y;
+			}
 			
 			//exit early if positive
 			if(interval > 0) {
 				return false;
 			}
-			if(interval > MTV || MTV === null) MTV = interval;
+			
+			//if the minimum translation vector is smaller than the global one,
+			//make it the new global one. ">" is used for comparisons because
+			//values are negative
+			if(interval > MTV || MTV === null) {
+			    MTV = interval;
+                MN = {x: normal.x, y: normal.y};
+            }
 		}
 		
 		//loop through the edges of Polygon 1
@@ -231,17 +244,26 @@ Crafty.c("Collision", {
 			}
 			
 			//calculate the minimum translation vector should be negative
-			interval = (min1 < min2) ? min2 - max1 : min1 - max2;
+			if(min1 < min2) {
+			    interval = min2 - max1;
+			} else {
+			    interval = min1 - max2;
+			    normal.x = -normal.x;
+			    normal.y = -normal.y;
+			}
 			
 			//exit early if positive
 			if(interval > 0) {
 				return false;
 			}
-			if(interval > MTV || MTV === null) MTV = interval;
-      if (interval < MTV2) {
-        MTV2 = interval;
-        MN = {x: normal.x, y: normal.y};
-      }
+			
+			//if the minimum translation vector is smaller than the global one,
+			//make it the new global one. ">" is used for comparisons because
+			//values are negative
+			if(interval > MTV || MTV === null) {
+			    MTV = interval;
+                MN = {x: normal.x, y: normal.y};
+            }
 		}
 		
 		return {overlap: MTV, normal: MN};
