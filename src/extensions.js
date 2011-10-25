@@ -383,13 +383,13 @@ Crafty.extend({
 			}
 			
 			return function (axis, v, time) {
+				Crafty.viewport.follow();
 				if (axis == 'reset') {
 					for (i in tweens) {
 						tweens[i].remTime = 0;
 					}
 					return;
 				}
-				Crafty.viewport.follow();
 				tweens[axis] = {
 					diff: -v/time,
 					current: Crafty.viewport[axis],
@@ -431,7 +431,7 @@ Crafty.extend({
 				
 				Crafty.viewport.x -= new_x;
 				Crafty.viewport.y -= new_y;
-				//Crafty.viewport._clamp();
+				Crafty.viewport._clamp();
 			}
 			
 			return function (target, offsetx, offsety) {
@@ -486,8 +486,10 @@ Crafty.extend({
 		 */
 		zoom: (function () {
 			var zoom = 1,
-				tweens = {},
-				prop = Crafty.support.prefix+"Transform";
+				zoom_tick = 0,
+				dur = 0,
+				prop = Crafty.support.prefix+"Transform",
+				bound = false;
 			// what's going on:
 			// 1. Get the original point as a percentage of the stage
 			// 2. Scale the stage
@@ -499,15 +501,18 @@ Crafty.extend({
 			}
 			
 			return function (amt, cent_x, cent_y, time) {
-				var width = Crafty.stage.inner.clientWidth,
-					height = Crafty.stage.inner.clientHeight,
+				var bounds = Crafty.map.boundaries(),
+					width = bounds.max.x - bounds.min.x,
+					height = bounds.max.y - bounds.min.y,
 					prct_width = cent_x/width,
 					prct_height = cent_y/height,
-					final_zoom = zoom * amt,
-					zoom_tick = (final_zoom - zoom)/time;
+					final_zoom = zoom * amt;
+					
+				zoom_tick = (final_zoom - zoom)/time;
+				dur = time;
 				
 				Crafty.viewport.pan('reset');
-				Crafty.stage.inner.style[prop] = "scale("+final_zoom+")";
+				if (!bound) Crafty.bind('EnterFrame', enterFrame);
 			}
 		})(),
 		
