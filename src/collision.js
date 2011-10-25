@@ -189,7 +189,14 @@ Crafty.c("Collision", {
 			}
 			
 			//calculate the minimum translation vector should be negative
-			interval = (min1 < min2) ? min2 - max1 : min1 - max2;
+			if(min1 < min2) {
+			    interval = min2 - max1;
+				
+				normal.x = -normal.x;
+			    normal.y = -normal.y;
+			} else {
+			    interval = min1 - max2;			   
+			}
 			
 			//exit early if positive
 			if(interval >= 0) {
@@ -235,7 +242,16 @@ Crafty.c("Collision", {
 			}
 			
 			//calculate the minimum translation vector should be negative
-			interval = (min1 < min2) ? min2 - max1 : min1 - max2;
+			if(min1 < min2) {
+			    interval = min2 - max1;
+				
+				normal.x = -normal.x;
+			    normal.y = -normal.y;
+			} else {
+			    interval = min1 - max2;
+				
+			    
+			}
 			
 			//exit early if positive
 			if(interval >= 0) {
