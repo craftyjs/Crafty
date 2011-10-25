@@ -583,10 +583,7 @@ Crafty.extend({
 			}
 			else if (Crafty.viewport.y > -bound.min.y) {
 				Crafty.viewport.y = -bound.min.y;
-			}
-			console.log(Crafty.viewport.x+' - ('+bound.max.x+' '+bound.min.x+')');
-			console.log(Crafty.viewport.y+' - ('+bound.max.y+' '+bound.min.y+')');
-			
+			}			
 		},
 		
 		init: function(w,h) {
