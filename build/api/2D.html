@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Crafty - JavaScript Game Engine</title>
+<link type="text/css" rel="stylesheet" href="../global.css"/>
+<link href='http://fonts.googleapis.com/css?family=Arvo:regular,bold' rel='stylesheet' type='text/css'>
+<link rel="shortcut icon" href="../favicon.ico"> 
+</head>
+<body>
+<div id="header">
+	<div id="inner">
+	<a href="http://craftyjs.com"><img id="logo" src="../images/logo.png" alt="Crafty - JavaScript Game Engine" /></a>
+	<ul>
+		<li><a href="../api/">Documentation</a></li>
+		<li><a href="../tutorials.php">Tutorial</a></li>
+		<li><a href="../demos.php">Demos</a></li>
+		<!-- <li><a href="#comingsoon">Builder<sup>new</sup></a></li> -->
+		<li><a href="../forums/">Forums</a></li>
+		<li><a href="http://craftyjs.tumblr.com/">Blog</a></li>
+		<!-- <li><a href="api">FAQ</a></li>-->
+		<li class="emph"><a href="../download.php">Download</a></li>
+	</ul>
+	</div>
+</div>
+<div id="main">
+<div id="main-left"></div>
+<div id="main-right"></div>
+<div id="content"><div id='doc-nav'><ul id='doc-level-one'><li>Core<ul><li><a href='Crafty.html'>Crafty</a></li><li><a href='Crafty-Core.html'>Crafty Core</a></li><li><a href='Crafty-extend.html'>Crafty.extend</a></li><li><a href='Crafty-init.html'>Crafty.init</a></li><li><a href='Crafty-stop.html'>Crafty.stop</a></li><li><a href='Crafty-e.html'>Crafty.e</a></li><li><a href='Crafty-c.html'>Crafty.c</a></li><li><a href='Crafty-trigger.html'>Crafty.trigger</a></li><li><a href='Crafty-bind.html'>Crafty.bind</a></li><li><a href='Crafty-unbind.html'>Crafty.unbind</a></li><li><a href='Crafty-frame.html'>Crafty.frame</a></li><li><a href='Crafty-settings.html'>Crafty.settings</a></li><li><a href='Crafty-support.html'>Crafty.support</a></li></ul></li><li>Events<ul><li><a href='Crafty-trigger.html'>Crafty.trigger</a></li><li><a href='Crafty-bind.html'>Crafty.bind</a></li><li><a href='Crafty-unbind.html'>Crafty.unbind</a></li><li><a href='Crafty-addEvent.html'>Crafty.addEvent</a></li><li><a href='Crafty-removeEvent.html'>Crafty.removeEvent</a></li></ul></li><li>2D<ul><li><a href='2D.html'>2D</a></li><li><a href='Crafty-Polygon.html'>Crafty.Polygon</a></li><li><a href='Crafty-Circle.html'>Crafty.Circle</a></li><li><a href='Collision.html'>Collision</a></li><li><a href='Crafty-isometric.html'>Crafty.isometric</a></li></ul></li><li>Graphics<ul><li><a href='DOM.html'>DOM</a></li><li><a href='Crafty-DOM.html'>Crafty.DOM</a></li><li><a href='HTML.html'>HTML</a></li><li><a href='Crafty-sprite.html'>Crafty.sprite</a></li><li><a href='Sprite.html'>Sprite</a></li><li><a href='Crafty-background.html'>Crafty.background</a></li><li><a href='Sprite.html'>Sprite</a></li><li><a href='Canvas.html'>Canvas</a></li><li><a href='Crafty-canvas.html'>Crafty.canvas</a></li><li><a href='Color.html'>Color</a></li><li><a href='Tint.html'>Tint</a></li><li><a href='Image.html'>Image</a></li><li><a href='Text.html'>Text</a></li></ul></li><li>Misc<ul><li><a href='Crafty-support.html'>Crafty.support</a></li><li><a href='Crafty-randRange.html'>Crafty.randRange</a></li><li><a href='Crafty-addEvent.html'>Crafty.addEvent</a></li><li><a href='Crafty-removeEvent.html'>Crafty.removeEvent</a></li></ul></li><li>Stage<ul><li><a href='Crafty-background.html'>Crafty.background</a></li><li><a href='Crafty-viewport.html'>Crafty.viewport</a></li><li><a href='Crafty-scene.html'>Crafty.scene</a></li></ul></li><li>Input<ul><li><a href='Crafty-keys.html'>Crafty.keys</a></li><li><a href='Mouse.html'>Mouse</a></li><li><a href='Draggable.html'>Draggable</a></li><li><a href='Keyboard.html'>Keyboard</a></li><li><a href='Multiway.html'>Multiway</a></li><li><a href='Fourway.html'>Fourway</a></li><li><a href='Twoway.html'>Twoway</a></li></ul></li><li>Animation<ul><li><a href='SpriteAnimation.html'>SpriteAnimation</a></li><li><a href='Tween.html'>Tween</a></li></ul></li><li>Scenes<ul><li><a href='Crafty-scene.html'>Crafty.scene</a></li></ul></li><li>Audio<ul><li><a href='Crafty-audio.html'>Crafty.audio</a></li></ul></li><li>Assets<ul><li><a href='Crafty-assets.html'>Crafty.assets</a></li><li><a href='Crafty-loader.html'>Crafty.loader</a></li></ul></li></ul></div><div id='doc-content'><h1>2D</h1>
+
+<p>Component for any entity that has a position on the stage.</p>
+<div class='doc-contents'><ul><li><a href='#-area'>.area</a></li><li><a href='#-intersect'>.intersect</a></li><li><a href='#-within'>.within</a></li><li><a href='#-contains'>.contains</a></li><li><a href='#-pos'>.pos</a></li><li><a href='#-isAt'>.isAt</a></li><li><a href='#-move'>.move</a></li><li><a href='#-shift'>.shift</a></li><li><a href='#-detach'>.detach</a></li><li><a href='#-origin'>.origin</a></li></ul></div><div class='doc-block' id='-area'><a href='#doc-nav' class='doc-top'>Back to top</a><h2>.area</h2>
+
+<p><code>public Number .area(void)</code></p>
+
+<p>Calculates the area of the entity</p>
+</div><div class='doc-block' id='-intersect'><a href='#doc-nav' class='doc-top'>Back to top</a><h2>.intersect</h2>
+
+<p><code>public Boolean .intersect(Number x, Number y, Number w, Number h)</code></p>
+
+<dl>
+<dt>x</dt>
+<dd>X position of the rect</dd>
+
+<dt>y</dt>
+<dd>Y position of the rect</dd>
+
+<dt>w</dt>
+<dd>Width of the rect</dd>
+
+<dt>h</dt>
+<dd>Height of the rect</dd>
+</dl>
+
+<p><code>public Boolean .intersect(Object rect)</code></p>
+
+<dl>
+<dt>rect</dt>
+<dd>An object that must have the <code>x, y, w, h</code> values as properties</dd>
+</dl>
+
+<p>Determines if this entity intersects a rectangle.</p>
+</div><div class='doc-block' id='-within'><a href='#doc-nav' class='doc-top'>Back to top</a><h2>.within</h2>
+
+<p><code>public Boolean .within(Number x, Number y, Number w, Number h)</code></p>
+
+<dl>
+<dt>x</dt>
+<dd>X position of the rect</dd>
+
+<dt>y</dt>
+<dd>Y position of the rect</dd>
+
+<dt>w</dt>
+<dd>Width of the rect</dd>
+
+<dt>h</dt>
+<dd>Height of the rect</dd>
+</dl>
+
+<p><code>public Boolean .within(Object rect)</code></p>
+
+<dl>
+<dt>rect</dt>
+<dd>An object that must have the <code>x, y, w, h</code> values as properties</dd>
+</dl>
+
+<p>Determines if this current entity is within another rectangle.</p>
+</div><div class='doc-block' id='-contains'><a href='#doc-nav' class='doc-top'>Back to top</a><h2>.contains</h2>
+
+<p><code>public Boolean .contains(Number x, Number y, Number w, Number h)</code></p>
+
+<dl>
+<dt>x</dt>
+<dd>X position of the rect</dd>
+
+<dt>y</dt>
+<dd>Y position of the rect</dd>
+
+<dt>w</dt>
+<dd>Width of the rect</dd>
+
+<dt>h</dt>
+<dd>Height of the rect</dd>
+</dl>
+
+<p><code>public Boolean .contains(Object rect)</code></p>
+
+<dl>
+<dt>rect</dt>
+<dd>An object that must have the <code>x, y, w, h</code> values as properties</dd>
+</dl>
+
+<p>Determines if the rectangle is within the current entity.</p>
+</div><div class='doc-block' id='-pos'><a href='#doc-nav' class='doc-top'>Back to top</a><h2>.pos</h2>
+
+<p><code>public Object .pos(void)</code></p>
+
+<p>Returns the x, y, w, h properties as a rect object 
+(a rect object is just an object with the keys _x, _y, _w, _h).</p>
+
+<p>The keys have an underscore prefix. This is due to the x, y, w, h 
+properties being merely setters and getters that wrap the properties with an underscore (_x, _y, _w, _h).</p>
+</div><div class='doc-block' id='-isAt'><a href='#doc-nav' class='doc-top'>Back to top</a><h2>.isAt</h2>
+
+<p><code>public Boolean .isAt(Number x, Number y)</code></p>
+
+<dl>
+<dt>x</dt>
+<dd>X position of the point</dd>
+
+<dt>y</dt>
+<dd>Y position of the point</dd>
+</dl>
+
+<p>Determines whether a point is contained by the entity. Unlike other methods, 
+an object can't be passed. The arguments require the x and y value</p>
+</div><div class='doc-block' id='-move'><a href='#doc-nav' class='doc-top'>Back to top</a><h2>.move</h2>
+
+<p><code>public this .move(String dir, Number by)</code></p>
+
+<dl>
+<dt>dir</dt>
+<dd>Direction to move (n,s,e,w,ne,nw,se,sw)</dd>
+
+<dt>by</dt>
+<dd>Amount to move in the specified direction</dd>
+</dl>
+
+<p>Quick method to move the entity in a direction (n, s, e, w, ne, nw, se, sw) by an amount of pixels.</p>
+</div><div class='doc-block' id='-shift'><a href='#doc-nav' class='doc-top'>Back to top</a><h2>.shift</h2>
+
+<p><code>public void .shift(Number x, Number y)</code></p>
+
+<dl>
+<dt>x</dt>
+<dd>Amount to shift the <code>x</code> axis</dd>
+
+<dt>y</dt>
+<dd>Amount to shift the <code>y</code> axis</dd>
+</dl>
+
+<p>Shifts the circle by the specified amount.</p>
+
+<h3>Example</h3>
+
+<pre><code>var poly = new Crafty.circle(0, 0, 10);
+circle.shift(5,5);
+//{x: 5, y: 5, radius: 10};
+</code></pre>
+</div><div class='doc-block' id='-detach'><a href='#doc-nav' class='doc-top'>Back to top</a><h2>.detach</h2>
+
+<p><code>public this .detach([Entity obj])</code></p>
+
+<dl>
+<dt>obj</dt>
+<dd>The entity to detach. Left blank will remove all attached entities</dd>
+</dl>
+
+<p>Stop an entity from following the current entity. Passing no arguments will stop
+every entity attached.</p>
+</div><div class='doc-block' id='-origin'><a href='#doc-nav' class='doc-top'>Back to top</a><h2>.origin</h2>
+
+<p><code>public this .origin(Number x, Number y)</code></p>
+
+<dl>
+<dt>x</dt>
+<dd>Pixel value of origin offset on the X axis</dd>
+
+<dt>y</dt>
+<dd>Pixel value of origin offset on the Y axis</dd>
+</dl>
+
+<p><code>public this .origin(String offset)</code></p>
+
+<dl>
+<dt>offset</dt>
+<dd>Combination of center, top, bottom, middle, left and right</dd>
+</dl>
+
+<p>Set the origin point of an entity for it to rotate around.</p>
+
+<h3>Example</h3>
+
+<pre><code>this.origin("top left")
+this.origin("center")
+this.origin("bottom right")
+this.origin("middle right")
+</code></pre>
+
+<h3>See Also</h3>
+
+<ul>
+<li><a href="#-rotation">.rotation</a></li>
+</ul>
+</div></div></div>
+</div>
+
+<div class="clearer"></div>
+<div id="footer">
+
+<div id="contact">
+	<a href="http://twitter.com/craftyjs"><img src="../images/twitter.png"/> @craftyjs</a>
+	<a href="http://webchat.freenode.net"><img src="../images/comment.png"/> #crafty@freenode.net</a>
+	<a href="http://groups.google.com/group/craftyjs"><img src="../images/google.png"/> google groups</a>
+	<a href="mailto:hello@craftyjs.com"><img src="../images/email.png"/> hello@craftyjs.com</a>
+	<a href="https://github.com/louisstow/Crafty"><img src="../images/github.png"/> github</a>
+</div>
+
+<ul>
+	<li><a href="../api/">Documentation</a></li>
+	<li><a href="../tutorials.php">Tutorial</a></li>
+	<li><a href="../demos.php">Demos</a></li>
+	<!-- <li><a href="#comingsoon">Builder<sup>new</sup></a></li> -->
+	<li><a href="../forums/">Forums</a></li>
+	<li><a href="http://craftyjs.tumblr.com/">Blog</a></li>
+	<!-- <li><a href="api">FAQ</a></li>-->
+	<li class="emph"><a href="../download.php">Download</a></li>
+</ul>
+<p>&copy; Crafty 2010. Crafty is distributed under the <a href="http://en.wikipedia.org/wiki/MIT_License">MIT</a> or 
+<a href="http://en.wikipedia.org/wiki/GNU_General_Public_License">GPL</a> license.</p>
+</div>
+</body>
+</html>

@@ -1,5 +1,5 @@
 /*!
-* Crafty v0.4.3
+* Crafty v0.4.4
 * http://craftyjs.com
 *
 * Copyright 2010, Louis Stowasser
