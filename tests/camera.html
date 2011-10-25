@@ -2,7 +2,7 @@
 <head>
 	<script type="text/javascript" src="../crafty-local.js"></script>
 	<style>
-		#cr-stage > div {
+		#cr-stage {
 			background-color: grey;
 		}
 	</style>
@@ -42,6 +42,7 @@
 				 .attr({x: 50, y:250, w:5, h:5})
 				 .color('black');
 		Crafty.viewport.mouselook(true);
+		Crafty.viewport.pan('x', 200, 200);
 	});
 	
 	Crafty.scene('main');
