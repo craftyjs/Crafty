@@ -2213,8 +2213,8 @@ Crafty.c("Collision", {
 			max1, max2,
 			interval,
 			MTV = null,
-      MTV2 = 0,
-      MN = null,
+			MTV2 = 0,
+			MN = null,
 			dot,
 			nextPoint,
 			currentPoint;
@@ -2258,10 +2258,14 @@ Crafty.c("Collision", {
 			if(interval > 0) {
 				return false;
 			}
-			if(interval > MTV || MTV === null) MTV = interval;
+			
+			if(interval > MTV || MTV === null) {
+				MTV = interval;
+				MN = {x: normal.x, y: normal.y};
+			}
 		}
 		
-		//loop through the edges of Polygon 1
+		//loop through the edges of Polygon 2
 		for(i=0;i<k;i++) {
 			nextPoint = points2[(i==k-1 ? 0 : i+1)];
 			currentPoint = points2[i];
@@ -2300,14 +2304,15 @@ Crafty.c("Collision", {
 			if(interval > 0) {
 				return false;
 			}
+			
 			if(interval > MTV || MTV === null) MTV = interval;
-      if (interval < MTV2) {
-        MTV2 = interval;
-        MN = {x: normal.x, y: normal.y};
-      }
+			if(interval > MTV2) {
+				MTV2 = interval;
+				MN = {x: normal.x, y: normal.y};
+			}
 		}
 		
-		return {overlap: MTV, normal: MN};
+		return {overlap: MTV2, normal: MN};
 	}
 });
 
@@ -3053,6 +3058,7 @@ Crafty.extend({
 		 * Will shift everything in the viewport 500 pixels to the left
 		 */
 		scroll: function(axis, v) {
+			v = Math.floor(v);
 			var change = (v - this[axis]), //change in direction
 				context = Crafty.canvas.context,
 				style = Crafty.stage.inner.style,
@@ -4774,8 +4780,8 @@ Crafty.c("Color", {
 	* @param color - Color of the rectangle
 	* Will create a rectangle of solid color for the entity.
 	*
-	* The argument must be a color readable depending on how it's drawn. Canvas requires 
-	* using `rgb(0 - 255, 0 - 255, 0 - 255)` or `rgba()` whereas DOM can be hex or any other css format.
+	* The argument must be a color readable depending on which browser you
+	* choose to support. IE 8 and below doesn't support the rgb() syntax.
 	*/
 	color: function(color) {
 		this._color = color;

@@ -150,8 +150,8 @@ Crafty.c("Collision", {
 			max1, max2,
 			interval,
 			MTV = null,
-      MTV2 = 0,
-      MN = null,
+			MTV2 = null,
+			MN = null,
 			dot,
 			nextPoint,
 			currentPoint;
@@ -192,13 +192,17 @@ Crafty.c("Collision", {
 			interval = (min1 < min2) ? min2 - max1 : min1 - max2;
 			
 			//exit early if positive
-			if(interval > 0) {
+			if(interval >= 0) {
 				return false;
 			}
-			if(interval > MTV || MTV === null) MTV = interval;
+			
+			if(MTV === null || interval > MTV) {
+				MTV = interval;
+				MN = {x: normal.x, y: normal.y};
+			}
 		}
 		
-		//loop through the edges of Polygon 1
+		//loop through the edges of Polygon 2
 		for(i=0;i<k;i++) {
 			nextPoint = points2[(i==k-1 ? 0 : i+1)];
 			currentPoint = points2[i];
@@ -234,16 +238,17 @@ Crafty.c("Collision", {
 			interval = (min1 < min2) ? min2 - max1 : min1 - max2;
 			
 			//exit early if positive
-			if(interval > 0) {
+			if(interval >= 0) {
 				return false;
 			}
-			if(interval > MTV || MTV === null) MTV = interval;
-      if (interval < MTV2) {
-        MTV2 = interval;
-        MN = {x: normal.x, y: normal.y};
-      }
+			
+			if(MTV === null || interval > MTV) MTV = interval;
+			if(interval > MTV2 || MTV2 === null) {
+				MTV2 = interval;
+				MN = {x: normal.x, y: normal.y};
+			}
 		}
 		
-		return {overlap: MTV, normal: MN};
+		return {overlap: MTV2, normal: MN};
 	}
 });
