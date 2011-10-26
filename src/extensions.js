@@ -331,8 +331,7 @@ Crafty.extend({
 		 * Will shift everything in the viewport 500 pixels to the left
 		 */
 		scroll: function(axis, v) {
-			v = Math.floor(v);
-			var change = (v - this[axis]), //change in direction
+			var change = Math.floor(v - this[axis]), //change in direction
 				context = Crafty.canvas.context,
 				style = Crafty.stage.inner.style,
 				canvas;
@@ -345,7 +344,7 @@ Crafty.extend({
 				if(context) context.translate(0, change);
 			}
 			if(context) Crafty.DrawManager.drawAll();
-			style[axis == '_x' ? "left" : "top"] = ~~v + "px";
+			style[axis == '_x' ? "left" : "top"] = Math.round(~~v) + "px";
 		},
 		
 		rect: function() {
@@ -489,7 +488,9 @@ Crafty.extend({
 				zoom_tick = 0,
 				dur = 0,
 				prop = Crafty.support.prefix+"Transform",
-				bound = false;
+				bound = false,
+				act = {},
+				prct = {};
 			// what's going on:
 			// 1. Get the original point as a percentage of the stage
 			// 2. Scale the stage
@@ -498,21 +499,48 @@ Crafty.extend({
 			// 4. Offset inner by that much
 			
 			function enterFrame () {
+				if (dur > 0) {
+					var old = {
+						width: act.width * zoom,
+						height: act.height * zoom
+					};
+					zoom += zoom_tick;
+					var new_s = {
+						width: act.width * zoom,
+						height: act.height * zoom,
+					},
+					diff = {
+						width: new_s.width - old.width,
+						height: new_s.height - old.height,
+					};
+					console.log('diff: ('+diff.width+','+diff.height+')');
+					Crafty.stage.inner.style[prop] = 'scale('+zoom+','+zoom+')';
+					Crafty.viewport.x -= diff.width * prct.width;
+					Crafty.viewport.y -= diff.height * prct.height;
+					console.log('res: ('+Crafty.viewport.x+','+Crafty.viewport.y+')');
+					dur--;
+				}
 			}
 			
 			return function (amt, cent_x, cent_y, time) {
 				var bounds = Crafty.map.boundaries(),
-					width = bounds.max.x - bounds.min.x,
-					height = bounds.max.y - bounds.min.y,
-					prct_width = cent_x/width,
-					prct_height = cent_y/height,
-					final_zoom = zoom * amt;
+					final_zoom = amt?zoom * amt:1;
+				
+				act.width = bounds.max.x - bounds.min.x;
+				act.height = bounds.max.y - bounds.min.y;
+					
+				prct.width = cent_x/act.width;
+				prct.height = cent_y/act.height;
+				console.log('prct: ('+prct.width+','+prct.height+')');
 					
 				zoom_tick = (final_zoom - zoom)/time;
 				dur = time;
 				
 				Crafty.viewport.pan('reset');
-				if (!bound) Crafty.bind('EnterFrame', enterFrame);
+				if (!bound) {
+					Crafty.bind('EnterFrame', enterFrame);
+					bound = true;
+				}
 			}
 		})(),
 		
