@@ -513,11 +513,9 @@ Crafty.extend({
 						width: new_s.width - old.width,
 						height: new_s.height - old.height,
 					};
-					console.log('diff: ('+diff.width+','+diff.height+')');
 					Crafty.stage.inner.style[prop] = 'scale('+zoom+','+zoom+')';
 					Crafty.viewport.x -= diff.width * prct.width;
 					Crafty.viewport.y -= diff.height * prct.height;
-					console.log('res: ('+Crafty.viewport.x+','+Crafty.viewport.y+')');
 					dur--;
 				}
 			}
@@ -531,7 +529,6 @@ Crafty.extend({
 					
 				prct.width = cent_x/act.width;
 				prct.height = cent_y/act.height;
-				console.log('prct: ('+prct.width+','+prct.height+')');
 					
 				zoom_tick = (final_zoom - zoom)/time;
 				dur = time;
