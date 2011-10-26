@@ -529,7 +529,8 @@ Crafty.extend({
 					
 				prct.width = cent_x/act.width;
 				prct.height = cent_y/act.height;
-					
+				
+				if (time == 0) time = 1;
 				zoom_tick = (final_zoom - zoom)/time;
 				dur = time;
 				
