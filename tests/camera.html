@@ -22,11 +22,16 @@
 			  .attr({x: 100, y: 100, w:100, h:100})
 			  .color('red');
 		Crafty.e("Test")
-			  .attr({x: 200, y: 200, w:100, h:100})
+			  .attr({x: 000, y: 100, w:100, h:100})
 			  .color('blue');
-		Crafty.e("Test")
-			  .attr({x: -100, y: 0, w:100, h:100})
-			  .color('green');
+		Crafty.e("Test, Keyboard")
+			  .attr({x: 100, y: 0, w:100, h:100})
+			  .color('green')
+			  .bind("KeyUp", function (e) {
+				if (String.fromCharCode(e.key) == " ") {
+					Crafty.viewport.zoom(2, 50, 150, 200);
+				}
+			  });
 		var targ = Crafty.e("Test, Tween")
 				 .attr({x: 50, y:50, w:5, h:5})
 				 .tween({x: 200}, 250)
@@ -39,10 +44,8 @@
 				 });
 		
 		var targ2 = Crafty.e("Test, Tween")
-				 .attr({x: 50, y:250, w:5, h:5})
+				 .attr({x: 47, y:147, w:6, h:6})
 				 .color('black');
-		Crafty.viewport.mouselook(true);
-		Crafty.viewport.pan('x', 200, 200);
 	});
 	
 	Crafty.scene('main');
