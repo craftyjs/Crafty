@@ -389,6 +389,7 @@ Crafty.extend({
 					}
 					return;
 				}
+				if (time == 0) time = 1;
 				tweens[axis] = {
 					diff: -v/time,
 					current: Crafty.viewport[axis],
