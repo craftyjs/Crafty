@@ -742,20 +742,30 @@ Crafty.extend({
 	* @param componentList - List of components to assign to new entity
 	* @sign public Entity Crafty.e(String component1[, .., String componentN])
 	* @param component# - Component to add
-	* Creates an entity. Any arguments will be applied in the same 
+	* @sign public Entity Crafty.e(Object id, String componentList)
+	* @param id - A specific ID to use for this entity
+	* @param componentList - List of components to assign to new entity
+	* Creates an entity. Any componentList arguments will be applied in the same 
 	* way `.addComponent()` is applied as a quick way to add components.
 	*
 	* From here, any component added will augment the functionality of 
 	* that entity by assigning the properties and methods to that entity. 
 	*/
 	e: function() {
-		var id = UID(), craft;
+		var params = Array.prototype.slice.call(arguments);
+		params.shift();
+		if (params.length == 2) {
+			id = params.shift()
+		}
+		else {
+			id = UID();
+		}
 		
 		entities[id] = null; //register the space
 		entities[id] = craft = Crafty(id);
 		
-		if(arguments.length > 0) {
-			craft.addComponent.apply(craft, arguments);
+		if(params.length > 0) {
+			craft.addComponent.apply(craft, params);
 		}
 		craft.addComponent("obj"); //every entity automatically assumes obj
 		
