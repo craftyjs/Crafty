@@ -218,7 +218,7 @@ Crafty.c("Tween", {
 			}
 			
 			for (var prop in props) {
-				this._step[prop] = {val: (props[prop] - this[prop] )/duration, rem: duration};
+				this._step[prop] = {prop: props[prop], val: (props[prop] - this[prop] )/duration, rem: duration};
 				this._numProps++;
 			}
         });
@@ -234,6 +234,8 @@ function tweenEnterFrame(e) {
 		prop = this._step[k];
 		this[k] += prop.val;
 		if (prop.rem-- == 0) {
+			// decimal numbers rounding fix
+			this[k]=prop.prop;
 			this.trigger("TweenEnd", k);
 			delete this._step[k];
 			this._numProps--;
