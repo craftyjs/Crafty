@@ -3,7 +3,6 @@
  * db.auth.php contains server specific parameters
  * It should never be made public
  */
-include('db.auth.php');
 $conn = mysql_connect($server, $user, $pass);
 if (!mysql_select_db($db)) {
 	mysql_create_db($db);
@@ -22,7 +21,7 @@ if (!mysql_select_db($db)) {
 	'id' => array(
 		'type' => 'int',
 		'length' => 11,
-		'index' => 'primary',
+		'index' => 'primary key',
 		'autoincrement' => false,
 	),
 	'data' => array(
@@ -34,6 +33,33 @@ if (!mysql_select_db($db)) {
  createTable('save', $fields);
  */
 function createTable($name, $fields) {
+	$s = s("SELECT * FROM %s LIMIT 1", $name);
+	if (!($res = q($s))) {
+		// table doesn't exist yet
+		$s = "CREATE TABLE %s (%s)";
+		$columns = array();
+		foreach ($fields as $f_name => $f) {
+			$str = $f_name.' '.getType($f['type']);
+			if ($f['length']) $str.='('.$f['length'].')';
+			if ($f['autoincrement']) $str.= ' AUTOINCREMENT';
+			if ($f['index'] && $f['index'] != 'no') $str.= ' '.$f['index'];
+			$columns[] = $str;
+		}
+		
+		$s = s($s, $name, implode(', ', $columns));
+		q($s);
+	}
+}
+
+// shortcut for sprintf
+function s() {
+	$args = func_get_args();
+	$format = array_shift($args);
+	foreach ($args as &$arg) {
+		if (is_string($arg))
+			$arg = mysql_real_escape_string($arg);
+	}
+	return vsprintf($format, $args);
 }
 
 /**@
@@ -57,6 +83,17 @@ function q($query) {
  */
 function f($result) {
 	return mysql_fetch_assoc($result);
+}
+
+function getType($type) {
+	static $typeMap = array(
+		'int' => 'INT',
+		'string' => 'VARCHAR',
+		'text' => 'TEXT',
+		'float' => 'FLOAT',
+	);
+	
+	return $typeMap[$type];
 }
 
 ?>
