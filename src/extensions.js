@@ -123,15 +123,19 @@ Crafty.extend({
 	sprite: function(tile, tileh, url, map, paddingX, paddingY) {
 		var pos, temp, x, y, w, h, img;
 		
-		//if no tile value, default to 16
+		//if no tile value, default to 1
 		if(typeof tile === "string") {
-			map = url;
-			url = tileh;
+			paddingY = paddingX;
+			paddingX = map;
+			map = tileh;
+			url = tile;
 			tile = 1;
 			tileh = 1;
 		}
-		
+
 		if(typeof tileh == "string") {
+			paddingY = paddingX;
+			paddingX = map;
 			map = url;
 			url = tileh;
 			tileh = tile;
