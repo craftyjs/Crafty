@@ -330,16 +330,17 @@ Crafty.extend({
 		 * @param axis - 'x' or 'y' 
 		 * @param v - The new absolute position on the axis
 		 * 
-		 * Will move the viewport to the position given on the axis given
-		 * @example Crafty.viewport.scroll('x', 500);
-		 * Will shift everything in the viewport 500 pixels to the left
+		 * Will move the viewport to the position given on the specified axis
+		 * @example Crafty.viewport.scroll('_x', 500);
+		 * Will move the camera 500 pixels right of its initial position, in effect
+		 * shifting everything in the viewport 500 pixels to the left.
 		 */
 		scroll: function(axis, v) {
 			var change = Math.floor(v - this[axis]), //change in direction
 				context = Crafty.canvas.context,
 				style = Crafty.stage.inner.style,
 				canvas;
-			
+
 			//update viewport and DOM scroll
 			this[axis] = v;
 			if(axis == '_x') {
@@ -421,34 +422,27 @@ Crafty.extend({
 		 * Crafty.viewport.follow(ent, 0, 0);
 		 */
 		follow: (function (){
-			var targ, offx, offy;
+			var oldTarget, offx, offy;
 			
 			function change() {
-				var x = targ.x, 
-					y = targ.y, 
-					mid_x = targ.w/2, 
-					mid_y = targ.h/2, 
-					cent_x = Crafty.viewport.width/2, 
-					cent_y = Crafty.viewport.height/2,
-					new_x = x + mid_x - cent_x - offx,
-					new_y = y + mid_y - cent_y - offy;
-				
-				Crafty.viewport.x -= new_x;
-				Crafty.viewport.y -= new_y;
+				Crafty.viewport.scroll('_x', -this.x - (this.w / 2) + (Crafty.viewport.width / 2) - offx);
+				Crafty.viewport.scroll('_y', -this.y - (this.h / 2) + (Crafty.viewport.height / 2) - offy);
 				Crafty.viewport._clamp();
 			}
 			
 			return function (target, offsetx, offsety) {
-				if (target && target.has('2D')) {
-					Crafty.viewport.pan('reset');
-					target.bind('Change', change);
-				}				
-				if (targ) {
-					targ.unbind('Change', change);
-				}
-				targ = target;
-				offx = (typeof offsetx != 'undefined')?offsetx:0;
-				offy = (typeof offsety != 'undefined')?offsety:0;
+				if (!target || !target.has('2D'))
+					return;
+				if (oldTarget)
+					oldTarget.unbind('Change', change);
+
+				Crafty.viewport.pan('reset');
+				oldTarget = target;
+				offx = (typeof offsetx != 'undefined') ? offsetx : 0;
+				offy = (typeof offsety != 'undefined') ? offsety : 0;
+
+				target.bind('Change', change);
+				change.call(target);
 			}
 		})(),
 		
@@ -607,11 +601,11 @@ Crafty.extend({
 			bound.max.x -= Crafty.viewport.width;
 			bound.max.y -= Crafty.viewport.height;
 				
-			if (Crafty.viewport.x > bound.max.x) {
-				Crafty.viewport.x = bound.max.x;
+			if (Crafty.viewport.x < -bound.max.x) {
+				Crafty.viewport.x = -bound.max.x;
 			}
-			else if (Crafty.viewport.x < bound.min.x) {
-				Crafty.viewport.x = bound.min.x;
+			else if (Crafty.viewport.x > -bound.min.x) {
+				Crafty.viewport.x = -bound.min.x;
 			}
 			
 			if (Crafty.viewport.y < -bound.max.y) {
