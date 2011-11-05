@@ -28,14 +28,15 @@ Crafty.c("HTML", {
 	replace: function (new_html) {
 		this.inner = new_html;
 		this._element.innerHTML = new_html;
+		return this;
 	},
 
 	/**@
-	* #.replace
+	* #.append
 	* @comp HTML
 	* @sign public this .append(String html)
 	* @param html - arbitrary html
-	* This method will add the supplied html in the beginning of the entity
+	* This method will add the supplied html in the end of the entity
 	*
 	* @example
 	* Create a link
@@ -48,14 +49,15 @@ Crafty.c("HTML", {
 	append: function (new_html) {
 		this.inner += new_html;
 		this._element.innerHTML += new_html;
+		return this;
 	},
 
 	/**@
-	* #.replace
+	* #.prepend
 	* @comp HTML
 	* @sign public this .prepend(String html)
 	* @param html - arbitrary html
-	* This method will add the supplied html in the end of the entity
+	* This method will add the supplied html in the beginning of the entity
 	*
 	* @example
 	* Create a link
@@ -68,5 +70,6 @@ Crafty.c("HTML", {
 	prepend: function (new_html) {
 		this.inner = new_html + this.inner;
 		this._element.innerHTML = new_html + this.inner;
+		return this;
 	}
 });
