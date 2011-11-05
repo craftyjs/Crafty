@@ -431,12 +431,12 @@ Crafty.extend({
 			}
 			
 			return function (target, offsetx, offsety) {
-				if (!target || !target.has('2D'))
-					return;
 				if (oldTarget)
 					oldTarget.unbind('Change', change);
-
 				Crafty.viewport.pan('reset');
+				if (!target || !target.has('2D'))
+					return;
+					
 				oldTarget = target;
 				offx = (typeof offsetx != 'undefined') ? offsetx : 0;
 				offy = (typeof offsety != 'undefined') ? offsety : 0;
