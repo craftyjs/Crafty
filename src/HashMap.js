@@ -129,14 +129,14 @@ HashMap.prototype = {
 					coords.min.x = Math.min(coords.min.x, ent.x);
 				}
 			}
-			if (coord[1] > hash.max.y) {
+			if (coord[1] >= hash.max.y) {
 				hash.max.y = coord[1];
 				for (k in this.map[h]) {
 					ent = this.map[h][k];
 					coords.max.y = Math.max(coords.max.y, ent.y + ent.h);
 				}
 			}
-			if (coord[1] < hash.min.y) {
+			if (coord[1] <= hash.min.y) {
 				hash.min.y = coord[1];
 				for (k in this.map[h]) {
 					ent = this.map[h][k];
@@ -157,10 +157,10 @@ HashMap.key = function(obj) {
 	if (obj.hasOwnProperty('mbr')) {
 		obj = obj.mbr();
 	}
-	var x1 = ~~(obj._x / cellsize),
-		y1 = ~~(obj._y / cellsize),
-		x2 = ~~((obj._w + obj._x) / cellsize),
-		y2 = ~~((obj._h + obj._y) / cellsize);
+	var x1 = Math.floor(obj._x / cellsize),
+		y1 = Math.floor(obj._y / cellsize),
+		x2 = Math.floor((obj._w + obj._x) / cellsize),
+		y2 = Math.floor((obj._h + obj._y) / cellsize);
 	return {x1: x1, y1: y1, x2: x2, y2: y2};
 };
 
