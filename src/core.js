@@ -732,7 +732,13 @@ Crafty.extend({
 
 		getFPS: function() {
 			return this.fps;
+		},
+
+		simulateFrames: function (frames) {
+			while (frames-- > 0)
+				Crafty.trigger("EnterFrame", { frame: frame++ });
 		}
+
 	},
 
 	/**@
