@@ -144,11 +144,13 @@ HashMap.prototype = {
 				}
 			}
 		}
-		/*
-		max.x = (parseInt(max.x)+1)*cellsize;
-		max.y = (parseInt(max.y)+1)*cellsize;
-		min.x = (parseInt(min.x)-1)*cellsize;
-		min.y = (parseInt(min.y)-1)*cellsize;*/
+			// At least the entire viewport should be inside boundary box 
+			//(else _clamp will fail when the entities does not take up entire viewport)
+		coords.min.x = Math.min(0, coords.min.x);
+		coords.min.y = Math.min(0, coords.min.y);
+		coords.max.x = Math.max(Crafty.viewport.width, coords.max.x);
+		coords.max.y = Math.max(Crafty.viewport.height, coords.max.y);
+		
 		return coords;
 	},
 };
