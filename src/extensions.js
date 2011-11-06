@@ -425,8 +425,8 @@ Crafty.extend({
 			var oldTarget, offx, offy;
 			
 			function change() {
-				Crafty.viewport.scroll('_x', -this.x - (this.w / 2) + (Crafty.viewport.width / 2) - offx);
-				Crafty.viewport.scroll('_y', -this.y - (this.h / 2) + (Crafty.viewport.height / 2) - offy);
+				Crafty.viewport.scroll('_x', -(this.x + (this.w / 2) - (Crafty.viewport.width / 2) - offx));
+				Crafty.viewport.scroll('_y', -(this.y + (this.h / 2) - (Crafty.viewport.height / 2) - offy));
 				Crafty.viewport._clamp();
 			}
 			
