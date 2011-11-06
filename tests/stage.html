@@ -14,7 +14,8 @@
 
 		Crafty.viewport.scroll('x', 0);		Crafty.viewport.scroll('y', 0);
 		equals(before.x - Crafty.DOM.translate(e.x, e.y).x, 0, "Scroll to 0");		equals(before.y - Crafty.DOM.translate(e.x, e.y).y, 0, "Scroll to 0");
-	});	test("pan", function () {
+	});	test("follow", function () {
+		var e = Crafty.e("2D, DOM").attr({ x: Crafty.viewport.width + 100, y: Crafty.viewport.height + 70 });		Crafty.viewport.follow(e, 0, 0);		equals(Crafty.viewport._x, -100, "Center viewport on entity.x but take clamp into account");		equals(Crafty.viewport._y, -70, "Center viewport on entity.y but take clamp into account");				//Make large enough so the viewport won't get clamped		Crafty.e("2D, DOM").attr({ x: 0, y: 0, w: Crafty.viewport.width * 2 + 50, h: Crafty.viewport.height*2+35 });		Crafty.viewport.follow(e, 0, 0);		equals(Crafty.viewport._x, -(Crafty.viewport.width/2 + 100), "Center viewport on entity.x");		equals(Crafty.viewport._y, -(Crafty.viewport.height / 2 + 70), "Center viewport on entity.y");		});	test("pan", function () {
 		Crafty.timer.simulateFrames(100);
 		var e = Crafty.e("2D, DOM").attr({ x: 50, y: 50 });
 		var before = Crafty.DOM.translate(e.x, e.y);
