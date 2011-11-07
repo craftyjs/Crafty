@@ -473,7 +473,7 @@ Crafty.extend({
 		/**
 		 * #Crafty.viewport.zoom
 		 * @comp Crafty.viewport
-		 * @sign public void Crafty.viewport.zoom(Number amt, Number cent_x, Number cent_y)
+		 * @sign public void Crafty.viewport.zoom(Number amt, Number cent_x, Number cent_y, Number frames)
 		 * @param Number amt - amount to zoom in on the target by (eg. 2, 4, 0.5)
 		 * @param Number cent_x - the center to zoom on
 		 * @param Number cent_y - the center to zoom on
