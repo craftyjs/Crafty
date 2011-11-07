@@ -373,7 +373,7 @@ Crafty.extend({
 				var l = 0;
 				for (i in tweens) {
 					var prop = tweens[i];
-					if (prop.remTime >= 0) {
+					if (prop.remTime > 0) {
 						prop.current += prop.diff;
 						prop.remTime--;
 						Crafty.viewport[i] = Math.floor(prop.current);
