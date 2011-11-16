@@ -85,9 +85,12 @@ Crafty.extend({
 	* @param to - Upper bound of the range
 	* Returns a random number between (and including) the two numbers.
 	*/
-	randRange: function(from, to) {
+    /**
+     * Moved "randRange" to "Crafty.math" namespace and renamed to "randomInt".
+     */
+	/*randRange: function(from, to) {
 		return Math.floor(Math.random() * (to - from + 1) + from);
-	},
+	},*/
 	
 	zeroFill: function(number, width) {
 		width -= number.toString().length;
