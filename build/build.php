@@ -196,6 +196,7 @@ $files = array("license.txt",
 			   "sound.js", 
 			   "text.js", 
 			   "loader.js", 
+			   "math.js",
 			   "outro.js");
 
 docs($files, "../src/", "api/");
