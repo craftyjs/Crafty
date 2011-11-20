@@ -77,17 +77,6 @@
 	support.css3dtransform = (typeof document.createElement("div").style[support.prefix + "Perspective"] !== "undefined");
 })();
 Crafty.extend({
-	/**@
-	* #Crafty.randRange
-	* @category Misc
-	* @sign public Number Crafty.randRange(Number from, Number to)
-	* @param from - Lower bound of the range
-	* @param to - Upper bound of the range
-	* Returns a random number between (and including) the two numbers.
-	*/
-	randRange: function(from, to) {
-		return Math.floor(Math.random() * (to - from + 1) + from);
-	},
 	
 	zeroFill: function(number, width) {
 		width -= number.toString().length;
