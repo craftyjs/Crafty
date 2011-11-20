@@ -362,7 +362,7 @@ Crafty.extend({
 		 * @sign public void Crafty.viewport.pan(String axis, Number v, Number time)
 		 * @param String axis - 'x' or 'y'. The axis to move the camera on
 		 * @param Number v - the distance to move the camera by
-		 * @param Number time - The number of frames to move the camera over
+		 * @param Number time - The duration in frames for the entire camera movement
 		 *
 		 * Pans the camera a given number of pixels over a given number of frames
 		 */
@@ -449,7 +449,7 @@ Crafty.extend({
 		/** 
 		 * #Crafty.viewport.centerOn
 		 * @comp Crafty.viewport
-		 * @sign public void Crafty.viewport.centerOn(Object target)
+		 * @sign public void Crafty.viewport.centerOn(Object target, Number time)
 		 * @param Object target - An entity with the 2D component
 		 * @param Number time - The number of frames to perform the centering over
 		 *
@@ -473,10 +473,11 @@ Crafty.extend({
 		/**
 		 * #Crafty.viewport.zoom
 		 * @comp Crafty.viewport
-		 * @sign public void Crafty.viewport.zoom(Number amt, Number cent_x, Number cent_y, Number frames)
+		 * @sign public void Crafty.viewport.zoom(Number amt, Number cent_x, Number cent_y, Number time)
 		 * @param Number amt - amount to zoom in on the target by (eg. 2, 4, 0.5)
 		 * @param Number cent_x - the center to zoom on
 		 * @param Number cent_y - the center to zoom on
+		 * @param Number time - the duration in frames of the entire zoom operation
 		 *
 		 * Zooms the camera in on a given point. amt > 1 will bring the camera closer to the subject
 		 * amt < 1 will bring it farther away. amt = 0 will do nothing. 
