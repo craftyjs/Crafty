@@ -126,11 +126,11 @@ $(document).ready(function() {
 			init: function() {
 				this.origin("center");
 				this.attr({
-					x: Crafty.randRange(0, Crafty.viewport.width), //give it random positions, rotation and speed
-					y: Crafty.randRange(0, Crafty.viewport.height),
-					xspeed: Crafty.randRange(1, 5), 
-					yspeed: Crafty.randRange(1, 5), 
-					rspeed: Crafty.randRange(-5, 5)
+					x: Crafty.math.randomInt(0, Crafty.viewport.width), //give it random positions, rotation and speed
+					y: Crafty.math.randomInt(0, Crafty.viewport.height),
+					xspeed: Crafty.math.randomInt(1, 5), 
+					yspeed: Crafty.math.randomInt(1, 5), 
+					rspeed: Crafty.math.randomInt(-5, 5)
 				}).bind("EnterFrame", function() {
 					this.x += this.xspeed;
 					this.y += this.yspeed;
@@ -183,7 +183,7 @@ $(document).ready(function() {
 		
 		//function to fill the screen with asteroids by a random amount
 		function initRocks(lower, upper) {
-			var rocks = Crafty.randRange(lower, upper);
+			var rocks = Crafty.math.randomInt(lower, upper);
 			asteroidCount = rocks;
 			lastCount = rocks;
 			

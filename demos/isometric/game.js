@@ -11,7 +11,7 @@ $(document).ready(function() {
 	var z = 0;
 	for(var i = 20; i >= 0; i--) {
 		for(var y = 0; y < 20; y++) {
-			var which = Crafty.randRange(0,1);
+			var which = Crafty.Math.randomInt(0,1);
 			var tile = Crafty.e("2D, DOM, "+ (!which ? "grass" : "stone") +", Mouse")
 			.attr('z',i+1 * y+1).areaMap([64,0],[128,32],[128,96],[64,128],[0,96],[0,32]).bind("click", function(e) {
 				//destroy on right click
