@@ -193,68 +193,6 @@ $(document).ready(function() {
 		equals(circle.y, 0, "circle.y didn't change");
 		equals(circle.radius, 10, "circle.radius didn't change");
 	});
-
-	module("Storage");
-
-	test("saveAndLoadObject", function() {
-		Crafty.storage.open("MyGame");
-		Crafty.storage.save("LeaderBoard", "save", {name: "Matthew", score: 150});
-		console.log("111");
-		stop();
-		Crafty.storage.load("LeaderBoard", "save", function(lb) {
-			console.log("222");
-				equals(lb["name"], "Matthew");
-			start();
-		});
-		console.log("333");
-	});
-
-	test("saveAndLoadArray", function() {
-		Crafty.storage.open("MyGame1");
-		Crafty.storage.save("LeaderBoard", "save", [{name: "Matthew", score: 150}, {name: "Louis", score: 17}]);
-		stop();
-		Crafty.storage.load("LeaderBoard", "save", function(lb) {
-			equals(lb[1]["name"], "Louis");
-			equals(lb.length, 2);
-			start();
-		});
-	});
-
-	test("saveAndLoadEntity", function() {
-		Crafty.storage.open("MyGame2");
-		Crafty.storage.save("Hero", "save", Crafty.e("2D, DOM").attr({x:20, y:137}));
-		stop();
-		Crafty.storage.load("Hero", "save", function(hero) {
-			console.log(hero);
-			ok(hero.__c["2D"]);
-			ok(hero.__c["DOM"])
-			equals(hero.x, 0, "Entity state is not saved");
-			start();
-		});
-	});
-
-	test("individualNamespaces", function() {
-		Crafty.storage.open("MyGame3");
-		Crafty.storage.save("LeaderBoard", "save", {name: "Matthew", score: 150});
-
-
-		Crafty.storage.open("MyGame4");
-		Crafty.storage.save("LeaderBoard", "save", {name: "Louis", score: 150});
-
-		stop();
-		Crafty.storage.load("LeaderBoard", "save", function(lb) {
-			equals(lb["name"], "Louis");
-			start();
-		});
-
-		stop(500);
-		Crafty.storage.open("MyGame3");
-		Crafty.storage.load("LeaderBoard", "save", function(lb) {
-			equals(lb["name"], "Matthew");
-			start();
-		});
-	})
-
 });
 </script>
   

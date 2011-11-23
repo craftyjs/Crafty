@@ -1,35 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" 
+                    "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<script src="../crafty-local.js"></script>
+	<script src="http://code.jquery.com/jquery-latest.js"></script>
+	<link rel="stylesheet" href="http://code.jquery.com/qunit/git/qunit.css" type="text/css" media="screen" />
+	<script type="text/javascript" src="http://code.jquery.com/qunit/git/qunit.js"></script>
+	<script type="text/javascript" src="../crafty.js"></script>
+
 <script>
-window.onload = function() {
-	Crafty.init(400, 400);
-	Crafty.storage.open("CookieTest");
-	var ent1 = Crafty.e("2D, DOM, Color, Mouse")
-					 .attr({w: 100, h: 100, x: 20, y:20})
-					 .color('#FF0000')
-					 .bind("SaveData", function (data) {
-						data.attr._color = this._color;
-						data.attr.x = this.x;
-						data.attr.y = this.y;
-						data.attr.h = this.h;
-						data.attr.w = this.w;
-						console.log(data);
-					 })
-					 .bind("Click", function (e) {
-						Crafty.storage.save('test1', 'save', this);
-						this.color('#00FF00');
-						Crafty.storage.save('test2', 'save', this);
-					 });
-	var ent2 = Crafty.storage.load('test1', 'save', function (data) {
-		data.attr({x: 120});
+$(document).ready(function() {
+	module("Storage");
+
+	test("saveAndLoadObject", function() {
+		Crafty.storage.open("MyGame");
+		Crafty.storage.save("LeaderBoard", "save", {name: "Matthew", score: 150});
+		console.log("111");
+		stop();
+		Crafty.storage.load("LeaderBoard", "save", function(lb) {
+			console.log("222");
+				equals(lb["name"], "Matthew");
+			start();
+		});
+		console.log("333");
 	});
-	var ent3 = Crafty.storage.load('test2', 'save', function (data) {
-		data.attr({y: 120});
+
+	test("saveAndLoadArray", function() {
+		Crafty.storage.open("MyGame1");
+		Crafty.storage.save("LeaderBoard", "save", [{name: "Matthew", score: 150}, {name: "Louis", score: 17}]);
+		stop();
+		Crafty.storage.load("LeaderBoard", "save", function(lb) {
+			equals(lb[1]["name"], "Louis");
+			equals(lb.length, 2);
+			start();
+		});
 	});
-};
+
+	test("saveAndLoadEntity", function() {
+		Crafty.storage.open("MyGame2");
+		Crafty.storage.save("Hero", "save", Crafty.e("2D, DOM").attr({x:20, y:137}));
+		//stop();
+/*		Crafty.storage.load("Hero", "save", function(hero) {
+			console.log(hero);
+			ok(hero.__c["2D"]);
+			ok(hero.__c["DOM"])
+			equals(hero.x, 0, "Entity state is not saved");
+				start();
+		});
+	*/});
+
+	test("individualNamespaces", function() {
+		Crafty.storage.open("MyGame3");
+		Crafty.storage.save("LeaderBoard", "save", {name: "Matthew", score: 150});
+
+
+		Crafty.storage.open("MyGame4");
+		Crafty.storage.save("LeaderBoard", "save", {name: "Louis", score: 150});
+
+		stop();
+		Crafty.storage.load("LeaderBoard", "save", function(lb) {
+			equals(lb["name"], "Louis");
+			start();
+		});
+
+		stop(500);
+		Crafty.storage.open("MyGame3");
+		Crafty.storage.load("LeaderBoard", "save", function(lb) {
+			equals(lb["name"], "Matthew");
+			start();
+		});
+	})
+
+});
 </script>
+  
 </head>
 <body>
+<h1 id="qunit-header">Crafty: Core</h1>
+<h2 id="qunit-banner"></h2>
+<div id="qunit-testrunner-toolbar"></div>
+<h2 id="qunit-userAgent"></h2>
+<ol id="qunit-tests"></ol>
+<div id="qunit-fixture">test markup, will be hidden</div>
 </body>
 </html>
