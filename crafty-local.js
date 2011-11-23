@@ -15,6 +15,7 @@
 		'isometric',
 		'particles',
 		'sound',
+		'storage',
 		'html',
 		'text',
 		'loader',

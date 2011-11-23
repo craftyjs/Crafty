@@ -1,0 +1,35 @@
+<html>
+<head>
+<script src="../crafty-local.js"></script>
+<script>
+window.onload = function() {
+	Crafty.init(400, 400);
+	Crafty.storage.open("CookieTest");
+	var ent1 = Crafty.e("2D, DOM, Color, Mouse")
+					 .attr({w: 100, h: 100, x: 20, y:20})
+					 .color('#FF0000')
+					 .bind("SaveData", function (data) {
+						data.attr._color = this._color;
+						data.attr.x = this.x;
+						data.attr.y = this.y;
+						data.attr.h = this.h;
+						data.attr.w = this.w;
+						console.log(data);
+					 })
+					 .bind("Click", function (e) {
+						Crafty.storage.save('test1', 'save', this);
+						this.color('#00FF00');
+						Crafty.storage.save('test2', 'save', this);
+					 });
+	var ent2 = Crafty.storage.load('test1', 'save', function (data) {
+		data.attr({x: 120});
+	});
+	var ent3 = Crafty.storage.load('test2', 'save', function (data) {
+		data.attr({y: 120});
+	});
+};
+</script>
+</head>
+<body>
+</body>
+</html>
