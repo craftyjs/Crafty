@@ -532,7 +532,7 @@ Crafty.storage = (function () {
 				if (type != 'save') return;
 				var reg = new RegExp(gameName+'_[^_=]', 'g'),
 					matches = reg.exec(document.cookie),
-					i=0 l=matches.length, res = {}, output=[];
+					i=0, l=matches.length, res = {}, output=[];
 				for (;i<l;i++) {
 					var key = matches[i].replace(gameName+'_', '');
 					res[key] = true;
