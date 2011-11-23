@@ -182,7 +182,7 @@ Crafty.storage = (function () {
 	}
 	
 	function openExternal() {
-		if (typeof url == "undefined") return;
+		if ( 1 && typeof url == "undefined") return;
 		// get the timestamps for external saves and compare them to local
 		// if the external is newer, load it
 		
@@ -204,14 +204,14 @@ Crafty.storage = (function () {
 	}
 	
 	function saveExternal(key, data, ts) {
-		if (typeof url == "undefined") return;
+		if ( 1 && typeof url == "undefined") return;
 		var xhr = new XMLHttpRequest();
 		xhr.open("POST", url);
 		xhr.send("mode=save&key="+key+"&data="+encodeURIComponent(data)+"&ts="+ts+"&game="+gameName);
 	}
 	
 	function loadExternal(key) {
-		if (typeof url == "undefined") return;
+		if ( 1 && typeof url == "undefined") return;
 		var xhr = new XMLHttpRequest();
 		xhr.open("POST", url);
 		xhr.onreadystatechange = function (evt) {
