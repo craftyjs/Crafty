@@ -241,8 +241,8 @@ Crafty.math.Vector2D.prototype.getNormal = function(vector) {
  * @return The angle between this vector and another in rad.
  */
 Crafty.math.Vector2D.prototype.getAngle = function(vector) {
-    return Math.acos(this.dotProduct(vector) / (this.getLength() * vector.getLength()));
-    // or: Math.atan2(y, x) ?
+    var tempV = this.to(vector);
+    return Math.atan2(tempV.y , tempV.x);
 };
 
 /**
