@@ -237,13 +237,27 @@ Crafty.extend({
 		
 		/**@
 		* #Crafty.audio.mute
-		* @sign public this Crafty.audio.mute(void)
+		* @sign public this Crafty.audio.mute([Boolean mute])
 		* Mute or unmute every Audio instance that is playing. Toggles between
 		* pausing or playing depending on the state.
+		* @example
+		* ~~~
+		* //toggle mute and unmute depending on current state
+		* Crafty.audio.mute();
+		*
+		* //mute or unmute no matter what the current state is
+		* Crafty.audio.mute(true);
+		* Crafty.audio.mute(false);
+		* ~~~
+
 		*/
-		mute: function() {
+		mute: function(mute) {
 			var sounds, sound, i, l, elem;
-			
+			this._muted = !this._muted;
+
+			if (arguments.length == 1 && typeof(mute) == "boolean")
+				this._muted = mute;
+
 			//loop over every sound
 			for(sounds in this._elems) {
 				elem = this._elems[sounds];
@@ -254,12 +268,13 @@ Crafty.extend({
 					
 					//if playing, stop
 					if(!sound.ended && sound.currentTime) {
-						if(this._muted) sound.pause();
-						else sound.play();
+						if (this._muted)
+							sound.pause();
+						else
+							sound.play();
 					}
 				}
 			}
-			this._muted = !this._muted;
 			return this;
 		}
 	}
