@@ -72,7 +72,26 @@
 	* @comp Crafty.support
 	* Is the `canvas` element supported?
 	*/
-	support.canvas = ('getContext' in document.createElement("canvas"));
+	support.canvas = ('getContext' in document.createElement("canvas"));	
+	
+	/**@
+	* #Crafty.support.webgl
+	* @comp Crafty.support
+	* Is WebGL supported on the canvas element?
+	*/
+	if (support.canvas) {
+		var gl;
+		try {
+			gl = document.createElement("canvas").getContext("experimental-webgl");
+			gl.viewportWidth = canvas.width;
+			gl.viewportHeight = canvas.height;
+		}
+		catch (e) {}
+		support.webgl = !!gl;
+	}
+	else {
+		support.webgl = false;
+	}
 
 	support.css3dtransform = (typeof document.createElement("div").style[support.prefix + "Perspective"] !== "undefined");
 })();
