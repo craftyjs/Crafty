@@ -1,7 +1,7 @@
 /**@
 * #Canvas
 * @category Graphics
-* Draws itself onto a canvas. Crafty.canvas() must be called before hand to initialize
+* Draws itself onto a canvas. Crafty.canvas.init() must be called before hand to initialize
 * the canvas element.
 */
 Crafty.c("Canvas", {
