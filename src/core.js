@@ -748,6 +748,7 @@ Crafty.extend({
 	* @param componentList - List of components to assign to new entity
 	* @sign public Entity Crafty.e(String component1[, .., String componentN])
 	* @param component# - Component to add
+	* @triggers NewEntity
 	* Creates an entity. Any arguments will be applied in the same 
 	* way `.addComponent()` is applied as a quick way to add components.
 	*
@@ -765,6 +766,8 @@ Crafty.extend({
 		}
 		craft.addComponent("obj"); //every entity automatically assumes obj
 		
+		Crafty.trigger("NewEntity", { id: id });
+
 		return craft;
 	},
 	
