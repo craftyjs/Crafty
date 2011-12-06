@@ -275,6 +275,7 @@ Crafty.fn = Crafty.prototype = {
 	* @param value - Value to set the property to
 	* @sign public this .attr(Object map)
 	* @param map - Object where the key is the property to modify and the value as the property value
+	* @triggers Change {key: value}
 	* Use this method to set any property of the entity.
 	* @example
 	* ~~~

@@ -585,6 +585,7 @@ Crafty.c("2D", {
 		//if rotation, use the rotate method
 		if(name === '_rotation') {
 			this._rotate(value);
+			this.trigger("Rotate");
 		//set the global Z and trigger reorder just incase
 		} else if(name === '_z') {
 			this._global = parseInt(value + Crafty.zeroFill(this[0], 5), 10); //magic number 10e5 is the max num of entities
