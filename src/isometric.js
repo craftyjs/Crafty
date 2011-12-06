@@ -5,7 +5,7 @@ Crafty.extend({
 	* Place entities in a 45deg isometric fashion.
 	*/
 	isometric: {
-		_tile: 0,
+		_tile: {width:0,height:0},
 		_z: 0,
 		
 		/**@
@@ -18,8 +18,9 @@ Crafty.extend({
 		* This makes it easy to calculate positions and implement zooming.
 		* @see Crafty.isometric.place
 		*/
-		size: function(tile) {
-			this._tile = tile;
+		size: function(width,height) {
+			this._tile.width = width;
+			this._tile.height = height;
 			return this;
 		},
 		
@@ -35,9 +36,12 @@ Crafty.extend({
 		* @see Crafty.isometric.size
 		*/
 		place: function(x,y,z, obj) {
-			var m = x * this._tile + (y & 1) * (this._tile / 2),
-				n = y * this._tile / 4,
-				n = n - z * (this._tile / 2);
+			var m = x * this._tile.width + (y & 1) * (this._tile.width / 2),
+				n = y * this._tile.width / 4;
+				if(this._tile.height > 0){
+					n = y * this._tile.height / 2;	
+				}
+				n  -= z * (this._tile.width  / 2);
 				
 			obj.attr({x: m  + Crafty.viewport._x, y: n  + Crafty.viewport._y}).z += z;
 			return this;
