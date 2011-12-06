@@ -736,8 +736,10 @@ Crafty.extend({
 		},
 
 		simulateFrames: function (frames) {
-			while (frames-- > 0)
+			while (frames-- > 0) {
 				Crafty.trigger("EnterFrame", { frame: frame++ });
+			}
+			Crafty.DrawManager.draw();
 		}
 
 	},
