@@ -114,4 +114,26 @@
 			};
 		}
 	});
+
+	//draw bounding boxes
+	var c;
+	c = document.createElement("canvas");
+	c.width = Crafty.viewport.width - 1;
+	c.height = Crafty.viewport.height;
+	c.style.position = 'absolute';
+	c.style.left = "0px";
+	c.style.top = "0px";
+	c.style.zIndex = 1000000;
+
+	Crafty.stage.elem.appendChild(c);
+	var ctx = c.getContext('2d');
+
+	Crafty(600).bind("Draw", function () {
+		console.log("eee");	
+		ctx.beginPath();
+			ctx.moveTo(75, 50);
+			ctx.lineTo(100, 75);
+			ctx.lineTo(100, 25);
+			ctx.fill();
+	});
 });
