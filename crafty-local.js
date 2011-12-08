@@ -17,6 +17,7 @@
 		'sound',
 		'storage',
 		'html',
+		'math',
 		'text',
 		'loader',
 		'outro'
