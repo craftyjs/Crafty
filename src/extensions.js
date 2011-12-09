@@ -93,7 +93,8 @@
 		support.webgl = false;
 	}
 
-	support.css3dtransform = (typeof document.createElement("div").style[support.prefix + "Perspective"] !== "undefined");
+	support.css3dtransform = (typeof document.createElement("div").style["Perspective"] !== "undefined")
+							|| (typeof document.createElement("div").style[support.prefix + "Perspective"] !== "undefined");
 })();
 Crafty.extend({
 	
