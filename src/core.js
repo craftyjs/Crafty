@@ -648,8 +648,10 @@ Crafty.extend({
 	* #Crafty.pause
 	* @comp Core
 	* @sign public this Crafty.pause(void)
-	* Pauses the game by stoping the EnterFrame event from firing. Pauses automatically
-	* when the user navigates away from the window. This can be turned off in `Crafty.settings`.
+	* Pauses the game by stoping the EnterFrame event from firing. If the game is already paused it is unpaused.
+	* You can pass a boolean parameter if you want to pause or unpause mo matter what the current state is.
+	* Modern browsers pauses the game when the page is not visible to the user. If you want the Pause event
+	* to be triggered when that happens you can enable autoPause in `Crafty.settings`.
 	* @example
 	* Have an entity pause the game when it is clicked.
 	* ~~~
@@ -658,8 +660,8 @@ Crafty.extend({
 	* });
 	* ~~~
 	*/
-	pause: function() {
-		if(!this._paused) {
+	pause: function(toggle) {
+		if(arguments.length == 1 ? toggle : !this._paused) {
 			this.trigger('Pause');
 			this._paused = true;
 			
