@@ -427,6 +427,9 @@ Crafty.c("Fourway", {
 	* Constructor to initialize the speed. Component will listen for key events and move the entity appropriately. 
 	* This includes `Up Arrow`, `Right Arrow`, `Down Arrow`, `Left Arrow` as well as `W`, `A`, `S`, `D`.
 	*
+	* When direction changes a NewDirection event is triggered with an object detailing the new direction: {x: x_movement, y: y_movement}
+	* When entity has moved on either x- or y-axis a Moved event is triggered with an object specifying the old position {x: old_x, y: old_y}
+	*
 	* The key presses will move the entity in that direction by the speed passed in the argument.
 	*/
 	fourway: function(speed) {
@@ -448,52 +451,57 @@ Crafty.c("Fourway", {
 /**@
 * #Twoway
 * @category Input
-* Move an entity in two directions: left or right as well as
-* jump.
+* Move an entity left or right using the arrow keys or `D` and `A` and jump using up arrow or `W`.
+*
+* When direction changes a NewDirection event is triggered with an object detailing the new direction: {x: x_movement, y: y_movement}. This is consistent with Fourway and Multiway components.
+* When entity has moved on x-axis a Moved event is triggered with an object specifying the old position {x: old_x, y: old_y}
+*
 */
 Crafty.c("Twoway", {
 	_speed: 3,
 	_up: false,
-	
-	init: function() {
-		this.requires("Keyboard");
+
+	init: function () {
+		this.requires("Fourway, Keyboard");
 	},
-	
+
 	/**@
 	* #.twoway
 	* @comp Twoway
 	* @sign public this .twoway(Number speed[, Number jumpSpeed])
 	* @param speed - Amount of pixels to move left or right
 	* @param jumpSpeed - How high the entity should jump
-	* Constructor to initialize the speed and power of jump. Component will 
-	* listen for key events and move the entity appropriately. This includes 
-	* `Up Arrow`, `Right Arrow`, `Left Arrow` as well as W, A, D. Used with the 
+	* Constructor to initialize the speed and power of jump. Component will
+	* listen for key events and move the entity appropriately. This includes
+	* `Up Arrow`, `Right Arrow`, `Left Arrow` as well as W, A, D. Used with the
 	* `gravity` component to simulate jumping.
 	*
-	* The key presses will move the entity in that direction by the speed passed in 
+	* The key presses will move the entity in that direction by the speed passed in
 	* the argument. Pressing the `Up Arrow` or `W` will cause the entiy to jump.
 	* @see Gravity, Fourway
 	*/
-	twoway: function(speed,jump) {
-		if(speed) this._speed = speed;
+	twoway: function (speed, jump) {
+
+		this.multiway(speed, {
+			RIGHT_ARROW: 0,
+			LEFT_ARROW: 180,
+			D: 0,
+			A: 180
+		});
+
+		if (speed) this._speed = speed;
 		jump = jump || this._speed * 2;
-		
-		this.bind("EnterFrame", function() {
+
+		this.bind("EnterFrame", function () {
 			if (this.disableControls) return;
-			if(this.isDown("RIGHT_ARROW") || this.isDown("D")) {
-				this.x += this._speed;
-			}
-			if(this.isDown("LEFT_ARROW") || this.isDown("A")) {
-				this.x -= this._speed;
-			}
-			if(this._up) {
+			if (this._up) {
 				this.y -= jump;
 				this._falling = true;
 			}
-		}).bind("KeyDown", function() {
-			if(this.isDown("UP_ARROW") || this.isDown("W")) this._up = true;
+		}).bind("KeyDown", function () {
+			if (this.isDown("UP_ARROW") || this.isDown("W")) this._up = true;
 		});
-		
+
 		return this;
 	}
 });
