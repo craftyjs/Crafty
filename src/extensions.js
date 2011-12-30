@@ -664,9 +664,9 @@ Crafty.extend({
 					Crafty.stage.elem.style.width = w + "px";
 					Crafty.stage.elem.style.height = h + "px";
 					
-					if(Crafty._canvas) {
-						Crafty._canvas.width = w + "px";
-						Crafty._canvas.height = h + "px";
+					if(Crafty.canvas._canvas) {
+						Crafty.canvas._canvas.width = w;
+						Crafty.canvas._canvas.height = h;
 						Crafty.DrawManager.drawAll();
 					}
 				}
