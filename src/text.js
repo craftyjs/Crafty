@@ -8,6 +8,7 @@ Crafty.c("Text", {
 	_text: "",
 
 	init: function () {
+		this.requires("2D, DOM");
 		this.bind("Draw", function (e) {
 			if (e.type === "DOM") {
 				var el = this._element, style = el.style;
