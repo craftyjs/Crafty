@@ -49,50 +49,195 @@ Crafty.extend({
 	* ~~~
 	* @see Crafty.assets
 	*/
-	load: function(data, oncomplete, onprogress, onerror) {
+	load: function (data, oncomplete, onprogress, onerror) {
 		var i = 0, l = data.length, current, obj, total = l, j = 0, ext;
-		for(;i<l;++i) {
+		for (; i < l; ++i) {
 			current = data[i];
-			ext = current.substr(current.lastIndexOf('.')+1).toLowerCase();
+			ext = current.substr(current.lastIndexOf('.') + 1).toLowerCase();
 
-			if(Crafty.support.audio && (ext === "mp3" || ext === "wav" || ext === "ogg" || ext === "mp4")) {
+			if (Crafty.support.audio && (ext === "mp3" || ext === "wav" || ext === "ogg" || ext === "mp4")) {
 				obj = new Audio(current);
 				//Chrome doesn't trigger onload on audio, see http://code.google.com/p/chromium/issues/detail?id=77794
 				if (navigator.userAgent.indexOf('Chrome') != -1) j++;
-			} else if(ext === "jpg" || ext === "jpeg" || ext === "gif" || ext === "png") {
+			} else if (ext === "jpg" || ext === "jpeg" || ext === "gif" || ext === "png") {
 				obj = new Image();
 				obj.src = current;
 			} else {
 				total--;
 				continue; //skip if not applicable
 			}
-			
+
 			//add to global asset collection
 			this.assets[current] = obj;
-			
-			obj.onload = function() {
+
+			obj.onload = function () {
 				++j;
-				
+
 				//if progress callback, give information of assets loaded, total and percent
-				if(onprogress) {
-					onprogress.call(this, {loaded: j, total: total, percent: (j / total * 100)});
+				if (onprogress) {
+					onprogress.call(this, { loaded: j, total: total, percent: (j / total * 100) });
 				}
-				if(j === total) {
-					if(oncomplete) oncomplete();
+				if (j === total) {
+					if (oncomplete) oncomplete();
 				}
 			};
-			
+
 			//if there is an error, pass it in the callback (this will be the object that didn't load)
-			obj.onerror = function() {
-				if(onerror) {
-					onerror.call(this, {loaded: j, total: total, percent: (j / total * 100)});
+			obj.onerror = function () {
+				if (onerror) {
+					onerror.call(this, { loaded: j, total: total, percent: (j / total * 100) });
 				} else {
 					j++;
-					if(j === total) {
-						if(oncomplete) oncomplete();
+					if (j === total) {
+						if (oncomplete) oncomplete();
 					}
 				}
 			};
 		}
+	},
+	/**@
+	* #Crafty.modules
+	* @category Assets
+	* @sign public void Crafty.modules(Object moduleMap[, Function onLoad])
+	* @param modules - Map of name:version pairs for modules to load
+	* @param onLoad - Callback when the modules are loaded
+	* Browse the selection of modules on crafty-modules.com
+	* Downloads and executes the javascript in the specified modules.
+	*
+    *
+	* @example
+	* ~~~
+	* Crafty.modules({ moveto: 'DEV' }, function () {
+	*     //module is ready
+	*     Crafty.e("MoveTo, 2D, DOM");
+	* });
+	* ~~~
+	*/
+	modules: function (moduleMap, oncomplete) {
+		/*!
+		  * $script.js Async loader & dependency manager
+		  * https://github.com/ded/script.js
+		  * (c) Dustin Diaz, Jacob Thornton 2011
+		  * License: MIT
+		  */
+		var $script = (function () {
+			var win = this, doc = document
+			, head = doc.getElementsByTagName('head')[0]
+			, validBase = /^https?:\/\//
+			, old = win.$script, list = {}, ids = {}, delay = {}, scriptpath
+			, scripts = {}, s = 'string', f = false
+			, push = 'push', domContentLoaded = 'DOMContentLoaded', readyState = 'readyState'
+			, addEventListener = 'addEventListener', onreadystatechange = 'onreadystatechange'
+
+			function every(ar, fn, i) {
+				for (i = 0, j = ar.length; i < j; ++i) if (!fn(ar[i])) return f
+				return 1
+			}
+			function each(ar, fn) {
+				every(ar, function (el) {
+					return !fn(el)
+				})
+			}
+
+			if (!doc[readyState] && doc[addEventListener]) {
+				doc[addEventListener](domContentLoaded, function fn() {
+					doc.removeEventListener(domContentLoaded, fn, f)
+					doc[readyState] = 'complete'
+				}, f)
+				doc[readyState] = 'loading'
+			}
+
+			function $script(paths, idOrDone, optDone) {
+				paths = paths[push] ? paths : [paths]
+				var idOrDoneIsDone = idOrDone && idOrDone.call
+				, done = idOrDoneIsDone ? idOrDone : optDone
+				, id = idOrDoneIsDone ? paths.join('') : idOrDone
+				, queue = paths.length
+				function loopFn(item) {
+					return item.call ? item() : list[item]
+				}
+				function callback() {
+					if (!--queue) {
+						list[id] = 1
+						done && done()
+						for (var dset in delay) {
+							every(dset.split('|'), loopFn) && !each(delay[dset], loopFn) && (delay[dset] = [])
+						}
+					}
+				}
+				setTimeout(function () {
+					each(paths, function (path) {
+						if (scripts[path]) {
+							id && (ids[id] = 1)
+							return scripts[path] == 2 && callback()
+						}
+						scripts[path] = 1
+						id && (ids[id] = 1)
+						create(!validBase.test(path) && scriptpath ? scriptpath + path + '.js' : path, callback)
+					})
+				}, 0)
+				return $script
+			}
+
+			function create(path, fn) {
+				var el = doc.createElement('script')
+				, loaded = f
+				el.onload = el.onerror = el[onreadystatechange] = function () {
+					if ((el[readyState] && !(/^c|loade/.test(el[readyState]))) || loaded) return;
+					el.onload = el[onreadystatechange] = null
+					loaded = 1
+					scripts[path] = 2
+					fn()
+				}
+				el.async = 1
+				el.src = path
+				head.insertBefore(el, head.firstChild)
+			}
+
+			$script.get = create
+
+			$script.order = function (scripts, id, done) {
+				(function callback(s) {
+					s = scripts.shift()
+					if (!scripts.length) $script(s, id, done)
+					else $script(s, callback)
+				}())
+			}
+
+			$script.path = function (p) {
+				scriptpath = p
+			}
+			$script.ready = function (deps, ready, req) {
+				deps = deps[push] ? deps : [deps]
+				var missing = [];
+				!each(deps, function (dep) {
+					list[dep] || missing[push](dep);
+				}) && every(deps, function (dep) { return list[dep] }) ?
+				ready() : !function (key) {
+					delay[key] = delay[key] || []
+					delay[key][push](ready)
+					req && req(missing)
+				}(deps.join('|'))
+				return $script
+			}
+
+			$script.noConflict = function () {
+				win.$script = old;
+				return this
+			}
+
+			return $script
+		})();
+
+		var modules = [];
+		for (var i in moduleMap) {
+			if (i.indexOf("http://") != -1)
+				modules.push(i)
+			else
+				modules.push('http://cdn.crafty-modules.com/' + i.toLowerCase() + '-' + moduleMap[i] + '.js');
+		}
+		$script(modules, function () {
+			if (oncomplete) oncomplete();
+		});
 	}
 });
