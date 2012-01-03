@@ -75,7 +75,7 @@ Crafty.c("Tint", {
 	* Modify the color and level opacity to give a tint on the entity.
 	* @example
 	* ~~~
-    * Crafty.e("2D, Canvas, Tint")
+	* Crafty.e("2D, Canvas, Tint")
 	*    .tint("#969696", 0.3);
 	* ~~~
 	*/
@@ -216,7 +216,7 @@ Crafty.extend({
 	* ~~~
 	* Crafty.scene("loading", function() {});
 	* 
-    * Crafty.scene("loading");
+	* Crafty.scene("loading");
 	* ~~~
 	*/
 	scene: function(name, fn) {
