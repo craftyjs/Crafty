@@ -33,6 +33,14 @@ Crafty.c("SpriteAnimation", {
 	* To play a reel, pass the name of the reel and the duration it should play for (in frames). If you need
 	* to repeat the animation, simply pass in the amount of times the animation should repeat. To repeat
 	* forever, pass in `-1`.
+	* 
+	* @example
+	* ~~~
+	* Crafty.e("2D, DOM, SpriteAnimation")
+	* 	.animate('name', 0, 0, 3)
+	*   .animate('name', 15, -1)
+	*    
+	* ~~~
 	*
 	* @triggers AnimationEnd - When the animation finishes
 	*/
