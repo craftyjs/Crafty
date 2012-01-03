@@ -702,6 +702,12 @@ Crafty.c("Gravity", {
 *
 * When creating a polygon for an entity, each point should be offset or relative from the entities `x` and `y` 
 * (don't include the absolute values as it will automatically calculate this).
+* 
+* 
+* @example
+* ~~~
+* new Crafty.polygon([50,0],[100,100],[0,100]);
+* ~~~
 */
 Crafty.polygon = function(poly) {
 	if(arguments.length > 1) {
