@@ -401,3 +401,400 @@ Crafty.math.Vector2D.tripleProduct = function(a, b, c) {
     v.y = b.y * ac - a.y * bc;
     return v;
 };
+
+/**
+ * Matrix2D
+ *
+ * @class This is a 2D Matrix2D class. It is 3x3 to allow for affine transformations in 2D space.
+ * The third row is always assumed to be [0, 0, 1].
+ *
+ * Matrix2D uses the following form, as per the whatwg.org specifications for canvas.transform():
+ * [a, c, e]
+ * [b, d, f]
+ * [0, 0, 1]
+ *
+ * @param {Matrix2D|Number=1} a
+ * @param {Number=0} b
+ * @param {Number=0} c
+ * @param {Number=1} d
+ * @param {Number=0} e
+ * @param {Number=0} f
+ *
+ * @example new Matrix2D();
+ * @example new Matrix2D(Matrix2D);
+ * @example new Matrix2D(Number, Number, Number, Number, Number, Number);
+ */
+Crafty.math.Matrix2D = function(a, b, c, d, e, f) {
+	if (a instanceof Matrix2D) {
+		this.a = a.a;
+		this.b = a.b;
+		this.c = a.c;
+		this.d = a.d;
+		this.e = a.e;
+		this.f = a.f;
+	} else if (arguments.length === 6) {
+		this.a = a;
+		this.b = b;
+		this.c = c;
+		this.d = d;
+		this.e = e;
+		this.f = f;
+	} else if (arguments.length > 0)
+		throw "Unexpected number of arguments for Matrix2D()";
+} // class Matrix2D
+
+Crafty.math.Matrix2D.prototype.a = 1;
+Crafty.math.Matrix2D.prototype.b = 0;
+Crafty.math.Matrix2D.prototype.c = 0;
+Crafty.math.Matrix2D.prototype.d = 1;
+Crafty.math.Matrix2D.prototype.e = 0;
+Crafty.math.Matrix2D.prototype.f = 0;
+
+/**
+ * .apply( )
+ *
+ * Applies the matrix transformations to the passed object
+ *
+ * @param {Object{x,y}} xy - any object containing x and y members, to be transformed
+ * @returns {Object{x,y}} original, transformed object
+ *
+ * @example apply(Object{x,y});
+ */
+Crafty.math.Matrix2D.prototype.apply = function(xy) {
+	// I'm not sure of the best way for this function to be implemented. Ideally
+	// support for other objects (rectangles, polygons, etc) should be easily
+	// addable in the future. Maybe a function (apply) is not the best way to do
+	// this...?
+
+	var tmpX = xy.x;
+	xy.x = tmpX * this.a + xy.y * this.c + this.e;
+	xy.y = tmpX * this.b + xy.y * this.d + this.f;
+	// no need to homogenize since the third row is always [0, 0, 1]
+
+	return xy;
+} // apply( )
+
+/**
+ * .clone( )
+ *
+ * Creates an exact, numeric copy of the current matrix
+ *
+ * @returns {Matrix2D}
+ *
+ * @example clone();
+ */
+Crafty.math.Matrix2D.prototype.clone = function() {
+	return new Matrix2D(this);
+} // clone( )
+
+/**
+ * .combine( )
+ *
+ * Multiplies this matrix with another, overriding the values of this matrix.
+ * The passed matrix is assumed to be on the right-hand side.
+ *
+ * @param {Matrix2D} mtrxRH
+ * @returns {Matrix2D} this matrix after combination
+ *
+ * @example combine(Matrix2D);
+ */
+Crafty.math.Matrix2D.prototype.combine = function(mtrxRH) {
+	var tmp = this.a;
+	this.a = tmp * mtrxRH.a + this.b * mtrxRH.c;
+	this.b = tmp * mtrxRH.b + this.b * mtrxRH.d;
+	tmp = this.c;
+	this.c = tmp * mtrxRH.a + this.d * mtrxRH.c;
+	this.d = tmp * mtrxRH.b + this.d * mtrxRH.d;
+	tmp = this.e;
+	this.e = tmp * mtrxRH.a + this.f * mtrxRH.c + mtrxRH.e;
+	this.f = tmp * mtrxRH.b + this.f * mtrxRH.d + mtrxRH.f;
+	return this;
+} // combine( )
+
+/**
+ * .equals( )
+ *
+ * Checks for the numeric equality of this matrix versus another.
+ *
+ * @param {Matrix2D} mtrxRH
+ * @returns {Boolean} true if the two matrices are numerically equal
+ *
+ * @example equals(Matrix2D);
+ */
+// Boolean equals(Matrix2D);
+Crafty.math.Matrix2D.prototype.equals = function(mtrxRH) {
+	return mtrxRH instanceof Matrix2D &&
+		this.a == mtrxRH.a && this.b == mtrxRH.b && this.c == mtrxRH.c &&
+		this.d == mtrxRH.d && this.e == mtrxRH.e && this.f == mtrxRH.f;
+} // equals( )
+
+/**
+ * .getDeterminant( )
+ *
+ * Calculates the determinant of this matrix
+ *
+ * @returns {Number} det(this matrix)
+ *
+ * @example getDeterminant();
+ */
+Crafty.math.Matrix2D.prototype.getDeterminant = function() {
+	return this.a * this.d - this.b * this.c;
+} // getDeterminant( )
+
+/**
+ * .invert( )
+ *
+ * Inverts this matrix if possible
+ *
+ * @returns {Matrix2D} this inverted matrix or the original matrix on failure
+ * @see Matrix2D.isInvertible( )
+ *
+ * @example .invert();
+ */
+Crafty.math.Matrix2D.prototype.invert = function() {
+	var det = this.getDeterminant();
+
+	// matrix is invertible if its determinant is non-zero
+	if (det !== 0) {
+		var old = {
+			a: this.a,
+			b: this.b,
+			c: this.c,
+			d: this.d,
+			e: this.e,
+			f: this.f
+		};
+		this.a = old.d / det;
+		this.b = -old.b / det;
+		this.c = -old.c / det;
+		this.d = old.a / det;
+		this.e = (old.c * old.f - old.e * old.d) / det;
+		this.f = (old.e * old.b - old.a * old.f) / det;
+	} // if
+
+	return this;
+} // invert( )
+
+/**
+ * .isIdentity( )
+ *
+ * Returns true if this matrix is the identity matrix
+ *
+ * @returns {Boolean}
+ *
+ * @example isIdentity();
+ */
+Crafty.math.Matrix2D.prototype.isIdentity = function() {
+	return this.a == 1 && this.b == 0 && this.c == 0 && this.d == 1 && this.e == 0 && this.f == 0;
+} // isIdentity( )
+
+/**
+ * .isInvertible( )
+ *
+ * Determines is this matrix is invertible.
+ *
+ * @returns {Boolean} true if this matrix is invertible
+ * @see Matrix2D.invert( )
+ *
+ * @example isInvertible();
+ */
+Crafty.math.Matrix2D.prototype.isInvertible = function() {
+	return this.getDeterminant() !== 0;
+} // isInvertible( )
+
+/**
+ * .preRotate( )
+ *
+ * Applies a counter-clockwise pre-rotation to this matrix
+ *
+ * @param {number} rads - angle to rotate in radians
+ * @returns {Matrix2D} this matrix after pre-rotation
+ *
+ * @example preRotate(Number);
+ */
+Crafty.math.Matrix2D.prototype.preRotate = function(rads) {
+	var nCos = Math.cos(rads);
+	var nSin = Math.sin(rads);
+
+	var tmp = this.a;
+	this.a = nCos * tmp - nSin * this.b;
+	this.b = nSin * tmp + nCos * this.b;
+	tmp = this.c;
+	this.c = nCos * tmp - nSin * this.d;
+	this.d = nSin * tmp + nCos * this.d;
+
+	return this;
+} // preRotate( )
+
+/**
+ * .preScale( )
+ *
+ * Applies a pre-scaling to this matrix
+ *
+ * @param {Number} scalarX
+ * @param {Number} [scalarY] scalarX is used if scalarY is undefined
+ * @returns {Matrix2D} this after pre-scaling
+ *
+ * @example preScale(Number[, Number]);
+ */
+Crafty.math.Matrix2D.prototype.preScale = function(scalarX, scalarY) {
+	if (scalarY === undefined)
+		scalarY = scalarX;
+
+	this.a *= scalarX;
+	this.b *= scalarY;
+	this.c *= scalarX;
+	this.d *= scalarY;
+
+	return this;
+} // preScale( )
+
+/**
+ * .preTranslate( )
+ *
+ * Applies a pre-translation to this matrix
+ *
+ * @param {Object{x,y}|Number} dx
+ * @param {Number} dy
+ * @returns {Matrix2D} this matrix after pre-translation
+ *
+ * @example preTranslate(Object{x,y});
+ * @example preTranslate(Number, Number);
+ */
+Crafty.math.Matrix2D.prototype.preTranslate = function(dx, dy) {
+	if (dx instanceof Number) {
+		this.e += dx;
+		this.f += dy;
+	} else {
+		this.e += dx.x;
+		this.f += dx.y;
+	} // else
+
+	return this;
+} // preTranslate( )
+
+/**
+ * .rotate( )
+ *
+ * Applies a counter-clockwise post-rotation to this matrix
+ *
+ * @param {Number} rads - angle to rotate in radians
+ * @returns {Matrix2D} this matrix after rotation
+ *
+ * @example rotate(Number);
+ */
+Crafty.math.Matrix2D.prototype.rotate = function(rads) {
+	var nCos = Math.cos(rads);
+	var nSin = Math.sin(rads);
+
+	var tmp = this.a;
+	this.a = nCos * tmp - nSin * this.b;
+	this.b = nSin * tmp + nCos * this.b;
+	tmp = this.c;
+	this.c = nCos * tmp - nSin * this.d;
+	this.d = nSin * tmp + nCos * this.d;
+	tmp = this.e;
+	this.e = nCos * tmp - nSin * this.f;
+	this.f = nSin * tmp + nCos * this.f;
+
+	return this;
+} // rotate( )
+
+/**
+ * .scale( )
+ *
+ * Applies a post-scaling to this matrix
+ *
+ * @param {Number} scalarX
+ * @param {Number} [scalarY] scalarX is used if scalarY is undefined
+ * @returns {Matrix2D} this after post-scaling
+ *
+ * @example scale(Number[, Number]);
+ */
+Crafty.math.Matrix2D.prototype.scale = function(scalarX, scalarY) {
+	if (scalarY === undefined)
+		scalarY = scalarX;
+
+	this.a *= scalarX;
+	this.b *= scalarY;
+	this.c *= scalarX;
+	this.d *= scalarY;
+	this.e *= scalarX;
+	this.f *= scalarY;
+
+	return this;
+} // scale( )
+
+/**
+ * .setValues( )
+ *
+ * Sets the values of this matrix
+ *
+ * @param {Matrix2D|Number} a
+ * @param {Number} b
+ * @param {Number} c
+ * @param {Number} d
+ * @param {Number} e
+ * @param {Number} f
+ * @returns {Matrix2D} this matrix containing the new values
+ *
+ * @example setValues(Matrix2D);
+ * @example setValues(Number, Number, Number, Number, Number, Number);
+ */
+Crafty.math.Matrix2D.prototype.setValues = function(a, b, c, d, e, f) {
+	if (a instanceof Matrix2D) {
+		this.a = a.a;
+		this.b = a.b;
+		this.c = a.c;
+		this.d = a.d;
+		this.e = a.e;
+		this.f = a.f;
+	} else {
+		this.a = a;
+		this.b = b;
+		this.c = c;
+		this.d = d;
+		this.e = e;
+		this.f = f;
+	} // else
+
+	return this;
+} // setValues( )
+
+/**
+ * .toString( )
+ *
+ * Returns the string representation of this matrix.
+ *
+ * @returns {String}
+ *
+ * @example toString();
+ */
+Crafty.math.Matrix2D.prototype.toString = function() {
+	return "Matrix2D([" + this.a + ", " + this.c + ", " + this.e +
+		"] [" + this.b + ", " + this.d + ", " + this.f + "] [0, 0, 1])";
+} // toString( )
+
+/**
+ * .translate( )
+ *
+ * Applies a post-translation to this matrix
+ *
+ * @param {Object{x,y}|Number} dx
+ * @param {Number} dy
+ * @returns {Matrix2D} this matrix after post-translation
+ *
+ * @example translate(Object{x,y});
+ * @example translate(Number, Number);
+ */
+Crafty.math.Matrix2D.prototype.translate = function(dx, dy) {
+	if (dx instanceof Number) {
+		this.e += this.a * dx + this.c * dy;
+		this.f += this.b * dx + this.d * dy;
+	} else {
+		this.e += this.a * dx.x + this.c * dx.y;
+		this.f += this.b * dx.x + this.d * dx.y;
+	} // else
+
+	return this;
+} // translate( )
