@@ -180,11 +180,7 @@ Crafty.extend({
 			w = temp[2] * tile || tile;
 			h = temp[3] * tileh || tileh;
 			
-			/**@
-			* #Sprite
-			* @category Graphics
-			* Component for using tiles in a sprite map.
-			*/
+			//generates sprite components for each tile in the map
 			Crafty.c(pos, {
 				ready: false,
 				__coord: [x,y,w,h],
