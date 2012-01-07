@@ -28,12 +28,6 @@ Crafty.c("Color", {
 	*
 	* The argument must be a color readable depending on which browser you
 	* choose to support. IE 8 and below doesn't support the rgb() syntax.
-	* 
-	* @example
-	* ~~~
-	* Crafty.e("2D, DOM, Color")
-	*    .color("#969696");
-	* ~~~
 	*/
 	color: function(color) {
 		this._color = color;
@@ -73,11 +67,6 @@ Crafty.c("Tint", {
 	* @param color - The color in hexidecimal
 	* @param strength - Level of opacity
 	* Modify the color and level opacity to give a tint on the entity.
-	* @example
-	* ~~~
-	* Crafty.e("2D, Canvas, Tint")
-	*    .tint("#969696", 0.3);
-	* ~~~
 	*/
 	tint: function(color, strength) {
 		this._strength = strength;
@@ -211,13 +200,6 @@ Crafty.extend({
 	*
 	* When a scene is played a SceneChange event is triggered. The callback object has
 	* the properties oldScene and newScene, which are string names of the scenes.
-	* 
-	* @example
-	* ~~~
-	* Crafty.scene("loading", function() {});
-	* 
-	* Crafty.scene("loading");
-	* ~~~
 	*/
 	scene: function(name, fn) {
 		//play scene

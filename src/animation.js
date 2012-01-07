@@ -21,9 +21,13 @@ Crafty.c("SpriteAnimation", {
 	* @param y - `y` position on the sprite map. Will remain constant through the animation.
 	* @param toX - End `x` position on the sprite map
 	* @sign public this .animate(String id, Array frames)
-	* @param frames - Array of containing an array with the `x` and `y` values
+	* @param id - ID of the animation reel being created
+	* @param frames - Array of arrays containing the `x` and `y` values: [[x1,y1],[x2,y2],...]
 	* @sign public this .animate(String id, Number duration[, Number repeatCount])
+	* @param id - ID of the animation reel to play
 	* @param duration - Play the animation with a duration (in frames)
+	* @param repeatCount - number of times to repeat the animation. Use -1 for infinitely
+	*
 	* Method to setup animation reels or play pre-made reels. Animation works by changing the sprites over 
 	* a duration. Only works for sprites built with the Crafty.sprite methods. See the Tween component for animation of 2D properties.
 	*
@@ -36,13 +40,18 @@ Crafty.c("SpriteAnimation", {
 	* 
 	* @example
 	* ~~~
-	* Crafty.e("2D, DOM, SpriteAnimation")
-	* 	.animate('name', 0, 0, 3)
-	*   .animate('name', 15, -1)
+	* Crafty.sprite(16, "images/sprite.png", {
+	*     PlayerSprite: [0,0]
+	* });
+	*
+	* Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite")
+	*     .animate('PlayerRunning', 0, 0, 3) //setup animation
+	*     .animate('PlayerRunning', 15, -1) // start animation
 	*    
 	* ~~~
 	*
 	* @triggers AnimationEnd - When the animation finishes
+	* @see crafty.sprite
 	*/
 	animate: function(id, fromx, y, tox) {
 		var reel, i, tile, tileh, duration, pos;
@@ -174,10 +183,14 @@ Crafty.c("SpriteAnimation", {
 	/**@
 	* #.isPlaying
 	* @comp SpriteAnimation
-	* @sign public Boolean .isPlaying([String reel])
-	* @reel reel - Determine if this reel is playing
+	* @sign public Boolean .isPlaying([String id])
+	* @param id - Determine if the animation reel with this ID is playing
 	* Determines if an animation is currently playing. If a reel is passed, it will determine
 	* if the passed reel is playing.
+	* ~~~
+	* myEntity.isPlaying() //is any animation playing
+	* myEntity.isPlaying('PlayerRunning') //is the PlayerRunning animation playing
+	* ~~~
 	*/
 	isPlaying: function(id) {
 		if(!id) return !!this._interval;
