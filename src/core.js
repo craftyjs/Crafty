@@ -684,7 +684,7 @@ Crafty.extend({
 		prev: (+new Date),
 		current: (+new Date),
 		fps: 0,
-
+                curTime:Date.now(),
 		init: function () {
 			var onFrame = window.requestAnimationFrame ||
 					window.webkitRequestAnimationFrame ||
@@ -729,11 +729,11 @@ Crafty.extend({
 		*/
 		step: function () {
 			loops = 0;
-			var curTime = (new Date).getTime();
-			if (curTime - nextGameTick > 60 * skipTicks) {
-				nextGameTick = curTime - skipTicks;
+			this.curTime = Date.now();
+			if (this.curTime - nextGameTick > 60 * skipTicks) {
+				nextGameTick = this.curTime - skipTicks;
 			}
-			while (curTime > nextGameTick) {
+			while (this.curTime > nextGameTick) {
 				Crafty.trigger("EnterFrame", { frame: frame++ });
 				nextGameTick += skipTicks;
 				loops++;
