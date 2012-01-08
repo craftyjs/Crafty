@@ -191,8 +191,8 @@ Crafty.math = {
 };
 
 Crafty.math.Vector2D = (function() {
-	/**
-	 * Vector2D
+	/**@
+	 * #Crafty.math.Vector2D
 	 *
 	 * @class This is a general purpose 2D vector class
 	 *
@@ -220,8 +220,8 @@ Crafty.math.Vector2D = (function() {
 	Vector2D.prototype.x = 0;
 	Vector2D.prototype.y = 0;
 
-	/**
-	 * .add( )
+	/**@
+	 * #.add( )
 	 *
 	 * Adds the passed vector to this vector
 	 *
@@ -236,8 +236,8 @@ Crafty.math.Vector2D = (function() {
 		return this;
 	} // add( )
 
-	/**
-	 * .angleBetween( )
+	/**@
+	 * #.angleBetween( )
 	 *
 	 * Calculates the angle between the passed vector and this vector, using <0,0> as the point of reference.
 	 * Angles returned have the range (−π, π].
@@ -251,8 +251,8 @@ Crafty.math.Vector2D = (function() {
 		return Math.atan2(this.x * vecRH.y - this.y * vecRH.x, this.x * vecRH.x + this.y * vecRH.y);
 	} // angleBetween( )
 
-	/**
-	 * .angleTo( )
+	/**@
+	 * #.angleTo( )
 	 *
 	 * Calculates the angle to the passed vector from this vector, using this vector as the point of reference.
 	 *
@@ -265,8 +265,8 @@ Crafty.math.Vector2D = (function() {
 		return Math.atan2(vecRH.y - this.y, vecRH.x - this.x);
 	};
 
-	/**
-	 * .clone( )
+	/**@
+	 * #.clone( )
 	 *
 	 * Creates and exact, numeric copy of this vector
 	 *
@@ -278,8 +278,8 @@ Crafty.math.Vector2D = (function() {
 		return new Vector2D(this);
 	} // clone( )
 
-	/**
-	 * .distance( )
+	/**@
+	 * #.distance( )
 	 *
 	 * Calculates the distance from this vector to the passed vector.
 	 *
@@ -292,8 +292,8 @@ Crafty.math.Vector2D = (function() {
 		return Math.sqrt((vecRH.x - this.x) * (vecRH.x - this.x) + (vecRH.y - this.y) * (vecRH.y - this.y));
 	} // distance( )
 
-	/**
-	 * .distanceSq( )
+	/**@
+	 * #.distanceSq( )
 	 *
 	 * Calculates the squared distance from this vector to the passed vector.
 	 * This function avoids calculating the square root, thus being slightly faster than .distance( ).
@@ -308,8 +308,8 @@ Crafty.math.Vector2D = (function() {
 		return (vecRH.x - this.x) * (vecRH.x - this.x) + (vecRH.y - this.y) * (vecRH.y - this.y);
 	} // distanceSq( )
 
-	/**
-	 * .divide( )
+	/**@
+	 * #.divide( )
 	 *
 	 * Divides this vector by the passed vector.
 	 *
@@ -324,8 +324,8 @@ Crafty.math.Vector2D = (function() {
 		return this;
 	} // divide( )
 
-	/**
-	 * .dotProduct( )
+	/**@
+	 * #.dotProduct( )
 	 *
 	 * Calculates the dot product of this and the passed vectors
 	 *
@@ -338,8 +338,8 @@ Crafty.math.Vector2D = (function() {
 		return this.x * vecRH.x + this.y * vecRH.y;
 	} // dotProduct( )
 
-	/**
-	 * .equals( )
+	/**@
+	 * #.equals( )
 	 *
 	 * Determines if this vector is numerically equivalent to the passed vector.
 	 *
@@ -353,8 +353,8 @@ Crafty.math.Vector2D = (function() {
 			this.x == vecRH.x && this.y == vecRH.y;
 	} // equals( )
 
-	/**
-	 * .getNormal( )
+	/**@
+	 * #.getNormal( )
 	 *
 	 * Calculates a new right-handed normal vector for the line created by this and the passed vectors.
 	 *
@@ -369,8 +369,8 @@ Crafty.math.Vector2D = (function() {
 		return new Vector2D(vecRH.y - this.y, this.x - vecRH.x).normalize();
 	} // getNormal( )
 
-	/**
-	 * .isZero( )
+	/**@
+	 * #.isZero( )
 	 *
 	 * Determines if this vector is equal to <0,0>
 	 *
@@ -382,8 +382,8 @@ Crafty.math.Vector2D = (function() {
 		return this.x === 0 && this.y ===0;
 	} // isZero( )
 
-	/**
-	 * .magnitude( )
+	/**@
+	 * #.magnitude( )
 	 *
 	 * Calculates the magnitude of this vector.
 	 * Note: Function objects in JavaScript already have a 'length' member, hence the use of magnitude instead.
@@ -396,8 +396,8 @@ Crafty.math.Vector2D = (function() {
 		return Math.sqrt(this.x * this.x + this.y * this.y);
 	} // magnitude( )
 
-	/**
-	 * .magnitudeSq( )
+	/**@
+	 * #.magnitudeSq( )
 	 *
 	 * Calculates the square of the magnitude of this vector.
 	 * This function avoids calculating the square root, thus being slightly faster than .magnitude( ).
@@ -411,8 +411,8 @@ Crafty.math.Vector2D = (function() {
 		return this.x * this.x + this.y * this.y;
 	} // magnitudeSq( )
 
-	/**
-	 * .multiply( )
+	/**@
+	 * #.multiply( )
 	 *
 	 * Multiplies this vector by the passed vector
 	 *
@@ -427,8 +427,8 @@ Crafty.math.Vector2D = (function() {
 		return this;
 	} // multiply( )
 
-	/**
-	 * .negate( )
+	/**@
+	 * #.negate( )
 	 *
 	 * Negates this vector (ie. <-x,-y>)
 	 *
@@ -442,8 +442,8 @@ Crafty.math.Vector2D = (function() {
 		return this;
 	} // negate( )
 
-	/**
-	 * .normalize( )
+	/**@
+	 * #.normalize( )
 	 *
 	 * Normalizes this vector (scales the vector so that its new magnitude is 1)
 	 * For vectors where magnitude is 0, <1,0> is returned.
@@ -468,8 +468,8 @@ Crafty.math.Vector2D = (function() {
 		return this;
 	} // normalize( )
 
-	/**
-	 * .scale( )
+	/**@
+	 * #.scale( )
 	 *
 	 * Scales this vector by the passed amount(s)
 	 * If scalarY is omitted, scalarX is used for both axes
@@ -490,8 +490,8 @@ Crafty.math.Vector2D = (function() {
 		return this;
 	} // scale( )
 
-	/**
-	 * .scaleToMagnitude( )
+	/**@
+	 * #.scaleToMagnitude( )
 	 *
 	 * Scales this vector such that its new magnitude is equal to the passed value.
 	 *
@@ -507,8 +507,8 @@ Crafty.math.Vector2D = (function() {
 		return this;
 	} // scaleToMagnitude( )
 
-	/**
-	 * .setValues( )
+	/**@
+	 * #.setValues( )
 	 *
 	 * Sets the values of this vector using a passed vector or pair of numbers.
 	 *
@@ -531,8 +531,8 @@ Crafty.math.Vector2D = (function() {
 		return this;
 	} // setValues( )
 
-	/**
-	 * .subtract( )
+	/**@
+	 * #.subtract( )
 	 *
 	 * Subtracts the passed vector from this vector.
 	 *
@@ -547,8 +547,8 @@ Crafty.math.Vector2D = (function() {
 		return this;
 	} // subtract( )
 
-	/**
-	 * .toString( )
+	/**@
+	 * #.toString( )
 	 *
 	 * Returns a string representation of this vector.
 	 *
@@ -560,8 +560,8 @@ Crafty.math.Vector2D = (function() {
 		return "Vector2D(" + this.x + ", " + this.y + ")";
 	} // toString( )
 
-	/**
-	 * .translate( )
+	/**@
+	 * #.translate( )
 	 *
 	 * Translates (moves) this vector by the passed amounts.
 	 * If dy is omitted, dx is used for both axes.
@@ -582,8 +582,8 @@ Crafty.math.Vector2D = (function() {
 		return this;
 	} // translate( )
 
-	/**
-	 * .tripleProduct( )
+	/**@
+	 * #.tripleProduct( )
 	 *
 	 * Calculates the triple product of three vectors.
 	 * triple vector product = b(a•c) - a(b•c)
@@ -606,8 +606,8 @@ Crafty.math.Vector2D = (function() {
 })();
 
 Crafty.math.Matrix2D = (function() {
-	/**
-	 * Matrix2D
+	/**@
+	 * #Crafty.math.Matrix2D
 	 *
 	 * @class This is a 2D Matrix2D class. It is 3x3 to allow for affine transformations in 2D space.
 	 * The third row is always assumed to be [0, 0, 1].
@@ -654,8 +654,8 @@ Crafty.math.Matrix2D = (function() {
 	Matrix2D.prototype.e = 0;
 	Matrix2D.prototype.f = 0;
 
-	/**
-	 * .apply( )
+	/**@
+	 * #.apply( )
 	 *
 	 * Applies the matrix transformations to the passed object
 	 *
@@ -678,8 +678,8 @@ Crafty.math.Matrix2D = (function() {
 		return vecRH;
 	} // apply( )
 
-	/**
-	 * .clone( )
+	/**@
+	 * #.clone( )
 	 *
 	 * Creates an exact, numeric copy of the current matrix
 	 *
@@ -691,8 +691,8 @@ Crafty.math.Matrix2D = (function() {
 		return new Matrix2D(this);
 	} // clone( )
 
-	/**
-	 * .combine( )
+	/**@
+	 * #.combine( )
 	 *
 	 * Multiplies this matrix with another, overriding the values of this matrix.
 	 * The passed matrix is assumed to be on the right-hand side.
@@ -715,8 +715,8 @@ Crafty.math.Matrix2D = (function() {
 		return this;
 	} // combine( )
 
-	/**
-	 * .equals( )
+	/**@
+	 * #.equals( )
 	 *
 	 * Checks for the numeric equality of this matrix versus another.
 	 *
@@ -731,8 +731,8 @@ Crafty.math.Matrix2D = (function() {
 			this.d == mtrxRH.d && this.e == mtrxRH.e && this.f == mtrxRH.f;
 	} // equals( )
 
-	/**
-	 * .determinant( )
+	/**@
+	 * #.determinant( )
 	 *
 	 * Calculates the determinant of this matrix
 	 *
@@ -744,8 +744,8 @@ Crafty.math.Matrix2D = (function() {
 		return this.a * this.d - this.b * this.c;
 	} // determinant( )
 
-	/**
-	 * .invert( )
+	/**@
+	 * #.invert( )
 	 *
 	 * Inverts this matrix if possible
 	 *
@@ -778,8 +778,8 @@ Crafty.math.Matrix2D = (function() {
 		return this;
 	} // invert( )
 
-	/**
-	 * .isIdentity( )
+	/**@
+	 * #.isIdentity( )
 	 *
 	 * Returns true if this matrix is the identity matrix
 	 *
@@ -791,8 +791,8 @@ Crafty.math.Matrix2D = (function() {
 		return this.a === 1 && this.b === 0 && this.c === 0 && this.d === 1 && this.e === 0 && this.f === 0;
 	} // isIdentity( )
 
-	/**
-	 * .isInvertible( )
+	/**@
+	 * #.isInvertible( )
 	 *
 	 * Determines is this matrix is invertible.
 	 *
@@ -805,8 +805,8 @@ Crafty.math.Matrix2D = (function() {
 		return this.determinant() !== 0;
 	} // isInvertible( )
 
-	/**
-	 * .preRotate( )
+	/**@
+	 * #.preRotate( )
 	 *
 	 * Applies a counter-clockwise pre-rotation to this matrix
 	 *
@@ -829,8 +829,8 @@ Crafty.math.Matrix2D = (function() {
 		return this;
 	} // preRotate( )
 
-	/**
-	 * .preScale( )
+	/**@
+	 * #.preScale( )
 	 *
 	 * Applies a pre-scaling to this matrix
 	 *
@@ -852,8 +852,8 @@ Crafty.math.Matrix2D = (function() {
 		return this;
 	} // preScale( )
 
-	/**
-	 * .preTranslate( )
+	/**@
+	 * #.preTranslate( )
 	 *
 	 * Applies a pre-translation to this matrix
 	 *
@@ -876,8 +876,8 @@ Crafty.math.Matrix2D = (function() {
 		return this;
 	} // preTranslate( )
 
-	/**
-	 * .rotate( )
+	/**@
+	 * #.rotate( )
 	 *
 	 * Applies a counter-clockwise post-rotation to this matrix
 	 *
@@ -903,8 +903,8 @@ Crafty.math.Matrix2D = (function() {
 		return this;
 	} // rotate( )
 
-	/**
-	 * .scale( )
+	/**@
+	 * #.scale( )
 	 *
 	 * Applies a post-scaling to this matrix
 	 *
@@ -928,8 +928,8 @@ Crafty.math.Matrix2D = (function() {
 		return this;
 	} // scale( )
 
-	/**
-	 * .setValues( )
+	/**@
+	 * #.setValues( )
 	 *
 	 * Sets the values of this matrix
 	 *
@@ -964,8 +964,8 @@ Crafty.math.Matrix2D = (function() {
 		return this;
 	} // setValues( )
 
-	/**
-	 * .toString( )
+	/**@
+	 * #.toString( )
 	 *
 	 * Returns the string representation of this matrix.
 	 *
@@ -978,8 +978,8 @@ Crafty.math.Matrix2D = (function() {
 			"] [" + this.b + ", " + this.d + ", " + this.f + "] [0, 0, 1])";
 	} // toString( )
 
-	/**
-	 * .translate( )
+	/**@
+	 * #.translate( )
 	 *
 	 * Applies a post-translation to this matrix
 	 *
