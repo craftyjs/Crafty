@@ -101,19 +101,23 @@ Crafty.extend({
 	* @sign public void Crafty.modules(Object moduleMap[, Function onLoad])
 	* @param modules - Map of name:version pairs for modules to load
 	* @param onLoad - Callback when the modules are loaded
-	* Browse the selection of modules on crafty-modules.com
+	* Browse the selection of modules on crafty repositories.
 	* Downloads and executes the javascript in the specified modules.
 	*
+	* Available repositories:
+	* 	- http://cdn.crafty-modules.com
+	* 	- http://craftycomponents.com
     *
 	* @example
 	* ~~~
-	* Crafty.modules({ moveto: 'DEV' }, function () {
+	* Crafty.modules('http://example.com', { moveto: 'DEV' }, function () {
 	*     //module is ready
 	*     Crafty.e("MoveTo, 2D, DOM");
 	* });
 	* ~~~
+	* 
 	*/
-	modules: function (moduleMap, oncomplete) {
+	modules: function (modulesRepository, moduleMap, oncomplete) {
 		/*!
 		  * $script.js Async loader & dependency manager
 		  * https://github.com/ded/script.js
@@ -234,8 +238,9 @@ Crafty.extend({
 			if (i.indexOf("http://") != -1)
 				modules.push(i)
 			else
-				modules.push('http://cdn.crafty-modules.com/' + i.toLowerCase() + '-' + moduleMap[i] + '.js');
+				modules.push(modulesRepository + '/' + i.toLowerCase() + '-' + moduleMap[i] + '.js');
 		}
+
 		$script(modules, function () {
 			if (oncomplete) oncomplete();
 		});
