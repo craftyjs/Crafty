@@ -78,6 +78,7 @@ Crafty.extend({
 			} else if (type == "click") {
 				closest.trigger("Click", e);
 			}else if (type === "mousemove") {
+				closest.trigger("MouseMove", e);
 				if (this.over !== closest) { //if new mousemove, it is over
 					if (this.over) {
 						this.over.trigger("MouseOut", e); //if over wasn't null, send mouseout
