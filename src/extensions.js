@@ -303,6 +303,15 @@ Crafty.extend({
 	* in turn will react just like a camera moving in that direction.
 	*/
 	viewport: {
+		/**@
+		* #Crafty.viewport.clampToEntities
+		* @comp Crafty.viewport
+		* Decides if the viewport functions should clamp to game entities.
+		* When set to `true` functions such as Crafty.viewport.mouselook() will not allow you to move the
+		* viewport over areas of the game that has no entities.
+		* For development it can be useful to set this to false.
+		*/
+		clampToEntities: true,
 		width: 0, 
 		height: 0,
 		/**@
@@ -600,26 +609,28 @@ Crafty.extend({
 			};
 		})(),
 		 
-		_clamp: function() {
-			// clamps the viewport to the viewable area
-			// under no circumstances should the viewport see something outside the boundary of the 'world'
-			var bound = Crafty.map.boundaries();
-			bound.max.x -= Crafty.viewport.width;
-			bound.max.y -= Crafty.viewport.height;
-				
-			if (Crafty.viewport.x < -bound.max.x) {
-				Crafty.viewport.x = -bound.max.x;
+		// clamps the viewport to the viewable area
+		// under no circumstances should the viewport see something outside the boundary of the 'world'
+		_clamp: function () {
+			if (this.clampToEntities) {
+				var bound = Crafty.map.boundaries();
+				bound.max.x -= Crafty.viewport.width;
+				bound.max.y -= Crafty.viewport.height;
+
+				if (Crafty.viewport.x < -bound.max.x) {
+					Crafty.viewport.x = -bound.max.x;
+				}
+				else if (Crafty.viewport.x > -bound.min.x) {
+					Crafty.viewport.x = -bound.min.x;
+				}
+
+				if (Crafty.viewport.y < -bound.max.y) {
+					Crafty.viewport.y = -bound.max.y;
+				}
+				else if (Crafty.viewport.y > -bound.min.y) {
+					Crafty.viewport.y = -bound.min.y;
+				}
 			}
-			else if (Crafty.viewport.x > -bound.min.x) {
-				Crafty.viewport.x = -bound.min.x;
-			}
-			
-			if (Crafty.viewport.y < -bound.max.y) {
-				Crafty.viewport.y = -bound.max.y;
-			}
-			else if (Crafty.viewport.y > -bound.min.y) {
-				Crafty.viewport.y = -bound.min.y;
-			}			
 		},
 		
 		init: function(w,h) {
