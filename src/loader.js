@@ -118,6 +118,13 @@ Crafty.extend({
 	* 
 	*/
 	modules: function (modulesRepository, moduleMap, oncomplete) {
+
+		if(arguments.length === 2 && typeof modulesRepository === "object") {
+			moduleMap = modulesRepository;
+			oncomplete = moduleMap;
+			modulesRepository = 'http://craftycomponents.com';
+		}
+
 		/*!
 		  * $script.js Async loader & dependency manager
 		  * https://github.com/ded/script.js
