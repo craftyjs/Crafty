@@ -53,6 +53,12 @@ Crafty.c("Sprite", {
 	* Uses a new location on the sprite map as its sprite.
 	*
 	* Values should be in tiles or cells (not pixels).
+	* 
+	* @example
+	* ~~~
+	* Crafty.e("2D, DOM, Sprite")
+	* 	.sprite(0, 0, 2, 2);
+	* ~~~
 	*/
 	sprite: function(x,y,w,h) {
 		this.__coord = [x * this.__tile + this.__padding[0] + this.__trim[0],
@@ -75,6 +81,12 @@ Crafty.c("Sprite", {
 	* If the entity needs to be smaller than the tile size, use this method to crop it.
 	*
 	* The values should be in pixels rather than tiles.
+	* 
+	* @example
+	* ~~~
+	* Crafty.e("2D, DOM, Sprite")
+	* 	.crop(40, 40, 22, 23);
+	* ~~~
 	*/
 	crop: function(x,y,w,h) {
 		var old = this._mbr || this.pos();

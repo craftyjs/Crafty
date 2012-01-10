@@ -69,7 +69,6 @@ Crafty.extend({
 		* //only one format
 		* Crafty.audio.add("jump", "sounds/jump.mp3");
 		* ~~~
-		* @see Crafty.audio.play, Crafty.audio.settings
 		*/
 		add: function(id, url) {
 			if(!Crafty.support.audio) return this;
@@ -152,6 +151,7 @@ Crafty.extend({
 		},
 		/**@
 		* #Crafty.audio.play
+		* @comp Crafty.audio
 		* @sign public this Crafty.audio.play(String id)
 		* @sign public this Crafty.audio.play(String id, Number repeatCount)
 		* @param id - A string to reffer to sounds
@@ -169,7 +169,6 @@ Crafty.extend({
 		* //play and repeat forever
 		* Crafty.audio.play("backgroundMusic", -1);
 		* ~~~
-		* @see Crafty.audio.add, Crafty.audio.settings
 		*/
 		play: function(id, repeat) {
 			if(!Crafty.support.audio) return;
@@ -249,7 +248,6 @@ Crafty.extend({
 		* Crafty.audio.mute(true);
 		* Crafty.audio.mute(false);
 		* ~~~
-
 		*/
 		mute: function(mute) {
 			var sounds, sound, i, l, elem;

@@ -603,7 +603,7 @@ Crafty.extend = Crafty.fn.extend = function(obj) {
 * Used to extend the Crafty namespace.
 */
 Crafty.extend({
-	/**@
+/**@
 	* #Crafty.init
 	* @category Core
 	* @sign public this Crafty.init([Number width, Number height])
@@ -618,16 +618,16 @@ Crafty.extend({
 	* Uses `requestAnimationFrame` to sync the drawing with the browser but will default to `setInterval` if the browser does not support it.
 	* @see Crafty.stop
 	*/
-	init: function(w, h) {
-		Crafty.viewport.init(w,h);
-		
+	init: function (w, h) {
+		Crafty.viewport.init(w, h);
+
 		//call all arbitrary functions attached to onload
 		this.trigger("Load");
 		this.timer.init();
-		
+
 		return this;
 	},
-	
+
 	/**@
 	* #Crafty.stop
 	* @category Core
@@ -637,13 +637,13 @@ Crafty.extend({
 	* To restart, use `Crafty.init()`.
 	* @see Crafty.init
 	*/
-	stop: function() {
+	stop: function () {
 		this.timer.stop();
 		Crafty.stage.elem.parentNode.removeChild(Crafty.stage.elem);
-		
+
 		return this;
 	},
-	
+
 	/**@
 	* #Crafty.pause
 	* @comp Core
@@ -656,87 +656,108 @@ Crafty.extend({
 	* Have an entity pause the game when it is clicked.
 	* ~~~
 	* button.bind("click", function() {
-	* 	Crafty.pause(); 
+	* 	Crafty.pause();
 	* });
 	* ~~~
 	*/
-	pause: function(toggle) {
-		if(arguments.length == 1 ? toggle : !this._paused) {
+	pause: function (toggle) {
+		if (arguments.length == 1 ? toggle : !this._paused) {
 			this.trigger('Pause');
 			this._paused = true;
-			
+
 			Crafty.timer.stop();
 			Crafty.keydown = {};
 		} else {
 			this.trigger('Unpause');
 			this._paused = false;
-			
+
 			Crafty.timer.init();
 		}
 		return this;
 	},
-	
+	/**@
+	* #Crafty.timer
+	* @category Internal
+	* Handles game ticks
+	*/
 	timer: {
 		prev: (+new Date),
 		current: (+new Date),
 		fps: 0,
-		
-		init: function() {
+                curTime:Date.now(),
+		init: function () {
 			var onFrame = window.requestAnimationFrame ||
 					window.webkitRequestAnimationFrame ||
 					window.mozRequestAnimationFrame ||
 					window.oRequestAnimationFrame ||
 					window.msRequestAnimationFrame ||
 					null;
-			
-			if(onFrame) {
-				tick = function() { 
+
+			if (onFrame) {
+				tick = function () {
 					Crafty.timer.step();
-					tickID = onFrame(tick); 
+					tickID = onFrame(tick);
 				}
-				
+
 				tick();
 			} else {
 				tick = setInterval(Crafty.timer.step, 1000 / FPS);
 			}
 		},
-		
-		stop: function() {
+
+		stop: function () {
 			Crafty.trigger("CraftyStop");
-			
-			if(typeof tick === "number") clearInterval(tick);
-		
+
+			if (typeof tick === "number") clearInterval(tick);
+
 			var onFrame = window.cancelRequestAnimationFrame ||
 					window.webkitCancelRequestAnimationFrame ||
 					window.mozCancelRequestAnimationFrame ||
 					window.oCancelRequestAnimationFrame ||
 					window.msCancelRequestAnimationFrame ||
 					null;
-						
-			if(onFrame) onFrame(tickID);
+
+			if (onFrame) onFrame(tickID);
 			tick = null;
 		},
-		
-		step: function() {
+
+		/**@
+		* #Crafty.timer.step
+		* @comp Crafty.timer
+		* @sign public void Crafty.timer.step()
+		* Advances the game by triggering `EnterFrame` and calls `Crafty.DrawManager.draw` to update the stage.
+		*/
+		step: function () {
 			loops = 0;
-			var curTime = (new Date).getTime();
-			if(curTime - nextGameTick > 60 * skipTicks) {
-					nextGameTick = curTime - skipTicks;
-				}
-			while(curTime > nextGameTick) {
-				Crafty.trigger("EnterFrame", {frame: frame++});
+			this.curTime = Date.now();
+			if (this.curTime - nextGameTick > 60 * skipTicks) {
+				nextGameTick = this.curTime - skipTicks;
+			}
+			while (this.curTime > nextGameTick) {
+				Crafty.trigger("EnterFrame", { frame: frame++ });
 				nextGameTick += skipTicks;
 				loops++;
 			}
-			if(loops) {
+			if (loops) {
 				Crafty.DrawManager.draw();
 			}
 		},
-
-		getFPS: function() {
+		/**@
+		* #Crafty.timer.getFPS
+		* @comp Crafty.timer
+		* @sign public void Crafty.timer.getFPS()
+		* Returns the target frames per second. This is not an actual frame rate.
+		*/
+		getFPS: function () {
 			return this.fps;
 		},
-
+		/**@
+		* #Crafty.timer.simulateFrames
+		* @comp Crafty.timer
+		* Advances the game state by a number of frames and draws the resulting stage at the end. Useful for tests and debugging.
+		* @sign public this Crafty.timer.simulateFrames(Number frames)
+		* @param frames - number of frames to simulate
+		*/
 		simulateFrames: function (frames) {
 			while (frames-- > 0) {
 				Crafty.trigger("EnterFrame", { frame: frame++ });
@@ -754,49 +775,65 @@ Crafty.extend({
 	* @sign public Entity Crafty.e(String component1[, .., String componentN])
 	* @param component# - Component to add
 	* @triggers NewEntity
-	* Creates an entity. Any arguments will be applied in the same 
+	* Creates an entity. Any arguments will be applied in the same
 	* way `.addComponent()` is applied as a quick way to add components.
 	*
-	* From here, any component added will augment the functionality of 
-	* that entity by assigning the properties and methods to that entity. 
+	* Any component added will augment the functionality of
+	* the created entity by assigning the properties and methods from the component to the entity.
+	* ~~~
+	* var myEntity = Crafty.e("2D, DOM, Color");
+	* ~~~
+	* @see Crafty.c
 	*/
-	e: function() {
+	e: function () {
 		var id = UID(), craft;
-		
+
 		entities[id] = null; //register the space
 		entities[id] = craft = Crafty(id);
-		
-		if(arguments.length > 0) {
+
+		if (arguments.length > 0) {
 			craft.addComponent.apply(craft, arguments);
 		}
 		craft.addComponent("obj"); //every entity automatically assumes obj
-		
+
 		Crafty.trigger("NewEntity", { id: id });
 
 		return craft;
 	},
-	
+
 	/**@
 	* #Crafty.c
 	* @category Core
 	* @sign public void Crafty.c(String name, Object component)
 	* @param name - Name of the component
 	* @param component - Object with the components properties and methods
-	* Creates a component where the first argument is the ID and the second 
+	* Creates a component where the first argument is the ID and the second
 	* is the object that will be inherited by entities.
 	*
-	* There is a convention for writing components. For instance properties or 
-	* methods that start with an underscore are considered private. A method called 
-	* `init` will automatically be called as soon as the component is added to 
-	* an entity. 
-	* 
-	* A method with the same name as the component ID is considered to be a constructor 
+	* There is a convention for writing components. Properties or
+	* methods that start with an underscore are considered private.
+	* A method called `init` will automatically be called as soon as the
+	* component is added to an entity.
+	* A method with the same name as the component is considered to be a constructor
 	* and is generally used when data is needed before executing.
+	*
+	* ~~~
+	* Crafty.c("Annoying", {
+	*     _message: "HiHi",
+	*     init: function() {
+	*         this.bind("EnterFrame", function() { alert(this.message); });
+	*     },
+	*     annoying: function(message) { this.message = message; }
+	* });
+	*
+	* Crafty.e("Annoying").annoying("I'm an orange...");
+	* ~~~
+	* @see Crafty.e
 	*/
-	c: function(id, fn) {
+	c: function (id, fn) {
 		components[id] = fn;
 	},
-	
+
 	/**@
 	* #Crafty.trigger
 	* @category Core, Events
@@ -807,17 +844,17 @@ Crafty.extend({
 	* every global event and every entity that has a callback.
 	* @see Crafty.bind
 	*/
-	trigger: function(event, data) {
+	trigger: function (event, data) {
 		var hdl = handlers[event], h, i, l;
 		//loop over every object bound
-		for(h in hdl) {
-			if(!hdl.hasOwnProperty(h)) continue;
-			
+		for (h in hdl) {
+			if (!hdl.hasOwnProperty(h)) continue;
+
 			//loop over every handler within object
-			for(i = 0, l = hdl[h].length; i < l; i++) {
-				if(hdl[h] && hdl[h][i]) {
+			for (i = 0, l = hdl[h].length; i < l; i++) {
+				if (hdl[h] && hdl[h][i]) {
 					//if an entity, call with that context
-					if(entities[h]) {
+					if (entities[h]) {
 						hdl[h][i].call(Crafty(+h), data);
 					} else { //else call with Crafty context
 						hdl[h][i].call(Crafty, data);
@@ -826,7 +863,7 @@ Crafty.extend({
 			}
 		}
 	},
-	
+
 	/**@
 	* #Crafty.bind
 	* @category Core, Events
@@ -838,14 +875,14 @@ Crafty.extend({
 	* with the event name.
 	* @see Crafty.trigger, Crafty.unbind
 	*/
-	bind: function(event, callback) {
-		if(!handlers[event]) handlers[event] = {};
+	bind: function (event, callback) {
+		if (!handlers[event]) handlers[event] = {};
 		var hdl = handlers[event];
-		
-		if(!hdl.global) hdl.global = [];
+
+		if (!hdl.global) hdl.global = [];
 		return hdl.global.push(callback) - 1;
 	},
-	
+
 	/**@
 	* #Crafty.unbind
 	* @category Core, Events
@@ -857,64 +894,64 @@ Crafty.extend({
 	* @returns True or false depending on if a callback was unbound
 	* Unbind any event from any entity or global event.
 	*/
-	unbind: function(event, callback) {
+	unbind: function (event, callback) {
 		var hdl = handlers[event], h, i, l;
-		
+
 		//loop over every object bound
-		for(h in hdl) {
-			if(!hdl.hasOwnProperty(h)) continue;
-			
+		for (h in hdl) {
+			if (!hdl.hasOwnProperty(h)) continue;
+
 			//if passed the ID
-			if(typeof callback === "number") {
+			if (typeof callback === "number") {
 				delete hdl[h][callback];
 				return true;
 			}
-			
+
 			//loop over every handler within object
-			for(i = 0, l = hdl[h].length; i < l; i++) {
-				if(hdl[h][i] === callback) {
+			for (i = 0, l = hdl[h].length; i < l; i++) {
+				if (hdl[h][i] === callback) {
 					delete hdl[h][i];
 					return true;
 				}
 			}
 		}
-		
+
 		return false;
 	},
-	
+
 	/**@
 	* #Crafty.frame
 	* @category Core
 	* @sign public Number Crafty.frame(void)
 	* Returns the current frame number
 	*/
-	frame: function() {
+	frame: function () {
 		return frame;
 	},
-	
-	components: function() {
+
+	components: function () {
 		return components;
 	},
-	
-	isComp: function(comp) {
+
+	isComp: function (comp) {
 		return comp in components;
 	},
-	
-	debug: function() {
+
+	debug: function () {
 		return entities;
 	},
-	
+
 	/**@
 	* #Crafty.settings
 	* @category Core
 	* Modify the inner workings of Crafty through the settings.
 	*/
-	settings: (function() {
+	settings: (function () {
 		var states = {},
 			callbacks = {};
-		
+
 		return {
-			/**@
+		/**@
 			* #Crafty.settings.register
 			* @comp Crafty.settings
 			* @sign public void Crafty.settings.register(String settingName, Function callback)
@@ -923,10 +960,10 @@ Crafty.extend({
 			* Use this to register custom settings. Callback will be executed when `Crafty.settings.modify` is used.
 			* @see Crafty.settings.modify
 			*/
-			register: function(setting, callback) {
+			register: function (setting, callback) {
 				callbacks[setting] = callback;
 			},
-			
+
 			/**@
 			* #Crafty.settings.modify
 			* @comp Crafty.settings
@@ -936,12 +973,12 @@ Crafty.extend({
 			* Modify settings through this method.
 			* @see Crafty.settings.register, Crafty.settings.get
 			*/
-			modify: function(setting, value) {
-				if(!callbacks[setting]) return;
+			modify: function (setting, value) {
+				if (!callbacks[setting]) return;
 				callbacks[setting].call(states[setting], value);
 				states[setting] = value;
 			},
-			
+
 			/**@
 			* #Crafty.settings.get
 			* @comp Crafty.settings
@@ -951,12 +988,12 @@ Crafty.extend({
 			* Returns the current value of the setting.
 			* @see Crafty.settings.register, Crafty.settings.get
 			*/
-			get: function(setting) {
+			get: function (setting) {
 				return states[setting];
 			}
 		};
 	})(),
-	
+
 	clone: clone
 });
 

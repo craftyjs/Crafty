@@ -41,6 +41,6 @@ case 'load':
 break;
 }
 
-if (!empty($output)
+if (!empty($output))
 	print json_encode($output, JSON_FORCE_OBJECT);
 ?>

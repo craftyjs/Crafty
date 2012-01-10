@@ -163,7 +163,11 @@ function docs($files, $path, $save) {
 }
 
 function cleanFile($file) {
-	return preg_replace("/[\.\(\)\s]/","-",$file);
+	$res = preg_replace("/[\.\(\)\s]/","-",$file);
+	if($res[strlen($res)-1] == "-") {
+		$res = substr($res,0,-1);
+	}
+	return $res;
 }
 
 function merge($files, $path = "", $save) {
@@ -185,6 +189,7 @@ $files = array("license.txt",
 			   "collision.js", 
 			   "DOM.js",
 			   "html.js",
+			   "storage.js",
 			   "extensions.js",
 			   "sprite.js",
 			   "canvas.js",

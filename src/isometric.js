@@ -19,6 +19,9 @@ Crafty.extend({
 		* Method used to initialize the size of the isometric placement.
 		* Recommended to use a size alues in the power of `2` (128, 64 or 32). 
 		* This makes it easy to calculate positions and implement zooming.
+		* ~~~
+		* var iso = Crafty.isometric.size(128);
+		* ~~~
 		* @see Crafty.isometric.place
 		*/
 		size: function(width,height) {
@@ -36,6 +39,10 @@ Crafty.extend({
 		* @param z - The `z` position or height to place the tile
 		* @param tile - The entity that should be position in the isometric fashion
 		* Use this method to place an entity in an isometric grid.
+		* ~~~
+		* var iso = Crafty.isometric.size(128);
+		* isos.place(2, 1, 0, Crafty.e('2D, DOM, Color').color('red').attr({w:128, h:128}));
+		* ~~~
 		* @see Crafty.isometric.size
 		*/
 		place: function(x,y,z, obj) {

@@ -180,11 +180,7 @@ Crafty.extend({
 			w = temp[2] * tile || tile;
 			h = temp[3] * tileh || tileh;
 			
-			/**@
-			* #Sprite
-			* @category Graphics
-			* Component for using tiles in a sprite map.
-			*/
+			//generates sprite components for each tile in the map
 			Crafty.c(pos, {
 				ready: false,
 				__coord: [x,y,w,h],
@@ -307,6 +303,15 @@ Crafty.extend({
 	* in turn will react just like a camera moving in that direction.
 	*/
 	viewport: {
+		/**@
+		* #Crafty.viewport.clampToEntities
+		* @comp Crafty.viewport
+		* Decides if the viewport functions should clamp to game entities.
+		* When set to `true` functions such as Crafty.viewport.mouselook() will not allow you to move the
+		* viewport over areas of the game that has no entities.
+		* For development it can be useful to set this to false.
+		*/
+		clampToEntities: true,
 		width: 0, 
 		height: 0,
 		/**@
@@ -607,6 +612,7 @@ Crafty.extend({
 		_clamp: function() {
 			// clamps the viewport to the viewable area
 			// under no circumstances should the viewport see something outside the boundary of the 'world'
+			if (!this.clampToEntities) return;
 			var bound = Crafty.map.boundaries();
 			if (bound.max.x - bound.min.x > Crafty.viewport.width) {
 				bound.max.x -= Crafty.viewport.width;

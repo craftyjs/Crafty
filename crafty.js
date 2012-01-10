@@ -6,7 +6,7 @@
 * Dual licensed under the MIT or GPL licenses.
 */
 
-(function(window, undefined) {
+(function(window, undefined) {
 
 /**@
 * #Crafty
@@ -999,11 +999,11 @@ Crafty.bind("Load", function() {
 window.Crafty = Crafty;
 })(window);
 
-//wrap around components
+//wrap around components
 (function(Crafty, window, document) {
 
 
-/**
+/**
 * Spatial HashMap for broad phase collision
 *
 * @author Louis Stowasser
@@ -1162,7 +1162,7 @@ Entry.prototype = {
 parent.HashMap = HashMap;
 })(Crafty);
 
-Crafty.map = new Crafty.HashMap();
+Crafty.map = new Crafty.HashMap();
 var M = Math,
 	Mc = M.cos,
 	Ms = M.sin,
@@ -2061,7 +2061,7 @@ Crafty.matrix.prototype = {
 }
 
 
-/**@
+/**@
 * #Collision
 * @category 2D
 * Component to detect collision between any two convex polygons.
@@ -2317,7 +2317,7 @@ Crafty.c("Collision", {
 });
 
 
-/**@
+/**@
 * #DOM
 * @category Graphics
 * Draws entities as DOM nodes, specifically `<DIV>`s.
@@ -2652,7 +2652,7 @@ Crafty.extend({
 	}
 });
 
-/**@
+/**@
 * #HTML
 * @category Graphics
 * Component allow for insertion of arbitrary HTML into an entity
@@ -2725,7 +2725,7 @@ Crafty.c("HTML", {
 	}
 });
 
-/**@
+/**@
 * #Crafty.support
 * @category Misc, Core
 * Determines feature support for what Crafty can do.
@@ -3667,7 +3667,7 @@ Crafty.c("viewport", {
 });
 
 
-/**@
+/**@
 * #Sprite
 * @category Graphics
 * Component for using tiles in a sprite map.
@@ -3765,7 +3765,7 @@ Crafty.c("Sprite", {
 	}
 });
 
-/**@
+/**@
 * #Canvas
 * @category Graphics
 * Draws itself onto a canvas. Crafty.canvas() must be called before hand to initialize
@@ -3917,7 +3917,7 @@ Crafty.extend({
 	}
 });
 
-Crafty.extend({
+Crafty.extend({
 	over: null, //object mouseover, waiting for out
 	mouseObjs: 0,
 	mousePos: {},
@@ -4418,7 +4418,7 @@ Crafty.c("Twoway", {
 });
 
 
-Crafty.c("Animation", {
+Crafty.c("Animation", {
 	_reel: null,
 	
 	init: function() {
@@ -4494,7 +4494,7 @@ Crafty.c("Twoway", {
 	}
 });
 
-/**@
+/**@
 * #SpriteAnimation
 * @category Animation
 * Used to animate sprites by changing the sprites in the sprite map.
@@ -4752,7 +4752,7 @@ function tweenEnterFrame(e) {
 
 
 
-/**@
+/**@
 * #Color
 * @category Graphics
 * Draw a solid color for the entity
@@ -5240,7 +5240,7 @@ Crafty.DrawManager = (function() {
 	};
 })();
 
-Crafty.extend({
+Crafty.extend({
 	/**@
 	* #Crafty.isometric
 	* @category 2D
@@ -5287,7 +5287,7 @@ Crafty.DrawManager = (function() {
 	}
 });
 
-Crafty.extend({
+Crafty.extend({
 	/**@
 	* #Crafty.audio
 	* @category Audio
@@ -5558,7 +5558,7 @@ Crafty.DrawManager = (function() {
 Crafty.bind("Pause", function() {Crafty.audio.mute()});
 Crafty.bind("Unpause", function() {Crafty.audio.mute()});
 
-/**@
+/**@
 * #Text
 * @category Graphics
 * @requires DOM
@@ -5592,7 +5592,7 @@ Crafty.c("Text", {
 	}
 });
 
-Crafty.extend({
+Crafty.extend({
 	/**@
 	* #Crafty.assets
 	* @category Assets
@@ -5691,6 +5691,5 @@ Crafty.c("Text", {
 	}
 });
 
-})(Crafty,window,window.document);
+})(Crafty,window,window.document);
 
-

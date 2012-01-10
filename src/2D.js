@@ -618,26 +618,43 @@ Crafty.c("Physics", {
 	}
 });
 
+/**@
+* #Gravity
+* @category 2D
+* Adds gravitational pull to the entity.
+*/
 Crafty.c("Gravity", {
 	_gravity: 0.2,
 	_gy: 0,
 	_falling: true,
 	_anti: null,
 
-	init: function() {
-		this.requires("2D");		
+	init: function () {
+		this.requires("2D");
 	},
 
-	gravity: function(comp) {
-		if(comp) this._anti = comp;
+	/**@
+	* #.gravity
+	* @comp Gravity
+	* @sign public this .gravity([comp])
+	* @param comp - The name of a component that will stop this entity from falling
+	* Enamle gravity for this entity. If comp parameter is specified all entities with that component will stop this entity from falling.
+	* For a player entity in a platform game this would be a component that is added to all entities
+	* that the player should be able to walk on.
+	* ~~~
+	* Crafty.e("2D, DOM, Color, Gravity").color("red").attr({ w: 100, h: 100 }).gravity("platform")
+	* ~~~
+	*/
+	gravity: function (comp) {
+		if (comp) this._anti = comp;
 
 		this.bind("EnterFrame", this._enterframe);
 
 		return this;
 	},
 
-	_enterframe: function() {
-		if(this._falling) {
+	_enterframe: function () {
+		if (this._falling) {
 			//if falling, move the players Y
 			this._gy += this._gravity * 2;
 			this.y += this._gy;
@@ -660,32 +677,38 @@ Crafty.c("Gravity", {
 		q = Crafty.map.search(pos);
 		l = q.length;
 
-		for(;i<l;++i) {
+		for (; i < l; ++i) {
 			obj = q[i];
 			//check for an intersection directly below the player
-			if(obj !== this && obj.has(this._anti) && obj.intersect(pos)) {
+			if (obj !== this && obj.has(this._anti) && obj.intersect(pos)) {
 				hit = obj;
 				break;
 			}
 		}
 
-		if(hit) { //stop falling if found
-			if(this._falling) this.stopFalling(hit);
+		if (hit) { //stop falling if found
+			if (this._falling) this.stopFalling(hit);
 		} else {
 			this._falling = true; //keep falling otherwise
 		}
 	},
 
-	stopFalling: function(e) {
-		if(e) this.y = e._y - this._h ; //move object
+	stopFalling: function (e) {
+		if (e) this.y = e._y - this._h; //move object
 
 		//this._gy = -1 * this._bounce;
 		this._falling = false;
-		if(this._up) this._up = false;
+		if (this._up) this._up = false;
 		this.trigger("hit");
 	},
 
-	antigravity: function() {
+	/**@
+	* #.antigravity
+	* @comp Gravity
+	* @sign public this .antigravity()
+	* Disable gravity for this component. It can be reenabled by calling .gravity()
+	*/
+	antigravity: function () {
 		this.unbind("EnterFrame", this._enterframe);
 	}
 });
@@ -702,6 +725,12 @@ Crafty.c("Gravity", {
 *
 * When creating a polygon for an entity, each point should be offset or relative from the entities `x` and `y` 
 * (don't include the absolute values as it will automatically calculate this).
+* 
+* 
+* @example
+* ~~~
+* new Crafty.polygon([50,0],[100,100],[0,100]);
+* ~~~
 */
 Crafty.polygon = function(poly) {
 	if(arguments.length > 1) {

@@ -78,6 +78,7 @@ Crafty.extend({
 			} else if (type == "click") {
 				closest.trigger("Click", e);
 			}else if (type === "mousemove") {
+				closest.trigger("MouseMove", e);
 				if (this.over !== closest) { //if new mousemove, it is over
 					if (this.over) {
 						this.over.trigger("MouseOut", e); //if over wasn't null, send mouseout
@@ -151,8 +152,11 @@ Crafty.bind("Load", function() {
 /**@
 * #Mouse
 * @category Input
-* Give entities mouse events such as 
-* `mouseover`, `mousedown`, `mouseout`, `mouseup` and `click`.
+* Provides the mouse related events
+* `MouseOver`, `MouseDown`, `MouseOut`, `MouseUp` and `Click`.
+* ~~~
+* myEntity.bind('Click', function() {console.log("Clicked!!")})
+* ~~~
 */
 Crafty.c("Mouse", {
 	init: function() {
@@ -171,6 +175,13 @@ Crafty.c("Mouse", {
 	* @param point# - Array with an `x` and `y` position to generate a polygon
 	* Assign a polygon to the entity so that mouse events will only be triggered if
 	* the coordinates are inside the given polygon.
+	* ~~~
+	* Crafty.e("2D, DOM, Color, Mouse")
+	*     .color("red")
+	*     .attr({ w: 100, h: 100 })
+	*     .bind('MouseOver', function() {console.log("over")})
+	*     .areaMap([0,0], [50,0], [50,50], [0,50])
+	* ~~~
 	* @see Crafty.Polygon
 	*/
 	areaMap: function(poly) {
@@ -192,7 +203,7 @@ Crafty.c("Mouse", {
 /**@
 * #Draggable
 * @category Input
-* Give the ability to drag and drop the entity.
+* Enable drag and drop the entity.
 */
 Crafty.c("Draggable", {
 	_startX: 0,

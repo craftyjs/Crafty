@@ -5,18 +5,21 @@
  */
 	/**@
 	 * #.open
+	 * @comp Storage
 	 * @sign .open(String gameName)
-	 * @param gameName - a machine-readable string to uniquely identify your game
+	 * @param gameName - a machine readable string to uniquely identify your game
 	 * Opens a connection to the database. If the best they have is localstorage or lower, it does nothing
 	 *
 	 * @example
 	 * Open a database
-	 * ---------------
+	 * ~~~
 	 * Crafty.storage.open('MyGame');
+	 * ~~~
 	 */
 
 	/**@
 	 * #.save
+	 * @comp Storage
 	 * @sign .save(String key, String type, Mixed data)
 	 * @param key - A unique key for identifying this piece of data
 	 * @param type - 'save' or 'cache'
@@ -28,15 +31,17 @@
 	 *
 	 * @example
 	 * Saves an entity to the database
-	 * ----------------
+	 * ~~~
 	 * var ent = Crafty.e("2D, DOM")
-	 *		 .attr({x: 20, y: 20, w: 100, h:100});
+	 *                     .attr({x: 20, y: 20, w: 100, h:100});
 	 * Crafty.storage.open('MyGame');
 	 * Crafty.storage.save('MyEntity', 'save', ent);
+	 * ~~~
 	 */
 
 	/**@
 	 * #.load
+	 * @comp Storage
 	 * @sign .load(String key, String type)
 	 * @param key - A unique key to search for
 	 * @param type - 'save' or 'cache'
@@ -46,41 +51,48 @@
 	 
 	 * @example
 	 * Loads an entity from the database
-	 * ------------------
+	 * ~~~
 	 * Crafty.storage.open('MyGame');
 	 * Crafty.storage.load('MyEntity', 'save', function (data) { // do things });
+	 * ~~~
 	 */
 	 
 	/**@
 	 * #.getAllKeys
+	 * @comp Storage
 	 * @sign .getAllKeys(String type)
 	 * @param type - 'save' or 'cache'
 	 * Gets all the keys for a given type
 	 
 	 * @example
 	 * Gets all the save games saved
-	 * ------------------
+	 * ~~~
 	 * Crafty.storage.open('MyGame');
 	 * var saves = Crafty.storage.getAllKeys('save');
+	 * ~~~
 	 */
 	 
 	/**@
 	 * #.external
+	 * @comp Storage
 	 * @sign .external(String url)
 	 * @param url - URL to an external to save games too
 	 * Enables and sets the url for saving games to an external server
 	 
 	 * @example
 	 * Save an entity to an external server
-	 * --------------------------
+	 * ~~~
 	 * Crafty.storage.external('http://somewhere.com/server.php');
 	 * Crafty.storage.open('MyGame');
 	 * var ent = Crafty.e('2D, DOM')
-	 *		 			.attr({x: 20, y: 20, w: 100, h:100});
+	 *                     .attr({x: 20, y: 20, w: 100, h:100});
 	 * Crafty.storage.save('save01', 'save', ent);
+	 * ~~~
+	 */
 	 
 	/**@
-	 * SaveData event
+	 * #SaveData event
+	 * @comp Storage
 	 * @param data - An object containing all of the data to be serialized
 	 * @param prepare - The function to prepare an entity for serialization
 	 * Any data a component wants to save when it's serialized should be added to this object.
@@ -89,16 +101,17 @@
 	 * 
 	 * @example
 	 * Saves the innerHTML of an entity
-	 * ---------
+	 * ~~~
 	 * Crafty.e("2D DOM").bind("SaveData", function (data, prepare) {
-	 * 		data.attr.x = this.x;
-	 *		data.attr.y = this.y;
-	 *		data.dom = this.element.innerHTML;
+	 *     data.attr.x = this.x;
+	 *     data.attr.y = this.y;
+	 *     data.dom = this.element.innerHTML;
 	 * });
+	 * ~~~
 	 */
 	 
 	/**@
-	 * LoadData event
+	 * #LoadData event
 	 * @param data - An object containing all the data that been saved
 	 * @param process - The function to turn a string into an entity
 	 * Handlers for processing any data that needs more than straight assignment
@@ -107,11 +120,12 @@
 	 * It does not need to be handled here
 	 *
 	 * @example
-	 * ---------
+	 * ~~~
 	 * Sets the innerHTML from a saved entity
 	 * Crafty.e("2D DOM").bind("LoadData", function (data, process) {
-	 * 		this.element.innerHTML = data.dom;
+	 *     this.element.innerHTML = data.dom;
 	 * });
+	 * ~~~
 	 */
  
 Crafty.storage = (function () {

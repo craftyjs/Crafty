@@ -28,6 +28,11 @@ Crafty.c("Color", {
 	*
 	* The argument must be a color readable depending on which browser you
 	* choose to support. IE 8 and below doesn't support the rgb() syntax.
+	* @example
+	* ~~~
+	* Crafty.e("2D, DOM, Color")
+	*    .color("#969696");
+	* ~~~
 	*/
 	color: function(color) {
 		this._color = color;
@@ -67,6 +72,11 @@ Crafty.c("Tint", {
 	* @param color - The color in hexidecimal
 	* @param strength - Level of opacity
 	* Modify the color and level opacity to give a tint on the entity.
+	* @example
+	* ~~~
+	* Crafty.e("2D, Canvas, Tint")
+	*    .tint("#969696", 0.3);
+	* ~~~
 	*/
 	tint: function(color, strength) {
 		this._strength = strength;
@@ -190,16 +200,23 @@ Crafty.extend({
 	* @param init - Function execute when scene is played
 	* @sign public void Crafty.scene(String sceneName)
 	* @param sceneName - Name of scene to play
-	* Method to create scenes on the stage. Pass an ID and function to register a scene. 
+	* Method to create scenes on the stage. Pass an ID and function to register a scene.
 	*
-	* To play a scene, just pass the ID. When a scene is played, all 
+	* To play a scene, just pass the ID. When a scene is played, all
 	* entities with the `2D` component on the stage are destroyed.
 	*
-	* If you want some entities to persist over scenes (as in not be destroyed) 
+	* If you want some entities to persist over scenes (as in not be destroyed)
 	* simply add the component `Persist`.
 	*
 	* When a scene is played a SceneChange event is triggered. The callback object has
 	* the properties oldScene and newScene, which are string names of the scenes.
+	*
+	* @example
+	* ~~~
+	* Crafty.scene("loading", function() {});
+	*
+	* Crafty.scene("loading");
+	* ~~~
 	*/
 	scene: function(name, fn) {
 		//play scene
