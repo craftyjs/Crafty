@@ -104,11 +104,11 @@ HashMap.prototype = {
 		var k, ent,
 			hash = {
 				max: {x: -Infinity, y: -Infinity},
-				min: {x: Infinity, y: Infinity},
+				min: {x: Infinity, y: Infinity}
 			},
 			coords = {
 				max: {x: -Infinity, y: -Infinity},
-				min: {x: Infinity, y: Infinity},
+				min: {x: Infinity, y: Infinity}
 			};
 			
 		for (var h in this.map) {
@@ -154,7 +154,7 @@ HashMap.prototype = {
 		}
 		
 		return coords;
-	},
+	}
 };
 
 HashMap.key = function(obj) {

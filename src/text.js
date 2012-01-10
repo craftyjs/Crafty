@@ -10,7 +10,7 @@ Crafty.c("Text", {
         "type" : "",
         "weight" : "",
         "size" : "",
-        "family" :  "",
+        "family" :  ""
     },
     ready : true,
 
@@ -40,7 +40,7 @@ Crafty.c("Text", {
                 context.translate(this.x, this.y + this.h);
                 context.fillText(this._text, 0, 0);
 
-                metrics = context.measureText(this._text)
+                metrics = context.measureText(this._text);
                 this._w = metrics.width;
                  
                 context.restore();
@@ -77,7 +77,7 @@ Crafty.c("Text", {
             this._text = text.call(this);
         else
             this._text = text;
-        this.trigger("Change")
+        this.trigger("Change");
         return this;
     },
 

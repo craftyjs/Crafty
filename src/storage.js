@@ -370,7 +370,8 @@ Crafty.storage = (function () {
 						var cursor = e.target.result;
 						if (cursor) {
 							res.push(cursor.key);
-							cursor.continue();
+							// 'continue' is a reserved word, so .continue() causes IE8 to completely bark with "SCRIPT1010: Expected identifier".
+							cursor['continue']();
 						}
 						else {
 							callback(res);
@@ -385,7 +386,7 @@ Crafty.storage = (function () {
 				return (timestamps[key] > timestamp);
 			},
 			
-			external: external,
+			external: external
 		};
 	}
 	else if (typeof openDatabase == 'function') {
@@ -395,7 +396,7 @@ Crafty.storage = (function () {
 				if (arguments.length == 1) {
 					db = {
 						save: openDatabase(gameName_n+'_save', '1.0', 'Saves games for '+gameName_n, 5 * 1024 * 1024),
-						cache: openDatabase(gameName_n+'_cache', '1.0', 'Cache for '+gameName_n, 5 * 1024 * 1024),
+						cache: openDatabase(gameName_n+'_cache', '1.0', 'Cache for '+gameName_n, 5 * 1024 * 1024)
 					}
 				}
 				else {
@@ -469,7 +470,7 @@ Crafty.storage = (function () {
 				return (timestamps[key] > timestamp);
 			},
 			
-			external: external,
+			external: external
 		};
 	}
 	else if (typeof window.localStorage == 'object') {
@@ -515,7 +516,7 @@ Crafty.storage = (function () {
 				return (parseInt(timestamp) > parseInt(ts));
 			},
 			
-			external: external,
+			external: external
 		};
 	}
 	else {
@@ -566,7 +567,7 @@ Crafty.storage = (function () {
 				return (parseInt(timestamp) > parseInt(ts));
 			},
 			
-			external: external,
+			external: external
 		};
 	}
 	/* template

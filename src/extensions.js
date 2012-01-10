@@ -412,7 +412,7 @@ Crafty.extend({
 				tweens[axis] = {
 					diff: -v/time,
 					current: Crafty.viewport[axis],
-					remTime: time,
+					remTime: time
 				};
 				if (!bound) {
 					Crafty.bind("EnterFrame", enterFrame);
@@ -521,11 +521,11 @@ Crafty.extend({
 					zoom += zoom_tick;
 					var new_s = {
 						width: act.width * zoom,
-						height: act.height * zoom,
+						height: act.height * zoom
 					},
 					diff = {
 						width: new_s.width - old.width,
-						height: new_s.height - old.height,
+						height: new_s.height - old.height
 					};
 					Crafty.stage.inner.style[prop] = 'scale('+zoom+','+zoom+')';
 					Crafty.viewport.x -= diff.width * prct.width;
