@@ -608,22 +608,32 @@ Crafty.extend({
 			// clamps the viewport to the viewable area
 			// under no circumstances should the viewport see something outside the boundary of the 'world'
 			var bound = Crafty.map.boundaries();
-			bound.max.x -= Crafty.viewport.width;
-			bound.max.y -= Crafty.viewport.height;
+			if (bound.max.x - bound.min.x > Crafty.viewport.width) {
+				bound.max.x -= Crafty.viewport.width;
 				
-			if (Crafty.viewport.x < -bound.max.x) {
-				Crafty.viewport.x = -bound.max.x;
+				if (Crafty.viewport.x < -bound.max.x) {
+					Crafty.viewport.x = -bound.max.x;
+				}
+				else if (Crafty.viewport.x > -bound.min.x) {
+					Crafty.viewport.x = -bound.min.x;
+				}
 			}
-			else if (Crafty.viewport.x > -bound.min.x) {
-				Crafty.viewport.x = -bound.min.x;
+			else {
+				Crafty.viewport.x = -1*(bound.min.x + (bound.max.x - bound.min.x)/2 - Crafty.viewport.width/2);
 			}
-			
-			if (Crafty.viewport.y < -bound.max.y) {
-				Crafty.viewport.y = -bound.max.y;
+			if (bound.max.y - bound.min.y > Crafty.viewport.height) {
+				bound.max.y -= Crafty.viewport.height;
+				
+				if (Crafty.viewport.y < -bound.max.y) {
+					Crafty.viewport.y = -bound.max.y;
+				}
+				else if (Crafty.viewport.y > -bound.min.y) {
+					Crafty.viewport.y = -bound.min.y;
+				}
 			}
-			else if (Crafty.viewport.y > -bound.min.y) {
-				Crafty.viewport.y = -bound.min.y;
-			}			
+			else {
+				Crafty.viewport.y = -1*(bound.min.y + (bound.max.y - bound.min.y)/2 - Crafty.viewport.height/2);
+			}
 		},
 		
 		init: function(w,h) {
