@@ -122,7 +122,7 @@ Crafty.extend({
 		if(arguments.length === 2 && typeof modulesRepository === "object") {
 			moduleMap = modulesRepository;
 			oncomplete = moduleMap;
-			modulesRepository = 'http://craftycomponents.com';
+			modulesRepository = 'http://cdn.craftycomponents.com';
 		}
 
 		/*!
