@@ -105,7 +105,7 @@ HashMap.prototype = {
 			hash = {
 				max: {x: -Infinity, y: -Infinity},
 				min: {x: Infinity, y: Infinity},
-			}
+			},
 			coords = {
 				max: {x: -Infinity, y: -Infinity},
 				min: {x: Infinity, y: Infinity},
@@ -119,28 +119,36 @@ HashMap.prototype = {
 				hash.max.x = coord[0];
 				for (k in this.map[h]) {
 					ent = this.map[h][k];
-					coords.max.x = Math.max(coords.max.x, ent.x + ent.w);
+					if (typeof ent == 'object' && 'required' in ent) {
+						coords.max.x = Math.max(coords.max.x, ent.x + ent.w);
+					}
 				}
 			}
 			if (coord[0] <= hash.min.x) {
 				hash.min.x = coord[0];
 				for (k in this.map[h]) {
 					ent = this.map[h][k];
-					coords.min.x = Math.min(coords.min.x, ent.x);
+					if (typeof ent == 'object' && 'required' in ent) {
+						coords.min.x = Math.min(coords.min.x, ent.x);
+					}
 				}
 			}
 			if (coord[1] >= hash.max.y) {
 				hash.max.y = coord[1];
 				for (k in this.map[h]) {
 					ent = this.map[h][k];
-					coords.max.y = Math.max(coords.max.y, ent.y + ent.h);
+					if (typeof ent == 'object' && 'required' in ent) {
+						coords.max.y = Math.max(coords.max.y, ent.y + ent.h);
+					}
 				}
 			}
 			if (coord[1] <= hash.min.y) {
 				hash.min.y = coord[1];
 				for (k in this.map[h]) {
 					ent = this.map[h][k];
-					coords.min.y = Math.min(coords.min.y, ent.y);
+					if (typeof ent == 'object' && 'required' in ent) {
+						coords.min.y = Math.min(coords.min.y, ent.y);
+					}
 				}
 			}
 		}
