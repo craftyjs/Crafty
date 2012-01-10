@@ -452,7 +452,6 @@ Crafty.math.Vector2D = (function() {
 	 * @sign public {Vector2D} normalize();
 	 * @returns {Vector2D} this vector after normalization
 	 */
-// Vector2D normalize();
 	Vector2D.prototype.normalize = function() {
 		var lng = Math.sqrt(this.x * this.x + this.y * this.y);
 
@@ -865,7 +864,7 @@ Crafty.math.Matrix2D = (function() {
 	 * @returns {Matrix2D} this matrix after pre-translation
 	 */
 	Matrix2D.prototype.preTranslate = function(dx, dy) {
-		if (dx instanceof Number) {
+		if (typeof dx === "number") {
 			this.e += dx;
 			this.f += dy;
 		} else {
@@ -991,7 +990,7 @@ Crafty.math.Matrix2D = (function() {
 	 * @returns {Matrix2D} this matrix after post-translation
 	 */
 	Matrix2D.prototype.translate = function(dx, dy) {
-		if (dx instanceof Number) {
+		if (typeof dx === "number") {
 			this.e += this.a * dx + this.c * dy;
 			this.f += this.b * dx + this.d * dy;
 		} else {
