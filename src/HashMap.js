@@ -144,12 +144,6 @@ HashMap.prototype = {
 				}
 			}
 		}
-			// At least the entire viewport should be inside boundary box 
-			//(else _clamp will fail when the entities does not take up entire viewport)
-		coords.min.x = Math.min(0, coords.min.x);
-		coords.min.y = Math.min(0, coords.min.y);
-		coords.max.x = Math.max(Crafty.viewport.width, coords.max.x);
-		coords.max.y = Math.max(Crafty.viewport.height, coords.max.y);
 		
 		return coords;
 	},
