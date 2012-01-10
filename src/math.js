@@ -452,7 +452,6 @@ Crafty.math.Vector2D = (function() {
 	 * @sign public {Vector2D} normalize();
 	 * @returns {Vector2D} this vector after normalization
 	 */
-// Vector2D normalize();
 	Vector2D.prototype.normalize = function() {
 		var lng = Math.sqrt(this.x * this.x + this.y * this.y);
 
