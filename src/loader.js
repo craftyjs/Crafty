@@ -106,7 +106,7 @@ Crafty.extend({
 	*
 	* Available repositories:
 	* 	- http://cdn.crafty-modules.com
-	* 	- http://craftycomponents.com
+	* 	- http://cdn.craftycomponents.com
     *
 	* @example
 	* ~~~
