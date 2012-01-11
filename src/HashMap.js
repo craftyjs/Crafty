@@ -119,7 +119,8 @@ HashMap.prototype = {
 				hash.max.x = coord[0];
 				for (k in this.map[h]) {
 					ent = this.map[h][k];
-					if (typeof ent == 'object' && 'required' in ent) {
+					//make sure that this is a Crafty entity
+					if (typeof ent == 'object' && 'requires' in ent) {
 						coords.max.x = Math.max(coords.max.x, ent.x + ent.w);
 					}
 				}
@@ -128,7 +129,7 @@ HashMap.prototype = {
 				hash.min.x = coord[0];
 				for (k in this.map[h]) {
 					ent = this.map[h][k];
-					if (typeof ent == 'object' && 'required' in ent) {
+					if (typeof ent == 'object' && 'requires' in ent) {
 						coords.min.x = Math.min(coords.min.x, ent.x);
 					}
 				}
@@ -137,7 +138,7 @@ HashMap.prototype = {
 				hash.max.y = coord[1];
 				for (k in this.map[h]) {
 					ent = this.map[h][k];
-					if (typeof ent == 'object' && 'required' in ent) {
+					if (typeof ent == 'object' && 'requires' in ent) {
 						coords.max.y = Math.max(coords.max.y, ent.y + ent.h);
 					}
 				}
@@ -146,7 +147,7 @@ HashMap.prototype = {
 				hash.min.y = coord[1];
 				for (k in this.map[h]) {
 					ent = this.map[h][k];
-					if (typeof ent == 'object' && 'required' in ent) {
+					if (typeof ent == 'object' && 'requires' in ent) {
 						coords.min.y = Math.min(coords.min.y, ent.y);
 					}
 				}
