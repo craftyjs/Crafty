@@ -98,19 +98,35 @@ Crafty.extend({
 	/**@
 	* #Crafty.modules
 	* @category Assets
-	* @sign public void Crafty.modules(Object moduleMap[, Function onLoad])
+	* @sign public void Crafty.modules([String repoLocation,] Object moduleMap[, Function onLoad])
 	* @param modules - Map of name:version pairs for modules to load
 	* @param onLoad - Callback when the modules are loaded
 	* Browse the selection of modules on crafty repositories.
 	* Downloads and executes the javascript in the specified modules.
+	* If no repository is specified it defaults to http://cdn.craftycomponents.com
 	*
 	* Available repositories:
+	*
 	* 	- http://cdn.crafty-modules.com
 	* 	- http://cdn.craftycomponents.com
     *
+	*
 	* @example
 	* ~~~
-	* Crafty.modules('http://example.com', { moveto: 'DEV' }, function () {
+	* // Loading from default repository
+	* Crafty.modules({ moveto: 'DEV' }, function () {
+	*     //module is ready
+	*     Crafty.e("MoveTo, 2D, DOM");
+	* });
+	* 
+	* // Loading from your own server
+	* Crafty.modules({ 'http://mydomain.com/js/mystuff.js': 'DEV' }, function () {
+	*     //module is ready
+	*     Crafty.e("MoveTo, 2D, DOM");
+	* });
+	* 
+	* // Loading from alternative repository
+	* Crafty.modules('http://cdn.crafty-modules.com', { moveto: 'DEV' }, function () {
 	*     //module is ready
 	*     Crafty.e("MoveTo, 2D, DOM");
 	* });
