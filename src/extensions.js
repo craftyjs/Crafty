@@ -591,7 +591,7 @@ Crafty.extend({
 						if (!dragging) return;
 						diff = {
 							x: arg.clientX - lastMouse.x,
-							y: arg.clientY - lastMouse.y,
+							y: arg.clientY - lastMouse.y
 						};
 
 						Crafty.viewport.x += diff.x;
