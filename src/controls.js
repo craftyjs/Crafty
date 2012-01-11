@@ -341,6 +341,7 @@ Crafty.c("Multiway", {
             this._keyDirection = {};
             this._keys = {};
             this._movement= { x: 0, y: 0};
+            this._speed = {x:3,y:3};
 	},
 	
 	/**@
@@ -356,12 +357,18 @@ Crafty.c("Multiway", {
 	* @example
 	* ~~~
 	* this.multiway(3, {UP_ARROW: -90, DOWN_ARROW: 90, RIGHT_ARROW: 0, LEFT_ARROW: 180});
+	* this.multiway({x:3,y:1.5}, {UP_ARROW: -90, DOWN_ARROW: 90, RIGHT_ARROW: 0, LEFT_ARROW: 180});
 	* this.multiway({W: -90, S: 90, D: 0, A: 180});
 	* ~~~
 	*/
 	multiway: function(speed, keys) {
 		if(keys){
-			this._speed = speed;
+			this._speed.x = speed;
+                        this._speed.y = speed;
+                        if(speed.x && speed.y){
+                            this._speed.x = speed.x;
+                            this._speed.y = speed.y;
+                        }
 		} else {
 			keys = speed;
 		}
@@ -410,8 +417,8 @@ Crafty.c("Multiway", {
         for(var k in this._keyDirection) {
             var keyCode = Crafty.keys[k] || k;
             this._keys[keyCode] = { 
-                x: Math.round(Math.cos(this._keyDirection[k]*(Math.PI/180))*1000 * speed)/1000,
-                y: Math.round(Math.sin(this._keyDirection[k]*(Math.PI/180))*1000 * speed)/1000
+                x: Math.round(Math.cos(this._keyDirection[k]*(Math.PI/180))*1000 * speed.x)/1000,
+                y: Math.round(Math.sin(this._keyDirection[k]*(Math.PI/180))*1000 * speed.y)/1000
             };
         }
         return this;
