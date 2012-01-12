@@ -145,5 +145,5 @@ Crafty.c("Text", {
 
         this.trigger("Change");
         return this;
-    },
+    }
 });
