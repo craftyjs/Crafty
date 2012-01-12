@@ -683,9 +683,9 @@ Crafty.extend({
 	timer: {
 		prev: (+new Date),
 		current: (+new Date),
-		fps: 0,
-                curTime:Date.now(),
-		init: function () {
+        curTime:Date.now(),
+
+        init: function () {
 			var onFrame = window.requestAnimationFrame ||
 					window.webkitRequestAnimationFrame ||
 					window.mozRequestAnimationFrame ||
@@ -749,7 +749,7 @@ Crafty.extend({
 		* Returns the target frames per second. This is not an actual frame rate.
 		*/
 		getFPS: function () {
-			return this.fps;
+			return FPS;
 		},
 		/**@
 		* #Crafty.timer.simulateFrames
