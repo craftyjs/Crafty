@@ -21,6 +21,7 @@
         "framework",
         "javascript"
     ],
+    "jsfiddle" : "disable",
     "homepage": "https://github.com/louisstow/Crafty",
     "files": [
         "src/license.txt", 
