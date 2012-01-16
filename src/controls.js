@@ -23,6 +23,13 @@ Crafty.extend({
 		else if(type === "touchmove") type = "mousemove";
 		else if(type === "touchend") type = "mouseup";
 		
+		//Normalize button according to http://unixpapa.com/js/mouse.html
+		if ( e.which == null ) {
+			e.mouseButton = ( e.button < 2 ) ? Crafty.mouseButtons.LEFT : ( ( e.button == 4 ) ? Crafty.mouseButtons.MIDDLE : Crafty.mouseButtons.RIGHT );
+		} else {
+			e.mouseButton = ( e.which < 2 ) ? Crafty.mouseButtons.LEFT : ( ( e.which == 2 ) ? Crafty.mouseButtons.MIDDLE : Crafty.mouseButtons.RIGHT );
+		}
+
 		e.realX = x = Crafty.mousePos.x = pos.x;
 		e.realY = y = Crafty.mousePos.y = pos.y;
 		
@@ -225,7 +232,7 @@ Crafty.c("Draggable", {
 		};
 		
 		this._ondown = function(e) {
-			if(e.button !== 0) return;
+			if(e.mouseButton !== Crafty.mouseButtons.LEFT) return;
 			
 			//start drag
 			this._startX = e.realX - this._x;

@@ -972,6 +972,23 @@ Crafty.extend({
         'COMMA': 188,
         'MINUS': 189,
         'PERIOD': 190 
+       },
+
+	/**@
+	* #Crafty.mouseButtons
+	* @category Input
+	* Object of mouseButton names and the corresponding button ID.
+	* In all mouseEvents we add the e.mouseButton property with a value normalized to match e.button of modern webkit
+	* ~~~
+	* LEFT: 0,
+	* MIDDLE: 1,
+	* RIGHT: 2
+	* ~~~
+	*/
+	mouseButtons: {
+		LEFT: 0,
+		MIDDLE: 1,
+		RIGHT: 2
 	}
 });
 
