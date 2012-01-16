@@ -212,8 +212,15 @@ Crafty.c("2D", {
 			this._cascade(e);
 		});
 		
-		//when object is removed, remove from HashMap
+		//when object is removed, remove from HashMap and destroy attached children
 		this.bind("Remove", function() {
+  	  if (this._children) {
+        for (var i = 0; i < this._children.length; i++) {
+          this._children[i].destroy();
+        }
+        this._children = [];
+      }
+  	  
 			Crafty.map.remove(this);
 			
 			this.detach();
