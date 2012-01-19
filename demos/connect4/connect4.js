@@ -29,11 +29,12 @@ window.onload = function() {
 		Crafty.c("piece", {
 			init: function() {
 				this.z = 3;
-				this.requires("Mouse, Gravity, Draggable");
+				this.requires("Mouse, Gravity, Draggable, Tween");
 				this.bind("StopDrag", function() {
 					console.log("STOP");
 					var column = Math.round(this._x / 64);
-					this.x = column * 64;
+					//this.x = column * 64;
+          this.tween({x:column * 64}, 20)
 					this.gravity("stopper");
 					this.unbind("MouseDown");
 					
@@ -69,7 +70,11 @@ window.onload = function() {
 	
 	Crafty.scene("win", function() {
 		var bg = Crafty.e("2D, DOM, Image").image("images/win.png", "no-repeat").attr({w: 600, h: 500, z: -1});
-		Crafty.e("2D, DOM, Text").attr({x: 220, y: 200}).text(turn ? "RED" : "YELLOW").font("30pt Arial");
+		//Crafty.e("2D, DOM, Text").attr({x: 220, y: 200}).text(turn ? "RED" : "YELLOW").font("30pt Arial");
+		Crafty.e("2D, DOM, Text").attr({x: 220, y: 200}).text(turn ? "RED" : "YELLOW").css({
+        "font-family": "Arial"
+        , "font-size": "30pt"
+      });
 	});
 	
 	function win(turn) {
