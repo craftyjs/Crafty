@@ -211,6 +211,9 @@ Crafty.c("Mouse", {
 * #Draggable
 * @category Input
 * Enable drag and drop the entity.
+* @trigger Dragging - is triggered each frame the entity is being dragged - MouseEvent
+* @trigger StartDrag - is triggered when dragging begins - MouseEvent
+* @trigger StopDrag - is triggered when dragging ends - MouseEvent
 */
 Crafty.c("Draggable", {
 	_startX: 0,
