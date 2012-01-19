@@ -202,6 +202,7 @@ Crafty.extend({
 	* @sign public void Crafty.scene(String sceneName, Function init)
 	* @param sceneName - Name of the scene to add
 	* @param init - Function execute when scene is played
+	* @param uninit - Function execute before next scene is played
 	* @sign public void Crafty.scene(String sceneName)
 	* @param sceneName - Name of scene to play
 	* Method to create scenes on the stage. Pass an ID and function to register a scene.
@@ -216,23 +217,34 @@ Crafty.extend({
 	* ~~~
 	* Crafty.scene("loading", function() {});
 	*
+	* Crafty.scene("loading", function() {}, function() {});
+	*
 	* Crafty.scene("loading");
 	* ~~~
 	*/
-	scene: function (name, fn) {
+	scene: function (name, intro, outro) {
 		//play scene
 		if (arguments.length === 1) {
 			Crafty("2D").each(function () {
 				if (!this.has("Persist")) this.destroy();
 			});
-			this._scenes[name].call(this);
+			// uninitialize previous scene
+			if (this._current !== null && 'uninitialize' in this._scenes[this._current]) {
+				this._scenes[this._current].uninitialize.call(this);
+			}
+			// initialize next scene
+			this._scenes[name].initialize.call(this);
 			var oldScene = this._current;
 			this._current = name;
 			Crafty.trigger("SceneChange", { oldScene: oldScene, newScene: name });
 			return;
 		}
 		//add scene
-		this._scenes[name] = fn;
+		this._scenes[name] = {}
+		this._scenes[name].initialize = intro
+		if (typeof outro !== 'undefined') {
+			this._scenes[name].uninitialize = outro;
+		}
 		return;
 	},
 
