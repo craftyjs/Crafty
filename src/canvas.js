@@ -7,30 +7,30 @@
 * @trigger NoCanvas - if the browser does not support canvas
 */
 Crafty.c("Canvas", {
-	
-	init: function() {
-		if(!Crafty.canvas.context) {
+
+	init: function () {
+		if (!Crafty.canvas.context) {
 			Crafty.canvas.init();
 		}
-		
+
 		//increment the amount of canvas objs
 		Crafty.DrawManager.total2D++;
-		
-		this.bind("Change", function(e) {
-			//if within screen, add to list	
-			if(this._changed === false) {
+
+		this.bind("Change", function (e) {
+			//if within screen, add to list
+			if (this._changed === false) {
 				this._changed = Crafty.DrawManager.add(e || this, this);
 			} else {
-				if(e) this._changed = Crafty.DrawManager.add(e, this);
+				if (e) this._changed = Crafty.DrawManager.add(e, this);
 			}
 		});
-		
-		this.bind("Remove", function() {
+
+		this.bind("Remove", function () {
 			Crafty.DrawManager.total2D--;
-			Crafty.DrawManager.add(this,this);
+			Crafty.DrawManager.add(this, this);
 		});
 	},
-	
+
 	/**@
 	* #.draw
 	* @comp Canvas
@@ -42,53 +42,53 @@ Crafty.c("Canvas", {
 	* @param h - Height of the segment to draw
 	* Method to draw the entity on the canvas element. Can pass rect values for redrawing a segment of the entity.
 	*/
-	draw: function(ctx,x,y,w,h) {
-		if(!this.ready) return; 
-		if(arguments.length === 4) {
+	draw: function (ctx, x, y, w, h) {
+		if (!this.ready) return;
+		if (arguments.length === 4) {
 			h = w;
 			w = y;
 			y = x;
 			x = ctx;
 			ctx = Crafty.canvas.context;
 		}
-		
+
 		var pos = { //inlined pos() function, for speed
-				_x: (this._x + (x || 0)),
-				_y: (this._y + (y || 0)),
-				_w: (w || this._w),
-				_h: (h || this._h)
-			},
+			_x: (this._x + (x || 0)),
+			_y: (this._y + (y || 0)),
+			_w: (w || this._w),
+			_h: (h || this._h)
+		},
 			context = ctx || Crafty.canvas.context,
-			coord = this.__coord || [0,0,0,0],
+			coord = this.__coord || [0, 0, 0, 0],
 			co = {
-				x: coord[0] + (x || 0),
-				y: coord[1] + (y || 0),
-				w: w || coord[2],
-				h: h || coord[3]
-			};
-			
-		if(this._mbr) {
+			x: coord[0] + (x || 0),
+			y: coord[1] + (y || 0),
+			w: w || coord[2],
+			h: h || coord[3]
+		};
+
+		if (this._mbr) {
 			context.save();
-			
+
 			context.translate(this._origin.x + this._x, this._origin.y + this._y);
 			pos._x = -this._origin.x;
 			pos._y = -this._origin.y;
-			
+
 			context.rotate((this._rotation % 360) * (Math.PI / 180));
 		}
-		
+
 		//draw with alpha
-		if(this._alpha < 1.0) {
+		if (this._alpha < 1.0) {
 			var globalpha = context.globalAlpha;
 			context.globalAlpha = this._alpha;
 		}
-		
-		this.trigger("Draw", {type: "canvas", pos: pos, co: co, ctx: context});
-		
-		if(this._mbr) {
+
+		this.trigger("Draw", { type: "canvas", pos: pos, co: co, ctx: context });
+
+		if (this._mbr) {
 			context.restore();
 		}
-		if(globalpha) {
+		if (globalpha) {
 			context.globalAlpha = globalpha;
 		}
 		return this;
@@ -102,10 +102,10 @@ Crafty.c("Canvas", {
 */
 Crafty.extend({
 	canvas: {
-		/**@
+	/**@
 		* #Crafty.canvas.context
 		* @comp Crafty.canvas
-		* This will return the 2D context of the main canvas element. 
+		* This will return the 2D context of the main canvas element.
 		* The value returned from `Crafty.canvas.elem.getContext('2d')`.
 		*/
 		context: null,
@@ -115,7 +115,7 @@ Crafty.extend({
 		* Main Canvas element
 		*/
 		elem: null,
-		
+
 		/**@
 		* #Crafty.canvas.init
 		* @comp Crafty.canvas
@@ -126,14 +126,14 @@ Crafty.extend({
 		* This method will automatically be called if no `Crafty.canvas.context` is
 		* found.
 		*/
-		init: function() {
+		init: function () {
 			//check if canvas is supported
-			if(!Crafty.support.canvas) {
+			if (!Crafty.support.canvas) {
 				Crafty.trigger("NoCanvas");
 				Crafty.stop();
 				return;
 			}
-			
+
 			//create 3 empty canvas elements
 			var c;
 			c = document.createElement("canvas");
@@ -142,7 +142,7 @@ Crafty.extend({
 			c.style.position = 'absolute';
 			c.style.left = "0px";
 			c.style.top = "0px";
-			
+
 			Crafty.stage.elem.appendChild(c);
 			Crafty.canvas.context = c.getContext('2d');
 			Crafty.canvas._canvas = c;

@@ -1,8 +1,8 @@
 Crafty.extend({
-	/**@
+/**@
 	* #Crafty.assets
 	* @category Assets
-	* An object containing every asset used in the current Crafty game. 
+	* An object containing every asset used in the current Crafty game.
 	* The key is the URL and the value is the `Audio` or `Image` object.
     *
 	* If loading an asset, check that it is in this object first to avoid loading twice.
@@ -12,7 +12,7 @@ Crafty.extend({
 	* ~~~
 	*/
 	assets: {},
-	
+
 	/**@
 	* #Crafty.loader
 	* @category Assets
@@ -21,18 +21,18 @@ Crafty.extend({
 	* @param onLoad - Callback when the assets are loaded
 	* @param onProgress - Callback when an asset is loaded. Contains information about assets loaded
 	* @param onError - Callback when an asset fails to load
-	* Preloader for all assets. Takes an array of URLs and 
+	* Preloader for all assets. Takes an array of URLs and
 	* adds them to the `Crafty.assets` object.
-	* 
-	* The `onProgress` function will be passed on object with information about 
-	* the progress including how many assets loaded, total of all the assets to 
+	*
+	* The `onProgress` function will be passed on object with information about
+	* the progress including how many assets loaded, total of all the assets to
 	* load and a percentage of the progress.
     *
 	* `onError` will be passed with the asset that couldn't load.
-	* 
+	*
 	* @example
 	* ~~~
-	* Crafty.load(["images/sprite.png", "sounds/jump.mp3"], 
+	* Crafty.load(["images/sprite.png", "sounds/jump.mp3"],
 	*     function() {
 	*         //when loaded
 	*         Crafty.scene("main"); //go to main scene
@@ -118,24 +118,24 @@ Crafty.extend({
 	*     //module is ready
 	*     Crafty.e("MoveTo, 2D, DOM");
 	* });
-	* 
+	*
 	* // Loading from your own server
 	* Crafty.modules({ 'http://mydomain.com/js/mystuff.js': 'DEV' }, function () {
 	*     //module is ready
 	*     Crafty.e("MoveTo, 2D, DOM");
 	* });
-	* 
+	*
 	* // Loading from alternative repository
 	* Crafty.modules('http://cdn.crafty-modules.com', { moveto: 'DEV' }, function () {
 	*     //module is ready
 	*     Crafty.e("MoveTo, 2D, DOM");
 	* });
 	* ~~~
-	* 
+	*
 	*/
 	modules: function (modulesRepository, moduleMap, oncomplete) {
 
-		if(arguments.length === 2 && typeof modulesRepository === "object") {
+		if (arguments.length === 2 && typeof modulesRepository === "object") {
 			moduleMap = modulesRepository;
 			oncomplete = moduleMap;
 			modulesRepository = 'http://cdn.craftycomponents.com';

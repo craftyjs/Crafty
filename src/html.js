@@ -5,7 +5,7 @@
 */
 Crafty.c("HTML", {
 	inner: '',
-	
+
 	init: function () {
 		this.requires('2D, DOM');
 	},

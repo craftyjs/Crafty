@@ -72,8 +72,8 @@
 	* @comp Crafty.support
 	* Is the `canvas` element supported?
 	*/
-	support.canvas = ('getContext' in document.createElement("canvas"));	
-	
+	support.canvas = ('getContext' in document.createElement("canvas"));
+
 	/**@
 	* #Crafty.support.webgl
 	* @comp Crafty.support
@@ -86,7 +86,7 @@
 			gl.viewportWidth = canvas.width;
 			gl.viewportHeight = canvas.height;
 		}
-		catch (e) {}
+		catch (e) { }
 		support.webgl = !!gl;
 	}
 	else {
@@ -97,14 +97,14 @@
 							|| (typeof document.createElement("div").style[support.prefix + "Perspective"] !== "undefined");
 })();
 Crafty.extend({
-	
-	zeroFill: function(number, width) {
+
+	zeroFill: function (number, width) {
 		width -= number.toString().length;
 		if (width > 0)
-			return new Array(width + (/\./.test( number ) ? 2 : 1)).join( '0' ) + number;
+			return new Array(width + (/\./.test(number) ? 2 : 1)).join('0') + number;
 		return number.toString();
 	},
-	
+
 	/**@
 	* #Crafty.sprite
 	* @category Graphics
@@ -116,24 +116,24 @@ Crafty.extend({
 	* @param paddingY - Vertical space inbetween tiles. Defaults to paddingX.
 	* Generates components based on positions in a sprite image to be applied to entities.
 	*
-	* Accepts a tile size, URL and map for the name of the sprite and it's position. 
+	* Accepts a tile size, URL and map for the name of the sprite and it's position.
 	*
-	* The position must be an array containing the position of the sprite where index `0` 
-	* is the `x` position, `1` is the `y` position and optionally `2` is the width and `3` 
-	* is the height. If the sprite map has padding, pass the values for the `x` padding 
+	* The position must be an array containing the position of the sprite where index `0`
+	* is the `x` position, `1` is the `y` position and optionally `2` is the width and `3`
+	* is the height. If the sprite map has padding, pass the values for the `x` padding
 	* or `y` padding. If they are the same, just add one value.
 	*
-	* If the sprite image has no consistent tile size, `1` or no argument need be 
+	* If the sprite image has no consistent tile size, `1` or no argument need be
 	* passed for tile size.
 	*
 	* Entities that add the generated components are also given a component called `Sprite`.
 	* @see Sprite
 	*/
-	sprite: function(tile, tileh, url, map, paddingX, paddingY) {
+	sprite: function (tile, tileh, url, map, paddingX, paddingY) {
 		var pos, temp, x, y, w, h, img;
-		
+
 		//if no tile value, default to 1
-		if(typeof tile === "string") {
+		if (typeof tile === "string") {
 			paddingY = paddingX;
 			paddingX = map;
 			map = tileh;
@@ -142,61 +142,61 @@ Crafty.extend({
 			tileh = 1;
 		}
 
-		if(typeof tileh == "string") {
+		if (typeof tileh == "string") {
 			paddingY = paddingX;
 			paddingX = map;
 			map = url;
 			url = tileh;
 			tileh = tile;
 		}
-		
+
 		//if no paddingY, use paddingX
-		if(!paddingY && paddingX) paddingY = paddingX;
+		if (!paddingY && paddingX) paddingY = paddingX;
 		paddingX = parseInt(paddingX || 0, 10); //just incase
 		paddingY = parseInt(paddingY || 0, 10);
-		
+
 		img = Crafty.assets[url];
-		if(!img) {
+		if (!img) {
 			img = new Image();
 			img.src = url;
 			Crafty.assets[url] = img;
-			img.onload = function() {
+			img.onload = function () {
 				//all components with this img are now ready
-				for(var pos in map) {
-					Crafty(pos).each(function() {
+				for (var pos in map) {
+					Crafty(pos).each(function () {
 						this.ready = true;
 						this.trigger("Change");
 					});
 				}
 			};
 		}
-		
-		for(pos in map) {
-			if(!map.hasOwnProperty(pos)) continue;
-			
+
+		for (pos in map) {
+			if (!map.hasOwnProperty(pos)) continue;
+
 			temp = map[pos];
 			x = temp[0] * (tile + paddingX);
 			y = temp[1] * (tileh + paddingY);
 			w = temp[2] * tile || tile;
 			h = temp[3] * tileh || tileh;
-			
+
 			//generates sprite components for each tile in the map
 			Crafty.c(pos, {
 				ready: false,
-				__coord: [x,y,w,h],
-				
-				init: function() {
+				__coord: [x, y, w, h],
+
+				init: function () {
 					this.requires("Sprite");
-					this.__trim = [0,0,0,0];
+					this.__trim = [0, 0, 0, 0];
 					this.__image = url;
 					this.__coord = [this.__coord[0], this.__coord[1], this.__coord[2], this.__coord[3]];
 					this.__tile = tile;
 					this.__tileh = tileh;
 					this.__padding = [paddingX, paddingY];
 					this.img = img;
-		
+
 					//draw now
-					if(this.img.complete && this.img.width > 0) {
+					if (this.img.complete && this.img.width > 0) {
 						this.ready = true;
 						this.trigger("Change");
 					}
@@ -207,10 +207,10 @@ Crafty.extend({
 				}
 			});
 		}
-		
+
 		return this;
 	},
-	
+
 	_events: {},
 
 	/**@
@@ -221,32 +221,32 @@ Crafty.extend({
 	* @param obj - Element to add the DOM event to
 	* @param event - Event name to bind to
 	* @param callback - Method to execute when triggered
-	* Adds DOM level 3 events to elements. The arguments it accepts are the call 
-	* context (the value of `this`), the DOM element to attach the event to, 
-	* the event name (without `on` (`click` rather than `onclick`)) and 
-	* finally the callback method. 
+	* Adds DOM level 3 events to elements. The arguments it accepts are the call
+	* context (the value of `this`), the DOM element to attach the event to,
+	* the event name (without `on` (`click` rather than `onclick`)) and
+	* finally the callback method.
 	*
 	* If no element is passed, the default element will be `window.document`.
-	* 
+	*
 	* Callbacks are passed with event data.
 	* @see Crafty.removeEvent
 	*/
-	addEvent: function(ctx, obj, type, fn) {
-		if(arguments.length === 3) {
+	addEvent: function (ctx, obj, type, fn) {
+		if (arguments.length === 3) {
 			fn = type;
 			type = obj;
 			obj = window.document;
 		}
 
 		//save anonymous function to be able to remove
-		var afn = function(e) { var e = e || window.event; fn.call(ctx,e) },
+		var afn = function (e) { var e = e || window.event; fn.call(ctx, e) },
 			id = ctx[0] || "";
 
-		if(!this._events[id+obj+type+fn]) this._events[id+obj+type+fn] = afn;
+		if (!this._events[id + obj + type + fn]) this._events[id + obj + type + fn] = afn;
 		else return;
 
 		if (obj.attachEvent) { //IE
-			obj.attachEvent('on'+type, afn);
+			obj.attachEvent('on' + type, afn);
 		} else { //Everyone else
 			obj.addEventListener(type, afn, false);
 		}
@@ -260,13 +260,13 @@ Crafty.extend({
 	* @param obj - Element the event is on
 	* @param event - Name of the event
 	* @param callback - Method executed when triggered
-	* Removes events attached by `Crafty.addEvent()`. All parameters must 
-	* be the same that were used to attach the event including a reference 
+	* Removes events attached by `Crafty.addEvent()`. All parameters must
+	* be the same that were used to attach the event including a reference
 	* to the callback method.
 	* @see Crafty.addEvent
 	*/
-	removeEvent: function(ctx, obj, type, fn) {
-		if(arguments.length === 3) {
+	removeEvent: function (ctx, obj, type, fn) {
+		if (arguments.length === 3) {
 			fn = type;
 			type = obj;
 			obj = window.document;
@@ -274,16 +274,16 @@ Crafty.extend({
 
 		//retrieve anonymouse function
 		var id = ctx[0] || "",
-			afn = this._events[id+obj+type+fn];
+			afn = this._events[id + obj + type + fn];
 
-		if(afn) {
+		if (afn) {
 			if (obj.detachEvent) {
-				obj.detachEvent('on'+type, afn);
+				obj.detachEvent('on' + type, afn);
 			} else obj.removeEventListener(type, afn, false);
-			delete this._events[id+obj+type+fn];
+			delete this._events[id + obj + type + fn];
 		}
 	},
-	
+
 	/**@
 	* #Crafty.background
 	* @category Graphics, Stage
@@ -292,10 +292,10 @@ Crafty.extend({
 	* This method is essentially a shortcut for adding a background
 	* style to the stage element.
 	*/
-	background: function(color) {
+	background: function (color) {
 		Crafty.stage.elem.style.background = color;
 	},
-	
+
 	/**@
 	* #Crafty.viewport
 	* @category Stage
@@ -303,7 +303,7 @@ Crafty.extend({
 	* in turn will react just like a camera moving in that direction.
 	*/
 	viewport: {
-		/**@
+	/**@
 		* #Crafty.viewport.clampToEntities
 		* @comp Crafty.viewport
 		* Decides if the viewport functions should clamp to game entities.
@@ -312,44 +312,44 @@ Crafty.extend({
 		* For development it can be useful to set this to false.
 		*/
 		clampToEntities: true,
-		width: 0, 
+		width: 0,
 		height: 0,
 		/**@
 		* #Crafty.viewport.x
 		* @comp Crafty.viewport
-		* Will move the stage and therefore every visible entity along the `x` 
+		* Will move the stage and therefore every visible entity along the `x`
 		* axis in the opposite direction.
 		*
-		* When this value is set, it will shift the entire stage. This means that entity 
-		* positions are not exactly where they are on screen. To get the exact position, 
+		* When this value is set, it will shift the entire stage. This means that entity
+		* positions are not exactly where they are on screen. To get the exact position,
 		* simply add `Crafty.viewport.x` onto the entities `x` position.
 		*/
 		_x: 0,
 		/**@
 		* #Crafty.viewport.y
 		* @comp Crafty.viewport
-		* Will move the stage and therefore every visible entity along the `y` 
+		* Will move the stage and therefore every visible entity along the `y`
 		* axis in the opposite direction.
 		*
-		* When this value is set, it will shift the entire stage. This means that entity 
-		* positions are not exactly where they are on screen. To get the exact position, 
+		* When this value is set, it will shift the entire stage. This means that entity
+		* positions are not exactly where they are on screen. To get the exact position,
 		* simply add `Crafty.viewport.y` onto the entities `y` position.
 		*/
 		_y: 0,
-		
+
 		/**@
 		 * #Crafty.viewport.scroll
 		 * @comp Crafty.viewport
 		 * @sign Crafty.viewport.scroll(String axis, Number v)
-		 * @param axis - 'x' or 'y' 
+		 * @param axis - 'x' or 'y'
 		 * @param v - The new absolute position on the axis
-		 * 
+		 *
 		 * Will move the viewport to the position given on the specified axis
 		 * @example Crafty.viewport.scroll('_x', 500);
 		 * Will move the camera 500 pixels right of its initial position, in effect
 		 * shifting everything in the viewport 500 pixels to the left.
 		 */
-		scroll: function(axis, v) {
+		scroll: function (axis, v) {
 			var change = Math.floor(v - this[axis]), //change in direction
 				context = Crafty.canvas.context,
 				style = Crafty.stage.inner.style,
@@ -357,19 +357,19 @@ Crafty.extend({
 
 			//update viewport and DOM scroll
 			this[axis] = v;
-			if(axis == '_x') {
-				if(context) context.translate(change, 0);
+			if (axis == '_x') {
+				if (context) context.translate(change, 0);
 			} else {
-				if(context) context.translate(0, change);
+				if (context) context.translate(0, change);
 			}
-			if(context) Crafty.DrawManager.drawAll();
+			if (context) Crafty.DrawManager.drawAll();
 			style[axis == '_x' ? "left" : "top"] = Math.round(~~v) + "px";
 		},
-		
-		rect: function() {
-			return {_x: -this._x, _y: -this._y, _w: this.width, _h: this.height};
+
+		rect: function () {
+			return { _x: -this._x, _y: -this._y, _w: this.width, _h: this.height };
 		},
-		
+
 		/**
 		 * #Crafty.viewport.pan
 		 * @comp Crafty.viewport
@@ -381,8 +381,8 @@ Crafty.extend({
 		 * Pans the camera a given number of pixels over a given number of frames
 		 */
 		pan: (function () {
-			var tweens = {}, i, bound=false;
-			
+			var tweens = {}, i, bound = false;
+
 			function enterFrame(e) {
 				var l = 0;
 				for (i in tweens) {
@@ -399,7 +399,7 @@ Crafty.extend({
 				}
 				if (l) Crafty.viewport._clamp();
 			}
-			
+
 			return function (axis, v, time) {
 				Crafty.viewport.follow();
 				if (axis == 'reset') {
@@ -410,7 +410,7 @@ Crafty.extend({
 				}
 				if (time == 0) time = 1;
 				tweens[axis] = {
-					diff: -v/time,
+					diff: -v / time,
 					current: Crafty.viewport[axis],
 					remTime: time
 				};
@@ -420,8 +420,8 @@ Crafty.extend({
 				}
 			}
 		})(),
-		
-		/** 
+
+		/**
 		 * #Crafty.viewport.follow
 		 * @comp Crafty.viewport
 		 * @sign public void Crafty.viewport.follow(Object target, Number offsetx, Number offsety)
@@ -435,15 +435,15 @@ Crafty.extend({
 		 * var ent = Crafty.e('2D, DOM').attr({w: 100, h: 100:});
 		 * Crafty.viewport.follow(ent, 0, 0);
 		 */
-		follow: (function (){
+		follow: (function () {
 			var oldTarget, offx, offy;
-			
+
 			function change() {
 				Crafty.viewport.scroll('_x', -(this.x + (this.w / 2) - (Crafty.viewport.width / 2) - offx));
 				Crafty.viewport.scroll('_y', -(this.y + (this.h / 2) - (Crafty.viewport.height / 2) - offy));
 				Crafty.viewport._clamp();
 			}
-			
+
 			return function (target, offsetx, offsety) {
 				if (oldTarget)
 					oldTarget.unbind('Change', change);
@@ -459,8 +459,8 @@ Crafty.extend({
 				change.call(target);
 			}
 		})(),
-		
-		/** 
+
+		/**
 		 * #Crafty.viewport.centerOn
 		 * @comp Crafty.viewport
 		 * @sign public void Crafty.viewport.centerOn(Object target, Number time)
@@ -469,21 +469,21 @@ Crafty.extend({
 		 *
 		 * Centers the viewport on the given entity
 		 */
-		 centerOn: function (targ, time) {
-				var x = targ.x, 
-					y = targ.y, 
-					mid_x = targ.w/2, 
-					mid_y = targ.h/2, 
-					cent_x = Crafty.viewport.width/2, 
-					cent_y = Crafty.viewport.height/2,
+		centerOn: function (targ, time) {
+			var x = targ.x,
+					y = targ.y,
+					mid_x = targ.w / 2,
+					mid_y = targ.h / 2,
+					cent_x = Crafty.viewport.width / 2,
+					cent_y = Crafty.viewport.height / 2,
 					new_x = x + mid_x - cent_x,
 					new_y = y + mid_y - cent_y;
-				
-				Crafty.viewport.pan('reset');
-				Crafty.viewport.pan('x', new_x, time);
-				Crafty.viewport.pan('y', new_y, time);
-		 },
-		
+
+			Crafty.viewport.pan('reset');
+			Crafty.viewport.pan('x', new_x, time);
+			Crafty.viewport.pan('y', new_y, time);
+		},
+
 		/**
 		 * #Crafty.viewport.zoom
 		 * @comp Crafty.viewport
@@ -494,14 +494,14 @@ Crafty.extend({
 		 * @param Number time - the duration in frames of the entire zoom operation
 		 *
 		 * Zooms the camera in on a given point. amt > 1 will bring the camera closer to the subject
-		 * amt < 1 will bring it farther away. amt = 0 will do nothing. 
+		 * amt < 1 will bring it farther away. amt = 0 will do nothing.
 		 * Zooming is multiplicative. To reset the zoom amount, pass 0.
 		 */
 		zoom: (function () {
 			var zoom = 1,
 				zoom_tick = 0,
 				dur = 0,
-				prop = Crafty.support.prefix+"Transform",
+				prop = Crafty.support.prefix + "Transform",
 				bound = false,
 				act = {},
 				prct = {};
@@ -511,8 +511,8 @@ Crafty.extend({
 			// 3. Get the new size of the stage
 			// 4. Get the absolute position of our point using previous percentage
 			// 4. Offset inner by that much
-			
-			function enterFrame () {
+
+			function enterFrame() {
 				if (dur > 0) {
 					var old = {
 						width: act.width * zoom,
@@ -527,27 +527,27 @@ Crafty.extend({
 						width: new_s.width - old.width,
 						height: new_s.height - old.height
 					};
-					Crafty.stage.inner.style[prop] = 'scale('+zoom+','+zoom+')';
+					Crafty.stage.inner.style[prop] = 'scale(' + zoom + ',' + zoom + ')';
 					Crafty.viewport.x -= diff.width * prct.width;
 					Crafty.viewport.y -= diff.height * prct.height;
 					dur--;
 				}
 			}
-			
+
 			return function (amt, cent_x, cent_y, time) {
 				var bounds = Crafty.map.boundaries(),
-					final_zoom = amt?zoom * amt:1;
-				
+					final_zoom = amt ? zoom * amt : 1;
+
 				act.width = bounds.max.x - bounds.min.x;
 				act.height = bounds.max.y - bounds.min.y;
-					
-				prct.width = cent_x/act.width;
-				prct.height = cent_y/act.height;
-				
+
+				prct.width = cent_x / act.width;
+				prct.height = cent_y / act.height;
+
 				if (time == 0) time = 1;
-				zoom_tick = (final_zoom - zoom)/time;
+				zoom_tick = (final_zoom - zoom) / time;
 				dur = time;
-				
+
 				Crafty.viewport.pan('reset');
 				if (!bound) {
 					Crafty.bind('EnterFrame', enterFrame);
@@ -555,8 +555,8 @@ Crafty.extend({
 				}
 			}
 		})(),
-		
-		/** 
+
+		/**
 		 * #Crafty.viewport.mouselook
 		 * @comp Crafty.viewport
 		 * @sign public void Crafty.viewport.mouselook(Boolean active)
@@ -566,13 +566,13 @@ Crafty.extend({
 		 * Simply call this function and the user will be able to
 		 * drag the viewport around.
 		 */
-		mouselook: (function() {
+		mouselook: (function () {
 			var active = false,
 				dragging = false,
 				lastMouse = {}
-				old = {};
-			
-			
+			old = {};
+
+
 			return function (op, arg) {
 				if (typeof op == 'boolean') {
 					active = op;
@@ -580,7 +580,7 @@ Crafty.extend({
 						Crafty.mouseObjs++;
 					}
 					else {
-						Crafty.mouseObjs = Math.max(0, Crafty.mouseObjs-1);
+						Crafty.mouseObjs = Math.max(0, Crafty.mouseObjs - 1);
 					}
 					return;
 				}
@@ -601,22 +601,22 @@ Crafty.extend({
 						lastMouse.x = arg.clientX;
 						lastMouse.y = arg.clientY;
 						dragging = true;
-					break;
+						break;
 					case 'stop':
 						dragging = false;
-					break;
+						break;
 				}
 			};
 		})(),
-		 
-		_clamp: function() {
+
+		_clamp: function () {
 			// clamps the viewport to the viewable area
 			// under no circumstances should the viewport see something outside the boundary of the 'world'
 			if (!this.clampToEntities) return;
 			var bound = Crafty.map.boundaries();
 			if (bound.max.x - bound.min.x > Crafty.viewport.width) {
 				bound.max.x -= Crafty.viewport.width;
-				
+
 				if (Crafty.viewport.x < -bound.max.x) {
 					Crafty.viewport.x = -bound.max.x;
 				}
@@ -625,11 +625,11 @@ Crafty.extend({
 				}
 			}
 			else {
-				Crafty.viewport.x = -1*(bound.min.x + (bound.max.x - bound.min.x)/2 - Crafty.viewport.width/2);
+				Crafty.viewport.x = -1 * (bound.min.x + (bound.max.x - bound.min.x) / 2 - Crafty.viewport.width / 2);
 			}
 			if (bound.max.y - bound.min.y > Crafty.viewport.height) {
 				bound.max.y -= Crafty.viewport.height;
-				
+
 				if (Crafty.viewport.y < -bound.max.y) {
 					Crafty.viewport.y = -bound.max.y;
 				}
@@ -638,20 +638,20 @@ Crafty.extend({
 				}
 			}
 			else {
-				Crafty.viewport.y = -1*(bound.min.y + (bound.max.y - bound.min.y)/2 - Crafty.viewport.height/2);
+				Crafty.viewport.y = -1 * (bound.min.y + (bound.max.y - bound.min.y) / 2 - Crafty.viewport.height / 2);
 			}
 		},
-		
-		init: function(w,h) {
+
+		init: function (w, h) {
 			Crafty.DOM.window.init();
-			
+
 			//fullscreen if mobile or not specified
 			this.width = (!w || Crafty.mobile) ? Crafty.DOM.window.width : w;
 			this.height = (!h || Crafty.mobile) ? Crafty.DOM.window.height : h;
-			
+
 			//check if stage exists
 			var crstage = document.getElementById("cr-stage");
-			
+
 			//create stage div to contain everything
 			Crafty.stage = {
 				x: 0,
@@ -660,109 +660,109 @@ Crafty.extend({
 				elem: (crstage ? crstage : document.createElement("div")),
 				inner: document.createElement("div")
 			};
-			
+
 			//fullscreen, stop scrollbars
-			if((!w && !h) || Crafty.mobile) {
+			if ((!w && !h) || Crafty.mobile) {
 				document.body.style.overflow = "hidden";
 				Crafty.stage.fullscreen = true;
 			}
-			
-			Crafty.addEvent(this, window, "resize", function() {
+
+			Crafty.addEvent(this, window, "resize", function () {
 				Crafty.DOM.window.init();
 				var w = Crafty.DOM.window.width,
 					h = Crafty.DOM.window.height,
 					offset;
-				
-				
-				if(Crafty.stage.fullscreen) {
+
+
+				if (Crafty.stage.fullscreen) {
 					this.width = w;
 					this.height = h;
 					Crafty.stage.elem.style.width = w + "px";
 					Crafty.stage.elem.style.height = h + "px";
-					
-					if(Crafty.canvas._canvas) {
+
+					if (Crafty.canvas._canvas) {
 						Crafty.canvas._canvas.width = w;
 						Crafty.canvas._canvas.height = h;
 						Crafty.DrawManager.drawAll();
 					}
 				}
-				
+
 				offset = Crafty.DOM.inner(Crafty.stage.elem);
 				Crafty.stage.x = offset.x;
 				Crafty.stage.y = offset.y;
 			});
-			
-			Crafty.addEvent(this, window, "blur", function() {
-				if(Crafty.settings.get("autoPause")) {
+
+			Crafty.addEvent(this, window, "blur", function () {
+				if (Crafty.settings.get("autoPause")) {
 					Crafty.pause();
 				}
 			});
-			Crafty.addEvent(this, window, "focus", function() {
-				if(Crafty._paused && Crafty.settings.get("autoPause")) {
+			Crafty.addEvent(this, window, "focus", function () {
+				if (Crafty._paused && Crafty.settings.get("autoPause")) {
 					Crafty.pause();
 				}
 			});
-			
+
 			//make the stage unselectable
-			Crafty.settings.register("stageSelectable", function(v) {
-				Crafty.stage.elem.onselectstart = v ? function() { return true; } : function() { return false; };
+			Crafty.settings.register("stageSelectable", function (v) {
+				Crafty.stage.elem.onselectstart = v ? function () { return true; } : function () { return false; };
 			});
 			Crafty.settings.modify("stageSelectable", false);
-			
+
 			//make the stage have no context menu
-			Crafty.settings.register("stageContextMenu", function(v) {
-				Crafty.stage.elem.oncontextmenu = v ? function() { return true; } : function() { return false; };
+			Crafty.settings.register("stageContextMenu", function (v) {
+				Crafty.stage.elem.oncontextmenu = v ? function () { return true; } : function () { return false; };
 			});
 			Crafty.settings.modify("stageContextMenu", false);
-			
-			Crafty.settings.register("autoPause", function(){});
+
+			Crafty.settings.register("autoPause", function (){ });
 			Crafty.settings.modify("autoPause", false);
 
 			//add to the body and give it an ID if not exists
-			if(!crstage) {
+			if (!crstage) {
 				document.body.appendChild(Crafty.stage.elem);
 				Crafty.stage.elem.id = "cr-stage";
 			}
-			
+
 			var elem = Crafty.stage.elem.style,
 				offset;
-			
+
 			Crafty.stage.elem.appendChild(Crafty.stage.inner);
 			Crafty.stage.inner.style.position = "absolute";
 			Crafty.stage.inner.style.zIndex = "1";
-			
+
 			//css style
 			elem.width = this.width + "px";
 			elem.height = this.height + "px";
 			elem.overflow = "hidden";
-			
-			if(Crafty.mobile) {
+
+			if (Crafty.mobile) {
 				elem.position = "absolute";
 				elem.left = "0px";
 				elem.top = "0px";
-				
+
 				var meta = document.createElement("meta"),
 					head = document.getElementsByTagName("HEAD")[0];
-				
+
 				//stop mobile zooming and scrolling
 				meta.setAttribute("name", "viewport");
 				meta.setAttribute("content", "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no");
 				head.appendChild(meta);
-				
+
 				//hide the address bar
 				meta = document.createElement("meta");
 				meta.setAttribute("name", "apple-mobile-web-app-capable");
 				meta.setAttribute("content", "yes");
 				head.appendChild(meta);
-				setTimeout(function() { window.scrollTo(0,1); }, 0);
-				
-				Crafty.addEvent(this, window, "touchmove", function(e) {
+				setTimeout(function () { window.scrollTo(0, 1); }, 0);
+
+				Crafty.addEvent(this, window, "touchmove", function (e) {
 					e.preventDefault();
 				});
-				
+
 				Crafty.stage.x = 0;
 				Crafty.stage.y = 0;
-				
+
 			} else {
 				elem.position = "relative";
 				//find out the offset position of the stage
@@ -770,26 +770,26 @@ Crafty.extend({
 				Crafty.stage.x = offset.x;
 				Crafty.stage.y = offset.y;
 			}
-			
-			if(Crafty.support.setter) {
+
+			if (Crafty.support.setter) {
 				//define getters and setters to scroll the viewport
-				this.__defineSetter__('x', function(v) { this.scroll('_x', v); });
-				this.__defineSetter__('y', function(v) { this.scroll('_y', v); });
-				this.__defineGetter__('x', function() { return this._x; });
-				this.__defineGetter__('y', function() { return this._y; });
-			//IE9
-			} else if(Crafty.support.defineProperty) {
-				Object.defineProperty(this, 'x', {set: function(v) { this.scroll('_x', v); }, get: function() { return this._x; }});
-				Object.defineProperty(this, 'y', {set: function(v) { this.scroll('_y', v); }, get: function() { return this._y; }});
+				this.__defineSetter__('x', function (v) { this.scroll('_x', v); });
+				this.__defineSetter__('y', function (v) { this.scroll('_y', v); });
+				this.__defineGetter__('x', function () { return this._x; });
+				this.__defineGetter__('y', function () { return this._y; });
+				//IE9
+			} else if (Crafty.support.defineProperty) {
+				Object.defineProperty(this, 'x', { set: function (v) { this.scroll('_x', v); }, get: function () { return this._x; } });
+				Object.defineProperty(this, 'y', { set: function (v) { this.scroll('_y', v); }, get: function () { return this._y; } });
 			} else {
 				//create empty entity waiting for enterframe
 				this.x = this._x;
 				this.y = this._y;
-				Crafty.e("viewport"); 
+				Crafty.e("viewport");
 			}
 		}
 	},
-	
+
 	/**@
 	* #Crafty.keys
 	* @category Input
@@ -881,98 +881,98 @@ Crafty.extend({
     * PLUS: 187,
     * COMMA: 188,
     * MINUS: 189,
-    * PERIOD: 190 
+    * PERIOD: 190
 	* ~~~
 	*/
 	keys: {
 		'BACKSPACE': 8,
-        'TAB': 9,
-        'ENTER': 13,
-        'PAUSE': 19,
-        'CAPS': 20,
-        'ESC': 27,
-        'SPACE': 32,
-        'PAGE_UP': 33,
-        'PAGE_DOWN': 34,
-        'END': 35,
-        'HOME': 36,
-        'LEFT_ARROW': 37,
-        'UP_ARROW': 38,
-        'RIGHT_ARROW': 39,
-        'DOWN_ARROW': 40,
-        'INSERT': 45,
-        'DELETE': 46,
-        '0': 48,
-        '1': 49,
-        '2': 50,
-        '3': 51,
-        '4': 52,
-        '5': 53,
-        '6': 54,
-        '7': 55,
-        '8': 56,
-        '9': 57,
-        'A': 65,
-        'B': 66,
-        'C': 67,
-        'D': 68,
-        'E': 69,
-        'F': 70,
-        'G': 71,
-        'H': 72,
-        'I': 73,
-        'J': 74,
-        'K': 75,
-        'L': 76,
-        'M': 77,
-        'N': 78,
-        'O': 79,
-        'P': 80,
-        'Q': 81,
-        'R': 82,
-        'S': 83,
-        'T': 84,
-        'U': 85,
-        'V': 86,
-        'W': 87,
-        'X': 88,
-        'Y': 89,
-        'Z': 90,
-        'NUMPAD_0': 96,
-        'NUMPAD_1': 97,
-        'NUMPAD_2': 98,
-        'NUMPAD_3': 99,
-        'NUMPAD_4': 100,
-        'NUMPAD_5': 101,
-        'NUMPAD_6': 102,
-        'NUMPAD_7': 103,
-        'NUMPAD_8': 104,
-        'NUMPAD_9': 105,
-        'MULTIPLY': 106,
-        'ADD': 107,
-        'SUBSTRACT': 109,
-        'DECIMAL': 110,
-        'DIVIDE': 111,
-        'F1': 112,
-        'F2': 113,
-        'F3': 114,
-        'F4': 115,
-        'F5': 116,
-        'F6': 117,
-        'F7': 118,
-        'F8': 119,
-        'F9': 120,
-        'F10': 121,
-        'F11': 122,
-        'F12': 123,
-        'SHIFT': 16,
-        'CTRL': 17,
-        'ALT': 18,
-        'PLUS': 187,
-        'COMMA': 188,
-        'MINUS': 189,
-        'PERIOD': 190 
-       },
+		'TAB': 9,
+		'ENTER': 13,
+		'PAUSE': 19,
+		'CAPS': 20,
+		'ESC': 27,
+		'SPACE': 32,
+		'PAGE_UP': 33,
+		'PAGE_DOWN': 34,
+		'END': 35,
+		'HOME': 36,
+		'LEFT_ARROW': 37,
+		'UP_ARROW': 38,
+		'RIGHT_ARROW': 39,
+		'DOWN_ARROW': 40,
+		'INSERT': 45,
+		'DELETE': 46,
+		'0': 48,
+		'1': 49,
+		'2': 50,
+		'3': 51,
+		'4': 52,
+		'5': 53,
+		'6': 54,
+		'7': 55,
+		'8': 56,
+		'9': 57,
+		'A': 65,
+		'B': 66,
+		'C': 67,
+		'D': 68,
+		'E': 69,
+		'F': 70,
+		'G': 71,
+		'H': 72,
+		'I': 73,
+		'J': 74,
+		'K': 75,
+		'L': 76,
+		'M': 77,
+		'N': 78,
+		'O': 79,
+		'P': 80,
+		'Q': 81,
+		'R': 82,
+		'S': 83,
+		'T': 84,
+		'U': 85,
+		'V': 86,
+		'W': 87,
+		'X': 88,
+		'Y': 89,
+		'Z': 90,
+		'NUMPAD_0': 96,
+		'NUMPAD_1': 97,
+		'NUMPAD_2': 98,
+		'NUMPAD_3': 99,
+		'NUMPAD_4': 100,
+		'NUMPAD_5': 101,
+		'NUMPAD_6': 102,
+		'NUMPAD_7': 103,
+		'NUMPAD_8': 104,
+		'NUMPAD_9': 105,
+		'MULTIPLY': 106,
+		'ADD': 107,
+		'SUBSTRACT': 109,
+		'DECIMAL': 110,
+		'DIVIDE': 111,
+		'F1': 112,
+		'F2': 113,
+		'F3': 114,
+		'F4': 115,
+		'F5': 116,
+		'F6': 117,
+		'F7': 118,
+		'F8': 119,
+		'F9': 120,
+		'F10': 121,
+		'F11': 122,
+		'F12': 123,
+		'SHIFT': 16,
+		'CTRL': 17,
+		'ALT': 18,
+		'PLUS': 187,
+		'COMMA': 188,
+		'MINUS': 189,
+		'PERIOD': 190
+	},
 
 	/**@
 	* #Crafty.mouseButtons
@@ -998,13 +998,13 @@ Crafty.extend({
 * Entity fixes the lack of setter support
 */
 Crafty.c("viewport", {
-	init: function() {
-		this.bind("EnterFrame", function() {
-			if(Crafty.viewport._x !== Crafty.viewport.x) {
+	init: function () {
+		this.bind("EnterFrame", function () {
+			if (Crafty.viewport._x !== Crafty.viewport.x) {
 				Crafty.viewport.scroll('_x', Crafty.viewport.x);
 			}
-			
-			if(Crafty.viewport._y !== Crafty.viewport.y) {
+
+			if (Crafty.viewport._y !== Crafty.viewport.y) {
 				Crafty.viewport.scroll('_y', Crafty.viewport.y);
 			}
 		});

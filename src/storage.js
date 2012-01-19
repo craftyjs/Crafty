@@ -3,7 +3,7 @@
  * @category Utilities
  * Utility to allow data to be saved to a permanent storage solution: IndexedDB, WebSql, localstorage or cookies
  */
-	/**@
+/**@
 	 * #.open
 	 * @comp Storage
 	 * @sign .open(String gameName)
@@ -17,14 +17,14 @@
 	 * ~~~
 	 */
 
-	/**@
+/**@
 	 * #.save
 	 * @comp Storage
 	 * @sign .save(String key, String type, Mixed data)
 	 * @param key - A unique key for identifying this piece of data
 	 * @param type - 'save' or 'cache'
-	 * @param data - Some kind of data. 
-	 * Saves a piece of data to the database. Can be anything, although entities are preferred. 
+	 * @param data - Some kind of data.
+	 * Saves a piece of data to the database. Can be anything, although entities are preferred.
 	 * For all storage methods but IndexedDB, the data will be serialized as a string
 	 * During serialization, an entity's SaveData event will be triggered.
 	 * Components should implement a SaveData handler and attach the necessary information to the passed object
@@ -39,16 +39,16 @@
 	 * ~~~
 	 */
 
-	/**@
+/**@
 	 * #.load
 	 * @comp Storage
 	 * @sign .load(String key, String type)
 	 * @param key - A unique key to search for
 	 * @param type - 'save' or 'cache'
 	 * @param callback - Do things with the data you get back
-	 * Loads a piece of data from the database. 
+	 * Loads a piece of data from the database.
 	 * Entities will be reconstructed from the serialized string
-	 
+
 	 * @example
 	 * Loads an entity from the database
 	 * ~~~
@@ -56,14 +56,14 @@
 	 * Crafty.storage.load('MyEntity', 'save', function (data) { // do things });
 	 * ~~~
 	 */
-	 
-	/**@
+
+/**@
 	 * #.getAllKeys
 	 * @comp Storage
 	 * @sign .getAllKeys(String type)
 	 * @param type - 'save' or 'cache'
 	 * Gets all the keys for a given type
-	 
+
 	 * @example
 	 * Gets all the save games saved
 	 * ~~~
@@ -71,14 +71,14 @@
 	 * var saves = Crafty.storage.getAllKeys('save');
 	 * ~~~
 	 */
-	 
-	/**@
+
+/**@
 	 * #.external
 	 * @comp Storage
 	 * @sign .external(String url)
 	 * @param url - URL to an external to save games too
 	 * Enables and sets the url for saving games to an external server
-	 
+
 	 * @example
 	 * Save an entity to an external server
 	 * ~~~
@@ -89,8 +89,8 @@
 	 * Crafty.storage.save('save01', 'save', ent);
 	 * ~~~
 	 */
-	 
-	/**@
+
+/**@
 	 * #SaveData event
 	 * @comp Storage
 	 * @param data - An object containing all of the data to be serialized
@@ -98,7 +98,7 @@
 	 * Any data a component wants to save when it's serialized should be added to this object.
 	 * Straight attribute should be set in data.attr.
 	 * Anything that requires a special handler should be set in a unique property.
-	 * 
+	 *
 	 * @example
 	 * Saves the innerHTML of an entity
 	 * ~~~
@@ -109,14 +109,14 @@
 	 * });
 	 * ~~~
 	 */
-	 
-	/**@
+
+/**@
 	 * #LoadData event
 	 * @param data - An object containing all the data that been saved
 	 * @param process - The function to turn a string into an entity
 	 * Handlers for processing any data that needs more than straight assignment
 	 *
-	 * Note that data stord in the .attr object is automatically added to the entity. 
+	 * Note that data stord in the .attr object is automatically added to the entity.
 	 * It does not need to be handled here
 	 *
 	 * @example
@@ -127,12 +127,12 @@
 	 * });
 	 * ~~~
 	 */
- 
+
 Crafty.storage = (function () {
 	var db = null, url, gameName, timestamps = {};
-	
+
 	/*
-	 * Processes a retrieved object. 
+	 * Processes a retrieved object.
 	 * Creates an entity if it is one
 	 */
 	function process(obj) {
@@ -149,20 +149,20 @@ Crafty.storage = (function () {
 		}
 		return obj;
 	}
-	
+
 	function unserialize(str) {
 		if (typeof str != 'string') return null;
-		var data = (JSON?JSON.parse(str):eval('('+str+')'));
+		var data = (JSON ? JSON.parse(str) : eval('(' + str + ')'));
 		return process(data);
 	}
-	
+
 	/* recursive function
 	 * searches for entities in an object and processes them for serialization
-	 */ 
+	 */
 	function prep(obj) {
 		if (obj.__c) {
 			// object is entity
-			var data = {c: [], attr: {}};
+			var data = { c: [], attr: {} };
 			obj.trigger("SaveData", data, prep);
 			for (var i in obj.__c) {
 				data.c.push(i);
@@ -178,7 +178,7 @@ Crafty.storage = (function () {
 		}
 		return obj;
 	}
-	
+
 	function serialize(e) {
 		if (JSON) {
 			var data = prep(e);
@@ -189,23 +189,23 @@ Crafty.storage = (function () {
 			return false;
 		}
 	}
-	
+
 	// for saving a game to a central server
 	function external(setUrl) {
 		url = setUrl;
 	}
-	
+
 	function openExternal() {
-		if ( 1 && typeof url == "undefined") return;
+		if (1 && typeof url == "undefined") return;
 		// get the timestamps for external saves and compare them to local
 		// if the external is newer, load it
-		
+
 		var xml = new XMLHttpRequest();
 		xhr.open("POST", url);
 		xhr.onreadystatechange = function (evt) {
 			if (xhr.readyState == 4) {
 				if (xhr.status == 200) {
-					var data = eval("("+xhr.responseText+")");
+					var data = eval("(" + xhr.responseText + ")");
 					for (var i in data) {
 						if (Crafty.storage.check(data[i].key, data[i].timestamp)) {
 							loadExternal(data[i].key);
@@ -214,31 +214,31 @@ Crafty.storage = (function () {
 				}
 			}
 		}
-		xhr.send("mode=timestamps&game="+gameName);
+		xhr.send("mode=timestamps&game=" + gameName);
 	}
-	
+
 	function saveExternal(key, data, ts) {
-		if ( 1 && typeof url == "undefined") return;
+		if (1 && typeof url == "undefined") return;
 		var xhr = new XMLHttpRequest();
 		xhr.open("POST", url);
-		xhr.send("mode=save&key="+key+"&data="+encodeURIComponent(data)+"&ts="+ts+"&game="+gameName);
+		xhr.send("mode=save&key=" + key + "&data=" + encodeURIComponent(data) + "&ts=" + ts + "&game=" + gameName);
 	}
-	
+
 	function loadExternal(key) {
-		if ( 1 && typeof url == "undefined") return;
+		if (1 && typeof url == "undefined") return;
 		var xhr = new XMLHttpRequest();
 		xhr.open("POST", url);
 		xhr.onreadystatechange = function (evt) {
 			if (xhr.readyState == 4) {
 				if (xhr.status == 200) {
-					var data = eval("("+xhr.responseText+")");
+					var data = eval("(" + xhr.responseText + ")");
 					Crafty.storage.save(key, 'save', data);
 				}
 			}
 		}
-		xhr.send("mode=load&key="+key+"&game="+gameName);
+		xhr.send("mode=load&key=" + key + "&game=" + gameName);
 	}
-	
+
 	/**
 	 * get timestamp
 	 */
@@ -246,7 +246,7 @@ Crafty.storage = (function () {
 		var d = new Date();
 		return d.getTime();
 	}
-	
+
 	// everyone names their object different. Fix that nonsense.
 	if (typeof indexedDB != 'object') {
 		if (typeof mozIndexedDB == 'object') {
@@ -257,14 +257,14 @@ Crafty.storage = (function () {
 			window.IDBTransaction = webkitIDBTransaction;
 		}
 	}
-	
+
 	if (typeof indexedDB == 'object') {
-		
+
 		return {
 			open: function (gameName_n) {
 				gameName = gameName_n;
 				var stores = [];
-				
+
 				if (arguments.length == 1) {
 					stores.push('save');
 					stores.push('cache');
@@ -276,7 +276,7 @@ Crafty.storage = (function () {
 					stores.push('cache');
 				}
 				if (db == null) {
-					var request = indexedDB.open(gameName, "Database for "+gameName);
+					var request = indexedDB.open(gameName, "Database for " + gameName);
 					request.onsuccess = function (e) {
 						db = e.target.result;
 						createStores();
@@ -289,7 +289,7 @@ Crafty.storage = (function () {
 					getTimestamps();
 					openExternal();
 				}
-				
+
 				// get all the timestamps for existing keys
 				function getTimestamps() {
 					try {
@@ -297,8 +297,8 @@ Crafty.storage = (function () {
 						store = trans.objectStore('save'),
 						request = store.getAll();
 						request.onsuccess = function (e) {
-							var i=0, a=event.target.result, l=a.length;
-							for (;i<l;i++) {
+							var i = 0, a = event.target.result, l = a.length;
+							for (; i < l; i++) {
 								timestamps[a[i].key] = a[i].timestamp;
 							}
 						};
@@ -306,29 +306,29 @@ Crafty.storage = (function () {
 					catch (e) {
 					}
 				}
-				
+
 				function createStores() {
 					var request = db.setVersion("1.0");
 					request.onsuccess = function (e) {
-						for (var i=0; i<stores.length; i++) {
+						for (var i = 0; i < stores.length; i++) {
 							var st = stores[i];
 							if (db.objectStoreNames.contains(st)) continue;
-							db.createObjectStore(st, {keyPath: "key"});
+							db.createObjectStore(st, { keyPath: "key" });
 						}
 					};
 				}
 			},
-			
+
 			save: function (key, type, data) {
 				if (db == null) {
-					setTimeout(function() { Crafty.storage.save(key, type, data); }, 1);
+					setTimeout(function () { Crafty.storage.save(key, type, data); }, 1);
 					return;
 				}
-				
+
 				var str = serialize(data), t = ts();
 				if (type == 'save')	saveExternal(key, str, t);
 				try {
-					var trans = db.transaction([type], IDBTransaction.READ_WRITE, 0), 
+					var trans = db.transaction([type], IDBTransaction.READ_WRITE, 0),
 					store = trans.objectStore(type),
 					request = store.put({
 						"data": str,
@@ -339,7 +339,7 @@ Crafty.storage = (function () {
 				catch (e) {
 				}
 			},
-			
+
 			load: function (key, type, callback) {
 				if (db == null) {
 					setTimeout(function () { Crafty.storage.load(key, type, callback); }, 1);
@@ -356,7 +356,7 @@ Crafty.storage = (function () {
 				catch (e) {
 				}
 			},
-			
+
 			getAllKeys: function (type, callback) {
 				if (db == null) {
 					setTimeout(function () { Crafty.storage.getAllkeys(type, callback); }, 1);
@@ -381,11 +381,11 @@ Crafty.storage = (function () {
 				catch (e) {
 				}
 			},
-			
+
 			check: function (key, timestamp) {
 				return (timestamps[key] > timestamp);
 			},
-			
+
 			external: external
 		};
 	}
@@ -395,35 +395,35 @@ Crafty.storage = (function () {
 				gameName = gameName_n;
 				if (arguments.length == 1) {
 					db = {
-						save: openDatabase(gameName_n+'_save', '1.0', 'Saves games for '+gameName_n, 5 * 1024 * 1024),
-						cache: openDatabase(gameName_n+'_cache', '1.0', 'Cache for '+gameName_n, 5 * 1024 * 1024)
+						save: openDatabase(gameName_n + '_save', '1.0', 'Saves games for ' + gameName_n, 5 * 1024 * 1024),
+						cache: openDatabase(gameName_n + '_cache', '1.0', 'Cache for ' + gameName_n, 5 * 1024 * 1024)
 					}
 				}
 				else {
 					// allows for any other types that can be thought of
-					var args = arguments, i=0;
+					var args = arguments, i = 0;
 					args.shift();
-					for (;i<args.length; i++) {
+					for (; i < args.length; i++) {
 						if (typeof db[args[i]] == 'undefined')
-							db[args[i]] = openDatabase(gameName+'_'+args[i], '1.0', type, 5 * 1024 * 1024);
+							db[args[i]] = openDatabase(gameName + '_' + args[i], '1.0', type, 5 * 1024 * 1024);
 					}
 				}
-				
+
 				db['save'].transaction(function (tx) {
 					tx.executeSql('SELECT key, timestamp FROM data', [], function (tx, res) {
-						var i=0, a=res.rows, l=a.length;
-						for (; i<l; i++) {
+						var i = 0, a = res.rows, l = a.length;
+						for (; i < l; i++) {
 							timestamps[a.item(i).key] = a.item(i).timestamp;
 						}
 					});
 				});
 			},
-			
+
 			save: function (key, type, data) {
 				if (typeof db[type] == 'undefined' && gameName != '') {
 					this.open(gameName, type);
 				}
-				
+
 				var str = serialize(data), t = ts();
 				if (type == 'save')	saveExternal(key, str, t);
 				db[type].transaction(function (tx) {
@@ -438,7 +438,7 @@ Crafty.storage = (function () {
 					});
 				});
 			},
-			
+
 			load: function (key, type, callback) {
 				if (db[type] == null) {
 					setTimeout(function () { Crafty.storage.load(key, type, callback); }, 1);
@@ -453,7 +453,7 @@ Crafty.storage = (function () {
 					});
 				});
 			},
-			
+
 			getAllKeys: function (type, callback) {
 				if (db[type] == null) {
 					setTimeout(function () { Crafty.storage.getAllKeys(type, callback); }, 1);
@@ -465,11 +465,11 @@ Crafty.storage = (function () {
 					});
 				});
 			},
-			
+
 			check: function (key, timestamp) {
 				return (timestamps[key] > timestamp);
 			},
-			
+
 			external: external
 		};
 	}
@@ -478,26 +478,26 @@ Crafty.storage = (function () {
 			open: function (gameName_n) {
 				gameName = gameName_n;
 			},
-			
+
 			save: function (key, type, data) {
-				var k = gameName+'.'+type+'.'+key,
+				var k = gameName + '.' + type + '.' + key,
 					str = serialize(data),
 					t = ts();
 				if (type == 'save')	saveExternal(key, str, t);
 				window.localStorage[k] = str;
 				if (type == 'save')
-					window.localStorage[k+'.ts'] = t;
+					window.localStorage[k + '.ts'] = t;
 			},
-			
+
 			load: function (key, type, callback) {
-				var k = gameName+'.'+type+'.'+key,
+				var k = gameName + '.' + type + '.' + key,
 					str = window.localStorage[k];
-				
+
 				callback(unserialize(str));
 			},
-			
+
 			getAllKeys: function (type, callback) {
-				var res = {}, output = [], header = gameName+'.'+type;
+				var res = {}, output = [], header = gameName + '.' + type;
 				for (var i in window.localStorage) {
 					if (i.indexOf(header) != -1) {
 						var key = i.replace(header, '').replace('.ts', '');
@@ -506,16 +506,16 @@ Crafty.storage = (function () {
 				}
 				for (i in res) {
 					output.push(i);
-				}				
+				}
 				callback(output);
 			},
-			
+
 			check: function (key, timestamp) {
-				var ts = window.localStorage[gameName+'.save.'+key+'.ts'];
-				
+				var ts = window.localStorage[gameName + '.save.' + key + '.ts'];
+
 				return (parseInt(timestamp) > parseInt(ts));
 			},
-			
+
 			external: external
 		};
 	}
@@ -525,31 +525,31 @@ Crafty.storage = (function () {
 			open: function (gameName_n) {
 				gameName = gameName_n;
 			},
-			
+
 			save: function (key, type, data) {
 				// cookies are very limited in space. we can only keep saves there
 				if (type != 'save') return;
-				var str = serialize(data), t=ts();
+				var str = serialize(data), t = ts();
 				if (type == 'save')	saveExternal(key, str, t);
-				document.cookie = gameName+'_'+key+'='+str+'; '+gameName+'_'+key+'_ts='+t+'; expires=Thur, 31 Dec 2099 23:59:59 UTC; path=/';
+				document.cookie = gameName + '_' + key + '=' + str + '; ' + gameName + '_' + key + '_ts=' + t + '; expires=Thur, 31 Dec 2099 23:59:59 UTC; path=/';
 			},
-			
+
 			load: function (key, type, callback) {
 				if (type != 'save') return;
-				var reg = new RegExp(gameName+'_'+key+'=[^;]*'),
+				var reg = new RegExp(gameName + '_' + key + '=[^;]*'),
 					result = reg.exec(document.cookie),
-					data = unserialize(result[0].replace(gameName+'_'+key+'=', ''));
-					
+					data = unserialize(result[0].replace(gameName + '_' + key + '=', ''));
+
 				callback(data);
 			},
-			
+
 			getAllKeys: function (type, callback) {
 				if (type != 'save') return;
-				var reg = new RegExp(gameName+'_[^_=]', 'g'),
+				var reg = new RegExp(gameName + '_[^_=]', 'g'),
 					matches = reg.exec(document.cookie),
-					i=0, l=matches.length, res = {}, output=[];
-				for (;i<l;i++) {
-					var key = matches[i].replace(gameName+'_', '');
+					i = 0, l = matches.length, res = {}, output = [];
+				for (; i < l; i++) {
+					var key = matches[i].replace(gameName + '_', '');
 					res[key] = true;
 				}
 				for (i in res) {
@@ -557,16 +557,16 @@ Crafty.storage = (function () {
 				}
 				callback(output);
 			},
-			
+
 			check: function (key, timestamp) {
-				var header = gameName+'_'+key+'_ts', 
-					reg = new RegExp(header+'=[^;]'),
+				var header = gameName + '_' + key + '_ts',
+					reg = new RegExp(header + '=[^;]'),
 					result = reg.exec(document.cookie),
-					ts = result[0].replace(header+'=', '');
-				
+					ts = result[0].replace(header + '=', '');
+
 				return (parseInt(timestamp) > parseInt(ts));
 			},
-			
+
 			external: external
 		};
 	}

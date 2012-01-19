@@ -9,8 +9,8 @@ Crafty.c("SpriteAnimation", {
 	_reels: null,
 	_frame: null,
 	_current: null,
-	
-	init: function() {
+
+	init: function () {
 		this._reels = {};
 	},
 
@@ -30,16 +30,16 @@ Crafty.c("SpriteAnimation", {
 	* @param duration - Play the animation with a duration (in frames)
 	* @param repeatCount - number of times to repeat the animation. Use -1 for infinitely
 	*
-	* Method to setup animation reels or play pre-made reels. Animation works by changing the sprites over 
+	* Method to setup animation reels or play pre-made reels. Animation works by changing the sprites over
 	* a duration. Only works for sprites built with the Crafty.sprite methods. See the Tween component for animation of 2D properties.
 	*
-	* To setup an animation reel, pass the name of the reel (used to identify the reel and play it later), and either an 
+	* To setup an animation reel, pass the name of the reel (used to identify the reel and play it later), and either an
 	* array of absolute sprite positions or the start x on the sprite map, the y on the sprite map and then the end x on the sprite map.
 	*
 	* To play a reel, pass the name of the reel and the duration it should play for (in frames). If you need
 	* to repeat the animation, simply pass in the amount of times the animation should repeat. To repeat
 	* forever, pass in `-1`.
-	* 
+	*
 	* @example
 	* ~~~
 	* Crafty.sprite(16, "images/sprite.png", {
@@ -49,22 +49,22 @@ Crafty.c("SpriteAnimation", {
 	* Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite")
 	*     .animate('PlayerRunning', 0, 0, 3) //setup animation
 	*     .animate('PlayerRunning', 15, -1) // start animation
-	*    
+	*
 	* ~~~
 	*
 	* @see crafty.sprite
 	*/
-	animate: function(id, fromx, y, tox) {
+	animate: function (id, fromx, y, tox) {
 		var reel, i, tile, tileh, duration, pos;
-        
-        //play a reel
-		if(arguments.length < 4 && typeof fromx === "number") {
+
+		//play a reel
+		if (arguments.length < 4 && typeof fromx === "number") {
 			//make sure not currently animating
 			this._current = id;
-			
+
 			reel = this._reels[id];
 			duration = fromx;
-            
+
 			this._frame = {
 				reel: reel, //reel to play
 				frameTime: Math.ceil(duration / reel.length), //number of frames inbetween slides
@@ -77,7 +77,7 @@ Crafty.c("SpriteAnimation", {
 				if (y === -1) this._frame.repeatInfinitly = true;
 				else this._frame.repeat = y;
 			}
-			
+
 			pos = this._frame.reel[0];
 			this.__coord[0] = pos[0];
 			this.__coord[1] = pos[1];
@@ -85,101 +85,101 @@ Crafty.c("SpriteAnimation", {
 			this.bind("EnterFrame", this.drawFrame);
 			return this;
 		}
-		if(typeof fromx === "number") {
+		if (typeof fromx === "number") {
 			i = fromx;
 			reel = [];
 			tile = this.__tile;
 			tileh = this.__tileh;
-				
+
 			if (tox > fromx) {
-				for(;i<=tox;i++) {
+				for (; i <= tox; i++) {
 					reel.push([i * tile, y * tileh]);
 				}
 			} else {
-				for(;i>=tox;i--) {
+				for (; i >= tox; i--) {
 					reel.push([i * tile, y * tileh]);
 				}
 			}
-			
+
 			this._reels[id] = reel;
-		} else if(typeof fromx === "object") {
-			i=0;
+		} else if (typeof fromx === "object") {
+			i = 0;
 			reel = [];
-			tox = fromx.length-1;
+			tox = fromx.length - 1;
 			tile = this.__tile;
 			tileh = this.__tileh;
-			
-			for(;i<=tox;i++) {
+
+			for (; i <= tox; i++) {
 				pos = fromx[i];
 				reel.push([pos[0] * tile, pos[1] * tileh]);
 			}
-			
+
 			this._reels[id] = reel;
 		}
-		
+
 		return this;
 	},
-	
-	drawFrame: function(e) {
+
+	drawFrame: function (e) {
 		var data = this._frame;
-		
-		if(this._frame.current++ === data.frameTime) {
+
+		if (this._frame.current++ === data.frameTime) {
 			var pos = data.reel[data.frame++];
-			
+
 			this.__coord[0] = pos[0];
 			this.__coord[1] = pos[1];
 			this._frame.current = 0;
 		}
-		
-		
-		if(data.frame === data.reel.length && this._frame.current === data.frameTime) {
+
+
+		if (data.frame === data.reel.length && this._frame.current === data.frameTime) {
 			data.frame = 0;
 			if (this._frame.repeatInfinitly === true || this._frame.repeat > 0) {
 				if (this._frame.repeat) this._frame.repeat--;
 				this._frame.current = 0;
 				this._frame.frame = 0;
 			} else {
-				this.trigger("AnimationEnd", {reel: data.reel});
+				this.trigger("AnimationEnd", { reel: data.reel });
 				this.stop();
 				return;
 			}
 		}
-		
+
 		this.trigger("Change");
 	},
-	
+
 	/**@
 	* #.stop
 	* @comp SpriteAnimation
 	* @sign public this .stop(void)
 	* Stop any animation currently playing.
 	*/
-	stop: function() {
+	stop: function () {
 		this.unbind("EnterFrame", this.drawFrame);
 		this.unbind("AnimationEnd");
 		this._current = null;
 		this._frame = null;
-		
+
 		return this;
 	},
-	
+
 	/**@
 	* #.reset
 	* @comp SpriteAnimation
 	* @sign public this .reset(void)
 	* Method will reset the entities sprite to its original.
 	*/
-	reset: function() {
-		if(!this._frame) return this;
-		
+	reset: function () {
+		if (!this._frame) return this;
+
 		var co = this._frame.reel[0];
 		this.__coord[0] = co[0];
 		this.__coord[1] = co[1];
 		this.stop();
-		
+
 		return this;
 	},
-	
+
 	/**@
 	* #.isPlaying
 	* @comp SpriteAnimation
@@ -192,9 +192,9 @@ Crafty.c("SpriteAnimation", {
 	* myEntity.isPlaying('PlayerRunning') //is the PlayerRunning animation playing
 	* ~~~
 	*/
-	isPlaying: function(id) {
-		if(!id) return !!this._interval;
-		return this._current === id; 
+	isPlaying: function (id) {
+		if (!id) return !!this._interval;
+		return this._current === id;
 	}
 });
 
@@ -207,7 +207,7 @@ Crafty.c("SpriteAnimation", {
 Crafty.c("Tween", {
 	_step: null,
 	_numProps: 0,
-	
+
 	/**@
 	* #.tween
 	* @comp Tween
@@ -227,8 +227,8 @@ Crafty.c("Tween", {
 	*    .tween({alpha: 0.0, x: 100, y: 100}, 200)
 	* ~~~
 	*/
-	tween: function(props, duration) {
-        this.each(function() {
+	tween: function (props, duration) {
+		this.each(function () {
 			if (this._step == null) {
 				this._step = {};
 				this.bind('EnterFrame', tweenEnterFrame);
@@ -238,32 +238,32 @@ Crafty.c("Tween", {
 					}
 				});
 			}
-			
+
 			for (var prop in props) {
-				this._step[prop] = {prop: props[prop], val: (props[prop] - this[prop] )/duration, rem: duration};
+				this._step[prop] = { prop: props[prop], val: (props[prop] - this[prop]) / duration, rem: duration };
 				this._numProps++;
 			}
-        });
-        return this;
+		});
+		return this;
 	}
 });
 
 function tweenEnterFrame(e) {
 	if (this._numProps <= 0) return;
-	
+
 	var prop, k;
 	for (k in this._step) {
 		prop = this._step[k];
 		this[k] += prop.val;
 		if (prop.rem-- == 0) {
 			// decimal numbers rounding fix
-			this[k]=prop.prop;
+			this[k] = prop.prop;
 			this.trigger("TweenEnd", k);
 			delete this._step[k];
 			this._numProps--;
 		}
 	}
-		
+
 	if (this.has('Mouse')) {
 		var over = Crafty.over,
 			mouse = Crafty.mousePos;
