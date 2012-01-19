@@ -204,6 +204,10 @@ $files = array("license.txt",
 			   "math.js",
 			   "outro.js");
 
+if(!is_dir('api/')) {
+  mkdir('api');
+}
+
 docs($files, "../src/", "api/");
 merge($files, "../src/",  "../");
 ?>
