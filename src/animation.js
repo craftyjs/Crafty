@@ -2,6 +2,8 @@
 * #SpriteAnimation
 * @category Animation
 * Used to animate sprites by changing the sprites in the sprite map.
+* @trigger AnimationEnd - When the animation finishes - { reel }
+* @trigger Change - On each frame
 */
 Crafty.c("SpriteAnimation", {
 	_reels: null,
@@ -50,7 +52,6 @@ Crafty.c("SpriteAnimation", {
 	*    
 	* ~~~
 	*
-	* @triggers AnimationEnd - When the animation finishes
 	* @see crafty.sprite
 	*/
 	animate: function(id, fromx, y, tox) {
@@ -151,7 +152,6 @@ Crafty.c("SpriteAnimation", {
 	* #.stop
 	* @comp SpriteAnimation
 	* @sign public this .stop(void)
-	* @triggers AnimationEnd - Animation is ended
 	* Stop any animation currently playing.
 	*/
 	stop: function() {
@@ -202,6 +202,7 @@ Crafty.c("SpriteAnimation", {
 * #Tween
 * @category Animation
 * Component to animate the change in 2D properties over time.
+* @trigger TweenEnd - when a tween finishes - String - property
 */
 Crafty.c("Tween", {
 	_step: null,

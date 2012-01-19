@@ -3,6 +3,8 @@
 * @category Graphics
 * Draws itself onto a canvas. Crafty.canvas.init() must be called before hand to initialize
 * the canvas element.
+* @trigger Draw - when the entity is ready to be drawn to the stage - {type: "canvas", pos, co, ctx}
+* @trigger NoCanvas - if the browser does not support canvas
 */
 Crafty.c("Canvas", {
 	
@@ -38,7 +40,6 @@ Crafty.c("Canvas", {
 	* @param y - Y offset for drawing a segment
 	* @param w - Width of the segement to draw
 	* @param h - Height of the segment to draw
-	* @triggers Draw
 	* Method to draw the entity on the canvas element. Can pass rect values for redrawing a segment of the entity.
 	*/
 	draw: function(ctx,x,y,w,h) {
@@ -119,7 +120,6 @@ Crafty.extend({
 		* #Crafty.canvas.init
 		* @comp Crafty.canvas
 		* @sign public void Crafty.canvas.init(void)
-		* @triggers NoCanvas
 		* Creates a `canvas` element inside the stage element. Must be called
 		* before any entities with the Canvas component can be drawn.
 		*

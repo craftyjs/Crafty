@@ -56,6 +56,7 @@ Crafty.c("DOM", {
 	/**@
 	* #.DOM
 	* @comp DOM
+	* @trigger Draw - when the entity is ready to be drawn to the stage - { style:String, type:"DOM", co}
 	* @sign public this .DOM(HTMLElement elem)
 	* @param elem - HTML element that will replace the dynamically created one
 	* Pass a DOM element to use rather than one created. Will set `._element` to this value. Removes the old element.
@@ -73,7 +74,6 @@ Crafty.c("DOM", {
 	* #.draw
 	* @comp DOM
 	* @sign public this .draw(void)
-	* @triggers Draw
 	* Updates the CSS properties of the node to draw on the stage.
 	*/
 	draw: function() {

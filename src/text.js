@@ -1,6 +1,7 @@
 /**@
 * #Text
 * @category Graphics
+* @trigger Change - when the text is changed
 * @requires Canvas or DOM
 * Component to draw text inside the body of an entity. 
 */

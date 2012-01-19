@@ -10,6 +10,9 @@ var M = Math,
 * #2D
 * @category 2D
 * Component for any entity that has a position on the stage.
+* @trigger Move - when the entity has moved - { _x:Number, _y:Number, _w:Number, _h:Number } - Old position
+* @trigger Change - when the entity has moved - { _x:Number, _y:Number, _w:Number, _h:Number } - Old position
+* @trigger Rotate - when the entity is rotated - { cos:Number, sin:Number, deg:Number, rad:Number, o: {x:Number, y:Number}, matrix: {M11, M12, M21, M22} }
 */
 Crafty.c("2D", {
 	/**@
@@ -629,6 +632,7 @@ Crafty.c("Physics", {
 * #Gravity
 * @category 2D
 * Adds gravitational pull to the entity.
+* @trigger Hit - when the entity hits an entity that stops it from falling
 */
 Crafty.c("Gravity", {
 	_gravity: 0.2,
@@ -706,7 +710,7 @@ Crafty.c("Gravity", {
 		//this._gy = -1 * this._bounce;
 		this._falling = false;
 		if (this._up) this._up = false;
-		this.trigger("hit");
+		this.trigger("Hit");
 	},
 
 	/**@

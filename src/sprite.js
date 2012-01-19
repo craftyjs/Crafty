@@ -1,6 +1,7 @@
 /**@
 * #Sprite
 * @category Graphics
+* @trigger Change - when the sprites change
 * Component for using tiles in a sprite map.
 */
 Crafty.c("Sprite", {

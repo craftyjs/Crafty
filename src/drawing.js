@@ -1,6 +1,7 @@
 /**@
 * #Color
 * @category Graphics
+* @trigger Change - when the color changes
 * Draw a solid color for the entity
 */
 Crafty.c("Color", {
@@ -44,6 +45,7 @@ Crafty.c("Color", {
 /**@
 * #Tint
 * @category Graphics
+* @trigger Change - when the tint is applied
 * Similar to Color by adding an overlay of semi-transparent color.
 *
 * *Note: Currently only works for Canvas*
@@ -124,6 +126,7 @@ Crafty.c("Image", {
 	/**@
 	* #.image
 	* @comp Image
+	* @trigger Change - when the image is loaded
 	* @sign public this .image(String url[, String repeat])
 	* @param url - URL of the image
 	* @param repeat - If the image should be repeated to fill the entity.
@@ -195,6 +198,7 @@ Crafty.extend({
 	/**@
 	* #Crafty.scene
 	* @category Scenes, Stage
+	* @trigger SceneChange - when a scene is played - { oldScene:String, newScene:String }
 	* @sign public void Crafty.scene(String sceneName, Function init)
 	* @param sceneName - Name of the scene to add
 	* @param init - Function execute when scene is played
@@ -207,9 +211,6 @@ Crafty.extend({
 	*
 	* If you want some entities to persist over scenes (as in not be destroyed)
 	* simply add the component `Persist`.
-	*
-	* When a scene is played a SceneChange event is triggered. The callback object has
-	* the properties oldScene and newScene, which are string names of the scenes.
 	*
 	* @example
 	* ~~~

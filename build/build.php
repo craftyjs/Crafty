@@ -98,9 +98,14 @@ function docs($files, $path, $save) {
 							}
 							$split = preg_split("/\s*-\s*/", $value);
 							$block .= "{$split[0]}";
-							if(count($split) == 3) {
+							if(count($split) >= 3) {
 								$split[2] = trim($split[2]);
-								$block .= " [Data: {$split[2]}]";
+								if(count($split) >= 4) {
+									$split[3] = trim($split[3]);
+									$block .= " [{$split[3]}: {$split[2]}]";
+								}else{
+									$block .= " [Data: {$split[2]}]";
+								}
 							}
 							$block .= "\n:\t{$split[1]}\n\n";
 							break;

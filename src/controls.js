@@ -141,28 +141,47 @@ Crafty.extend({
 });
 
 //initialize the input events onload
-Crafty.bind("Load", function() {
-	Crafty.addEvent(this, "keydown", Crafty.keyboardDispatch);
-	Crafty.addEvent(this, "keyup", Crafty.keyboardDispatch);
-        
-	Crafty.addEvent(this, Crafty.stage.elem, "mousedown", Crafty.mouseDispatch);
-	Crafty.addEvent(this, Crafty.stage.elem, "mouseup", Crafty.mouseDispatch);
-	Crafty.addEvent(this, Crafty.stage.elem, "mousemove", Crafty.mouseDispatch);
-	Crafty.addEvent(this, Crafty.stage.elem, "click", Crafty.mouseDispatch);
-	Crafty.addEvent(this, Crafty.stage.elem, "dblclick", Crafty.mouseDispatch);
-	
-	Crafty.addEvent(this, Crafty.stage.elem, "touchstart", Crafty.mouseDispatch);
-	Crafty.addEvent(this, Crafty.stage.elem, "touchmove", Crafty.mouseDispatch);
-	Crafty.addEvent(this, Crafty.stage.elem, "touchend", Crafty.mouseDispatch);
-});
+Crafty.bind( "Load", function () {
+	Crafty.addEvent( this, "keydown", Crafty.keyboardDispatch );
+	Crafty.addEvent( this, "keyup", Crafty.keyboardDispatch );
+
+	Crafty.addEvent( this, Crafty.stage.elem, "mousedown", Crafty.mouseDispatch );
+	Crafty.addEvent( this, Crafty.stage.elem, "mouseup", Crafty.mouseDispatch );
+	Crafty.addEvent( this, Crafty.stage.elem, "mousemove", Crafty.mouseDispatch );
+	Crafty.addEvent( this, Crafty.stage.elem, "click", Crafty.mouseDispatch );
+	Crafty.addEvent( this, Crafty.stage.elem, "dblclick", Crafty.mouseDispatch );
+
+	Crafty.addEvent( this, Crafty.stage.elem, "touchstart", Crafty.mouseDispatch );
+	Crafty.addEvent( this, Crafty.stage.elem, "touchmove", Crafty.mouseDispatch );
+	Crafty.addEvent( this, Crafty.stage.elem, "touchend", Crafty.mouseDispatch );
+} );
 
 /**@
 * #Mouse
 * @category Input
-* Provides the mouse related events
-* `MouseOver`, `MouseDown`, `MouseOut`, `MouseUp` and `Click`.
+* Provides the entity with mouse related events
+* @trigger MouseOver - when the mouse enters the entity - MouseEvent
+* @trigger MouseOut - when the mouse leaves the entity - MouseEvent
+* @trigger MouseDown - when the mouse button is pressed on the entity - MouseEvent
+* @trigger MouseUp - when the mouse button is released on the entity - MouseEvent
+* @trigger Click - when the user clicks the entity. [See documentation](http://www.quirksmode.org/dom/events/click.html) - MouseEvent
+* @trigger DoubleClick - when the user double clicks the entity - MouseEvent
+* @trigger MouseMove - when the mouse is over the entity and moves - MouseEvent
+* Crafty adds the mouseButton property to MouseEvents that match one of 
+*
+* - Crafty.mouseButtons.LEFT 
+* - Crafty.mouseButtons.RIGHT
+* - Crafty.mouseButtons.MIDDLE
+* @example
 * ~~~
-* myEntity.bind('Click', function() {console.log("Clicked!!")})
+* myEntity.bind('Click', function() {
+*      console.log("Clicked!!");
+* })
+*
+* myEntity.bind('Click', function(e) {
+*    if( e.mouseButton == Crafty.mouseButtons.RIGHT )
+*        console.log("Clicked right button");
+* })
 * ~~~
 */
 Crafty.c("Mouse", {
@@ -210,7 +229,7 @@ Crafty.c("Mouse", {
 /**@
 * #Draggable
 * @category Input
-* Enable drag and drop the entity.
+* Enable drag and drop of the entity.
 * @trigger Dragging - is triggered each frame the entity is being dragged - MouseEvent
 * @trigger StartDrag - is triggered when dragging begins - MouseEvent
 * @trigger StopDrag - is triggered when dragging ends - MouseEvent
@@ -262,6 +281,7 @@ Crafty.c("Draggable", {
 	* @comp Draggable
 	* @sign public this .stopDrag(void)
 	* Stop the entity from dragging. Essentially reproducing the drop.
+	* @trigger StopDrag - Called right after the mouse listeners are removed
 	* @see .startDrag
 	*/
 	stopDrag: function() {
@@ -343,6 +363,8 @@ Crafty.c("Keyboard", {
 * #Multiway
 * @category Input
 * Used to bind keys to directions and have the entity move acordingly 
+* @trigger NewDirection - triggered when direction changes - { x:Number, y:Number } - New direction
+* @trigger Moved - triggered on movement on either x or y axis. If the entity has moved on both axes for diagonal movement the event is triggered twice - { x:Number, y:Number } - Old position 
 */
 Crafty.c("Multiway", {	
 	_speed: 3,
@@ -460,6 +482,7 @@ Crafty.c("Fourway", {
 	* When entity has moved on either x- or y-axis a Moved event is triggered with an object specifying the old position {x: old_x, y: old_y}
 	*
 	* The key presses will move the entity in that direction by the speed passed in the argument.
+	* @see Multiway
 	*/
 	fourway: function(speed) {
 		this.multiway(speed, { 
