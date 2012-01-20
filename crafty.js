@@ -5126,10 +5126,10 @@ Crafty.extend({
 	* #Crafty.scene
 	* @category Scenes, Stage
 	* @trigger SceneChange - when a scene is played - { oldScene:String, newScene:String }
-	* @sign public void Crafty.scene(String sceneName, Function init)
+	* @sign public void Crafty.scene(String sceneName, Function init[, Function uninit])
 	* @param sceneName - Name of the scene to add
-	* @param init - Function execute when scene is played
-	* @param uninit - Function execute before next scene is played
+	* @param init - Function to execute when scene is played
+	* @param uninit - Function to execute before next scene is played, after entities with `2D` are destroyed
 	* @sign public void Crafty.scene(String sceneName)
 	* @param sceneName - Name of scene to play
 	* Method to create scenes on the stage. Pass an ID and function to register a scene.
@@ -5142,8 +5142,6 @@ Crafty.extend({
 	*
 	* @example
 	* ~~~
-	* Crafty.scene("loading", function() {});
-	*
 	* Crafty.scene("loading", function() {}, function() {});
 	*
 	* Crafty.scene("loading");
