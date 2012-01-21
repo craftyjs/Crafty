@@ -634,10 +634,9 @@ Crafty.c("Physics", {
 * #Gravity
 * @category 2D
 * Adds gravitational pull to the entity.
-* @trigger Hit - when the entity hits an entity that stops it from falling
 */
 Crafty.c("Gravity", {
-	_gravity: 0.2,
+	_gravityConst: 0.2,
 	_gy: 0,
 	_falling: true,
 	_anti: null,
@@ -651,7 +650,7 @@ Crafty.c("Gravity", {
 	* @comp Gravity
 	* @sign public this .gravity([comp])
 	* @param comp - The name of a component that will stop this entity from falling
-	* Enamle gravity for this entity. If comp parameter is specified all entities with that component will stop this entity from falling.
+	* Enable gravity for this entity. If comp parameter is specified all entities with that component will stop this entity from falling.
 	* For a player entity in a platform game this would be a component that is added to all entities
 	* that the player should be able to walk on.
 	* ~~~
@@ -666,10 +665,27 @@ Crafty.c("Gravity", {
 		return this;
 	},
 
+	/**@
+	* #.gravityConst
+	* @comp Gravity
+	* @sign public this .gravityConst(g)
+	* @param g - gravitational constant
+	* Set the gravitational constant to g. The default is .2. The greater g, the faster the object falls.
+	* ~~~
+	* Crafty.e("2D, DOM, Color, Gravity").color("red").attr({ w: 100, h: 100 }).gravity("platform").gravityConst(2)
+	* ~~~
+	*/
+	gravityConst: function (g) {
+		this._gravityConst = g;
+		return this;
+	},
+
 	_enterframe: function () {
 		if (this._falling) {
 			//if falling, move the players Y
-			this._gy += this._gravity * 2;
+			//it used to be this._gy += this._gravityConst * 2;
+			//2 seems to be unnecessary. So 2 is removed. by pengyu
+			this._gy += this._gravityConst;
 			this.y += this._gy;
 		} else {
 			this._gy = 0; //reset change in y
@@ -712,7 +728,7 @@ Crafty.c("Gravity", {
 		//this._gy = -1 * this._bounce;
 		this._falling = false;
 		if (this._up) this._up = false;
-		this.trigger("Hit");
+		this.trigger("hit");
 	},
 
 	/**@
