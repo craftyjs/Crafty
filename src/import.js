@@ -17,42 +17,42 @@
 * });
 * ~~~
 */
-Crafty.import = function(obj, scene) {
+Crafty.import = function (obj, scene) {
 	//if its a string, load the script file
-	if(typeof obj === "string") {
-		if(levelData) {
-			if(scene) Crafty.import(levelData[scene]);
+	if (typeof obj === "string") {
+		if (levelData) {
+			if (scene) Crafty.import(levelData[scene]);
 			else Crafty.import(levelData);
 		} else {
 			var elem;
 			elem = document.createElement("script");
-			elem.onload = function() {
-				if(scene) Crafty.import(levelData[scene]);
+			elem.onload = function () {
+				if (scene) Crafty.import(levelData[scene]);
 				else Crafty.import(levelData);
 			};
 			elem.src = obj;
 		}
 		return;
 	}
-	
+
 	var key, i = 0, l, current, ent;
-	
+
 	//loop over new entities to create
-	if(obj.n && typeof obj.n === "object") {
-		for(l = obj.n.length; i < l; ++i) {
+	if (obj.n && typeof obj.n === "object") {
+		for (l = obj.n.length; i < l; ++i) {
 			current = obj.n[i];
-			
+
 			//create entity with components
 			ent = Crafty.e(current.c);
 			delete current.c; //remove the components
-			
+
 			//apply the other properties
 			ent.attr(current);
 		}
 	}
-	
+
 	//loop over modified entities
-	for(key in obj) {
+	for (key in obj) {
 		ent = Crafty(key);
 		ent.attr(obj[key]);
 	}

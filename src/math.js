@@ -4,7 +4,7 @@
 * Static functions.
 */
 Crafty.math = {
-    /**@
+/**@
 	 * #Crafty.math.abs
 	 * @comp Crafty.math
      * @sign public this Crafty.math.abs(Number n)
@@ -12,11 +12,11 @@ Crafty.math = {
      * @return Absolute value.
 	 * Returns the absolute value.
      */
-    abs: function(x) {
-        return x < 0 ? -x : x;
-    },
+	abs: function (x) {
+		return x < 0 ? -x : x;
+	},
 
-    /**@
+	/**@
      * #Crafty.math.amountOf
 	 * @comp Crafty.math
 	 * @sign public Number Crafty.math.amountOf(Number checkValue, Number minValue, Number maxValue)
@@ -27,15 +27,15 @@ Crafty.math = {
 	 * Returns the amount of how much a checkValue is more like minValue (=0)
      * or more like maxValue (=1)
      */
-    amountOf: function(checkValue, minValue, maxValue) {
-        if (minValue < maxValue)
-            return (checkValue - minValue) / (maxValue - minValue);
-        else
-            return (checkValue - maxValue) / (minValue - maxValue);
-    },
+	amountOf: function (checkValue, minValue, maxValue) {
+		if (minValue < maxValue)
+			return (checkValue - minValue) / (maxValue - minValue);
+		else
+			return (checkValue - maxValue) / (minValue - maxValue);
+	},
 
 
-    /**@
+	/**@
      * #Crafty.math.clamp
 	 * @comp Crafty.math
 	 * @sign public Number Crafty.math.clamp(Number value, Number min, Number max)
@@ -45,26 +45,26 @@ Crafty.math = {
      * @return The value between minimum and maximum.
 	 * Restricts a value to be within a specified range.
      */
-    clamp: function(value, min, max) {
-        if (value > max)
-            return max;
-        else if (value < min)
-            return min;
-        else
-            return value;
-    },
+	clamp: function (value, min, max) {
+		if (value > max)
+			return max;
+		else if (value < min)
+			return min;
+		else
+			return value;
+	},
 
-    /**@
+	/**@
      * Converts angle from degree to radian.
 	 * @comp Crafty.math
      * @param angleInDeg - The angle in degree.
      * @return The angle in radian.
      */
-    degToRad: function(angleInDeg) {
-        return angleInDeg * Math.PI / 180;
-    },
+	degToRad: function (angleInDeg) {
+		return angleInDeg * Math.PI / 180;
+	},
 
-    /**@
+	/**@
      * #Crafty.math.distance
 	 * @comp Crafty.math
 	 * @sign public Number Crafty.math.distance(Number x1, Number y1, Number x2, Number y2)
@@ -75,12 +75,12 @@ Crafty.math = {
      * @return The distance between the two points.
 	 * Distance between two points.
      */
-    distance: function(x1, y1, x2, y2) {
-        var squaredDistance = Crafty.math.squaredDistance(x1, y1, x2, y2);
-        return Math.sqrt(parseFloat(squaredDistance));
-    },
+	distance: function (x1, y1, x2, y2) {
+		var squaredDistance = Crafty.math.squaredDistance(x1, y1, x2, y2);
+		return Math.sqrt(parseFloat(squaredDistance));
+	},
 
-    /**@
+	/**@
      * #Crafty.math.lerp
 	 * @comp Crafty.math
 	 * @sign public Number Crafty.math.lerp(Number value1, Number value2, Number amount)
@@ -91,11 +91,11 @@ Crafty.math = {
 	 * Linear interpolation. Passing amount with a value of 0 will cause value1 to be returned,
      * a value of 1 will cause value2 to be returned.
      */
-    lerp: function(value1, value2, amount) {
-        return value1 + (value2 - value1) * amount;
-    },
+	lerp: function (value1, value2, amount) {
+		return value1 + (value2 - value1) * amount;
+	},
 
-    /**@
+	/**@
      * #Crafty.math.negate
 	 * @comp Crafty.math
 	 * @sign public Number Crafty.math.negate(Number percent)
@@ -103,14 +103,14 @@ Crafty.math = {
      * @return 1 or -1.
 	 * Returnes "randomly" -1.
      */
-    negate: function(percent) {
-        if (Math.random() < percent)
-            return -1;
-        else
-            return 1;
-    },
+	negate: function (percent) {
+		if (Math.random() < percent)
+			return -1;
+		else
+			return 1;
+	},
 
-    /**@
+	/**@
      * #Crafty.math.radToDeg
 	 * @comp Crafty.math
 	 * @sign public Number Crafty.math.radToDeg(Number angle)
@@ -118,11 +118,11 @@ Crafty.math = {
      * @return The angle in degree.
 	 * Converts angle from radian to degree.
      */
-    radToDeg: function(angleInRad) {
-        return angleInRad * 180 / Math.PI;
-    },
+	radToDeg: function (angleInRad) {
+		return angleInRad * 180 / Math.PI;
+	},
 
-    /**@
+	/**@
      * #Crafty.math.randomElementOfArray
 	 * @comp Crafty.math
 	 * @sign public Object Crafty.math.randomElementOfArray(Array array)
@@ -130,11 +130,11 @@ Crafty.math = {
      * @return A random element of a specific array.
 	 * Returns a random element of a specific array.
      */
-    randomElementOfArray: function(array) {
-        return array[array.length * Math.random()];
-    },
+	randomElementOfArray: function (array) {
+		return array[array.length * Math.random()];
+	},
 
-    /**@
+	/**@
      * #Crafty.math.randomInt
 	 * @comp Crafty.math
 	 * @sign public Number Crafty.math.randomInt(Number start, Number end)
@@ -143,11 +143,11 @@ Crafty.math = {
      * @return A random int.
 	 * Returns a random int in within a specific range.
      */
-    randomInt: function(start, end) {
-        return start + Math.floor((1 + end - start) * Math.random());
-    },
+	randomInt: function (start, end) {
+		return start + Math.floor((1 + end - start) * Math.random());
+	},
 
-    /**@
+	/**@
      * #Crafty.math.randomNumber
 	 * @comp Crafty.math
 	 * @sign public Number Crafty.math.randomInt(Number start, Number end)
@@ -156,11 +156,11 @@ Crafty.math = {
      * @return A random number.
 	 * Returns a random number in within a specific range.
      */
-    randomNumber: function(start, end) {
-        return start + (end - start) * Math.random();
-    },
+	randomNumber: function (start, end) {
+		return start + (end - start) * Math.random();
+	},
 
-    /**@
+	/**@
 	 * #Crafty.math.squaredDistance
 	 * @comp Crafty.math
 	 * @sign public Number Crafty.math.squaredDistance(Number x1, Number y1, Number x2, Number y2)
@@ -171,11 +171,11 @@ Crafty.math = {
      * @return The squared distance between the two points.
 	 * Squared distance between two points.
      */
-    squaredDistance: function(x1, y1, x2, y2) {
-        return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
-    },
+	squaredDistance: function (x1, y1, x2, y2) {
+		return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+	},
 
-    /**@
+	/**@
      * #Crafty.math.squaredDistance
 	 * @comp Crafty.math
 	 * @sign public Boolean Crafty.math.withinRange(Number value, Number min, Number max)
@@ -185,12 +185,12 @@ Crafty.math = {
      * @return Returns true if value is within a specific range.
 	 * Check if a value is within a specific range.
      */
-    withinRange: function(value, min, max) {
-        return (value >= min && value <= max);
-    }
+	withinRange: function (value, min, max) {
+		return (value >= min && value <= max);
+	}
 };
 
-Crafty.math.Vector2D = (function() {
+Crafty.math.Vector2D = (function () {
 	/**@
 	 * #Crafty.math.Vector2D
 	 *
@@ -230,7 +230,7 @@ Crafty.math.Vector2D = (function() {
 	 * @param {vector2D} vecRH
 	 * @returns {Vector2D} this after adding
 	 */
-	Vector2D.prototype.add = function(vecRH) {
+	Vector2D.prototype.add = function (vecRH) {
 		this.x += vecRH.x;
 		this.y += vecRH.y;
 		return this;
@@ -247,7 +247,7 @@ Crafty.math.Vector2D = (function() {
 	 * @param {Vector2D} vecRH
 	 * @returns {Number} the angle between the two vectors in radians
 	 */
-	Vector2D.prototype.angleBetween = function(vecRH) {
+	Vector2D.prototype.angleBetween = function (vecRH) {
 		return Math.atan2(this.x * vecRH.y - this.y * vecRH.x, this.x * vecRH.x + this.y * vecRH.y);
 	} // angleBetween( )
 
@@ -261,7 +261,7 @@ Crafty.math.Vector2D = (function() {
 	 * @param {Vector2D} vecRH
 	 * @returns {Number} the angle to the passed vector in radians
 	 */
-	Vector2D.prototype.angleTo = function(vecRH) {
+	Vector2D.prototype.angleTo = function (vecRH) {
 		return Math.atan2(vecRH.y - this.y, vecRH.x - this.x);
 	};
 
@@ -274,7 +274,7 @@ Crafty.math.Vector2D = (function() {
 	 * @sign public {Vector2D} clone();
 	 * @returns {Vector2D} the new vector
 	 */
-	Vector2D.prototype.clone = function() {
+	Vector2D.prototype.clone = function () {
 		return new Vector2D(this);
 	} // clone( )
 
@@ -288,7 +288,7 @@ Crafty.math.Vector2D = (function() {
 	 * @param {Vector2D} vecRH
 	 * @returns {Number} the distance between the two vectors
 	 */
-	Vector2D.prototype.distance = function(vecRH) {
+	Vector2D.prototype.distance = function (vecRH) {
 		return Math.sqrt((vecRH.x - this.x) * (vecRH.x - this.x) + (vecRH.y - this.y) * (vecRH.y - this.y));
 	} // distance( )
 
@@ -304,7 +304,7 @@ Crafty.math.Vector2D = (function() {
 	 * @returns {Number} the squared distance between the two vectors
 	 * @see Vector2D.distance( )
 	 */
-	Vector2D.prototype.distanceSq = function(vecRH) {
+	Vector2D.prototype.distanceSq = function (vecRH) {
 		return (vecRH.x - this.x) * (vecRH.x - this.x) + (vecRH.y - this.y) * (vecRH.y - this.y);
 	} // distanceSq( )
 
@@ -318,7 +318,7 @@ Crafty.math.Vector2D = (function() {
 	 * @param {Vector2D} vecRH
 	 * @returns {Vector2D} this vector after dividing
 	 */
-	Vector2D.prototype.divide = function(vecRH) {
+	Vector2D.prototype.divide = function (vecRH) {
 		this.x /= vecRH.x;
 		this.y /= vecRH.y;
 		return this;
@@ -334,7 +334,7 @@ Crafty.math.Vector2D = (function() {
 	 * @param {Vector2D} vecRH
 	 * @returns {Number} the resultant dot product
 	 */
-	Vector2D.prototype.dotProduct = function(vecRH) {
+	Vector2D.prototype.dotProduct = function (vecRH) {
 		return this.x * vecRH.x + this.y * vecRH.y;
 	} // dotProduct( )
 
@@ -348,7 +348,7 @@ Crafty.math.Vector2D = (function() {
 	 * @param {Vector2D} vecRH
 	 * @returns {Boolean} true if the vectors are equivalent
 	 */
-	Vector2D.prototype.equals = function(vecRH) {
+	Vector2D.prototype.equals = function (vecRH) {
 		return vecRH instanceof Vector2D &&
 			this.x == vecRH.x && this.y == vecRH.y;
 	} // equals( )
@@ -363,7 +363,7 @@ Crafty.math.Vector2D = (function() {
 	 * @param {Vector2D=<0,0>} [vecRH]
 	 * @returns {Vector2D} the new normal vector
 	 */
-	Vector2D.prototype.getNormal = function(vecRH) {
+	Vector2D.prototype.getNormal = function (vecRH) {
 		if (vecRH === undefined)
 			return new Vector2D(-this.y, this.x); // assume vecRH is <0, 0>
 		return new Vector2D(vecRH.y - this.y, this.x - vecRH.x).normalize();
@@ -378,8 +378,8 @@ Crafty.math.Vector2D = (function() {
 	 * @sign public {Boolean} isZero();
 	 * @returns {Boolean} true if this vector is equal to <0,0>
 	 */
-	Vector2D.prototype.isZero = function() {
-		return this.x === 0 && this.y ===0;
+	Vector2D.prototype.isZero = function () {
+		return this.x === 0 && this.y === 0;
 	} // isZero( )
 
 	/**@
@@ -392,7 +392,7 @@ Crafty.math.Vector2D = (function() {
 	 * @sign public {Number} magnitude();
 	 * @returns {Number} the magnitude of this vector
 	 */
-	Vector2D.prototype.magnitude = function() {
+	Vector2D.prototype.magnitude = function () {
 		return Math.sqrt(this.x * this.x + this.y * this.y);
 	} // magnitude( )
 
@@ -407,7 +407,7 @@ Crafty.math.Vector2D = (function() {
 	 * @returns {Number} the square of the magnitude of this vector
 	 * @see Vector2D.magnitude( )
 	 */
-	Vector2D.prototype.magnitudeSq = function() {
+	Vector2D.prototype.magnitudeSq = function () {
 		return this.x * this.x + this.y * this.y;
 	} // magnitudeSq( )
 
@@ -421,7 +421,7 @@ Crafty.math.Vector2D = (function() {
 	 * @param {Vector2D} vecRH
 	 * @returns {Vector2D} this vector after multiplying
 	 */
-	Vector2D.prototype.multiply = function(vecRH) {
+	Vector2D.prototype.multiply = function (vecRH) {
 		this.x *= vecRH.x;
 		this.y *= vecRH.y;
 		return this;
@@ -436,7 +436,7 @@ Crafty.math.Vector2D = (function() {
 	 * @sign public {Vector2D} negate();
 	 * @returns {Vector2D} this vector after negation
 	 */
-	Vector2D.prototype.negate = function() {
+	Vector2D.prototype.negate = function () {
 		this.x = -this.x;
 		this.y = -this.y;
 		return this;
@@ -452,7 +452,7 @@ Crafty.math.Vector2D = (function() {
 	 * @sign public {Vector2D} normalize();
 	 * @returns {Vector2D} this vector after normalization
 	 */
-	Vector2D.prototype.normalize = function() {
+	Vector2D.prototype.normalize = function () {
 		var lng = Math.sqrt(this.x * this.x + this.y * this.y);
 
 		if (lng === 0) {
@@ -479,7 +479,7 @@ Crafty.math.Vector2D = (function() {
 	 * @param {Number} [scalarY]
 	 * @returns {Vector2D} this after scaling
 	 */
-	Vector2D.prototype.scale = function(scalarX, scalarY) {
+	Vector2D.prototype.scale = function (scalarX, scalarY) {
 		if (scalarY === undefined)
 			scalarY = scalarX;
 
@@ -499,7 +499,7 @@ Crafty.math.Vector2D = (function() {
 	 * @param {Number} mag
 	 * @returns {Vector2D} this vector after scaling
 	 */
-	Vector2D.prototype.scaleToMagnitude = function(mag) {
+	Vector2D.prototype.scaleToMagnitude = function (mag) {
 		var k = mag / this.magnitude();
 		this.x *= k;
 		this.y *= k;
@@ -518,7 +518,7 @@ Crafty.math.Vector2D = (function() {
 	 * @param {Number} y
 	 * @returns {Vector2D} this vector after setting of values
 	 */
-	Vector2D.prototype.setValues = function(x, y) {
+	Vector2D.prototype.setValues = function (x, y) {
 		if (x instanceof Vector2D) {
 			this.x = x.x;
 			this.y = x.y;
@@ -540,7 +540,7 @@ Crafty.math.Vector2D = (function() {
 	 * @param {Vector2D} vecRH
 	 * @returns {vector2D} this vector after subtracting
 	 */
-	Vector2D.prototype.subtract = function(vecRH) {
+	Vector2D.prototype.subtract = function (vecRH) {
 		this.x -= vecRH.x;
 		this.y -= vecRH.y;
 		return this;
@@ -555,7 +555,7 @@ Crafty.math.Vector2D = (function() {
 	 * @sign public {String} toString();
 	 * @returns {String}
 	 */
-	Vector2D.prototype.toString = function() {
+	Vector2D.prototype.toString = function () {
 		return "Vector2D(" + this.x + ", " + this.y + ")";
 	} // toString( )
 
@@ -571,7 +571,7 @@ Crafty.math.Vector2D = (function() {
 	 * @param {Number} [dy]
 	 * @returns {Vector2D} this vector after translating
 	 */
-	Vector2D.prototype.translate = function(dx, dy) {
+	Vector2D.prototype.translate = function (dx, dy) {
 		if (dy === undefined)
 			dy = dx;
 
@@ -595,7 +595,7 @@ Crafty.math.Vector2D = (function() {
 	 * @param {Vector2D} c
 	 * @return {Vector2D} the triple product as a new vector
 	 */
-	Vector2D.tripleProduct = function(a, b, c) {
+	Vector2D.tripleProduct = function (a, b, c) {
 		var ac = a.dotProduct(c);
 		var bc = b.dotProduct(c);
 		return new Crafty.math.Vector2D(b.x * ac - a.x * bc, b.y * ac - a.y * bc);
@@ -604,7 +604,7 @@ Crafty.math.Vector2D = (function() {
 	return Vector2D;
 })();
 
-Crafty.math.Matrix2D = (function() {
+Crafty.math.Matrix2D = (function () {
 	/**@
 	 * #Crafty.math.Matrix2D
 	 *
@@ -627,7 +627,7 @@ Crafty.math.Matrix2D = (function() {
 	 * @param {Number=0} e
 	 * @param {Number=0} f
 	 */
-	Matrix2D = function(a, b, c, d, e, f) {
+	Matrix2D = function (a, b, c, d, e, f) {
 		if (a instanceof Matrix2D) {
 			this.a = a.a;
 			this.b = a.b;
@@ -663,7 +663,7 @@ Crafty.math.Matrix2D = (function() {
 	 * @param {Vector2D} vecRH - vector to be transformed
 	 * @returns {Vector2D} the passed vector object after transforming
 	 */
-	Matrix2D.prototype.apply = function(vecRH) {
+	Matrix2D.prototype.apply = function (vecRH) {
 		// I'm not sure of the best way for this function to be implemented. Ideally
 		// support for other objects (rectangles, polygons, etc) should be easily
 		// addable in the future. Maybe a function (apply) is not the best way to do
@@ -686,7 +686,7 @@ Crafty.math.Matrix2D = (function() {
 	 * @sign public {Matrix2D} clone();
 	 * @returns {Matrix2D}
 	 */
-	Matrix2D.prototype.clone = function() {
+	Matrix2D.prototype.clone = function () {
 		return new Matrix2D(this);
 	} // clone( )
 
@@ -701,7 +701,7 @@ Crafty.math.Matrix2D = (function() {
 	 * @param {Matrix2D} mtrxRH
 	 * @returns {Matrix2D} this matrix after combination
 	 */
-	Matrix2D.prototype.combine = function(mtrxRH) {
+	Matrix2D.prototype.combine = function (mtrxRH) {
 		var tmp = this.a;
 		this.a = tmp * mtrxRH.a + this.b * mtrxRH.c;
 		this.b = tmp * mtrxRH.b + this.b * mtrxRH.d;
@@ -724,7 +724,7 @@ Crafty.math.Matrix2D = (function() {
 	 * @param {Matrix2D} mtrxRH
 	 * @returns {Boolean} true if the two matrices are numerically equal
 	 */
-	Matrix2D.prototype.equals = function(mtrxRH) {
+	Matrix2D.prototype.equals = function (mtrxRH) {
 		return mtrxRH instanceof Matrix2D &&
 			this.a == mtrxRH.a && this.b == mtrxRH.b && this.c == mtrxRH.c &&
 			this.d == mtrxRH.d && this.e == mtrxRH.e && this.f == mtrxRH.f;
@@ -739,7 +739,7 @@ Crafty.math.Matrix2D = (function() {
 	 * @sign public {Number} determinant();
 	 * @returns {Number} det(this matrix)
 	 */
-	Matrix2D.prototype.determinant = function() {
+	Matrix2D.prototype.determinant = function () {
 		return this.a * this.d - this.b * this.c;
 	} // determinant( )
 
@@ -753,7 +753,7 @@ Crafty.math.Matrix2D = (function() {
 	 * @returns {Matrix2D} this inverted matrix or the original matrix on failure
 	 * @see Matrix2D.isInvertible( )
 	 */
-	Matrix2D.prototype.invert = function() {
+	Matrix2D.prototype.invert = function () {
 		var det = this.determinant();
 
 		// matrix is invertible if its determinant is non-zero
@@ -786,7 +786,7 @@ Crafty.math.Matrix2D = (function() {
 	 * @sign public {Boolean} isIdentity();
 	 * @returns {Boolean}
 	 */
-	Matrix2D.prototype.isIdentity = function() {
+	Matrix2D.prototype.isIdentity = function () {
 		return this.a === 1 && this.b === 0 && this.c === 0 && this.d === 1 && this.e === 0 && this.f === 0;
 	} // isIdentity( )
 
@@ -800,7 +800,7 @@ Crafty.math.Matrix2D = (function() {
 	 * @returns {Boolean} true if this matrix is invertible
 	 * @see Matrix2D.invert( )
 	 */
-	Matrix2D.prototype.isInvertible = function() {
+	Matrix2D.prototype.isInvertible = function () {
 		return this.determinant() !== 0;
 	} // isInvertible( )
 
@@ -814,7 +814,7 @@ Crafty.math.Matrix2D = (function() {
 	 * @param {number} rads - angle to rotate in radians
 	 * @returns {Matrix2D} this matrix after pre-rotation
 	 */
-	Matrix2D.prototype.preRotate = function(rads) {
+	Matrix2D.prototype.preRotate = function (rads) {
 		var nCos = Math.cos(rads);
 		var nSin = Math.sin(rads);
 
@@ -839,7 +839,7 @@ Crafty.math.Matrix2D = (function() {
 	 * @param {Number} [scalarY] scalarX is used if scalarY is undefined
 	 * @returns {Matrix2D} this after pre-scaling
 	 */
-	Matrix2D.prototype.preScale = function(scalarX, scalarY) {
+	Matrix2D.prototype.preScale = function (scalarX, scalarY) {
 		if (scalarY === undefined)
 			scalarY = scalarX;
 
@@ -863,7 +863,7 @@ Crafty.math.Matrix2D = (function() {
 	 * @param {Number} dy
 	 * @returns {Matrix2D} this matrix after pre-translation
 	 */
-	Matrix2D.prototype.preTranslate = function(dx, dy) {
+	Matrix2D.prototype.preTranslate = function (dx, dy) {
 		if (typeof dx === "number") {
 			this.e += dx;
 			this.f += dy;
@@ -885,7 +885,7 @@ Crafty.math.Matrix2D = (function() {
 	 * @param {Number} rads - angle to rotate in radians
 	 * @returns {Matrix2D} this matrix after rotation
 	 */
-	Matrix2D.prototype.rotate = function(rads) {
+	Matrix2D.prototype.rotate = function (rads) {
 		var nCos = Math.cos(rads);
 		var nSin = Math.sin(rads);
 
@@ -913,7 +913,7 @@ Crafty.math.Matrix2D = (function() {
 	 * @param {Number} [scalarY] scalarX is used if scalarY is undefined
 	 * @returns {Matrix2D} this after post-scaling
 	 */
-	Matrix2D.prototype.scale = function(scalarX, scalarY) {
+	Matrix2D.prototype.scale = function (scalarX, scalarY) {
 		if (scalarY === undefined)
 			scalarY = scalarX;
 
@@ -943,7 +943,7 @@ Crafty.math.Matrix2D = (function() {
 	 * @param {Number} f
 	 * @returns {Matrix2D} this matrix containing the new values
 	 */
-	Matrix2D.prototype.setValues = function(a, b, c, d, e, f) {
+	Matrix2D.prototype.setValues = function (a, b, c, d, e, f) {
 		if (a instanceof Matrix2D) {
 			this.a = a.a;
 			this.b = a.b;
@@ -972,7 +972,7 @@ Crafty.math.Matrix2D = (function() {
 	 * @sign public {String} toString();
 	 * @returns {String}
 	 */
-	Matrix2D.prototype.toString = function() {
+	Matrix2D.prototype.toString = function () {
 		return "Matrix2D([" + this.a + ", " + this.c + ", " + this.e +
 			"] [" + this.b + ", " + this.d + ", " + this.f + "] [0, 0, 1])";
 	} // toString( )
@@ -989,7 +989,7 @@ Crafty.math.Matrix2D = (function() {
 	 * @param {Number} dy
 	 * @returns {Matrix2D} this matrix after post-translation
 	 */
-	Matrix2D.prototype.translate = function(dx, dy) {
+	Matrix2D.prototype.translate = function (dx, dy) {
 		if (typeof dx === "number") {
 			this.e += this.a * dx + this.c * dy;
 			this.f += this.b * dx + this.d * dy;

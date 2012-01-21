@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <?php
 include 'markdown.php';
 
@@ -11,19 +10,17 @@ define("SEE", "see");
 define("RETURNS", "return");
 define("COMP", "comp");
 define("CATEGORY", "category");
-define("TRIGGER", "trigger");
 
 function docs($files, $path, $save) {
 	$category = array(); //array of categories
 	$comps = array(); //array of components
 	$names = array(); //array of named elements
-	$events = array(); //array of events
 	
 	//loop over files
 	foreach($files as $file) {
 		$fh = fopen($path.$file, 'r');
 		$open = false;
-		$lastTag = "";
+		
 		$block = "";
 		
 		while($line = fgets($fh)) {
@@ -92,26 +89,7 @@ function docs($files, $path, $save) {
 								$comps[$v][] = $name;
 							}
 							break;
-						case TRIGGER:
-							if($lastTag != TRIGGER) {
-								$block .= "###Events\n";
-							}
-							$split = preg_split("/\s*-\s*/", $value);
-							$block .= "{$split[0]}";
-							if(count($split) >= 3) {
-								$split[2] = trim($split[2]);
-								if(count($split) >= 4) {
-									$split[3] = trim($split[3]);
-									$block .= " [{$split[3]}: {$split[2]}]";
-								}else{
-									$block .= " [Data: {$split[2]}]";
-								}
-							}
-							$block .= "\n:\t{$split[1]}\n\n";
-							break;
 					}
-					$lastTag = $tag;
-					
 				} else if(trim($cleanline) == "") {
 					$block .= "\n";
 				} else {

@@ -1,0 +1,9 @@
+
+crafty.js
+crafty-min.js
+build/api/*
+<<<<<<< HEAD
+.*.sw?
+=======
+.*.sw?
+>>>>>>> upstream/master

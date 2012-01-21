@@ -12,7 +12,7 @@ body, html { padding:0; margin:0; font-family:Helvetica, Arial }
 #main { width:820px; background:#fff url('images/inner-top.png') repeat-x top; margin:-19px auto 0 auto; min-height:300px; }
 #main-left { float:left; width:9px; height:206px; background:url('images/inner-left.png') no-repeat; }
 #main-right { float:right; width:9px; height:206px; background:url('images/inner-right.png') no-repeat; }
-#content { padding:10px }
+#content { padding:10px 20px }
 
 #contact { 
 	font-family:Verdana; 
@@ -60,7 +60,7 @@ button:active {
 #footer a { color:#ccc; }
 #footer li a { margin:0 10px }
 
-#grid { margin:10px 0 0 10px }
+#grid { margin:10px -10px 0 0 }
 .box { border:1px solid #ccc; float:left; width:240px; height:150px; margin:-1px 0 0 -1px; padding:10px; text-shadow:1px 1px 1px #fff }
 .box h2 { padding:0; margin:0; border:0; font-size:20px; font-family:'Arvo', arial, serif; font-weight:normal }
 
@@ -77,9 +77,19 @@ button:active {
 .gridlist li a img { border:1px solid #ccc }
 .gridlist li a:hover img { border:1px solid #9f5600 }
 
-#doc-nav { float:left; margin:25px 15px 0 0 }
+.demo { margin-bottom:30px }
+.demo img { float:left; border:1px solid #aaa; margin-right:5px }
+.demo p { margin-top:-5px }
+
+#doc-nav { float:left; margin:25px 40px 0 0 }
 #doc-level-one { margin:0; padding:0; list-style:none; font-size:12px }
 #doc-level-one li { font-weight:bold; padding:2px 0 }
+#doc-level-one li ul { padding-left:20px }
 #doc-level-one li ul li { font-weight:normal }
 #doc-content { float:left; width:600px }
+
 .doc-top { float:right; font-size:12px; margin-top:10px }
+#doc-content dl { background:#eee; padding:5px; font-size:14px }
+#doc-content dt { font-weight:bold; font-family:'Courier New', monospace }
+#doc-content dd { margin:0 0 5px 25px }
+.doc-block { margin-top:50px }

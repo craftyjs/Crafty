@@ -87,12 +87,12 @@ Crafty.c("2D", {
 	_parent: null,
 	_changed: false,
 
-	init: function() {
+	init: function () {
 		this._global = this[0];
 		this._origin = { x: 0, y: 0 };
 		this._children = [];
 
-		if(Crafty.support.setter) {
+		if (Crafty.support.setter) {
 			//create getters and setters
 			this.__defineSetter__('x', function (v) { this._attr('_x', v); });
 			this.__defineSetter__('y', function (v) { this._attr('_y', v); });
@@ -675,16 +675,27 @@ Crafty.c("Gravity", {
 	* Crafty.e("2D, DOM, Color, Gravity").color("red").attr({ w: 100, h: 100 }).gravity("platform").gravityConst(2)
 	* ~~~
 	*/
+<<<<<<< HEAD
   gravityConst: function(g) {
     this._gravityConst=g;
 		return this;
   },
+=======
+	gravityConst: function (g) {
+		this._gravityConst = g;
+		return this;
+	},
+>>>>>>> upstream/master
 
 	_enterframe: function () {
 		if (this._falling) {
 			//if falling, move the players Y
 			//it used to be this._gy += this._gravityConst * 2;
+<<<<<<< HEAD
+      //2 seems to be unnecessary. So 2 is removed. by pengyu
+=======
 			//2 seems to be unnecessary. So 2 is removed. by pengyu
+>>>>>>> upstream/master
 			this._gy += this._gravityConst;
 			this.y += this._gy;
 		} else {
