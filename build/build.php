@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?php
 include 'markdown.php';
 
@@ -26,7 +27,6 @@ function docs($files, $path, $save) {
 		$block = "";
 		
 		while($line = fgets($fh)) {
-			
 			if(strstr($line, "/**@") !== false && !$open) {
 				$block = "";
 				$open = true;
@@ -124,8 +124,8 @@ function docs($files, $path, $save) {
 				
 				$names[$name] = $block;
 			}
-			
 		}
+		
 		fclose($fh);
 	}
 	$head = stripslashes(file_get_contents("header.php"));
@@ -225,6 +225,10 @@ $files = array("license.txt",
 			   "loader.js", 
 			   "math.js",
 			   "outro.js");
+
+if(!is_dir('api/')) {
+  mkdir('api');
+}
 
 docs($files, "../src/", "api/");
 merge($files, "../src/",  "../");

@@ -87,12 +87,12 @@ Crafty.c("2D", {
 	_parent: null,
 	_changed: false,
 
-	init: function () {
+	init: function() {
 		this._global = this[0];
 		this._origin = { x: 0, y: 0 };
 		this._children = [];
 
-		if (Crafty.support.setter) {
+		if(Crafty.support.setter) {
 			//create getters and setters
 			this.__defineSetter__('x', function (v) { this._attr('_x', v); });
 			this.__defineSetter__('y', function (v) { this._attr('_y', v); });
@@ -675,10 +675,10 @@ Crafty.c("Gravity", {
 	* Crafty.e("2D, DOM, Color, Gravity").color("red").attr({ w: 100, h: 100 }).gravity("platform").gravityConst(2)
 	* ~~~
 	*/
-	gravityConst: function (g) {
-		this._gravityConst = g;
+  gravityConst: function(g) {
+    this._gravityConst=g;
 		return this;
-	},
+  },
 
 	_enterframe: function () {
 		if (this._falling) {
