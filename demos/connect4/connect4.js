@@ -58,8 +58,12 @@ window.onload = function () {
 				current = Crafty.e("2D, Canvas, piece, stopper," + (turn ? "red" : "yellow")).attr({ x: 495, y: 420 });
 			} else {
 				//dont' place
+        var x=current.x;
+        var y=current.y;
 				current.destroy();
-				current = Crafty.e("2D, Canvas, piece, stopper," + (turn ? "red" : "yellow")).attr({ x: 495, y: 420 });
+				current = Crafty.e("2D, Canvas, piece, stopper," + (turn ? "red" : "yellow"))
+        .attr({x: x, y: y})
+        .tween({x: 495, y: 420}, 20);
 			}
 		}
 		current = Crafty.e("2D, Canvas, piece, stopper, yellow").attr({ x: 495, y: 420 });
@@ -70,7 +74,6 @@ window.onload = function () {
 	
 	Crafty.scene("win", function() {
 		var bg = Crafty.e("2D, DOM, Image").image("images/win.png", "no-repeat").attr({w: 600, h: 500, z: -1});
-		//Crafty.e("2D, DOM, Text").attr({x: 220, y: 200}).text(turn ? "RED" : "YELLOW").font("30pt Arial");
 		Crafty.e("2D, DOM, Text").attr({x: 220, y: 200}).text(turn ? "RED" : "YELLOW").css({
         "font-family": "Arial"
         , "font-size": "30pt"
