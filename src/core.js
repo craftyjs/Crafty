@@ -524,7 +524,9 @@
 				clone.addComponent(comp);
 			}
 			for (prop in this) {
-				clone[prop] = this[prop];
+				if (prop != "0" && prop != "_global" && prop != "_changed" && typeof this[prop] != "function" && typeof this[prop] != "object") {
+					clone[prop] = this[prop];
+				}
 			}
 
 			return clone;
