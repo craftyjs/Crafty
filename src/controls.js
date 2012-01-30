@@ -369,6 +369,35 @@ Crafty.c("Keyboard", {
 Crafty.c("Multiway", {
 	_speed: 3,
 
+  _keydown: function (e) {
+		if (this._keys[e.key]) {
+			this._movement.x = Math.round((this._movement.x + this._keys[e.key].x) * 1000) / 1000;
+			this._movement.y = Math.round((this._movement.y + this._keys[e.key].y) * 1000) / 1000;
+			this.trigger('NewDirection', this._movement);
+		}
+	},
+
+  _keyup: function (e) {
+		if (this._keys[e.key]) {
+			this._movement.x = Math.round((this._movement.x - this._keys[e.key].x) * 1000) / 1000;
+			this._movement.y = Math.round((this._movement.y - this._keys[e.key].y) * 1000) / 1000;
+			this.trigger('NewDirection', this._movement);
+		}
+	},
+
+  _enterframe: function () {
+		if (this.disableControls) return;
+
+		if (this._movement.x !== 0) {
+			this.x += this._movement.x;
+			this.trigger('Moved', { x: this.x - this._movement.x, y: this.y });
+		}
+		if (this._movement.y !== 0) {
+			this.y += this._movement.y;
+			this.trigger('Moved', { x: this.x, y: this.y - this._movement.y });
+		}
+	},
+
 	init: function () {
 		this._keyDirection = {};
 		this._keys = {};
@@ -409,32 +438,10 @@ Crafty.c("Multiway", {
 		this._keyDirection = keys;
 		this.speed(this._speed);
 
-		this.bind("KeyDown", function (e) {
-			if (this._keys[e.key]) {
-				this._movement.x = Math.round((this._movement.x + this._keys[e.key].x) * 1000) / 1000;
-				this._movement.y = Math.round((this._movement.y + this._keys[e.key].y) * 1000) / 1000;
-				this.trigger('NewDirection', this._movement);
-			}
-		})
-		.bind("KeyUp", function (e) {
-			if (this._keys[e.key]) {
-				this._movement.x = Math.round((this._movement.x - this._keys[e.key].x) * 1000) / 1000;
-				this._movement.y = Math.round((this._movement.y - this._keys[e.key].y) * 1000) / 1000;
-				this.trigger('NewDirection', this._movement);
-			}
-		})
-		.bind("EnterFrame", function () {
-			if (this.disableControls) return;
-
-			if (this._movement.x !== 0) {
-				this.x += this._movement.x;
-				this.trigger('Moved', { x: this.x - this._movement.x, y: this.y });
-			}
-			if (this._movement.y !== 0) {
-				this.y += this._movement.y;
-				this.trigger('Moved', { x: this.x, y: this.y - this._movement.y });
-			}
-		});
+    //This will line will be removed.
+    //When it is removed, users need to call both multiway() and enableMultiway()
+    //to make a component responsive keyboard events.
+		this.enableMultiway();
 
 		//Apply movement if key is down when created
 		for (var k in keys) {
@@ -445,6 +452,43 @@ Crafty.c("Multiway", {
 
 		return this;
 	},
+
+	/**@
+	* #.enableMultiway
+	* @comp Multiway
+	* @sign public this .enableMultiway()
+	* Disable the component to listen for key events.
+	*
+	* @example
+	* ~~~
+  * this.enableMultiway();
+	* ~~~
+	*/
+  enableMultiway: function() {
+		this.bind("KeyDown", this._keydown)
+		.bind("KeyUp", this._keyup)
+		.bind("EnterFrame", this._enterframe);
+		return this;
+  },
+
+	/**@
+	* #.enableMultiway
+	* @comp Multiway
+	* @sign public this .enableMultiway()
+	* Enable the component to listen for key events.
+	*
+	* @example
+	* ~~~
+  * this.enableMultiway();
+	* ~~~
+	*/
+
+  disableMultiway: function() {
+		this.unbind("KeyDown", this._keydown)
+		.unbind("KeyUp", this._keyup)
+		.unbind("EnterFrame", this._enterframe);
+		return this;
+  },
 
 	speed: function (speed) {
 		for (var k in this._keyDirection) {
