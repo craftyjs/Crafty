@@ -411,7 +411,7 @@ Crafty.c("Multiway", {
 	* @sign public this .multiway([Number speed,] Object keyBindings )
 	* @param speed - Amount of pixels to move the entity whilst a key is down
 	* @param keyBindings - What keys should make the entity go in which direction. Direction is specified in degrees
-	* Constructor to initialize the speed and keyBindings. Component will listen for key events and move the entity appropriately.
+	* Constructor to initialize the speed and keyBindings. Component will listen to key events and move the entity appropriately.
 	*
 	* When direction changes a NewDirection event is triggered with an object detailing the new direction: {x: x_movement, y: y_movement}
 	* When entity has moved on either x- or y-axis a Moved event is triggered with an object specifying the old position {x: old_x, y: old_y}
@@ -457,7 +457,7 @@ Crafty.c("Multiway", {
 	* #.enableMultiway
 	* @comp Multiway
 	* @sign public this .enableMultiway()
-	* Disable the component to listen for key events.
+	* Disable the component to listen to key events.
 	*
 	* @example
 	* ~~~
@@ -475,7 +475,7 @@ Crafty.c("Multiway", {
 	* #.enableMultiway
 	* @comp Multiway
 	* @sign public this .enableMultiway()
-	* Enable the component to listen for key events.
+	* Enable the component to listen to key events.
 	*
 	* @example
 	* ~~~
