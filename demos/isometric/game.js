@@ -1,5 +1,5 @@
 //pro tip: see also this work in progress by Hex http://jsfiddle.net/hexaust/HV4TX/
-$(document).ready(function() {
+window.onload = function() {
 	Crafty.init();
 
 	Crafty.sprite(128, "images/sprite.png", {
@@ -13,9 +13,12 @@ $(document).ready(function() {
 		for(var y = 0; y < 20; y++) {
 			var which = Crafty.math.randomInt(0,1);
 			var tile = Crafty.e("2D, DOM, "+ (!which ? "grass" : "stone") +", Mouse")
-			.attr('z',i+1 * y+1).areaMap([64,0],[128,32],[128,96],[64,128],[0,96],[0,32]).bind("click", function(e) {
+			.attr('z',i+1 * y+1).areaMap([64,0],[128,32],[128,96],[64,128],[0,96],[0,32]).bind("Click", function(e) {
 				//destroy on right click
-				if(e.button === 2) this.destroy();
+        //right click seems not work in Mac OS
+        //delete it
+        console.log(e.button);
+				/*if(e.button === 2)*/ this.destroy();
 			}).bind("MouseOver", function() {
 				if(this.has("grass")) {
 					this.sprite(0,1,1,1);
@@ -51,4 +54,4 @@ $(document).ready(function() {
 			Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", scroll);
 		});
 	});
-});
+};
