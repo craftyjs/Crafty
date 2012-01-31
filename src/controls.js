@@ -438,10 +438,7 @@ Crafty.c("Multiway", {
 		this._keyDirection = keys;
 		this.speed(this._speed);
 
-    //This will line will be removed.
-    //When it is removed, users need to call both multiway() and enableMultiway()
-    //to make a component responsive keyboard events.
-		this.enableMultiway();
+		this.enableControl();
 
 		//Apply movement if key is down when created
 		for (var k in keys) {
@@ -454,17 +451,17 @@ Crafty.c("Multiway", {
 	},
 
 	/**@
-	* #.enableMultiway
+	* #.enableControl
 	* @comp Multiway
-	* @sign public this .enableMultiway()
-	* Disable the component to listen to key events.
+	* @sign public this .enableControl()
+	* Enable the component to listen to key events.
 	*
 	* @example
 	* ~~~
-  * this.enableMultiway();
+  * this.enableControl();
 	* ~~~
 	*/
-  enableMultiway: function() {
+  enableControl: function() {
 		this.bind("KeyDown", this._keydown)
 		.bind("KeyUp", this._keyup)
 		.bind("EnterFrame", this._enterframe);
@@ -472,18 +469,18 @@ Crafty.c("Multiway", {
   },
 
 	/**@
-	* #.enableMultiway
+	* #.disableControl
 	* @comp Multiway
-	* @sign public this .enableMultiway()
-	* Enable the component to listen to key events.
+	* @sign public this .disableControl()
+	* Disable the component to listen to key events.
 	*
 	* @example
 	* ~~~
-  * this.enableMultiway();
+  * this.disableControl();
 	* ~~~
 	*/
 
-  disableMultiway: function() {
+  disableControl: function() {
 		this.unbind("KeyDown", this._keydown)
 		.unbind("KeyUp", this._keyup)
 		.unbind("EnterFrame", this._enterframe);
