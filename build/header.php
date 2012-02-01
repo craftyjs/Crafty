@@ -15,7 +15,7 @@
 		<li><a href="../tutorials.php">Tutorial</a></li>
 		<li><a href="../demos.php">Demos</a></li>
 		<!-- <li><a href="#comingsoon">Builder<sup>new</sup></a></li> -->
-		<li><a href="http://groups.google.com/group/craftyjs">Forums</a></li>
+		<li><a href=" https://groups.google.com/forum/#!forum/craftyjs">Forums</a></li>
 		<li><a href="http://craftyjs.tumblr.com/">Blog</a></li>
 		<!-- <li><a href="api">FAQ</a></li>-->
 		<li class="emph"><a href="../download.php">Download</a></li>
