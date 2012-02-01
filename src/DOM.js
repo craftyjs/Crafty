@@ -54,6 +54,16 @@ Crafty.c("DOM", {
 	},
 
 	/**@
+	* #.getId
+	* @comp DOM
+	* @sign public this .getId()
+	* Get the Id of the DOM element used to represent the entity.
+	*/
+	getId: function() {
+		return this._element.id;
+	},
+
+	/**@
 	* #.DOM
 	* @comp DOM
 	* @trigger Draw - when the entity is ready to be drawn to the stage - { style:String, type:"DOM", co}
