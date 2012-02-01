@@ -28,7 +28,7 @@ window.onload = function() {
 				
 			this.addComponent(fruit).origin("center");
 			this.y = Crafty.viewport.height;
-			this._yspeed = Crafty.math.randomInt(15, 18);
+			this._yspeed = Crafty.math.randomInt(8, 12);
 			this.z = 1;
 			
 			if(direction) {
@@ -69,7 +69,7 @@ window.onload = function() {
 	Crafty.e().bind("EnterFrame", function(e) {
 		var sparsity = Crafty.math.randomInt(10, 50);
 		if(e.frame % sparsity == 0) {
-			Crafty.e("2D, DOM, Fruit, Gravity, Mouse").gravity("floor");
+			Crafty.e("2D, DOM, Fruit, Gravity, Mouse").gravity();
 		}
 	});
 	
