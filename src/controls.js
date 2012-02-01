@@ -235,20 +235,30 @@ Crafty.c("Mouse", {
 * @trigger StopDrag - is triggered when dragging ends - MouseEvent
 */
 Crafty.c("Draggable", {
-	_startX: 0,
-	_startY: 0,
+  _origMouseDOMPos: null,
+	_oldX: null,
+	_oldY: null,
 	_dragging: false,
+	_dir:null,
 
 	_ondrag: null,
 	_ondown: null,
 	_onup: null,
 
+  //Note: the code is note tested with zoom, etc., that may distort the direction between the viewport and the coordinate on the canvas.
 	init: function () {
 		this.requires("Mouse");
 		this._ondrag = function (e) {
 			var pos = Crafty.DOM.translate(e.clientX, e.clientY);
-			this.x = pos.x - this._startX;
-			this.y = pos.y - this._startY;
+      if(this._dir) {
+        var len = (pos.x - this._origMouseDOMPos.x) * this._dir.x
+        + (pos.y - this._origMouseDOMPos.y) * this._dir.y;
+        this.x = this._oldX + len * this._dir.x;
+        this.y = this._oldY + len * this._dir.y;
+      } else {
+        this.x = this._oldX + (pos.x - this._origMouseDOMPos.x);
+        this.y = this._oldY + (pos.y - this._origMouseDOMPos.y);
+      }
 
 			this.trigger("Dragging", e);
 		};
@@ -257,8 +267,9 @@ Crafty.c("Draggable", {
 			if (e.mouseButton !== Crafty.mouseButtons.LEFT) return;
 
 			//start drag
-			this._startX = e.realX - this._x;
-			this._startY = e.realY - this._y;
+      this._origMouseDOMPos = Crafty.DOM.translate(e.clientX, e.clientY);
+			this._oldX = this._x;
+			this._oldY = this._y;
 			this._dragging = true;
 
 			Crafty.addEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
@@ -274,6 +285,43 @@ Crafty.c("Draggable", {
 		};
 
 		this.enableDrag();
+	},
+
+	/**@
+	* #.dragDirection
+	* @comp Draggable
+	* @sign public this .dragDirection()
+  * @param dir - Remove any previous specifed direction.
+	* @sign public this .dragDirection(dir_vector)
+  * @param dir - Of the form of {x: valx, y: valy}, the vector (valx, valy) denotes move direction. 
+	* @sign public this .dragDirection(degree)
+  * @param dir - A number, the degree (clockwise) of the move direction with respect to the x axis. 
+	* Specify dragging direction.
+	* @example
+	* ~~~
+	* this.dragDirection()
+	* this.dragDirection({x:1, y:0}) //Horizonatal
+	* this.dragDirection({x:0, y:1}) //Vertical
+	* this.dragDirection({x:1, y:1}) //45 degree. Note: because of the orientation of x and y axis, this is 45 degree clockwise with respect to the x axis.
+	* this.dragDirection(60) //60 degree.
+	* ~~~
+	*/
+	dragDirection: function(dir) {
+		if (typeof dir === 'undefined') {
+			this._dir=null;
+		} else if (("" + parseInt(dir)) == dir) { //dir is a number
+      this._dir={
+        x: Math.cos(dir/180*Math.PI)
+        , y: Math.sin(dir/180*Math.PI)
+      };
+    }
+    else {
+      var r=Math.sqrt(dir.x * dir.x + dir.y * dir.y)
+			this._dir={
+        x: dir.x/r
+        , y: dir.y/r
+      };
+		}
 	},
 
 	/**@
@@ -325,223 +373,6 @@ Crafty.c("Draggable", {
 	/**@
 	* #.disableDrag
 	* @comp Draggable
-	* @sign public this .disableDrag(void)
-	* Stops entity from being draggable. Reenable with `.enableDrag()`.
-	* @see .enableDrag
-	*/
-	disableDrag: function () {
-		this.unbind("MouseDown", this._ondown);
-		this.stopDrag();
-		return this;
-	}
-});
-
-//Copied Draggable to make DraggableHorizontal and DraggableVertical
-//Need to refactor the code later on
-
-/**@
-* #DraggableHorizontal
-* @category Input
-* Enable drag and drop of the entity.
-* @trigger Dragging - is triggered each frame the entity is being dragged - MouseEvent
-* @trigger StartDrag - is triggered when dragging begins - MouseEvent
-* @trigger StopDrag - is triggered when dragging ends - MouseEvent
-*/
-Crafty.c("DraggableHorizontal", {
-	_startX: 0,
-	_dragging: false,
-
-	_ondrag: null,
-	_ondown: null,
-	_onup: null,
-
-	init: function () {
-		this.requires("Mouse");
-		this._ondrag = function (e) {
-			var pos = Crafty.DOM.translate(e.clientX, e.clientY);
-			this.x = pos.x - this._startX;
-
-			this.trigger("Dragging", e);
-		};
-
-		this._ondown = function (e) {
-			if (e.mouseButton !== Crafty.mouseButtons.LEFT) return;
-
-			//start drag
-			this._startX = e.realX - this._x;
-			this._dragging = true;
-
-			Crafty.addEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
-			Crafty.addEvent(this, Crafty.stage.elem, "mouseup", this._onup);
-			this.trigger("StartDrag", e);
-		};
-
-		this._onup = function upper(e) {
-			Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
-			Crafty.removeEvent(this, Crafty.stage.elem, "mouseup", this._onup);
-			this._dragging = false;
-			this.trigger("StopDrag", e);
-		};
-
-		this.enableDrag();
-	},
-
-	/**@
-	* #.stopDrag
-	* @comp DraggableHorizontal
-	* @sign public this .stopDrag(void)
-	* Stop the entity from dragging. Essentially reproducing the drop.
-	* @trigger StopDrag - Called right after the mouse listeners are removed
-	* @see .startDrag
-	*/
-	stopDrag: function () {
-		Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
-		Crafty.removeEvent(this, Crafty.stage.elem, "mouseup", this._onup);
-
-		this._dragging = false;
-		this.trigger("StopDrag");
-		return this;
-	},
-
-	/**@
-	* #.startDrag
-	* @comp DraggableHorizontal
-	* @sign public this .startDrag(void)
-	* Make the entity follow the mouse positions.
-	* @see .stopDrag
-	*/
-	startDrag: function () {
-		if (!this._dragging) {
-			this._dragging = true;
-			Crafty.addEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
-		}
-		return this;
-	},
-
-	/**@
-	* #.enableDrag
-	* @comp DraggableHorizontal
-	* @sign public this .enableDrag(void)
-	* Rebind the mouse events. Use if `.disableDrag` has been called.
-	* @see .disableDrag
-	*/
-	enableDrag: function () {
-		this.bind("MouseDown", this._ondown);
-
-		Crafty.addEvent(this, Crafty.stage.elem, "mouseup", this._onup);
-		return this;
-	},
-
-	/**@
-	* #.disableDrag
-	* @comp DraggableHorizontal
-	* @sign public this .disableDrag(void)
-	* Stops entity from being draggable. Reenable with `.enableDrag()`.
-	* @see .enableDrag
-	*/
-	disableDrag: function () {
-		this.unbind("MouseDown", this._ondown);
-		this.stopDrag();
-		return this;
-	}
-});
-
-/**@
-* #DraggableVertical
-* @category Input
-* Enable drag and drop of the entity.
-* @trigger Dragging - is triggered each frame the entity is being dragged - MouseEvent
-* @trigger StartDrag - is triggered when dragging begins - MouseEvent
-* @trigger StopDrag - is triggered when dragging ends - MouseEvent
-*/
-Crafty.c("DraggableVertical", {
-	_startY: 0,
-	_dragging: false,
-
-	_ondrag: null,
-	_ondown: null,
-	_onup: null,
-
-	init: function () {
-		this.requires("Mouse");
-		this._ondrag = function (e) {
-			var pos = Crafty.DOM.translate(e.clientX, e.clientY);
-			this.y = pos.y - this._startY;
-
-			this.trigger("Dragging", e);
-		};
-
-		this._ondown = function (e) {
-			if (e.mouseButton !== Crafty.mouseButtons.LEFT) return;
-
-			//start drag
-			this._startY = e.realY - this._y;
-			this._dragging = true;
-
-			Crafty.addEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
-			Crafty.addEvent(this, Crafty.stage.elem, "mouseup", this._onup);
-			this.trigger("StartDrag", e);
-		};
-
-		this._onup = function upper(e) {
-			Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
-			Crafty.removeEvent(this, Crafty.stage.elem, "mouseup", this._onup);
-			this._dragging = false;
-			this.trigger("StopDrag", e);
-		};
-
-		this.enableDrag();
-	},
-
-	/**@
-	* #.stopDrag
-	* @comp DraggableVertical
-	* @sign public this .stopDrag(void)
-	* Stop the entity from dragging. Essentially reproducing the drop.
-	* @trigger StopDrag - Called right after the mouse listeners are removed
-	* @see .startDrag
-	*/
-	stopDrag: function () {
-		Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
-		Crafty.removeEvent(this, Crafty.stage.elem, "mouseup", this._onup);
-
-		this._dragging = false;
-		this.trigger("StopDrag");
-		return this;
-	},
-
-	/**@
-	* #.startDrag
-	* @comp DraggableVertical
-	* @sign public this .startDrag(void)
-	* Make the entity follow the mouse positions.
-	* @see .stopDrag
-	*/
-	startDrag: function () {
-		if (!this._dragging) {
-			this._dragging = true;
-			Crafty.addEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
-		}
-		return this;
-	},
-
-	/**@
-	* #.enableDrag
-	* @comp DraggableVertical
-	* @sign public this .enableDrag(void)
-	* Rebind the mouse events. Use if `.disableDrag` has been called.
-	* @see .disableDrag
-	*/
-	enableDrag: function () {
-		this.bind("MouseDown", this._ondown);
-
-		Crafty.addEvent(this, Crafty.stage.elem, "mouseup", this._onup);
-		return this;
-	},
-
-	/**@
-	* #.disableDrag
-	* @comp DraggableVertical
 	* @sign public this .disableDrag(void)
 	* Stops entity from being draggable. Reenable with `.enableDrag()`.
 	* @see .enableDrag
