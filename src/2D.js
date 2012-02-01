@@ -219,7 +219,9 @@ Crafty.c("2D", {
 		this.bind("Remove", function () {
 			if (this._children) {
 				for (var i = 0; i < this._children.length; i++) {
-					this._children[i].destroy();
+					if (this._children[i].destroy) {
+						this._children[i].destroy();
+					}
 				}
 				this._children = [];
 			}
