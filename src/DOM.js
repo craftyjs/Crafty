@@ -54,12 +54,12 @@ Crafty.c("DOM", {
 	},
 
 	/**@
-	* #.getId
+	* #.getDomId
 	* @comp DOM
 	* @sign public this .getId()
 	* Get the Id of the DOM element used to represent the entity.
 	*/
-	getId: function() {
+	getDomId: function() {
 		return this._element.id;
 	},
 
