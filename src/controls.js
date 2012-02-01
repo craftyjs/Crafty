@@ -291,18 +291,21 @@ Crafty.c("Draggable", {
 	* #.dragDirection
 	* @comp Draggable
 	* @sign public this .dragDirection()
-  * @param dir - Remove any previous specifed direction.
-	* @sign public this .dragDirection(dir_vector)
-  * @param dir - Of the form of {x: valx, y: valy}, the vector (valx, valy) denotes move direction. 
+  * Remove any previously specifed direction.
+  *
+	* @sign public this .dragDirection(vector)
+  * @param vector - Of the form of {x: valx, y: valy}, the vector (valx, valy) denotes the move direction.
 	* @sign public this .dragDirection(degree)
-  * @param dir - A number, the degree (clockwise) of the move direction with respect to the x axis. 
-	* Specify dragging direction.
+  * @param degree - A number, the degree (clockwise) of the move direction with respect to the x axis. 
+	* Specify the dragging direction.
 	* @example
 	* ~~~
 	* this.dragDirection()
 	* this.dragDirection({x:1, y:0}) //Horizonatal
 	* this.dragDirection({x:0, y:1}) //Vertical
-	* this.dragDirection({x:1, y:1}) //45 degree. Note: because of the orientation of x and y axis, this is 45 degree clockwise with respect to the x axis.
+  * // Note: because of the orientation of x and y axis,
+  * // this is 45 degree clockwise with respect to the x axis.
+	* this.dragDirection({x:1, y:1}) //45 degree.
 	* this.dragDirection(60) //60 degree.
 	* ~~~
 	*/
