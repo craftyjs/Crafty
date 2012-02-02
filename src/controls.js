@@ -235,20 +235,30 @@ Crafty.c("Mouse", {
 * @trigger StopDrag - is triggered when dragging ends - MouseEvent
 */
 Crafty.c("Draggable", {
-	_startX: 0,
-	_startY: 0,
+  _origMouseDOMPos: null,
+	_oldX: null,
+	_oldY: null,
 	_dragging: false,
+	_dir:null,
 
 	_ondrag: null,
 	_ondown: null,
 	_onup: null,
 
+  //Note: the code is note tested with zoom, etc., that may distort the direction between the viewport and the coordinate on the canvas.
 	init: function () {
 		this.requires("Mouse");
 		this._ondrag = function (e) {
 			var pos = Crafty.DOM.translate(e.clientX, e.clientY);
-			this.x = pos.x - this._startX;
-			this.y = pos.y - this._startY;
+      if(this._dir) {
+        var len = (pos.x - this._origMouseDOMPos.x) * this._dir.x
+        + (pos.y - this._origMouseDOMPos.y) * this._dir.y;
+        this.x = this._oldX + len * this._dir.x;
+        this.y = this._oldY + len * this._dir.y;
+      } else {
+        this.x = this._oldX + (pos.x - this._origMouseDOMPos.x);
+        this.y = this._oldY + (pos.y - this._origMouseDOMPos.y);
+      }
 
 			this.trigger("Dragging", e);
 		};
@@ -257,8 +267,9 @@ Crafty.c("Draggable", {
 			if (e.mouseButton !== Crafty.mouseButtons.LEFT) return;
 
 			//start drag
-			this._startX = e.realX - this._x;
-			this._startY = e.realY - this._y;
+      this._origMouseDOMPos = Crafty.DOM.translate(e.clientX, e.clientY);
+			this._oldX = this._x;
+			this._oldY = this._y;
 			this._dragging = true;
 
 			Crafty.addEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
@@ -274,6 +285,46 @@ Crafty.c("Draggable", {
 		};
 
 		this.enableDrag();
+	},
+
+	/**@
+	* #.dragDirection
+	* @comp Draggable
+	* @sign public this .dragDirection()
+  * Remove any previously specifed direction.
+  *
+	* @sign public this .dragDirection(vector)
+  * @param vector - Of the form of {x: valx, y: valy}, the vector (valx, valy) denotes the move direction.
+	* @sign public this .dragDirection(degree)
+  * @param degree - A number, the degree (clockwise) of the move direction with respect to the x axis. 
+	* Specify the dragging direction.
+	* @example
+	* ~~~
+	* this.dragDirection()
+	* this.dragDirection({x:1, y:0}) //Horizonatal
+	* this.dragDirection({x:0, y:1}) //Vertical
+  * // Note: because of the orientation of x and y axis,
+  * // this is 45 degree clockwise with respect to the x axis.
+	* this.dragDirection({x:1, y:1}) //45 degree.
+	* this.dragDirection(60) //60 degree.
+	* ~~~
+	*/
+	dragDirection: function(dir) {
+		if (typeof dir === 'undefined') {
+			this._dir=null;
+		} else if (("" + parseInt(dir)) == dir) { //dir is a number
+      this._dir={
+        x: Math.cos(dir/180*Math.PI)
+        , y: Math.sin(dir/180*Math.PI)
+      };
+    }
+    else {
+      var r=Math.sqrt(dir.x * dir.x + dir.y * dir.y)
+			this._dir={
+        x: dir.x/r
+        , y: dir.y/r
+      };
+		}
 	},
 
 	/**@
