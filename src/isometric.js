@@ -9,11 +9,6 @@ Crafty.extend({
             width: 0,
             height: 0
         },
-        _elements:{},
-        _pos: {
-            x:0,
-            y:0
-        },
         _z: 0,
         /**@
 * #Crafty.isometric.size
@@ -50,7 +45,6 @@ Crafty.extend({
     */
         place: function (x, y, z, obj) {
             var pos = this.pos2px(x,y);
-            pos.top -= z * (this._tile.width / 2);
             obj.attr({
                 x: pos.left + Crafty.viewport._x, 
                 y: pos.top + Crafty.viewport._y
@@ -154,6 +148,29 @@ Crafty.extend({
                     end : end.y
                 }
             };
-        } 
+        },
+        /**@
+         * #Crafty.isometric.slice
+         * @comp Crafty.isometric
+         * @sign public this Crafty.isometric.slice()
+         * Method to slice Entities into Parts depends on tile width/height and setup different z-index
+         * ~~~
+         * var iso = Crafty.isometric.size(128,96).centerAt(10,10); //Viewport is now moved
+         * iso.slice(10,10,Crafty.e("2D, DOM, building"));
+         * ~~~
+         */
+        slice:function(x,y,ent){
+        ent.destroy(); //Undraw original
+        var clone = {};
+        for(var _y = 0;_y < ent._h / this._tile.height*2;_y++){
+            for(var _x = 0;_x < ent._w /this._tile.width;_x++){
+                if((y+_y) & 1){
+                clone = ent.clone();
+                clone.crop(_x*this._tile.width,_y*this._tile.height/2,this._tile.width,this._tile.height);
+                this.place((x+_x),(y+_y),((x+_x)+1)*((y+_y)+1),clone);
+                }
+            }
+        }
+        }
     }
 });
