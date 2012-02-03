@@ -12,11 +12,13 @@ Crafty.c("DOM", {
 	_element: null,
 
 	init: function () {
-		this._element = document.createElement("div");
-		Crafty.stage.inner.appendChild(this._element);
-		this._element.style.position = "absolute";
-		this._element.id = "ent" + this[0];
-
+		this._element = document.getElementById("ent" + this[0]);
+                if(!this._element){ //Create new DOM element if it does not exists
+			this._element = document.createElement("div");
+			Crafty.stage.inner.appendChild(this._element);
+			this._element.style.position = "absolute";
+			this._element.id = "ent" + this[0];
+                }
 		this.bind("Change", function () {
 			if (!this._changed) {
 				this._changed = true;
