@@ -21,3 +21,20 @@ to the `player` entity, we can use a function provided by the `2D` component.
 
 In the code example we are setting the `width` and `height` properties inherited from the `2D` component. We can
 then call the `area` method also inherited from the `2D` component.
+
+##Developing
+
+This is the workflow for committing to Crafty:
+
+    git pull
+    git checkout -b new-feature 
+    # keep working on your feature till it's done 
+    git pull
+    git checkout develop 
+    git merge --no-ff new-feature 
+    git push origin develop 
+    git branch -d new-feature 
+
+If you don't have write access to the repo, please fork it and perform the same steps in your own repo. Then submit a pull request.
+
+If this is causing you trouble, ask in the forums!
