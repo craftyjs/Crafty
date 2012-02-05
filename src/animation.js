@@ -255,11 +255,14 @@ function tweenEnterFrame(e) {
 	for (k in this._step) {
 		prop = this._step[k];
 		this[k] += prop.val;
-		if (prop.rem-- == 0) {
+		if (--prop.rem == 0) {
 			// decimal numbers rounding fix
 			this[k] = prop.prop;
 			this.trigger("TweenEnd", k);
-			delete this._step[k];
+			// make sure the duration wasn't changed in TweenEnd
+			if (this._step[k].rem <= 0) {
+				delete this._step[k];
+			}
 			this._numProps--;
 		}
 	}
