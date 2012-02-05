@@ -53,6 +53,11 @@ Crafty.c("DOM", {
 		this.bind("Remove", this.undraw);
 	},
 
+	uninit: function () {
+		console.log("undraw...");
+		this.undraw();
+	},
+
 	/**@
 	* #.getDomId
 	* @comp DOM

@@ -162,6 +162,8 @@
 	* string with a list of component names or passing multiple
 	* arguments with the component names.
 	*
+	* If the component has a function named `init` it will be called.
+	*
 	* @example
 	* ~~~
 	* this.addComponent("2D, Canvas");
@@ -284,11 +286,20 @@
 	* @sign public this .removeComponent(String Component[, soft])
 	* @param component - Component to remove
 	* @param soft - Whether to soft remove it (defaults to `true`)
-	* Removes a component from an entity. A soft remove will only
+	*
+	* Removes a component from an entity. A soft remove (the default) will only
 	* refrain `.has()` from returning true. Hard will remove all
 	* associated properties and methods.
+	*
+	* If the component has a function named `uninit` it will be called both in the case of a soft and a hard remove.
 	*/
 		removeComponent: function (id, soft) {
+			var comp = components[id];
+			//if destructor, call it
+			if (comp && "uninit" in comp) {
+				comp.uninit.call(this);
+			}
+
 			if (soft === false) {
 				var props = components[id], prop;
 				for (prop in props) {
@@ -865,12 +876,15 @@
 	* Creates a component where the first argument is the ID and the second
 	* is the object that will be inherited by entities.
 	*
-	* There is a convention for writing components. Properties or
-	* methods that start with an underscore are considered private.
-	* A method called `init` will automatically be called as soon as the
+	* There is a convention for writing components. 
+	*
+	* - Properties or methods that start with an underscore are considered private.
+	* - A method called `init` will automatically be called as soon as the
 	* component is added to an entity.
-	* A method with the same name as the component is considered to be a constructor
-	* and is generally used when data is needed before executing.
+	* - A methid called `uninit` will be called when the component is removed from an entity. 
+	* A sample use case for this is the native DOM component that removes its div element wehen removed from an entity.
+	* - A method with the same name as the component is considered to be a constructor
+	* and is generally used when you need to pass configuration data to the component on a per entity basis.
 	*
 	* ~~~
 	* Crafty.c("Annoying", {
