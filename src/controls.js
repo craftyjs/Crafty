@@ -141,6 +141,7 @@ Crafty.extend({
   *     }
   *   });
 	* ~~~
+	* @see Crafty.keys
 	*/
 	keyboardDispatch: function (e) {
 		e.key = e.keyCode || e.which;
@@ -426,6 +427,7 @@ Crafty.c("Keyboard", {
 	* @sign public Boolean isDown(Number keyCode)
 	* @param keyCode - Key code in `Crafty.keys`.
 	* Determine if a certain key is currently down.
+  * @see Crafty.keys
 	*/
 	isDown: function (key) {
 		if (typeof key === "string") {
