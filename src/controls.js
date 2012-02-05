@@ -5,6 +5,24 @@ Crafty.extend({
 	lastEvent: null,
 	keydown: {},
 
+	/**@
+	* #Crafty.keydown
+	* @category Input
+	* Remembering what keys (referred by Unicode) are down.
+	* ~~~
+	* Crafty.c("Keyboard", {
+	*   isDown: function (key) {
+	*     if (typeof key === "string") {
+	*       key = Crafty.keys[key];
+	*     }
+	*     return !!Crafty.keydown[key];
+	*   }
+	* });
+	* ~~~
+	* @see Keyboard
+	* @see Crafty.keys
+	*/
+
 	mouseDispatch: function (e) {
 		if (!Crafty.mouseObjs) return;
 		Crafty.lastEvent = e;
@@ -142,6 +160,18 @@ Crafty.extend({
   *   });
 	* ~~~
 	* @see Crafty.keys
+	*/
+
+	/**@
+	* #Crafty.eventObject
+	* @category Input
+	* Event Object used in Crafty for cross browser compatiblity
+	*/
+
+	/**@
+	* #.key
+	* @comp Crafty.eventObject
+	* Unicode of the key pressed
 	*/
 	keyboardDispatch: function (e) {
 		e.key = e.keyCode || e.which;
@@ -427,7 +457,10 @@ Crafty.c("Keyboard", {
 	* @sign public Boolean isDown(Number keyCode)
 	* @param keyCode - Key code in `Crafty.keys`.
 	* Determine if a certain key is currently down.
-  * @see Crafty.keys
+	* ~~~
+	* entity.requires('KeyBoard').bind('KeyDown', function () { if (this.isDown('SPACE')) jump(); });
+	* ~~~
+	* @see Crafty.keys
 	*/
 	isDown: function (key) {
 		if (typeof key === "string") {
