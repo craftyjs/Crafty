@@ -208,7 +208,53 @@
 			this.trigger("NewComponent", ul);
 			return this;
 		},
-
+  /**@
+            * @comp Crafty Core
+            * @sign public this. toggleComponent(String componentID,String componentToggle)
+            * @param componentID - Component ID to add or remove.
+            * @param componentToggle - Component ID to replace instead of remove
+            * Add or Remove Components
+            * @example
+            * ~~~
+            * var e = Crafty.e("2D,DOM,Test");
+            * e.toggleComponent("Test,Test2"); //Remove Test add Test2 and vice versa
+            * ~~~
+            */
+           toggleComponent:function(toggle){
+            var i = 0, l, comps;
+            if (arguments.length > 1) {
+                l = arguments.length;
+                        
+                for (; i < l; i++) {
+                    if(this.has(arguments[i])){ 
+                        this.removeComponent(arguments[i]);
+                    }else{
+                        this.addComponent(arguments[i]);
+                    }
+                }
+            //split components if contains comma
+            } else if (toggle.indexOf(',') !== -1) {
+                comps = toggle.split(rlist);
+                l = comps.length;
+                for (; i < l; i++) {
+                    if(this.has(comps[i])){ 
+                        this.removeComponent(comps[i]);
+                    }else{
+                        this.addComponent(comps[i]);
+                    }
+                }
+                
+            //single component passed
+            } else {
+                if(this.has(toggle)){ 
+                    this.removeComponent(toggle);
+                }else{
+                    this.addComponent(toggle);
+                }
+            }
+   
+            return this;
+        },
 		/**@
 	* #.requires
 	* @comp Crafty Core

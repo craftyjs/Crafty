@@ -109,7 +109,7 @@ Crafty.extend({
 	*
 	* 	- http://cdn.crafty-modules.com
 	* 	- http://cdn.craftycomponents.com
-    *
+	*
 	*
 	* @example
 	* ~~~
@@ -129,6 +129,17 @@ Crafty.extend({
 	* Crafty.modules('http://cdn.crafty-modules.com', { moveto: 'DEV' }, function () {
 	*     //module is ready
 	*     Crafty.e("MoveTo, 2D, DOM");
+	* });
+	*
+	* // Loading from the latest component website
+	* Crafty.modules(
+	*     'http://cdn.craftycomponents.com'
+	*     , { MoveTo: 'release' }
+	*     , function () {
+	*     Crafty.e("2D, DOM, Color, MoveTo")
+	*       .attr({x: 0, y: 0, w: 50, h: 50})
+	*       .color("green");
+	*     });
 	* });
 	* ~~~
 	*
