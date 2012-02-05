@@ -117,6 +117,31 @@ Crafty.extend({
 
 	},
 
+
+	/**@
+	* #KeyboardEvent
+	* @category Input
+  * Keyboard Event triggerd by Crafty Core
+	* @trigger KeyDown - is triggered for each entity when the DOM 'keydown' event is triggered.
+	* @trigger KeyUp - is triggered for each entity when the DOM 'keyup' event is triggered.
+	* @example
+	* ~~~
+  * Crafty.e("2D, DOM, Color")
+  *   .attr({x: 100, y: 100, w: 50, h: 50})
+  *   .color("red")
+  *   .bind('KeyDown', function(e) {
+  *     if(e.key == Crafty.keys['LEFT_ARROW']) {
+  *       this.x=this.x-1;
+  *     } else if (e.key == Crafty.keys['RIGHT_ARROW']) {
+  *     this.x=this.x+1;
+  *     } else if (e.key == Crafty.keys['UP_ARROW']) {
+  *     this.y=this.y-1;
+  *     } else if (e.key == Crafty.keys['DOWN_ARROW']) {
+  *     this.y=this.y+1;
+  *     }
+  *   });
+	* ~~~
+	*/
 	keyboardDispatch: function (e) {
 		e.key = e.keyCode || e.which;
 		if (e.type === "keydown") {
