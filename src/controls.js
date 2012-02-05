@@ -143,6 +143,18 @@ Crafty.extend({
 	* ~~~
 	* @see Crafty.keys
 	*/
+
+	/**@
+	* #Crafty.eventObject
+	* @category Input
+	* Event Object used in Crafty for cross browser compatiblity
+	*/
+
+	/**@
+	* #.key
+	* @comp Crafty.eventObject
+	* Unicode of the key pressed
+	*/
 	keyboardDispatch: function (e) {
 		e.key = e.keyCode || e.which;
 		if (e.type === "keydown") {
