@@ -54,7 +54,6 @@ Crafty.c("DOM", {
 	},
 
 	uninit: function () {
-		console.log("undraw...");
 		this.undraw();
 	},
 
