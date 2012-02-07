@@ -51,10 +51,7 @@ Crafty.c("DOM", {
 		}
 
 		this.bind("Remove", this.undraw);
-	},
-
-	uninit: function () {
-		this.undraw();
+		this.bind("RemoveComponent", this.undraw);
 	},
 
 	/**@

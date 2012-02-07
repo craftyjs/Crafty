@@ -290,16 +290,8 @@
 	* Removes a component from an entity. A soft remove (the default) will only
 	* refrain `.has()` from returning true. Hard will remove all
 	* associated properties and methods.
-	*
-	* If the component has a function named `uninit` it will be called both in the case of a soft and a hard remove.
 	*/
 		removeComponent: function (id, soft) {
-			var comp = components[id];
-			//if destructor, call it
-			if (comp && "uninit" in comp) {
-				comp.uninit.call(this);
-			}
-
 			if (soft === false) {
 				var props = components[id], prop;
 				for (prop in props) {
