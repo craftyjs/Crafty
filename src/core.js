@@ -672,6 +672,8 @@
 	* @sign public this Crafty.init([Number width, Number height])
 	* @param width - Width of the stage
 	* @param height - Height of the stage
+	* Create a div with id `cr-stage`, if there is not already an HTMLElement with id `cr-stage` (by `Crafty.viewport.init`).
+	*
 	* Starts the `EnterFrame` interval. This will call the `EnterFrame` event for every frame.
 	*
 	* Can pass width and height values for the stage otherwise will default to window size (see `Crafty.DOM.window`).
@@ -680,6 +682,7 @@
 	*
 	* Uses `requestAnimationFrame` to sync the drawing with the browser but will default to `setInterval` if the browser does not support it.
 	* @see Crafty.stop
+	* @see Crafty.viewport.init <!-- This link is broken. Document generation engine needs to be fixed. Although a reference to Crafty.viewport could be used, it is better use a more specific reference to EnterFrame. -->
 	*/
 		init: function (w, h) {
 			Crafty.viewport.init(w, h);
