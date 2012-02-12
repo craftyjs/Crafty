@@ -162,6 +162,8 @@
 	* string with a list of component names or passing multiple
 	* arguments with the component names.
 	*
+	* If the component has a function named `init` it will be called.
+	*
 	* @example
 	* ~~~
 	* this.addComponent("2D, Canvas");
@@ -284,7 +286,8 @@
 	* @sign public this .removeComponent(String Component[, soft])
 	* @param component - Component to remove
 	* @param soft - Whether to soft remove it (defaults to `true`)
-	* Removes a component from an entity. A soft remove will only
+	*
+	* Removes a component from an entity. A soft remove (the default) will only
 	* refrain `.has()` from returning true. Hard will remove all
 	* associated properties and methods.
 	*/
@@ -368,9 +371,9 @@
 		},
 
 		/**@
-	* #.delay
+	* #.timeout
 	* @comp Crafty Core
-	* @sign public this .delay(Function callback, Number delay)
+	* @sign public this .timeout(Function callback, Number delay)
 	* @param callback - Method to execute after given amount of milliseconds
 	* @param delay - Amount of milliseconds to execute the method
 	* The delay method will execute a function after a given amount of time in milliseconds.
@@ -380,12 +383,12 @@
 	* @example
     * Destroy itself after 100 milliseconds
 	* ~~~
-	* this.delay(function() {
+	* this.timeout(function() {
 	     this.destroy();
 	* }, 100);
 	* ~~~
 	*/
-		delay: function (fn, duration) {
+		timeout: function (fn, duration) {
 			this.each(function () {
 				var self = this;
 				setTimeout(function () {
@@ -661,6 +664,8 @@
 	* @sign public this Crafty.init([Number width, Number height])
 	* @param width - Width of the stage
 	* @param height - Height of the stage
+	* Create a div with id `cr-stage`, if there is not already an HTMLElement with id `cr-stage` (by `Crafty.viewport.init`).
+	*
 	* Starts the `EnterFrame` interval. This will call the `EnterFrame` event for every frame.
 	*
 	* Can pass width and height values for the stage otherwise will default to window size (see `Crafty.DOM.window`).
@@ -669,6 +674,7 @@
 	*
 	* Uses `requestAnimationFrame` to sync the drawing with the browser but will default to `setInterval` if the browser does not support it.
 	* @see Crafty.stop
+	* @see Crafty.viewport.init <!-- This link is broken. Document generation engine needs to be fixed. Although a reference to Crafty.viewport could be used, it is better use a more specific reference to EnterFrame. -->
 	*/
 		init: function (w, h) {
 			Crafty.viewport.init(w, h);
@@ -865,12 +871,15 @@
 	* Creates a component where the first argument is the ID and the second
 	* is the object that will be inherited by entities.
 	*
-	* There is a convention for writing components. Properties or
-	* methods that start with an underscore are considered private.
-	* A method called `init` will automatically be called as soon as the
+	* There is a convention for writing components. 
+	*
+	* - Properties or methods that start with an underscore are considered private.
+	* - A method called `init` will automatically be called as soon as the
 	* component is added to an entity.
-	* A method with the same name as the component is considered to be a constructor
-	* and is generally used when data is needed before executing.
+	* - A methid called `uninit` will be called when the component is removed from an entity. 
+	* A sample use case for this is the native DOM component that removes its div element wehen removed from an entity.
+	* - A method with the same name as the component is considered to be a constructor
+	* and is generally used when you need to pass configuration data to the component on a per entity basis.
 	*
 	* ~~~
 	* Crafty.c("Annoying", {

@@ -17,6 +17,7 @@ var M = Math,
 Crafty.c("2D", {
 /**@
 	* #.x
+	* @comp 2D
 	* The `x` position on the stage. When modified, will automatically be redrawn.
 	* Is actually a getter/setter so when using this value for calculations and not modifying it,
 	* use the `._x` property.
@@ -24,6 +25,7 @@ Crafty.c("2D", {
 	_x: 0,
 	/**@
 	* #.y
+	* @comp 2D
 	* The `y` position on the stage. When modified, will automatically be redrawn.
 	* Is actually a getter/setter so when using this value for calculations and not modifying it,
 	* use the `._y` property.
@@ -31,6 +33,7 @@ Crafty.c("2D", {
 	_y: 0,
 	/**@
 	* #.w
+	* @comp 2D
 	* The width of the entity. When modified, will automatically be redrawn.
 	* Is actually a getter/setter so when using this value for calculations and not modifying it,
 	* use the `._w` property.
@@ -39,7 +42,8 @@ Crafty.c("2D", {
 	*/
 	_w: 0,
 	/**@
-	* #.x
+	* #.h
+	* @comp 2D
 	* The height of the entity. When modified, will automatically be redrawn.
 	* Is actually a getter/setter so when using this value for calculations and not modifying it,
 	* use the `._h` property.
@@ -49,6 +53,7 @@ Crafty.c("2D", {
 	_h: 0,
 	/**@
 	* #.z
+	* @comp 2D
 	* The `z` index on the stage. When modified, will automatically be redrawn.
 	* Is actually a getter/setter so when using this value for calculations and not modifying it,
 	* use the `._z` property.
@@ -60,6 +65,7 @@ Crafty.c("2D", {
 	_z: 0,
 	/**@
 	* #.rotation
+	* @comp 2D
 	* Set the rotation of your entity. Rotation takes degrees in a clockwise direction.
 	* It is important to note there is no limit on the rotation value. Setting a rotation
 	* mod 360 will give the same rotation without reaching huge numbers.
@@ -67,11 +73,13 @@ Crafty.c("2D", {
 	_rotation: 0,
 	/**@
 	* #.alpha
+	* @comp 2D
 	* Transparency of an entity. Must be a decimal value between 0.0 being fully transparent to 1.0 being fully opaque.
 	*/
 	_alpha: 1.0,
 	/**@
 	* #.visible
+	* @comp 2D
 	* If the entity is visible or not. Accepts a true or false value.
 	* Can be used for optimization by setting an entities visibility to false when not needed to be drawn.
 	*
