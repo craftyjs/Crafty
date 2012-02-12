@@ -51,6 +51,17 @@ Crafty.c("DOM", {
 		}
 
 		this.bind("Remove", this.undraw);
+		this.bind("RemoveComponent", this.undraw);
+	},
+
+	/**@
+	* #.getDomId
+	* @comp DOM
+	* @sign public this .getId()
+	* Get the Id of the DOM element used to represent the entity.
+	*/
+	getDomId: function() {
+		return this._element.id;
 	},
 
 	/**@

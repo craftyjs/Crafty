@@ -5,6 +5,24 @@ Crafty.extend({
 	lastEvent: null,
 	keydown: {},
 
+	/**@
+	* #Crafty.keydown
+	* @category Input
+	* Remembering what keys (referred by Unicode) are down.
+	* ~~~
+	* Crafty.c("Keyboard", {
+	*   isDown: function (key) {
+	*     if (typeof key === "string") {
+	*       key = Crafty.keys[key];
+	*     }
+	*     return !!Crafty.keydown[key];
+	*   }
+	* });
+	* ~~~
+	* @see Keyboard
+	* @see Crafty.keys
+	*/
+
 	mouseDispatch: function (e) {
 		if (!Crafty.mouseObjs) return;
 		Crafty.lastEvent = e;
@@ -117,6 +135,44 @@ Crafty.extend({
 
 	},
 
+
+	/**@
+	* #KeyboardEvent
+	* @category Input
+  * Keyboard Event triggerd by Crafty Core
+	* @trigger KeyDown - is triggered for each entity when the DOM 'keydown' event is triggered.
+	* @trigger KeyUp - is triggered for each entity when the DOM 'keyup' event is triggered.
+	* @example
+	* ~~~
+  * Crafty.e("2D, DOM, Color")
+  *   .attr({x: 100, y: 100, w: 50, h: 50})
+  *   .color("red")
+  *   .bind('KeyDown', function(e) {
+  *     if(e.key == Crafty.keys['LEFT_ARROW']) {
+  *       this.x=this.x-1;
+  *     } else if (e.key == Crafty.keys['RIGHT_ARROW']) {
+  *     this.x=this.x+1;
+  *     } else if (e.key == Crafty.keys['UP_ARROW']) {
+  *     this.y=this.y-1;
+  *     } else if (e.key == Crafty.keys['DOWN_ARROW']) {
+  *     this.y=this.y+1;
+  *     }
+  *   });
+	* ~~~
+	* @see Crafty.keys
+	*/
+
+	/**@
+	* #Crafty.eventObject
+	* @category Input
+	* Event Object used in Crafty for cross browser compatiblity
+	*/
+
+	/**@
+	* #.key
+	* @comp Crafty.eventObject
+	* Unicode of the key pressed
+	*/
 	keyboardDispatch: function (e) {
 		e.key = e.keyCode || e.which;
 		if (e.type === "keydown") {
@@ -235,20 +291,30 @@ Crafty.c("Mouse", {
 * @trigger StopDrag - is triggered when dragging ends - MouseEvent
 */
 Crafty.c("Draggable", {
-	_startX: 0,
-	_startY: 0,
+  _origMouseDOMPos: null,
+	_oldX: null,
+	_oldY: null,
 	_dragging: false,
+	_dir:null,
 
 	_ondrag: null,
 	_ondown: null,
 	_onup: null,
 
+  //Note: the code is note tested with zoom, etc., that may distort the direction between the viewport and the coordinate on the canvas.
 	init: function () {
 		this.requires("Mouse");
 		this._ondrag = function (e) {
 			var pos = Crafty.DOM.translate(e.clientX, e.clientY);
-			this.x = pos.x - this._startX;
-			this.y = pos.y - this._startY;
+      if(this._dir) {
+        var len = (pos.x - this._origMouseDOMPos.x) * this._dir.x
+        + (pos.y - this._origMouseDOMPos.y) * this._dir.y;
+        this.x = this._oldX + len * this._dir.x;
+        this.y = this._oldY + len * this._dir.y;
+      } else {
+        this.x = this._oldX + (pos.x - this._origMouseDOMPos.x);
+        this.y = this._oldY + (pos.y - this._origMouseDOMPos.y);
+      }
 
 			this.trigger("Dragging", e);
 		};
@@ -257,8 +323,9 @@ Crafty.c("Draggable", {
 			if (e.mouseButton !== Crafty.mouseButtons.LEFT) return;
 
 			//start drag
-			this._startX = e.realX - this._x;
-			this._startY = e.realY - this._y;
+      this._origMouseDOMPos = Crafty.DOM.translate(e.clientX, e.clientY);
+			this._oldX = this._x;
+			this._oldY = this._y;
 			this._dragging = true;
 
 			Crafty.addEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
@@ -274,6 +341,46 @@ Crafty.c("Draggable", {
 		};
 
 		this.enableDrag();
+	},
+
+	/**@
+	* #.dragDirection
+	* @comp Draggable
+	* @sign public this .dragDirection()
+  * Remove any previously specifed direction.
+  *
+	* @sign public this .dragDirection(vector)
+  * @param vector - Of the form of {x: valx, y: valy}, the vector (valx, valy) denotes the move direction.
+	* @sign public this .dragDirection(degree)
+  * @param degree - A number, the degree (clockwise) of the move direction with respect to the x axis. 
+	* Specify the dragging direction.
+	* @example
+	* ~~~
+	* this.dragDirection()
+	* this.dragDirection({x:1, y:0}) //Horizonatal
+	* this.dragDirection({x:0, y:1}) //Vertical
+  * // Note: because of the orientation of x and y axis,
+  * // this is 45 degree clockwise with respect to the x axis.
+	* this.dragDirection({x:1, y:1}) //45 degree.
+	* this.dragDirection(60) //60 degree.
+	* ~~~
+	*/
+	dragDirection: function(dir) {
+		if (typeof dir === 'undefined') {
+			this._dir=null;
+		} else if (("" + parseInt(dir)) == dir) { //dir is a number
+      this._dir={
+        x: Math.cos(dir/180*Math.PI)
+        , y: Math.sin(dir/180*Math.PI)
+      };
+    }
+    else {
+      var r=Math.sqrt(dir.x * dir.x + dir.y * dir.y)
+			this._dir={
+        x: dir.x/r
+        , y: dir.y/r
+      };
+		}
 	},
 
 	/**@
@@ -350,6 +457,10 @@ Crafty.c("Keyboard", {
 	* @sign public Boolean isDown(Number keyCode)
 	* @param keyCode - Key code in `Crafty.keys`.
 	* Determine if a certain key is currently down.
+	* ~~~
+	* entity.requires('KeyBoard').bind('KeyDown', function () { if (this.isDown('SPACE')) jump(); });
+	* ~~~
+	* @see Crafty.keys
 	*/
 	isDown: function (key) {
 		if (typeof key === "string") {
@@ -369,6 +480,35 @@ Crafty.c("Keyboard", {
 Crafty.c("Multiway", {
 	_speed: 3,
 
+  _keydown: function (e) {
+		if (this._keys[e.key]) {
+			this._movement.x = Math.round((this._movement.x + this._keys[e.key].x) * 1000) / 1000;
+			this._movement.y = Math.round((this._movement.y + this._keys[e.key].y) * 1000) / 1000;
+			this.trigger('NewDirection', this._movement);
+		}
+	},
+
+  _keyup: function (e) {
+		if (this._keys[e.key]) {
+			this._movement.x = Math.round((this._movement.x - this._keys[e.key].x) * 1000) / 1000;
+			this._movement.y = Math.round((this._movement.y - this._keys[e.key].y) * 1000) / 1000;
+			this.trigger('NewDirection', this._movement);
+		}
+	},
+
+  _enterframe: function () {
+		if (this.disableControls) return;
+
+		if (this._movement.x !== 0) {
+			this.x += this._movement.x;
+			this.trigger('Moved', { x: this.x - this._movement.x, y: this.y });
+		}
+		if (this._movement.y !== 0) {
+			this.y += this._movement.y;
+			this.trigger('Moved', { x: this.x, y: this.y - this._movement.y });
+		}
+	},
+
 	init: function () {
 		this._keyDirection = {};
 		this._keys = {};
@@ -382,7 +522,7 @@ Crafty.c("Multiway", {
 	* @sign public this .multiway([Number speed,] Object keyBindings )
 	* @param speed - Amount of pixels to move the entity whilst a key is down
 	* @param keyBindings - What keys should make the entity go in which direction. Direction is specified in degrees
-	* Constructor to initialize the speed and keyBindings. Component will listen for key events and move the entity appropriately.
+	* Constructor to initialize the speed and keyBindings. Component will listen to key events and move the entity appropriately.
 	*
 	* When direction changes a NewDirection event is triggered with an object detailing the new direction: {x: x_movement, y: y_movement}
 	* When entity has moved on either x- or y-axis a Moved event is triggered with an object specifying the old position {x: old_x, y: old_y}
@@ -409,32 +549,7 @@ Crafty.c("Multiway", {
 		this._keyDirection = keys;
 		this.speed(this._speed);
 
-		this.bind("KeyDown", function (e) {
-			if (this._keys[e.key]) {
-				this._movement.x = Math.round((this._movement.x + this._keys[e.key].x) * 1000) / 1000;
-				this._movement.y = Math.round((this._movement.y + this._keys[e.key].y) * 1000) / 1000;
-				this.trigger('NewDirection', this._movement);
-			}
-		})
-		.bind("KeyUp", function (e) {
-			if (this._keys[e.key]) {
-				this._movement.x = Math.round((this._movement.x - this._keys[e.key].x) * 1000) / 1000;
-				this._movement.y = Math.round((this._movement.y - this._keys[e.key].y) * 1000) / 1000;
-				this.trigger('NewDirection', this._movement);
-			}
-		})
-		.bind("EnterFrame", function () {
-			if (this.disableControls) return;
-
-			if (this._movement.x !== 0) {
-				this.x += this._movement.x;
-				this.trigger('Moved', { x: this.x - this._movement.x, y: this.y });
-			}
-			if (this._movement.y !== 0) {
-				this.y += this._movement.y;
-				this.trigger('Moved', { x: this.x, y: this.y - this._movement.y });
-			}
-		});
+		this.enableControl();
 
 		//Apply movement if key is down when created
 		for (var k in keys) {
@@ -445,6 +560,43 @@ Crafty.c("Multiway", {
 
 		return this;
 	},
+
+	/**@
+	* #.enableControl
+	* @comp Multiway
+	* @sign public this .enableControl()
+	* Enable the component to listen to key events.
+	*
+	* @example
+	* ~~~
+  * this.enableControl();
+	* ~~~
+	*/
+  enableControl: function() {
+		this.bind("KeyDown", this._keydown)
+		.bind("KeyUp", this._keyup)
+		.bind("EnterFrame", this._enterframe);
+		return this;
+  },
+
+	/**@
+	* #.disableControl
+	* @comp Multiway
+	* @sign public this .disableControl()
+	* Disable the component to listen to key events.
+	*
+	* @example
+	* ~~~
+  * this.disableControl();
+	* ~~~
+	*/
+
+  disableControl: function() {
+		this.unbind("KeyDown", this._keydown)
+		.unbind("KeyUp", this._keyup)
+		.unbind("EnterFrame", this._enterframe);
+		return this;
+  },
 
 	speed: function (speed) {
 		for (var k in this._keyDirection) {
