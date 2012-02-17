@@ -5,6 +5,8 @@ Crafty.extend({
 	* Add sound files and play them. Chooses best format for browser support.
 	* Due to the nature of HTML5 audio, three types of audio files will be
 	* required for cross-browser capabilities. These formats are MP3, Ogg and WAV.
+	* When sound was not muted on before pause, sound will be unmuted after unpause.
+	* When sound is muted Crafty.pause() does not have any effect on sound.
 	*/
 	audio: {
 		_elems: {},
@@ -252,10 +254,11 @@ Crafty.extend({
 		*/
 		mute: function (mute) {
 			var sounds, sound, i, l, elem;
-			this._muted = !this._muted;
 
 			if (arguments.length == 1 && typeof(mute) == "boolean")
 				this._muted = mute;
+      else
+			  this._muted = !this._muted;
 
 			//loop over every sound
 			for (sounds in this._elems) {
@@ -279,6 +282,17 @@ Crafty.extend({
 	}
 });
 
-//stop sounds on Pause
-Crafty.bind("Pause", function () { Crafty.audio.mute() });
-Crafty.bind("Unpause", function () { Crafty.audio.mute() });
+//When there is sound stop sound on Pause Event.
+//When there was sound on Pause, enable sound on Unpause Event.
+(function() {
+		var prev_mute_state;
+		Crafty.bind("Pause", function () {
+				prev_mute_state=Crafty.audio._muted;
+				Crafty.audio.mute(true);
+			});
+		Crafty.bind("Unpause", function () {
+				if(!prev_mute_state) {
+					Crafty.audio.mute(false);
+				}
+			});
+})();
