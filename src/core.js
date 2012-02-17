@@ -736,6 +736,19 @@
 			}
 			return this;
 		},
+
+		/**@
+		 * #Crafty.isPaused
+		 * @category Core
+		 * @sign public this Crafty.isPaused()
+		 * Check whether the game is already paused or not.
+		 * ~~~
+		 * Crafty.isPaused();
+		 * ~~~
+		 */
+		isPaused: function () {
+			return this._paused;
+		},
 		/**@
 	* #Crafty.timer
 	* @category Internal
