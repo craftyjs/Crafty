@@ -194,6 +194,7 @@ Crafty.extend({
 				sounds[i].addEventListener('ended', function () {
 					if (repeat == -1 || j <= repeat) {
 						this.currentTime = 0;
+            this.play();
 						j++;
 					}
 				}, false);
