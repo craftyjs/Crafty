@@ -223,6 +223,7 @@ $files = array("license.txt",
 			   "text.js", 
 			   "loader.js", 
 			   "math.js",
+			   "time.js",
 			   "outro.js");
 
 if(!is_dir('api/')) {

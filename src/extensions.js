@@ -642,6 +642,21 @@ Crafty.extend({
 			}
 		},
 
+		/**@
+		 * #Crafty.viewport.init
+		 * @comp Crafty.viewport
+		 * @sign public void Crafty.viewport.init([Number width, Number height])
+		 * @param width - Width of the viewport
+		 * @param height - Height of the viewport
+		 *
+		 * Initialize the viewport. If the arguments 'width' or 'height' are missing, or Crafty.mobile is true, use Crafty.DOM.window.width and Crafty.DOM.window.height (full screen model).
+		 * Create a div with id `cr-stage`, if there is not already an HTMLElement with id `cr-stage` (by `Crafty.viewport.init`).
+		 *
+		 * @see Crafty.mobile
+		 * @see Crafty.DOM.window.width
+		 * @see Crafty.DOM.window.height
+		 * @see Crafty.stage
+		 */
 		init: function (w, h) {
 			Crafty.DOM.window.init();
 
@@ -651,6 +666,33 @@ Crafty.extend({
 
 			//check if stage exists
 			var crstage = document.getElementById("cr-stage");
+
+			/**@
+			 * #Crafty.stage
+			 * @category Core
+			 * The stage where all the DOM entities will be placed.
+			 */
+
+			/**@
+			 * #Crafty.stage.elem
+			 * @comp Crafty.stage
+			 * The `#cr-stage` div element.
+			 */
+
+			/**@
+			 * #Crafty.stage.inner
+			 * @comp Crafty.stage
+			 * `Crafty.stage.inner` is a div inside the `#cr-stage` div that holds all DOM entities.
+			 * If you use canvas, a `canvas` element is created at the same level in the dom
+			 * as the the `Crafty.stage.inner` div. So the hierarchy in the DOM is
+			 * 
+			 * `Crafty.stage.elem`
+			 * <!-- not sure how to do indentation in the document-->
+			 *
+			 *     - `Crafty.stage.inner` (a div HTMLElement)
+			 *
+			 *     - `Crafty.canvas._canvas` (a canvas HTMLElement) 
+			 */
 
 			//create stage div to contain everything
 			Crafty.stage = {

@@ -371,9 +371,9 @@
 		},
 
 		/**@
-	* #.delay
+	* #.timeout
 	* @comp Crafty Core
-	* @sign public this .delay(Function callback, Number delay)
+	* @sign public this .timeout(Function callback, Number delay)
 	* @param callback - Method to execute after given amount of milliseconds
 	* @param delay - Amount of milliseconds to execute the method
 	* The delay method will execute a function after a given amount of time in milliseconds.
@@ -383,12 +383,12 @@
 	* @example
     * Destroy itself after 100 milliseconds
 	* ~~~
-	* this.delay(function() {
+	* this.timeout(function() {
 	     this.destroy();
 	* }, 100);
 	* ~~~
 	*/
-		delay: function (fn, duration) {
+		timeout: function (fn, duration) {
 			this.each(function () {
 				var self = this;
 				setTimeout(function () {
@@ -664,6 +664,8 @@
 	* @sign public this Crafty.init([Number width, Number height])
 	* @param width - Width of the stage
 	* @param height - Height of the stage
+	* Create a div with id `cr-stage`, if there is not already an HTMLElement with id `cr-stage` (by `Crafty.viewport.init`).
+	*
 	* Starts the `EnterFrame` interval. This will call the `EnterFrame` event for every frame.
 	*
 	* Can pass width and height values for the stage otherwise will default to window size (see `Crafty.DOM.window`).
@@ -672,6 +674,7 @@
 	*
 	* Uses `requestAnimationFrame` to sync the drawing with the browser but will default to `setInterval` if the browser does not support it.
 	* @see Crafty.stop
+	* @see Crafty.viewport.init <!-- This link is broken. Document generation engine needs to be fixed. Although a reference to Crafty.viewport could be used, it is better use a more specific reference to EnterFrame. -->
 	*/
 		init: function (w, h) {
 			Crafty.viewport.init(w, h);
@@ -732,6 +735,19 @@
 				Crafty.timer.init();
 			}
 			return this;
+		},
+
+		/**@
+		 * #Crafty.isPaused
+		 * @category Core
+		 * @sign public this Crafty.isPaused()
+		 * Check whether the game is already paused or not.
+		 * ~~~
+		 * Crafty.isPaused();
+		 * ~~~
+		 */
+		isPaused: function () {
+			return this._paused;
 		},
 		/**@
 	* #Crafty.timer
