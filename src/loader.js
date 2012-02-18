@@ -147,8 +147,8 @@ Crafty.extend({
 	modules: function (modulesRepository, moduleMap, oncomplete) {
 
 		if (arguments.length === 2 && typeof modulesRepository === "object") {
-			moduleMap = modulesRepository;
 			oncomplete = moduleMap;
+			moduleMap = modulesRepository;
 			modulesRepository = 'http://cdn.craftycomponents.com';
 		}
 
