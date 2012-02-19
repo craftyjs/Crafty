@@ -6,6 +6,7 @@
         "name": "Louis Stowasser",
         "url": "http://craftyjs.com/"
     },
+    "branches" : { "develop" : true },
     "licenses": [
         {
             "type": "MIT",
