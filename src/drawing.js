@@ -36,6 +36,7 @@ Crafty.c("Color", {
 	* ~~~
 	*/
 	color: function (color) {
+		if (!color) return this._color;
 		this._color = color;
 		this.trigger("Change");
 		return this;
