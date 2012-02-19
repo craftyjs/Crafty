@@ -1,7 +1,6 @@
 /**@
 * #Color
 * @category Graphics
-* @trigger Change - when the color changes
 * Draw a solid color for the entity
 */
 Crafty.c("Color", {
@@ -23,6 +22,7 @@ Crafty.c("Color", {
 	/**@
 	* #.color
 	* @comp Color
+	* @trigger Change - when the color changes
 	* @sign public this .color(String color)
 	* @param color - Color of the rectangle
 	* Will create a rectangle of solid color for the entity.
@@ -45,7 +45,6 @@ Crafty.c("Color", {
 /**@
 * #Tint
 * @category Graphics
-* @trigger Change - when the tint is applied
 * Similar to Color by adding an overlay of semi-transparent color.
 *
 * *Note: Currently only works for Canvas*
@@ -70,6 +69,7 @@ Crafty.c("Tint", {
 	/**@
 	* #.tint
 	* @comp Tint
+	* @trigger Change - when the tint is applied
 	* @sign public this .tint(String color, Number strength)
 	* @param color - The color in hexidecimal
 	* @param strength - Level of opacity
@@ -268,8 +268,11 @@ Crafty.extend({
 	}
 });
 
-/**
-* Draw Manager will manage objects to be drawn and implement
+/**@
+* #Crafty.DrawManager
+* @category Graphics
+* @sign Crafty.DrawManager
+* An internal object manage objects to be drawn and implement
 * the best method of drawing in both DOM and canvas
 */
 Crafty.DrawManager = (function () {
@@ -279,14 +282,32 @@ Crafty.DrawManager = (function () {
 		dom = [];
 
 	return {
-	/** Quick count of 2D objects */
+		/**@
+		* #Crafty.DrawManager.total2D
+		* @comp Crafty.DrawManager
+		* Total number of the entities that have the `2D` component.
+		*/
 		total2D: Crafty("2D").length,
 
+		/**@
+		* #Crafty.DrawManager.onScreen
+		* @comp Crafty.DrawManager
+		* @sign public Crafty.DrawManager.onScreen(rect)
+		* @param rect - Undocumented
+		* Undocumented
+		*/
 		onScreen: function (rect) {
 			return Crafty.viewport._x + rect._x + rect._w > 0 && Crafty.viewport._y + rect._y + rect._h > 0 &&
 				   Crafty.viewport._x + rect._x < Crafty.viewport.width && Crafty.viewport._y + rect._y < Crafty.viewport.height;
 		},
 
+		/**@
+		* #Crafty.DrawManager.merge
+		* @comp Crafty.DrawManager
+		* @sign public Crafty.DrawManager.merge(set)
+		* @param set - Undocumented
+		* Undocumented
+		*/
 		merge: function (set) {
 			do {
 				var newset = [], didMerge = false, i = 0,
@@ -326,9 +347,13 @@ Crafty.DrawManager = (function () {
 			return set;
 		},
 
-		/**
-		* Calculate the bounding rect of dirty data
-		* and add to the register
+		/**@
+		* #Crafty.DrawManager.add
+		* @comp Crafty.DrawManager
+		* @sign public Crafty.DrawManager.add(old, current)
+		* @param old - Undocumented
+		* @param current - Undocumented
+		* Calculate the bounding rect of dirty data and add to the register
 		*/
 		add: function add(old, current) {
 			if (!current) {
@@ -371,6 +396,12 @@ Crafty.DrawManager = (function () {
 			return true;
 		},
 
+		/**@
+		* #Crafty.DrawManager.debug
+		* @comp Crafty.DrawManager
+		* @sign public Crafty.DrawManager.debug()
+		* Undocumented
+		*/
 		debug: function () {
 			console.log(register, dom);
 		},
@@ -395,9 +426,13 @@ Crafty.DrawManager = (function () {
 			}
 		},
 
-		/**
-		* Calculate the common bounding rect of multiple canvas entities
-		* Returns coords
+		/**@
+		* #Crafty.DrawManager.boundingRect
+		* @comp Crafty.DrawManager
+		* @sign public Crafty.DrawManager.boundingRect(set)
+		* @param set - Undocumented
+		* - Calculate the common bounding rect of multiple canvas entities.
+		* - Returns coords
 		*/
 		boundingRect: function (set) {
 			if (!set || !set.length) return;
@@ -419,7 +454,10 @@ Crafty.DrawManager = (function () {
 			return master;
 		},
 
-		/**
+		/**@
+		* #Crafty.DrawManager.draw
+		* @comp Crafty.DrawManager
+		* @sign public Crafty.DrawManager.draw()
 		* Redraw all the dirty regions
 		*/
 		draw: function draw() {
