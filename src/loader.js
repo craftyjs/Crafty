@@ -272,7 +272,7 @@ Crafty.extend({
 			if (i.indexOf("http://") != -1)
 				modules.push(i)
 			else
-				modules.push(modulesRepository + '/' + i.toLowerCase() + '-' + moduleMap[i] + '.js');
+				modules.push(modulesRepository + '/' + i.toLowerCase() + '-' + moduleMap[i].toLowerCase() + '.js');
 		}
 
 		$script(modules, function () {
