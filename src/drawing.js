@@ -24,8 +24,9 @@ Crafty.c("Color", {
 	* #.color
 	* @comp Color
 	* @sign public this .color(String color)
+	* @sign public String .color()
 	* @param color - Color of the rectangle
-	* Will create a rectangle of solid color for the entity.
+	* Will create a rectangle of solid color for the entity, or return the color if no argument is given.
 	*
 	* The argument must be a color readable depending on which browser you
 	* choose to support. IE 8 and below doesn't support the rgb() syntax.
@@ -36,6 +37,7 @@ Crafty.c("Color", {
 	* ~~~
 	*/
 	color: function (color) {
+		if (!color) return this._color;
 		this._color = color;
 		this.trigger("Change");
 		return this;
