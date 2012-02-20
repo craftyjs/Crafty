@@ -21,6 +21,7 @@ Crafty.c("2D", {
 	* The `x` position on the stage. When modified, will automatically be redrawn.
 	* Is actually a getter/setter so when using this value for calculations and not modifying it,
 	* use the `._x` property.
+	* @see ._attr
 	*/
 	_x: 0,
 	/**@
@@ -29,6 +30,7 @@ Crafty.c("2D", {
 	* The `y` position on the stage. When modified, will automatically be redrawn.
 	* Is actually a getter/setter so when using this value for calculations and not modifying it,
 	* use the `._y` property.
+	* @see ._attr
 	*/
 	_y: 0,
 	/**@
@@ -39,6 +41,7 @@ Crafty.c("2D", {
 	* use the `._w` property.
 	*
 	* Changing this value is not recommended as canvas has terrible resize quality and DOM will just clip the image.
+	* @see ._attr
 	*/
 	_w: 0,
 	/**@
@@ -49,6 +52,7 @@ Crafty.c("2D", {
 	* use the `._h` property.
 	*
 	* Changing this value is not recommended as canvas has terrible resize quality and DOM will just clip the image.
+	* @see ._attr
 	*/
 	_h: 0,
 	/**@
@@ -61,6 +65,7 @@ Crafty.c("2D", {
 	* A higher `z` value will be closer to the front of the stage. A smaller `z` value will be closer to the back.
 	* A global Z index is produced based on its `z` value as well as the GID (which entity was created first).
 	* Therefore entities will naturally maintain order depending on when it was created if same z value.
+	* @see ._attr
 	*/
 	_z: 0,
 	/**@
@@ -69,6 +74,7 @@ Crafty.c("2D", {
 	* Set the rotation of your entity. Rotation takes degrees in a clockwise direction.
 	* It is important to note there is no limit on the rotation value. Setting a rotation
 	* mod 360 will give the same rotation without reaching huge numbers.
+	* @see ._attr
 	*/
 	_rotation: 0,
 	/**@
@@ -86,7 +92,15 @@ Crafty.c("2D", {
 	* The entity will still exist and can be collided with but just won't be drawn.
 	*/
 	_visible: true,
-	_global: null,
+
+	/**@
+	* #._globalZ
+	* @comp 2D
+	* When two entities overlap, the one with the larger `_globalZ` will be on top of the other.
+	* @see Crafty.DrawManager.draw
+	* @see Crafty.DrawManager.drawAll
+	*/
+	_globalZ: null,
 
 	_origin: null,
 	_mbr: null,
@@ -96,7 +110,7 @@ Crafty.c("2D", {
 	_changed: false,
 
 	init: function() {
-		this._global = this[0];
+		this._globalZ = this[0];
 		this._origin = { x: 0, y: 0 };
 		this._children = [];
 
@@ -176,6 +190,9 @@ Crafty.c("2D", {
 					} else {
 						//update the MBR
 						var mbr = this._mbr, moved = false;
+						// If the browser doesn't have getters or setters,
+						// {x, y, w, h, z} and {_x, _y, _w, _h, _z} may be out of synce,
+						// in which case t checks if they are different on tick and executes the Change event.
 						if (mbr) { //check each value to see which has changed
 							if (this.x !== this._x) { mbr._x -= this.x - this._x; moved = true; }
 							else if (this.y !== this._y) { mbr._y -= this.y - this._y; moved = true; }
@@ -389,7 +406,10 @@ Crafty.c("2D", {
 		};
 	},
 
-	/**
+	/**@
+	* #.mbr
+	* @comp 2D
+	* @sign public Object .mbr()
 	* Returns the minimum bounding rectangle. If there is no rotation
 	* on the entity it will return the rect.
 	*/
@@ -457,6 +477,14 @@ Crafty.c("2D", {
 		return this;
 	},
 
+	/**@
+	* #._cascade
+	* @comp 2D
+  * @sign public void ._cascade(e)
+	* @param e - Amount to move X
+	* Shift or move the entity by an amount. Use negative values
+	* for an opposite direction.
+	*/
 	/**
 	* Move or rotate all the children for this entity
 	*/
@@ -595,7 +623,9 @@ Crafty.c("2D", {
 		this._attr('_rotation', e.theta);
 	},
 
-	/**
+	/**@
+	* #._attr
+	* @comp 2D
 	* Setter method for all 2D properties including
 	* x, y, w, h, alpha, rotation and visible.
 	*/
@@ -610,7 +640,7 @@ Crafty.c("2D", {
 			this.trigger("Rotate");
 			//set the global Z and trigger reorder just incase
 		} else if (name === '_z') {
-			this._global = parseInt(value + Crafty.zeroFill(this[0], 5), 10); //magic number 10e5 is the max num of entities
+			this._globalZ = parseInt(value + Crafty.zeroFill(this[0], 5), 10); //magic number 10e5 is the max num of entities
 			this.trigger("reorder");
 			//if the rect bounds change, update the MBR and trigger move
 		} else if (name == '_x' || name === '_y' || name === '_w' || name === '_h') {
@@ -661,14 +691,14 @@ Crafty.c("Gravity", {
 	* @sign public this .gravity([comp])
 	* @param comp - The name of a component that will stop this entity from falling
 	* Enable gravity for this entity no matter whether comp parameter is not specified, 
-  * If comp parameter is specified all entities with that component will stop this entity from falling.
+	* If comp parameter is specified all entities with that component will stop this entity from falling.
 	* For a player entity in a platform game this would be a component that is added to all entities
 	* that the player should be able to walk on.
 	* ~~~
 	* Crafty.e("2D, DOM, Color, Gravity")
-  *   .color("red")
-  *   .attr({ w: 100, h: 100 })
-  *   .gravity("platform")
+	*	 .color("red")
+	*	 .attr({ w: 100, h: 100 })
+	*	 .gravity("platform")
 	* ~~~
 	*/
 	gravity: function (comp) {
@@ -687,16 +717,16 @@ Crafty.c("Gravity", {
 	* Set the gravitational constant to g. The default is .2. The greater g, the faster the object falls.
 	* ~~~
 	* Crafty.e("2D, DOM, Color, Gravity")
-  *   .color("red")
-  *   .attr({ w: 100, h: 100 })
-  *   .gravity("platform")
-  *   .gravityConst(2)
+	*   .color("red")
+	*   .attr({ w: 100, h: 100 })
+	*   .gravity("platform")
+	*   .gravityConst(2)
 	* ~~~
 	*/
-  gravityConst: function(g) {
-    this._gravityConst=g;
+	gravityConst: function(g) {
+		this._gravityConst=g;
 		return this;
-  },
+	},
 
 	_enterframe: function () {
 		if (this._falling) {

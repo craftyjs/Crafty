@@ -406,17 +406,24 @@ Crafty.DrawManager = (function () {
 			console.log(register, dom);
 		},
 
+		/**@
+		* #Crafty.DrawManager.draw
+		* @comp Crafty.DrawManager
+		* @sign public Crafty.DrawManager.draw()
+		* Redraw all the dirty regions
+		*/
 		drawAll: function (rect) {
-			var rect = rect || Crafty.viewport.rect(), q,
-				i = 0, l, ctx = Crafty.canvas.context,
+			var rect = rect || Crafty.viewport.rect(),
+				q = Crafty.map.search(rect),
+				i = 0,
+				l = q.length,
+				ctx = Crafty.canvas.context,
 				current;
-
-			q = Crafty.map.search(rect);
-			l = q.length;
 
 			ctx.clearRect(rect._x, rect._y, rect._w, rect._h);
 
-			q.sort(function (a, b) { return a._global - b._global; });
+			//sort the objects by the global Z
+			q.sort(function (a, b) { return a._globalZ - b._globalZ; });
 			for (; i < l; i++) {
 				current = q[i];
 				if (current._visible && current.__c.Canvas) {
@@ -459,6 +466,8 @@ Crafty.DrawManager = (function () {
 		* @comp Crafty.DrawManager
 		* @sign public Crafty.DrawManager.draw()
 		* Redraw all the dirty regions
+		*	If the number of rects is over 60% of the total number of objects
+		*	do the naive method redrawing `Crafty.DrawManager.drawAll`
 		*/
 		draw: function draw() {
 			//if nothing in register, stop
@@ -510,7 +519,7 @@ Crafty.DrawManager = (function () {
 			}
 
 			//sort the objects by the global Z
-			objs.sort(function (a, b) { return a.obj._global - b.obj._global; });
+			objs.sort(function (a, b) { return a.obj._globalZ - b.obj._globalZ; });
 			if (!objs.length){ return; }
 
 			//loop over the objects
