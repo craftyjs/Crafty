@@ -109,60 +109,80 @@ Crafty.c("2D", {
 	_parent: null,
 	_changed: false,
 
-	init: function() {
-		this._globalZ = this[0];
-		this._origin = { x: 0, y: 0 };
-		this._children = [];
+	_defineGetterSetter_setter: function() {
+		//create getters and setters using __defineSetter__ and __defineGetter__
+		this.__defineSetter__('x', function (v) { this._attr('_x', v); });
+		this.__defineSetter__('y', function (v) { this._attr('_y', v); });
+		this.__defineSetter__('w', function (v) { this._attr('_w', v); });
+		this.__defineSetter__('h', function (v) { this._attr('_h', v); });
+		this.__defineSetter__('z', function (v) { this._attr('_z', v); });
+		this.__defineSetter__('rotation', function (v) { this._attr('_rotation', v); });
+		this.__defineSetter__('alpha', function (v) { this._attr('_alpha', v); });
+		this.__defineSetter__('visible', function (v) { this._attr('_visible', v); });
 
-		if(Crafty.support.setter) {
-			//create getters and setters
-			this.__defineSetter__('x', function (v) { this._attr('_x', v); });
-			this.__defineSetter__('y', function (v) { this._attr('_y', v); });
-			this.__defineSetter__('w', function (v) { this._attr('_w', v); });
-			this.__defineSetter__('h', function (v) { this._attr('_h', v); });
-			this.__defineSetter__('z', function (v) { this._attr('_z', v); });
-			this.__defineSetter__('rotation', function (v) { this._attr('_rotation', v); });
-			this.__defineSetter__('alpha', function (v) { this._attr('_alpha', v); });
-			this.__defineSetter__('visible', function (v) { this._attr('_visible', v); });
+		this.__defineGetter__('x', function () { return this._x; });
+		this.__defineGetter__('y', function () { return this._y; });
+		this.__defineGetter__('w', function () { return this._w; });
+		this.__defineGetter__('h', function () { return this._h; });
+		this.__defineGetter__('z', function () { return this._z; });
+		this.__defineGetter__('rotation', function () { return this._rotation; });
+		this.__defineGetter__('alpha', function () { return this._alpha; });
+		this.__defineGetter__('visible', function () { return this._visible; });
+		this.__defineGetter__('parent', function () { return this._parent; });
+		this.__defineGetter__('numChildren', function () { return this._children.length; });
+	},
 
-			this.__defineGetter__('x', function () { return this._x; });
-			this.__defineGetter__('y', function () { return this._y; });
-			this.__defineGetter__('w', function () { return this._w; });
-			this.__defineGetter__('h', function () { return this._h; });
-			this.__defineGetter__('z', function () { return this._z; });
-			this.__defineGetter__('rotation', function () { return this._rotation; });
-			this.__defineGetter__('alpha', function () { return this._alpha; });
-			this.__defineGetter__('visible', function () { return this._visible; });
-			this.__defineGetter__('parent', function () { return this._parent; });
-			this.__defineGetter__('numChildren', function () { return this._children.length; });
-
-			//IE9 supports Object.defineProperty
-		} else if (Crafty.support.defineProperty) {
-
-			Object.defineProperty(this, 'x', { set: function (v) { this._attr('_x', v); }, get: function () { return this._x; }, configurable: true });
-			Object.defineProperty(this, 'y', { set: function (v) { this._attr('_y', v); }, get: function () { return this._y; }, configurable: true });
-			Object.defineProperty(this, 'w', { set: function (v) { this._attr('_w', v); }, get: function () { return this._w; }, configurable: true });
-			Object.defineProperty(this, 'h', { set: function (v) { this._attr('_h', v); }, get: function () { return this._h; }, configurable: true });
-			Object.defineProperty(this, 'z', { set: function (v) { this._attr('_z', v); }, get: function () { return this._z; }, configurable: true });
-
-			Object.defineProperty(this, 'rotation', {
-				set: function (v) { this._attr('_rotation', v); }, get: function () { return this._rotation; }, configurable: true
+	_defineGetterSetter_defineProperty: function() {
+		Object.defineProperty(this, 'x', {
+				set: function (v) { this._attr('_x', v); }
+				, get: function () { return this._x; }
+				, configurable: true
 			});
 
-			Object.defineProperty(this, 'alpha', {
-				set: function (v) { this._attr('_alpha', v); }, get: function () { return this._alpha; }, configurable: true
+		Object.defineProperty(this, 'y', {
+				set: function (v) { this._attr('_y', v); }
+				, get: function () { return this._y; }
+				, configurable: true
 			});
 
-			Object.defineProperty(this, 'visible', {
-				set: function (v) { this._attr('_visible', v); }, get: function () { return this._visible; }, configurable: true
+		Object.defineProperty(this, 'w', {
+				set: function (v) { this._attr('_w', v); }
+				, get: function () { return this._w; }
+				, configurable: true
 			});
 
-		} else {
-			/*
-			if no setters, check on every frame for a difference
-			between this._(x|y|w|h|z...) and this.(x|y|w|h|z)
-			*/
+		Object.defineProperty(this, 'h', {
+				set: function (v) { this._attr('_h', v); }
+				, get: function () { return this._h; }
+				, configurable: true
+			});
 
+		Object.defineProperty(this, 'z', {
+				set: function (v) { this._attr('_z', v); }
+				, get: function () { return this._z; }
+				, configurable: true
+			});
+
+		Object.defineProperty(this, 'rotation', {
+			set: function (v) { this._attr('_rotation', v); }
+			, get: function () { return this._rotation; }
+			, configurable: true
+		});
+
+		Object.defineProperty(this, 'alpha', {
+			set: function (v) { this._attr('_alpha', v); }
+			, get: function () { return this._alpha; }
+			, configurable: true
+		});
+
+		Object.defineProperty(this, 'visible', {
+			set: function (v) { this._attr('_visible', v); }
+			, get: function () { return this._visible; }
+			, configurable: true
+		});
+	},
+
+	_defineGetterSetter_fallback: function() {
 			//set the public properties to the current private properties
 			this.x = this._x;
 			this.y = this._y;
@@ -177,9 +197,9 @@ Crafty.c("2D", {
 			this.bind("EnterFrame", function () {
 				//if there are differences between the public and private properties
 				if (this.x !== this._x || this.y !== this._y ||
-				   this.w !== this._w || this.h !== this._h ||
-				   this.z !== this._z || this.rotation !== this._rotation ||
-				   this.alpha !== this._alpha || this.visible !== this._visible) {
+					this.w !== this._w || this.h !== this._h ||
+					this.z !== this._z || this.rotation !== this._rotation ||
+					this.alpha !== this._alpha || this.visible !== this._visible) {
 
 					//save the old positions
 					var old = this.mbr() || this.pos();
@@ -222,6 +242,25 @@ Crafty.c("2D", {
 					this.trigger("Move", old);
 				}
 			});
+  },
+
+	init: function() {
+		this._globalZ = this[0];
+		this._origin = { x: 0, y: 0 };
+		this._children = [];
+
+		if(Crafty.support.setter) {
+      this._defineGetterSetter_setter();
+		} else if (Crafty.support.defineProperty) {
+			//IE9 supports Object.defineProperty
+      this._defineGetterSetter_defineProperty();
+		} else {
+			/*
+			If no setters and getters are supported (e.g. IE8) supports,
+			check on every frame for a difference between this._(x|y|w|h|z...)
+			and this.(x|y|w|h|z) and update accordingly.
+			*/
+      this._defineGetterSetter_fallback();
 		}
 
 		//insert self into the HashMap
