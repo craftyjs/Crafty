@@ -106,21 +106,21 @@ Crafty.extend({
 		* #Crafty.canvas.context
 		* @comp Crafty.canvas
 		* This will return the 2D context of the main canvas element.
-		* The value returned from `Crafty.canvas.elem.getContext('2d')`.
+		* The value returned from `Crafty.canvas._canvas.getContext('2d')`.
 		*/
 		context: null,
 		/**@
-		* #Crafty.canvas.elem
+		* #Crafty.canvas._canvas
 		* @comp Crafty.canvas
 		* Main Canvas element
 		*/
-		elem: null,
 
 		/**@
 		* #Crafty.canvas.init
 		* @comp Crafty.canvas
 		* @sign public void Crafty.canvas.init(void)
-		* Creates a `canvas` element inside the stage element. Must be called
+    * @trigger NoCanvas - triggered if `Crafty.support.canvas` is false
+		* Creates a `canvas` element inside `Crafty.stage.elem`. Must be called
 		* before any entities with the Canvas component can be drawn.
 		*
 		* This method will automatically be called if no `Crafty.canvas.context` is
