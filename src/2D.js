@@ -846,6 +846,7 @@ Crafty.c("Gravity", {
 * @example
 * ~~~
 * new Crafty.polygon([50,0],[100,100],[0,100]);
+* new Crafty.polygon([[50,0],[100,100],[0,100]]);
 * ~~~
 */
 Crafty.polygon = function (poly) {
