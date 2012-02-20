@@ -1,3 +1,8 @@
+/* This file aggregates all the src/ files at runtime.
+ * You just need to source this file, then any changes in src/ files will be automatically sourced.
+ * Therefore, you do not need to regenerate crafty.js (by bulid.sh) anymore each time when you make changes in src/.
+ */
+
 (function (window) {
 	var include = [
 		'core',
