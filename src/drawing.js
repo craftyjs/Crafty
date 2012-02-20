@@ -144,7 +144,7 @@ Crafty.c("Image", {
 	* ~~~
 	* Create a repeating background.
 	* ~~~
-    * var bg = Crafty.e("2D, DOM, Image")
+	* var bg = Crafty.e("2D, DOM, Image")
 	*              .attr({w: Crafty.viewport.width, h: Crafty.viewport.height})
 	*              .image("bg.png", "repeat");
 	* ~~~
@@ -248,12 +248,22 @@ Crafty.extend({
 		return;
 	},
 
-	rgbLookup: {},
-
+	/**@
+	* #Crafty.toRGB
+	* @category Graphics
+	* @sign public String Crafty.scene(String hex[, Number alpha])
+	* @param hex - a 6 character hex number string representing RGB color
+	* @param alpha - The alpha value.
+	* Get a rgb string or rgba string (if `alpha` presents).
+	* @example
+	* ~~~
+	* Crafty.toRGB("ffffff"); // rgb(255,255,255)
+	* Crafty.toRGB("#ffffff"); // rgb(255,255,255)
+	* Crafty.toRGB("ffffff", .5); // rgba(255,255,255,0.5)
+	* ~~~
+	* @see Text.textColor
+	*/
 	toRGB: function (hex, alpha) {
-		var lookup = this.rgbLookup[hex];
-		if (lookup) return lookup;
-
 		var hex = (hex.charAt(0) === '#') ? hex.substr(1) : hex,
 			c = [], result;
 
@@ -262,7 +272,6 @@ Crafty.extend({
 		c[2] = parseInt(hex.substr(4, 2), 16);
 
 		result = alpha === undefined ? 'rgb(' + c.join(',') + ')' : 'rgba(' + c.join(',') + ',' + alpha + ')';
-		lookup = result;
 
 		return result;
 	}

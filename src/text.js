@@ -20,11 +20,11 @@ Crafty.c("Text", {
 
 		this.bind("Draw", function (e) {
 			var font = this._textFont["type"] + ' ' + this._textFont["weight"] + ' ' +
-                    this._textFont["size"] + ' ' + this._textFont["family"];
+				this._textFont["size"] + ' ' + this._textFont["family"];
 
 			if (e.type === "DOM") {
 				var el = this._element,
-                    style = el.style;
+					style = el.style;
 
 				style.color = this._textColor;
 				style.font = font;
@@ -97,8 +97,8 @@ Crafty.c("Text", {
     *
     * Crafty.e("2D, Canvas, Text").attr({ x: 100, y: 100 }).text('Look at me!!')
     *   .textColor('#FF0000', 0.6);
-    *
     * ~~~
+    * @see Crafty.toRGB
     */
 	textColor: function (color, strength) {
 		this._strength = strength;
