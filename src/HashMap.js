@@ -61,6 +61,7 @@
 	* @param filter - Default value is true. Otherwise, must be false.
   * - If `filter` is `false`, just search for all the entries in the give `rect` region by broad phase collision. Entity may be returned duplicated.
   * - If `filter` is `true`, filter the above results by checking that they actually overlap `rect`.
+  * The easier usage is with `filter`=`true`. For performance reason, you may use `filter`=`false`, and filter the result youself. See examples in drawing.js and collision.js
 	*/
 		search: function (rect, filter) {
 			var keys = HashMap.key(rect),

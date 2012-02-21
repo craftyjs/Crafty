@@ -96,6 +96,7 @@ Crafty.c("2D", {
 	* Can be used for optimization by setting an entities visibility to false when not needed to be drawn.
 	*
 	* The entity will still exist and can be collided with but just won't be drawn.
+  * @see Crafty.DrawManager.draw, Crafty.DrawManager.drawAll
 	*/
 	_visible: true,
 
@@ -103,8 +104,7 @@ Crafty.c("2D", {
 	* #._globalZ
 	* @comp 2D
 	* When two entities overlap, the one with the larger `_globalZ` will be on top of the other.
-	* @see Crafty.DrawManager.draw
-	* @see Crafty.DrawManager.drawAll
+	* @see Crafty.DrawManager.draw, Crafty.DrawManager.drawAll
 	*/
 	_globalZ: null,
 

@@ -301,9 +301,9 @@ Crafty.DrawManager = (function () {
 		/**@
 		* #Crafty.DrawManager.onScreen
 		* @comp Crafty.DrawManager
-		* @sign public Crafty.DrawManager.onScreen(rect)
-		* @param rect - Undocumented
-		* Undocumented
+		* @sign public Crafty.DrawManager.onScreen(Object rect)
+		* @param rect - A rectangle with field {_x: x_val, _y: y_val, _w: w_val, _h: h_val}
+		* Test if a rectangle is completely in viewport
 		*/
 		onScreen: function (rect) {
 			return Crafty.viewport._x + rect._x + rect._w > 0 && Crafty.viewport._y + rect._y + rect._h > 0 &&
@@ -313,9 +313,9 @@ Crafty.DrawManager = (function () {
 		/**@
 		* #Crafty.DrawManager.merge
 		* @comp Crafty.DrawManager
-		* @sign public Crafty.DrawManager.merge(set)
+		* @sign public Object Crafty.DrawManager.merge(Object set)
 		* @param set - Undocumented
-		* Undocumented
+		* Return the merged set
 		*/
 		merge: function (set) {
 			do {
@@ -418,8 +418,10 @@ Crafty.DrawManager = (function () {
 		/**@
 		* #Crafty.DrawManager.draw
 		* @comp Crafty.DrawManager
-		* @sign public Crafty.DrawManager.draw()
-		* Redraw all the dirty regions
+		* @sign public Crafty.DrawManager.draw([Object rect])
+    * @param rect - a rectangular region {_x: x_val, _y: y_val, _w: w_val, _h: h_val}
+		* - If rect is omitted, redraw within the viewport
+		* - If rect is provided, redraw within the rect
 		*/
 		drawAll: function (rect) {
 			var rect = rect || Crafty.viewport.rect(),

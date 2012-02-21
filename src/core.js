@@ -388,11 +388,11 @@
 	* }, 100);
 	* ~~~
 	*/
-		timeout: function (fn, duration) {
+		timeout: function (callback, duration) {
 			this.each(function () {
 				var self = this;
 				setTimeout(function () {
-					fn.call(self);
+					callback.call(self);
 				}, duration);
 			});
 			return this;
@@ -428,14 +428,14 @@
 	* ~~~
 	* @see .trigger, .unbind
 	*/
-		bind: function (event, fn) {
+		bind: function (event, callback) {
 			//optimization for 1 entity
 			if (this.length === 1) {
 				if (!handlers[event]) handlers[event] = {};
 				var h = handlers[event];
 
 				if (!h[this[0]]) h[this[0]] = []; //init handler array for entity
-				h[this[0]].push(fn); //add current fn
+				h[this[0]].push(callback); //add current callback
 				return this;
 			}
 
@@ -445,7 +445,7 @@
 				var h = handlers[event];
 
 				if (!h[this[0]]) h[this[0]] = []; //init handler array for entity
-				h[this[0]].push(fn); //add current fn
+				h[this[0]].push(callback); //add current callback
 			});
 			return this;
 		},
@@ -463,7 +463,7 @@
 	* unbind only that callback.
 	* @see .bind, .trigger
 	*/
-		unbind: function (event, fn) {
+		unbind: function (event, callback) {
 			this.each(function () {
 				var hdl = handlers[event], i = 0, l, current;
 				//if no events, cancel
@@ -471,14 +471,14 @@
 				else return this;
 
 				//if no function, delete all
-				if (!fn) {
+				if (!callback) {
 					delete hdl[this[0]];
 					return this;
 				}
 				//look for a match if the function is passed
 				for (; i < l; i++) {
 					current = hdl[this[0]];
-					if (current[i] == fn) {
+					if (current[i] == callback) {
 						current.splice(i, 1);
 						i--;
 					}
@@ -506,9 +506,9 @@
 			if (this.length === 1) {
 				//find the handlers assigned to the event and entity
 				if (handlers[event] && handlers[event][this[0]]) {
-					var fns = handlers[event][this[0]], i = 0, l = fns.length;
+					var callbacks = handlers[event][this[0]], i = 0, l = callbacks.length;
 					for (; i < l; i++) {
-						fns[i].call(this, data);
+						callbacks[i].call(this, data);
 					}
 				}
 				return this;
@@ -517,9 +517,9 @@
 			this.each(function () {
 				//find the handlers assigned to the event and entity
 				if (handlers[event] && handlers[event][this[0]]) {
-					var fns = handlers[event][this[0]], i = 0, l = fns.length;
+					var callbacks = handlers[event][this[0]], i = 0, l = callbacks.length;
 					for (; i < l; i++) {
-						fns[i].call(this, data);
+						callbacks[i].call(this, data);
 					}
 				}
 			});
@@ -545,12 +545,12 @@
 	* });
 	* ~~~
 	*/
-		each: function (fn) {
+		each: function (func) {
 			var i = 0, l = this.length;
 			for (; i < l; i++) {
 				//skip if not exists
 				if (!entities[this[i]]) continue;
-				fn.call(entities[this[i]], i);
+				func.call(entities[this[i]], i);
 			}
 			return this;
 		},
@@ -593,19 +593,19 @@
 	* *Note: Support in IE<9 is slightly different. The method will be executed
 	* after the property has been set*
 	*/
-		setter: function (prop, fn) {
+		setter: function (prop, callback) {
 			if (Crafty.support.setter) {
-				this.__defineSetter__(prop, fn);
+				this.__defineSetter__(prop, callback);
 			} else if (Crafty.support.defineProperty) {
 				Object.defineProperty(this, prop, {
-					set: fn,
+					set: callback,
 					configurable: true
 				});
 			} else {
 				noSetter.push({
 					prop: prop,
 					obj: this,
-					fn: fn
+					fn: callback
 				});
 			}
 			return this;
@@ -907,8 +907,8 @@
 	* ~~~
 	* @see Crafty.e
 	*/
-		c: function (id, fn) {
-			components[id] = fn;
+		c: function (compName, component) {
+			components[compName] = component;
 		},
 
 		/**@
@@ -1086,9 +1086,13 @@
 		return id;
 	}
 
-	/**
-* Clone an Object
-*/
+	/**@
+	* #Crafty.clone
+	* @category Core
+	* @sign public Object .clone(Object obj)
+	* @param obj - An entity
+	* Clone an `obj`
+	*/
 	function clone(obj) {
 		if (obj === null || typeof(obj) != 'object')
 			return obj;

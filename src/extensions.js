@@ -231,18 +231,18 @@ Crafty.extend({
 	* Callbacks are passed with event data.
 	* @see Crafty.removeEvent
 	*/
-	addEvent: function (ctx, obj, type, fn) {
+	addEvent: function (ctx, obj, type, callback) {
 		if (arguments.length === 3) {
-			fn = type;
+			callback = type;
 			type = obj;
 			obj = window.document;
 		}
 
 		//save anonymous function to be able to remove
-		var afn = function (e) { var e = e || window.event; fn.call(ctx, e) },
+		var afn = function (e) { var e = e || window.event; callback.call(ctx, e) },
 			id = ctx[0] || "";
 
-		if (!this._events[id + obj + type + fn]) this._events[id + obj + type + fn] = afn;
+		if (!this._events[id + obj + type + callback]) this._events[id + obj + type + callback] = afn;
 		else return;
 
 		if (obj.attachEvent) { //IE
@@ -265,22 +265,22 @@ Crafty.extend({
 	* to the callback method.
 	* @see Crafty.addEvent
 	*/
-	removeEvent: function (ctx, obj, type, fn) {
+	removeEvent: function (ctx, obj, type, callback) {
 		if (arguments.length === 3) {
-			fn = type;
+			callback = type;
 			type = obj;
 			obj = window.document;
 		}
 
 		//retrieve anonymouse function
 		var id = ctx[0] || "",
-			afn = this._events[id + obj + type + fn];
+			afn = this._events[id + obj + type + callback];
 
 		if (afn) {
 			if (obj.detachEvent) {
 				obj.detachEvent('on' + type, afn);
 			} else obj.removeEventListener(type, afn, false);
-			delete this._events[id + obj + type + fn];
+			delete this._events[id + obj + type + callback];
 		}
 	},
 
