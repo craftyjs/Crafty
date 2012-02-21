@@ -1090,8 +1090,8 @@
 	* #Crafty.clone
 	* @category Core
 	* @sign public Object .clone(Object obj)
-	* @param obj - An entity
-	* Clone an `obj`
+	* @param obj - an object
+  * Deep copy (a.k.a clone) of an object.
 	*/
 	function clone(obj) {
 		if (obj === null || typeof(obj) != 'object')

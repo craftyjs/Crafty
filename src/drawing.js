@@ -286,7 +286,7 @@ Crafty.extend({
 */
 Crafty.DrawManager = (function () {
 	/** array of dirty rects on screen */
-	var register = [],
+	var dirty_rects = [],
 	/** array of DOMs needed updating */
 		dom = [];
 
@@ -314,8 +314,9 @@ Crafty.DrawManager = (function () {
 		* #Crafty.DrawManager.merge
 		* @comp Crafty.DrawManager
 		* @sign public Object Crafty.DrawManager.merge(Object set)
-		* @param set - Undocumented
-		* Return the merged set
+		* @param set - an array of rectangular regions
+		* Merged into non overlapping rectangular region
+		* Its an optimization for the redraw regions.
 		*/
 		merge: function (set) {
 			do {
@@ -362,7 +363,7 @@ Crafty.DrawManager = (function () {
 		* @sign public Crafty.DrawManager.add(old, current)
 		* @param old - Undocumented
 		* @param current - Undocumented
-		* Calculate the bounding rect of dirty data and add to the register
+		* Calculate the bounding rect of dirty data and add to the register of dirty rectangles
 		*/
 		add: function add(old, current) {
 			if (!current) {
@@ -398,8 +399,8 @@ Crafty.DrawManager = (function () {
 			rect._w = (rect._w === ~~rect._w) ? rect._w : rect._w + 1 | 0;
 			rect._h = (rect._h === ~~rect._h) ? rect._h : rect._h + 1 | 0;
 
-			//add to register, check for merging
-			register.push(rect);
+			//add to dirty_rects, check for merging
+			dirty_rects.push(rect);
 
 			//if it got merged
 			return true;
@@ -412,7 +413,7 @@ Crafty.DrawManager = (function () {
 		* Undocumented
 		*/
 		debug: function () {
-			console.log(register, dom);
+			console.log(dirty_rects, dom);
 		},
 
 		/**@
@@ -481,33 +482,32 @@ Crafty.DrawManager = (function () {
 		*	do the naive method redrawing `Crafty.DrawManager.drawAll`
 		*/
 		draw: function draw() {
-			//if nothing in register, stop
-			if (!register.length && !dom.length) return;
+			//if nothing in dirty_rects, stop
+			if (!dirty_rects.length && !dom.length) return;
 
-			var i = 0, l = register.length, k = dom.length, rect, q,
+			var i = 0, l = dirty_rects.length, k = dom.length, rect, q,
 				j, len, dupes, obj, ent, objs = [], ctx = Crafty.canvas.context;
 
 			//loop over all DOM elements needing updating
 			for (; i < k; ++i) {
 				dom[i].draw()._changed = false;
 			}
-			//reset counter and DOM array
-			dom.length = i = 0;
-
-			//again, stop if nothing in register
+			//reset DOM array
+      dom.length = 0;
+			//again, stop if nothing in dirty_rects
 			if (!l) { return; }
 
 			//if the amount of rects is over 60% of the total objects
 			//do the naive method redrawing
 			if (l / this.total2D > 0.6) {
 				this.drawAll();
-				register.length = 0;
+				dirty_rects.length = 0;
 				return;
 			}
 
-			register = this.merge(register);
-			for (; i < l; ++i) { //loop over every dirty rect
-				rect = register[i];
+			dirty_rects = this.merge(dirty_rects);
+			for (i = 0; i < l; ++i) { //loop over every dirty rect
+				rect = dirty_rects[i];
 				if (!rect) continue;
 				q = Crafty.map.search(rect, false); //search for ents under dirty rect
 
@@ -562,12 +562,12 @@ Crafty.DrawManager = (function () {
 				ctx.closePath();
 				ctx.restore();
 
-				//allow entity to re-register
+				//allow entity to re-dirty_rects
 				ent._changed = false;
 			}
 
-			//empty register
-			register.length = 0;
+			//empty dirty_rects
+			dirty_rects.length = 0;
 			//all merged IDs are now invalid
 			merged = {};
 		}
