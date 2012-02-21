@@ -477,9 +477,10 @@ Crafty.DrawManager = (function () {
 		* #Crafty.DrawManager.draw
 		* @comp Crafty.DrawManager
 		* @sign public Crafty.DrawManager.draw()
-		* Redraw all the dirty regions
-		*	If the number of rects is over 60% of the total number of objects
+		*	- If the number of rects is over 60% of the total number of objects
 		*	do the naive method redrawing `Crafty.DrawManager.drawAll`
+		* - Otherwise, clear the dirty regions, and redraw entities overlapping the dirty regions.
+    * @see Canvas.draw, DOM.draw
 		*/
 		draw: function draw() {
 			//if nothing in dirty_rects, stop
