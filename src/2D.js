@@ -1,3 +1,9 @@
+/**@
+* #Crafty.map
+* @category 2D
+* Functions related with quering entities. 
+* @see Crafty.HashMap
+*/
 Crafty.map = new Crafty.HashMap();
 var M = Math,
 	Mc = M.cos,
