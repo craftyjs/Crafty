@@ -1,8 +1,7 @@
 /**@
 * #Canvas
 * @category Graphics
-* Draws itself onto a canvas. Crafty.canvas.init() must be called before hand to initialize
-* the canvas element.
+* Draws itself onto a canvas. Crafty.canvas.init() will be automatically called it is not called already (hence the canvas element dosen't exist).
 * @trigger Draw - when the entity is ready to be drawn to the stage - {type: "canvas", pos, co, ctx}
 * @trigger NoCanvas - if the browser does not support canvas
 */
@@ -106,21 +105,21 @@ Crafty.extend({
 		* #Crafty.canvas.context
 		* @comp Crafty.canvas
 		* This will return the 2D context of the main canvas element.
-		* The value returned from `Crafty.canvas.elem.getContext('2d')`.
+		* The value returned from `Crafty.canvas._canvas.getContext('2d')`.
 		*/
 		context: null,
 		/**@
-		* #Crafty.canvas.elem
+		* #Crafty.canvas._canvas
 		* @comp Crafty.canvas
 		* Main Canvas element
 		*/
-		elem: null,
 
 		/**@
 		* #Crafty.canvas.init
 		* @comp Crafty.canvas
 		* @sign public void Crafty.canvas.init(void)
-		* Creates a `canvas` element inside the stage element. Must be called
+    * @trigger NoCanvas - triggered if `Crafty.support.canvas` is false
+		* Creates a `canvas` element inside `Crafty.stage.elem`. Must be called
 		* before any entities with the Canvas component can be drawn.
 		*
 		* This method will automatically be called if no `Crafty.canvas.context` is

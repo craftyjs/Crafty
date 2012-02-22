@@ -4,12 +4,13 @@ Crafty.extend({
 	* @category Assets
 	* An object containing every asset used in the current Crafty game.
 	* The key is the URL and the value is the `Audio` or `Image` object.
-    *
+	*
 	* If loading an asset, check that it is in this object first to avoid loading twice.
 	* @example
 	* ~~~
 	* var isLoaded = !!Crafty.assets["images/sprite.png"];
 	* ~~~
+	* @see Crafty.loader
 	*/
 	assets: {},
 
@@ -24,12 +25,20 @@ Crafty.extend({
 	* Preloader for all assets. Takes an array of URLs and
 	* adds them to the `Crafty.assets` object.
 	*
+	* Files with suffixes `jpg`, `jpeg`, `gif` and `png` (case insensitive) will be loaded.
+	*
+	* If `Crafty.support.audio` is `true`, files with the following suffixes `mp3`, `wav`, `ogg` and `mp4` (case insensitive) can be loaded.
+	*
 	* The `onProgress` function will be passed on object with information about
 	* the progress including how many assets loaded, total of all the assets to
 	* load and a percentage of the progress.
-    *
-	* `onError` will be passed with the asset that couldn't load.
+  *
+  *
+  *           { loaded: j, total: total, percent: (j / total * 100) })
 	*
+	* `onError` will be passed with the asset that couldn't load.
+  *
+	* When `onError` is not provided, the onLoad is loaded even some assests are not successfully loaded. Otherwise, onLoad will be called no matter whether there are errors or not. 
 	* @example
 	* ~~~
 	* Crafty.load(["images/sprite.png", "sounds/jump.mp3"],
@@ -39,19 +48,19 @@ Crafty.extend({
 	*     },
 	*
 	*     function(e) {
-	*		  //progress
+	*       //progress
 	*     },
 	*
 	*     function(e) {
-	*	      //uh oh, error loading
+	*       //uh oh, error loading
 	*     }
 	* );
 	* ~~~
 	* @see Crafty.assets
 	*/
 	load: function (data, oncomplete, onprogress, onerror) {
-		var i = 0, l = data.length, current, obj, total = l, j = 0, ext;
-		for (; i < l; ++i) {
+		var i, l = data.length, current, obj, total = l, j, ext;
+		for (i = 0; i < l; ++i) {
 			current = data[i];
 			ext = current.substr(current.lastIndexOf('.') + 1).toLowerCase();
 

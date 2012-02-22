@@ -1,7 +1,6 @@
 /**@
 * #Color
 * @category Graphics
-* @trigger Change - when the color changes
 * Draw a solid color for the entity
 */
 Crafty.c("Color", {
@@ -23,6 +22,7 @@ Crafty.c("Color", {
 	/**@
 	* #.color
 	* @comp Color
+	* @trigger Change - when the color changes
 	* @sign public this .color(String color)
 	* @sign public String .color()
 	* @param color - Color of the rectangle
@@ -47,7 +47,6 @@ Crafty.c("Color", {
 /**@
 * #Tint
 * @category Graphics
-* @trigger Change - when the tint is applied
 * Similar to Color by adding an overlay of semi-transparent color.
 *
 * *Note: Currently only works for Canvas*
@@ -72,6 +71,7 @@ Crafty.c("Tint", {
 	/**@
 	* #.tint
 	* @comp Tint
+	* @trigger Change - when the tint is applied
 	* @sign public this .tint(String color, Number strength)
 	* @param color - The color in hexidecimal
 	* @param strength - Level of opacity
@@ -146,7 +146,7 @@ Crafty.c("Image", {
 	* ~~~
 	* Create a repeating background.
 	* ~~~
-    * var bg = Crafty.e("2D, DOM, Image")
+	* var bg = Crafty.e("2D, DOM, Image")
 	*              .attr({w: Crafty.viewport.width, h: Crafty.viewport.height})
 	*              .image("bg.png", "repeat");
 	* ~~~
@@ -250,12 +250,22 @@ Crafty.extend({
 		return;
 	},
 
-	rgbLookup: {},
-
+	/**@
+	* #Crafty.toRGB
+	* @category Graphics
+	* @sign public String Crafty.scene(String hex[, Number alpha])
+	* @param hex - a 6 character hex number string representing RGB color
+	* @param alpha - The alpha value.
+	* Get a rgb string or rgba string (if `alpha` presents).
+	* @example
+	* ~~~
+	* Crafty.toRGB("ffffff"); // rgb(255,255,255)
+	* Crafty.toRGB("#ffffff"); // rgb(255,255,255)
+	* Crafty.toRGB("ffffff", .5); // rgba(255,255,255,0.5)
+	* ~~~
+	* @see Text.textColor
+	*/
 	toRGB: function (hex, alpha) {
-		var lookup = this.rgbLookup[hex];
-		if (lookup) return lookup;
-
 		var hex = (hex.charAt(0) === '#') ? hex.substr(1) : hex,
 			c = [], result;
 
@@ -264,31 +274,52 @@ Crafty.extend({
 		c[2] = parseInt(hex.substr(4, 2), 16);
 
 		result = alpha === undefined ? 'rgb(' + c.join(',') + ')' : 'rgba(' + c.join(',') + ',' + alpha + ')';
-		lookup = result;
 
 		return result;
 	}
 });
 
-/**
-* Draw Manager will manage objects to be drawn and implement
+/**@
+* #Crafty.DrawManager
+* @category Graphics
+* @sign Crafty.DrawManager
+* An internal object manage objects to be drawn and implement
 * the best method of drawing in both DOM and canvas
 */
 Crafty.DrawManager = (function () {
 	/** array of dirty rects on screen */
-	var register = [],
+	var dirty_rects = [],
 	/** array of DOMs needed updating */
 		dom = [];
 
 	return {
-	/** Quick count of 2D objects */
+		/**@
+		* #Crafty.DrawManager.total2D
+		* @comp Crafty.DrawManager
+		* Total number of the entities that have the `2D` component.
+		*/
 		total2D: Crafty("2D").length,
 
+		/**@
+		* #Crafty.DrawManager.onScreen
+		* @comp Crafty.DrawManager
+		* @sign public Crafty.DrawManager.onScreen(Object rect)
+		* @param rect - A rectangle with field {_x: x_val, _y: y_val, _w: w_val, _h: h_val}
+		* Test if a rectangle is completely in viewport
+		*/
 		onScreen: function (rect) {
 			return Crafty.viewport._x + rect._x + rect._w > 0 && Crafty.viewport._y + rect._y + rect._h > 0 &&
 				   Crafty.viewport._x + rect._x < Crafty.viewport.width && Crafty.viewport._y + rect._y < Crafty.viewport.height;
 		},
 
+		/**@
+		* #Crafty.DrawManager.merge
+		* @comp Crafty.DrawManager
+		* @sign public Object Crafty.DrawManager.merge(Object set)
+		* @param set - an array of rectangular regions
+		* Merged into non overlapping rectangular region
+		* Its an optimization for the redraw regions.
+		*/
 		merge: function (set) {
 			do {
 				var newset = [], didMerge = false, i = 0,
@@ -328,9 +359,13 @@ Crafty.DrawManager = (function () {
 			return set;
 		},
 
-		/**
-		* Calculate the bounding rect of dirty data
-		* and add to the register
+		/**@
+		* #Crafty.DrawManager.add
+		* @comp Crafty.DrawManager
+		* @sign public Crafty.DrawManager.add(old, current)
+		* @param old - Undocumented
+		* @param current - Undocumented
+		* Calculate the bounding rect of dirty data and add to the register of dirty rectangles
 		*/
 		add: function add(old, current) {
 			if (!current) {
@@ -366,28 +401,43 @@ Crafty.DrawManager = (function () {
 			rect._w = (rect._w === ~~rect._w) ? rect._w : rect._w + 1 | 0;
 			rect._h = (rect._h === ~~rect._h) ? rect._h : rect._h + 1 | 0;
 
-			//add to register, check for merging
-			register.push(rect);
+			//add to dirty_rects, check for merging
+			dirty_rects.push(rect);
 
 			//if it got merged
 			return true;
 		},
 
+		/**@
+		* #Crafty.DrawManager.debug
+		* @comp Crafty.DrawManager
+		* @sign public Crafty.DrawManager.debug()
+		* Undocumented
+		*/
 		debug: function () {
-			console.log(register, dom);
+			console.log(dirty_rects, dom);
 		},
 
+		/**@
+		* #Crafty.DrawManager.draw
+		* @comp Crafty.DrawManager
+		* @sign public Crafty.DrawManager.draw([Object rect])
+    * @param rect - a rectangular region {_x: x_val, _y: y_val, _w: w_val, _h: h_val}
+		* - If rect is omitted, redraw within the viewport
+		* - If rect is provided, redraw within the rect
+		*/
 		drawAll: function (rect) {
-			var rect = rect || Crafty.viewport.rect(), q,
-				i = 0, l, ctx = Crafty.canvas.context,
+			var rect = rect || Crafty.viewport.rect(),
+				q = Crafty.map.search(rect),
+				i = 0,
+				l = q.length,
+				ctx = Crafty.canvas.context,
 				current;
-
-			q = Crafty.map.search(rect);
-			l = q.length;
 
 			ctx.clearRect(rect._x, rect._y, rect._w, rect._h);
 
-			q.sort(function (a, b) { return a._global - b._global; });
+			//sort the objects by the global Z
+			q.sort(function (a, b) { return a._globalZ - b._globalZ; });
 			for (; i < l; i++) {
 				current = q[i];
 				if (current._visible && current.__c.Canvas) {
@@ -397,9 +447,13 @@ Crafty.DrawManager = (function () {
 			}
 		},
 
-		/**
-		* Calculate the common bounding rect of multiple canvas entities
-		* Returns coords
+		/**@
+		* #Crafty.DrawManager.boundingRect
+		* @comp Crafty.DrawManager
+		* @sign public Crafty.DrawManager.boundingRect(set)
+		* @param set - Undocumented
+		* - Calculate the common bounding rect of multiple canvas entities.
+		* - Returns coords
 		*/
 		boundingRect: function (set) {
 			if (!set || !set.length) return;
@@ -421,37 +475,42 @@ Crafty.DrawManager = (function () {
 			return master;
 		},
 
-		/**
-		* Redraw all the dirty regions
+		/**@
+		* #Crafty.DrawManager.draw
+		* @comp Crafty.DrawManager
+		* @sign public Crafty.DrawManager.draw()
+		*	- If the number of rects is over 60% of the total number of objects
+		*	do the naive method redrawing `Crafty.DrawManager.drawAll`
+		* - Otherwise, clear the dirty regions, and redraw entities overlapping the dirty regions.
+    * @see Canvas.draw, DOM.draw
 		*/
 		draw: function draw() {
-			//if nothing in register, stop
-			if (!register.length && !dom.length) return;
+			//if nothing in dirty_rects, stop
+			if (!dirty_rects.length && !dom.length) return;
 
-			var i = 0, l = register.length, k = dom.length, rect, q,
+			var i = 0, l = dirty_rects.length, k = dom.length, rect, q,
 				j, len, dupes, obj, ent, objs = [], ctx = Crafty.canvas.context;
 
 			//loop over all DOM elements needing updating
 			for (; i < k; ++i) {
 				dom[i].draw()._changed = false;
 			}
-			//reset counter and DOM array
-			dom.length = i = 0;
-
-			//again, stop if nothing in register
+			//reset DOM array
+      dom.length = 0;
+			//again, stop if nothing in dirty_rects
 			if (!l) { return; }
 
 			//if the amount of rects is over 60% of the total objects
 			//do the naive method redrawing
 			if (l / this.total2D > 0.6) {
 				this.drawAll();
-				register.length = 0;
+				dirty_rects.length = 0;
 				return;
 			}
 
-			register = this.merge(register);
-			for (; i < l; ++i) { //loop over every dirty rect
-				rect = register[i];
+			dirty_rects = this.merge(dirty_rects);
+			for (i = 0; i < l; ++i) { //loop over every dirty rect
+				rect = dirty_rects[i];
 				if (!rect) continue;
 				q = Crafty.map.search(rect, false); //search for ents under dirty rect
 
@@ -474,7 +533,7 @@ Crafty.DrawManager = (function () {
 			}
 
 			//sort the objects by the global Z
-			objs.sort(function (a, b) { return a.obj._global - b.obj._global; });
+			objs.sort(function (a, b) { return a.obj._globalZ - b.obj._globalZ; });
 			if (!objs.length){ return; }
 
 			//loop over the objects
@@ -506,12 +565,12 @@ Crafty.DrawManager = (function () {
 				ctx.closePath();
 				ctx.restore();
 
-				//allow entity to re-register
+				//allow entity to re-dirty_rects
 				ent._changed = false;
 			}
 
-			//empty register
-			register.length = 0;
+			//empty dirty_rects
+			dirty_rects.length = 0;
 			//all merged IDs are now invalid
 			merged = {};
 		}

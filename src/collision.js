@@ -122,16 +122,16 @@ Crafty.c("Collision", {
 	* Creates an enterframe event calling .hit() each time and if collision detected will invoke the callback.
 	* @see .hit
 	*/
-	onHit: function (comp, fn, fnOff) {
+	onHit: function (comp, callback, callbackOff) {
 		var justHit = false;
 		this.bind("EnterFrame", function () {
 			var hitdata = this.hit(comp);
 			if (hitdata) {
 				justHit = true;
-				fn.call(this, hitdata);
+				callback.call(this, hitdata);
 			} else if (justHit) {
-				if (typeof fnOff == 'function') {
-					fnOff.call(this);
+				if (typeof callbackOff == 'function') {
+					callbackOff.call(this);
 				}
 				justHit = false;
 			}
