@@ -1,8 +1,7 @@
 /**@
 * #Canvas
 * @category Graphics
-* Draws itself onto a canvas. Crafty.canvas.init() must be called before hand to initialize
-* the canvas element.
+* Draws itself onto a canvas. Crafty.canvas.init() will be automatically called it is not called already (hence the canvas element dosen't exist).
 * @trigger Draw - when the entity is ready to be drawn to the stage - {type: "canvas", pos, co, ctx}
 * @trigger NoCanvas - if the browser does not support canvas
 */
