@@ -130,7 +130,7 @@ Crafty.extend({
 	* @see Sprite
 	*/
 	sprite: function (tile, tileh, url, map, paddingX, paddingY) {
-		var pos, temp, x, y, w, h, img;
+		var spriteName, temp, x, y, w, h, img;
 
 		//if no tile value, default to 1
 		if (typeof tile === "string") {
@@ -162,8 +162,8 @@ Crafty.extend({
 			Crafty.assets[url] = img;
 			img.onload = function () {
 				//all components with this img are now ready
-				for (var pos in map) {
-					Crafty(pos).each(function () {
+				for (spriteName in map) {
+					Crafty(spriteName).each(function () {
 						this.ready = true;
 						this.trigger("Change");
 					});
@@ -171,17 +171,17 @@ Crafty.extend({
 			};
 		}
 
-		for (pos in map) {
-			if (!map.hasOwnProperty(pos)) continue;
+		for (spriteName in map) {
+			if (!map.hasOwnProperty(spriteName)) continue;
 
-			temp = map[pos];
+			temp = map[spriteName];
 			x = temp[0] * (tile + paddingX);
 			y = temp[1] * (tileh + paddingY);
 			w = temp[2] * tile || tile;
 			h = temp[3] * tileh || tileh;
 
 			//generates sprite components for each tile in the map
-			Crafty.c(pos, {
+			Crafty.c(spriteName, {
 				ready: false,
 				__coord: [x, y, w, h],
 
