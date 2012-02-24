@@ -17,10 +17,10 @@
 				framesPlayed++;
 			});
 			Crafty.timer.simulateFrames(1);
-			equals(framesPlayed, 1, "A frame should have been simulated");
+			equal(framesPlayed, 1, "A frame should have been simulated");
 
 			Crafty.timer.simulateFrames(100);
-			equals(framesPlayed, 101, "101 frames should have been simulated");
+			equal(framesPlayed, 101, "101 frames should have been simulated");
 		})
 
 	module("Viewport");
@@ -30,15 +30,15 @@
 		var before = Crafty.DOM.translate(e.x, e.y);
 
 		Crafty.viewport.scroll('_x', 100);
-		equals(before.x - Crafty.DOM.translate(e.x, e.y).x, 100, "Scroll in x direction");
+		equal(before.x - Crafty.DOM.translate(e.x, e.y).x, 100, "Scroll in x direction");
 
 		Crafty.viewport.scroll('_y', 70);
-		equals(before.y - Crafty.DOM.translate(e.x, e.y).y, 70, "Scroll in y direction");
+		equal(before.y - Crafty.DOM.translate(e.x, e.y).y, 70, "Scroll in y direction");
 
 		Crafty.viewport.scroll('_x', 0);
 		Crafty.viewport.scroll('_y', 0);
-		equals(before.x - Crafty.DOM.translate(e.x, e.y).x, 0, "Scroll to 0");
-		equals(before.y - Crafty.DOM.translate(e.x, e.y).y, 0, "Scroll to 0");
+		equal(before.x - Crafty.DOM.translate(e.x, e.y).x, 0, "Scroll to 0");
+		equal(before.y - Crafty.DOM.translate(e.x, e.y).y, 0, "Scroll to 0");
 	});
 
 	test("scroll using x, y", function () {
@@ -46,28 +46,28 @@
 		var before = Crafty.DOM.translate(e.x, e.y);
 
 		Crafty.viewport.scroll('x', 100);
-		equals(before.x - Crafty.DOM.translate(e.x, e.y).x, 100, "Scroll in x direction");
+		equal(before.x - Crafty.DOM.translate(e.x, e.y).x, 100, "Scroll in x direction");
 
 		Crafty.viewport.scroll('y', 70);
-		equals(before.y - Crafty.DOM.translate(e.x, e.y).y, 70, "Scroll in y direction");
+		equal(before.y - Crafty.DOM.translate(e.x, e.y).y, 70, "Scroll in y direction");
 
 		Crafty.viewport.scroll('x', 0);
 		Crafty.viewport.scroll('y', 0);
-		equals(before.x - Crafty.DOM.translate(e.x, e.y).x, 0, "Scroll to 0");
-		equals(before.y - Crafty.DOM.translate(e.x, e.y).y, 0, "Scroll to 0");
+		equal(before.x - Crafty.DOM.translate(e.x, e.y).x, 0, "Scroll to 0");
+		equal(before.y - Crafty.DOM.translate(e.x, e.y).y, 0, "Scroll to 0");
 	});
 
 	test("follow", function () {
 		var e = Crafty.e("2D, DOM").attr({ x: Crafty.viewport.width + 100, y: Crafty.viewport.height + 70 });
 		Crafty.viewport.follow(e, 0, 0);
-		equals(Crafty.viewport._x, -100, "Center viewport on entity.x but take clamp into account");
-		equals(Crafty.viewport._y, -70, "Center viewport on entity.y but take clamp into account");
+		equal(Crafty.viewport._x, -100, "Center viewport on entity.x but take clamp into account");
+		equal(Crafty.viewport._y, -70, "Center viewport on entity.y but take clamp into account");
 		
 		//Make large enough so the viewport won't get clamped
 		Crafty.e("2D, DOM").attr({ x: 0, y: 0, w: Crafty.viewport.width * 2 + 50, h: Crafty.viewport.height*2+35 });
 		Crafty.viewport.follow(e, 0, 0);
-		equals(Crafty.viewport._x, -(Crafty.viewport.width/2 + 100), "Center viewport on entity.x");
-		equals(Crafty.viewport._y, -(Crafty.viewport.height / 2 + 70), "Center viewport on entity.y");
+		equal(Crafty.viewport._x, -(Crafty.viewport.width/2 + 100), "Center viewport on entity.x");
+		equal(Crafty.viewport._y, -(Crafty.viewport.height / 2 + 70), "Center viewport on entity.y");
 
 		Crafty.viewport.scroll('x', 0);
 		Crafty.viewport.scroll('y', 0);
@@ -77,13 +77,13 @@
 		Crafty.e("2D, DOM").attr({ x: 0, y: 0, w: Crafty.viewport.width * 2, h: Crafty.viewport.height * 2 });
 		Crafty.viewport.pan("x", 100, 10);
 		Crafty.timer.simulateFrames(5);
-		equals(Crafty.viewport._x, -50, "Pan half the way on half the time");
+		equal(Crafty.viewport._x, -50, "Pan half the way on half the time");
 		Crafty.timer.simulateFrames(5);
-		equals(Crafty.viewport._x, -100, "Pan all the way when all the time is spent");
+		equal(Crafty.viewport._x, -100, "Pan all the way when all the time is spent");
 
 		Crafty.viewport.pan("y", 100, 10);
 		Crafty.timer.simulateFrames(20);
-		equals(Crafty.viewport._y, -100, "Pan all the way and stay there");
+		equal(Crafty.viewport._y, -100, "Pan all the way and stay there");
 
 		Crafty.viewport.scroll('x', 0);
 		Crafty.viewport.scroll('y', 0);
@@ -93,9 +93,9 @@
 		var e = Crafty.e("2D, DOM").attr({ x: 0, y: 0, w: Crafty.viewport.width * 2, h: Crafty.viewport.height * 2 });
 		Crafty.viewport.centerOn(e, 10);
 		Crafty.timer.simulateFrames(10);
-		equals(Crafty.viewport._x, -e.w / 2 + Crafty.viewport.width / 2, "Entity centered after exact duration");
+		equal(Crafty.viewport._x, -e.w / 2 + Crafty.viewport.width / 2, "Entity centered after exact duration");
 		Crafty.timer.simulateFrames(10);
-		equals(Crafty.viewport._x, -e.w / 2 + Crafty.viewport.width / 2, "Entity still centered 10 frames later");
+		equal(Crafty.viewport._x, -e.w / 2 + Crafty.viewport.width / 2, "Entity still centered 10 frames later");
 
 		Crafty.viewport.scroll('x', 0);
 		Crafty.viewport.scroll('y', 0);
