@@ -59,7 +59,7 @@ Crafty.extend({
 	* @see Crafty.assets
 	*/
 	load: function (data, oncomplete, onprogress, onerror) {
-		var i, l = data.length, current, obj, total = l, j, ext;
+		var i, l = data.length, current, obj, total = l, j = 0, ext;
 		for (i = 0; i < l; ++i) {
 			current = data[i];
 			ext = current.substr(current.lastIndexOf('.') + 1).toLowerCase();

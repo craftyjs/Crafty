@@ -31,7 +31,6 @@ window.onload = function () {
 				this.z = 3;
 				this.requires("Mouse, Gravity, Draggable, Tween");
 				this.bind("StopDrag", function() {
-					console.log("STOP");
 					var column = Math.round(this._x / 64);
 					//this.x = column * 64;
           this.tween({x:column * 64}, 20)
