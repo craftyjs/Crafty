@@ -25,7 +25,6 @@ Crafty.extend({
 
 	mouseDispatch: function (e) {
 		if (!Crafty.mouseObjs) return;
-		if(window.TouchEvent && e instanceof TouchEvent) { this._mockMouseEvent(e); return; }
 		Crafty.lastEvent = e;
 
 		var maxz = -1,
@@ -134,7 +133,7 @@ Crafty.extend({
 
 
 	/**@
-	* #Crafty._mockMouseEvent
+	* #Crafty.touchDispatch
 	* @category Input
 	* TouchEvents have a different structure then MouseEvents.
 	* The relevant data lives in e.changedTouches[0].
@@ -142,7 +141,7 @@ Crafty.extend({
 	* @see Crafty.mouseDispatch
 	*/
 
-	_mockMouseEvent: function(e) {
+	touchDispatch: function(e) {
 
 		var type;
 		if (e.type === "touchstart") type = "mousedown";
@@ -236,9 +235,9 @@ Crafty.bind("Load", function () {
 	Crafty.addEvent(this, Crafty.stage.elem, "click", Crafty.mouseDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "dblclick", Crafty.mouseDispatch);
 
-	Crafty.addEvent(this, Crafty.stage.elem, "touchstart", Crafty.mouseDispatch);
-	Crafty.addEvent(this, Crafty.stage.elem, "touchmove", Crafty.mouseDispatch);
-	Crafty.addEvent(this, Crafty.stage.elem, "touchend", Crafty.mouseDispatch);
+	Crafty.addEvent(this, Crafty.stage.elem, "touchstart", Crafty.touchDispatch);
+	Crafty.addEvent(this, Crafty.stage.elem, "touchmove", Crafty.touchDispatch);
+	Crafty.addEvent(this, Crafty.stage.elem, "touchend", Crafty.touchDispatch);
 });
 
 /**@
