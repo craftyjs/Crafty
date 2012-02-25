@@ -25,6 +25,7 @@ Crafty.extend({
 
 	mouseDispatch: function (e) {
 		if (!Crafty.mouseObjs) return;
+		if(window.TouchEvent && e instanceof TouchEvent) { this._mockMouseEvent(e); return; }
 		Crafty.lastEvent = e;
 
 		var maxz = -1,
@@ -36,10 +37,6 @@ Crafty.extend({
 			dupes = {},
 			tar = e.target ? e.target : e.srcElement,
 			type = e.type;
-
-		if (type === "touchstart") type = "mousedown";
-		else if (type === "touchmove") type = "mousemove";
-		else if (type === "touchend") type = "mouseup";
 
 		//Normalize button according to http://unixpapa.com/js/mouse.html
 		if (e.which == null) {
@@ -133,6 +130,38 @@ Crafty.extend({
 			this.lastEvent = e;
 		}
 
+	},
+
+
+	/**@
+	* #Crafty._mockMouseEvent
+	* @category Input
+	* TouchEvents have a different structure then MouseEvents.
+	* The relevant data lives in e.changedTouches[0].
+	* To normalize TouchEvents we catch em and dispatch a mock MouseEvent instead.
+	* @see Crafty.mouseDispatch
+	*/
+
+	_mockMouseEvent: function(e) {
+
+		var type;
+		if (e.type === "touchstart") type = "mousedown";
+		else if (e.type === "touchmove") type = "mousemove";
+		else if (e.type === "touchend") type = "mouseup";
+
+		var touch = e.changedTouches[0];
+
+		var mockup = document.createEvent("MouseEvents");
+		mockup.initMouseEvent(type, true, true, window, 0,
+			touch.screenX,
+			touch.screenY,
+			touch.clientX,
+			touch.clientY,
+			false, false, false, false, 0, e.target
+		);
+		mockup.target = e.target;
+
+		e.target.dispatchEvent(mockup);
 	},
 
 
