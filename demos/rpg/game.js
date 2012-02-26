@@ -30,10 +30,7 @@ window.onload = function() {
 					Crafty.e("2D, DOM, flower, solid, SpriteAnimation")
 						.attr({x: i * 16, y: j * 16})
 						.animate("wind", 0, 1, 3)
-						.bind("EnterFrame", function() {
-							if(!this.isPlaying())
-								this.animate("wind", 80);
-						});
+						.animate("wind", 80, -1);
 				}
 			}
 		}

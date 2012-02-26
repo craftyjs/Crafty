@@ -156,7 +156,9 @@ Crafty.c("SpriteAnimation", {
 	*/
 	stop: function () {
 		this.unbind("EnterFrame", this.drawFrame);
-		this.unbind("AnimationEnd");
+		if (this._frame) {
+			this.trigger("AnimationEnd", { reel: this._frame });
+		}
 		this._current = null;
 		this._frame = null;
 
