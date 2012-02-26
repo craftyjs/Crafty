@@ -37,10 +37,6 @@ Crafty.extend({
 			tar = e.target ? e.target : e.srcElement,
 			type = e.type;
 
-		if (type === "touchstart") type = "mousedown";
-		else if (type === "touchmove") type = "mousemove";
-		else if (type === "touchend") type = "mouseup";
-
 		//Normalize button according to http://unixpapa.com/js/mouse.html
 		if (e.which == null) {
 			e.mouseButton = (e.button < 2) ? Crafty.mouseButtons.LEFT : ((e.button == 4) ? Crafty.mouseButtons.MIDDLE : Crafty.mouseButtons.RIGHT);
@@ -137,6 +133,38 @@ Crafty.extend({
 
 
 	/**@
+	* #Crafty.touchDispatch
+	* @category Input
+	* TouchEvents have a different structure then MouseEvents.
+	* The relevant data lives in e.changedTouches[0].
+	* To normalize TouchEvents we catch em and dispatch a mock MouseEvent instead.
+	* @see Crafty.mouseDispatch
+	*/
+
+	touchDispatch: function(e) {
+
+		var type;
+		if (e.type === "touchstart") type = "mousedown";
+		else if (e.type === "touchmove") type = "mousemove";
+		else if (e.type === "touchend") type = "mouseup";
+
+		var touch = e.changedTouches[0];
+
+		var mockup = document.createEvent("MouseEvents");
+		mockup.initMouseEvent(type, true, true, window, 0,
+			touch.screenX,
+			touch.screenY,
+			touch.clientX,
+			touch.clientY,
+			false, false, false, false, 0, e.target
+		);
+		mockup.target = e.target;
+
+		e.target.dispatchEvent(mockup);
+	},
+
+
+	/**@
 	* #KeyboardEvent
 	* @category Input
   * Keyboard Event triggerd by Crafty Core
@@ -207,9 +235,9 @@ Crafty.bind("Load", function () {
 	Crafty.addEvent(this, Crafty.stage.elem, "click", Crafty.mouseDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "dblclick", Crafty.mouseDispatch);
 
-	Crafty.addEvent(this, Crafty.stage.elem, "touchstart", Crafty.mouseDispatch);
-	Crafty.addEvent(this, Crafty.stage.elem, "touchmove", Crafty.mouseDispatch);
-	Crafty.addEvent(this, Crafty.stage.elem, "touchend", Crafty.mouseDispatch);
+	Crafty.addEvent(this, Crafty.stage.elem, "touchstart", Crafty.touchDispatch);
+	Crafty.addEvent(this, Crafty.stage.elem, "touchmove", Crafty.touchDispatch);
+	Crafty.addEvent(this, Crafty.stage.elem, "touchend", Crafty.touchDispatch);
 });
 
 /**@
