@@ -13,14 +13,13 @@
 </div>
 
 <ul>
-	<li><a href="../api/">Documentation</a></li>
-	<li><a href="../tutorials.php">Tutorial</a></li>
-	<li><a href="../demos.php">Demos</a></li>
-	<!-- <li><a href="#comingsoon">Builder<sup>new</sup></a></li> -->
-	<li><a href="http://groups.google.com/group/craftyjs">Forums</a></li>
+	<li><a href="api/">Documentation</a></li>
+	<li><a href="http://craftycomponents.com/">Modules</a></li>
+	<li><a href="https://groups.google.com/forum/#!forum/craftyjs">Forum</a></li>
+	<li><a href="http://craftyjs.github.com/tutorial/">Tutorial</a></li>
+	<li><a href="demos.php">Demos</a></li>
 	<li><a href="http://craftyjs.tumblr.com/">Blog</a></li>
-	<!-- <li><a href="api">FAQ</a></li>-->
-	<li class="emph"><a href="../download.php">Download</a></li>
+	<li><a href="download.php">Download</a></li>
 </ul>
 <p>&copy; Crafty 2010. Crafty is distributed under the <a href="http://en.wikipedia.org/wiki/MIT_License">MIT</a> or 
 <a href="http://en.wikipedia.org/wiki/GNU_General_Public_License">GPL</a> license.</p>
