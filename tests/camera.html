@@ -1,0 +1,53 @@
+<html>
+<head>
+	<script type="text/javascript" src="../crafty-local.js"></script>
+	<style>
+		#cr-stage {
+			background-color: grey;
+		}
+	</style>
+</head>
+<body>
+</body>
+<script type="text/javascript">
+	Crafty.init(200, 200);
+	Crafty.c("Test", {
+		init: function() {
+			this.requires('2D, DOM, Color');
+		},
+	});
+	
+	Crafty.scene('main', function() {
+		Crafty.e("Test")
+			  .attr({x: 100, y: 100, w:100, h:100})
+			  .color('red');
+		Crafty.e("Test")
+			  .attr({x: 000, y: 100, w:100, h:100})
+			  .color('blue');
+		Crafty.e("Test, Keyboard")
+			  .attr({x: 100, y: 0, w:100, h:100})
+			  .color('green')
+			  .bind("KeyUp", function (e) {
+				if (String.fromCharCode(e.key) == " ") {
+					Crafty.viewport.zoom(2, 50, 150, 200);
+				}
+			  });
+		var targ = Crafty.e("Test, Tween")
+				 .attr({x: 50, y:50, w:5, h:5})
+				 .tween({x: 200}, 250)
+				 .tween({y: 200}, 500)
+				 .color('black')
+				 .bind("TweenEnd", function (prop) {
+					var tween = {};
+					tween[prop] = 200 - this.attr(prop);
+					this.tween(tween, 250);
+				 });
+		
+		var targ2 = Crafty.e("Test, Tween")
+				 .attr({x: 47, y:147, w:6, h:6})
+				 .color('black');
+	});
+	
+	Crafty.scene('main');
+</script>
+</html>

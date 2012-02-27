@@ -1,0 +1,51 @@
+﻿{
+    "name": "crafty",
+    "version": "0.4.5",
+    "title": "Crafty game framework",
+    "author": {
+        "name": "Louis Stowasser",
+        "url": "http://craftyjs.com/"
+    },
+    "branches" : { "develop" : true },
+    "licenses": [
+        {
+            "type": "MIT",
+            "url": "http://www.opensource.org/licenses/mit-license.php"
+        },
+		{
+            "type": "GPL",
+            "url": "http://www.opensource.org/licenses/gpl-license.php"
+        }
+    ],
+    "description": "Crafty is a modern component and event based framework for javascript games that targets DOM and canvas. Check out the DEV version if you want to play with the latest and greatest.",
+    "keywords": [
+        "framework",
+        "javascript"
+    ],
+    "jsfiddle" : "disable",
+    "homepage": "https://github.com/louisstow/Crafty",
+    "files": [
+        "src/license.txt", 
+		"src/core.js",
+		"src/intro.js", 
+		"src/HashMap.js",
+		"src/2D.js", 
+		"src/collision.js", 
+		"src/DOM.js",
+		"src/extensions.js",
+		"src/canvas.js",
+		"src/controls.js",
+		"src/animation.js",
+		"src/sprite.js",
+		"src/drawing.js", 
+		"src/isometric.js", 
+		"src/particles.js", 
+		"src/sound.js",
+		"src/html.js", 
+		"src/storage.js", 
+		"src/text.js", 
+		"src/loader.js", 
+		"src/math.js", 
+		"src/outro.js"
+    ]
+}

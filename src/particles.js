@@ -1,8 +1,10 @@
-//Particle component
-//Based on Parcycle by Mr. Speaker, licensed under the MIT,
-//Ported by Leo Koppelkamm
-//**This is canvas only & won't do anything if the browser doesn't support it!**
-
+/**@
+* #Particles
+* @category Graphics
+* Based on Parcycle by Mr. Speaker, licensed under the MIT, Ported by Leo Koppelkamm
+* **This is canvas only & won't do anything if the browser doesn't support it!**
+* To see how this works take a look in https://github.com/louisstow/Crafty/blob/master/src/particles.js
+*/
 Crafty.c("particles", {
 	init: function () {
 		//We need to clone it
@@ -12,9 +14,9 @@ Crafty.c("particles", {
 
 		if (!Crafty.support.canvas || Crafty.deactivateParticles) return this;
 
-		//If we drew on the main canvas, we'd have to redraw 
+		//If we drew on the main canvas, we'd have to redraw
 		//potentially huge sections of the screen every frame
-		//So we create a separate canvas, where we only have to redraw 
+		//So we create a separate canvas, where we only have to redraw
 		//the changed particles.
 		var c, ctx, relativeX, relativeY, bounding;
 
@@ -33,15 +35,15 @@ Crafty.c("particles", {
 		relativeY = this.y + Crafty.viewport.y;
 		this._Particles.position = this._Particles.vectorHelpers.create(relativeX, relativeY);
 
-		var oldViewport = {x: Crafty.viewport.x, y:Crafty.viewport.y};
-		
+		var oldViewport = { x: Crafty.viewport.x, y: Crafty.viewport.y };
+
 		this.bind('EnterFrame', function () {
 			relativeX = this.x + Crafty.viewport.x;
 			relativeY = this.y + Crafty.viewport.y;
-			this._Particles.viewportDelta = {x: Crafty.viewport.x - oldViewport.x, y: Crafty.viewport.y - oldViewport.y};
+			this._Particles.viewportDelta = { x: Crafty.viewport.x - oldViewport.x, y: Crafty.viewport.y - oldViewport.y };
 
-			oldViewport = {x: Crafty.viewport.x, y:Crafty.viewport.y};
-				
+			oldViewport = { x: Crafty.viewport.x, y: Crafty.viewport.y };
+
 			this._Particles.position = this._Particles.vectorHelpers.create(relativeX, relativeY);
 
 			//Selective clearing
@@ -86,10 +88,10 @@ Crafty.c("particles", {
 			duration: -1,
 			// Will draw squares instead of circle gradients
 			fastMode: false,
-			gravity:{x: 0, y: 0.1},
+			gravity: { x: 0, y: 0.1 },
 			// sensible values are 0-3
 			jitter: 0,
-			
+
 			//Don't modify the following
 			particles: [],
 			active: true,
@@ -120,7 +122,7 @@ Crafty.c("particles", {
 				return false;
 			}
 
-			// Take the next particle out of the particle pool we have created and initialize it	
+			// Take the next particle out of the particle pool we have created and initialize it
 			var particle = new this.particle(this.vectorHelpers);
 			this.initParticle(particle);
 			this.particles[this.particleCount] = particle;
@@ -129,9 +131,9 @@ Crafty.c("particles", {
 
 			return true;
 		},
-		RANDM1TO1: function() {
+		RANDM1TO1: function () {
 			return Math.random() * 2 - 1;
-		},		
+		},
 		initParticle: function (particle) {
 			particle.position.x = this.position.x + this.positionRandom.x * this.RANDM1TO1();
 			particle.position.y = this.position.y + this.positionRandom.y * this.RANDM1TO1();
@@ -148,7 +150,7 @@ Crafty.c("particles", {
 			particle.sharpness = this.sharpness + this.sharpnessRandom * this.RANDM1TO1();
 			particle.sharpness = particle.sharpness > 100 ? 100 : particle.sharpness < 0 ? 0 : particle.sharpness;
 			// internal circle gradient size - affects the sharpness of the radial gradient
-			particle.sizeSmall = ~~ ((particle.size / 200) * particle.sharpness); //(size/2/100)
+			particle.sizeSmall = ~~((particle.size / 200) * particle.sharpness); //(size/2/100)
 			var start = [
 				this.startColour[0] + this.startColourRandom[0] * this.RANDM1TO1(),
 				this.startColour[1] + this.startColourRandom[1] * this.RANDM1TO1(),
@@ -198,7 +200,7 @@ Crafty.c("particles", {
 					currentParticle.position = this.vectorHelpers.add(currentParticle.position, currentParticle.direction);
 					currentParticle.position = this.vectorHelpers.add(currentParticle.position, this.viewportDelta);
 					if (this.jitter) {
-						currentParticle.position.x += this.jitter * this.RANDM1TO1(); 
+						currentParticle.position.x += this.jitter * this.RANDM1TO1();
 						currentParticle.position.y += this.jitter * this.RANDM1TO1();
 					}
 					currentParticle.timeToLive--;
@@ -224,7 +226,7 @@ Crafty.c("particles", {
 
 					this.particleIndex++;
 				} else {
-					// Replace particle with the last active 
+					// Replace particle with the last active
 					if (this.particleIndex != this.particleCount - 1) {
 						this.particles[this.particleIndex] = this.particles[this.particleCount - 1];
 					}
@@ -253,9 +255,9 @@ Crafty.c("particles", {
 				var size = particle.size;
 				var halfSize = size >> 1;
 
-				if (particle.position.x + size < 0 
-					|| particle.position.y + size < 0 
-					|| particle.position.x - size > Crafty.viewport.width 
+				if (particle.position.x + size < 0
+					|| particle.position.y + size < 0
+					|| particle.position.x - size > Crafty.viewport.width
 					|| particle.position.y - size > Crafty.viewport.height) {
 					//Particle is outside
 					continue;
