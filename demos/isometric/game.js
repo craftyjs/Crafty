@@ -11,7 +11,7 @@ window.onload = function() {
   for(var i = 20; i >= 0; i--) {
     for(var y = 0; y < 20; y++) {
       var which = Crafty.math.randomInt(0,1);
-      tile = Crafty.e("2D, DOM, RectIsometric, Mouse, "+ (!which ? "grass" : "stone"))
+      tile = Crafty.e("2D, DOM, DiamondIsometric, Mouse, "+ (!which ? "grass" : "stone"))
       .size(128)
       .attr('z',i+1 * y+1)
       .areaMap([64,0],[128,32],[128,96],[64,128],[0,96],[0,32])
