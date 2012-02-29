@@ -13,6 +13,7 @@
 		'sprite',
 		'drawing',
 		'isometric',
+		'diamond-isometric',
 		'particles',
 		'sound',
 		'storage',
