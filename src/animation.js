@@ -139,8 +139,8 @@ Crafty.c("SpriteAnimation", {
 				this._frame.current = 0;
 				this._frame.frame = 0;
 			} else {
-				this.trigger("AnimationEnd", { reel: data.reel });
 				this.stop();
+				this.trigger("AnimationEnd", { reel: data.reel });
 				return;
 			}
 		}
