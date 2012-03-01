@@ -1,6 +1,6 @@
 ﻿{
     "name": "crafty",
-    "version": "0.4.5",
+    "version": "0.4.6",
     "title": "Crafty game framework",
     "author": {
         "name": "Louis Stowasser",
@@ -46,6 +46,7 @@
 		"src/text.js", 
 		"src/loader.js", 
 		"src/math.js", 
+		"src/time.js", 
 		"src/outro.js"
     ]
 }
