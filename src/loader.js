@@ -59,49 +59,58 @@ Crafty.extend({
 	* @see Crafty.assets
 	*/
 	load: function (data, oncomplete, onprogress, onerror) {
-		var i, l = data.length, current, obj, total = l, j = 0, ext;
+		var i, l = data.length, current, obj, total = l, j = 0, ext,event;
 		for (i = 0; i < l; ++i) {
 			current = data[i];
 			ext = current.substr(current.lastIndexOf('.') + 1).toLowerCase();
 
 			if (Crafty.support.audio && (ext === "mp3" || ext === "wav" || ext === "ogg" || ext === "mp4")) {
-				obj = new Audio(current);
+				//Chrome need at least an empty string
+				obj = new Audio("");
+				obj.src = current;
+				event = 'canplay';
+				
 				//Chrome doesn't trigger onload on audio, see http://code.google.com/p/chromium/issues/detail?id=77794
 				if (navigator.userAgent.indexOf('Chrome') != -1) j++;
+				//if extension is not supported,skip
+				 if(obj.canPlayType(Crafty.audio.type[ext]) == "" || obj.canPlayType(Crafty.audio.type[ext] == "no"))
+                                   total--;
 			} else if (ext === "jpg" || ext === "jpeg" || ext === "gif" || ext === "png") {
 				obj = new Image();
 				obj.src = current;
+				event = 'load';
 			} else {
 				total--;
 				continue; //skip if not applicable
 			}
 
-			//add to global asset collection
-			this.assets[current] = obj;
-
-			obj.onload = function () {
-				++j;
-
+	            obj.addEventListener(event,function(){  
+                            ++j;
 				//if progress callback, give information of assets loaded, total and percent
 				if (onprogress) {
-					onprogress.call(this, { loaded: j, total: total, percent: (j / total * 100) });
+					onprogress.call(this, {loaded: j, total: total, percent: (j / total * 100),src:this.src});
 				}
 				if (j === total) {
 					if (oncomplete) oncomplete();
 				}
-			};
-
-			//if there is an error, pass it in the callback (this will be the object that didn't load)
-			obj.onerror = function () {
-				if (onerror) {
-					onerror.call(this, { loaded: j, total: total, percent: (j / total * 100) });
+                            },false);
+                        obj.addEventListener('error',function(){
+                            j--;
+   
+                            if (onerror) {
+					onerror.call(this, {loaded: j, total: total, percent: (j / total * 100),src:this.src});
 				} else {
 					j++;
 					if (j === total) {
 						if (oncomplete) oncomplete();
 					}
 				}
-			};
+                               
+                            },false);
+			//add to global asset collection
+			this.assets[current] = obj;
+
+
 		}
 	},
 	/**@
