@@ -5,3 +5,4 @@ build/api/*
 .DS_store
 .project
 nbproject
+*~
