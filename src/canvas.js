@@ -75,7 +75,18 @@ Crafty.c("Canvas", {
 
 			context.rotate((this._rotation % 360) * (Math.PI / 180));
 		}
-
+		
+		if(this._flipX || this._flipY) {
+			context.save();
+			context.scale((this._flipX ? -1 : 1), (this._flipY ? -1 : 1));
+			if(this._flipX) {
+				pos._x = -(pos._x + pos._w)
+			}
+			if(this._flipY) {
+				pos._y = -(pos._y + pos._h)
+			}
+		}
+		
 		//draw with alpha
 		if (this._alpha < 1.0) {
 			var globalpha = context.globalAlpha;
@@ -84,7 +95,7 @@ Crafty.c("Canvas", {
 
 		this.trigger("Draw", { type: "canvas", pos: pos, co: co, ctx: context });
 
-		if (this._mbr) {
+		if (this._mbr || (this._flipX || this._flipY)) {
 			context.restore();
 		}
 		if (globalpha) {
