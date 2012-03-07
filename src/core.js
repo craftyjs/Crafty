@@ -1073,7 +1073,12 @@
 
 		clone: clone
 	});
-
+/**
+* console.log for Opera
+*/
+ 	if(window.opera){
+                console = {log:opera.postError}
+         }
 	/**
 * Return a unique ID
 */
