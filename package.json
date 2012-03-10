@@ -1,11 +1,12 @@
 ﻿{
     "name": "crafty",
-    "version": "0.4.5",
+    "version": "0.4.6",
     "title": "Crafty game framework",
     "author": {
         "name": "Louis Stowasser",
         "url": "http://craftyjs.com/"
     },
+    "branches" : { "develop" : true },
     "licenses": [
         {
             "type": "MIT",
@@ -45,6 +46,7 @@
 		"src/text.js", 
 		"src/loader.js", 
 		"src/math.js", 
+		"src/time.js", 
 		"src/outro.js"
     ]
 }

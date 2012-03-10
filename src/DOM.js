@@ -51,6 +51,10 @@ Crafty.c("DOM", {
 		}
 
 		this.bind("Remove", this.undraw);
+		this.bind("RemoveComponent", function (compName) {
+			if (compName === "DOM")
+				this.undraw();
+		});
 	},
 
 	/**@
@@ -176,7 +180,9 @@ Crafty.c("DOM", {
 	* Removes the element from the stage.
 	*/
 	undraw: function () {
-		Crafty.stage.inner.removeChild(this._element);
+		if (this._element) {
+			Crafty.stage.inner.removeChild(this._element);
+		}
 		return this;
 	},
 

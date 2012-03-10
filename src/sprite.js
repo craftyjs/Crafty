@@ -11,6 +11,7 @@ Crafty.c("Sprite", {
 	__padding: null,
 	__trim: null,
 	img: null,
+  //ready is changed to true in Crafty.sprite
 	ready: false,
 
 	init: function () {

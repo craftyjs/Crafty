@@ -1,8 +1,7 @@
 /**@
 * #Canvas
 * @category Graphics
-* Draws itself onto a canvas. Crafty.canvas.init() must be called before hand to initialize
-* the canvas element.
+* Draws itself onto a canvas. Crafty.canvas.init() will be automatically called it is not called already (hence the canvas element dosen't exist).
 * @trigger Draw - when the entity is ready to be drawn to the stage - {type: "canvas", pos, co, ctx}
 * @trigger NoCanvas - if the browser does not support canvas
 */
@@ -76,7 +75,18 @@ Crafty.c("Canvas", {
 
 			context.rotate((this._rotation % 360) * (Math.PI / 180));
 		}
-
+		
+		if(this._flipX || this._flipY) {
+			context.save();
+			context.scale((this._flipX ? -1 : 1), (this._flipY ? -1 : 1));
+			if(this._flipX) {
+				pos._x = -(pos._x + pos._w)
+			}
+			if(this._flipY) {
+				pos._y = -(pos._y + pos._h)
+			}
+		}
+		
 		//draw with alpha
 		if (this._alpha < 1.0) {
 			var globalpha = context.globalAlpha;
@@ -85,7 +95,7 @@ Crafty.c("Canvas", {
 
 		this.trigger("Draw", { type: "canvas", pos: pos, co: co, ctx: context });
 
-		if (this._mbr) {
+		if (this._mbr || (this._flipX || this._flipY)) {
 			context.restore();
 		}
 		if (globalpha) {
@@ -106,21 +116,21 @@ Crafty.extend({
 		* #Crafty.canvas.context
 		* @comp Crafty.canvas
 		* This will return the 2D context of the main canvas element.
-		* The value returned from `Crafty.canvas.elem.getContext('2d')`.
+		* The value returned from `Crafty.canvas._canvas.getContext('2d')`.
 		*/
 		context: null,
 		/**@
-		* #Crafty.canvas.elem
+		* #Crafty.canvas._canvas
 		* @comp Crafty.canvas
 		* Main Canvas element
 		*/
-		elem: null,
 
 		/**@
 		* #Crafty.canvas.init
 		* @comp Crafty.canvas
 		* @sign public void Crafty.canvas.init(void)
-		* Creates a `canvas` element inside the stage element. Must be called
+    * @trigger NoCanvas - triggered if `Crafty.support.canvas` is false
+		* Creates a `canvas` element inside `Crafty.stage.elem`. Must be called
 		* before any entities with the Canvas component can be drawn.
 		*
 		* This method will automatically be called if no `Crafty.canvas.context` is

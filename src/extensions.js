@@ -130,7 +130,7 @@ Crafty.extend({
 	* @see Sprite
 	*/
 	sprite: function (tile, tileh, url, map, paddingX, paddingY) {
-		var pos, temp, x, y, w, h, img;
+		var spriteName, temp, x, y, w, h, img;
 
 		//if no tile value, default to 1
 		if (typeof tile === "string") {
@@ -162,8 +162,8 @@ Crafty.extend({
 			Crafty.assets[url] = img;
 			img.onload = function () {
 				//all components with this img are now ready
-				for (var pos in map) {
-					Crafty(pos).each(function () {
+				for (spriteName in map) {
+					Crafty(spriteName).each(function () {
 						this.ready = true;
 						this.trigger("Change");
 					});
@@ -171,17 +171,17 @@ Crafty.extend({
 			};
 		}
 
-		for (pos in map) {
-			if (!map.hasOwnProperty(pos)) continue;
+		for (spriteName in map) {
+			if (!map.hasOwnProperty(spriteName)) continue;
 
-			temp = map[pos];
+			temp = map[spriteName];
 			x = temp[0] * (tile + paddingX);
 			y = temp[1] * (tileh + paddingY);
 			w = temp[2] * tile || tile;
 			h = temp[3] * tileh || tileh;
 
 			//generates sprite components for each tile in the map
-			Crafty.c(pos, {
+			Crafty.c(spriteName, {
 				ready: false,
 				__coord: [x, y, w, h],
 
@@ -231,18 +231,18 @@ Crafty.extend({
 	* Callbacks are passed with event data.
 	* @see Crafty.removeEvent
 	*/
-	addEvent: function (ctx, obj, type, fn) {
+	addEvent: function (ctx, obj, type, callback) {
 		if (arguments.length === 3) {
-			fn = type;
+			callback = type;
 			type = obj;
 			obj = window.document;
 		}
 
 		//save anonymous function to be able to remove
-		var afn = function (e) { var e = e || window.event; fn.call(ctx, e) },
+		var afn = function (e) { var e = e || window.event; callback.call(ctx, e) },
 			id = ctx[0] || "";
 
-		if (!this._events[id + obj + type + fn]) this._events[id + obj + type + fn] = afn;
+		if (!this._events[id + obj + type + callback]) this._events[id + obj + type + callback] = afn;
 		else return;
 
 		if (obj.attachEvent) { //IE
@@ -265,22 +265,22 @@ Crafty.extend({
 	* to the callback method.
 	* @see Crafty.addEvent
 	*/
-	removeEvent: function (ctx, obj, type, fn) {
+	removeEvent: function (ctx, obj, type, callback) {
 		if (arguments.length === 3) {
-			fn = type;
+			callback = type;
 			type = obj;
 			obj = window.document;
 		}
 
 		//retrieve anonymouse function
 		var id = ctx[0] || "",
-			afn = this._events[id + obj + type + fn];
+			afn = this._events[id + obj + type + callback];
 
 		if (afn) {
 			if (obj.detachEvent) {
 				obj.detachEvent('on' + type, afn);
 			} else obj.removeEventListener(type, afn, false);
-			delete this._events[id + obj + type + fn];
+			delete this._events[id + obj + type + callback];
 		}
 	},
 
@@ -642,6 +642,21 @@ Crafty.extend({
 			}
 		},
 
+		/**@
+		 * #Crafty.viewport.init
+		 * @comp Crafty.viewport
+		 * @sign public void Crafty.viewport.init([Number width, Number height])
+		 * @param width - Width of the viewport
+		 * @param height - Height of the viewport
+		 *
+		 * Initialize the viewport. If the arguments 'width' or 'height' are missing, or Crafty.mobile is true, use Crafty.DOM.window.width and Crafty.DOM.window.height (full screen model).
+		 * Create a div with id `cr-stage`, if there is not already an HTMLElement with id `cr-stage` (by `Crafty.viewport.init`).
+		 *
+		 * @see Crafty.mobile
+		 * @see Crafty.DOM.window.width
+		 * @see Crafty.DOM.window.height
+		 * @see Crafty.stage
+		 */
 		init: function (w, h) {
 			Crafty.DOM.window.init();
 
@@ -651,6 +666,33 @@ Crafty.extend({
 
 			//check if stage exists
 			var crstage = document.getElementById("cr-stage");
+
+			/**@
+			 * #Crafty.stage
+			 * @category Core
+			 * The stage where all the DOM entities will be placed.
+			 */
+
+			/**@
+			 * #Crafty.stage.elem
+			 * @comp Crafty.stage
+			 * The `#cr-stage` div element.
+			 */
+
+			/**@
+			 * #Crafty.stage.inner
+			 * @comp Crafty.stage
+			 * `Crafty.stage.inner` is a div inside the `#cr-stage` div that holds all DOM entities.
+			 * If you use canvas, a `canvas` element is created at the same level in the dom
+			 * as the the `Crafty.stage.inner` div. So the hierarchy in the DOM is
+			 * 
+			 * `Crafty.stage.elem`
+			 * <!-- not sure how to do indentation in the document-->
+			 *
+			 *     - `Crafty.stage.inner` (a div HTMLElement)
+			 *
+			 *     - `Crafty.canvas._canvas` (a canvas HTMLElement) 
+			 */
 
 			//create stage div to contain everything
 			Crafty.stage = {

@@ -54,7 +54,7 @@ function docs($files, $path, $save) {
 							$block .= "\n";
 							break;
 						case PARAM:
-							$split = preg_split("/\s*-\s*/", $value);
+							$split = preg_split("/\s+-\s+/", $value);
 							$block .= "{$split[0]}\n:\t{$split[1]}\n\n";
 							break;
 						case RETURNS:
@@ -95,7 +95,7 @@ function docs($files, $path, $save) {
 							if($lastTag != TRIGGER) {
 								$block .= "###Events\n";
 							}
-							$split = preg_split("/\s*-\s*/", $value);
+							$split = preg_split("/\s+-\s+/", $value);
 							$block .= "{$split[0]}";
 							if(count($split) >= 3) {
 								$split[2] = trim($split[2]);
@@ -223,6 +223,7 @@ $files = array("license.txt",
 			   "text.js", 
 			   "loader.js", 
 			   "math.js",
+			   "time.js",
 			   "outro.js");
 
 if(!is_dir('api/')) {
