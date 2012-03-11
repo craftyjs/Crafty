@@ -231,6 +231,6 @@ if(!is_dir('api/')) {
 }
 
 docs($files, "../src/", "api/");
-merge($files, "../src/",  "../");
+//merge($files, "../src/",  "../");
 ?>
 <h1>Merged and Built Successfully</h1>
