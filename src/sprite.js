@@ -6,12 +6,24 @@
 */
 Crafty.c("Sprite", {
 	__image: '',
+	/*
+	* #.__tile
+	* @comp Sprite
+	*
+	* Horizontal sprite tile size.
+	*/
 	__tile: 0,
+	/*
+	* #.__tileh
+	* @comp Sprite
+	*
+	* Vertical sprite tile size.
+	*/
 	__tileh: 0,
 	__padding: null,
 	__trim: null,
 	img: null,
-  //ready is changed to true in Crafty.sprite
+	//ready is changed to true in Crafty.sprite
 	ready: false,
 
 	init: function () {
@@ -61,6 +73,13 @@ Crafty.c("Sprite", {
 	* Crafty.e("2D, DOM, Sprite")
 	* 	.sprite(0, 0, 2, 2);
 	* ~~~
+	*/
+
+	/**@
+	* #.__coord
+	* @comp Sprite
+	*
+	* The coordinate of the slide within the sprite in the format of [x, y, w, h].
 	*/
 	sprite: function (x, y, w, h) {
 		this.__coord = [x * this.__tile + this.__padding[0] + this.__trim[0],

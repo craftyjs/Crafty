@@ -38,12 +38,18 @@
 	handlers = {}, //global event handlers
 	onloads = [], //temporary storage of onload handlers
 	tick,
-	tickID,
+
+	/*
+  * `window.requestAnimationFrame` or its variants is called for animation.
+	* `.requestID` keeps a record of the return value previous `window.requestAnimationFrame` call.
+  * This is an internal variable. Used to stop frame.
+	*/
+	requestID,
 
 	noSetter,
 
 	loops = 0,
-	skipTicks = 1000 / FPS,
+  milliSecPerFrame = 1000 / FPS,
 	nextGameTick = (new Date).getTime(),
 
 	slice = Array.prototype.slice,
@@ -770,7 +776,8 @@
 				if (onFrame) {
 					tick = function () {
 						Crafty.timer.step();
-						tickID = onFrame(tick);
+						requestID = onFrame(tick);
+						//console.log(requestID + ', ' + frame)
 					}
 
 					tick();
@@ -791,7 +798,7 @@
 					window.msCancelRequestAnimationFrame ||
 					null;
 
-				if (onFrame) onFrame(tickID);
+				if (onFrame) onFrame(requestID);
 				tick = null;
 			},
 
@@ -804,12 +811,12 @@
 			step: function () {
 				loops = 0;
 				this.curTime = Date.now();
-				if (this.curTime - nextGameTick > 60 * skipTicks) {
-					nextGameTick = this.curTime - skipTicks;
+				if (this.curTime - nextGameTick > 60 * milliSecPerFrame) {
+					nextGameTick = this.curTime - milliSecPerFrame;
 				}
 				while (this.curTime > nextGameTick) {
 					Crafty.trigger("EnterFrame", { frame: frame++ });
-					nextGameTick += skipTicks;
+					nextGameTick += milliSecPerFrame;
 					loops++;
 				}
 				if (loops) {
