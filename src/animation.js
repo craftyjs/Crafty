@@ -129,19 +129,18 @@ Crafty.c("SpriteAnimation", {
 			this.__coord[0] = pos[0];
 			this.__coord[1] = pos[1];
 			this._frame.current = 0;
-		}
 
-
-		if (data.frame === data.reel.length && this._frame.current === data.frameTime) {
-			data.frame = 0;
-			if (this._frame.repeatInfinitly === true || this._frame.repeat > 0) {
-				if (this._frame.repeat) this._frame.repeat--;
-				this._frame.current = 0;
-				this._frame.frame = 0;
-			} else {
-				this.trigger("AnimationEnd", { reel: data.reel });
-				this.stop();
-				return;
+			if (data.frame === data.reel.length) {
+				data.frame = 0;
+				if (this._frame.repeatInfinitly === true || this._frame.repeat > 0) {
+					if (this._frame.repeat) this._frame.repeat--;
+					this._frame.current = 0;
+					this._frame.frame = 0;
+				} else {
+					this.trigger("AnimationEnd", { reel: data.reel });
+					this.stop();
+					return;
+				}
 			}
 		}
 
