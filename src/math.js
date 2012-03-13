@@ -131,7 +131,7 @@ Crafty.math = {
 	 * Returns a random element of a specific array.
      */
 	randomElementOfArray: function (array) {
-		return array[array.length * Math.random()];
+		return array[Math.floor(array.length * Math.random())];
 	},
 
 	/**@
