@@ -167,7 +167,7 @@ Crafty.c("SpriteAnimation", {
 		}
 
 
-		if (data.currentSlideNumber === data.currentReel.length && this._frame.frameNumberBetweenSlides === data.numberOfFramesBetweenSlides) {
+		if (data.currentSlideNumber === data.currentReel.length) {
 			data.currentSlideNumber = 0;
 			if (this._frame.repeatInfinitly === true || this._frame.repeat > 0) {
 				if (this._frame.repeat) this._frame.repeat--;
