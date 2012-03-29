@@ -106,8 +106,8 @@ Crafty.c("SpriteAnimation", {
 	  // .animate('PlayerRunning', 0, 0, 3) //setup animation
 		if (typeof fromx === "number") {
       // Defind in Sprite component.
-			tile = this.__tile;
-			tileh = this.__tileh;
+			tile = this.__tile  + parseInt(this.__padding[0] || 0, 10);
+			tileh = this.__tileh + parseInt(this.__padding[1] || 0, 10);
 
 			reel = [];
 			i = fromx;
@@ -127,8 +127,8 @@ Crafty.c("SpriteAnimation", {
 			i = 0;
 			reel = [];
 			tox = fromx.length - 1;
-			tile = this.__tile;
-			tileh = this.__tileh;
+			tile = this.__tile  + parseInt(this.__padding[0] || 0, 10);
+			tileh = this.__tileh + parseInt(this.__padding[1] || 0, 10);
 
 			for (; i <= tox; i++) {
 				pos = fromx[i];

@@ -350,7 +350,8 @@ Crafty.extend({
 		 * shifting everything in the viewport 500 pixels to the left.
 		 */
 		scroll: function (axis, v) {
-			var change = Math.floor(v - this[axis]), //change in direction
+			v = Math.floor(v);
+			var change = v - this[axis], //change in direction
 				context = Crafty.canvas.context,
 				style = Crafty.stage.inner.style,
 				canvas;
@@ -363,7 +364,7 @@ Crafty.extend({
 				if (context) context.translate(0, change);
 			}
 			if (context) Crafty.DrawManager.drawAll();
-			style[axis == '_x' ? "left" : "top"] = Math.round(~~v) + "px";
+			style[axis == '_x' ? "left" : "top"] = v + "px";
 		},
 
 		rect: function () {
