@@ -79,15 +79,14 @@ $(document).ready(function() {
         equal(first._p2 + first._p3, 10, "two property setters");
     });
 	
-	test("bind", function() {
-		first.bind("myevent", function() {
-			ok(true, "Custom event");
-		});
-	});
-	
-	test("trigger", function() {
-		first.trigger("myevent");
-	});
+    test("bind", function () {
+    	var triggered = false;
+    	first.bind("myevent", function () {
+    		triggered = true;
+    	});
+    	first.trigger("myevent");
+    	equal(triggered, true, "custom event triggered");
+    });
 	
 	test("unbind", function() {
 		first.bind("myevent", function() {
@@ -144,7 +143,7 @@ $(document).ready(function() {
 	
 	module("2D");
 	
-	Crafty.init();
+	Crafty.init(500,500);
 	var player = Crafty.e("2D, DOM, Color").attr({w:50, h: 50}).color("red");
 	
 	test("position", function() {
