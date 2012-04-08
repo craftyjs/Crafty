@@ -26,12 +26,12 @@ then call the `area` method also inherited from the `2D` component.
 
 This is the workflow for committing to Crafty when you are working on more than one features. Replace _pengyu_ by your own github user name.
 
-Following [Fork A Repo](http://help.github.com/fork-a-repo/), fork louisstow/Crafty to get pengyu/Crafty.
+Following [Fork A Repo](http://help.github.com/fork-a-repo/), fork craftyjs/Crafty to get pengyu/Crafty.
 
     # Obviously not necessarily if you have already cloned it.
     1. git clone git@github.com:pengyu/Crafty.git
     # Give the name 'upstream' to the central repository
-    2. git remote add upstream https://github.com/louisstow/Crafty.git
+    2. git remote add upstream https://github.com/craftyjs/Crafty.git
     3. git checkout develop
     # Work on a different branch
     4. git checkout -b <some_arbitary_name>
@@ -41,7 +41,7 @@ Following [Fork A Repo](http://help.github.com/fork-a-repo/), fork louisstow/Cra
     # Pushes the new branch to your own github fork
     6. git push origin <descriptive_name>
 
-Following [Send pull requests](http://help.github.com/send-pull-requests/), make a pull request from pengyu/Crafty:\<descriptive\_name\> to louisstow/Crafty:\<descriptive\_name\>
+Following [Send pull requests](http://help.github.com/send-pull-requests/), make a pull request from pengyu/Crafty:\<descriptive\_name\> to craftyjs/Crafty:\<descriptive\_name\>
 
 If you want to start working on another feature while waiting for the new branch to be merged, follow these steps:
 

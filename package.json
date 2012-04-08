@@ -1,6 +1,6 @@
 ﻿{
     "name": "crafty",
-    "version": "0.4.5",
+    "version": "0.4.7",
     "title": "Crafty game framework",
     "author": {
         "name": "Louis Stowasser",
@@ -23,7 +23,7 @@
         "javascript"
     ],
     "jsfiddle" : "disable",
-    "homepage": "https://github.com/louisstow/Crafty",
+    "homepage": "https://github.com/craftyjs/Crafty",
     "files": [
         "src/license.txt", 
 		"src/core.js",
