@@ -275,9 +275,10 @@ Crafty.c("Mouse", {
 		}
 
 		poly.shift(this._x, this._y);
-		this.map = poly;
+		//this.map = poly;
+		this.mapArea = poly;
 
-		this.attach(this.map);
+		this.attach(this.mapArea);
 		return this;
 	}
 });
