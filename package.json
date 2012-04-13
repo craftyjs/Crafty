@@ -46,6 +46,7 @@
 		"src/text.js", 
 		"src/loader.js", 
 		"src/math.js", 
+		"src/time.js", 
 		"src/outro.js"
     ]
 }
