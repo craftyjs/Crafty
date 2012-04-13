@@ -23,7 +23,7 @@
         "javascript"
     ],
     "jsfiddle" : "disable",
-    "homepage": "https://github.com/louisstow/Crafty",
+    "homepage": "https://github.com/craftyjs/Crafty",
     "files": [
         "src/license.txt", 
 		"src/core.js",
