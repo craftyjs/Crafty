@@ -107,13 +107,13 @@ Crafty.c("Image", {
 				if (!this.ready || !this._pattern) return;
 
 				var context = e.ctx;
-
+				
 				context.fillStyle = this._pattern;
-
-				//context.save();
-				//context.translate(e.pos._x, e.pos._y);
-				context.fillRect(this._x, this._y, this._w, this._h);
-				//context.restore();
+				
+				context.save();
+				context.translate(e.pos._x, e.pos._y);
+				context.fillRect(0, 0, this._w, this._h);
+				context.restore();
 			} else if (e.type === "DOM") {
 				if (this.__image)
 					e.style.background = "url(" + this.__image + ") " + this._repeat;
