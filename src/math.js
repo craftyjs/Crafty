@@ -10,6 +10,7 @@ Crafty.math = {
      * @sign public this Crafty.math.abs(Number n)
      * @param n - Some value.
      * @return Absolute value.
+     * 
 	 * Returns the absolute value.
      */
 	abs: function (x) {
@@ -24,6 +25,7 @@ Crafty.math = {
      * @param minValue - Minimum value to check.
      * @param maxValue - Maximum value to check.
      * @return Amount of checkValue compared to minValue and maxValue.
+     * 
 	 * Returns the amount of how much a checkValue is more like minValue (=0)
      * or more like maxValue (=1)
      */
@@ -43,6 +45,7 @@ Crafty.math = {
      * @param max - Maximum that value can be.
      * @param min - Minimum that value can be.
      * @return The value between minimum and maximum.
+     * 
 	 * Restricts a value to be within a specified range.
      */
 	clamp: function (value, min, max) {
@@ -73,6 +76,7 @@ Crafty.math = {
      * @param x2 - Second x coordinate.
      * @param y2 - Second y coordinate.
      * @return The distance between the two points.
+     * 
 	 * Distance between two points.
      */
 	distance: function (x1, y1, x2, y2) {
@@ -88,6 +92,7 @@ Crafty.math = {
      * @param value2 - Another value.
      * @param amount - Amount of value2 to value1.
      * @return Linear interpolated value.
+     * 
 	 * Linear interpolation. Passing amount with a value of 0 will cause value1 to be returned,
      * a value of 1 will cause value2 to be returned.
      */
@@ -101,6 +106,7 @@ Crafty.math = {
 	 * @sign public Number Crafty.math.negate(Number percent)
      * @param percent - If you pass 1 a -1 will be returned. If you pass 0 a 1 will be returned.
      * @return 1 or -1.
+     * 
 	 * Returnes "randomly" -1.
      */
 	negate: function (percent) {
@@ -116,6 +122,7 @@ Crafty.math = {
 	 * @sign public Number Crafty.math.radToDeg(Number angle)
      * @param angleInRad - The angle in radian.
      * @return The angle in degree.
+     * 
 	 * Converts angle from radian to degree.
      */
 	radToDeg: function (angleInRad) {
@@ -128,6 +135,7 @@ Crafty.math = {
 	 * @sign public Object Crafty.math.randomElementOfArray(Array array)
      * @param array - A specific array.
      * @return A random element of a specific array.
+     * 
 	 * Returns a random element of a specific array.
      */
 	randomElementOfArray: function (array) {
@@ -141,6 +149,7 @@ Crafty.math = {
      * @param start - Smallest int value that can be returned.
      * @param end - Biggest int value that can be returned.
      * @return A random int.
+     * 
 	 * Returns a random int in within a specific range.
      */
 	randomInt: function (start, end) {
@@ -154,6 +163,7 @@ Crafty.math = {
      * @param start - Smallest number value that can be returned.
      * @param end - Biggest number value that can be returned.
      * @return A random number.
+     * 
 	 * Returns a random number in within a specific range.
      */
 	randomNumber: function (start, end) {
@@ -169,6 +179,7 @@ Crafty.math = {
      * @param x2 - Second x coordinate.
      * @param y2 - Second y coordinate.
      * @return The squared distance between the two points.
+     * 
 	 * Squared distance between two points.
      */
 	squaredDistance: function (x1, y1, x2, y2) {
@@ -183,6 +194,7 @@ Crafty.math = {
      * @param min - Minimum value.
      * @param max - Maximum value.
      * @return Returns true if value is within a specific range.
+     * 
 	 * Check if a value is within a specific range.
      */
 	withinRange: function (value, min, max) {

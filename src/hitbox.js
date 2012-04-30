@@ -1,13 +1,15 @@
 
 /**@
-* #Collision
-* @category Collision
+* #.WiredHitBox
+* @comp Collision
+* 
 * Components to display Crafty.polygon Array for debugging collision detection
-* * @example
+* 
+* @example
+* This will display a wired square over your original Canvas screen
 * ~~~
 * Crafty.e("2D,DOM,Player,Collision,WiredHitBox").collision(new Crafty.polygon([0,0],[0,300],[300,300],[300,0]))
 * ~~~
-* this will display a wired square over your original Canvas screen
 */
 Crafty.c("WiredHitBox", {
 
@@ -47,13 +49,18 @@ Crafty.c("WiredHitBox", {
 		return this;
 	}
 });
-/*
- * @example
+/**@
+* #.SolidHitBox
+* @comp Collision
+* 
+* Components to display Crafty.polygon Array for debugging collision detection
+* 
+* @example
+* This will display a solid triangle over your original Canvas screen
 * ~~~
 * Crafty.e("2D,DOM,Player,Collision,SolidHitBox").collision(new Crafty.polygon([0,0],[0,300],[300,300]))
 * ~~~
-* this will display a solid triangle over your original Canvas screen
- */
+*/
 Crafty.c("SolidHitBox", {
 	init: function () {
 		if (Crafty.support.canvas) {
