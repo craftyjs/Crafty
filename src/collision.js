@@ -21,12 +21,14 @@ Crafty.c("Collision", {
 	*
 	* The hit area (polygon) must be a convex shape and not concave
 	* for the collision detection to work.
+	* 
 	* @example
 	* ~~~
 	* Crafty.e("2D, Collision").collision(
 	*     new Crafty.polygon([50,0], [100,100], [0,100])
 	* );
 	* ~~~
+	* 
 	* @see Crafty.Polygon
 	*/
 	collision: function (poly) {
@@ -49,11 +51,12 @@ Crafty.c("Collision", {
 	* @sign public Boolean/Array hit(String component)
 	* @param component - Check collision with entities that has this component
 	* @return `false` if no collision. If a collision is detected, returns an Array of objects that are colliding.
+	* 
 	* Takes an argument for a component to test collision for. If a collision is found, an array of
 	* every object in collision along with the amount of overlap is passed.
 	*
 	* If no collision, will return false. The return collision data will be an Array of Objects with the
-	* type of collision used, the object collided and if the type used was SAT (a polygon was used as the hitbox) then an amount of overlap.
+	* type of collision used, the object collided and if the type used was SAT (a polygon was used as the hitbox) then an amount of overlap.\
 	* ~~~
 	* [{
 	*    obj: [entity],
@@ -63,6 +66,7 @@ Crafty.c("Collision", {
 	* ~~~
 	* `MBR` is your standard axis aligned rectangle intersection (`.intersect` in the 2D component).
 	* `SAT` is collision between any convex polygon.
+	* 
 	* @see .onHit, 2D
 	*/
 	hit: function (comp) {
@@ -119,7 +123,9 @@ Crafty.c("Collision", {
 	* @param component - Component to check collisions for
 	* @param hit - Callback method to execute when collided with component
 	* @param noHit - Callback method executed once as soon as collision stops
+	* 
 	* Creates an enterframe event calling .hit() each time and if collision detected will invoke the callback.
+	* 
 	* @see .hit
 	*/
 	onHit: function (comp, callback, callbackOff) {

@@ -58,7 +58,7 @@ function docs($files, $path, $save) {
 							$block .= "{$split[0]}\n:\t{$split[1]}\n\n";
 							break;
 						case RETURNS:
-							$block .= "###Returns\n".$value."\n\n";
+							$block .= "###Returns\n"."<span class=\"returns\">".$value."</span>\n\n";
 							break;
 						case SEE:
 							$split = preg_split("/\s*,\s*/", $value);
@@ -208,6 +208,7 @@ $files = array("license.txt",
 			   "HashMap.js", 
 			   "2D.js", 
 			   "collision.js", 
+			   "hitbox.js", 
 			   "DOM.js",
 			   "html.js",
 			   "storage.js",

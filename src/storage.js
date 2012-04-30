@@ -3,11 +3,12 @@
  * @category Utilities
  * Utility to allow data to be saved to a permanent storage solution: IndexedDB, WebSql, localstorage or cookies
  */
-/**@
+    /**@
 	 * #.open
 	 * @comp Storage
 	 * @sign .open(String gameName)
 	 * @param gameName - a machine readable string to uniquely identify your game
+	 * 
 	 * Opens a connection to the database. If the best they have is localstorage or lower, it does nothing
 	 *
 	 * @example
@@ -17,13 +18,14 @@
 	 * ~~~
 	 */
 
-/**@
+    /**@
 	 * #.save
 	 * @comp Storage
 	 * @sign .save(String key, String type, Mixed data)
 	 * @param key - A unique key for identifying this piece of data
 	 * @param type - 'save' or 'cache'
 	 * @param data - Some kind of data.
+	 * 
 	 * Saves a piece of data to the database. Can be anything, although entities are preferred.
 	 * For all storage methods but IndexedDB, the data will be serialized as a string
 	 * During serialization, an entity's SaveData event will be triggered.
@@ -39,13 +41,14 @@
 	 * ~~~
 	 */
 
-/**@
+    /**@
 	 * #.load
 	 * @comp Storage
 	 * @sign .load(String key, String type)
 	 * @param key - A unique key to search for
 	 * @param type - 'save' or 'cache'
 	 * @param callback - Do things with the data you get back
+	 * 
 	 * Loads a piece of data from the database.
 	 * Entities will be reconstructed from the serialized string
 
@@ -57,7 +60,7 @@
 	 * ~~~
 	 */
 
-/**@
+    /**@
 	 * #.getAllKeys
 	 * @comp Storage
 	 * @sign .getAllKeys(String type)
@@ -72,13 +75,14 @@
 	 * ~~~
 	 */
 
-/**@
+    /**@
 	 * #.external
 	 * @comp Storage
 	 * @sign .external(String url)
 	 * @param url - URL to an external to save games too
+	 * 
 	 * Enables and sets the url for saving games to an external server
-
+	 * 
 	 * @example
 	 * Save an entity to an external server
 	 * ~~~
@@ -90,11 +94,12 @@
 	 * ~~~
 	 */
 
-/**@
+    /**@
 	 * #SaveData event
 	 * @comp Storage
 	 * @param data - An object containing all of the data to be serialized
 	 * @param prepare - The function to prepare an entity for serialization
+	 * 
 	 * Any data a component wants to save when it's serialized should be added to this object.
 	 * Straight attribute should be set in data.attr.
 	 * Anything that requires a special handler should be set in a unique property.
@@ -110,10 +115,11 @@
 	 * ~~~
 	 */
 
-/**@
+    /**@
 	 * #LoadData event
 	 * @param data - An object containing all the data that been saved
 	 * @param process - The function to turn a string into an entity
+	 * 
 	 * Handlers for processing any data that needs more than straight assignment
 	 *
 	 * Note that data stord in the .attr object is automatically added to the entity.

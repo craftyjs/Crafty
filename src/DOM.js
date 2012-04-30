@@ -4,7 +4,7 @@
 * Draws entities as DOM nodes, specifically `<DIV>`s.
 */
 Crafty.c("DOM", {
-/**@
+    /**@
 	* #._element
 	* @comp DOM
 	* The DOM element used to represent the entity.
@@ -61,6 +61,7 @@ Crafty.c("DOM", {
 	* #.getDomId
 	* @comp DOM
 	* @sign public this .getId()
+	* 
 	* Get the Id of the DOM element used to represent the entity.
 	*/
 	getDomId: function() {
@@ -73,6 +74,7 @@ Crafty.c("DOM", {
 	* @trigger Draw - when the entity is ready to be drawn to the stage - { style:String, type:"DOM", co}
 	* @sign public this .DOM(HTMLElement elem)
 	* @param elem - HTML element that will replace the dynamically created one
+	* 
 	* Pass a DOM element to use rather than one created. Will set `._element` to this value. Removes the old element.
 	*/
 	DOM: function (elem) {
@@ -88,6 +90,7 @@ Crafty.c("DOM", {
 	* #.draw
 	* @comp DOM
 	* @sign public this .draw(void)
+	* 
 	* Updates the CSS properties of the node to draw on the stage.
 	*/
 	draw: function () {
@@ -177,6 +180,7 @@ Crafty.c("DOM", {
 	* #.undraw
 	* @comp DOM
 	* @sign public this .undraw(void)
+	* 
 	* Removes the element from the stage.
 	*/
 	undraw: function () {
@@ -194,6 +198,7 @@ Crafty.c("DOM", {
 	* @param value - Value to give the CSS property
 	* @sign public * css(Object map)
 	* @param map - Object where the key is the CSS property and the value is CSS value
+	* 
 	* Apply CSS styles to the element.
 	*
 	* Can pass an object where the key is the style property and the value is style value.
@@ -203,6 +208,7 @@ Crafty.c("DOM", {
 	* The notation can be CSS or JS (e.g. `text-align` or `textAlign`).
 	*
 	* To return a value, pass the property.
+	* 
 	* @example
 	* ~~~
 	* this.css({'text-align', 'center', font: 'Arial'});
@@ -249,15 +255,17 @@ try {
 } catch (e) { }
 
 Crafty.extend({
-/**@
+    /**@
 	* #Crafty.DOM
 	* @category Graphics
+	* 
 	* Collection of utilities for using the DOM.
 	*/
 	DOM: {
 	/**@
 		* #Crafty.DOM.window
 		* @comp Crafty.DOM
+		* 
 		* Object with `width` and `height` values representing the width
 		* and height of the `window`.
 		*/
@@ -277,6 +285,7 @@ Crafty.extend({
 		* @sign public Object Crafty.DOM.inner(HTMLElement obj)
 		* @param obj - HTML element to calculate the position
 		* @returns Object with `x` key being the `x` position, `y` being the `y` position
+		* 
 		* Find a DOM elements position including
 		* padding and border.
 		*/
@@ -301,6 +310,7 @@ Crafty.extend({
 		* @sign public Object Crafty.DOM.getStyle(HTMLElement obj, String property)
 		* @param obj - HTML element to find the style
 		* @param property - Style to return
+		* 
 		* Determine the value of a style on an HTML element. Notation can be
 		* in either CSS or JS.
 		*/

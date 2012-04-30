@@ -11,27 +11,32 @@
 	* @comp Crafty.HashMap
 	* @sign public void Crafty.HashMap([cellsize])
 	* @param cellsize - the cell size. If omitted, `cellsize` is 64.
-  * Set `cellsize`.
-  * And create `this.map`.
+	* 
+    * Set `cellsize`.
+    * And create `this.map`.
 	*/
 	var cellsize,
+
 	HashMap = function (cell) {
 		cellsize = cell || 64;
 		this.map = {};
 	},
+
 	SPACE = " ";
 
 	HashMap.prototype = {
 	/**@
 	* #Crafty.map.insert
 	* @comp Crafty.map
-  * @sign public Object Crafty.map.insert(Object obj)
+    * @sign public Object Crafty.map.insert(Object obj)
 	* @param obj - An entity to be inserted.
-  * `obj` is instered in '.map' of the corresponding broad phase cells. An object of the following fields is returned.
-  *
-  * - the object that keep track of cells (keys)
-  * - `obj`
-  * - the HashMap object
+	* 
+    * `obj` is instered in '.map' of the corresponding broad phase cells. An object of the following fields is returned.
+    * ~~~
+    * - the object that keep track of cells (keys)
+    * - `obj`
+    * - the HashMap object
+    * ~~~
 	*/
 		insert: function (obj) {
 			var keys = HashMap.key(obj),
@@ -56,12 +61,13 @@
 	/**@
 	* #Crafty.map.search
 	* @comp Crafty.map
-  * @sign public Object Crafty.map.search(Object rect[, Boolean filter])
+    * @sign public Object Crafty.map.search(Object rect[, Boolean filter])
 	* @param rect - the rectangular region to search for entities.
 	* @param filter - Default value is true. Otherwise, must be false.
-  * - If `filter` is `false`, just search for all the entries in the give `rect` region by broad phase collision. Entity may be returned duplicated.
-  * - If `filter` is `true`, filter the above results by checking that they actually overlap `rect`.
-  * The easier usage is with `filter`=`true`. For performance reason, you may use `filter`=`false`, and filter the result youself. See examples in drawing.js and collision.js
+	* 
+    * - If `filter` is `false`, just search for all the entries in the give `rect` region by broad phase collision. Entity may be returned duplicated.
+    * - If `filter` is `true`, filter the above results by checking that they actually overlap `rect`.
+    * The easier usage is with `filter`=`true`. For performance reason, you may use `filter`=`false`, and filter the result youself. See examples in drawing.js and collision.js
 	*/
 		search: function (rect, filter) {
 			var keys = HashMap.key(rect),
@@ -112,8 +118,11 @@
 	* @sign public void Crafty.map.remove([Object keys, ]Object obj)
 	* @param keys - key region. If omitted, it will be derived from obj by `Crafty.HashMap.key`.
 	* @param obj - need more document.
+	* 
 	* Remove an entity in a broad phase map.
 	* - The second form is only used in Crafty.HashMap to save time for computing keys again, where keys were computed previously from obj. End users should not call this form directly.
+	*
+	* @example 
 	* ~~~
 	* Crafty.map.remove(e);
 	* ~~~
@@ -149,17 +158,20 @@
 	* #Crafty.map.boundaries
 	* @comp Crafty.map
 	* @sign public Object Crafty.map.boundaries()
-  * The return `Object` is of the following format.
+	* 
+    * The return `Object` is of the following format.
+    * ~~~
 	* {
-  *   min: {
-  *     x: val_x,
-  *     y: val_y
-  *   },
-  *   max: {
-  *     x: val_x,
-  *     y: val_y
-  *   }
-  * }
+    *   min: {
+    *     x: val_x,
+    *     y: val_y
+    *   },
+    *   max: {
+    *     x: val_x,
+    *     y: val_y
+    *   }
+    * }
+    * ~~~
 	*/
 		boundaries: function () {
 			var k, ent,
@@ -228,8 +240,10 @@
 * @category 2D
 * Broad-phase collision detection engine. See background information at 
 *
+* ~~~
 * - [N Tutorial B - Broad-Phase Collision](http://www.metanetsoftware.com/technique/tutorialB.html)
 * - [Broad-Phase Collision Detection with CUDA](http.developer.nvidia.com/GPUGems3/gpugems3_ch32.html)
+* ~~~
 * @see Crafty.map
 */
 
@@ -238,9 +252,10 @@
 	* @comp Crafty.HashMap
 	* @sign public Object Crafty.HashMap.key(Object obj)
 	* @param obj - an Object that has .mbr() or _x, _y, _w and _h.
-  * Get the rectangular region (in terms of the grid, with grid size `cellsize`), where the object may fall in. This region is determined by the object's bounding box.
-  * The `cellsize` is 64 by default.
-  * @see Crafty.HashMap.constructor
+    * Get the rectangular region (in terms of the grid, with grid size `cellsize`), where the object may fall in. This region is determined by the object's bounding box.
+    * The `cellsize` is 64 by default.
+    * 
+    * @see Crafty.HashMap.constructor
 	*/
 	HashMap.key = function (obj) {
 		if (obj.hasOwnProperty('mbr')) {

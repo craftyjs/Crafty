@@ -1,9 +1,11 @@
 /**@
 * #SpriteAnimation
 * @category Animation
-* Used to animate sprites by changing the sprites in the sprite map.
 * @trigger AnimationEnd - When the animation finishes - { reel }
 * @trigger Change - On each frame
+* 
+* Used to animate sprites by changing the sprites in the sprite map.
+* 
 */
 Crafty.c("SpriteAnimation", {
 	/**@
@@ -11,10 +13,11 @@ Crafty.c("SpriteAnimation", {
 	* @comp SpriteAnimation
 	*
 	* A map consists of arrays that contains the coordinates of each frame within the sprite, e.g.,
-  * `{"walk_left":[[96,48],[112,48],[128,48]]}`
+    * `{"walk_left":[[96,48],[112,48],[128,48]]}`
 	*/
 	_reels: null,
 	_frame: null,
+
 	/**@
 	* #._currentReelId
 	* @comp SpriteAnimation
@@ -74,7 +77,7 @@ Crafty.c("SpriteAnimation", {
 		var reel, i, tile, tileh, duration, pos;
 
 		//play a reel
-	  //.animate('PlayerRunning', 15, -1) // start animation
+	    //.animate('PlayerRunning', 15, -1) // start animation
 		if (arguments.length < 4 && typeof fromx === "number") {
 			duration = fromx;
 
@@ -103,9 +106,9 @@ Crafty.c("SpriteAnimation", {
 			this.bind("EnterFrame", this.updateSprite);
 			return this;
 		}
-	  // .animate('PlayerRunning', 0, 0, 3) //setup animation
+	    // .animate('PlayerRunning', 0, 0, 3) //setup animation
 		if (typeof fromx === "number") {
-      // Defind in Sprite component.
+        // Defind in Sprite component.
 			tile = this.__tile  + parseInt(this.__padding[0] || 0, 10);
 			tileh = this.__tileh + parseInt(this.__padding[1] || 0, 10);
 
@@ -123,7 +126,7 @@ Crafty.c("SpriteAnimation", {
 
 			this._reels[reelId] = reel;
 		} else if (typeof fromx === "object") {
-	  // @sign public this .animate(reelId, [[x1,y1],[x2,y2],...])
+	    // @sign public this .animate(reelId, [[x1,y1],[x2,y2],...])
 			i = 0;
 			reel = [];
 			tox = fromx.length - 1;
@@ -187,6 +190,7 @@ Crafty.c("SpriteAnimation", {
 	* #.stop
 	* @comp SpriteAnimation
 	* @sign public this .stop(void)
+	* 
 	* Stop any animation currently playing.
 	*/
 	stop: function () {
@@ -202,6 +206,7 @@ Crafty.c("SpriteAnimation", {
 	* #.reset
 	* @comp SpriteAnimation
 	* @sign public this .reset(void)
+	* 
 	* Method will reset the entities sprite to its original.
 	*/
 	reset: function () {
@@ -219,9 +224,12 @@ Crafty.c("SpriteAnimation", {
 	* #.isPlaying
 	* @comp SpriteAnimation
 	* @sign public Boolean .isPlaying([String reelId])
-	* @param reelId - Determine if the animation reel with this reelId is playing
+	* @param reelId - Determine if the animation reel with this reelId is playing.
+	* 
 	* Determines if an animation is currently playing. If a reel is passed, it will determine
 	* if the passed reel is playing.
+	* 
+	* @example
 	* ~~~
 	* myEntity.isPlaying() //is any animation playing
 	* myEntity.isPlaying('PlayerRunning') //is the PlayerRunning animation playing
@@ -236,8 +244,9 @@ Crafty.c("SpriteAnimation", {
 /**@
 * #Tween
 * @category Animation
-* Component to animate the change in 2D properties over time.
 * @trigger TweenEnd - when a tween finishes - String - property
+* 
+* Component to animate the change in 2D properties over time.
 */
 Crafty.c("Tween", {
 	_step: null,
@@ -249,11 +258,13 @@ Crafty.c("Tween", {
 	* @sign public this .tween(Object properties, Number duration)
 	* @param properties - Object of 2D properties and what they should animate to
 	* @param duration - Duration to animate the properties over (in frames)
+	* 
 	* This method will animate a 2D entities properties over the specified duration.
 	* These include `x`, `y`, `w`, `h`, `alpha` and `rotation`.
 	*
 	* The object passed should have the properties as keys and the value should be the resulting
 	* values of the properties.
+	* 
 	* @example
 	* Move an object to 100,100 and fade out in 200 frames.
 	* ~~~

@@ -1,7 +1,8 @@
 Crafty.extend({
-    /**@
+/**@
 * #Crafty.audio
 * @category Audio
+* 
 * Add sound files and play them. Chooses best format for browser support.
 * Due to the nature of HTML5 audio, three types of audio files will be
 * required for cross-browser capabilities. These formats are MP3, Ogg and WAV.
@@ -43,49 +44,49 @@ Crafty.extend({
             return typeof Audio !== 'undefined' ? new Audio("") : document.createElement('audio');
         },
         /**@
-* #Crafty.audio.add
-* @comp Crafty.audio
-* @sign public this Crafty.audio.add(String id, String url)
-* @param id - A string to reffer to sounds
-* @param url - A string pointing to the sound file
-* @sign public this Crafty.audio.add(String id, Array urls)
-* @param urls - Array of urls pointing to different format of the same sound, selecting the first that is playable
-* @sign public this Crafty.audio.add(Object map)
-* @param map - key-value pairs where the key is the `id` and the value is either a `url` or `urls`
-*
-* Loads a sound to be played. Due to the nature of HTML5 audio,
-* three types of audio files will be required for cross-browser capabilities.
-* These formats are MP3, Ogg and WAV.
-*
-* Passing an array of URLs will determine which format the browser can play and select it over any other.
-*
-* Accepts an object where the key is the audio name and
-* either a URL or an Array of URLs (to determine which type to use).
-*
-* The ID you use will be how you refer to that sound when using `Crafty.audio.play`.
-*
-* @example
-* ~~~
-* //adding audio from an object
-* Crafty.audio.add({
-* shoot: ["sounds/shoot.wav",
-* "sounds/shoot.mp3",
-* "sounds/shoot.ogg"],
-*
-* coin: "sounds/coin.mp3"
-* });
-*
-* //adding a single sound
-* Crafty.audio.add("walk", [
-* "sounds/walk.mp3",
-* "sounds/walk.ogg",
-* "sounds/walk.wav"
-* ]);
-*
-* //only one format
-* Crafty.audio.add("jump", "sounds/jump.mp3");
-* ~~~
-*/
+        * #Crafty.audio.add
+        * @comp Crafty.audio
+        * @sign public this Crafty.audio.add(String id, String url)
+        * @param id - A string to reffer to sounds
+        * @param url - A string pointing to the sound file
+        * @sign public this Crafty.audio.add(String id, Array urls)
+        * @param urls - Array of urls pointing to different format of the same sound, selecting the first that is playable
+        * @sign public this Crafty.audio.add(Object map)
+        * @param map - key-value pairs where the key is the `id` and the value is either a `url` or `urls`
+        *
+        * Loads a sound to be played. Due to the nature of HTML5 audio,
+        * three types of audio files will be required for cross-browser capabilities.
+        * These formats are MP3, Ogg and WAV.
+        *
+        * Passing an array of URLs will determine which format the browser can play and select it over any other.
+        *
+        * Accepts an object where the key is the audio name and
+        * either a URL or an Array of URLs (to determine which type to use).
+        *
+        * The ID you use will be how you refer to that sound when using `Crafty.audio.play`.
+        *
+        * @example
+        * ~~~
+        * //adding audio from an object
+        * Crafty.audio.add({
+        * shoot: ["sounds/shoot.wav",
+        * "sounds/shoot.mp3",
+        * "sounds/shoot.ogg"],
+        *
+        * coin: "sounds/coin.mp3"
+        * });
+        *
+        * //adding a single sound
+        * Crafty.audio.add("walk", [
+        * "sounds/walk.mp3",
+        * "sounds/walk.ogg",
+        * "sounds/walk.wav"
+        * ]);
+        *
+        * //only one format
+        * Crafty.audio.add("jump", "sounds/jump.mp3");
+        * ~~~
+        */
         add:function(id,url){
             Crafty.support.audio = !!this.audioElement().canPlayType; //Setup audio support
             if (!Crafty.support.audio) return;
@@ -160,29 +161,29 @@ Crafty.extend({
 
         },
         /**@
-* #Crafty.audio.play
-* @comp Crafty.audio
-* @sign public this Crafty.audio.play(String id)
-* @sign public this Crafty.audio.play(String id, Number repeatCount)
-* @sign public this Crafty.audio.play(String id, Number repeatCount,Number volume)
-* @param id - A string to reffer to sounds
-* @param repeatCount - Repeat count for the file, where -1 stands for repeat forever.
-* @param volume - volume can be a number between 0.0 and 1.0
-* 
-* Will play a sound previously added by using the ID that was used in `Crafty.audio.add`.
-* Has a default maximum of 5 channels so that the same sound can play simultaneously unless all of the channels are playing.
+        * #Crafty.audio.play
+        * @comp Crafty.audio
+        * @sign public this Crafty.audio.play(String id)
+        * @sign public this Crafty.audio.play(String id, Number repeatCount)
+        * @sign public this Crafty.audio.play(String id, Number repeatCount,Number volume)
+        * @param id - A string to reffer to sounds
+        * @param repeatCount - Repeat count for the file, where -1 stands for repeat forever.
+        * @param volume - volume can be a number between 0.0 and 1.0
+        * 
+        * Will play a sound previously added by using the ID that was used in `Crafty.audio.add`.
+        * Has a default maximum of 5 channels so that the same sound can play simultaneously unless all of the channels are playing.
 
-* *Note that the implementation of HTML5 Audio is buggy at best.*
-*
-* @example
-* ~~~
-* Crafty.audio.play("walk");
-*
-* //play and repeat forever
-* Crafty.audio.play("backgroundMusic", -1);
-* Crafty.audio.play("explosion",1,0.5); //play sound once with volume of 50%
-* ~~~
-*/
+        * *Note that the implementation of HTML5 Audio is buggy at best.*
+        *
+        * @example
+        * ~~~
+        * Crafty.audio.play("walk");
+        *
+        * //play and repeat forever
+        * Crafty.audio.play("backgroundMusic", -1);
+        * Crafty.audio.play("explosion",1,0.5); //play sound once with volume of 50%
+        * ~~~
+        */
         play:function(id,repeat,volume){
             if(repeat == 0 || !Crafty.support.audio || !this.sounds[id]) return;
             var s = this.sounds[id];
@@ -199,17 +200,18 @@ Crafty.extend({
             };    
         },
         /**@
-* #Crafty.audio.stop
-* @sign public this Crafty.audio.stop([Number ID])
-* Stops any playnig sound. if id is not set, stop all sounds which are playing
-* 
-* @example
-* ~~~
-* //all sounds stopped playing now
-* Crafty.audio.stop();
-*
-* ~~~
-*/
+        * #Crafty.audio.stop
+        * @sign public this Crafty.audio.stop([Number ID])
+        * 
+        * Stops any playnig sound. if id is not set, stop all sounds which are playing
+        * 
+        * @example
+        * ~~~
+        * //all sounds stopped playing now
+        * Crafty.audio.stop();
+        *
+        * ~~~
+        */
         stop:function(id){
             if(!Crafty.support.audio) return;
             var s;
@@ -224,17 +226,18 @@ Crafty.extend({
             if(!s.obj.paused) s.obj.pause();
         },
         /**@
-* #Crafty.audio.mute
-* @sign public this Crafty.audio.mute([Boolean mute])
-* Mute or unmute every Audio instance that is playing. Toggles between
-* pausing or playing depending on the state.
-* @example
-* ~~~
-* //toggle mute and unmute depending on current state
-* Crafty.audio.mute();
-*
-* ~~~
-*/
+        * #Crafty.audio.mute
+        * @sign public this Crafty.audio.mute([Boolean mute])
+        * 
+        * Mute or unmute every Audio instance that is playing. Toggles between
+        * pausing or playing depending on the state.
+        * 
+        * @example
+        * ~~~
+        * //toggle mute and unmute depending on current state
+        * Crafty.audio.mute();
+        * ~~~
+        */
         mute:function(){
             if(!Crafty.support.audio) return;
             var s;
