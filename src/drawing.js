@@ -30,6 +30,7 @@ Crafty.c("Color", {
 	*
 	* The argument must be a color readable depending on which browser you
 	* choose to support. IE 8 and below doesn't support the rgb() syntax.
+	* 
 	* @example
 	* ~~~
 	* Crafty.e("2D, DOM, Color")
@@ -75,7 +76,9 @@ Crafty.c("Tint", {
 	* @sign public this .tint(String color, Number strength)
 	* @param color - The color in hexidecimal
 	* @param strength - Level of opacity
+	* 
 	* Modify the color and level opacity to give a tint on the entity.
+	* 
 	* @example
 	* ~~~
 	* Crafty.e("2D, Canvas, Tint")
@@ -132,6 +135,7 @@ Crafty.c("Image", {
 	* @sign public this .image(String url[, String repeat])
 	* @param url - URL of the image
 	* @param repeat - If the image should be repeated to fill the entity.
+	* 
 	* Draw specified image. Repeat follows CSS syntax (`"no-repeat", "repeat", "repeat-x", "repeat-y"`);
 	*
 	* *Note: Default repeat is `no-repeat` which is different to standard DOM (which is `repeat`)*
@@ -139,6 +143,7 @@ Crafty.c("Image", {
 	* If the width and height are `0` and repeat is set to `no-repeat` the width and
 	* height will automatically assume that of the image. This is an
 	* easy way to create an image without needing sprites.
+	* 
 	* @example
 	* Will default to no-repeat. Entity width and height will be set to the images width and height
 	* ~~~
@@ -150,6 +155,7 @@ Crafty.c("Image", {
 	*              .attr({w: Crafty.viewport.width, h: Crafty.viewport.height})
 	*              .image("bg.png", "repeat");
 	* ~~~
+	* 
 	* @see Crafty.sprite
 	*/
 	image: function (url, repeat) {
@@ -207,6 +213,7 @@ Crafty.extend({
 	* @param uninit - Function to execute before next scene is played, after entities with `2D` are destroyed
 	* @sign public void Crafty.scene(String sceneName)
 	* @param sceneName - Name of scene to play
+	* 
 	* Method to create scenes on the stage. Pass an ID and function to register a scene.
 	*
 	* To play a scene, just pass the ID. When a scene is played, all
@@ -256,13 +263,16 @@ Crafty.extend({
 	* @sign public String Crafty.scene(String hex[, Number alpha])
 	* @param hex - a 6 character hex number string representing RGB color
 	* @param alpha - The alpha value.
+	* 
 	* Get a rgb string or rgba string (if `alpha` presents).
+	* 
 	* @example
 	* ~~~
 	* Crafty.toRGB("ffffff"); // rgb(255,255,255)
 	* Crafty.toRGB("#ffffff"); // rgb(255,255,255)
 	* Crafty.toRGB("ffffff", .5); // rgba(255,255,255,0.5)
 	* ~~~
+	* 
 	* @see Text.textColor
 	*/
 	toRGB: function (hex, alpha) {
@@ -283,6 +293,7 @@ Crafty.extend({
 * #Crafty.DrawManager
 * @category Graphics
 * @sign Crafty.DrawManager
+* 
 * An internal object manage objects to be drawn and implement
 * the best method of drawing in both DOM and canvas
 */
@@ -296,6 +307,7 @@ Crafty.DrawManager = (function () {
 		/**@
 		* #Crafty.DrawManager.total2D
 		* @comp Crafty.DrawManager
+		* 
 		* Total number of the entities that have the `2D` component.
 		*/
 		total2D: Crafty("2D").length,
@@ -305,6 +317,7 @@ Crafty.DrawManager = (function () {
 		* @comp Crafty.DrawManager
 		* @sign public Crafty.DrawManager.onScreen(Object rect)
 		* @param rect - A rectangle with field {_x: x_val, _y: y_val, _w: w_val, _h: h_val}
+		* 
 		* Test if a rectangle is completely in viewport
 		*/
 		onScreen: function (rect) {
@@ -317,6 +330,7 @@ Crafty.DrawManager = (function () {
 		* @comp Crafty.DrawManager
 		* @sign public Object Crafty.DrawManager.merge(Object set)
 		* @param set - an array of rectangular regions
+		* 
 		* Merged into non overlapping rectangular region
 		* Its an optimization for the redraw regions.
 		*/
@@ -365,6 +379,7 @@ Crafty.DrawManager = (function () {
 		* @sign public Crafty.DrawManager.add(old, current)
 		* @param old - Undocumented
 		* @param current - Undocumented
+		* 
 		* Calculate the bounding rect of dirty data and add to the register of dirty rectangles
 		*/
 		add: function add(old, current) {
@@ -412,7 +427,6 @@ Crafty.DrawManager = (function () {
 		* #Crafty.DrawManager.debug
 		* @comp Crafty.DrawManager
 		* @sign public Crafty.DrawManager.debug()
-		* Undocumented
 		*/
 		debug: function () {
 			console.log(dirty_rects, dom);
@@ -422,9 +436,11 @@ Crafty.DrawManager = (function () {
 		* #Crafty.DrawManager.draw
 		* @comp Crafty.DrawManager
 		* @sign public Crafty.DrawManager.draw([Object rect])
-    * @param rect - a rectangular region {_x: x_val, _y: y_val, _w: w_val, _h: h_val}
+        * @param rect - a rectangular region {_x: x_val, _y: y_val, _w: w_val, _h: h_val}
+        * ~~~
 		* - If rect is omitted, redraw within the viewport
 		* - If rect is provided, redraw within the rect
+		* ~~~
 		*/
 		drawAll: function (rect) {
 			var rect = rect || Crafty.viewport.rect(),
@@ -452,8 +468,10 @@ Crafty.DrawManager = (function () {
 		* @comp Crafty.DrawManager
 		* @sign public Crafty.DrawManager.boundingRect(set)
 		* @param set - Undocumented
+		* ~~~
 		* - Calculate the common bounding rect of multiple canvas entities.
 		* - Returns coords
+		* ~~~
 		*/
 		boundingRect: function (set) {
 			if (!set || !set.length) return;
@@ -479,10 +497,13 @@ Crafty.DrawManager = (function () {
 		* #Crafty.DrawManager.draw
 		* @comp Crafty.DrawManager
 		* @sign public Crafty.DrawManager.draw()
-		*	- If the number of rects is over 60% of the total number of objects
+		* ~~~
+		* - If the number of rects is over 60% of the total number of objects
 		*	do the naive method redrawing `Crafty.DrawManager.drawAll`
 		* - Otherwise, clear the dirty regions, and redraw entities overlapping the dirty regions.
-    * @see Canvas.draw, DOM.draw
+		* ~~~
+		* 
+        * @see Canvas.draw, DOM.draw
 		*/
 		draw: function draw() {
 			//if nothing in dirty_rects, stop
@@ -496,7 +517,7 @@ Crafty.DrawManager = (function () {
 				dom[i].draw()._changed = false;
 			}
 			//reset DOM array
-      dom.length = 0;
+            dom.length = 0;
 			//again, stop if nothing in dirty_rects
 			if (!l) { return; }
 

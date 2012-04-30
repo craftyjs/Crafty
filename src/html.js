@@ -15,6 +15,7 @@ Crafty.c("HTML", {
 	* @comp HTML
 	* @sign public this .replace(String html)
 	* @param html - arbitrary html
+	* 
 	* This method will replace the content of this entity with the supplied html
 	*
 	* @example
@@ -36,6 +37,7 @@ Crafty.c("HTML", {
 	* @comp HTML
 	* @sign public this .append(String html)
 	* @param html - arbitrary html
+	* 
 	* This method will add the supplied html in the end of the entity
 	*
 	* @example
@@ -57,6 +59,7 @@ Crafty.c("HTML", {
 	* @comp HTML
 	* @sign public this .prepend(String html)
 	* @param html - arbitrary html
+	* 
 	* This method will add the supplied html in the beginning of the entity
 	*
 	* @example

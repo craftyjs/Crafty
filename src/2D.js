@@ -527,13 +527,10 @@ Crafty.c("2D", {
 	/**@
 	* #._cascade
 	* @comp 2D
-  * @sign public void ._cascade(e)
+    * @sign public void ._cascade(e)
 	* @param e - Amount to move X
-	* Shift or move the entity by an amount. Use negative values
+	* Shift move or rotate the entity by an amount. Use negative values
 	* for an opposite direction.
-	*/
-	/**
-	* Move or rotate all the children for this entity
 	*/
 	_cascade: function (e) {
 		if (!e) return; //no change in position
@@ -619,6 +616,7 @@ Crafty.c("2D", {
 	* @sign public this .origin(String offset)
 	* @param offset - Combination of center, top, bottom, middle, left and right
 	* Set the origin point of an entity for it to rotate around.
+	* 
 	* @example
 	* ~~~
 	* this.origin("top left")
@@ -626,6 +624,7 @@ Crafty.c("2D", {
 	* this.origin("bottom right")
 	* this.origin("middle right")
 	* ~~~
+	* 
 	* @see .rotation
 	*/
 	origin: function (x, y) {
@@ -652,6 +651,20 @@ Crafty.c("2D", {
 		return this;
 	},
 
+	/**@
+	* #.flip
+	* @comp 2D
+	* @trigger Change - when the entity has flipped
+	* @sign public this .flip(String dir)
+	* @param dir - Flip direction
+	* 
+	* Flip entity on passed direction
+	* 
+	* @example
+	* ~~~
+	* this.flip("X")
+	* ~~~
+	*/
 	flip: function (dir) {
 		dir = dir || "X";
 		this["_flip" + dir] = true;
@@ -737,10 +750,13 @@ Crafty.c("Gravity", {
 	* @comp Gravity
 	* @sign public this .gravity([comp])
 	* @param comp - The name of a component that will stop this entity from falling
+	* 
 	* Enable gravity for this entity no matter whether comp parameter is not specified, 
 	* If comp parameter is specified all entities with that component will stop this entity from falling.
 	* For a player entity in a platform game this would be a component that is added to all entities
 	* that the player should be able to walk on.
+	* 
+	* @example
 	* ~~~
 	* Crafty.e("2D, DOM, Color, Gravity")
 	*	 .color("red")
@@ -761,7 +777,10 @@ Crafty.c("Gravity", {
 	* @comp Gravity
 	* @sign public this .gravityConst(g)
 	* @param g - gravitational constant
+	* 
 	* Set the gravitational constant to g. The default is .2. The greater g, the faster the object falls.
+	* 
+	* @example
 	* ~~~
 	* Crafty.e("2D, DOM, Color, Gravity")
 	*   .color("red")
@@ -840,6 +859,7 @@ Crafty.c("Gravity", {
 /**@
 * #Crafty.Polygon
 * @category 2D
+* 
 * Polygon object used for hitboxes and click maps. Must pass an Array for each point as an
 * argument where index 0 is the x position and index 1 is the y position.
 *
@@ -865,13 +885,15 @@ Crafty.polygon = function (poly) {
 };
 
 Crafty.polygon.prototype = {
-/**@
+	/**@
 	* #.containsPoint
 	* @comp Crafty.Polygon
 	* @sign public Boolean .containsPoint(Number x, Number y)
 	* @param x - X position of the point
 	* @param y - Y position of the point
+	* 
 	* Method is used to determine if a given point is contained by the polygon.
+	* 
 	* @example
 	* ~~~
 	* var poly = new Crafty.polygon([50,0],[100,100],[0,100]);
@@ -897,7 +919,9 @@ Crafty.polygon.prototype = {
 	* @sign public void .shift(Number x, Number y)
 	* @param x - Amount to shift the `x` axis
 	* @param y - Amount to shift the `y` axis
+	* 
 	* Shifts every single point in the polygon by the specified amount.
+	* 
 	* @example
 	* ~~~
 	* var poly = new Crafty.polygon([50,0],[100,100],[0,100]);
@@ -935,6 +959,7 @@ Crafty.polygon.prototype = {
 * @category 2D
 * Circle object used for hitboxes and click maps. Must pass a `x`, a `y` and a `radius` value.
 *
+*@example
 * ~~~
 * var centerX = 5,
 *     centerY = 10,
@@ -962,13 +987,15 @@ Crafty.circle = function (x, y, radius) {
 };
 
 Crafty.circle.prototype = {
-/**@
+    /**@
 	* #.containsPoint
 	* @comp Crafty.Circle
 	* @sign public Boolean .containsPoint(Number x, Number y)
 	* @param x - X position of the point
 	* @param y - Y position of the point
+	* 
 	* Method is used to determine if a given point is contained by the circle.
+	* 
 	* @example
 	* ~~~
 	* var circle = new Crafty.circle(0, 0, 10);
@@ -991,7 +1018,9 @@ Crafty.circle.prototype = {
 	* @sign public void .shift(Number x, Number y)
 	* @param x - Amount to shift the `x` axis
 	* @param y - Amount to shift the `y` axis
+	* 
 	* Shifts the circle by the specified amount.
+	* 
 	* @example
 	* ~~~
 	* var poly = new Crafty.circle(0, 0, 10);

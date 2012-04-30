@@ -64,6 +64,7 @@ Crafty.c("Sprite", {
 	* @param y - Y cell position
 	* @param w - Width in cells
 	* @param h - Height in cells
+	* 
 	* Uses a new location on the sprite map as its sprite.
 	*
 	* Values should be in tiles or cells (not pixels).
@@ -99,6 +100,7 @@ Crafty.c("Sprite", {
 	* @param y - Offset y position
 	* @param w - New width
 	* @param h - New height
+	* 
 	* If the entity needs to be smaller than the tile size, use this method to crop it.
 	*
 	* The values should be in pixels rather than tiles.

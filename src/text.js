@@ -55,10 +55,12 @@ Crafty.c("Text", {
     * @sign public this .text(String text)
     * @sign public this .text(Function textgenerator)
     * @param text - String of text that will be inserted into the DOM or Canvas element.
+    * 
     * This method will update the text inside the entity.
     * If you use DOM, to modify the font, use the `.css` method inherited from the DOM component.
     *
     * If you need to reference attributes on the entity itself you can pass a function instead of a string.
+    * 
     * @example
     * ~~~
     * Crafty.e("2D, DOM, Text").attr({ x: 100, y: 100 }).text("Look at me!!");
@@ -90,6 +92,7 @@ Crafty.c("Text", {
     * @param strength - Level of opacity
     *
     * Modify the text color and level of opacity.
+    * 
     * @example
     * ~~~
     * Crafty.e("2D, DOM, Text").attr({ x: 100, y: 100 }).text("Look at me!!")
@@ -110,15 +113,16 @@ Crafty.c("Text", {
 	/**@
     * #.textFont
     * @comp Text
+    * @triggers Change
     * @sign public this .textFont(String key, * value)
     * @param key - Property of the entity to modify
     * @param value - Value to set the property to
     *
     * @sign public this .textFont(Object map)
     * @param map - Object where the key is the property to modify and the value as the property value
-    * @triggers Change
     *
     * Use this method to set font property of the text entity.
+    * 
     * @example
     * ~~~
     * Crafty.e("2D, DOM, Text").textFont({ type: 'italic', family: 'Arial' });

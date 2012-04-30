@@ -6,6 +6,7 @@ Crafty.extend({
 	* The key is the URL and the value is the `Audio` or `Image` object.
 	*
 	* If loading an asset, check that it is in this object first to avoid loading twice.
+	* 
 	* @example
 	* ~~~
 	* var isLoaded = !!Crafty.assets["images/sprite.png"];
@@ -22,6 +23,7 @@ Crafty.extend({
 	* @param onLoad - Callback when the assets are loaded
 	* @param onProgress - Callback when an asset is loaded. Contains information about assets loaded
 	* @param onError - Callback when an asset fails to load
+	* 
 	* Preloader for all assets. Takes an array of URLs and
 	* adds them to the `Crafty.assets` object.
 	*
@@ -32,13 +34,14 @@ Crafty.extend({
 	* The `onProgress` function will be passed on object with information about
 	* the progress including how many assets loaded, total of all the assets to
 	* load and a percentage of the progress.
-  *
-  *
-  *           { loaded: j, total: total, percent: (j / total * 100) ,src:src})
+    * ~~~
+    * { loaded: j, total: total, percent: (j / total * 100) ,src:src})
+	* ~~~
 	*
 	* `onError` will be passed with the asset that couldn't load.
-  *
+    *
 	* When `onError` is not provided, the onLoad is loaded even some assests are not successfully loaded. Otherwise, onLoad will be called no matter whether there are errors or not. 
+	* 
 	* @example
 	* ~~~
 	* Crafty.load(["images/sprite.png", "sounds/jump.mp3"],
@@ -57,6 +60,7 @@ Crafty.extend({
 	*     }
 	* );
 	* ~~~
+	* 
 	* @see Crafty.assets
 	*/
     load: function (data, oncomplete, onprogress, onerror) {
@@ -150,14 +154,15 @@ Crafty.extend({
 	* @sign public void Crafty.modules([String repoLocation,] Object moduleMap[, Function onLoad])
 	* @param modules - Map of name:version pairs for modules to load
 	* @param onLoad - Callback when the modules are loaded
+	* 
 	* Browse the selection of modules on crafty repositories.
 	* Downloads and executes the javascript in the specified modules.
 	* If no repository is specified it defaults to http://cdn.craftycomponents.com
 	*
 	* Available repositories:
 	*
-	* 	- http://cdn.crafty-modules.com
 	* 	- http://cdn.craftycomponents.com
+	* 	- http://cdn.crafty-modules.com
 	*
 	*
 	* @example
