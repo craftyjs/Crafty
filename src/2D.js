@@ -556,7 +556,7 @@ Crafty.c("2D", {
 		}
 	},
 
-	/**
+	/**@
 	* #.attach
 	* @comp 2D
 	* @sign public this .attach(Entity obj[, .., Entity objN])
