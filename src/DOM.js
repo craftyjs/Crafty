@@ -291,8 +291,8 @@ Crafty.extend({
 		*/
 		inner: function (obj) {
 			var rect = obj.getBoundingClientRect(),
-				x = rect.left + (window.pageXOffset ? window.pageXOffset : document.body.scrollTop),
-				y = rect.top + (window.pageYOffset ? window.pageYOffset : document.body.scrollLeft),
+				x = rect.left + (window.pageXOffset ? window.pageXOffset : document.body.scrollLeft),
+				y = rect.top + (window.pageYOffset ? window.pageYOffset : document.body.scrollTop),
 
 			//border left
 				borderX = parseInt(this.getStyle(obj, 'border-left-width') || 0, 10) || parseInt(this.getStyle(obj, 'borderLeftWidth') || 0, 10) || 0,
