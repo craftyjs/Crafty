@@ -220,14 +220,14 @@ Crafty.extend({
 			Crafty.trigger("KeyUp", e);
 		}
 
-		//prevent searchable keys
-		/*
+		//prevent default actions for all keys except backspace and F1-F12
+		//among others this prevent the arrow keys from scrolling the page
 		if((e.metaKey || e.altKey || e.ctrlKey) && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
 			console.log(e);
 			if(e.preventDefault) e.preventDefault();
 			else e.returnValue = false;
 			return false;
-		}*/
+		}
 	}
 });
 
