@@ -352,8 +352,8 @@ Crafty.extend({
 		*/
 		translate: function (x, y) {
 			return {
-				x: x - Crafty.stage.x + document.body.scrollLeft + document.documentElement.scrollLeft - Crafty.viewport._x,
-				y: y - Crafty.stage.y + document.body.scrollTop + document.documentElement.scrollTop - Crafty.viewport._y
+				x: (x - Crafty.stage.x + document.body.scrollLeft + document.documentElement.scrollLeft - Crafty.viewport._x)*1/Crafty.viewport._zoom,
+				y: (y - Crafty.stage.y + document.body.scrollTop + document.documentElement.scrollTop - Crafty.viewport._y)*1/Crafty.viewport._zoom
 			}
 		}
 	}

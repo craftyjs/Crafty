@@ -10,7 +10,7 @@
 				/(o)pera(?:.*version)?[ \/]([\w.]+)/.exec(ua) ||
 				/(ms)ie ([\w.]+)/.exec(ua) ||
 				/(moz)illa(?:.*? rv:([\w.]+))?/.exec(ua) || [],
-		mobile = /iPad|iPod|iPhone|Android|webOS/i.exec(ua);
+		mobile = /iPad|iPod|iPhone|Android|webOS|IEMobile/i.exec(ua);
 
 	if (mobile) Crafty.mobile = mobile[0];
 
@@ -502,6 +502,13 @@ Crafty.extend({
 			Crafty.viewport.pan('x', new_x, time);
 			Crafty.viewport.pan('y', new_y, time);
 		},
+		/**@
+		* #Crafty.viewport._zoom
+		* @comp Crafty.viewport
+		* 
+		* This value keeps an amount of viewport zoom, required for calculating mouse position at entity
+		*/
+		_zoom : 1,
 
 		/**@
 		 * #Crafty.viewport.zoom
@@ -547,8 +554,20 @@ Crafty.extend({
 						height: new_s.height - old.height
 					};
 					Crafty.stage.inner.style[prop] = 'scale(' + zoom + ',' + zoom + ')';
+					Crafty.stage.elem.style.width = new_s.width + "px";
+					Crafty.stage.elem.style.height = new_s.height + "px";
+
+					if (Crafty.canvas._canvas) {
+						Crafty.canvas._canvas.width = new_s.width;
+						Crafty.canvas._canvas.height = new_s.height;
+						Crafty.canvas.context.scale(zoom, zoom);
+						Crafty.DrawManager.drawAll();
+					}
+
 					Crafty.viewport.x -= diff.width * prct.width;
 					Crafty.viewport.y -= diff.height * prct.height;
+					Crafty.viewport.width = new_s.width;
+					Crafty.viewport.height = new_s.height;
 					dur--;
 				}
 			}
@@ -557,6 +576,7 @@ Crafty.extend({
 				var bounds = Crafty.map.boundaries(),
 					final_zoom = amt ? zoom * amt : 1;
 
+				this._zoom = final_zoom;
 				act.width = bounds.max.x - bounds.min.x;
 				act.height = bounds.max.y - bounds.min.y;
 
