@@ -191,13 +191,13 @@ Crafty.extend({
             if(s.obj.currentTime) s.obj.currentTime = 0;   
             s.obj.play(); 
             s.played ++;
-            s.obj.onended = function(){
+            s.obj.addEventListener("ended", function(){
                 if(s.played < repeat || repeat == -1){
                     if(this.currentTime) this.currentTime = 0;
-                    this.play(); 
+                    this.play();
                     s.played ++;
                 }
-            };    
+            },true);    
         },
         /**@
         * #Crafty.audio.stop
