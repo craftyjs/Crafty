@@ -767,7 +767,7 @@ Crafty.c("Gravity", {
 	gravity: function (comp) {
 		if (comp) this._anti = comp;
 
-		this.bind("EnterFrame", this._enterframe);
+		this.bind("EnterFrame", this._enterFrame);
 
 		return this;
 	},
@@ -794,12 +794,10 @@ Crafty.c("Gravity", {
 		return this;
 	},
 
-	_enterframe: function () {
+	_enterFrame: function () {
 		if (this._falling) {
 			//if falling, move the players Y
-			//it used to be this._gy += this._gravityConst * 2;
-			//2 seems to be unnecessary. So 2 is removed. by pengyu
-			this._gy += this._gravityConst;
+			this._gy += this._gravityConst * 2;
 			this.y += this._gy;
 		} else {
 			this._gy = 0; //reset change in y
@@ -852,7 +850,7 @@ Crafty.c("Gravity", {
 	* Disable gravity for this component. It can be reenabled by calling .gravity()
 	*/
 	antigravity: function () {
-		this.unbind("EnterFrame", this._enterframe);
+		this.unbind("EnterFrame", this._enterFrame);
 	}
 });
 
