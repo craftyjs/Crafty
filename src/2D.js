@@ -857,7 +857,7 @@ Crafty.c("Gravity", {
 });
 
 /**@
-* #Crafty.Polygon
+* #Crafty.polygon
 * @category 2D
 * 
 * Polygon object used for hitboxes and click maps. Must pass an Array for each point as an
@@ -887,7 +887,7 @@ Crafty.polygon = function (poly) {
 Crafty.polygon.prototype = {
 	/**@
 	* #.containsPoint
-	* @comp Crafty.Polygon
+	* @comp Crafty.polygon
 	* @sign public Boolean .containsPoint(Number x, Number y)
 	* @param x - X position of the point
 	* @param y - Y position of the point
@@ -915,7 +915,7 @@ Crafty.polygon.prototype = {
 
 	/**@
 	* #.shift
-	* @comp Crafty.Polygon
+	* @comp Crafty.polygon
 	* @sign public void .shift(Number x, Number y)
 	* @param x - Amount to shift the `x` axis
 	* @param y - Amount to shift the `y` axis
@@ -955,7 +955,7 @@ Crafty.polygon.prototype = {
 };
 
 /**@
-* #Crafty.Circle
+* #Crafty.circle
 * @category 2D
 * Circle object used for hitboxes and click maps. Must pass a `x`, a `y` and a `radius` value.
 *
@@ -989,7 +989,7 @@ Crafty.circle = function (x, y, radius) {
 Crafty.circle.prototype = {
     /**@
 	* #.containsPoint
-	* @comp Crafty.Circle
+	* @comp Crafty.circle
 	* @sign public Boolean .containsPoint(Number x, Number y)
 	* @param x - X position of the point
 	* @param y - Y position of the point
@@ -1014,7 +1014,7 @@ Crafty.circle.prototype = {
 
 	/**@
 	* #.shift
-	* @comp Crafty.Circle
+	* @comp Crafty.circle
 	* @sign public void .shift(Number x, Number y)
 	* @param x - Amount to shift the `x` axis
 	* @param y - Amount to shift the `y` axis
