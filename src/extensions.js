@@ -108,6 +108,13 @@
 	*/
 	support.deviceorientation = (typeof window.DeviceOrientationEvent !== "undefined") || (typeof window.OrientationEvent !== "undefined");
 
+	/**@
+	* #Crafty.support.devicemotion
+	* @comp Crafty.support
+	* Is devicemotion event supported by browser.
+	*/
+	support.devicemotion = (typeof window.DeviceMotionEvent !== "undefined");
+
 })();
 Crafty.extend({
 
