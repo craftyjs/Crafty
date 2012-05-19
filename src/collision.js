@@ -12,8 +12,8 @@ Crafty.c("Collision", {
 	/**@
 	* #.collision
 	* @comp Collision
-	* @sign public this .collision([Crafty.Polygon polygon])
-	* @param polygon - Crafty.Polygon object that will act as the hit area
+	* @sign public this .collision([Crafty.polygon polygon])
+	* @param polygon - Crafty.polygon object that will act as the hit area
 	* Constructor takes a polygon to use as the hit area. If left empty,
 	* will create a rectangle polygon based on the x, y, w, h dimensions.
 	*
@@ -29,7 +29,7 @@ Crafty.c("Collision", {
 	* );
 	* ~~~
 	* 
-	* @see Crafty.Polygon
+	* @see Crafty.polygon
 	*/
 	collision: function (poly) {
 		var area = this._mbr || this;
