@@ -36,9 +36,9 @@ Crafty.extend({
 				data = {
 					// x is the left-to-right tilt from -1 to +1, so we need to convert to degrees
 					'tiltLR'	:	eventData.x * 90,
-			    	// y is the front-to-back tilt from -1 to +1, so we need to convert to degrees
-			    	// We also need to invert the value so tilting the device towards us (forward) 
-			    	// results in a positive value. 
+                    // y is the front-to-back tilt from -1 to +1, so we need to convert to degrees
+                    // We also need to invert the value so tilting the device towards us (forward) 
+                    // results in a positive value. 
 					'tiltFB'	: 	eventData.y * -90,
 					// MozOrientation does not provide this data
 					'dir' 		: 	null,
@@ -50,12 +50,12 @@ Crafty.extend({
 			ctx._deviceOrientationCallback(data);
 		},
 
-	    /**@
-		* #Crafty.device.deviceOrientation
-		* @comp Crafty.device
-		* @sign public Crafty.device.deviceOrientation(Function callback)
-		* @param callback - Callback method executed once as soon as device orientation is change
-		* 
+        /**@
+        * #Crafty.device.deviceOrientation
+        * @comp Crafty.device
+        * @sign public Crafty.device.deviceOrientation(Function callback)
+        * @param callback - Callback method executed once as soon as device orientation is change
+        * 
         * Do something with normalized device orientation data:
         * ~~~
         * {
@@ -66,16 +66,16 @@ Crafty.extend({
         * }
         * ~~~
         * 
-		* @example
+        * @example
         * ~~~
         * // Get DeviceOrientation event normalized data.
         * Crafty.device.deviceOrientation(function(data){
         *     console.log('data.tiltLR : '+Math.round(data.tiltLR)+', data.tiltFB : '+Math.round(data.tiltFB)+', data.dir : '+Math.round(data.dir)+', data.motUD : '+data.motUD+'');
         * });
         * ~~~
-		* 
-		* See browser support at http://caniuse.com/#search=device orientation.
-		*/
+        * 
+        * See browser support at http://caniuse.com/#search=device orientation.
+        */
 		deviceOrientation : function(func) {
 			this._deviceOrientationCallback = func;
 			if (Crafty.support.deviceorientation) {
