@@ -93,8 +93,21 @@
 		support.webgl = false;
 	}
 
+	/**@
+	* #Crafty.support.css3dtransform
+	* @comp Crafty.support
+	* Is css3Dtransform supported by browser.
+	*/
 	support.css3dtransform = (typeof document.createElement("div").style["Perspective"] !== "undefined")
 							|| (typeof document.createElement("div").style[support.prefix + "Perspective"] !== "undefined");
+
+	/**@
+	* #Crafty.support.deviceorientation
+	* @comp Crafty.support
+	* Is deviceorientation event supported by browser.
+	*/
+	support.deviceorientation = (typeof window.DeviceOrientationEvent !== "undefined") || (typeof window.OrientationEvent !== "undefined");
+
 })();
 Crafty.extend({
 
@@ -242,7 +255,7 @@ Crafty.extend({
 		}
 
 		//save anonymous function to be able to remove
-		var afn = function (e) { var e = e || window.event; callback.call(ctx, e) },
+		var afn = function (e) { var e = e || window.event; callback(ctx, e) },
 			id = ctx[0] || "";
 
 		if (!this._events[id + obj + type + callback]) this._events[id + obj + type + callback] = afn;
@@ -293,13 +306,13 @@ Crafty.extend({
 	* #Crafty.background
 	* @category Graphics, Stage
 	* @sign public void Crafty.background(String value)
-	* @param color - Modify the background with a color or image\
+	* @param style - Modify the background with a color or image
 	* 
 	* This method is essentially a shortcut for adding a background
 	* style to the stage element.
 	*/
-	background: function (color) {
-		Crafty.stage.elem.style.background = color;
+	background: function (style) {
+		Crafty.stage.elem.style.background = style;
 	},
 
 	/**@
