@@ -18,10 +18,9 @@ Crafty.extend({
         * using different parameters and a different measurement system, we want to
         * normalize that before we pass it to our _deviceOrientationCallback function.
         *
-        * @param ctx context
         * @param eventData HTML5 DeviceOrientation event
         */
-        _normalizeDeviceOrientation : function(ctx, eventData) {
+        _normalizeDeviceOrientation : function(eventData) {
             var data;
             if (window.DeviceOrientationEvent) {
                 data = {
@@ -49,14 +48,13 @@ Crafty.extend({
                 }
             }
 
-            ctx._deviceOrientationCallback(data);
+            Crafty.device._deviceOrientationCallback(data);
         },
 
         /**
-        * @param ctx context
         * @param eventData HTML5 DeviceMotion event
         */
-        _normalizeDeviceMotion : function(ctx, eventData) {
+        _normalizeDeviceMotion : function(eventData) {
             var acceleration    = eventData.accelerationIncludingGravity,
                 facingUp        = (acceleration.z > 0) ? +1 : -1;
 
@@ -74,7 +72,7 @@ Crafty.extend({
                 'tiltFB' : Math.round(((acceleration.y + 9.81) / 9.81) * 90 * facingUp)
             };
 
-            ctx._deviceMotionCallback(data);
+            Crafty.device._deviceMotionCallback(data);
         },
 
         /**@
