@@ -10,7 +10,7 @@
 				/(o)pera(?:.*version)?[ \/]([\w.]+)/.exec(ua) ||
 				/(ms)ie ([\w.]+)/.exec(ua) ||
 				/(moz)illa(?:.*? rv:([\w.]+))?/.exec(ua) || [],
-		mobile = /iPad|iPod|iPhone|Android|webOS/i.exec(ua);
+		mobile = /iPad|iPod|iPhone|Android|webOS|IEMobile/i.exec(ua);
 
 	if (mobile) Crafty.mobile = mobile[0];
 
@@ -93,8 +93,28 @@
 		support.webgl = false;
 	}
 
+	/**@
+	* #Crafty.support.css3dtransform
+	* @comp Crafty.support
+	* Is css3Dtransform supported by browser.
+	*/
 	support.css3dtransform = (typeof document.createElement("div").style["Perspective"] !== "undefined")
 							|| (typeof document.createElement("div").style[support.prefix + "Perspective"] !== "undefined");
+
+	/**@
+	* #Crafty.support.deviceorientation
+	* @comp Crafty.support
+	* Is deviceorientation event supported by browser.
+	*/
+	support.deviceorientation = (typeof window.DeviceOrientationEvent !== "undefined") || (typeof window.OrientationEvent !== "undefined");
+
+	/**@
+	* #Crafty.support.devicemotion
+	* @comp Crafty.support
+	* Is devicemotion event supported by browser.
+	*/
+	support.devicemotion = (typeof window.DeviceMotionEvent !== "undefined");
+
 })();
 Crafty.extend({
 
@@ -242,7 +262,7 @@ Crafty.extend({
 		}
 
 		//save anonymous function to be able to remove
-		var afn = function (e) { var e = e || window.event; callback.call(ctx, e) },
+		var afn = function (e) { var e = e || window.event; callback(ctx, e) },
 			id = ctx[0] || "";
 
 		if (!this._events[id + obj + type + callback]) this._events[id + obj + type + callback] = afn;
@@ -293,13 +313,13 @@ Crafty.extend({
 	* #Crafty.background
 	* @category Graphics, Stage
 	* @sign public void Crafty.background(String value)
-	* @param color - Modify the background with a color or image\
+	* @param style - Modify the background with a color or image
 	* 
 	* This method is essentially a shortcut for adding a background
 	* style to the stage element.
 	*/
-	background: function (color) {
-		Crafty.stage.elem.style.background = color;
+	background: function (style) {
+		Crafty.stage.elem.style.background = style;
 	},
 
 	/**@
@@ -502,6 +522,13 @@ Crafty.extend({
 			Crafty.viewport.pan('x', new_x, time);
 			Crafty.viewport.pan('y', new_y, time);
 		},
+		/**@
+		* #Crafty.viewport._zoom
+		* @comp Crafty.viewport
+		* 
+		* This value keeps an amount of viewport zoom, required for calculating mouse position at entity
+		*/
+		_zoom : 1,
 
 		/**@
 		 * #Crafty.viewport.zoom
@@ -547,8 +574,20 @@ Crafty.extend({
 						height: new_s.height - old.height
 					};
 					Crafty.stage.inner.style[prop] = 'scale(' + zoom + ',' + zoom + ')';
+					Crafty.stage.elem.style.width = new_s.width + "px";
+					Crafty.stage.elem.style.height = new_s.height + "px";
+
+					if (Crafty.canvas._canvas) {
+						Crafty.canvas._canvas.width = new_s.width;
+						Crafty.canvas._canvas.height = new_s.height;
+						Crafty.canvas.context.scale(zoom, zoom);
+						Crafty.DrawManager.drawAll();
+					}
+
 					Crafty.viewport.x -= diff.width * prct.width;
 					Crafty.viewport.y -= diff.height * prct.height;
+					Crafty.viewport.width = new_s.width;
+					Crafty.viewport.height = new_s.height;
 					dur--;
 				}
 			}
@@ -557,6 +596,7 @@ Crafty.extend({
 				var bounds = Crafty.map.boundaries(),
 					final_zoom = amt ? zoom * amt : 1;
 
+				this._zoom = final_zoom;
 				act.width = bounds.max.x - bounds.min.x;
 				act.height = bounds.max.y - bounds.min.y;
 

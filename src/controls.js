@@ -220,14 +220,14 @@ Crafty.extend({
 			Crafty.trigger("KeyUp", e);
 		}
 
-		//prevent searchable keys
-		/*
+		//prevent default actions for all keys except backspace and F1-F12
+		//among others this prevent the arrow keys from scrolling the page
 		if((e.metaKey || e.altKey || e.ctrlKey) && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
 			console.log(e);
 			if(e.preventDefault) e.preventDefault();
 			else e.returnValue = false;
 			return false;
-		}*/
+		}
 	}
 });
 
@@ -289,8 +289,8 @@ Crafty.c("Mouse", {
 	/**@
 	* #.areaMap
 	* @comp Mouse
-	* @sign public this .areaMap(Crafty.Polygon polygon)
-	* @param polygon - Instance of Crafty.Polygon used to check if the mouse coordinates are inside this region
+	* @sign public this .areaMap(Crafty.polygon polygon)
+	* @param polygon - Instance of Crafty.polygon used to check if the mouse coordinates are inside this region
 	* @sign public this .areaMap(Array point1, .., Array pointN)
 	* @param point# - Array with an `x` and `y` position to generate a polygon
 	* 
@@ -306,7 +306,7 @@ Crafty.c("Mouse", {
 	*     .areaMap([0,0], [50,0], [50,50], [0,50])
 	* ~~~
 	* 
-	* @see Crafty.Polygon
+	* @see Crafty.polygon
 	*/
 	areaMap: function (poly) {
 		//create polygon

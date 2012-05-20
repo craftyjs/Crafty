@@ -1,6 +1,7 @@
 <?php
 ini_set('auto_detect_line_endings',true);
 $src = "";
+
 $files = array("license.txt",
                "core.js",
                "intro.js",
