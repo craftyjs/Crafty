@@ -262,7 +262,13 @@ Crafty.extend({
 		}
 
 		//save anonymous function to be able to remove
-		var afn = function (e) { var e = e || window.event; callback.call(ctx, e) },
+		var afn = function (e) { 
+				var e = e || window.event; 
+
+				if (typeof callback === 'function') {
+					callback.call(ctx, e);
+				}
+			},
 			id = ctx[0] || "";
 
 		if (!this._events[id + obj + type + callback]) this._events[id + obj + type + callback] = afn;
