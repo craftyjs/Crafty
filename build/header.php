@@ -15,9 +15,9 @@
 		<li><a href="http://craftycomponents.com/">Modules</a></li>
 		<li><a href="https://groups.google.com/forum/#!forum/craftyjs">Forum</a></li>
 		<li><a href="http://craftyjs.github.com/tutorial/">Tutorial</a></li>
-		<li><a href="demos.php">Demos</a></li>
+		<li><a href="/demos.php">Demos</a></li>
 		<li><a href="http://craftyjs.tumblr.com/">Blog</a></li>
-		<li class="emph"><a href="download.php">Download</a></li>
+		<li class="emph"><a href="/download.php">Download</a></li>
 	</ul>
 	</div>
 </div>
