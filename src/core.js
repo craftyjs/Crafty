@@ -59,6 +59,7 @@
     /**@
     * #Crafty Core
     * @category Core
+    * @trigger NewEntityName - After setting new name for entity - String - entity name
     * @trigger NewComponent - when a new component is added to the entity - String - Component
     * @trigger RemoveComponent - when a component is removed from the entity - String - Component
     * @trigger Remove - when the entity is removed by calling .destroy()
@@ -149,6 +150,26 @@
                 return entities[selector]; //return the cached selector
             }
 
+            return this;
+        },
+
+        /**@
+        * #.setName
+        * @comp Crafty Core
+        * @sign public this .setName(String name)
+        * @param name - A human readable name for debugging purposes.
+        *
+        * @example
+        * ~~~
+        * this.setName("Player");
+        * ~~~
+        */
+        setName: function (name) {
+            var entityName = String(name);
+
+            this._entityName = entityName;
+
+            this.trigger("NewEntityName", entityName);
             return this;
         },
 
@@ -906,6 +927,7 @@
             if (arguments.length > 0) {
                 craft.addComponent.apply(craft, arguments);
             }
+            craft.setName('Entity #'+id); //set default entity human readable name
             craft.addComponent("obj"); //every entity automatically assumes obj
 
             Crafty.trigger("NewEntity", { id: id });
