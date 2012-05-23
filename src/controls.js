@@ -9,6 +9,8 @@ Crafty.extend({
 	* #Crafty.keydown
 	* @category Input
 	* Remembering what keys (referred by Unicode) are down.
+	* 
+	* @example
 	* ~~~
 	* Crafty.c("Keyboard", {
 	*   isDown: function (key) {
@@ -19,8 +21,7 @@ Crafty.extend({
 	*   }
 	* });
 	* ~~~
-	* @see Keyboard
-	* @see Crafty.keys
+	* @see Keyboard, Crafty.keys
 	*/
 
 	mouseDispatch: function (e) {
@@ -135,9 +136,11 @@ Crafty.extend({
 	/**@
 	* #Crafty.touchDispatch
 	* @category Input
+	* 
 	* TouchEvents have a different structure then MouseEvents.
 	* The relevant data lives in e.changedTouches[0].
 	* To normalize TouchEvents we catch em and dispatch a mock MouseEvent instead.
+	* 
 	* @see Crafty.mouseDispatch
 	*/
 
@@ -167,38 +170,42 @@ Crafty.extend({
 	/**@
 	* #KeyboardEvent
 	* @category Input
-  * Keyboard Event triggerd by Crafty Core
+    * Keyboard Event triggerd by Crafty Core
 	* @trigger KeyDown - is triggered for each entity when the DOM 'keydown' event is triggered.
 	* @trigger KeyUp - is triggered for each entity when the DOM 'keyup' event is triggered.
+	* 
 	* @example
 	* ~~~
-  * Crafty.e("2D, DOM, Color")
-  *   .attr({x: 100, y: 100, w: 50, h: 50})
-  *   .color("red")
-  *   .bind('KeyDown', function(e) {
-  *     if(e.key == Crafty.keys['LEFT_ARROW']) {
-  *       this.x=this.x-1;
-  *     } else if (e.key == Crafty.keys['RIGHT_ARROW']) {
-  *     this.x=this.x+1;
-  *     } else if (e.key == Crafty.keys['UP_ARROW']) {
-  *     this.y=this.y-1;
-  *     } else if (e.key == Crafty.keys['DOWN_ARROW']) {
-  *     this.y=this.y+1;
-  *     }
-  *   });
+    * Crafty.e("2D, DOM, Color")
+    *   .attr({x: 100, y: 100, w: 50, h: 50})
+    *   .color("red")
+    *   .bind('KeyDown', function(e) {
+    *     if(e.key == Crafty.keys['LEFT_ARROW']) {
+    *       this.x=this.x-1;
+    *     } else if (e.key == Crafty.keys['RIGHT_ARROW']) {
+    *     this.x=this.x+1;
+    *     } else if (e.key == Crafty.keys['UP_ARROW']) {
+    *     this.y=this.y-1;
+    *     } else if (e.key == Crafty.keys['DOWN_ARROW']) {
+    *     this.y=this.y+1;
+    *     }
+    *   });
 	* ~~~
+	* 
 	* @see Crafty.keys
 	*/
 
 	/**@
 	* #Crafty.eventObject
 	* @category Input
+	* 
 	* Event Object used in Crafty for cross browser compatiblity
 	*/
 
 	/**@
 	* #.key
 	* @comp Crafty.eventObject
+	* 
 	* Unicode of the key pressed
 	*/
 	keyboardDispatch: function (e) {
@@ -213,14 +220,14 @@ Crafty.extend({
 			Crafty.trigger("KeyUp", e);
 		}
 
-		//prevent searchable keys
-		/*
+		//prevent default actions for all keys except backspace and F1-F12
+		//among others this prevent the arrow keys from scrolling the page
 		if((e.metaKey || e.altKey || e.ctrlKey) && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
 			console.log(e);
 			if(e.preventDefault) e.preventDefault();
 			else e.returnValue = false;
 			return false;
-		}*/
+		}
 	}
 });
 
@@ -253,9 +260,12 @@ Crafty.bind("Load", function () {
 * @trigger MouseMove - when the mouse is over the entity and moves - MouseEvent
 * Crafty adds the mouseButton property to MouseEvents that match one of
 *
+* ~~~
 * - Crafty.mouseButtons.LEFT
 * - Crafty.mouseButtons.RIGHT
 * - Crafty.mouseButtons.MIDDLE
+* ~~~
+* 
 * @example
 * ~~~
 * myEntity.bind('Click', function() {
@@ -283,8 +293,11 @@ Crafty.c("Mouse", {
 	* @param polygon - Instance of Crafty.Polygon used to check if the mouse coordinates are inside this region
 	* @sign public this .areaMap(Array point1, .., Array pointN)
 	* @param point# - Array with an `x` and `y` position to generate a polygon
+	* 
 	* Assign a polygon to the entity so that mouse events will only be triggered if
 	* the coordinates are inside the given polygon.
+	* 
+	* @example
 	* ~~~
 	* Crafty.e("2D, DOM, Color, Mouse")
 	*     .color("red")
@@ -292,6 +305,7 @@ Crafty.c("Mouse", {
 	*     .bind('MouseOver', function() {console.log("over")})
 	*     .areaMap([0,0], [50,0], [50,50], [0,50])
 	* ~~~
+	* 
 	* @see Crafty.Polygon
 	*/
 	areaMap: function (poly) {
@@ -303,9 +317,10 @@ Crafty.c("Mouse", {
 		}
 
 		poly.shift(this._x, this._y);
-		this.map = poly;
+		//this.map = poly;
+		this.mapArea = poly;
 
-		this.attach(this.map);
+		this.attach(this.mapArea);
 		return this;
 	}
 });
@@ -351,7 +366,7 @@ Crafty.c("Draggable", {
 			if (e.mouseButton !== Crafty.mouseButtons.LEFT) return;
 
 			//start drag
-      this._origMouseDOMPos = Crafty.DOM.translate(e.clientX, e.clientY);
+            this._origMouseDOMPos = Crafty.DOM.translate(e.clientX, e.clientY);
 			this._oldX = this._x;
 			this._oldY = this._y;
 			this._dragging = true;
@@ -375,20 +390,22 @@ Crafty.c("Draggable", {
 	* #.dragDirection
 	* @comp Draggable
 	* @sign public this .dragDirection()
-  * Remove any previously specifed direction.
-  *
+    * Remove any previously specifed direction.
+    *
 	* @sign public this .dragDirection(vector)
-  * @param vector - Of the form of {x: valx, y: valy}, the vector (valx, valy) denotes the move direction.
+    * @param vector - Of the form of {x: valx, y: valy}, the vector (valx, valy) denotes the move direction.
+    * 
 	* @sign public this .dragDirection(degree)
-  * @param degree - A number, the degree (clockwise) of the move direction with respect to the x axis. 
+    * @param degree - A number, the degree (clockwise) of the move direction with respect to the x axis. 
 	* Specify the dragging direction.
+	* 
 	* @example
 	* ~~~
 	* this.dragDirection()
 	* this.dragDirection({x:1, y:0}) //Horizonatal
 	* this.dragDirection({x:0, y:1}) //Vertical
-  * // Note: because of the orientation of x and y axis,
-  * // this is 45 degree clockwise with respect to the x axis.
+    * // Note: because of the orientation of x and y axis,
+    * // this is 45 degree clockwise with respect to the x axis.
 	* this.dragDirection({x:1, y:1}) //45 degree.
 	* this.dragDirection(60) //60 degree.
 	* ~~~
@@ -415,8 +432,10 @@ Crafty.c("Draggable", {
 	* #.stopDrag
 	* @comp Draggable
 	* @sign public this .stopDrag(void)
-	* Stop the entity from dragging. Essentially reproducing the drop.
 	* @trigger StopDrag - Called right after the mouse listeners are removed
+	* 
+	* Stop the entity from dragging. Essentially reproducing the drop.
+	* 
 	* @see .startDrag
 	*/
 	stopDrag: function () {
@@ -432,7 +451,9 @@ Crafty.c("Draggable", {
 	* #.startDrag
 	* @comp Draggable
 	* @sign public this .startDrag(void)
+	* 
 	* Make the entity follow the mouse positions.
+	* 
 	* @see .stopDrag
 	*/
 	startDrag: function () {
@@ -447,7 +468,9 @@ Crafty.c("Draggable", {
 	* #.enableDrag
 	* @comp Draggable
 	* @sign public this .enableDrag(void)
+	* 
 	* Rebind the mouse events. Use if `.disableDrag` has been called.
+	* 
 	* @see .disableDrag
 	*/
 	enableDrag: function () {
@@ -461,7 +484,9 @@ Crafty.c("Draggable", {
 	* #.disableDrag
 	* @comp Draggable
 	* @sign public this .disableDrag(void)
+	* 
 	* Stops entity from being draggable. Reenable with `.enableDrag()`.
+	* 
 	* @see .enableDrag
 	*/
 	disableDrag: function () {
@@ -484,10 +509,14 @@ Crafty.c("Keyboard", {
 	* @param keyName - Name of the key to check. See `Crafty.keys`.
 	* @sign public Boolean isDown(Number keyCode)
 	* @param keyCode - Key code in `Crafty.keys`.
+	* 
 	* Determine if a certain key is currently down.
+	* 
+	* @example
 	* ~~~
 	* entity.requires('KeyBoard').bind('KeyDown', function () { if (this.isDown('SPACE')) jump(); });
 	* ~~~
+	* 
 	* @see Crafty.keys
 	*/
 	isDown: function (key) {
@@ -554,6 +583,7 @@ Crafty.c("Multiway", {
 	*
 	* When direction changes a NewDirection event is triggered with an object detailing the new direction: {x: x_movement, y: y_movement}
 	* When entity has moved on either x- or y-axis a Moved event is triggered with an object specifying the old position {x: old_x, y: old_y}
+	* 
 	* @example
 	* ~~~
 	* this.multiway(3, {UP_ARROW: -90, DOWN_ARROW: 90, RIGHT_ARROW: 0, LEFT_ARROW: 180});
@@ -593,11 +623,12 @@ Crafty.c("Multiway", {
 	* #.enableControl
 	* @comp Multiway
 	* @sign public this .enableControl()
+	* 
 	* Enable the component to listen to key events.
 	*
 	* @example
 	* ~~~
-  * this.enableControl();
+    * this.enableControl();
 	* ~~~
 	*/
   enableControl: function() {
@@ -611,11 +642,12 @@ Crafty.c("Multiway", {
 	* #.disableControl
 	* @comp Multiway
 	* @sign public this .disableControl()
+	* 
 	* Disable the component to listen to key events.
 	*
 	* @example
 	* ~~~
-  * this.disableControl();
+    * this.disableControl();
 	* ~~~
 	*/
 
@@ -662,6 +694,7 @@ Crafty.c("Fourway", {
 	* When entity has moved on either x- or y-axis a Moved event is triggered with an object specifying the old position {x: old_x, y: old_y}
 	*
 	* The key presses will move the entity in that direction by the speed passed in the argument.
+	* 
 	* @see Multiway
 	*/
 	fourway: function (speed) {
@@ -687,7 +720,6 @@ Crafty.c("Fourway", {
 *
 * When direction changes a NewDirection event is triggered with an object detailing the new direction: {x: x_movement, y: y_movement}. This is consistent with Fourway and Multiway components.
 * When entity has moved on x-axis a Moved event is triggered with an object specifying the old position {x: old_x, y: old_y}
-*
 */
 Crafty.c("Twoway", {
 	_speed: 3,
@@ -703,13 +735,17 @@ Crafty.c("Twoway", {
 	* @sign public this .twoway(Number speed[, Number jumpSpeed])
 	* @param speed - Amount of pixels to move left or right
 	* @param jumpSpeed - How high the entity should jump
+	* 
 	* Constructor to initialize the speed and power of jump. Component will
 	* listen for key events and move the entity appropriately. This includes
+	* ~~~
 	* `Up Arrow`, `Right Arrow`, `Left Arrow` as well as W, A, D. Used with the
 	* `gravity` component to simulate jumping.
-	*
+	* ~~~
+	* 
 	* The key presses will move the entity in that direction by the speed passed in
 	* the argument. Pressing the `Up Arrow` or `W` will cause the entiy to jump.
+	* 
 	* @see Gravity, Fourway
 	*/
 	twoway: function (speed, jump) {

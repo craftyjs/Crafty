@@ -10,7 +10,7 @@
 				/(o)pera(?:.*version)?[ \/]([\w.]+)/.exec(ua) ||
 				/(ms)ie ([\w.]+)/.exec(ua) ||
 				/(moz)illa(?:.*? rv:([\w.]+))?/.exec(ua) || [],
-		mobile = /iPad|iPod|iPhone|Android|webOS/i.exec(ua);
+		mobile = /iPad|iPod|iPhone|Android|webOS|IEMobile/i.exec(ua);
 
 	if (mobile) Crafty.mobile = mobile[0];
 
@@ -127,6 +127,7 @@ Crafty.extend({
 	* passed for tile size.
 	*
 	* Entities that add the generated components are also given a component called `Sprite`.
+	* 
 	* @see Sprite
 	*/
 	sprite: function (tile, tileh, url, map, paddingX, paddingY) {
@@ -221,6 +222,7 @@ Crafty.extend({
 	* @param obj - Element to add the DOM event to
 	* @param event - Event name to bind to
 	* @param callback - Method to execute when triggered
+	* 
 	* Adds DOM level 3 events to elements. The arguments it accepts are the call
 	* context (the value of `this`), the DOM element to attach the event to,
 	* the event name (without `on` (`click` rather than `onclick`)) and
@@ -229,6 +231,7 @@ Crafty.extend({
 	* If no element is passed, the default element will be `window.document`.
 	*
 	* Callbacks are passed with event data.
+	* 
 	* @see Crafty.removeEvent
 	*/
 	addEvent: function (ctx, obj, type, callback) {
@@ -260,9 +263,11 @@ Crafty.extend({
 	* @param obj - Element the event is on
 	* @param event - Name of the event
 	* @param callback - Method executed when triggered
+	* 
 	* Removes events attached by `Crafty.addEvent()`. All parameters must
 	* be the same that were used to attach the event including a reference
 	* to the callback method.
+	* 
 	* @see Crafty.addEvent
 	*/
 	removeEvent: function (ctx, obj, type, callback) {
@@ -288,7 +293,8 @@ Crafty.extend({
 	* #Crafty.background
 	* @category Graphics, Stage
 	* @sign public void Crafty.background(String value)
-	* @param color - Modify the background with a color or image
+	* @param color - Modify the background with a color or image\
+	* 
 	* This method is essentially a shortcut for adding a background
 	* style to the stage element.
 	*/
@@ -299,6 +305,7 @@ Crafty.extend({
 	/**@
 	* #Crafty.viewport
 	* @category Stage
+	* 
 	* Viewport is essentially a 2D camera looking at the stage. Can be moved which
 	* in turn will react just like a camera moving in that direction.
 	*/
@@ -306,6 +313,7 @@ Crafty.extend({
 	/**@
 		* #Crafty.viewport.clampToEntities
 		* @comp Crafty.viewport
+		* 
 		* Decides if the viewport functions should clamp to game entities.
 		* When set to `true` functions such as Crafty.viewport.mouselook() will not allow you to move the
 		* viewport over areas of the game that has no entities.
@@ -317,6 +325,7 @@ Crafty.extend({
 		/**@
 		* #Crafty.viewport.x
 		* @comp Crafty.viewport
+		* 
 		* Will move the stage and therefore every visible entity along the `x`
 		* axis in the opposite direction.
 		*
@@ -328,6 +337,7 @@ Crafty.extend({
 		/**@
 		* #Crafty.viewport.y
 		* @comp Crafty.viewport
+		* 
 		* Will move the stage and therefore every visible entity along the `y`
 		* axis in the opposite direction.
 		*
@@ -345,12 +355,18 @@ Crafty.extend({
 		 * @param v - The new absolute position on the axis
 		 *
 		 * Will move the viewport to the position given on the specified axis
-		 * @example Crafty.viewport.scroll('_x', 500);
+		 * 
+		 * @example 
 		 * Will move the camera 500 pixels right of its initial position, in effect
 		 * shifting everything in the viewport 500 pixels to the left.
+		 * 
+		 * ~~~
+		 * Crafty.viewport.scroll('_x', 500);
+		 * ~~~
 		 */
 		scroll: function (axis, v) {
-			var change = Math.floor(v - this[axis]), //change in direction
+			v = Math.floor(v);
+			var change = v - this[axis], //change in direction
 				context = Crafty.canvas.context,
 				style = Crafty.stage.inner.style,
 				canvas;
@@ -363,14 +379,14 @@ Crafty.extend({
 				if (context) context.translate(0, change);
 			}
 			if (context) Crafty.DrawManager.drawAll();
-			style[axis == '_x' ? "left" : "top"] = Math.round(~~v) + "px";
+			style[axis == '_x' ? "left" : "top"] = v + "px";
 		},
 
 		rect: function () {
 			return { _x: -this._x, _y: -this._y, _w: this.width, _h: this.height };
 		},
 
-		/**
+		/**@
 		 * #Crafty.viewport.pan
 		 * @comp Crafty.viewport
 		 * @sign public void Crafty.viewport.pan(String axis, Number v, Number time)
@@ -421,7 +437,7 @@ Crafty.extend({
 			}
 		})(),
 
-		/**
+		/**@
 		 * #Crafty.viewport.follow
 		 * @comp Crafty.viewport
 		 * @sign public void Crafty.viewport.follow(Object target, Number offsetx, Number offsety)
@@ -431,9 +447,12 @@ Crafty.extend({
 		 *
 		 * Follows a given entity with the 2D component. If following target will take a portion of
 		 * the viewport out of bounds of the world, following will stop until the target moves away.
+		 * 
 		 * @example
+		 * ~~~
 		 * var ent = Crafty.e('2D, DOM').attr({w: 100, h: 100:});
 		 * Crafty.viewport.follow(ent, 0, 0);
+		 * ~~~
 		 */
 		follow: (function () {
 			var oldTarget, offx, offy;
@@ -460,7 +479,7 @@ Crafty.extend({
 			}
 		})(),
 
-		/**
+		/**@
 		 * #Crafty.viewport.centerOn
 		 * @comp Crafty.viewport
 		 * @sign public void Crafty.viewport.centerOn(Object target, Number time)
@@ -483,8 +502,15 @@ Crafty.extend({
 			Crafty.viewport.pan('x', new_x, time);
 			Crafty.viewport.pan('y', new_y, time);
 		},
+		/**@
+		* #Crafty.viewport._zoom
+		* @comp Crafty.viewport
+		* 
+		* This value keeps an amount of viewport zoom, required for calculating mouse position at entity
+		*/
+		_zoom : 1,
 
-		/**
+		/**@
 		 * #Crafty.viewport.zoom
 		 * @comp Crafty.viewport
 		 * @sign public void Crafty.viewport.zoom(Number amt, Number cent_x, Number cent_y, Number time)
@@ -528,8 +554,20 @@ Crafty.extend({
 						height: new_s.height - old.height
 					};
 					Crafty.stage.inner.style[prop] = 'scale(' + zoom + ',' + zoom + ')';
+					Crafty.stage.elem.style.width = new_s.width + "px";
+					Crafty.stage.elem.style.height = new_s.height + "px";
+
+					if (Crafty.canvas._canvas) {
+						Crafty.canvas._canvas.width = new_s.width;
+						Crafty.canvas._canvas.height = new_s.height;
+						Crafty.canvas.context.scale(zoom, zoom);
+						Crafty.DrawManager.drawAll();
+					}
+
 					Crafty.viewport.x -= diff.width * prct.width;
 					Crafty.viewport.y -= diff.height * prct.height;
+					Crafty.viewport.width = new_s.width;
+					Crafty.viewport.height = new_s.height;
 					dur--;
 				}
 			}
@@ -538,6 +576,7 @@ Crafty.extend({
 				var bounds = Crafty.map.boundaries(),
 					final_zoom = amt ? zoom * amt : 1;
 
+				this._zoom = final_zoom;
 				act.width = bounds.max.x - bounds.min.x;
 				act.height = bounds.max.y - bounds.min.y;
 
@@ -556,7 +595,7 @@ Crafty.extend({
 			}
 		})(),
 
-		/**
+		/**@
 		 * #Crafty.viewport.mouselook
 		 * @comp Crafty.viewport
 		 * @sign public void Crafty.viewport.mouselook(Boolean active)
@@ -652,10 +691,7 @@ Crafty.extend({
 		 * Initialize the viewport. If the arguments 'width' or 'height' are missing, or Crafty.mobile is true, use Crafty.DOM.window.width and Crafty.DOM.window.height (full screen model).
 		 * Create a div with id `cr-stage`, if there is not already an HTMLElement with id `cr-stage` (by `Crafty.viewport.init`).
 		 *
-		 * @see Crafty.mobile
-		 * @see Crafty.DOM.window.width
-		 * @see Crafty.DOM.window.height
-		 * @see Crafty.stage
+		 * @see Crafty.mobile, Crafty.DOM.window.width, Crafty.DOM.window.height, Crafty.stage
 		 */
 		init: function (w, h) {
 			Crafty.DOM.window.init();
@@ -836,6 +872,7 @@ Crafty.extend({
 	* #Crafty.keys
 	* @category Input
 	* Object of key names and the corresponding key code.
+	* 
 	* ~~~
 	* BACKSPACE: 8,
     * TAB: 9,
@@ -1021,6 +1058,7 @@ Crafty.extend({
 	* @category Input
 	* Object of mouseButton names and the corresponding button ID.
 	* In all mouseEvents we add the e.mouseButton property with a value normalized to match e.button of modern webkit
+	* 
 	* ~~~
 	* LEFT: 0,
 	* MIDDLE: 1,

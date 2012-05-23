@@ -1,24 +1,6 @@
 /**@
-* #.delay
-* @comp Crafty Time
-* @sign public this.delay(Function callback, Number delay)
-* @param callback - Method to execute after given amount of milliseconds
-* @param delay - Amount of milliseconds to execute the method
-* The delay method will execute a function after a given amount of time in milliseconds.
-* 
-* It is not a wrapper for `setTimeout`.
-* 
-* If Crafty is paused, the delay is interrupted with the pause and then resume when unpaused
-*
-* If the entity is destroyed, the delay is also destroyed and will not have effect. 
-*
-* @example
-* ~~~
-* console.log("start");
-* this.delay(function() {
-     console.log("100ms later");
-* }, 100);
-* ~~~
+* #Crafty Time
+* @category Utilities
 */
 Crafty.c("Delay", {
 	init : function() {
@@ -47,11 +29,29 @@ Crafty.c("Delay", {
 			}
 		});
 	},
-	/**@
-     * Set a new delay.
-     * @param func the callback function
-     * @param delay the delay in ms
-     */
+    /**@
+	* #.delay
+	* @comp Crafty Time
+	* @sign public this.delay(Function callback, Number delay)
+	* @param callback - Method to execute after given amount of milliseconds
+	* @param delay - Amount of milliseconds to execute the method
+	* 
+	* The delay method will execute a function after a given amount of time in milliseconds.
+	* 
+	* It is not a wrapper for `setTimeout`.
+	* 
+	* If Crafty is paused, the delay is interrupted with the pause and then resume when unpaused
+	*
+	* If the entity is destroyed, the delay is also destroyed and will not have effect. 
+	*
+	* @example
+	* ~~~
+	* console.log("start");
+	* this.delay(function() {
+	     console.log("100ms later");
+	* }, 100);
+	* ~~~
+	*/
 	delay : function(func, delay) {
 		return this._delays.push({
 			start : new Date().getTime(),
