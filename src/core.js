@@ -728,6 +728,17 @@
             return this;
         },
 
+        /**@
+        * #.getVersion
+        * @comp Crafty Core
+        * @sign public this .getVersion()
+        * @returns Actualy crafty version
+        *
+        * @example
+        * ~~~
+        * Crafty.getVersion(); //'0.4.8'
+        * ~~~
+        */
         getVersion: function () {
             return '0.4.8';
         },
