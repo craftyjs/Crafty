@@ -133,38 +133,44 @@ Crafty.extend({
 	},
 
 
-	/**@
-	* #Crafty.touchDispatch
-	* @category Input
-	* 
-	* TouchEvents have a different structure then MouseEvents.
-	* The relevant data lives in e.changedTouches[0].
-	* To normalize TouchEvents we catch em and dispatch a mock MouseEvent instead.
-	* 
-	* @see Crafty.mouseDispatch
-	*/
+    /**@
+    * #Crafty.touchDispatch
+    * @category Input
+    * 
+    * TouchEvents have a different structure then MouseEvents.
+    * The relevant data lives in e.changedTouches[0].
+    * To normalize TouchEvents we catch em and dispatch a mock MouseEvent instead.
+    * 
+    * @see Crafty.mouseDispatch
+    */
 
-	touchDispatch: function(e) {
+    touchDispatch: function(e) {
+        var type;
 
-		var type;
-		if (e.type === "touchstart") type = "mousedown";
-		else if (e.type === "touchmove") type = "mousemove";
-		else if (e.type === "touchend") type = "mouseup";
+        if (e.type === "touchstart") type = "mousedown";
+        else if (e.type === "touchmove") type = "mousemove";
+        else if (e.type === "touchend") type = "mouseup";
+        else if (e.type === "touchcancel") type = "mouseup";
+        else if (e.type === "touchleave") type = "mouseup";
+        
+        if(e.touches && e.touches.length) {
+            first = e.touches[0];
+        } else if(e.changedTouches && e.changedTouches.length) {
+            first = e.changedTouches[0];
+        }
 
-		var touch = e.changedTouches[0];
+        var simulatedEvent = document.createEvent("MouseEvent");
+        simulatedEvent.initMouseEvent(type, true, true, window, 1,
+            first.screenX, 
+            first.screenY,
+            first.clientX, 
+            first.clientY, 
+            false, false, false, false, 0, false
+        );
 
-		var mockup = document.createEvent("MouseEvents");
-		mockup.initMouseEvent(type, true, true, window, 0,
-			touch.screenX,
-			touch.screenY,
-			touch.clientX,
-			touch.clientY,
-			false, false, false, false, 0, e.target
-		);
-		mockup.target = e.target;
-
-		e.target.dispatchEvent(mockup);
-	},
+        first.target.dispatchEvent(simulatedEvent);
+        e.preventDefault();
+    },
 
 
 	/**@
@@ -245,6 +251,8 @@ Crafty.bind("Load", function () {
 	Crafty.addEvent(this, Crafty.stage.elem, "touchstart", Crafty.touchDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "touchmove", Crafty.touchDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "touchend", Crafty.touchDispatch);
+    Crafty.addEvent(this, Crafty.stage.elem, "touchcancel", Crafty.touchDispatch);
+    Crafty.addEvent(this, Crafty.stage.elem, "touchleave", Crafty.touchDispatch);
 });
 
 /**@
@@ -348,19 +356,24 @@ Crafty.c("Draggable", {
 	init: function () {
 		this.requires("Mouse");
 		this._ondrag = function (e) {
-			var pos = Crafty.DOM.translate(e.clientX, e.clientY);
-      if(this._dir) {
-        var len = (pos.x - this._origMouseDOMPos.x) * this._dir.x
-        + (pos.y - this._origMouseDOMPos.y) * this._dir.y;
-        this.x = this._oldX + len * this._dir.x;
-        this.y = this._oldY + len * this._dir.y;
-      } else {
-        this.x = this._oldX + (pos.x - this._origMouseDOMPos.x);
-        this.y = this._oldY + (pos.y - this._origMouseDOMPos.y);
-      }
+            var pos = Crafty.DOM.translate(e.clientX, e.clientY);
 
-			this.trigger("Dragging", e);
-		};
+            // ignore invalid 0 0 position - strange problem on ipad
+            if (pos.x == 0 || pos.y == 0) {
+                return false;
+            }
+
+            if(this._dir) {
+                var len = (pos.x - this._origMouseDOMPos.x) * this._dir.x + (pos.y - this._origMouseDOMPos.y) * this._dir.y;
+                this.x = this._oldX + len * this._dir.x;
+                this.y = this._oldY + len * this._dir.y;
+            } else {
+                this.x = this._oldX + (pos.x - this._origMouseDOMPos.x);
+                this.y = this._oldY + (pos.y - this._origMouseDOMPos.y);
+            }
+
+            this.trigger("Dragging", e);
+        };
 
 		this._ondown = function (e) {
 			if (e.mouseButton !== Crafty.mouseButtons.LEFT) return;
