@@ -719,7 +719,9 @@ Crafty.c("Fourway", {
 			W: -90,
 			S: 90,
 			D: 0,
-			A: 180
+			A: 180,
+			Z: -90,
+			Q: 180
 		});
 
 		return this;
@@ -767,7 +769,8 @@ Crafty.c("Twoway", {
 			RIGHT_ARROW: 0,
 			LEFT_ARROW: 180,
 			D: 0,
-			A: 180
+			A: 180,
+			Q: 180
 		});
 
 		if (speed) this._speed = speed;
@@ -780,7 +783,7 @@ Crafty.c("Twoway", {
 				this._falling = true;
 			}
 		}).bind("KeyDown", function () {
-			if (this.isDown("UP_ARROW") || this.isDown("W")) this._up = true;
+			if (this.isDown("UP_ARROW") || this.isDown("W") || this.isDown("Z")) this._up = true;
 		});
 
 		return this;
