@@ -823,8 +823,7 @@ Crafty.extend({
 				elem.top = "0px";
 
 				var meta = document.createElement("meta"),
-					head = document.getElementsByTagName("HEAD")[0],
-					body = document.getElementsByTagName("BODY")[0];
+					head = document.getElementsByTagName("HEAD")[0];
 
 				//stop mobile zooming and scrolling
 				meta.setAttribute("name", "viewport");
