@@ -871,7 +871,7 @@ Crafty.extend({
 		},
 
 		/**@
-		 * #Crafty.viwport.reload
+		 * #Crafty.viewport.reload
 		 * @comp Crafty.stage
 		 * 
 		 * Recalculate and reload stage width, height and position.
