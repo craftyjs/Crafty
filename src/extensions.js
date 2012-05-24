@@ -771,30 +771,7 @@ Crafty.extend({
 				Crafty.stage.fullscreen = true;
 			}
 
-			Crafty.addEvent(this, window, "resize", function () {
-				Crafty.DOM.window.init();
-				var w = Crafty.DOM.window.width,
-					h = Crafty.DOM.window.height,
-					offset;
-
-
-				if (Crafty.stage.fullscreen) {
-					this.width = w;
-					this.height = h;
-					Crafty.stage.elem.style.width = w + "px";
-					Crafty.stage.elem.style.height = h + "px";
-
-					if (Crafty.canvas._canvas) {
-						Crafty.canvas._canvas.width = w;
-						Crafty.canvas._canvas.height = h;
-						Crafty.DrawManager.drawAll();
-					}
-				}
-
-				offset = Crafty.DOM.inner(Crafty.stage.elem);
-				Crafty.stage.x = offset.x;
-				Crafty.stage.y = offset.y;
-			});
+			Crafty.addEvent(this, window, "resize", Crafty.viewport.reload);
 
 			Crafty.addEvent(this, window, "blur", function () {
 				if (Crafty.settings.get("autoPause")) {
@@ -891,6 +868,39 @@ Crafty.extend({
 				this.y = this._y;
 				Crafty.e("viewport");
 			}
+		},
+
+		/**@
+		 * #Crafty.viewport.reload
+		 * @comp Crafty.stage
+		 * 
+		 * Recalculate and reload stage width, height and position.
+		 * Useful when browser return wrong results on init (like safari on Ipad2).
+		 * 
+		 */
+		reload : function () {
+			Crafty.DOM.window.init();
+			var w = Crafty.DOM.window.width,
+				h = Crafty.DOM.window.height,
+				offset;
+
+
+			if (Crafty.stage.fullscreen) {
+				this.width = w;
+				this.height = h;
+				Crafty.stage.elem.style.width = w + "px";
+				Crafty.stage.elem.style.height = h + "px";
+
+				if (Crafty.canvas._canvas) {
+					Crafty.canvas._canvas.width = w;
+					Crafty.canvas._canvas.height = h;
+					Crafty.DrawManager.drawAll();
+				}
+			}
+
+			offset = Crafty.DOM.inner(Crafty.stage.elem);
+			Crafty.stage.x = offset.x;
+			Crafty.stage.y = offset.y;
 		}
 	},
 
