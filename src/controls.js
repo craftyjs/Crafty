@@ -165,7 +165,7 @@ Crafty.extend({
             first.screenY,
             first.clientX, 
             first.clientY, 
-            false, false, false, false, 0, false
+            false, false, false, false, 0, e.relatedTarget
         );
 
         first.target.dispatchEvent(simulatedEvent);
