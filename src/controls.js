@@ -169,7 +169,6 @@ Crafty.extend({
         );
 
         first.target.dispatchEvent(simulatedEvent);
-        e.preventDefault();
     },
 
 
