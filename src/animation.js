@@ -180,10 +180,13 @@ Crafty.c("SpriteAnimation", {
 				this._frame.frameNumberBetweenSlides = 0;
 				this._frame.currentSlideNumber = 0;
 			} else {
-				this.trigger("AnimationEnd", { reel: data.currentReel });
-				this.stop();
-				return;
+				if (this._frame.frameNumberBetweenSlides === data.numberOfFramesBetweenSlides) {
+				    this.trigger("AnimationEnd", { reel: data.currentReel });
+				    this.stop();
+				    return;
+                }
 			}
+
 		}
 
 		this.trigger("Change");
