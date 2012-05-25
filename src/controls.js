@@ -389,10 +389,12 @@ Crafty.c("Draggable", {
 		};
 
 		this._onup = function upper(e) {
-			Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
-			Crafty.removeEvent(this, Crafty.stage.elem, "mouseup", this._onup);
-			this._dragging = false;
-			this.trigger("StopDrag", e);
+            if (this._dragging == true) {
+                Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
+			    Crafty.removeEvent(this, Crafty.stage.elem, "mouseup", this._onup);
+			    this._dragging = false;
+    			this.trigger("StopDrag", e);
+            }
 		};
 
 		this.enableDrag();
