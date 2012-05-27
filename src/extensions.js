@@ -176,11 +176,11 @@ Crafty.extend({
 		paddingX = parseInt(paddingX || 0, 10); //just incase
 		paddingY = parseInt(paddingY || 0, 10);
 
-		img = Crafty.assets[url];
+		img = Crafty.asset(url);
 		if (!img) {
 			img = new Image();
 			img.src = url;
-			Crafty.assets[url] = img;
+			Crafty.asset(url, img);
 			img.onload = function () {
 				//all components with this img are now ready
 				for (spriteName in map) {

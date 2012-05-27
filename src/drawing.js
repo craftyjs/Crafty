@@ -162,11 +162,10 @@ Crafty.c("Image", {
 		this.__image = url;
 		this._repeat = repeat || "no-repeat";
 
-
-		this.img = Crafty.assets[url];
+		this.img = Crafty.asset(url);
 		if (!this.img) {
 			this.img = new Image();
-			Crafty.assets[url] = this.img;
+			Crafty.asset(url, this.img);
 			this.img.src = url;
 			var self = this;
 
