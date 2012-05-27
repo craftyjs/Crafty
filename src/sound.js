@@ -105,7 +105,7 @@ Crafty.extend({
                         ext = path.substr(path.lastIndexOf('.') + 1).toLowerCase();
                         if(this.supported[ext]){
                             audio.src = path;
-                            if (!Crafty.assets[path]) Crafty.assets[path] = audio; 
+                            Crafty.asset(path, audio); 
                             this.sounds[i] = {
                                 obj:audio,
                                 played:0
@@ -125,7 +125,7 @@ Crafty.extend({
                     ext = url.substr(url.lastIndexOf('.') + 1).toLowerCase();
                     if(this.supported[ext]){
                         audio.src = url;
-                        if (!Crafty.assets[url]) Crafty.assets[url] = audio;  
+                        Crafty.asset(url, audio);  
                         this.sounds[id] = {
                             obj:audio,
                             played:0
@@ -145,7 +145,7 @@ Crafty.extend({
                         ext = path.substr(path.lastIndexOf('.') + 1).toLowerCase();	
                         if(this.supported[ext]){
                             audio.src = path;
-                            if (!Crafty.assets[path]) Crafty.assets[path] = audio;   
+                            Crafty.asset(path, audio);   
                             this.sounds[id] = {
                                 obj:audio,
                                 played:0
