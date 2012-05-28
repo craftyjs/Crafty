@@ -4,6 +4,7 @@ Crafty.extend({
 	mousePos: {},
 	lastEvent: null,
 	keydown: {},
+	selected: false,
 
 	/**@
 	* #Crafty.keydown
@@ -24,7 +25,20 @@ Crafty.extend({
 	* @see Keyboard, Crafty.keys
 	*/
 
+	detectBlur: function (e) {
+		var selected = ((e.clientX > Crafty.stage.x && e.clientX < Crafty.stage.x + Crafty.viewport.width) &&
+                    (e.clientY > Crafty.stage.y && e.clientY < Crafty.stage.y + Crafty.viewport.height));
+
+		if (!Crafty.selected && selected)
+			Crafty.trigger("CraftyFocus");
+		if (Crafty.selected && !selected)
+			Crafty.trigger("CraftyBlur");
+
+		Crafty.selected = selected;
+	},
+
 	mouseDispatch: function (e) {
+		
 		if (!Crafty.mouseObjs) return;
 		Crafty.lastEvent = e;
 
@@ -225,10 +239,11 @@ Crafty.extend({
 			Crafty.trigger("KeyUp", e);
 		}
 
-		//prevent default actions for all keys except backspace and F1-F12
-		//among others this prevent the arrow keys from scrolling the page
-		if((e.metaKey || e.altKey || e.ctrlKey) && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
-			console.log(e);
+		//prevent default actions for all keys except backspace and F1-F12.
+		//Among others this prevent the arrow keys from scrolling the parent page
+		//of an iframe hosting the game
+		if(Crafty.selected && (e.metaKey || e.altKey || e.ctrlKey) && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
+			e.stopPropagation();
 			if(e.preventDefault) e.preventDefault();
 			else e.returnValue = false;
 			return false;
@@ -243,6 +258,7 @@ Crafty.bind("Load", function () {
 
 	Crafty.addEvent(this, Crafty.stage.elem, "mousedown", Crafty.mouseDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "mouseup", Crafty.mouseDispatch);
+	Crafty.addEvent(this, document.body, "mouseup", Crafty.detectBlur);
 	Crafty.addEvent(this, Crafty.stage.elem, "mousemove", Crafty.mouseDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "click", Crafty.mouseDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "dblclick", Crafty.mouseDispatch);
