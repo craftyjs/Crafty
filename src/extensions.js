@@ -571,6 +571,7 @@ Crafty.extend({
 						height: act.height * zoom
 					};
 					zoom += zoom_tick;
+					this._zoom = zoom;
 					var new_s = {
 						width: act.width * zoom,
 						height: act.height * zoom
@@ -580,20 +581,12 @@ Crafty.extend({
 						height: new_s.height - old.height
 					};
 					Crafty.stage.inner.style[prop] = 'scale(' + zoom + ',' + zoom + ')';
-					Crafty.stage.elem.style.width = new_s.width + "px";
-					Crafty.stage.elem.style.height = new_s.height + "px";
-
 					if (Crafty.canvas._canvas) {
-						Crafty.canvas._canvas.width = new_s.width;
-						Crafty.canvas._canvas.height = new_s.height;
 						Crafty.canvas.context.scale(zoom, zoom);
 						Crafty.DrawManager.drawAll();
 					}
-
 					Crafty.viewport.x -= diff.width * prct.width;
 					Crafty.viewport.y -= diff.height * prct.height;
-					Crafty.viewport.width = new_s.width;
-					Crafty.viewport.height = new_s.height;
 					dur--;
 				}
 			}
@@ -602,7 +595,6 @@ Crafty.extend({
 				var bounds = Crafty.map.boundaries(),
 					final_zoom = amt ? zoom * amt : 1;
 
-				this._zoom = final_zoom;
 				act.width = bounds.max.x - bounds.min.x;
 				act.height = bounds.max.y - bounds.min.y;
 
@@ -620,7 +612,45 @@ Crafty.extend({
 				}
 			}
 		})(),
+		/**@
+		 * #Crafty.viewport.scale
+		 * @comp Crafty.viewport
+		 * @sign public void Crafty.viewport.scale(Number amt)
+		 * @param Number amt - amount to zoom/scale in on the element on the viewport by (eg. 2, 4, 0.5)
+		 *
+		 * Zooms/scale the camera. amt > 1 increase scale 
+		 * amt < 1 will scale to small. amt = 0 will reset the zoom/scale.
+		 * Zooming/scaling is multiplicative. To reset the zoom/scale amount, pass 0.
+		 */
+		scale: (function () {
+			var prop = Crafty.support.prefix + "Transform",
+				act = {};
+			return function (amt) {
+				var bounds = Crafty.map.boundaries(),
+					final_zoom = amt ? this._zoom * amt : 1;
 
+				this._zoom = final_zoom;
+				act.width = bounds.max.x - bounds.min.x;
+				act.height = bounds.max.y - bounds.min.y;
+				var new_s = {
+					width: act.width * final_zoom,
+					height: act.height * final_zoom
+				}
+				Crafty.viewport.pan('reset');
+				Crafty.stage.inner.style[prop] = 'scale(' + this._zoom + ',' + this._zoom + ')';
+				Crafty.stage.elem.style.width = new_s.width + "px";
+				Crafty.stage.elem.style.height = new_s.height + "px";
+
+				if (Crafty.canvas._canvas) {
+					Crafty.canvas._canvas.width = new_s.width;
+					Crafty.canvas._canvas.height = new_s.height;
+					Crafty.canvas.context.scale(this._zoom, this._zoom);
+					Crafty.DrawManager.drawAll();
+				}
+				Crafty.viewport.width = new_s.width;
+				Crafty.viewport.height = new_s.height;
+			}
+		})(),
 		/**@
 		 * #Crafty.viewport.mouselook
 		 * @comp Crafty.viewport
