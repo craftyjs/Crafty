@@ -618,9 +618,14 @@ Crafty.extend({
 		 * @sign public void Crafty.viewport.scale(Number amt)
 		 * @param Number amt - amount to zoom/scale in on the element on the viewport by (eg. 2, 4, 0.5)
 		 *
-		 * Zooms/scale the camera. amt > 1 increase scale 
-		 * amt < 1 will scale to small. amt = 0 will reset the zoom/scale.
+		 * Zooms/scale the camera. amt > 1 increase all entities on stage 
+		 * amt < 1 will reduce all entities on stage. amt = 0 will reset the zoom/scale.
 		 * Zooming/scaling is multiplicative. To reset the zoom/scale amount, pass 0.
+		 *
+		 * @example
+		 * ~~~
+		 * Crafty.viewport.scale(2); //to see effect add some entities on stage.
+		 * ~~~
 		 */
 		scale: (function () {
 			var prop = Crafty.support.prefix + "Transform",
