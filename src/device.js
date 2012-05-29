@@ -1,7 +1,7 @@
 Crafty.extend({
     /**@
     * #Crafty.device
-    * @category Utilities
+    * @category Misc
     */
     device : {
         _deviceOrientationCallback : false,
