@@ -322,8 +322,9 @@ Crafty.extend({
 		})();
 
 		var modules = [];
+		var validBase = /^(https?|file):\/\//;
 		for (var i in moduleMap) {
-			if (i.indexOf("http://") != -1)
+			if (validBase.test(i))
 				modules.push(i)
 			else
 				modules.push(modulesRepository + '/' + i.toLowerCase() + '-' + moduleMap[i].toLowerCase() + '.js');
