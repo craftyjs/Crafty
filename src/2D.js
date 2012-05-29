@@ -674,7 +674,7 @@ Crafty.c("2D", {
 	},
         
         /**@
-	* #.flip
+	* #.unflip
 	* @comp 2D
 	* @trigger Change - when the entity has unflipped
 	* @sign public this .unflip(String dir)
