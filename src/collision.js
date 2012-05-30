@@ -4,20 +4,27 @@
 * Component to detect collision between any two convex polygons.
 */
 Crafty.c("Collision", {
+    /**@
+     * #.init
+     * @comp Collision
+     * Create a rectangle polygon based on the x, y, w, h dimensions.
+     */
+    init: function () {
+        this.requires("2D");
+        var area = this._mbr || this;
 
-	init: function () {
-		this.requires("2D");
-	},
+        poly = new Crafty.polygon([0, 0], [area._w, 0], [area._w, area._h], [0, area._h]);
+        this.map = poly;
+        this.attach(this.map);
+        this.map.shift(area._x, area._y);
+    },
 
 	/**@
 	* #.collision
 	* @comp Collision
 	* @sign public this .collision([Crafty.polygon polygon])
 	* @param polygon - Crafty.polygon object that will act as the hit area
-	* Constructor takes a polygon to use as the hit area. If left empty,
-	* will create a rectangle polygon based on the x, y, w, h dimensions.
-	*
-	* This must be called before any .hit() or .onhit() methods.
+	* Constructor takes a polygon to use as the hit area.
 	*
 	* The hit area (polygon) must be a convex shape and not concave
 	* for the collision detection to work.
@@ -34,10 +41,16 @@ Crafty.c("Collision", {
 	collision: function (poly) {
 		var area = this._mbr || this;
 
-		//if no polygon presented, create a square
 		if (!poly) {
-			poly = new Crafty.polygon([0, 0], [area._w, 0], [area._w, area._h], [0, area._h]);
+			return this;
 		}
+        
+        if (arguments.length > 1) {
+            //convert args to array to create polygon
+            var args = Array.prototype.slice.call(arguments, 0);
+            poly = new Crafty.polygon(args);
+        }
+
 		this.map = poly;
 		this.attach(this.map);
 		this.map.shift(area._x, area._y);
