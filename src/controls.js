@@ -85,8 +85,8 @@ Crafty.extend({
 				if (dupes[current[0]]) continue;
 				else dupes[current[0]] = true;
 
-				if (current.map) {
-					if (current.map.containsPoint(x, y)) {
+				if (current.mapArea) {
+					if (current.mapArea.containsPoint(x, y)) {
 						flag = true;
 					}
 				} else if (current.isAt(x, y)) flag = true;
