@@ -22,9 +22,14 @@ Crafty.c("Collision", {
 	/**@
 	* #.collision
 	* @comp Collision
+	* 
 	* @sign public this .collision([Crafty.polygon polygon])
 	* @param polygon - Crafty.polygon object that will act as the hit area
-	* Constructor takes a polygon to use as the hit area.
+	* 
+	* @sign public this .collision(Array point1, .., Array pointN)
+	* @param point# - Array with an `x` and `y` position to generate a polygon
+	* 
+	* Constructor takes a polygon or array of points to use as the hit area.
 	*
 	* The hit area (polygon) must be a convex shape and not concave
 	* for the collision detection to work.
@@ -34,6 +39,8 @@ Crafty.c("Collision", {
 	* Crafty.e("2D, Collision").collision(
 	*     new Crafty.polygon([50,0], [100,100], [0,100])
 	* );
+    * 
+    * Crafty.e("2D, Collision").collision([50,0], [100,100], [0,100]);
 	* ~~~
 	* 
 	* @see Crafty.polygon
@@ -51,12 +58,12 @@ Crafty.c("Collision", {
             poly = new Crafty.polygon(args);
         }
 
-		this.map = poly;
-		this.attach(this.map);
-		this.map.shift(area._x, area._y);
+        this.map = poly;
+        this.attach(this.map);
+        this.map.shift(area._x, area._y);
 
-		return this;
-	},
+        return this;
+    },
 
 	/**@
 	* #.hit
