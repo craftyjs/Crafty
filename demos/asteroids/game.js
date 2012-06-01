@@ -12,6 +12,8 @@ $(document).ready(function() {
 			medium: [2,0],
 			small: [3,0]
 		});
+
+		Crafty.audio.add("Blaster", ["space-blaster.wav", "space-blaster.mp3"])
 		
 		//start the main scene when loaded
 		Crafty.scene("main");
@@ -39,7 +41,9 @@ $(document).ready(function() {
 					this.move.left = true;
 				} else if(e.keyCode === Crafty.keys.UP_ARROW) {
 					this.move.up = true;
-				} else if(e.keyCode === Crafty.keys.SPACE) {
+				} else if (e.keyCode === Crafty.keys.SPACE) {
+					console.log("Blast");
+					Crafty.audio.play("Blaster");
 					//create a bullet entity
 					Crafty.e("2D, DOM, Color, bullet")
 						.attr({
