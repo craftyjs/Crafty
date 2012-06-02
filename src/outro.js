@@ -1,1 +1,1 @@
-})(Crafty,window,window.document);
+});

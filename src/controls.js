@@ -268,6 +268,27 @@ Crafty.bind("Load", function () {
 	Crafty.addEvent(this, Crafty.stage.elem, "touchend", Crafty.touchDispatch);
     Crafty.addEvent(this, Crafty.stage.elem, "touchcancel", Crafty.touchDispatch);
     Crafty.addEvent(this, Crafty.stage.elem, "touchleave", Crafty.touchDispatch);
+   });
+
+Crafty.bind("CraftyStop", function () {
+	Crafty.removeEvent(this, "keydown", Crafty.keyboardDispatch);
+	Crafty.removeEvent(this, "keyup", Crafty.keyboardDispatch);
+
+	if (Crafty.stage) {
+		Crafty.removeEvent(this, Crafty.stage.elem, "mousedown", Crafty.mouseDispatch);
+		Crafty.removeEvent(this, Crafty.stage.elem, "mouseup", Crafty.mouseDispatch);
+		Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", Crafty.mouseDispatch);
+		Crafty.removeEvent(this, Crafty.stage.elem, "click", Crafty.mouseDispatch);
+		Crafty.removeEvent(this, Crafty.stage.elem, "dblclick", Crafty.mouseDispatch);
+
+		Crafty.removeEvent(this, Crafty.stage.elem, "touchstart", Crafty.touchDispatch);
+		Crafty.removeEvent(this, Crafty.stage.elem, "touchmove", Crafty.touchDispatch);
+		Crafty.removeEvent(this, Crafty.stage.elem, "touchend", Crafty.touchDispatch);
+		Crafty.removeEvent(this, Crafty.stage.elem, "touchcancel", Crafty.touchDispatch);
+		Crafty.removeEvent(this, Crafty.stage.elem, "touchleave", Crafty.touchDispatch);
+	}
+
+	Crafty.removeEvent(this, document.body, "mouseup", Crafty.detectBlur);
 });
 
 /**@
