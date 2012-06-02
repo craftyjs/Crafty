@@ -617,13 +617,6 @@ Crafty.c("Multiway", {
 		}
 	},
 
-	init: function () {
-		this._keyDirection = {};
-		this._keys = {};
-		this._movement = { x: 0, y: 0 };
-		this._speed = { x: 3, y: 3 };
-	},
-
 	/**@
 	* #.multiway
 	* @comp Multiway
@@ -643,6 +636,11 @@ Crafty.c("Multiway", {
 	* ~~~
 	*/
 	multiway: function (speed, keys) {
+		this._keyDirection = {};
+		this._keys = {};
+		this._movement = { x: 0, y: 0 };
+		this._speed = { x: 3, y: 3 };
+
 		if (keys) {
 			if (speed.x && speed.y) {
 				this._speed.x = speed.x;
