@@ -656,6 +656,7 @@ Crafty.c("Multiway", {
 		this._keyDirection = keys;
 		this.speed(this._speed);
 
+		this.disableControl();
 		this.enableControl();
 
 		//Apply movement if key is down when created
