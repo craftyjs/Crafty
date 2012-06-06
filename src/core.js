@@ -1,4 +1,4 @@
-(function (window, undefined) {
+(function (window, initComponents, undefined) {
     /**@
     * #Crafty
     * @category Core
@@ -29,32 +29,39 @@
         return new Crafty.fn.init(selector);
     },
 
-    GUID = 1, //GUID for entity IDs
-    FPS = 50,
-    frame = 1,
+    GUID, FPS, frame, components, entities, handlers, onloads, tick, requestID,
+	noSetter, loops, milliSecPerFrame, nextGameTick, slice, rlist, rspace,
 
-    components = {}, //map of components and their functions
-    entities = {}, //map of entities and their data
-    handlers = {}, //global event handlers
-    onloads = [], //temporary storage of onload handlers
-    tick,
+	initState = function () {
+    	GUID = 1; //GUID for entity IDs
+    	FPS = 50;
+    	frame = 1;
 
-    /*
-    * `window.requestAnimationFrame` or its variants is called for animation.
-    * `.requestID` keeps a record of the return value previous `window.requestAnimationFrame` call.
-    * This is an internal variable. Used to stop frame.
-    */
-    requestID,
+    	components = {}; //map of components and their functions
+    	entities = {}; //map of entities and their data
+    	handlers = {}; //global event handlers
+    	onloads = []; //temporary storage of onload handlers
+    	tick;
 
-    noSetter,
+    	/*
+		* `window.requestAnimationFrame` or its variants is called for animation.
+		* `.requestID` keeps a record of the return value previous `window.requestAnimationFrame` call.
+		* This is an internal variable. Used to stop frame.
+		*/
+    	requestID;
 
-    loops = 0,
-    milliSecPerFrame = 1000 / FPS,
-    nextGameTick = (new Date).getTime(),
+    	noSetter;
 
-    slice = Array.prototype.slice,
-    rlist = /\s*,\s*/,
-    rspace = /\s+/;
+    	loops = 0;
+    	milliSecPerFrame = 1000 / FPS;
+    	nextGameTick = (new Date).getTime();
+
+    	slice = Array.prototype.slice;
+    	rlist = /\s*,\s*/;
+    	rspace = /\s+/;
+    };
+
+    initState();
 
     /**@
     * #Crafty Core
@@ -736,29 +743,38 @@
         *
         * @example
         * ~~~
-        * Crafty.getVersion(); //'0.4.8'
+        * Crafty.getVersion(); //'0.4.9'
         * ~~~
         */
         getVersion: function () {
-            return '0.4.8';
+            return '0.4.9';
         },
 
         /**@
         * #Crafty.stop
         * @category Core
         * @trigger CraftyStop - when the game is stopped
-        * @sign public this Crafty.stop(void)
-        * 
+        * @sign public this Crafty.stop([bool clearState])
+		* @param clearState - if true the stage and all game state is cleared.
+        *
         * Stops the EnterFrame interval and removes the stage element.
         *
         * To restart, use `Crafty.init()`.
         * @see Crafty.init
         */
-        stop: function () {
-            this.timer.stop();
-            Crafty.stage.elem.parentNode.removeChild(Crafty.stage.elem);
+        stop: function (clearState) {
+        	this.timer.stop();
+        	if (clearState) {
+        		if (Crafty.stage && Crafty.stage.elem.parentNode) {
+        			var newCrStage = document.createElement('div');
+        			newCrStage.id = "cr-stage";
+        			Crafty.stage.elem.parentNode.replaceChild(newCrStage, Crafty.stage.elem);
+        		}
+        		initState();
+        		initComponents(Crafty, window, window.document);
+        	}
 
-            return this;
+        	return this;
         },
 
         /**@
@@ -1203,6 +1219,8 @@
         }
     });
 
+    initComponents(Crafty, window, window.document);
+
     //make Crafty global
     window.Crafty = Crafty;
-})(window);
+})(window,

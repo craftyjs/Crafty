@@ -10,8 +10,11 @@ Crafty.c("DOM", {
 	* The DOM element used to represent the entity.
 	*/
 	_element: null,
+	//holds current styles, so we can check if there are changes to be written to the DOM
+	_cssStyles: null,
 
 	init: function () {
+		this._cssStyles = { visibility: '', left: '', top: '', width: '', height: '', zIndex: '', opacity: '', transformOrigin: '', transform: '' };
 		this._element = document.createElement("div");
 		Crafty.stage.inner.appendChild(this._element);
 		this._element.style.position = "absolute";
@@ -100,23 +103,47 @@ Crafty.c("DOM", {
 			prefix = Crafty.support.prefix,
 			trans = [];
 
-		if (!this._visible) style.visibility = "hidden";
-		else style.visibility = "visible";
+		if (this._cssStyles.visibility != this._visible) {
+			this._cssStyles.visibility = this._visible;
+			if (!this._visible) {
+				style.visibility = "hidden";
+			} else {
+				style.visibility = "visible";
+			}
+		}
 
 		//utilize CSS3 if supported
 		if (Crafty.support.css3dtransform) {
 			trans.push("translate3d(" + (~~this._x) + "px," + (~~this._y) + "px,0)");
 		} else {
-			style.left = ~~(this._x) + "px";
-			style.top = ~~(this._y) + "px";
+			if (this._cssStyles.left != this._x) {
+				this._cssStyles.left = this._x;
+				style.left = ~~(this._x) + "px";
+			}
+			if (this._cssStyles.top != this._y) {
+				this._cssStyles.top = this._y;
+				style.top = ~~(this._y) + "px";
+			}
 		}
 
-		style.width = ~~(this._w) + "px";
-		style.height = ~~(this._h) + "px";
-		style.zIndex = this._z;
+		if (this._cssStyles.width != this._w) {
+			this._cssStyles.width = this._w;
+			style.width = ~~(this._w) + "px";
+		}
+		if (this._cssStyles.height != this._h) {
+			this._cssStyles.height = this._h;
+			style.height = ~~(this._h) + "px";
+		}
+		if (this._cssStyles.zIndex != this._z) {
+			this._cssStyles.zIndex = this._z;
+			style.zIndex = this._z;
+		}
 
-		style.opacity = this._alpha;
-		style[prefix + "Opacity"] = this._alpha;
+		if (this._cssStyles.opacity != this._alpha) {
+			this._cssStyles.opacity = this._alpha;
+			style.opacity = this._alpha;
+			style[prefix + "Opacity"] = this._alpha;
+		}
 
 		//if not version 9 of IE
 		if (prefix === "ms" && Crafty.support.version < 9) {
@@ -156,8 +183,11 @@ Crafty.c("DOM", {
 			this.applyFilters();
 		}
 
-		style.transform = trans.join(" ");
-		style[prefix + "Transform"] = trans.join(" ");
+		if (this._cssStyles.transform != trans.join(" ")) {
+			this._cssStyles.transform = trans.join(" ");
+			style.transform = this._cssStyles.transform;
+			style[prefix + "Transform"] = this._cssStyles.transform;
+		}
 
 		this.trigger("Draw", { style: style, type: "DOM", co: co });
 
