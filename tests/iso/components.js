@@ -1,6 +1,6 @@
 Crafty.c("BaseTile",{
     init:function(){
-        this.addComponent("2D","Canvas","DiamondIso");
+        this.addComponent("2D","DOM","DiamondIso");
         this.iso = {
             width: 64,
             depth: 64,
