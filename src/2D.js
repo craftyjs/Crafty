@@ -667,8 +667,32 @@ Crafty.c("2D", {
 	*/
 	flip: function (dir) {
 		dir = dir || "X";
-		this["_flip" + dir] = true;
-		this.trigger("Change");
+                if(!this["_flip" + dir]) {
+                    this["_flip" + dir] = true;
+                    this.trigger("Change");
+                }
+	},
+        
+        /**@
+	* #.unflip
+	* @comp 2D
+	* @trigger Change - when the entity has unflipped
+	* @sign public this .unflip(String dir)
+	* @param dir - Unflip direction
+	* 
+	* Unflip entity on passed direction (if it's flipped)
+	* 
+	* @example
+	* ~~~
+	* this.unflip("X")
+	* ~~~
+	*/
+	unflip: function (dir) {
+		dir = dir || "X";
+                if(this["_flip" + dir]) {
+                    this["_flip" + dir] = false;
+                    this.trigger("Change");
+                }
 	},
 
 	/**
@@ -797,7 +821,7 @@ Crafty.c("Gravity", {
 	_enterFrame: function () {
 		if (this._falling) {
 			//if falling, move the players Y
-			this._gy += this._gravityConst * 2;
+			this._gy += this._gravityConst;
 			this.y += this._gy;
 		} else {
 			this._gy = 0; //reset change in y

@@ -174,16 +174,19 @@ Crafty.c("SpriteAnimation", {
 
 
 		if (data.currentSlideNumber === data.currentReel.length) {
-			data.currentSlideNumber = 0;
+			
 			if (this._frame.repeatInfinitly === true || this._frame.repeat > 0) {
 				if (this._frame.repeat) this._frame.repeat--;
 				this._frame.frameNumberBetweenSlides = 0;
 				this._frame.currentSlideNumber = 0;
 			} else {
-				this.trigger("AnimationEnd", { reel: data.currentReel });
-				this.stop();
-				return;
+				if (this._frame.frameNumberBetweenSlides === data.numberOfFramesBetweenSlides) {
+				    this.trigger("AnimationEnd", { reel: data.currentReel });
+				    this.stop();
+				    return;
+                }
 			}
+
 		}
 
 		this.trigger("Change");
