@@ -21,21 +21,18 @@ Crafty.extend({
          * @see Crafty.isometric.place
          */
         init: function (width, height,orientation) {
-            var w = width;h = height || width/2;
+   
             switch(orientation){
                 case 'staggered':{
                      
                         break;
                 }
                 default:{
-                        this._iso = Crafty.diamond.init(w,h);
+                        this._iso = Crafty.diamond.init(width,height);
                 }
             }
-         
-            return this;
-        },
-        place:function(x,y,z){
-            this._iso.place(x,y,z);
+            
+            return this._iso;
         }
     }
 });
