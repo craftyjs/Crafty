@@ -1,2 +1,2 @@
 //wrap around components
-(function(Crafty, window, document) {
+function(Crafty, window, document) {

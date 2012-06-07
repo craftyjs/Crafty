@@ -667,8 +667,32 @@ Crafty.c("2D", {
 	*/
 	flip: function (dir) {
 		dir = dir || "X";
-		this["_flip" + dir] = true;
-		this.trigger("Change");
+                if(!this["_flip" + dir]) {
+                    this["_flip" + dir] = true;
+                    this.trigger("Change");
+                }
+	},
+        
+        /**@
+	* #.unflip
+	* @comp 2D
+	* @trigger Change - when the entity has unflipped
+	* @sign public this .unflip(String dir)
+	* @param dir - Unflip direction
+	* 
+	* Unflip entity on passed direction (if it's flipped)
+	* 
+	* @example
+	* ~~~
+	* this.unflip("X")
+	* ~~~
+	*/
+	unflip: function (dir) {
+		dir = dir || "X";
+                if(this["_flip" + dir]) {
+                    this["_flip" + dir] = false;
+                    this.trigger("Change");
+                }
 	},
 
 	/**
@@ -767,7 +791,7 @@ Crafty.c("Gravity", {
 	gravity: function (comp) {
 		if (comp) this._anti = comp;
 
-		this.bind("EnterFrame", this._enterframe);
+		this.bind("EnterFrame", this._enterFrame);
 
 		return this;
 	},
@@ -794,11 +818,9 @@ Crafty.c("Gravity", {
 		return this;
 	},
 
-	_enterframe: function () {
+	_enterFrame: function () {
 		if (this._falling) {
 			//if falling, move the players Y
-			//it used to be this._gy += this._gravityConst * 2;
-			//2 seems to be unnecessary. So 2 is removed. by pengyu
 			this._gy += this._gravityConst;
 			this.y += this._gy;
 		} else {
@@ -852,12 +874,12 @@ Crafty.c("Gravity", {
 	* Disable gravity for this component. It can be reenabled by calling .gravity()
 	*/
 	antigravity: function () {
-		this.unbind("EnterFrame", this._enterframe);
+		this.unbind("EnterFrame", this._enterFrame);
 	}
 });
 
 /**@
-* #Crafty.Polygon
+* #Crafty.polygon
 * @category 2D
 * 
 * Polygon object used for hitboxes and click maps. Must pass an Array for each point as an
@@ -887,7 +909,7 @@ Crafty.polygon = function (poly) {
 Crafty.polygon.prototype = {
 	/**@
 	* #.containsPoint
-	* @comp Crafty.Polygon
+	* @comp Crafty.polygon
 	* @sign public Boolean .containsPoint(Number x, Number y)
 	* @param x - X position of the point
 	* @param y - Y position of the point
@@ -915,7 +937,7 @@ Crafty.polygon.prototype = {
 
 	/**@
 	* #.shift
-	* @comp Crafty.Polygon
+	* @comp Crafty.polygon
 	* @sign public void .shift(Number x, Number y)
 	* @param x - Amount to shift the `x` axis
 	* @param y - Amount to shift the `y` axis
@@ -955,7 +977,7 @@ Crafty.polygon.prototype = {
 };
 
 /**@
-* #Crafty.Circle
+* #Crafty.circle
 * @category 2D
 * Circle object used for hitboxes and click maps. Must pass a `x`, a `y` and a `radius` value.
 *
@@ -989,7 +1011,7 @@ Crafty.circle = function (x, y, radius) {
 Crafty.circle.prototype = {
     /**@
 	* #.containsPoint
-	* @comp Crafty.Circle
+	* @comp Crafty.circle
 	* @sign public Boolean .containsPoint(Number x, Number y)
 	* @param x - X position of the point
 	* @param y - Y position of the point
@@ -1014,7 +1036,7 @@ Crafty.circle.prototype = {
 
 	/**@
 	* #.shift
-	* @comp Crafty.Circle
+	* @comp Crafty.circle
 	* @sign public void .shift(Number x, Number y)
 	* @param x - Amount to shift the `x` axis
 	* @param y - Amount to shift the `y` axis

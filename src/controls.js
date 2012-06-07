@@ -4,6 +4,7 @@ Crafty.extend({
 	mousePos: {},
 	lastEvent: null,
 	keydown: {},
+	selected: false,
 
 	/**@
 	* #Crafty.keydown
@@ -24,7 +25,20 @@ Crafty.extend({
 	* @see Keyboard, Crafty.keys
 	*/
 
+	detectBlur: function (e) {
+		var selected = ((e.clientX > Crafty.stage.x && e.clientX < Crafty.stage.x + Crafty.viewport.width) &&
+                    (e.clientY > Crafty.stage.y && e.clientY < Crafty.stage.y + Crafty.viewport.height));
+
+		if (!Crafty.selected && selected)
+			Crafty.trigger("CraftyFocus");
+		if (Crafty.selected && !selected)
+			Crafty.trigger("CraftyBlur");
+
+		Crafty.selected = selected;
+	},
+
 	mouseDispatch: function (e) {
+		
 		if (!Crafty.mouseObjs) return;
 		Crafty.lastEvent = e;
 
@@ -71,8 +85,8 @@ Crafty.extend({
 				if (dupes[current[0]]) continue;
 				else dupes[current[0]] = true;
 
-				if (current.map) {
-					if (current.map.containsPoint(x, y)) {
+				if (current.mapArea) {
+					if (current.mapArea.containsPoint(x, y)) {
 						flag = true;
 					}
 				} else if (current.isAt(x, y)) flag = true;
@@ -133,38 +147,43 @@ Crafty.extend({
 	},
 
 
-	/**@
-	* #Crafty.touchDispatch
-	* @category Input
-	* 
-	* TouchEvents have a different structure then MouseEvents.
-	* The relevant data lives in e.changedTouches[0].
-	* To normalize TouchEvents we catch em and dispatch a mock MouseEvent instead.
-	* 
-	* @see Crafty.mouseDispatch
-	*/
+    /**@
+    * #Crafty.touchDispatch
+    * @category Input
+    * 
+    * TouchEvents have a different structure then MouseEvents.
+    * The relevant data lives in e.changedTouches[0].
+    * To normalize TouchEvents we catch em and dispatch a mock MouseEvent instead.
+    * 
+    * @see Crafty.mouseDispatch
+    */
 
-	touchDispatch: function(e) {
+    touchDispatch: function(e) {
+        var type;
 
-		var type;
-		if (e.type === "touchstart") type = "mousedown";
-		else if (e.type === "touchmove") type = "mousemove";
-		else if (e.type === "touchend") type = "mouseup";
+        if (e.type === "touchstart") type = "mousedown";
+        else if (e.type === "touchmove") type = "mousemove";
+        else if (e.type === "touchend") type = "mouseup";
+        else if (e.type === "touchcancel") type = "mouseup";
+        else if (e.type === "touchleave") type = "mouseup";
+        
+        if(e.touches && e.touches.length) {
+            first = e.touches[0];
+        } else if(e.changedTouches && e.changedTouches.length) {
+            first = e.changedTouches[0];
+        }
 
-		var touch = e.changedTouches[0];
+        var simulatedEvent = document.createEvent("MouseEvent");
+        simulatedEvent.initMouseEvent(type, true, true, window, 1,
+            first.screenX, 
+            first.screenY,
+            first.clientX, 
+            first.clientY, 
+            false, false, false, false, 0, e.relatedTarget
+        );
 
-		var mockup = document.createEvent("MouseEvents");
-		mockup.initMouseEvent(type, true, true, window, 0,
-			touch.screenX,
-			touch.screenY,
-			touch.clientX,
-			touch.clientY,
-			false, false, false, false, 0, e.target
-		);
-		mockup.target = e.target;
-
-		e.target.dispatchEvent(mockup);
-	},
+        first.target.dispatchEvent(simulatedEvent);
+    },
 
 
 	/**@
@@ -220,10 +239,11 @@ Crafty.extend({
 			Crafty.trigger("KeyUp", e);
 		}
 
-		//prevent default actions for all keys except backspace and F1-F12
-		//among others this prevent the arrow keys from scrolling the page
-		if((e.metaKey || e.altKey || e.ctrlKey) && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
-			console.log(e);
+		//prevent default actions for all keys except backspace and F1-F12.
+		//Among others this prevent the arrow keys from scrolling the parent page
+		//of an iframe hosting the game
+		if(Crafty.selected && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
+			e.stopPropagation();
 			if(e.preventDefault) e.preventDefault();
 			else e.returnValue = false;
 			return false;
@@ -238,6 +258,7 @@ Crafty.bind("Load", function () {
 
 	Crafty.addEvent(this, Crafty.stage.elem, "mousedown", Crafty.mouseDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "mouseup", Crafty.mouseDispatch);
+	Crafty.addEvent(this, document.body, "mouseup", Crafty.detectBlur);
 	Crafty.addEvent(this, Crafty.stage.elem, "mousemove", Crafty.mouseDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "click", Crafty.mouseDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "dblclick", Crafty.mouseDispatch);
@@ -245,6 +266,29 @@ Crafty.bind("Load", function () {
 	Crafty.addEvent(this, Crafty.stage.elem, "touchstart", Crafty.touchDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "touchmove", Crafty.touchDispatch);
 	Crafty.addEvent(this, Crafty.stage.elem, "touchend", Crafty.touchDispatch);
+    Crafty.addEvent(this, Crafty.stage.elem, "touchcancel", Crafty.touchDispatch);
+    Crafty.addEvent(this, Crafty.stage.elem, "touchleave", Crafty.touchDispatch);
+   });
+
+Crafty.bind("CraftyStop", function () {
+	Crafty.removeEvent(this, "keydown", Crafty.keyboardDispatch);
+	Crafty.removeEvent(this, "keyup", Crafty.keyboardDispatch);
+
+	if (Crafty.stage) {
+		Crafty.removeEvent(this, Crafty.stage.elem, "mousedown", Crafty.mouseDispatch);
+		Crafty.removeEvent(this, Crafty.stage.elem, "mouseup", Crafty.mouseDispatch);
+		Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", Crafty.mouseDispatch);
+		Crafty.removeEvent(this, Crafty.stage.elem, "click", Crafty.mouseDispatch);
+		Crafty.removeEvent(this, Crafty.stage.elem, "dblclick", Crafty.mouseDispatch);
+
+		Crafty.removeEvent(this, Crafty.stage.elem, "touchstart", Crafty.touchDispatch);
+		Crafty.removeEvent(this, Crafty.stage.elem, "touchmove", Crafty.touchDispatch);
+		Crafty.removeEvent(this, Crafty.stage.elem, "touchend", Crafty.touchDispatch);
+		Crafty.removeEvent(this, Crafty.stage.elem, "touchcancel", Crafty.touchDispatch);
+		Crafty.removeEvent(this, Crafty.stage.elem, "touchleave", Crafty.touchDispatch);
+	}
+
+	Crafty.removeEvent(this, document.body, "mouseup", Crafty.detectBlur);
 });
 
 /**@
@@ -289,8 +333,8 @@ Crafty.c("Mouse", {
 	/**@
 	* #.areaMap
 	* @comp Mouse
-	* @sign public this .areaMap(Crafty.Polygon polygon)
-	* @param polygon - Instance of Crafty.Polygon used to check if the mouse coordinates are inside this region
+	* @sign public this .areaMap(Crafty.polygon polygon)
+	* @param polygon - Instance of Crafty.polygon used to check if the mouse coordinates are inside this region
 	* @sign public this .areaMap(Array point1, .., Array pointN)
 	* @param point# - Array with an `x` and `y` position to generate a polygon
 	* 
@@ -306,7 +350,7 @@ Crafty.c("Mouse", {
 	*     .areaMap([0,0], [50,0], [50,50], [0,50])
 	* ~~~
 	* 
-	* @see Crafty.Polygon
+	* @see Crafty.polygon
 	*/
 	areaMap: function (poly) {
 		//create polygon
@@ -348,19 +392,24 @@ Crafty.c("Draggable", {
 	init: function () {
 		this.requires("Mouse");
 		this._ondrag = function (e) {
-			var pos = Crafty.DOM.translate(e.clientX, e.clientY);
-      if(this._dir) {
-        var len = (pos.x - this._origMouseDOMPos.x) * this._dir.x
-        + (pos.y - this._origMouseDOMPos.y) * this._dir.y;
-        this.x = this._oldX + len * this._dir.x;
-        this.y = this._oldY + len * this._dir.y;
-      } else {
-        this.x = this._oldX + (pos.x - this._origMouseDOMPos.x);
-        this.y = this._oldY + (pos.y - this._origMouseDOMPos.y);
-      }
+            var pos = Crafty.DOM.translate(e.clientX, e.clientY);
 
-			this.trigger("Dragging", e);
-		};
+            // ignore invalid 0 0 position - strange problem on ipad
+            if (pos.x == 0 || pos.y == 0) {
+                return false;
+            }
+
+            if(this._dir) {
+                var len = (pos.x - this._origMouseDOMPos.x) * this._dir.x + (pos.y - this._origMouseDOMPos.y) * this._dir.y;
+                this.x = this._oldX + len * this._dir.x;
+                this.y = this._oldY + len * this._dir.y;
+            } else {
+                this.x = this._oldX + (pos.x - this._origMouseDOMPos.x);
+                this.y = this._oldY + (pos.y - this._origMouseDOMPos.y);
+            }
+
+            this.trigger("Dragging", e);
+        };
 
 		this._ondown = function (e) {
 			if (e.mouseButton !== Crafty.mouseButtons.LEFT) return;
@@ -376,12 +425,14 @@ Crafty.c("Draggable", {
 			this.trigger("StartDrag", e);
 		};
 
-		this._onup = function upper(e) {
-			Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
-			Crafty.removeEvent(this, Crafty.stage.elem, "mouseup", this._onup);
-			this._dragging = false;
-			this.trigger("StopDrag", e);
-		};
+        this._onup = function upper(e) {
+            if (this._dragging == true) {
+                Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
+                Crafty.removeEvent(this, Crafty.stage.elem, "mouseup", this._onup);
+                this._dragging = false;
+                this.trigger("StopDrag", e);
+            }
+        };
 
 		this.enableDrag();
 	},
@@ -566,13 +617,6 @@ Crafty.c("Multiway", {
 		}
 	},
 
-	init: function () {
-		this._keyDirection = {};
-		this._keys = {};
-		this._movement = { x: 0, y: 0 };
-		this._speed = { x: 3, y: 3 };
-	},
-
 	/**@
 	* #.multiway
 	* @comp Multiway
@@ -592,6 +636,11 @@ Crafty.c("Multiway", {
 	* ~~~
 	*/
 	multiway: function (speed, keys) {
+		this._keyDirection = {};
+		this._keys = {};
+		this._movement = { x: 0, y: 0 };
+		this._speed = { x: 3, y: 3 };
+
 		if (keys) {
 			if (speed.x && speed.y) {
 				this._speed.x = speed.x;
@@ -607,6 +656,7 @@ Crafty.c("Multiway", {
 		this._keyDirection = keys;
 		this.speed(this._speed);
 
+		this.disableControl();
 		this.enableControl();
 
 		//Apply movement if key is down when created
@@ -706,7 +756,9 @@ Crafty.c("Fourway", {
 			W: -90,
 			S: 90,
 			D: 0,
-			A: 180
+			A: 180,
+			Z: -90,
+			Q: 180
 		});
 
 		return this;
@@ -754,7 +806,8 @@ Crafty.c("Twoway", {
 			RIGHT_ARROW: 0,
 			LEFT_ARROW: 180,
 			D: 0,
-			A: 180
+			A: 180,
+			Q: 180
 		});
 
 		if (speed) this._speed = speed;
@@ -767,7 +820,7 @@ Crafty.c("Twoway", {
 				this._falling = true;
 			}
 		}).bind("KeyDown", function () {
-			if (this.isDown("UP_ARROW") || this.isDown("W")) this._up = true;
+			if (this.isDown("UP_ARROW") || this.isDown("W") || this.isDown("Z")) this._up = true;
 		});
 
 		return this;

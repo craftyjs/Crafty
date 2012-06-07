@@ -15,6 +15,39 @@ Crafty.extend({
 	*/
 	assets: {},
 
+    /**@
+    * #Crafty.asset
+    * @category Assets
+    * 
+    * @trigger NewAsset - After setting new asset - Object - key and value of new added asset.
+    * @sign public void Crafty.asset(String key, Object asset)
+    * @param key - asset url.
+    * @param asset - Audio` or `Image` object.
+    * Add new asset to assets object.
+    * 
+    * @sign public void Crafty.asset(String key)
+    * @param key - asset url.
+    * Get asset from assets object.
+    * 
+    * @example
+    * ~~~
+    * Crafty.asset(key, value);
+    * var asset = Crafty.asset(key); //object with key and value fields
+    * ~~~
+    * 
+    * @see Crafty.assets
+    */
+    asset: function(key, value) {
+        if (arguments.length === 1) {
+            return Crafty.assets[key];
+        }
+
+        if (!Crafty.assets[key]) {
+            Crafty.assets[key] = value;
+            this.trigger("NewAsset", {key : key, value : value});
+        }
+    },
+
 	/**@
 	* #Crafty.loader
 	* @category Assets
@@ -107,7 +140,7 @@ Crafty.extend({
             current = data[i];
             ext = current.substr(current.lastIndexOf('.') + 1).toLowerCase();
            
-            obj = this.assets[current] || null;   
+            obj = Crafty.asset(current) || null;   
           
             if (Crafty.support.audio && Crafty.audio.supported[ext]) {   
                 //Create new object if not exists
@@ -118,7 +151,7 @@ Crafty.extend({
                     obj.src = current;
                     obj.preload = "auto";
                     obj.volume = Crafty.audio.volume;
-                    if (!Crafty.assets[current]) Crafty.assets[current] = obj; 
+                    Crafty.asset(current, obj);
                     Crafty.audio.sounds[name] = {
                         obj:obj,
                         played:0
@@ -134,7 +167,7 @@ Crafty.extend({
             } else if (ext === "jpg" || ext === "jpeg" || ext === "gif" || ext === "png") { 
                 if(!obj) {
                     obj = new Image();
-                    if (!Crafty.assets[current]) Crafty.assets[current] = obj;   
+                    Crafty.asset(current, obj);   
                 }
                 obj.onload=pro;
                 obj.src = current; //setup src after onload function Opera/IE Bug
@@ -322,8 +355,9 @@ Crafty.extend({
 		})();
 
 		var modules = [];
+		var validBase = /^(https?|file):\/\//;
 		for (var i in moduleMap) {
-			if (i.indexOf("http://") != -1)
+			if (validBase.test(i))
 				modules.push(i)
 			else
 				modules.push(modulesRepository + '/' + i.toLowerCase() + '-' + moduleMap[i].toLowerCase() + '.js');

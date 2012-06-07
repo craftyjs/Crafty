@@ -4,20 +4,32 @@
 * Component to detect collision between any two convex polygons.
 */
 Crafty.c("Collision", {
+    /**@
+     * #.init
+     * @comp Collision
+     * Create a rectangle polygon based on the x, y, w, h dimensions.
+     */
+    init: function () {
+        this.requires("2D");
+        var area = this._mbr || this;
 
-	init: function () {
-		this.requires("2D");
-	},
+        poly = new Crafty.polygon([0, 0], [area._w, 0], [area._w, area._h], [0, area._h]);
+        this.map = poly;
+        this.attach(this.map);
+        this.map.shift(area._x, area._y);
+    },
 
 	/**@
 	* #.collision
 	* @comp Collision
-	* @sign public this .collision([Crafty.Polygon polygon])
-	* @param polygon - Crafty.Polygon object that will act as the hit area
-	* Constructor takes a polygon to use as the hit area. If left empty,
-	* will create a rectangle polygon based on the x, y, w, h dimensions.
-	*
-	* This must be called before any .hit() or .onhit() methods.
+	* 
+	* @sign public this .collision([Crafty.polygon polygon])
+	* @param polygon - Crafty.polygon object that will act as the hit area
+	* 
+	* @sign public this .collision(Array point1, .., Array pointN)
+	* @param point# - Array with an `x` and `y` position to generate a polygon
+	* 
+	* Constructor takes a polygon or array of points to use as the hit area.
 	*
 	* The hit area (polygon) must be a convex shape and not concave
 	* for the collision detection to work.
@@ -27,23 +39,31 @@ Crafty.c("Collision", {
 	* Crafty.e("2D, Collision").collision(
 	*     new Crafty.polygon([50,0], [100,100], [0,100])
 	* );
+    * 
+    * Crafty.e("2D, Collision").collision([50,0], [100,100], [0,100]);
 	* ~~~
 	* 
-	* @see Crafty.Polygon
+	* @see Crafty.polygon
 	*/
 	collision: function (poly) {
 		var area = this._mbr || this;
 
-		//if no polygon presented, create a square
 		if (!poly) {
-			poly = new Crafty.polygon([0, 0], [area._w, 0], [area._w, area._h], [0, area._h]);
+			return this;
 		}
-		this.map = poly;
-		this.attach(this.map);
-		this.map.shift(area._x, area._y);
+        
+        if (arguments.length > 1) {
+            //convert args to array to create polygon
+            var args = Array.prototype.slice.call(arguments, 0);
+            poly = new Crafty.polygon(args);
+        }
 
-		return this;
-	},
+        this.map = poly;
+        this.attach(this.map);
+        this.map.shift(area._x, area._y);
+
+        return this;
+    },
 
 	/**@
 	* #.hit
