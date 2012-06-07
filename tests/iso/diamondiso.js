@@ -33,28 +33,33 @@ Crafty.extend({
             this._tile.angle = Math.atan(this._tile.ratio);
             this._tile.sin = Math.sin(this._tile.angle);
             this._tile.cos = Math.cos(this._tile.angle);
-            this._vp.x = Crafty.viewport._x;
-            this._vp.y = Crafty.viewport._y;
-            this._origin.x = Crafty.viewport.width/2;
-            this._origin.y = Crafty.viewport.height-64;
+     
+            this._origin.x =  Crafty.viewport.width/2;
+            this._origin.y =  Crafty.viewport.height;
             
             return this;
         },
         place:function(obj,x,y,z){
-           
-            var pos = this.pos2px(x,y,z);
-            console.log(pos);
+            
+            var pos = this.pos2px(x*this._grid.width,y*this._grid.height,z);
+         
             obj.attr({
                 x:pos.left,
                 y:pos.top
-                });
-     
+            });
+            
         },
-      
+        placeAbsolute:function(obj,x,y,z,layer){
+            var pos = this.pos2px(x,y,z);
+            obj.attr({
+                x:pos.left,
+                y:pos.top,
+                z:layer
+            });
+        },
         pos2px:function(x,y,z){
-            var t=0,l=0;
-            l = (x-z)*this._tile.cos;
-            t = y+(x+z)*this._tile.sin;
+            var l = (x-y)*this._tile.cos;
+            var t = z+(x+y)*this._tile.sin;
             return{
                 top:~~(-t+this._origin.y),
                 left:~~(l+this._origin.x)
@@ -66,11 +71,14 @@ Crafty.extend({
 
 Crafty.c("DiamondIso",{
     iso:{
-        width:0,
-        height:0,
-        depth:0
+        x:0,
+        y:0,
+        z:0,
+        dynamic:false
     },
     init:function(){
-       
+       this.bind("Change",function(){
+           if(!this.iso.dynamic) return;
+       })
     } 
 });
