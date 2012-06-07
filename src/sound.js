@@ -254,7 +254,7 @@ Crafty.extend({
         * @example
         * ~~~
         * //toggle mute and unmute depending on current state
-        * Crafty.audio.tuggleMute();
+        * Crafty.audio.toggleMute();
         * ~~~
         */
         toggleMute:function(){
