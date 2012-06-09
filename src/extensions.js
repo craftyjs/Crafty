@@ -415,12 +415,14 @@ Crafty.extend({
 
             //update viewport and DOM scroll
             this[axis] = v;
-            if (axis == '_x') {
-                if (context) context.translate(change, 0);
-            } else {
-                if (context) context.translate(0, change);
-            }
-            if (context) Crafty.DrawManager.drawAll();
+			if (context) {
+				if (axis == '_x') {
+					context.translate(change, 0);
+				} else {
+					context.translate(0, change);
+				}
+				Crafty.DrawManager.drawAll();
+			}
             style[axis == '_x' ? "left" : "top"] = v + "px";
         },
 
@@ -665,14 +667,15 @@ Crafty.extend({
                     height: act.height * final_zoom
                 }
                 Crafty.viewport.pan('reset');
-                Crafty.stage.inner.style[prop] = 'scale(' + this._zoom + ',' + this._zoom + ')';
+                Crafty.stage.inner.style['transform'] = 
+				Crafty.stage.inner.style[prop] = 'scale(' + this._zoom + ',' + this._zoom + ')';
 
                 if (Crafty.canvas._canvas) {
                     Crafty.canvas.context.scale(czoom, czoom);
                     Crafty.DrawManager.drawAll();
                 }
-                Crafty.viewport.width = new_s.width;
-                Crafty.viewport.height = new_s.height;
+                //Crafty.viewport.width = new_s.width;
+                //Crafty.viewport.height = new_s.height;
             }
         })(),
         /**@
@@ -715,7 +718,7 @@ Crafty.extend({
 
                         Crafty.viewport.x += diff.x;
                         Crafty.viewport.y += diff.y;
-                        Crafty.viewport._clamp();
+                        Crafty.viewport._clamp(); 
                     case 'start':
                         lastMouse.x = arg.clientX;
                         lastMouse.y = arg.clientY;
@@ -733,6 +736,10 @@ Crafty.extend({
             // under no circumstances should the viewport see something outside the boundary of the 'world'
             if (!this.clampToEntities) return;
             var bound = Crafty.map.boundaries();
+			bound.max.x *= this._zoom;
+			bound.min.x *= this._zoom;
+			bound.max.y *= this._zoom;
+			bound.min.y *= this._zoom;
             if (bound.max.x - bound.min.x > Crafty.viewport.width) {
                 bound.max.x -= Crafty.viewport.width;
 
