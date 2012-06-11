@@ -883,6 +883,11 @@ Crafty.extend({
                 elem.left = "0px";
                 elem.top = "0px";
 
+                // remove default gray highlighting after touch
+                if (typeof elem.webkitTapHighlightColor != undefined) {
+                    elem.webkitTapHighlightColor = "rgba(0,0,0,0)";
+                }
+
                 var meta = document.createElement("meta"),
                     head = document.getElementsByTagName("HEAD")[0];
 
