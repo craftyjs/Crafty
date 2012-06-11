@@ -233,6 +233,7 @@ Crafty.extend({
 	scene: function (name, intro, outro) {
 		//play scene
 		if (arguments.length === 1) {
+			Crafty.viewport.reset();
 			Crafty("2D").each(function () {
 				if (!this.has("Persist")) this.destroy();
 			});

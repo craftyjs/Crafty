@@ -286,6 +286,27 @@ Crafty.bind("Load", function () {
 	Crafty.addEvent(this, Crafty.stage.elem, "touchend", Crafty.touchDispatch);
     Crafty.addEvent(this, Crafty.stage.elem, "touchcancel", Crafty.touchDispatch);
     Crafty.addEvent(this, Crafty.stage.elem, "touchleave", Crafty.touchDispatch);
+   });
+
+Crafty.bind("CraftyStop", function () {
+	Crafty.removeEvent(this, "keydown", Crafty.keyboardDispatch);
+	Crafty.removeEvent(this, "keyup", Crafty.keyboardDispatch);
+
+	if (Crafty.stage) {
+		Crafty.removeEvent(this, Crafty.stage.elem, "mousedown", Crafty.mouseDispatch);
+		Crafty.removeEvent(this, Crafty.stage.elem, "mouseup", Crafty.mouseDispatch);
+		Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", Crafty.mouseDispatch);
+		Crafty.removeEvent(this, Crafty.stage.elem, "click", Crafty.mouseDispatch);
+		Crafty.removeEvent(this, Crafty.stage.elem, "dblclick", Crafty.mouseDispatch);
+
+		Crafty.removeEvent(this, Crafty.stage.elem, "touchstart", Crafty.touchDispatch);
+		Crafty.removeEvent(this, Crafty.stage.elem, "touchmove", Crafty.touchDispatch);
+		Crafty.removeEvent(this, Crafty.stage.elem, "touchend", Crafty.touchDispatch);
+		Crafty.removeEvent(this, Crafty.stage.elem, "touchcancel", Crafty.touchDispatch);
+		Crafty.removeEvent(this, Crafty.stage.elem, "touchleave", Crafty.touchDispatch);
+	}
+
+	Crafty.removeEvent(this, document.body, "mouseup", Crafty.detectBlur);
 });
 
 /**@
@@ -614,13 +635,6 @@ Crafty.c("Multiway", {
 		}
 	},
 
-	init: function () {
-		this._keyDirection = {};
-		this._keys = {};
-		this._movement = { x: 0, y: 0 };
-		this._speed = { x: 3, y: 3 };
-	},
-
 	/**@
 	* #.multiway
 	* @comp Multiway
@@ -640,6 +654,11 @@ Crafty.c("Multiway", {
 	* ~~~
 	*/
 	multiway: function (speed, keys) {
+		this._keyDirection = {};
+		this._keys = {};
+		this._movement = { x: 0, y: 0 };
+		this._speed = { x: 3, y: 3 };
+
 		if (keys) {
 			if (speed.x && speed.y) {
 				this._speed.x = speed.x;
@@ -655,6 +674,7 @@ Crafty.c("Multiway", {
 		this._keyDirection = keys;
 		this.speed(this._speed);
 
+		this.disableControl();
 		this.enableControl();
 
 		//Apply movement if key is down when created

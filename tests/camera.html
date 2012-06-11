@@ -8,46 +8,77 @@
 	</style>
 </head>
 <body>
+<div id="cr-stage"></div>
+<ul>
+    <li data-image-entities='2D, DOM, Image'
+        data-hotspot-entities='2D, DOM, Color, Mouse'
+    > (DD) Click is not working, Zoom is working, Hotspot visible</li>
+    
+    <li data-image-entities='2D, Canvas, Image'
+        data-hotspot-entities='2D, Canvas, Color, Mouse'
+    > (CC) Click is working, Zoom is not working, Hotspot visible</li>
+        
+    <li data-image-entities='2D, Canvas, Image'
+        data-hotspot-entities='2D, DOM, Color, Mouse'
+    > (CD) Click is not working, Zoom is not working, Hotspot is visible and zooming.</li>
+        
+    <li data-image-entities='2D, DOM, Image'
+        data-hotspot-entities='2D, Canvas, Color, Mouse'
+    > (DC) Click is not working (wrong hotspot), Zoom is working, Hotspot invisible</li>
+</ul>
+<p> and in every working zoom example i can move out of bounds </p>?
 </body>
-<script type="text/javascript">
-	Crafty.init(200, 200);
-	Crafty.c("Test", {
-		init: function() {
-			this.requires('2D, DOM, Color');
-		},
-	});
-	
-	Crafty.scene('main', function() {
-		Crafty.e("Test")
-			  .attr({x: 100, y: 100, w:100, h:100})
-			  .color('red');
-		Crafty.e("Test")
-			  .attr({x: 000, y: 100, w:100, h:100})
-			  .color('blue');
-		Crafty.e("Test, Keyboard")
-			  .attr({x: 100, y: 0, w:100, h:100})
-			  .color('green')
-			  .bind("KeyUp", function (e) {
-				if (String.fromCharCode(e.key) == " ") {
-					Crafty.viewport.zoom(2, 50, 150, 200);
-				}
-			  });
-		var targ = Crafty.e("Test, Tween")
-				 .attr({x: 50, y:50, w:5, h:5})
-				 .tween({x: 200}, 250)
-				 .tween({y: 200}, 500)
-				 .color('black')
-				 .bind("TweenEnd", function (prop) {
-					var tween = {};
-					tween[prop] = 200 - this.attr(prop);
-					this.tween(tween, 250);
-				 });
-		
-		var targ2 = Crafty.e("Test, Tween")
-				 .attr({x: 47, y:147, w:6, h:6})
-				 .color('black');
-	});
-	
-	Crafty.scene('main');
-</script>
+	<script type="text/javascript">
+(function() {
+  var config = {
+        viewportHeight: 320,
+        viewportWidth: 640,
+        playgroundWidth: 1024,
+        playgroundHeight: 1024,
+      }
+    , imageEntities = '2D, DOM, Image'
+    , hotspotEntities = '2D, DOM, Color, Mouse';
+    
+    
+  
+    config.imagePath = 'http://placekitten.com/' + config.playgroundWidth + '/' + config.playgroundHeight
+
+    Crafty.scene('main', function() {
+        Crafty.background('#bada55');
+        var background = Crafty.e(imageEntities).attr({
+              w: config.playgroundWidth,
+              h: config.playgroundHeight
+        }).image(config.imagePath);
+        var zoomFactor = config.viewportWidth / config.playgroundWidth;
+        var hotspot = Crafty.e(hotspotEntities).attr({
+                x: config.playgroundWidth/2-100,
+                y: config.playgroundHeight/2-100,
+                w: 100,
+                h: 100
+            }).color('#f00').bind('Click', function(){
+                console.log('clicked');
+            });
+        Crafty.viewport.zoom(zoomFactor, 0, 0, 5*60);
+        Crafty.viewport.mouselook(true);
+    });
+
+	var lis = document.querySelectorAll('li');
+	for (var i in lis) {
+		if (!isFinite(i)) continue;
+		lis[i].addEventListener('click', function(e) {
+			var self = e.target;
+			console.log(self);
+			imageEntities = self.getAttribute('data-image-entities');
+			hotspotEntities = self.getAttribute('data-hotspot-entities');
+			console.log('reloading scene: '+ self.innerHTML);
+			Crafty.scene('main');
+		}, false);
+	}
+
+    Crafty.init(config.viewportWidth, config.viewportHeight);
+    Crafty.canvas.init();
+    Crafty.viewport.init(config.viewportWidth, config.viewportHeight);
+    // Crafty.scene('main');
+}).call(this);
+	</script>
 </html>

@@ -821,7 +821,7 @@ Crafty.c("Gravity", {
 	_enterFrame: function () {
 		if (this._falling) {
 			//if falling, move the players Y
-			this._gy += this._gravityConst * 2;
+			this._gy += this._gravityConst;
 			this.y += this._gy;
 		} else {
 			this._gy = 0; //reset change in y

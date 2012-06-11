@@ -108,7 +108,8 @@ Crafty.extend({
                             Crafty.asset(path, audio); 
                             this.sounds[i] = {
                                 obj:audio,
-                                played:0
+                                played:0,
+                                volume:Crafty.audio.volume
                             } 
                         }
                         
@@ -128,7 +129,8 @@ Crafty.extend({
                         Crafty.asset(url, audio);  
                         this.sounds[id] = {
                             obj:audio,
-                            played:0
+                            played:0,
+                            volume:Crafty.audio.volume
                         } 
                        
                     }
@@ -148,7 +150,8 @@ Crafty.extend({
                             Crafty.asset(path, audio);   
                             this.sounds[id] = {
                                 obj:audio,
-                                played:0
+                                played:0,
+                                volume:Crafty.audio.volume
                             } 
                         }
                        
@@ -187,8 +190,9 @@ Crafty.extend({
         play:function(id,repeat,volume){
             if(repeat == 0 || !Crafty.support.audio || !this.sounds[id]) return;
             var s = this.sounds[id];
-            s.obj.volume = volume || Crafty.audio.volume ;   
+            s.volume = s.obj.volume = volume || Crafty.audio.volume ;   
             if(s.obj.currentTime) s.obj.currentTime = 0;   
+            if(this.muted) s.obj.volume = 0;
             s.obj.play(); 
             s.played ++;
             s.obj.addEventListener("ended", function(){
@@ -225,9 +229,24 @@ Crafty.extend({
             s = this.sounds[id];
             if(!s.obj.paused) s.obj.pause();
         },
+        /**
+        * #Crafty.audio._mute
+        * @sign public this Crafty.audio._mute([Boolean mute])
+        * 
+        * Mute or unmute every Audio instance that is playing.
+        */
+        _mute:function(mute){
+            if(!Crafty.support.audio) return;
+            var s;
+            for(var i in this.sounds){
+                s = this.sounds[i];
+                s.obj.volume = mute ? 0 : s.volume;
+            }
+            this.muted = mute;
+        },
         /**@
-        * #Crafty.audio.mute
-        * @sign public this Crafty.audio.mute([Boolean mute])
+        * #Crafty.audio.toggleMute
+        * @sign public this Crafty.audio.toggleMute()
         * 
         * Mute or unmute every Audio instance that is playing. Toggles between
         * pausing or playing depending on the state.
@@ -235,27 +254,45 @@ Crafty.extend({
         * @example
         * ~~~
         * //toggle mute and unmute depending on current state
+        * Crafty.audio.toggleMute();
+        * ~~~
+        */
+        toggleMute:function(){
+            if (!this.muted) {
+                this._mute(true);
+            } else {
+                this._mute(false);
+            }
+
+        },
+        /**@
+        * #Crafty.audio.mute
+        * @sign public this Crafty.audio.mute()
+        * 
+        * Mute every Audio instance that is playing.
+        *
+        * @example
+        * ~~~
         * Crafty.audio.mute();
         * ~~~
         */
         mute:function(){
-            if(!Crafty.support.audio) return;
-            var s;
-            if(!this.muted){
-                for(var i in this.sounds){
-                    s = this.sounds[i];
-                    s.obj.pause();
-                }
-                this.muted = true;
-            }else{
-                for(var i in this.sounds){
-                    s = this.sounds[i];
-                    if(s.obj.currentTime && s.obj.currentTime > 0) 
-                        this.sounds[i].obj.play();
-                }
-                this.muted = false; 
-            }
-         
+            this._mute(true);
+        },
+        /**@
+        * #Crafty.audio.unmute
+        * @sign public this Crafty.audio.unmute()
+        * 
+        * Unmute every Audio instance that is playing. 
+        * 
+        * @example
+        * ~~~
+        * Crafty.audio.unmute();
+        * ~~~
+        */
+        unmute:function(){
+            this._mute(false);
         }
+
     } 
 });
