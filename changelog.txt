@@ -1,53 +1,116 @@
-v0.1 - 22/12/2010
+v1.0 or 0.5
 
-* First release
+* Mobile support
+* Test cases
+* Faster DOM
 
-v0.2 - 13/1/2011
 
-* Audio degrades without error in IE
-* .detach() method to undo the effects of .attach()
-* Objects will detach on remove event
-* Sprite maps can take optional padding values for maps with padding around objects
-* Fixed a typeahead bug with controls component
-* Onload functions that will be called as soon as Crafty.init() is called
-* Support object to detect support for HTML5 features and others
-* Loader to load assets before the game starts.
-* Rotation implemented
+0.4.9
+* Crafty.selected indicates if the stage has focus. If so preventDefault and stopPropagation is called on keyboard events to prevent scrolling of the page.
+* particles renamed to Particles and the stage is now cleaned when the component is removed.
+* Improved module URI detection to allow for HTTPS:// and FILE://
+* Added 2D.unflip(dir)
+* Adjusted how "Change" is triggered on flipping to minimize flooding
+* fix #243 fix areaMap for canvas
+* Added support for ZQSD keys in Fourway and Twoway components (for azerty keyboard layout)
+* Fixes #252. Gravity and Multiway can now be used on the same entity.
+* Modified the Gravity constant.
+* Fix cross browser issue with sound.
+* Crafty.DOM.inner.x and y are now calculated correctly
+* Added Crafty.viewport.scale
+* Crafty.asset introduced as getter and setter for assets. Use this instead of the Crafty.assets array!
+* Fix SpriteAnimation so it plays last frame of animation
+* .setName() function on entities used by DebugBar
+* Improvements on mobile support
+* Added Crafty.device
+* Lots of documentation added
 
-v0.2.1 - 21/1/2011
+0.4.8
 
-* Global assets
-* Use of '*' in selector engine to select all entities
-* Bug fix for DOM elements using the mouse component
+* entity.image() fixed for canvas entities
+* support different polygons for collision checking and mouse events
+* Loader creates new Image objects only if there is no existing, also for audio.
+* Fixed sounds, added volume parameter to play function
+* More documentation
+* Better layout of the Documentation
 
-v0.3
+0.4.7
 
-* Unit tests
-* Use the inbuilt canvas background repeat (createPattern)
-* SAT collision
-* Window resize
-* defineProperty for IE9
-* Variable frame rate
-* Alpha - thanks to Josh Tynjala
-* areaMap will automatically offset when a polygon is passed - thanks to Adrian Gaudebert
-* Drawing optimization
-* persistant entities through scenes
-* .visible
-* Collision uses MBR, not using Crafty() use Crafty.hashMap()
-* More Audio instances - thanks to Josh Tynjala
-* Draggable component
-* Physics component
-* Loader accepts onProgress and onError callbacks with info on what is loaded and percentages - thanks to Josh Tynjala
+* Fix bug with padding in sprite animations
+* Fix bug in math.randomElementOfArray
+* Improved documentation for SpriteAnimation and parts of core
+* this._flipX and this._flipY support for canvas entities
 
-v0.3.1 
+0.4.6
 
-* Window resize even on fullscreen
-* Use scrollTop and scrollLeft
-* Bug with .rotate()
+* Better documentation for internals, including HashMap and DrawManager.
+* Crafty.module supports uppercase versions (RELEASE etc.) and now uses craftycomponents.com as default repo
+* .color() now acts as a getter
+* Rename .delay to .timeout and introduce a new Delay component that is smarter about game pause etc.
+* Fix the play sound forever issue
+* Crafty.isPaused() returns whether the game is paused or not.
+* Better support for tween chaining
+* Remove the div representation when DOM component is removed from entity. This enables you to switch between DOM and canvas without polluting the dom.
+* .toggleComponent added
+* .getDomId added to DOM component
+* .dragDirection added to Draggable component
 
-v0.3.2
+v0.4.5
 
-* Fixed a collision bug
+* Crafty.module() is used to load community components from craftycomponents.com
+* Crafty.math added with lots of vector, matrix and other useful functions.
+* randRange() renamed to math.randomInt()
+* persist component renamed to Persist
+* SceneChange event triggered when a scene is played
+* Crafty.storage added. It's an abstraction over the different implementations of local storage providing basic save/load functionality across sessions
+* New viewport functions: follow, centerOn, zoom, pan, mouselook
+* Crafty.scene optionally accepts an uninit function as a third parameter when defining a scene.
+* New isometric functions: pos2px, px2pos ,centerAt ,area,slice
+* The API documentation is now more exhaustive than ever :-)
+* .font is removed. Use .css to set style property instead.
+* e.mouseButton added to all mouse events to normalize across browsers. Used like: if(e.mouseButton == Crafty.mouseButtons.RIGHT) ...
+* .destroy() now destroys all attached entities.
+* MouseMove event added.
+* DoubleClick event added.
+* Text component supports canvas
+* Text component supports evaluating a function with the entity bound to this.
+* Better handling of pausing/unpausing when the user changes tabs
+* Crafty.audio.mute can take a bool.
+* Lots of bug fixes.
+
+v0.4.3
+
+* CSS 3D transforms
+* .attach() takes multiple objects
+* Fixed bug with getClientBoundingRect in FireFox
+* DOM elements get components added as classes
+* Fixed Canvas redraw bugs
+* Animate renamed to SpriteAnimation
+* Added basic mobile support
+* Fixed mousedown triggering twice
+* Draggable bugs fixed
+* Sprite takes a tile height if not square
+
+v0.4.2
+
+* Faster redraw for rotated entities and repeating background in canvas
+* Added a Crafty.settings object
+* Smaller game loop
+* Started mobile support (not ready yet)
+* Fixed a bug with DOM z-indexes being lower than the canvas
+* Added a smaller setter function. Removed getter
+* Removed unused components, Group, Health and Score.
+* Fixed rotation bug for IE6
+* .css bug fixed
+* Added a namespace for DOM methods (Crafty.DOM)
+* Fixed bug with viewport triggering mousedown twice
+* Mouse events take into account the viewport
+* Bugs in Draggable component fixed
+* Fixed Full screen mode resize bug
+
+v0.4.1
+
+* Pause bug fixed
 
 v0.4
 
@@ -73,42 +136,54 @@ v0.4
 * .DOM() will remove the previously created DOM element
 * Crafty.timer.getFPS() returns the current FPS (Leo Koppelkamm)
 
-v0.4.1
+v0.3.2
 
-* Pause bug fixed
+* Fixed a collision bug
 
-v0.4.2
+v0.3.1 
 
-* Faster redraw for rotated entities and repeating background in canvas
-* Added a Crafty.settings object
-* Smaller game loop
-* Started mobile support (not ready yet)
-* Fixed a bug with DOM z-indexes being lower than the canvas
-* Added a smaller setter function. Removed getter
-* Removed unused components, Group, Health and Score.
-* Fixed rotation bug for IE6
-* .css bug fixed
-* Added a namespace for DOM methods (Crafty.DOM)
-* Fixed bug with viewport triggering mousedown twice
-* Mouse events take into account the viewport
-* Bugs in Draggable component fixed
-* Fixed Full screen mode resize bug
+* Window resize even on fullscreen
+* Use scrollTop and scrollLeft
+* Bug with .rotate()
 
-v0.4.3
+v0.3
 
-* CSS 3D transforms
-* .attach() takes multiple objects
-* Fixed bug with getClientBoundingRect in FireFox
-* DOM elements get components added as classes
-* Fixed Canvas redraw bugs
-* Animate renamed to SpriteAnimation
-* Added basic mobile support
-* Fixed mousedown triggering twice
-* Draggable bugs fixed
-* Sprite takes a tile height if not square
+* Unit tests
+* Use the inbuilt canvas background repeat (createPattern)
+* SAT collision
+* Window resize
+* defineProperty for IE9
+* Variable frame rate
+* Alpha - thanks to Josh Tynjala
+* areaMap will automatically offset when a polygon is passed - thanks to Adrian Gaudebert
+* Drawing optimization
+* persistant entities through scenes
+* .visible
+* Collision uses MBR, not using Crafty() use Crafty.hashMap()
+* More Audio instances - thanks to Josh Tynjala
+* Draggable component
+* Physics component
+* Loader accepts onProgress and onError callbacks with info on what is loaded and percentages - thanks to Josh Tynjala
 
-v1.0 or 0.5
+v0.2.1 - 21/1/2011
 
-* Mobile support
-* Test cases
-* Faster DOM
+* Global assets
+* Use of '*' in selector engine to select all entities
+* Bug fix for DOM elements using the mouse component
+
+
+v0.2 - 13/1/2011
+
+* Audio degrades without error in IE
+* .detach() method to undo the effects of .attach()
+* Objects will detach on remove event
+* Sprite maps can take optional padding values for maps with padding around objects
+* Fixed a typeahead bug with controls component
+* Onload functions that will be called as soon as Crafty.init() is called
+* Support object to detect support for HTML5 features and others
+* Loader to load assets before the game starts.
+* Rotation implemented
+
+v0.1 - 22/12/2010
+
+* First release
