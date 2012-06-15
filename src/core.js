@@ -840,7 +840,7 @@
 
                     tick();
                 } else {
-                    tick = setInterval(Crafty.timer.step, 1000 / FPS);
+                    tick = setInterval(function () { Crafty.timer.step(); }, 1000 / FPS);
                 }
             },
 
