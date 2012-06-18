@@ -107,7 +107,7 @@ Crafty.extend({
 			//click must mousedown and out on tile
 			if (type === "mousedown") {
 				closest.trigger("MouseDown", e);
-			} else if (type === "mouseup") {
+            } else if (type === "mouseup") {
 				closest.trigger("MouseUp", e);
 			} else if (type == "dblclick") {
 				closest.trigger("DoubleClick", e);
@@ -159,7 +159,8 @@ Crafty.extend({
     */
 
     touchDispatch: function(e) {
-        var type;
+        var type,
+            lastEvent = Crafty.lastEvent;
 
         if (e.type === "touchstart") type = "mousedown";
         else if (e.type === "touchmove") type = "mousemove";
@@ -183,6 +184,23 @@ Crafty.extend({
         );
 
         first.target.dispatchEvent(simulatedEvent);
+
+        // trigger click when it shoud be triggered
+        if (lastEvent != null && lastEvent.type == 'mousedown' && type == 'mouseup') {
+            type = 'click';
+
+            var simulatedEvent = document.createEvent("MouseEvent");
+            simulatedEvent.initMouseEvent(type, true, true, window, 1,
+                first.screenX, 
+                first.screenY,
+                first.clientX, 
+                first.clientY, 
+                false, false, false, false, 0, e.relatedTarget
+            );
+            first.target.dispatchEvent(simulatedEvent);
+        }
+
+        e.preventDefault();
     },
 
 
