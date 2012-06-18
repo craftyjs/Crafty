@@ -166,11 +166,13 @@ Crafty.extend({
     * 
     * @see Sprite
     */
-    sprite: function (tile, tileh, url, map, paddingX, paddingY) {
+    sprite: function (tile, tileh, url, map, paddingX, paddingY,marginX,marginY) {
         var spriteName, temp, x, y, w, h, img;
 
         //if no tile value, default to 1
         if (typeof tile === "string") {
+            marginY = marginX;
+            marginX = paddingY;
             paddingY = paddingX;
             paddingX = map;
             map = tileh;
@@ -180,6 +182,8 @@ Crafty.extend({
         }
 
         if (typeof tileh == "string") {
+             marginY = marginX;
+            marginX = paddingY;
             paddingY = paddingX;
             paddingX = map;
             map = url;
@@ -191,7 +195,11 @@ Crafty.extend({
         if (!paddingY && paddingX) paddingY = paddingX;
         paddingX = parseInt(paddingX || 0, 10); //just incase
         paddingY = parseInt(paddingY || 0, 10);
-
+         //if no marginY, use marginX
+        if (!marginY && marginX) marginY = marginX;
+        marginX = parseInt(marginX || 0, 10); //just incase
+        marginY = parseInt(marginY || 0, 10);
+        
         img = Crafty.asset(url);
         if (!img) {
             img = new Image();
@@ -230,6 +238,7 @@ Crafty.extend({
                     this.__tile = tile;
                     this.__tileh = tileh;
                     this.__padding = [paddingX, paddingY];
+                    this.__margin = [marginX, marginY];
                     this.img = img;
 
                     //draw now
@@ -241,6 +250,9 @@ Crafty.extend({
                     //set the width and height to the sprite size
                     this.w = this.__coord[2];
                     this.h = this.__coord[3];
+                    //set margins
+                    this.x = marginX;
+                    this.y = marginY;
                 }
             });
         }
