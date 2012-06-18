@@ -150,6 +150,8 @@ Crafty.extend({
     * @param map - Object where the key is what becomes a new component and the value points to a position on the sprite map
     * @param paddingX - Horizontal space inbetween tiles. Defaults to 0.
     * @param paddingY - Vertical space inbetween tiles. Defaults to paddingX.
+    * @param marginX - Horizontal space inbetween entities. Defaults to 0.
+    * @param marginY - Vertical space inbetween entities. Defaults to marginX.
     * Generates components based on positions in a sprite image to be applied to entities.
     *
     * Accepts a tile size, URL and map for the name of the sprite and it's position.
