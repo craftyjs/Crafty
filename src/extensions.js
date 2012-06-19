@@ -150,6 +150,8 @@ Crafty.extend({
     * @param map - Object where the key is what becomes a new component and the value points to a position on the sprite map
     * @param paddingX - Horizontal space inbetween tiles. Defaults to 0.
     * @param paddingY - Vertical space inbetween tiles. Defaults to paddingX.
+    * @param marginX - Horizontal space inbetween entities. Defaults to 0.
+    * @param marginY - Vertical space inbetween entities. Defaults to marginX.
     * Generates components based on positions in a sprite image to be applied to entities.
     *
     * Accepts a tile size, URL and map for the name of the sprite and it's position.
@@ -166,11 +168,13 @@ Crafty.extend({
     * 
     * @see Sprite
     */
-    sprite: function (tile, tileh, url, map, paddingX, paddingY) {
+    sprite: function (tile, tileh, url, map, paddingX, paddingY,marginX,marginY) {
         var spriteName, temp, x, y, w, h, img;
 
         //if no tile value, default to 1
         if (typeof tile === "string") {
+            marginY = marginX;
+            marginX = paddingY;
             paddingY = paddingX;
             paddingX = map;
             map = tileh;
@@ -180,6 +184,8 @@ Crafty.extend({
         }
 
         if (typeof tileh == "string") {
+             marginY = marginX;
+            marginX = paddingY;
             paddingY = paddingX;
             paddingX = map;
             map = url;
@@ -191,7 +197,11 @@ Crafty.extend({
         if (!paddingY && paddingX) paddingY = paddingX;
         paddingX = parseInt(paddingX || 0, 10); //just incase
         paddingY = parseInt(paddingY || 0, 10);
-
+         //if no marginY, use marginX
+        if (!marginY && marginX) marginY = marginX;
+        marginX = parseInt(marginX || 0, 10); //just incase
+        marginY = parseInt(marginY || 0, 10);
+        
         img = Crafty.asset(url);
         if (!img) {
             img = new Image();
@@ -230,6 +240,7 @@ Crafty.extend({
                     this.__tile = tile;
                     this.__tileh = tileh;
                     this.__padding = [paddingX, paddingY];
+                    this.__margin = [marginX, marginY];
                     this.img = img;
 
                     //draw now
@@ -241,6 +252,9 @@ Crafty.extend({
                     //set the width and height to the sprite size
                     this.w = this.__coord[2];
                     this.h = this.__coord[3];
+                    //set margins
+                    this.x = marginX;
+                    this.y = marginY;
                 }
             });
         }
@@ -415,12 +429,14 @@ Crafty.extend({
 
             //update viewport and DOM scroll
             this[axis] = v;
-            if (axis == '_x') {
-                if (context) context.translate(change, 0);
-            } else {
-                if (context) context.translate(0, change);
-            }
-            if (context) Crafty.DrawManager.drawAll();
+			if (context) {
+				if (axis == '_x') {
+					context.translate(change, 0);
+				} else {
+					context.translate(0, change);
+				}
+				Crafty.DrawManager.drawAll();
+			}
             style[axis == '_x' ? "left" : "top"] = v + "px";
         },
 
@@ -582,12 +598,13 @@ Crafty.extend({
 
             function enterFrame() {
                 if (dur > 0) {
+					if (isFinite(Crafty.viewport._zoom)) zoom = Crafty.viewport._zoom;
                     var old = {
                         width: act.width * zoom,
                         height: act.height * zoom
                     };
                     zoom += zoom_tick;
-                    this._zoom = zoom;
+                    Crafty.viewport._zoom = zoom;
                     var new_s = {
                         width: act.width * zoom,
                         height: act.height * zoom
@@ -598,7 +615,8 @@ Crafty.extend({
                     };
                     Crafty.stage.inner.style[prop] = 'scale(' + zoom + ',' + zoom + ')';
                     if (Crafty.canvas._canvas) {
-                        Crafty.canvas.context.scale(zoom, zoom);
+						var czoom = zoom / (zoom - zoom_tick);
+						Crafty.canvas.context.scale(czoom, czoom);
                         Crafty.DrawManager.drawAll();
                     }
                     Crafty.viewport.x -= diff.width * prct.width;
@@ -610,6 +628,10 @@ Crafty.extend({
             return function (amt, cent_x, cent_y, time) {
                 var bounds = Crafty.map.boundaries(),
                     final_zoom = amt ? zoom * amt : 1;
+				if (!amt) {	// we're resetting to defaults
+					zoom = 1;
+					this._zoom = 1;
+				}
 
                 act.width = bounds.max.x - bounds.min.x;
                 act.height = bounds.max.y - bounds.min.y;
@@ -648,7 +670,8 @@ Crafty.extend({
                 act = {};
             return function (amt) {
                 var bounds = Crafty.map.boundaries(),
-                    final_zoom = amt ? this._zoom * amt : 1;
+                    final_zoom = amt ? this._zoom * amt : 1,
+					czoom = final_zoom / this._zoom;
 
                 this._zoom = final_zoom;
                 act.width = bounds.max.x - bounds.min.x;
@@ -658,18 +681,15 @@ Crafty.extend({
                     height: act.height * final_zoom
                 }
                 Crafty.viewport.pan('reset');
-                Crafty.stage.inner.style[prop] = 'scale(' + this._zoom + ',' + this._zoom + ')';
-                Crafty.stage.elem.style.width = new_s.width + "px";
-                Crafty.stage.elem.style.height = new_s.height + "px";
+                Crafty.stage.inner.style['transform'] = 
+				Crafty.stage.inner.style[prop] = 'scale(' + this._zoom + ',' + this._zoom + ')';
 
                 if (Crafty.canvas._canvas) {
-                    Crafty.canvas._canvas.width = new_s.width;
-                    Crafty.canvas._canvas.height = new_s.height;
-                    Crafty.canvas.context.scale(this._zoom, this._zoom);
+                    Crafty.canvas.context.scale(czoom, czoom);
                     Crafty.DrawManager.drawAll();
                 }
-                Crafty.viewport.width = new_s.width;
-                Crafty.viewport.height = new_s.height;
+                //Crafty.viewport.width = new_s.width;
+                //Crafty.viewport.height = new_s.height;
             }
         })(),
         /**@
@@ -712,7 +732,7 @@ Crafty.extend({
 
                         Crafty.viewport.x += diff.x;
                         Crafty.viewport.y += diff.y;
-                        Crafty.viewport._clamp();
+                        Crafty.viewport._clamp(); 
                     case 'start':
                         lastMouse.x = arg.clientX;
                         lastMouse.y = arg.clientY;
@@ -730,6 +750,10 @@ Crafty.extend({
             // under no circumstances should the viewport see something outside the boundary of the 'world'
             if (!this.clampToEntities) return;
             var bound = Crafty.map.boundaries();
+			bound.max.x *= this._zoom;
+			bound.min.x *= this._zoom;
+			bound.max.y *= this._zoom;
+			bound.min.y *= this._zoom;
             if (bound.max.x - bound.min.x > Crafty.viewport.width) {
                 bound.max.x -= Crafty.viewport.width;
 
@@ -873,6 +897,11 @@ Crafty.extend({
                 elem.left = "0px";
                 elem.top = "0px";
 
+                // remove default gray highlighting after touch
+                if (typeof elem.webkitTapHighlightColor != undefined) {
+                    elem.webkitTapHighlightColor = "rgba(0,0,0,0)";
+                }
+
                 var meta = document.createElement("meta"),
                     head = document.getElementsByTagName("HEAD")[0];
 
@@ -954,7 +983,23 @@ Crafty.extend({
             offset = Crafty.DOM.inner(Crafty.stage.elem);
             Crafty.stage.x = offset.x;
             Crafty.stage.y = offset.y;
-        }
+        },
+		
+		/**@
+		 * #Crafty.viewport.reset
+		 * @comp Crafty.stage
+		 *
+		 * @sign public Crafty.viewport.reset()
+		 *
+		 * Resets the viewport to starting values
+		 * Called when scene() is run.
+		 */
+		reset: function () {
+			Crafty.viewport.pan('reset');
+			Crafty.viewport.follow();
+			Crafty.viewport.mouselook('stop');
+			Crafty.viewport.scale();
+		}
     },
 
     /**@
