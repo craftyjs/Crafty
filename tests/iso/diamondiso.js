@@ -34,8 +34,8 @@ Crafty.extend({
             this._tile.sin = Math.sin(this._tile.angle);
             this._tile.cos = Math.cos(this._tile.angle);
      
-            this._origin.x =  Crafty.viewport.width/2;
-            this._origin.y =  Crafty.viewport.height;
+            this._origin.x =  Crafty.viewport.width/2-this._tile.width/2;
+            this._origin.y =  Crafty.viewport.height-this._tile.height;
             
             return this;
         },

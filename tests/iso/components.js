@@ -12,7 +12,7 @@ Crafty.c("BaseTile",{
 
 Crafty.c("Gras",{
     init:function(){
-        this.addComponent("BaseTile","spriteGras");
+        this.addComponent("BaseTile","0");
        
         return this;
     }
