@@ -786,13 +786,13 @@
                 this.trigger('Pause');
                 this._paused = true;
 
-                Crafty.timer.stop();
+                setTimeout(function(){Crafty.timer.stop()}, 0);
                 Crafty.keydown = {};
             } else {
                 this.trigger('Unpause');
                 this._paused = false;
 
-                Crafty.timer.init();
+                setTimeout(function(){Crafty.timer.init()}, 0);
             }
             return this;
         },
