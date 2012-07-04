@@ -101,6 +101,17 @@
 		Crafty.viewport.scroll('y', 0);
 	});
 
+	module("Crafty.timer")
+	test("curTime", 1, function () {
+		var startTime = Crafty.timer.curTime;
+		setTimeout(function () {
+			var endTime = Crafty.timer.curTime;
+			ok(endTime > startTime, "EndTime " + endTime + " must be larger than StartTime " + startTime);
+			start();
+		}, 100);
+		stop();// pause the QUnit so the timeout has time to complete.
+	});
+
 });
 </script>
   
