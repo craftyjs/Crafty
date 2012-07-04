@@ -30,11 +30,11 @@ $files = array("license.txt",
                "outro.js");
 			   
 foreach($files as $file) {
-	$src .= file_get_contents("src/".$file);
+	$src .= file_get_contents("../src/".$file);
 	$src .= "\n\n";
 }
 
-file_put_contents("crafty.js", $src);
+file_put_contents("../crafty.js", $src);
 
 ?>
 <h1>Done: Please YUI Compress!</h1>

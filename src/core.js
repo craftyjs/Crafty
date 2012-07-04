@@ -743,11 +743,11 @@
         *
         * @example
         * ~~~
-        * Crafty.getVersion(); //'0.4.9'
+        * Crafty.getVersion(); //'0.5.0'
         * ~~~
         */
         getVersion: function () {
-            return '0.4.9';
+            return '0.5.0';
         },
 
         /**@
