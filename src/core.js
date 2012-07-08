@@ -13,7 +13,7 @@
     *    Crafty("Hello, 2D, Component")
     * ~~~
     * 
-    * The first selector will return all entities that has the component `MyComponent`. The second will return all entities that has `Hello` and `2D` and `Component` whereas the last will return all entities that has at least one of those components (or).
+    * The first selector will return all entities that have the component `MyComponent`. The second will return all entities that have `Hello` and `2D` and `Component` whereas the last will return all entities that have at least one of those components (or).
     * ~~~
     *   Crafty(1)
     * ~~~
@@ -184,7 +184,7 @@
         * #.addComponent
         * @comp Crafty Core
         * @sign public this .addComponent(String componentList)
-        * @param componentList - A string of components to add seperated by a comma `,`
+        * @param componentList - A string of components to add separated by a comma `,`
         * @sign public this .addComponent(String Component1[, .., String ComponentN])
         * @param Component# - Component ID to add.
         * Adds a component to the selected entities or entity.
@@ -505,7 +505,7 @@
         * @param callback - Function to unbind
         * Removes binding with an event from current entity.
         *
-        * Passing an event name will remove all events binded to
+        * Passing an event name will remove all events bound to
         * that event. Passing a reference to the callback will
         * unbind only that callback.
         * @see .bind, .trigger
@@ -739,7 +739,7 @@
         * #.getVersion
         * @comp Crafty Core
         * @sign public this .getVersion()
-        * @returns Actualy crafty version
+        * @returns Actually crafty version
         *
         * @example
         * ~~~
@@ -784,7 +784,7 @@
         * @trigger Unpause - when the game is unpaused
         * @sign public this Crafty.pause(void)
         * 
-        * Pauses the game by stoping the EnterFrame event from firing. If the game is already paused it is unpaused.
+        * Pauses the game by stopping the EnterFrame event from firing. If the game is already paused it is unpaused.
         * You can pass a boolean parameter if you want to pause or unpause mo matter what the current state is.
         * Modern browsers pauses the game when the page is not visible to the user. If you want the Pause event
         * to be triggered when that happens you can enable autoPause in `Crafty.settings`.
@@ -976,8 +976,8 @@
         * - Properties or methods that start with an underscore are considered private.
         * - A method called `init` will automatically be called as soon as the
         * component is added to an entity.
-        * - A methid called `uninit` will be called when the component is removed from an entity. 
-        * A sample use case for this is the native DOM component that removes its div element wehen removed from an entity.
+        * - A method called `uninit` will be called when the component is removed from an entity. 
+        * A sample use case for this is the native DOM component that removes its div element when removed from an entity.
         * - A method with the same name as the component is considered to be a constructor
         * and is generally used when you need to pass configuration data to the component on a per entity basis.
         *

@@ -31,7 +31,7 @@
     * @sign public Object Crafty.map.insert(Object obj)
 	* @param obj - An entity to be inserted.
 	* 
-    * `obj` is instered in '.map' of the corresponding broad phase cells. An object of the following fields is returned.
+    * `obj` is inserted in '.map' of the corresponding broad phase cells. An object of the following fields is returned.
     * ~~~
     * - the object that keep track of cells (keys)
     * - `obj`
@@ -67,7 +67,7 @@
 	* 
     * - If `filter` is `false`, just search for all the entries in the give `rect` region by broad phase collision. Entity may be returned duplicated.
     * - If `filter` is `true`, filter the above results by checking that they actually overlap `rect`.
-    * The easier usage is with `filter`=`true`. For performance reason, you may use `filter`=`false`, and filter the result youself. See examples in drawing.js and collision.js
+    * The easier usage is with `filter`=`true`. For performance reason, you may use `filter`=`false`, and filter the result yourself. See examples in drawing.js and collision.js
 	*/
 		search: function (rect, filter) {
 			var keys = HashMap.key(rect),
