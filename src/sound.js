@@ -47,7 +47,7 @@ Crafty.extend({
         * #Crafty.audio.add
         * @comp Crafty.audio
         * @sign public this Crafty.audio.add(String id, String url)
-        * @param id - A string to reffer to sounds
+        * @param id - A string to refer to sounds
         * @param url - A string pointing to the sound file
         * @sign public this Crafty.audio.add(String id, Array urls)
         * @param urls - Array of urls pointing to different format of the same sound, selecting the first that is playable
@@ -169,7 +169,7 @@ Crafty.extend({
         * @sign public this Crafty.audio.play(String id)
         * @sign public this Crafty.audio.play(String id, Number repeatCount)
         * @sign public this Crafty.audio.play(String id, Number repeatCount,Number volume)
-        * @param id - A string to reffer to sounds
+        * @param id - A string to refer to sounds
         * @param repeatCount - Repeat count for the file, where -1 stands for repeat forever.
         * @param volume - volume can be a number between 0.0 and 1.0
         * 
@@ -207,7 +207,7 @@ Crafty.extend({
         * #Crafty.audio.stop
         * @sign public this Crafty.audio.stop([Number ID])
         * 
-        * Stops any playnig sound. if id is not set, stop all sounds which are playing
+        * Stops any playing sound. if id is not set, stop all sounds which are playing
         * 
         * @example
         * ~~~

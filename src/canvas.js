@@ -4,7 +4,7 @@
 * @trigger Draw - when the entity is ready to be drawn to the stage - {type: "canvas", pos, co, ctx}
 * @trigger NoCanvas - if the browser does not support canvas
 * 
-* Draws itself onto a canvas. Crafty.canvas.init() will be automatically called it is not called already (hence the canvas element dosen't exist).
+* Draws itself onto a canvas. Crafty.canvas.init() will be automatically called it is not called already (hence the canvas element doesn't exist).
 */
 Crafty.c("Canvas", {
 
@@ -38,7 +38,7 @@ Crafty.c("Canvas", {
 	* @param ctx - Canvas 2D context if drawing on another canvas is required
 	* @param x - X offset for drawing a segment
 	* @param y - Y offset for drawing a segment
-	* @param w - Width of the segement to draw
+	* @param w - Width of the segment to draw
 	* @param h - Height of the segment to draw
 	* 
 	* Method to draw the entity on the canvas element. Can pass rect values for redrawing a segment of the entity.

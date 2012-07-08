@@ -1,7 +1,7 @@
 /**@
 * #Crafty.map
 * @category 2D
-* Functions related with quering entities. 
+* Functions related with querying entities. 
 * @see Crafty.HashMap
 */
 Crafty.map = new Crafty.HashMap();
@@ -217,7 +217,7 @@ Crafty.c("2D", {
 					//update the MBR
 					var mbr = this._mbr, moved = false;
 					// If the browser doesn't have getters or setters,
-					// {x, y, w, h, z} and {_x, _y, _w, _h, _z} may be out of synce,
+					// {x, y, w, h, z} and {_x, _y, _w, _h, _z} may be out of sync,
 					// in which case t checks if they are different on tick and executes the Change event.
 					if (mbr) { //check each value to see which has changed
 						if (this.x !== this._x) { mbr._x -= this.x - this._x; moved = true; }
@@ -722,7 +722,7 @@ Crafty.c("2D", {
 		if (name === '_rotation') {
 			this._rotate(value);
 			this.trigger("Rotate");
-			//set the global Z and trigger reorder just incase
+			//set the global Z and trigger reorder just in case
 		} else if (name === '_z') {
 			this._globalZ = parseInt(value + Crafty.zeroFill(this[0], 5), 10); //magic number 10e5 is the max num of entities
 			this.trigger("reorder");
@@ -998,7 +998,7 @@ Crafty.circle = function (x, y, radius) {
 	this.y = y;
 	this.radius = radius;
 
-	// Creates an octogon that aproximate the circle for backward compatibility.
+	// Creates an octagon that approximate the circle for backward compatibility.
 	this.points = [];
 	var theta;
 

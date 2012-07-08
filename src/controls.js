@@ -185,7 +185,7 @@ Crafty.extend({
 
         first.target.dispatchEvent(simulatedEvent);
 
-        // trigger click when it shoud be triggered
+        // trigger click when it should be triggered
         if (lastEvent != null && lastEvent.type == 'mousedown' && type == 'mouseup') {
             type = 'click';
 
@@ -207,7 +207,7 @@ Crafty.extend({
 	/**@
 	* #KeyboardEvent
 	* @category Input
-    * Keyboard Event triggerd by Crafty Core
+    * Keyboard Event triggered by Crafty Core
 	* @trigger KeyDown - is triggered for each entity when the DOM 'keydown' event is triggered.
 	* @trigger KeyUp - is triggered for each entity when the DOM 'keyup' event is triggered.
 	* 
@@ -236,7 +236,7 @@ Crafty.extend({
 	* #Crafty.eventObject
 	* @category Input
 	* 
-	* Event Object used in Crafty for cross browser compatiblity
+	* Event Object used in Crafty for cross browser compatibility
 	*/
 
 	/**@
@@ -459,7 +459,7 @@ Crafty.c("Draggable", {
 	* #.dragDirection
 	* @comp Draggable
 	* @sign public this .dragDirection()
-    * Remove any previously specifed direction.
+    * Remove any previously specified direction.
     *
 	* @sign public this .dragDirection(vector)
     * @param vector - Of the form of {x: valx, y: valy}, the vector (valx, valy) denotes the move direction.
@@ -471,7 +471,7 @@ Crafty.c("Draggable", {
 	* @example
 	* ~~~
 	* this.dragDirection()
-	* this.dragDirection({x:1, y:0}) //Horizonatal
+	* this.dragDirection({x:1, y:0}) //Horizontal
 	* this.dragDirection({x:0, y:1}) //Vertical
     * // Note: because of the orientation of x and y axis,
     * // this is 45 degree clockwise with respect to the x axis.
@@ -599,7 +599,7 @@ Crafty.c("Keyboard", {
 /**@
 * #Multiway
 * @category Input
-* Used to bind keys to directions and have the entity move acordingly
+* Used to bind keys to directions and have the entity move accordingly
 * @trigger NewDirection - triggered when direction changes - { x:Number, y:Number } - New direction
 * @trigger Moved - triggered on movement on either x or y axis. If the entity has moved on both axes for diagonal movement the event is triggered twice - { x:Number, y:Number } - Old position
 */
@@ -814,7 +814,7 @@ Crafty.c("Twoway", {
 	* ~~~
 	* 
 	* The key presses will move the entity in that direction by the speed passed in
-	* the argument. Pressing the `Up Arrow` or `W` will cause the entiy to jump.
+	* the argument. Pressing the `Up Arrow` or `W` will cause the entity to jump.
 	* 
 	* @see Gravity, Fourway
 	*/
