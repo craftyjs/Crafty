@@ -157,7 +157,7 @@ Crafty.c("Particles", {
 			this.position = this.vectorHelpers.create(0, 0);
 			if (typeof options == 'undefined') var options = {};
 
-			//Create current config by mergin given options and presets.
+			//Create current config by merging given options and presets.
 			for (key in this.presets) {
 				if (typeof options[key] != 'undefined') this[key] = options[key];
 				else this[key] = this.presets[key];
