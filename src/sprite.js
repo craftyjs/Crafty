@@ -47,7 +47,9 @@ Crafty.c("Sprite", {
 								 pos._h //height on canvas
 				);
 			} else if (e.type === "DOM") {
-				this._element.style.background = "url('" + this.__image + "') no-repeat -" + co.x + "px -" + co.y + "px";
+				this._element.style.backgroundImage = "url('" + this.__image + "')"; 
+        this._element.style.backgroundRepeat = "no-repeat"; 
+        this._element.style.backgroundPosition = "-" + co.x + "px -" + co.y + "px";
 			}
 		};
 
