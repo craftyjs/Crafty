@@ -834,8 +834,10 @@ Crafty.c("Twoway", {
 		this.bind("EnterFrame", function () {
 			if (this.disableControls) return;
 			if (this._up) {
+				this._movement.y = -jump;
 				this.y -= jump;
 				this._falling = true;
+				this.trigger('Moved', { x: this._x, y: oldY });
 			}
 		}).bind("KeyDown", function () {
 			if (this.isDown("UP_ARROW") || this.isDown("W") || this.isDown("Z")) this._up = true;
