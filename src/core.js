@@ -39,6 +39,7 @@
 
     	components = {}; //map of components and their functions
     	entities = {}; //map of entities and their data
+    	entityTemplates = {}; //templates of entities
     	handlers = {}; //global event handlers
     	onloads = []; //temporary storage of onload handlers
     	tick;
@@ -922,6 +923,55 @@
             }
 
         },
+
+        /**@
+        * #Crafty.addEntityTemplate
+        * @category Core
+        * @param name - Name of the entity template.
+        * @param callback - Function containing the entity creation procedure.
+        * 
+        * Registers an entity template.
+        *
+        * @example
+        * ~~~
+        * Crafty.addEntityTemplate('Projectile', function() {
+	* 	var entity = Crafty.e('2D, Canvas, Color, Physics, Collision')
+	* 	.color("red")
+	* 	.attr({
+	* 		w: 3,
+	* 		h: 3,
+	* 		x: this.x,
+	* 		y: this.y
+	* 	})
+	* 	.addComponent('Gravity').gravity("Floor");
+	* 	
+	* 	return entity;
+	* });
+        * ~~~
+        * 
+        * @see Crafty.e
+        */
+	addEntityTemplate: function(name, callback) {
+		this.entityTemplates[name] = callback;
+	}
+
+        /**@
+        * #Crafty.newEntityFromTemplate
+        * @category Core
+        * @param name - Name of the entity template.
+        * 
+        * Creates a new entity based on an entity template.
+        *
+        * @example
+        * ~~~
+        * Crafty.newEntityFromTemplate('Projectile');
+        * ~~~
+        * 
+        * @see Crafty.e
+        */
+	newEntityFromTemplate: function(name) {
+		return this.entityTemplates[name]();
+	}
 
         /**@
         * #Crafty.e
