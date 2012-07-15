@@ -200,7 +200,8 @@ Crafty.extend({
             first.target.dispatchEvent(simulatedEvent);
         }
 
-        e.preventDefault();
+        if(e.preventDefault) e.preventDefault();
+        else e.returnValue = false;
     },
 
 
@@ -261,7 +262,9 @@ Crafty.extend({
 		//Among others this prevent the arrow keys from scrolling the parent page
 		//of an iframe hosting the game
 		if(Crafty.selected && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
-			e.stopPropagation();
+			if(e.stopPropagation) e.stopPropagation();
+            else e.cancelBubble = true;
+
 			if(e.preventDefault) e.preventDefault();
 			else e.returnValue = false;
 			return false;
