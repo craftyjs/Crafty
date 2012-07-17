@@ -410,47 +410,38 @@ Crafty.c("Draggable", {
 	init: function () {
 		this.requires("Mouse");
 		this._ondrag = function (e) {
-            var pos = Crafty.DOM.translate(e.clientX, e.clientY);
-
-            // ignore invalid 0 0 position - strange problem on ipad
-            if (pos.x == 0 || pos.y == 0) {
-                return false;
-            }
-
-            if(this._dir) {
-                var len = (pos.x - this._origMouseDOMPos.x) * this._dir.x + (pos.y - this._origMouseDOMPos.y) * this._dir.y;
-                this.x = this._oldX + len * this._dir.x;
-                this.y = this._oldY + len * this._dir.y;
-            } else {
-                this.x = this._oldX + (pos.x - this._origMouseDOMPos.x);
-                this.y = this._oldY + (pos.y - this._origMouseDOMPos.y);
-            }
-
-            this.trigger("Dragging", e);
-        };
+		var pos = Crafty.DOM.translate(e.clientX, e.clientY);
+	
+			// ignore invalid 0 0 position - strange problem on ipad
+			if (pos.x == 0 || pos.y == 0) {
+			    return false;
+			}
+	    
+			if(this._dir) {
+			    var len = (pos.x - this._origMouseDOMPos.x) * this._dir.x + (pos.y - this._origMouseDOMPos.y) * this._dir.y;
+			    this.x = this._oldX + len * this._dir.x;
+			    this.y = this._oldY + len * this._dir.y;
+			} else {
+			    this.x = this._oldX + (pos.x - this._origMouseDOMPos.x);
+			    this.y = this._oldY + (pos.y - this._origMouseDOMPos.y);
+			}
+	    
+			this.trigger("Dragging", e);
+		};
 
 		this._ondown = function (e) {
 			if (e.mouseButton !== Crafty.mouseButtons.LEFT) return;
-
-			//start drag
-            this._origMouseDOMPos = Crafty.DOM.translate(e.clientX, e.clientY);
-			this._oldX = this._x;
-			this._oldY = this._y;
-			this._dragging = true;
-
-			Crafty.addEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
-			Crafty.addEvent(this, Crafty.stage.elem, "mouseup", this._onup);
-			this.trigger("StartDrag", e);
+			this._startDrag(e);	
 		};
 
-        this._onup = function upper(e) {
-            if (this._dragging == true) {
-                Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
-                Crafty.removeEvent(this, Crafty.stage.elem, "mouseup", this._onup);
-                this._dragging = false;
-                this.trigger("StopDrag", e);
-            }
-        };
+		this._onup = function upper(e) {
+		    if (this._dragging == true) {
+			Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
+			Crafty.removeEvent(this, Crafty.stage.elem, "mouseup", this._onup);
+			this._dragging = false;
+			this.trigger("StopDrag", e);
+		    }
+		};
 
 		this.enableDrag();
 	},
@@ -496,6 +487,25 @@ Crafty.c("Draggable", {
       };
 		}
 	},
+	
+	
+	/**@
+	* #._startDrag
+	* @comp Draggable
+	* Internal method for starting a drag of an entity either programatically or via Mouse click
+	*
+	* @param e - a mouse event
+	*/
+	_startDrag: function(e){
+		this._origMouseDOMPos = Crafty.DOM.translate(e.clientX, e.clientY);
+		this._oldX = this._x;
+		this._oldY = this._y;
+		this._dragging = true;
+
+		Crafty.addEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
+		Crafty.addEvent(this, Crafty.stage.elem, "mouseup", this._onup);
+		this.trigger("StartDrag", e);
+	},
 
 	/**@
 	* #.stopDrag
@@ -527,8 +537,8 @@ Crafty.c("Draggable", {
 	*/
 	startDrag: function () {
 		if (!this._dragging) {
-			this._dragging = true;
-			Crafty.addEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
+			//Use the last known position of the mouse
+			this._startDrag(Crafty.lastEvent);
 		}
 		return this;
 	},
