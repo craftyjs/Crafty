@@ -39,6 +39,7 @@
 
     	components = {}; //map of components and their functions
     	entities = {}; //map of entities and their data
+    	entityTFactories = {}; //templates of entities
     	handlers = {}; //global event handlers
     	onloads = []; //temporary storage of onload handlers
     	tick;
@@ -922,6 +923,56 @@
             }
 
         },
+
+       /**@
+        * #Crafty.addEntityFactory
+        * @category Core
+        * @param name - Name of the entity factory.
+        * @param callback - Function containing the entity creation procedure.
+        * 
+        * Registers an entity factory.
+        *
+        * @example
+        * ~~~
+        * Crafty.addEntityFactory('Projectile', function() {
+	* 	var entity = Crafty.e('2D, Canvas, Color, Physics, Collision')
+	* 	.color("red")
+	* 	.attr({
+	* 		w: 3,
+	* 		h: 3,
+	* 		x: this.x,
+	* 		y: this.y
+	* 	})
+	* 	.addComponent('Gravity').gravity("Floor");
+	* 	
+	* 	return entity;
+	* });
+        * ~~~
+        * 
+        * @see Crafty.e
+        */
+	addEntityFactory: function(name, callback) {
+		this.entityFactories[name] = callback;
+	}
+
+        /**@
+        * #Crafty.newFactoryEntity
+        * @category Core
+        * @param name - Name of the entity factory.
+        * 
+        * Creates a new entity from an entity factory.
+        *
+        * @example
+        * ~~~
+        * Crafty.newFactoryEntity('Projectile');
+        * ~~~
+        * 
+        * @see Crafty.e
+        */
+	newFactoryEntity: function(name) {
+		return this.entityTemplates[name]();
+	}
+
 
         /**@
         * #Crafty.e
