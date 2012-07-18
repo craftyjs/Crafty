@@ -583,7 +583,7 @@ Crafty.c("Keyboard", {
 	* 
 	* @example
 	* ~~~
-	* entity.requires('KeyBoard').bind('KeyDown', function () { if (this.isDown('SPACE')) jump(); });
+	* entity.requires('Keyboard').bind('KeyDown', function () { if (this.isDown('SPACE')) jump(); });
 	* ~~~
 	* 
 	* @see Crafty.keys
