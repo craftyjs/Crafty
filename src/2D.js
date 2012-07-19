@@ -562,7 +562,8 @@ Crafty.c("2D", {
 	* @sign public this .attach(Entity obj[, .., Entity objN])
 	* @param obj - Entity(s) to attach
 	* Attaches an entities position and rotation to current entity. When the current entity moves,
-	* the attached entity will move by the same amount.
+	* the attached entity will move by the same amount. Attached entities stored in _children array,
+	* the parent object is stored in _parent on the child entities.
 	*
 	* As many objects as wanted can be attached and a hierarchy of objects is possible by attaching.
 	*/
