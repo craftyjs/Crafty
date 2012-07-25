@@ -10,7 +10,7 @@
     *   console.log(this.values); // Display last x Values
     * })
     */
-   Crafty.c("FPS",{
+  Crafty.c("FPS",{
          values:[],
          maxValues:60,
         init:function(){

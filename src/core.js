@@ -897,13 +897,14 @@
                 if (loops) {
                     Crafty.DrawManager.draw();
                 }
-                if(this.currentTime > this.frameTime){
-                    Crafty.trigger("MessureFPS",{value:this.frames});
+               if(this.curTime > this.frameTime){
+                    Crafty.trigger("MessureFPS",{value:this.frame});
                     this.frame = 0;
-                    this.frameTime = this.currentTime + 1000;
+                    this.frameTime = this.curTime + 1000;
                 }else{
                     this.frame++;
                 }
+            
             },
             /**@
             * #Crafty.timer.getFPS
