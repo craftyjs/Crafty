@@ -838,7 +838,8 @@
             prev: (+new Date),
             current: (+new Date),
             curTime: Date.now(),
-
+            frames:0,
+            frameTime:0,
             init: function () {
                 var onFrame = window.requestAnimationFrame ||
                     window.webkitRequestAnimationFrame ||
@@ -896,6 +897,14 @@
                 if (loops) {
                     Crafty.DrawManager.draw();
                 }
+               if(this.curTime > this.frameTime){
+                    Crafty.trigger("MessureFPS",{value:this.frame});
+                    this.frame = 0;
+                    this.frameTime = this.curTime + 1000;
+                }else{
+                    this.frame++;
+                }
+            
             },
             /**@
             * #Crafty.timer.getFPS
