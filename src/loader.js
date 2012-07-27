@@ -73,7 +73,7 @@ Crafty.extend({
 	*
 	* `onError` will be passed with the asset that couldn't load.
     *
-	* When `onError` is not provided, the onLoad is loaded even some assests are not successfully loaded. Otherwise, onLoad will be called no matter whether there are errors or not. 
+	* When `onError` is not provided, the onLoad is loaded even some assets are not successfully loaded. Otherwise, onLoad will be called no matter whether there are errors or not. 
 	* 
 	* @example
 	* ~~~

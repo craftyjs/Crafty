@@ -74,7 +74,7 @@ Crafty.c("Tint", {
 	* @comp Tint
 	* @trigger Change - when the tint is applied
 	* @sign public this .tint(String color, Number strength)
-	* @param color - The color in hexidecimal
+	* @param color - The color in hexadecimal
 	* @param strength - Level of opacity
 	* 
 	* Modify the color and level opacity to give a tint on the entity.

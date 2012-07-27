@@ -122,7 +122,7 @@
 	 * 
 	 * Handlers for processing any data that needs more than straight assignment
 	 *
-	 * Note that data stord in the .attr object is automatically added to the entity.
+	 * Note that data stored in the .attr object is automatically added to the entity.
 	 * It does not need to be handled here
 	 *
 	 * @example
