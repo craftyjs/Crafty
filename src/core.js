@@ -39,6 +39,7 @@
 
     	components = {}; //map of components and their functions
     	entities = {}; //map of entities and their data
+        entityFactories = {}; //templates of entities
     	handlers = {}; //global event handlers
     	onloads = []; //temporary storage of onload handlers
     	tick;
@@ -838,7 +839,8 @@
             prev: (+new Date),
             current: (+new Date),
             curTime: Date.now(),
-
+            frames:0,
+            frameTime:0,
             init: function () {
                 var onFrame = window.requestAnimationFrame ||
                     window.webkitRequestAnimationFrame ||
@@ -896,6 +898,14 @@
                 if (loops) {
                     Crafty.DrawManager.draw();
                 }
+               if(this.curTime > this.frameTime){
+                    Crafty.trigger("MessureFPS",{value:this.frame});
+                    this.frame = 0;
+                    this.frameTime = this.curTime + 1000;
+                }else{
+                    this.frame++;
+                }
+            
             },
             /**@
             * #Crafty.timer.getFPS
@@ -921,6 +931,69 @@
                 Crafty.DrawManager.draw();
             }
 
+        },
+
+        /**@
+        * #Crafty.addEntityFactory
+        * @category Core
+        * @param name - Name of the entity factory.
+        * @param callback - Function containing the entity creation procedure.
+        * 
+        * Registers an Entity Factory.  An Entity Factory allows for the repeatable creation of an Entity.
+        *
+        * @example
+        * ~~~
+        * Crafty.addEntityFactory('Projectile', function() {
+        *   var entity = Crafty.e('2D, Canvas, Color, Physics, Collision')
+        *   .color("red")
+        *   .attr({
+        *     w: 3,
+        *     h: 3,
+        *     x: this.x,
+        *     y: this.y
+        *   })
+        *   .addComponent('Gravity').gravity("Floor");
+        *   
+        *   return entity;
+        * });
+        * ~~~
+        * 
+        * @see Crafty.e
+        */
+        addEntityFactory: function(name, callback) {
+            this.entityFactories[name] = callback;
+        },
+
+        /**@
+        * #Crafty.newFactoryEntity
+        * @category Core
+        * @param name - Name of the entity factory.
+        * 
+        * Creates a new entity based on a specific Entity Factory.
+        *
+        * @example
+        * ~~~
+        * Crafty.addEntityFactory('Projectile', function() {
+        *   var entity = Crafty.e('2D, Canvas, Color, Physics, Collision')
+        *   .color("red")
+        *   .attr({
+        *     w: 3,
+        *     h: 3,
+        *     x: this.x,
+        *     y: this.y
+        *   })
+        *   .addComponent('Gravity').gravity("Floor");
+        *   
+        *   return entity;
+        * });
+        *
+        * Crafty.newFactoryEntity('Projectile'); // This returns a new Projectile Entity.
+        * ~~~
+        * 
+        * @see Crafty.e
+        */
+        newFactoryEntity: function(name) {
+            return this.entityTemplates[name]();
         },
 
         /**@

@@ -242,7 +242,7 @@ Crafty.c("SpriteAnimation", {
 	* ~~~
 	*/
 	isPlaying: function (reelId) {
-		if (!reelId) return !!this._interval;
+		if (!reelId) return !!this._currentReelId;
 		return this._currentReelId === reelId;
 	}
 });
