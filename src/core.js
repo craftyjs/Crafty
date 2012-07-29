@@ -1287,4 +1287,4 @@
 
     //make Crafty global
     window.Crafty = Crafty;
-})(window,
+})(window)
