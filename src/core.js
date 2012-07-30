@@ -807,7 +807,7 @@
             } else {
                 this.trigger('Unpause');
                 this._paused = false;
-
+		  Crafty.trigger("Load");
                 setTimeout(function(){ Crafty.timer.init(); }, 0);
             }
             return this;
