@@ -4,7 +4,15 @@
 * @trigger Draw - when the entity is ready to be drawn to the stage - {type: "canvas", pos, co, ctx}
 * @trigger NoCanvas - if the browser does not support canvas
 * 
-* Draws itself onto a canvas. Crafty.canvas.init() will be automatically called it is not called already (hence the canvas element doesn't exist).
+* When this component is added to an entity it will be drawn to the global canvas element. The canvas element (and hence all Canvas entities) is always rendered below any DOM entities. 
+* 
+* Crafty.canvas.init() will be automatically called if it is not called already to initialize the canvas element.
+*
+* Create a canvas entity like this
+* ~~~
+* var myEntity = Crafty.e("2D, Canvas, Color").color("green")
+*                                             .attr({x: 13, y: 37, w: 42, h: 42});
+*~~~
 */
 Crafty.c("Canvas", {
 
