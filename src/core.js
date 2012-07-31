@@ -864,7 +864,8 @@
             },
 
             stop: function () {
-                Crafty.trigger("CraftyStopTimer");
+                Crafty.trigger("CraftyStop" +
+                    "Timer");
 
                 if (typeof tick === "number") clearInterval(tick);
 

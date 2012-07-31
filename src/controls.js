@@ -334,7 +334,7 @@ Crafty.bind("CraftyStop", function () {
 *      console.log("Clicked!!");
 * })
 *
-* myEntity.bind('Click', function(e) {
+* myEntity.bind('MouseUp', function(e) {
 *    if( e.mouseButton == Crafty.mouseButtons.RIGHT )
 *        console.log("Clicked right button");
 * })

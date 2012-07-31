@@ -995,18 +995,18 @@ Crafty.polygon.prototype = {
 * (don't include the absolute values as it will automatically calculate this).
 */
 Crafty.circle = function (x, y, radius) {
-	this.x = x;
-	this.y = y;
-	this.radius = radius;
+    this.x = x;
+    this.y = y;
+    this.radius = radius;
 
-	// Creates an octagon that approximate the circle for backward compatibility.
-	this.points = [];
-	var theta;
+    // Creates an octagon that approximate the circle for backward compatibility.
+    this.points = [];
+    var theta;
 
-	for (var i = 0; i < 8; i++) {
-		theta = i * Math.PI / 4;
-		this.points[i] = [Math.sin(theta) * radius, Math.cos(theta) * radius];
-	}
+    for (var i = 0; i < 8; i++) {
+        theta = i * Math.PI / 4;
+        this.points[i] = [this.x + (Math.sin(theta) * radius), this.y + (Math.cos(theta) * radius)];
+    }
 };
 
 Crafty.circle.prototype = {
