@@ -775,6 +775,8 @@
         		initComponents(Crafty, window, window.document);
         	}
 
+            Crafty.trigger("CraftyStop");
+
         	return this;
         },
 
@@ -862,7 +864,7 @@
             },
 
             stop: function () {
-                Crafty.trigger("CraftyStop");
+                Crafty.trigger("CraftyStopTimer");
 
                 if (typeof tick === "number") clearInterval(tick);
 
