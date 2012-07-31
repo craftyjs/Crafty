@@ -775,6 +775,8 @@
         		initComponents(Crafty, window, window.document);
         	}
 
+            Crafty.trigger("CraftyStop");
+
         	return this;
         },
 
@@ -863,7 +865,8 @@
             },
 
             stop: function () {
-                Crafty.trigger("CraftyStop");
+                Crafty.trigger("CraftyStop" +
+                    "Timer");
 
                 if (typeof tick === "number") clearInterval(tick);
 
@@ -1049,8 +1052,6 @@
         * - Properties or methods that start with an underscore are considered private.
         * - A method called `init` will automatically be called as soon as the
         * component is added to an entity.
-        * - A method called `uninit` will be called when the component is removed from an entity. 
-        * A sample use case for this is the native DOM component that removes its div element when removed from an entity.
         * - A method with the same name as the component is considered to be a constructor
         * and is generally used when you need to pass configuration data to the component on a per entity basis.
         *
@@ -1066,7 +1067,21 @@
         *
         * Crafty.e("Annoying").annoying("I'm an orange...");
         * ~~~
+        *
         * 
+        * WARNING: 
+        *
+        * in the example above the field _message is local to the entity. That is, if you create many entities with the Annoying component they can all have different values for _message. That is because it is a simple value, and simple values are copied by value. If however the field had been an object or array, the value would have been shared by all entities with the component because complex types are copied by reference in javascript. This is probably not what you want and the following example demonstrates how to work around it:
+        *
+        * ~~~
+        * Crafty.c("MyComponent", {
+        *     _iAmShared: { a: 3, b: 4 },
+        *     init: function() {
+        *         this._iAmNotShared = { a: 3, b: 4 };
+        *     },
+        * });
+        * ~~~
+        *
         * @see Crafty.e
         */
         c: function (compName, component) {

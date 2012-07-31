@@ -8,6 +8,15 @@ Crafty.c("Collision", {
      * #.init
      * @comp Collision
      * Create a rectangle polygon based on the x, y, w, h dimensions.
+     *
+     * You must ensure that the x, y, w, h properties are set before the init function is called. If you have a Car component that sets these properties you should create your entity like this
+     * ~~~
+     * Crafty.e('2D, DOM, Car, Collision');
+     * ~~~
+     * And not like
+     * ~~~
+     * Crafty.e('2D, DOM, Collision, Car');
+     * ~~~
      */
     init: function () {
         this.requires("2D");
@@ -19,7 +28,7 @@ Crafty.c("Collision", {
         this.map.shift(area._x, area._y);
     },
 
-	/**@
+    /**@
 	* #.collision
 	* @comp Collision
 	* 
@@ -33,6 +42,8 @@ Crafty.c("Collision", {
 	*
 	* The hit area (polygon) must be a convex shape and not concave
 	* for the collision detection to work.
+    *
+    * If no hit area is specified x, y, w, h properties of the entity will be used.
 	* 
 	* @example
 	* ~~~
@@ -45,13 +56,14 @@ Crafty.c("Collision", {
 	* 
 	* @see Crafty.polygon
 	*/
-	collision: function (poly) {
-		var area = this._mbr || this;
+    collision: function (poly) {
+        var area = this._mbr || this;
 
-		if (!poly) {
-			return this;
-		}
-        
+        if (!poly) {
+            this.init();
+            return this;
+        }
+
         if (arguments.length > 1) {
             //convert args to array to create polygon
             var args = Array.prototype.slice.call(arguments, 0);

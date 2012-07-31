@@ -187,7 +187,7 @@ Crafty.math = {
 	},
 
 	/**@
-     * #Crafty.math.squaredDistance
+     * #Crafty.math.withinRange
 	 * @comp Crafty.math
 	 * @sign public Boolean Crafty.math.withinRange(Number value, Number min, Number max)
      * @param value - The specific value.
@@ -205,7 +205,7 @@ Crafty.math = {
 Crafty.math.Vector2D = (function () {
 	/**@
 	 * #Crafty.math.Vector2D
-	 *
+	 * @category 2D
 	 * @class This is a general purpose 2D vector class
 	 *
 	 * Vector2D uses the following form:
@@ -233,8 +233,9 @@ Crafty.math.Vector2D = (function () {
 	Vector2D.prototype.y = 0;
 
 	/**@
-	 * #.add( )
-	 *
+	 * #.add
+	 * @comp Crafty.math.Vector2D
+     *
 	 * Adds the passed vector to this vector
 	 *
 	 * @public
@@ -246,10 +247,11 @@ Crafty.math.Vector2D = (function () {
 		this.x += vecRH.x;
 		this.y += vecRH.y;
 		return this;
-	} // add( )
+	} // add
 
 	/**@
-	 * #.angleBetween( )
+	 * #.angleBetween
+     * @comp Crafty.math.Vector2D
 	 *
 	 * Calculates the angle between the passed vector and this vector, using <0,0> as the point of reference.
 	 * Angles returned have the range (−π, π].
@@ -261,10 +263,11 @@ Crafty.math.Vector2D = (function () {
 	 */
 	Vector2D.prototype.angleBetween = function (vecRH) {
 		return Math.atan2(this.x * vecRH.y - this.y * vecRH.x, this.x * vecRH.x + this.y * vecRH.y);
-	} // angleBetween( )
+	} // angleBetween
 
 	/**@
-	 * #.angleTo( )
+	 * #.angleTo
+     * @comp Crafty.math.Vector2D
 	 *
 	 * Calculates the angle to the passed vector from this vector, using this vector as the point of reference.
 	 *
@@ -278,7 +281,8 @@ Crafty.math.Vector2D = (function () {
 	};
 
 	/**@
-	 * #.clone( )
+	 * #.clone
+     * @comp Crafty.math.Vector2D
 	 *
 	 * Creates and exact, numeric copy of this vector
 	 *
@@ -286,12 +290,13 @@ Crafty.math.Vector2D = (function () {
 	 * @sign public {Vector2D} clone();
 	 * @returns {Vector2D} the new vector
 	 */
-	Vector2D.prototype.clone = function () {
-		return new Vector2D(this);
-	} // clone( )
+    Vector2D.prototype.clone = function() {
+        return new Vector2D(this);
+    }; // clone
 
 	/**@
-	 * #.distance( )
+	 * #.distance
+     * @comp Crafty.math.Vector2D
 	 *
 	 * Calculates the distance from this vector to the passed vector.
 	 *
@@ -300,12 +305,13 @@ Crafty.math.Vector2D = (function () {
 	 * @param {Vector2D} vecRH
 	 * @returns {Number} the distance between the two vectors
 	 */
-	Vector2D.prototype.distance = function (vecRH) {
-		return Math.sqrt((vecRH.x - this.x) * (vecRH.x - this.x) + (vecRH.y - this.y) * (vecRH.y - this.y));
-	} // distance( )
+    Vector2D.prototype.distance = function(vecRH) {
+        return Math.sqrt((vecRH.x - this.x) * (vecRH.x - this.x) + (vecRH.y - this.y) * (vecRH.y - this.y));
+    }; // distance
 
 	/**@
-	 * #.distanceSq( )
+	 * #.distanceSq
+     * @comp Crafty.math.Vector2D
 	 *
 	 * Calculates the squared distance from this vector to the passed vector.
 	 * This function avoids calculating the square root, thus being slightly faster than .distance( ).
@@ -314,14 +320,15 @@ Crafty.math.Vector2D = (function () {
 	 * @sign public {Number} distanceSq(Vector2D);
 	 * @param {Vector2D} vecRH
 	 * @returns {Number} the squared distance between the two vectors
-	 * @see Vector2D.distance( )
+	 * @see .distance
 	 */
-	Vector2D.prototype.distanceSq = function (vecRH) {
-		return (vecRH.x - this.x) * (vecRH.x - this.x) + (vecRH.y - this.y) * (vecRH.y - this.y);
-	} // distanceSq( )
+    Vector2D.prototype.distanceSq = function(vecRH) {
+        return (vecRH.x - this.x) * (vecRH.x - this.x) + (vecRH.y - this.y) * (vecRH.y - this.y);
+    }; // distanceSq
 
 	/**@
-	 * #.divide( )
+	 * #.divide
+     * @comp Crafty.math.Vector2D
 	 *
 	 * Divides this vector by the passed vector.
 	 *
@@ -330,14 +337,15 @@ Crafty.math.Vector2D = (function () {
 	 * @param {Vector2D} vecRH
 	 * @returns {Vector2D} this vector after dividing
 	 */
-	Vector2D.prototype.divide = function (vecRH) {
-		this.x /= vecRH.x;
-		this.y /= vecRH.y;
-		return this;
-	} // divide( )
+    Vector2D.prototype.divide = function(vecRH) {
+        this.x /= vecRH.x;
+        this.y /= vecRH.y;
+        return this;
+    }; // divide
 
 	/**@
-	 * #.dotProduct( )
+	 * #.dotProduct
+     * @comp Crafty.math.Vector2D
 	 *
 	 * Calculates the dot product of this and the passed vectors
 	 *
@@ -346,12 +354,13 @@ Crafty.math.Vector2D = (function () {
 	 * @param {Vector2D} vecRH
 	 * @returns {Number} the resultant dot product
 	 */
-	Vector2D.prototype.dotProduct = function (vecRH) {
-		return this.x * vecRH.x + this.y * vecRH.y;
-	} // dotProduct( )
+    Vector2D.prototype.dotProduct = function(vecRH) {
+        return this.x * vecRH.x + this.y * vecRH.y;
+    }; // dotProduct
 
 	/**@
-	 * #.equals( )
+	 * #.equals
+     * @comp Crafty.math.Vector2D
 	 *
 	 * Determines if this vector is numerically equivalent to the passed vector.
 	 *
@@ -360,13 +369,14 @@ Crafty.math.Vector2D = (function () {
 	 * @param {Vector2D} vecRH
 	 * @returns {Boolean} true if the vectors are equivalent
 	 */
-	Vector2D.prototype.equals = function (vecRH) {
-		return vecRH instanceof Vector2D &&
-			this.x == vecRH.x && this.y == vecRH.y;
-	} // equals( )
+    Vector2D.prototype.equals = function(vecRH) {
+        return vecRH instanceof Vector2D &&
+            this.x == vecRH.x && this.y == vecRH.y;
+    }; // equals
 
 	/**@
-	 * #.getNormal( )
+	 * #.getNormal
+     * @comp Crafty.math.Vector2D
 	 *
 	 * Calculates a new right-handed normal vector for the line created by this and the passed vectors.
 	 *
@@ -375,14 +385,15 @@ Crafty.math.Vector2D = (function () {
 	 * @param {Vector2D=<0,0>} [vecRH]
 	 * @returns {Vector2D} the new normal vector
 	 */
-	Vector2D.prototype.getNormal = function (vecRH) {
-		if (vecRH === undefined)
-			return new Vector2D(-this.y, this.x); // assume vecRH is <0, 0>
-		return new Vector2D(vecRH.y - this.y, this.x - vecRH.x).normalize();
-	} // getNormal( )
+    Vector2D.prototype.getNormal = function(vecRH) {
+        if (vecRH === undefined)
+            return new Vector2D(-this.y, this.x); // assume vecRH is <0, 0>
+        return new Vector2D(vecRH.y - this.y, this.x - vecRH.x).normalize();
+    }; // getNormal
 
 	/**@
-	 * #.isZero( )
+	 * #.isZero
+     * @comp Crafty.math.Vector2D
 	 *
 	 * Determines if this vector is equal to <0,0>
 	 *
@@ -390,12 +401,13 @@ Crafty.math.Vector2D = (function () {
 	 * @sign public {Boolean} isZero();
 	 * @returns {Boolean} true if this vector is equal to <0,0>
 	 */
-	Vector2D.prototype.isZero = function () {
-		return this.x === 0 && this.y === 0;
-	} // isZero( )
+    Vector2D.prototype.isZero = function() {
+        return this.x === 0 && this.y === 0;
+    }; // isZero
 
 	/**@
-	 * #.magnitude( )
+	 * #.magnitude
+     * @comp Crafty.math.Vector2D
 	 *
 	 * Calculates the magnitude of this vector.
 	 * Note: Function objects in JavaScript already have a 'length' member, hence the use of magnitude instead.
@@ -404,12 +416,13 @@ Crafty.math.Vector2D = (function () {
 	 * @sign public {Number} magnitude();
 	 * @returns {Number} the magnitude of this vector
 	 */
-	Vector2D.prototype.magnitude = function () {
-		return Math.sqrt(this.x * this.x + this.y * this.y);
-	} // magnitude( )
+    Vector2D.prototype.magnitude = function() {
+        return Math.sqrt(this.x * this.x + this.y * this.y);
+    }; // magnitude
 
 	/**@
-	 * #.magnitudeSq( )
+	 * #.magnitudeSq
+     * @comp Crafty.math.Vector2D
 	 *
 	 * Calculates the square of the magnitude of this vector.
 	 * This function avoids calculating the square root, thus being slightly faster than .magnitude( ).
@@ -417,14 +430,15 @@ Crafty.math.Vector2D = (function () {
 	 * @public
 	 * @sign public {Number} magnitudeSq();
 	 * @returns {Number} the square of the magnitude of this vector
-	 * @see Vector2D.magnitude( )
+	 * @see .magnitude
 	 */
-	Vector2D.prototype.magnitudeSq = function () {
-		return this.x * this.x + this.y * this.y;
-	} // magnitudeSq( )
+    Vector2D.prototype.magnitudeSq = function() {
+        return this.x * this.x + this.y * this.y;
+    }; // magnitudeSq
 
 	/**@
-	 * #.multiply( )
+	 * #.multiply
+     * @comp Crafty.math.Vector2D
 	 *
 	 * Multiplies this vector by the passed vector
 	 *
@@ -433,14 +447,15 @@ Crafty.math.Vector2D = (function () {
 	 * @param {Vector2D} vecRH
 	 * @returns {Vector2D} this vector after multiplying
 	 */
-	Vector2D.prototype.multiply = function (vecRH) {
-		this.x *= vecRH.x;
-		this.y *= vecRH.y;
-		return this;
-	} // multiply( )
+    Vector2D.prototype.multiply = function(vecRH) {
+        this.x *= vecRH.x;
+        this.y *= vecRH.y;
+        return this;
+    }; // multiply
 
 	/**@
-	 * #.negate( )
+	 * #.negate
+     * @comp Crafty.math.Vector2D
 	 *
 	 * Negates this vector (ie. <-x,-y>)
 	 *
@@ -448,14 +463,15 @@ Crafty.math.Vector2D = (function () {
 	 * @sign public {Vector2D} negate();
 	 * @returns {Vector2D} this vector after negation
 	 */
-	Vector2D.prototype.negate = function () {
-		this.x = -this.x;
-		this.y = -this.y;
-		return this;
-	} // negate( )
+    Vector2D.prototype.negate = function() {
+        this.x = -this.x;
+        this.y = -this.y;
+        return this;
+    }; // negate
 
 	/**@
-	 * #.normalize( )
+	 * #.normalize
+     * @comp Crafty.math.Vector2D
 	 *
 	 * Normalizes this vector (scales the vector so that its new magnitude is 1)
 	 * For vectors where magnitude is 0, <1,0> is returned.
@@ -464,24 +480,25 @@ Crafty.math.Vector2D = (function () {
 	 * @sign public {Vector2D} normalize();
 	 * @returns {Vector2D} this vector after normalization
 	 */
-	Vector2D.prototype.normalize = function () {
-		var lng = Math.sqrt(this.x * this.x + this.y * this.y);
+    Vector2D.prototype.normalize = function() {
+        var lng = Math.sqrt(this.x * this.x + this.y * this.y);
 
-		if (lng === 0) {
-			// default due East
-			this.x = 1;
-			this.y = 0;
-		} else {
-			this.x /= lng;
-			this.y /= lng;
-		} // else
+        if (lng === 0) {
+            // default due East
+            this.x = 1;
+            this.y = 0;
+        } else {
+            this.x /= lng;
+            this.y /= lng;
+        } // else
 
-		return this;
-	} // normalize( )
+        return this;
+    }; // normalize
 
 	/**@
-	 * #.scale( )
-	 *
+	 * #.scale
+	 * @comp Crafty.math.Vector2D
+     *
 	 * Scales this vector by the passed amount(s)
 	 * If scalarY is omitted, scalarX is used for both axes
 	 *
@@ -491,19 +508,20 @@ Crafty.math.Vector2D = (function () {
 	 * @param {Number} [scalarY]
 	 * @returns {Vector2D} this after scaling
 	 */
-	Vector2D.prototype.scale = function (scalarX, scalarY) {
-		if (scalarY === undefined)
-			scalarY = scalarX;
+    Vector2D.prototype.scale = function(scalarX, scalarY) {
+        if (scalarY === undefined)
+            scalarY = scalarX;
 
-		this.x *= scalarX;
-		this.y *= scalarY;
+        this.x *= scalarX;
+        this.y *= scalarY;
 
-		return this;
-	} // scale( )
+        return this;
+    }; // scale
 
 	/**@
-	 * #.scaleToMagnitude( )
-	 *
+	 * #.scaleToMagnitude
+	 * @comp Crafty.math.Vector2D
+     *
 	 * Scales this vector such that its new magnitude is equal to the passed value.
 	 *
 	 * @public
@@ -511,16 +529,17 @@ Crafty.math.Vector2D = (function () {
 	 * @param {Number} mag
 	 * @returns {Vector2D} this vector after scaling
 	 */
-	Vector2D.prototype.scaleToMagnitude = function (mag) {
-		var k = mag / this.magnitude();
-		this.x *= k;
-		this.y *= k;
-		return this;
-	} // scaleToMagnitude( )
+    Vector2D.prototype.scaleToMagnitude = function(mag) {
+        var k = mag / this.magnitude();
+        this.x *= k;
+        this.y *= k;
+        return this;
+    }; // scaleToMagnitude
 
 	/**@
-	 * #.setValues( )
-	 *
+	 * #.setValues
+	 * @comp Crafty.math.Vector2D
+     *
 	 * Sets the values of this vector using a passed vector or pair of numbers.
 	 *
 	 * @public
@@ -530,21 +549,22 @@ Crafty.math.Vector2D = (function () {
 	 * @param {Number} y
 	 * @returns {Vector2D} this vector after setting of values
 	 */
-	Vector2D.prototype.setValues = function (x, y) {
-		if (x instanceof Vector2D) {
-			this.x = x.x;
-			this.y = x.y;
-		} else {
-			this.x = x;
-			this.y = y;
-		} // else
+    Vector2D.prototype.setValues = function(x, y) {
+        if (x instanceof Vector2D) {
+            this.x = x.x;
+            this.y = x.y;
+        } else {
+            this.x = x;
+            this.y = y;
+        } // else
 
-		return this;
-	} // setValues( )
+        return this;
+    }; // setValues
 
 	/**@
-	 * #.subtract( )
-	 *
+	 * #.subtract
+	 * @comp Crafty.math.Vector2D
+     *
 	 * Subtracts the passed vector from this vector.
 	 *
 	 * @public
@@ -552,28 +572,30 @@ Crafty.math.Vector2D = (function () {
 	 * @param {Vector2D} vecRH
 	 * @returns {vector2D} this vector after subtracting
 	 */
-	Vector2D.prototype.subtract = function (vecRH) {
-		this.x -= vecRH.x;
-		this.y -= vecRH.y;
-		return this;
-	} // subtract( )
+    Vector2D.prototype.subtract = function(vecRH) {
+        this.x -= vecRH.x;
+        this.y -= vecRH.y;
+        return this;
+    }; // subtract
 
 	/**@
-	 * #.toString( )
-	 *
+	 * #.toString
+	 * @comp Crafty.math.Vector2D
+     *
 	 * Returns a string representation of this vector.
 	 *
 	 * @public
 	 * @sign public {String} toString();
 	 * @returns {String}
 	 */
-	Vector2D.prototype.toString = function () {
-		return "Vector2D(" + this.x + ", " + this.y + ")";
-	} // toString( )
+    Vector2D.prototype.toString = function() {
+        return "Vector2D(" + this.x + ", " + this.y + ")";
+    }; // toString
 
 	/**@
-	 * #.translate( )
-	 *
+	 * #.translate
+	 * @comp Crafty.math.Vector2D
+     *
 	 * Translates (moves) this vector by the passed amounts.
 	 * If dy is omitted, dx is used for both axes.
 	 *
@@ -583,19 +605,20 @@ Crafty.math.Vector2D = (function () {
 	 * @param {Number} [dy]
 	 * @returns {Vector2D} this vector after translating
 	 */
-	Vector2D.prototype.translate = function (dx, dy) {
-		if (dy === undefined)
-			dy = dx;
+    Vector2D.prototype.translate = function(dx, dy) {
+        if (dy === undefined)
+            dy = dx;
 
-		this.x += dx;
-		this.y += dy;
+        this.x += dx;
+        this.y += dy;
 
-		return this;
-	} // translate( )
+        return this;
+    }; // translate
 
 	/**@
-	 * #.tripleProduct( )
-	 *
+	 * #.tripleProduct
+	 * @comp Crafty.math.Vector2D
+     *
 	 * Calculates the triple product of three vectors.
 	 * triple vector product = b(a•c) - a(b•c)
 	 *
@@ -619,6 +642,7 @@ Crafty.math.Vector2D = (function () {
 Crafty.math.Matrix2D = (function () {
 	/**@
 	 * #Crafty.math.Matrix2D
+	 * @category 2D
 	 *
 	 * @class This is a 2D Matrix2D class. It is 3x3 to allow for affine transformations in 2D space.
 	 * The third row is always assumed to be [0, 0, 1].
@@ -666,7 +690,8 @@ Crafty.math.Matrix2D = (function () {
 	Matrix2D.prototype.f = 0;
 
 	/**@
-	 * #.apply( )
+	 * #.apply
+     * @comp Crafty.math.Matrix2D
 	 *
 	 * Applies the matrix transformations to the passed object
 	 *
@@ -675,22 +700,23 @@ Crafty.math.Matrix2D = (function () {
 	 * @param {Vector2D} vecRH - vector to be transformed
 	 * @returns {Vector2D} the passed vector object after transforming
 	 */
-	Matrix2D.prototype.apply = function (vecRH) {
-		// I'm not sure of the best way for this function to be implemented. Ideally
-		// support for other objects (rectangles, polygons, etc) should be easily
-		// addable in the future. Maybe a function (apply) is not the best way to do
-		// this...?
+    Matrix2D.prototype.apply = function(vecRH) {
+        // I'm not sure of the best way for this function to be implemented. Ideally
+        // support for other objects (rectangles, polygons, etc) should be easily
+        // addable in the future. Maybe a function (apply) is not the best way to do
+        // this...?
 
-		var tmpX = vecRH.x;
-		vecRH.x = tmpX * this.a + vecRH.y * this.c + this.e;
-		vecRH.y = tmpX * this.b + vecRH.y * this.d + this.f;
-		// no need to homogenize since the third row is always [0, 0, 1]
+        var tmpX = vecRH.x;
+        vecRH.x = tmpX * this.a + vecRH.y * this.c + this.e;
+        vecRH.y = tmpX * this.b + vecRH.y * this.d + this.f;
+        // no need to homogenize since the third row is always [0, 0, 1]
 
-		return vecRH;
-	} // apply( )
+        return vecRH;
+    }; // apply
 
 	/**@
-	 * #.clone( )
+	 * #.clone
+     * @comp Crafty.math.Matrix2D
 	 *
 	 * Creates an exact, numeric copy of the current matrix
 	 *
@@ -698,12 +724,13 @@ Crafty.math.Matrix2D = (function () {
 	 * @sign public {Matrix2D} clone();
 	 * @returns {Matrix2D}
 	 */
-	Matrix2D.prototype.clone = function () {
-		return new Matrix2D(this);
-	} // clone( )
+    Matrix2D.prototype.clone = function() {
+        return new Matrix2D(this);
+    }; // clone
 
 	/**@
-	 * #.combine( )
+	 * #.combine
+     * @comp Crafty.math.Matrix2D
 	 *
 	 * Multiplies this matrix with another, overriding the values of this matrix.
 	 * The passed matrix is assumed to be on the right-hand side.
@@ -713,21 +740,22 @@ Crafty.math.Matrix2D = (function () {
 	 * @param {Matrix2D} mtrxRH
 	 * @returns {Matrix2D} this matrix after combination
 	 */
-	Matrix2D.prototype.combine = function (mtrxRH) {
-		var tmp = this.a;
-		this.a = tmp * mtrxRH.a + this.b * mtrxRH.c;
-		this.b = tmp * mtrxRH.b + this.b * mtrxRH.d;
-		tmp = this.c;
-		this.c = tmp * mtrxRH.a + this.d * mtrxRH.c;
-		this.d = tmp * mtrxRH.b + this.d * mtrxRH.d;
-		tmp = this.e;
-		this.e = tmp * mtrxRH.a + this.f * mtrxRH.c + mtrxRH.e;
-		this.f = tmp * mtrxRH.b + this.f * mtrxRH.d + mtrxRH.f;
-		return this;
-	} // combine( )
+    Matrix2D.prototype.combine = function(mtrxRH) {
+        var tmp = this.a;
+        this.a = tmp * mtrxRH.a + this.b * mtrxRH.c;
+        this.b = tmp * mtrxRH.b + this.b * mtrxRH.d;
+        tmp = this.c;
+        this.c = tmp * mtrxRH.a + this.d * mtrxRH.c;
+        this.d = tmp * mtrxRH.b + this.d * mtrxRH.d;
+        tmp = this.e;
+        this.e = tmp * mtrxRH.a + this.f * mtrxRH.c + mtrxRH.e;
+        this.f = tmp * mtrxRH.b + this.f * mtrxRH.d + mtrxRH.f;
+        return this;
+    }; // combine
 
 	/**@
-	 * #.equals( )
+	 * #.equals
+     * @comp Crafty.math.Matrix2D
 	 *
 	 * Checks for the numeric equality of this matrix versus another.
 	 *
@@ -736,14 +764,15 @@ Crafty.math.Matrix2D = (function () {
 	 * @param {Matrix2D} mtrxRH
 	 * @returns {Boolean} true if the two matrices are numerically equal
 	 */
-	Matrix2D.prototype.equals = function (mtrxRH) {
-		return mtrxRH instanceof Matrix2D &&
-			this.a == mtrxRH.a && this.b == mtrxRH.b && this.c == mtrxRH.c &&
-			this.d == mtrxRH.d && this.e == mtrxRH.e && this.f == mtrxRH.f;
-	} // equals( )
+    Matrix2D.prototype.equals = function(mtrxRH) {
+        return mtrxRH instanceof Matrix2D &&
+            this.a == mtrxRH.a && this.b == mtrxRH.b && this.c == mtrxRH.c &&
+            this.d == mtrxRH.d && this.e == mtrxRH.e && this.f == mtrxRH.f;
+    }; // equals
 
 	/**@
-	 * #.determinant( )
+	 * #.determinant
+     * @comp Crafty.math.Matrix2D
 	 *
 	 * Calculates the determinant of this matrix
 	 *
@@ -751,46 +780,48 @@ Crafty.math.Matrix2D = (function () {
 	 * @sign public {Number} determinant();
 	 * @returns {Number} det(this matrix)
 	 */
-	Matrix2D.prototype.determinant = function () {
-		return this.a * this.d - this.b * this.c;
-	} // determinant( )
+    Matrix2D.prototype.determinant = function() {
+        return this.a * this.d - this.b * this.c;
+    }; // determinant
 
 	/**@
-	 * #.invert( )
+	 * #.invert
+     * @comp Crafty.math.Matrix2D
 	 *
 	 * Inverts this matrix if possible
 	 *
 	 * @public
 	 * @sign public {Matrix2D} invert();
 	 * @returns {Matrix2D} this inverted matrix or the original matrix on failure
-	 * @see Matrix2D.isInvertible( )
+	 * @see .isInvertible
 	 */
-	Matrix2D.prototype.invert = function () {
-		var det = this.determinant();
+    Matrix2D.prototype.invert = function() {
+        var det = this.determinant();
 
-		// matrix is invertible if its determinant is non-zero
-		if (det !== 0) {
-			var old = {
-				a: this.a,
-				b: this.b,
-				c: this.c,
-				d: this.d,
-				e: this.e,
-				f: this.f
-			};
-			this.a = old.d / det;
-			this.b = -old.b / det;
-			this.c = -old.c / det;
-			this.d = old.a / det;
-			this.e = (old.c * old.f - old.e * old.d) / det;
-			this.f = (old.e * old.b - old.a * old.f) / det;
-		} // if
+        // matrix is invertible if its determinant is non-zero
+        if (det !== 0) {
+            var old = {
+                a: this.a,
+                b: this.b,
+                c: this.c,
+                d: this.d,
+                e: this.e,
+                f: this.f
+            };
+            this.a = old.d / det;
+            this.b = -old.b / det;
+            this.c = -old.c / det;
+            this.d = old.a / det;
+            this.e = (old.c * old.f - old.e * old.d) / det;
+            this.f = (old.e * old.b - old.a * old.f) / det;
+        } // if
 
-		return this;
-	} // invert( )
+        return this;
+    }; // invert
 
 	/**@
-	 * #.isIdentity( )
+	 * #.isIdentity
+     * @comp Crafty.math.Matrix2D
 	 *
 	 * Returns true if this matrix is the identity matrix
 	 *
@@ -798,26 +829,28 @@ Crafty.math.Matrix2D = (function () {
 	 * @sign public {Boolean} isIdentity();
 	 * @returns {Boolean}
 	 */
-	Matrix2D.prototype.isIdentity = function () {
-		return this.a === 1 && this.b === 0 && this.c === 0 && this.d === 1 && this.e === 0 && this.f === 0;
-	} // isIdentity( )
+    Matrix2D.prototype.isIdentity = function() {
+        return this.a === 1 && this.b === 0 && this.c === 0 && this.d === 1 && this.e === 0 && this.f === 0;
+    }; // isIdentity
 
 	/**@
-	 * #.isInvertible( )
+	 * #.isInvertible
+     * @comp Crafty.math.Matrix2D
 	 *
 	 * Determines is this matrix is invertible.
 	 *
 	 * @public
 	 * @sign public {Boolean} isInvertible();
 	 * @returns {Boolean} true if this matrix is invertible
-	 * @see Matrix2D.invert( )
+	 * @see .invert
 	 */
-	Matrix2D.prototype.isInvertible = function () {
-		return this.determinant() !== 0;
-	} // isInvertible( )
+    Matrix2D.prototype.isInvertible = function() {
+        return this.determinant() !== 0;
+    }; // isInvertible
 
 	/**@
-	 * #.preRotate( )
+	 * #.preRotate
+     * @comp Crafty.math.Matrix2D
 	 *
 	 * Applies a counter-clockwise pre-rotation to this matrix
 	 *
@@ -826,22 +859,23 @@ Crafty.math.Matrix2D = (function () {
 	 * @param {number} rads - angle to rotate in radians
 	 * @returns {Matrix2D} this matrix after pre-rotation
 	 */
-	Matrix2D.prototype.preRotate = function (rads) {
-		var nCos = Math.cos(rads);
-		var nSin = Math.sin(rads);
+    Matrix2D.prototype.preRotate = function(rads) {
+        var nCos = Math.cos(rads);
+        var nSin = Math.sin(rads);
 
-		var tmp = this.a;
-		this.a = nCos * tmp - nSin * this.b;
-		this.b = nSin * tmp + nCos * this.b;
-		tmp = this.c;
-		this.c = nCos * tmp - nSin * this.d;
-		this.d = nSin * tmp + nCos * this.d;
+        var tmp = this.a;
+        this.a = nCos * tmp - nSin * this.b;
+        this.b = nSin * tmp + nCos * this.b;
+        tmp = this.c;
+        this.c = nCos * tmp - nSin * this.d;
+        this.d = nSin * tmp + nCos * this.d;
 
-		return this;
-	} // preRotate( )
+        return this;
+    }; // preRotate
 
 	/**@
-	 * #.preScale( )
+	 * #.preScale
+     * @comp Crafty.math.Matrix2D
 	 *
 	 * Applies a pre-scaling to this matrix
 	 *
@@ -851,20 +885,21 @@ Crafty.math.Matrix2D = (function () {
 	 * @param {Number} [scalarY] scalarX is used if scalarY is undefined
 	 * @returns {Matrix2D} this after pre-scaling
 	 */
-	Matrix2D.prototype.preScale = function (scalarX, scalarY) {
-		if (scalarY === undefined)
-			scalarY = scalarX;
+    Matrix2D.prototype.preScale = function(scalarX, scalarY) {
+        if (scalarY === undefined)
+            scalarY = scalarX;
 
-		this.a *= scalarX;
-		this.b *= scalarY;
-		this.c *= scalarX;
-		this.d *= scalarY;
+        this.a *= scalarX;
+        this.b *= scalarY;
+        this.c *= scalarX;
+        this.d *= scalarY;
 
-		return this;
-	} // preScale( )
+        return this;
+    }; // preScale
 
 	/**@
-	 * #.preTranslate( )
+	 * #.preTranslate
+     * @comp Crafty.math.Matrix2D
 	 *
 	 * Applies a pre-translation to this matrix
 	 *
@@ -875,20 +910,21 @@ Crafty.math.Matrix2D = (function () {
 	 * @param {Number} dy
 	 * @returns {Matrix2D} this matrix after pre-translation
 	 */
-	Matrix2D.prototype.preTranslate = function (dx, dy) {
-		if (typeof dx === "number") {
-			this.e += dx;
-			this.f += dy;
-		} else {
-			this.e += dx.x;
-			this.f += dx.y;
-		} // else
+    Matrix2D.prototype.preTranslate = function(dx, dy) {
+        if (typeof dx === "number") {
+            this.e += dx;
+            this.f += dy;
+        } else {
+            this.e += dx.x;
+            this.f += dx.y;
+        } // else
 
-		return this;
-	} // preTranslate( )
+        return this;
+    }; // preTranslate
 
 	/**@
-	 * #.rotate( )
+	 * #.rotate
+     * @comp Crafty.math.Matrix2D
 	 *
 	 * Applies a counter-clockwise post-rotation to this matrix
 	 *
@@ -897,25 +933,26 @@ Crafty.math.Matrix2D = (function () {
 	 * @param {Number} rads - angle to rotate in radians
 	 * @returns {Matrix2D} this matrix after rotation
 	 */
-	Matrix2D.prototype.rotate = function (rads) {
-		var nCos = Math.cos(rads);
-		var nSin = Math.sin(rads);
+    Matrix2D.prototype.rotate = function(rads) {
+        var nCos = Math.cos(rads);
+        var nSin = Math.sin(rads);
 
-		var tmp = this.a;
-		this.a = nCos * tmp - nSin * this.b;
-		this.b = nSin * tmp + nCos * this.b;
-		tmp = this.c;
-		this.c = nCos * tmp - nSin * this.d;
-		this.d = nSin * tmp + nCos * this.d;
-		tmp = this.e;
-		this.e = nCos * tmp - nSin * this.f;
-		this.f = nSin * tmp + nCos * this.f;
+        var tmp = this.a;
+        this.a = nCos * tmp - nSin * this.b;
+        this.b = nSin * tmp + nCos * this.b;
+        tmp = this.c;
+        this.c = nCos * tmp - nSin * this.d;
+        this.d = nSin * tmp + nCos * this.d;
+        tmp = this.e;
+        this.e = nCos * tmp - nSin * this.f;
+        this.f = nSin * tmp + nCos * this.f;
 
-		return this;
-	} // rotate( )
+        return this;
+    }; // rotate
 
 	/**@
-	 * #.scale( )
+	 * #.scale
+     * @comp Crafty.math.Matrix2D
 	 *
 	 * Applies a post-scaling to this matrix
 	 *
@@ -925,22 +962,23 @@ Crafty.math.Matrix2D = (function () {
 	 * @param {Number} [scalarY] scalarX is used if scalarY is undefined
 	 * @returns {Matrix2D} this after post-scaling
 	 */
-	Matrix2D.prototype.scale = function (scalarX, scalarY) {
-		if (scalarY === undefined)
-			scalarY = scalarX;
+    Matrix2D.prototype.scale = function(scalarX, scalarY) {
+        if (scalarY === undefined)
+            scalarY = scalarX;
 
-		this.a *= scalarX;
-		this.b *= scalarY;
-		this.c *= scalarX;
-		this.d *= scalarY;
-		this.e *= scalarX;
-		this.f *= scalarY;
+        this.a *= scalarX;
+        this.b *= scalarY;
+        this.c *= scalarX;
+        this.d *= scalarY;
+        this.e *= scalarX;
+        this.f *= scalarY;
 
-		return this;
-	} // scale( )
+        return this;
+    }; // scale
 
 	/**@
-	 * #.setValues( )
+	 * #.setValues
+     * @comp Crafty.math.Matrix2D
 	 *
 	 * Sets the values of this matrix
 	 *
@@ -955,28 +993,29 @@ Crafty.math.Matrix2D = (function () {
 	 * @param {Number} f
 	 * @returns {Matrix2D} this matrix containing the new values
 	 */
-	Matrix2D.prototype.setValues = function (a, b, c, d, e, f) {
-		if (a instanceof Matrix2D) {
-			this.a = a.a;
-			this.b = a.b;
-			this.c = a.c;
-			this.d = a.d;
-			this.e = a.e;
-			this.f = a.f;
-		} else {
-			this.a = a;
-			this.b = b;
-			this.c = c;
-			this.d = d;
-			this.e = e;
-			this.f = f;
-		} // else
+    Matrix2D.prototype.setValues = function(a, b, c, d, e, f) {
+        if (a instanceof Matrix2D) {
+            this.a = a.a;
+            this.b = a.b;
+            this.c = a.c;
+            this.d = a.d;
+            this.e = a.e;
+            this.f = a.f;
+        } else {
+            this.a = a;
+            this.b = b;
+            this.c = c;
+            this.d = d;
+            this.e = e;
+            this.f = f;
+        } // else
 
-		return this;
-	} // setValues( )
+        return this;
+    }; // setValues
 
 	/**@
-	 * #.toString( )
+	 * #.toString
+     * @comp Crafty.math.Matrix2D
 	 *
 	 * Returns the string representation of this matrix.
 	 *
@@ -984,13 +1023,14 @@ Crafty.math.Matrix2D = (function () {
 	 * @sign public {String} toString();
 	 * @returns {String}
 	 */
-	Matrix2D.prototype.toString = function () {
-		return "Matrix2D([" + this.a + ", " + this.c + ", " + this.e +
-			"] [" + this.b + ", " + this.d + ", " + this.f + "] [0, 0, 1])";
-	} // toString( )
+    Matrix2D.prototype.toString = function() {
+        return "Matrix2D([" + this.a + ", " + this.c + ", " + this.e +
+            "] [" + this.b + ", " + this.d + ", " + this.f + "] [0, 0, 1])";
+    }; // toString
 
 	/**@
-	 * #.translate( )
+	 * #.translate
+     * @comp Crafty.math.Matrix2D
 	 *
 	 * Applies a post-translation to this matrix
 	 *
@@ -1011,7 +1051,7 @@ Crafty.math.Matrix2D = (function () {
 		} // else
 
 		return this;
-	} // translate( )
+	} // translate
 
 	return Matrix2D;
 })();
