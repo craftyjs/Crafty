@@ -81,7 +81,7 @@ button:active {
 .demo img { float:left; border:1px solid #aaa; margin-right:5px }
 .demo p { margin-top:-5px }
 
-#doc-nav { float:left; margin:25px 40px 0 0 }
+#doc-nav { float:left;margin: 25px 40px 0 0; width: 140px; }
 #doc-level-one { margin:0; padding:0; list-style:none; font-size:12px }
 #doc-level-one li { font-weight:bold; padding:2px 0 }
 #doc-level-one li ul { padding-left:20px }

@@ -21,7 +21,7 @@
     * 
     * If Crafty.mobile is equal true Crafty does some things under hood:
     * ~~~
-    * - set viewport on max device width and heigh
+    * - set viewport on max device width and height
     * - set Crafty.stage.fullscreen on true
     * - hide window scrollbars
     * ~~~
@@ -148,8 +148,8 @@ Crafty.extend({
     * @param tile - Tile size of the sprite map, defaults to 1
     * @param url - URL of the sprite image
     * @param map - Object where the key is what becomes a new component and the value points to a position on the sprite map
-    * @param paddingX - Horizontal space inbetween tiles. Defaults to 0.
-    * @param paddingY - Vertical space inbetween tiles. Defaults to paddingX.
+    * @param paddingX - Horizontal space in between tiles. Defaults to 0.
+    * @param paddingY - Vertical space in between tiles. Defaults to paddingX.
     * Generates components based on positions in a sprite image to be applied to entities.
     *
     * Accepts a tile size, URL and map for the name of the sprite and it's position.
@@ -319,7 +319,7 @@ Crafty.extend({
             obj = window.document;
         }
 
-        //retrieve anonymouse function
+        //retrieve anonymous function
         var id = ctx[0] || "",
             afn = this._events[id + obj + type + callback];
 
@@ -487,7 +487,7 @@ Crafty.extend({
          * @sign public void Crafty.viewport.follow(Object target, Number offsetx, Number offsety)
          * @param Object target - An entity with the 2D component
          * @param Number offsetx - Follow target should be offsetx pixels away from center
-         * @param Number offsety - Positive puts targ to the right of center
+         * @param Number offsety - Positive puts target to the right of center
          *
          * Follows a given entity with the 2D component. If following target will take a portion of
          * the viewport out of bounds of the world, following will stop until the target moves away.

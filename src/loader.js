@@ -73,7 +73,7 @@ Crafty.extend({
 	*
 	* `onError` will be passed with the asset that couldn't load.
     *
-	* When `onError` is not provided, the onLoad is loaded even some assests are not successfully loaded. Otherwise, onLoad will be called no matter whether there are errors or not. 
+	* When `onError` is not provided, the onLoad is loaded even some assets are not successfully loaded. Otherwise, onLoad will be called no matter whether there are errors or not. 
 	* 
 	* @example
 	* ~~~
@@ -188,14 +188,9 @@ Crafty.extend({
 	* @param modules - Map of name:version pairs for modules to load
 	* @param onLoad - Callback when the modules are loaded
 	* 
-	* Browse the selection of modules on crafty repositories.
-	* Downloads and executes the javascript in the specified modules.
-	* If no repository is specified it defaults to http://cdn.craftycomponents.com
-	*
-	* Available repositories:
-	*
-	* 	- http://cdn.craftycomponents.com
-	* 	- http://cdn.crafty-modules.com
+	* Browse the selection of community modules on http://craftycomponents.com
+	* 
+    * It is possible to create your own repository.
 	*
 	*
 	* @example

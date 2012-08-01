@@ -22,7 +22,7 @@ Crafty.extend({
         * @param tileSize - The size of the tiles to place.
         * 
         * Method used to initialize the size of the isometric placement.
-        * Recommended to use a size alues in the power of `2` (128, 64 or 32).
+        * Recommended to use a size values in the power of `2` (128, 64 or 32).
         * This makes it easy to calculate positions and implement zooming.
         * 
         * @example
@@ -34,13 +34,13 @@ Crafty.extend({
         */
         size: function (width, height) {
             this._tile.width = width;
-            this._tile.height = height > 0 ? height : width/2; //Setup width/2 if height doesnt set
+            this._tile.height = height > 0 ? height : width/2; //Setup width/2 if height isn't set
             return this;
         },
         /**@
         * #Crafty.isometric.place
         * @comp Crafty.isometric
-        * @sign public this Crafty.isometric.size(Number x, Number y, Number z, Entity tile)
+        * @sign public this Crafty.isometric.place(Number x, Number y, Number z, Entity tile)
         * @param x - The `x` position to place the tile
         * @param y - The `y` position to place the tile
         * @param z - The `z` position or height to place the tile
@@ -51,7 +51,7 @@ Crafty.extend({
         * @example
         * ~~~
         * var iso = Crafty.isometric.size(128);
-        * isos.place(2, 1, 0, Crafty.e('2D, DOM, Color').color('red').attr({w:128, h:128}));
+        * iso.place(2, 1, 0, Crafty.e('2D, DOM, Color').color('red').attr({w:128, h:128}));
         * ~~~
         * 
         * @see Crafty.isometric.size
@@ -73,7 +73,7 @@ Crafty.extend({
          * @param y
          * @return Object {left Number,top Number}
          * 
-         * This method calculate the X and Y Coordiantes to Pixel Positions
+         * This method calculate the X and Y Coordinates to Pixel Positions
          * 
          * @example
          * ~~~
@@ -95,7 +95,7 @@ Crafty.extend({
          * @param left
          * @return Object {x Number,y Number}
          * 
-         * This method calculate pixel top,left positions to x,y coordiantes
+         * This method calculate pixel top,left positions to x,y coordinates
          * 
          * @example
          * ~~~
@@ -145,7 +145,7 @@ Crafty.extend({
          * @sign public this Crafty.isometric.area()
          * @return Object {x:{start Number,end Number},y:{start Number,end Number}}
          * 
-         * This method get the Area surounding by the centerpoint depends on viewport height and width
+         * This method get the Area surrounding by the centerpoint depends on viewport height and width
          * 
          * @example
          * ~~~

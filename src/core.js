@@ -13,7 +13,7 @@
     *    Crafty("Hello, 2D, Component")
     * ~~~
     * 
-    * The first selector will return all entities that has the component `MyComponent`. The second will return all entities that has `Hello` and `2D` and `Component` whereas the last will return all entities that has at least one of those components (or).
+    * The first selector will return all entities that have the component `MyComponent`. The second will return all entities that have `Hello` and `2D` and `Component` whereas the last will return all entities that have at least one of those components (or).
     * ~~~
     *   Crafty(1)
     * ~~~
@@ -39,6 +39,7 @@
 
     	components = {}; //map of components and their functions
     	entities = {}; //map of entities and their data
+        entityFactories = {}; //templates of entities
     	handlers = {}; //global event handlers
     	onloads = []; //temporary storage of onload handlers
     	tick;
@@ -184,7 +185,7 @@
         * #.addComponent
         * @comp Crafty Core
         * @sign public this .addComponent(String componentList)
-        * @param componentList - A string of components to add seperated by a comma `,`
+        * @param componentList - A string of components to add separated by a comma `,`
         * @sign public this .addComponent(String Component1[, .., String ComponentN])
         * @param Component# - Component ID to add.
         * Adds a component to the selected entities or entity.
@@ -505,7 +506,7 @@
         * @param callback - Function to unbind
         * Removes binding with an event from current entity.
         *
-        * Passing an event name will remove all events binded to
+        * Passing an event name will remove all events bound to
         * that event. Passing a reference to the callback will
         * unbind only that callback.
         * @see .bind, .trigger
@@ -739,7 +740,7 @@
         * #.getVersion
         * @comp Crafty Core
         * @sign public this .getVersion()
-        * @returns Actualy crafty version
+        * @returns Actually crafty version
         *
         * @example
         * ~~~
@@ -774,6 +775,8 @@
         		initComponents(Crafty, window, window.document);
         	}
 
+            Crafty.trigger("CraftyStop");
+
         	return this;
         },
 
@@ -784,7 +787,7 @@
         * @trigger Unpause - when the game is unpaused
         * @sign public this Crafty.pause(void)
         * 
-        * Pauses the game by stoping the EnterFrame event from firing. If the game is already paused it is unpaused.
+        * Pauses the game by stopping the EnterFrame event from firing. If the game is already paused it is unpaused.
         * You can pass a boolean parameter if you want to pause or unpause mo matter what the current state is.
         * Modern browsers pauses the game when the page is not visible to the user. If you want the Pause event
         * to be triggered when that happens you can enable autoPause in `Crafty.settings`.
@@ -862,7 +865,8 @@
             },
 
             stop: function () {
-                Crafty.trigger("CraftyStop");
+                Crafty.trigger("CraftyStop" +
+                    "Timer");
 
                 if (typeof tick === "number") clearInterval(tick);
 
@@ -933,6 +937,69 @@
         },
 
         /**@
+        * #Crafty.addEntityFactory
+        * @category Core
+        * @param name - Name of the entity factory.
+        * @param callback - Function containing the entity creation procedure.
+        * 
+        * Registers an Entity Factory.  An Entity Factory allows for the repeatable creation of an Entity.
+        *
+        * @example
+        * ~~~
+        * Crafty.addEntityFactory('Projectile', function() {
+        *   var entity = Crafty.e('2D, Canvas, Color, Physics, Collision')
+        *   .color("red")
+        *   .attr({
+        *     w: 3,
+        *     h: 3,
+        *     x: this.x,
+        *     y: this.y
+        *   })
+        *   .addComponent('Gravity').gravity("Floor");
+        *   
+        *   return entity;
+        * });
+        * ~~~
+        * 
+        * @see Crafty.e
+        */
+        addEntityFactory: function(name, callback) {
+            this.entityFactories[name] = callback;
+        },
+
+        /**@
+        * #Crafty.newFactoryEntity
+        * @category Core
+        * @param name - Name of the entity factory.
+        * 
+        * Creates a new entity based on a specific Entity Factory.
+        *
+        * @example
+        * ~~~
+        * Crafty.addEntityFactory('Projectile', function() {
+        *   var entity = Crafty.e('2D, Canvas, Color, Physics, Collision')
+        *   .color("red")
+        *   .attr({
+        *     w: 3,
+        *     h: 3,
+        *     x: this.x,
+        *     y: this.y
+        *   })
+        *   .addComponent('Gravity').gravity("Floor");
+        *   
+        *   return entity;
+        * });
+        *
+        * Crafty.newFactoryEntity('Projectile'); // This returns a new Projectile Entity.
+        * ~~~
+        * 
+        * @see Crafty.e
+        */
+        newFactoryEntity: function(name) {
+            return this.entityTemplates[name]();
+        },
+
+        /**@
         * #Crafty.e
         * @category Core
         * @trigger NewEntity - When the entity is created and all components are added - { id:Number }
@@ -985,8 +1052,6 @@
         * - Properties or methods that start with an underscore are considered private.
         * - A method called `init` will automatically be called as soon as the
         * component is added to an entity.
-        * - A methid called `uninit` will be called when the component is removed from an entity. 
-        * A sample use case for this is the native DOM component that removes its div element wehen removed from an entity.
         * - A method with the same name as the component is considered to be a constructor
         * and is generally used when you need to pass configuration data to the component on a per entity basis.
         *
@@ -1002,7 +1067,21 @@
         *
         * Crafty.e("Annoying").annoying("I'm an orange...");
         * ~~~
+        *
         * 
+        * WARNING: 
+        *
+        * in the example above the field _message is local to the entity. That is, if you create many entities with the Annoying component they can all have different values for _message. That is because it is a simple value, and simple values are copied by value. If however the field had been an object or array, the value would have been shared by all entities with the component because complex types are copied by reference in javascript. This is probably not what you want and the following example demonstrates how to work around it:
+        *
+        * ~~~
+        * Crafty.c("MyComponent", {
+        *     _iAmShared: { a: 3, b: 4 },
+        *     init: function() {
+        *         this._iAmNotShared = { a: 3, b: 4 };
+        *     },
+        * });
+        * ~~~
+        *
         * @see Crafty.e
         */
         c: function (compName, component) {

@@ -88,7 +88,7 @@ Crafty.c("Text", {
     * #.textColor
     * @comp Text
     * @sign public this .textColor(String color, Number strength)
-    * @param color - The color in hexidecimal
+    * @param color - The color in hexadecimal
     * @param strength - Level of opacity
     *
     * Modify the text color and level of opacity.
