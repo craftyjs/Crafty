@@ -1,6 +1,6 @@
 ﻿{
     "name": "crafty",
-    "version": "0.5.0",
+    "version": "0.5.1",
     "title": "Crafty game framework",
     "author": {
         "name": "Louis Stowasser",
@@ -43,6 +43,7 @@
         "src/animation.js",
         "src/drawing.js",
         "src/isometric.js",
+		"src/diamondiso.js"
         "src/particles.js",
         "src/sound.js",
         "src/text.js",
