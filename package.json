@@ -43,7 +43,7 @@
         "src/animation.js",
         "src/drawing.js",
         "src/isometric.js",
-		"src/diamondiso.js"
+		"src/diamondiso.js",
         "src/particles.js",
         "src/sound.js",
         "src/text.js",
