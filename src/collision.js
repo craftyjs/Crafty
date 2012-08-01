@@ -60,8 +60,7 @@ Crafty.c("Collision", {
         var area = this._mbr || this;
 
         if (!poly) {
-            this.init();
-            return this;
+            poly = new Crafty.polygon([0, 0], [area._w, 0], [area._w, area._h], [0, area._h]);
         }
 
         if (arguments.length > 1) {
