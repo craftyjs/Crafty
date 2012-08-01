@@ -804,13 +804,11 @@
             if (arguments.length == 1 ? toggle : !this._paused) {
                 this.trigger('Pause');
                 this._paused = true;
-
                 setTimeout(function(){ Crafty.timer.stop(); }, 0);
                 Crafty.keydown = {};
             } else {
                 this.trigger('Unpause');
                 this._paused = false;
-		  Crafty.trigger("Load");
                 setTimeout(function(){ Crafty.timer.init(); }, 0);
             }
             return this;
@@ -865,8 +863,7 @@
             },
 
             stop: function () {
-                Crafty.trigger("CraftyStop" +
-                    "Timer");
+                Crafty.trigger("CraftyStopTimer");
 
                 if (typeof tick === "number") clearInterval(tick);
 
