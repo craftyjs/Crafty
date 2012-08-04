@@ -24,10 +24,13 @@ function docs($files, $path, $save) {
 		$open = false;
 		$lastTag = "";
 		$block = "";
+		$eventCategory = "";
+		$event = "";
 		
 		while($line = fgets($fh)) {
 			if(strstr($line, "/**@") !== false && !$open) {
 				$block = "";
+				$event = "";
 				$open = true;
 			}
 			
@@ -81,6 +84,7 @@ function docs($files, $path, $save) {
 								$v = trim($v);
 								if(!isset($category[$v])) $category[$v] = array();
 								$category[$v][] = $name;
+								$eventCategory = $name;
 							}
 							break;
 						case COMP:
@@ -94,19 +98,24 @@ function docs($files, $path, $save) {
 						case TRIGGER:
 							if($lastTag != TRIGGER) {
 								$block .= "###Events\n";
+								if ($eventCategory != $name) $event .= "### ".$name."\n";
 							}
 							$split = preg_split("/\s+-\s+/", $value);
 							$block .= "{$split[0]}";
+							$event .= "{$split[0]}";
 							if(count($split) >= 3) {
 								$split[2] = trim($split[2]);
 								if(count($split) >= 4) {
 									$split[3] = trim($split[3]);
 									$block .= " [{$split[3]}: {$split[2]}]";
+									$event .= " [{$split[3]}: {$split[2]}]";
 								}else{
 									$block .= " [Data: {$split[2]}]";
+									$event .= " [Data: {$split[2]}]";
 								}
 							}
 							$block .= "\n:\t{$split[1]}\n\n";
+							$event .= "\n:\t{$split[1]}\n\n";
 							break;
 					}
 					$lastTag = $tag;
@@ -122,6 +131,15 @@ function docs($files, $path, $save) {
 				$open = false; 
 				
 				$names[$name] = $block;
+				if ($event) {
+					if (!isset($events[$eventCategory])) {
+						$events[$eventCategory] = "# ".$eventCategory."\n".$event;
+					}
+					else
+					{
+						$events[$eventCategory] .= $event;
+					}
+				}
 			}
 		}
 		
@@ -132,6 +150,7 @@ function docs($files, $path, $save) {
 		
 	//generate the index
 	$index = "<div id='doc-nav'><ul id='doc-level-one'>";
+	$index .= "<li><a href='events.html'>List of Events</a></li>";
 	$found = array();
 	foreach($category as $cat=>$subs) {
 		$index .= "<li>".$cat."<ul>";
@@ -146,6 +165,7 @@ function docs($files, $path, $save) {
 	$index .= "</ul></div>";
 	file_put_contents($save."index.html", $head.$index.$foot);
 	
+	//generate each individual page
 	foreach($found as $sub=>$link) {
 		$content = $index."<div id='doc-content'>";
 		
@@ -180,6 +200,22 @@ function docs($files, $path, $save) {
 		
 		file_put_contents($save.$link, $head.$content.$foot);
 	}
+	
+	$eventsHtml = "";
+	foreach($events as $part) {
+		if($part){
+			$html = Markdown($part);
+
+			$html = preg_replace("!<(/)?h2>!","<$1h3>", $html);
+			$html = preg_replace("!<(/)?h1>!","<$1h2>", $html);
+
+			$eventsHtml .= $html;
+		}
+	}
+
+	$content = $index."<div id='doc-content'>";
+	$content .= $eventsHtml;
+	file_put_contents($save."events.html", $head.$content.$foot);
 	
 }
 
