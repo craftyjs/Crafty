@@ -838,7 +838,7 @@
         timer: {
             prev: (+new Date),
             current: (+new Date),
-            curTime: Date.now(),
+            currentTime: +new Date(),
             frames:0,
             frameTime:0,
             init: function () {
@@ -886,11 +886,11 @@
             */
             step: function () {
                 loops = 0;
-                this.curTime = Date.now();
-                if (this.curTime - nextGameTick > 60 * milliSecPerFrame) {
-                    nextGameTick = this.curTime - milliSecPerFrame;
+                this.currentTime = +new Date();
+                if (this.currentTime - nextGameTick > 60 * milliSecPerFrame) {
+                    nextGameTick = this.currentTime - milliSecPerFrame;
                 }
-                while (this.curTime > nextGameTick) {
+                while (this.currentTime > nextGameTick) {
                     Crafty.trigger("EnterFrame", { frame: frame++ });
                     nextGameTick += milliSecPerFrame;
                     loops++;
@@ -898,10 +898,10 @@
                 if (loops) {
                     Crafty.DrawManager.draw();
                 }
-               if(this.curTime > this.frameTime){
+               if(this.currentTime > this.frameTime){
                     Crafty.trigger("MessureFPS",{value:this.frame});
                     this.frame = 0;
-                    this.frameTime = this.curTime + 1000;
+                    this.frameTime = this.currentTime + 1000;
                 }else{
                     this.frame++;
                 }
