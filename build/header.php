@@ -11,12 +11,11 @@
 	<div id="inner">
 	<a href="http://craftyjs.com"><img id="logo" src="../images/logo.png" alt="Crafty - JavaScript Game Engine" /></a>
 	<ul>
-		<li><a href="http://craftyjs.github.com/tutorial/">Getting Started</a></li>
-		<li><a href="api/">Documentation</a></li>
+		<li><a href="/tutorial/">Getting Started</a></li>
+		<li><a href="/api/">Documentation</a></li>
 		<li><a href="https://groups.google.com/forum/#!forum/craftyjs">Forum</a></li>
 		<li><a href="http://craftycomponents.com/">Modules</a></li>
-		<li><a href="http://craftyjs.tumblr.com/">Blog</a></li>
-		<li class="emph"><a href="../download.php">Download</a></li>
+		<li class="emph"><a href="http://craftycomponents.com/components/single/8/crafty">Download</a></li>
 	</ul>
 	</div>
 </div>
