@@ -347,6 +347,13 @@
         * Removes a component from an entity. A soft remove (the default) will only
         * refrain `.has()` from returning true. Hard will remove all
         * associated properties and methods.
+        *
+        * @example
+        * ~~~
+        * var e = Crafty.e("2D,DOM,Test");
+        * e.removeComponent("Test");        //Soft remove Test component
+        * e.removeComponent("Test", false); //Hard remove Test component
+        * ~~~
         */
         removeComponent: function (id, soft) {
             if (soft === false) {
