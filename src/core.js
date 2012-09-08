@@ -14,6 +14,12 @@
     * ~~~
     * 
     * The first selector will return all entities that have the component `MyComponent`. The second will return all entities that have `Hello` and `2D` and `Component` whereas the last will return all entities that have at least one of those components (or).
+    *
+    * ~~~
+    *   Crafty("*")
+    * ~~~
+    * Passing `*` will select all entities.
+    *
     * ~~~
     *   Crafty(1)
     * ~~~
@@ -250,15 +256,24 @@
         /**@
         * #.toggleComponent
         * @comp Crafty Core
-        * @sign public this. toggleComponent(String componentID,String componentToggle)
-        * @param componentID - Component ID to add or remove.
-        * @param componentToggle - Component ID to replace instead of remove
-        * Add or Remove Components
+        * @sign public this .toggleComponent(String ComponentList)
+        * @param ComponentList - A string of components to add or remove separated by a comma `,`
+        * @sign public this .toggleComponent(String Component1[, .., String componentN])
+        * @param Component# - Component ID to add or remove.
+        * Add or Remove Components from an entity.
         * 
         * @example
         * ~~~
         * var e = Crafty.e("2D,DOM,Test");
-        * e.toggleComponent("Test,Test2"); //Remove Test add Test2 and vice versa
+        * e.toggleComponent("Test,Test2"); //Remove Test, add Test2
+        * e.toggleComponent("Test,Test2"); //Add Test, remove Test2
+        * ~~~
+        *
+        * ~~~
+        * var e = Crafty.e("2D,DOM,Test");
+        * e.toggleComponent("Test","Test2"); //Remove Test, add Test2
+        * e.toggleComponent("Test","Test2"); //Add Test, remove Test2
+        * e.toggleComponent("Test");         //Remove Test
         * ~~~
         */
        toggleComponent:function(toggle){
