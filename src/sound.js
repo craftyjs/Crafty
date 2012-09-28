@@ -330,7 +330,6 @@ Crafty.extend({
         unPause:function(id) {
         	if(!Crafty.support.audio || !id || !this.sounds[id]) return;
           var s = this.sounds[id];
-          console.log("SOUND!!!!!!", s.obj.paused);
           if(s.obj.paused) s.obj.play();
         },
         
@@ -350,7 +349,6 @@ Crafty.extend({
         togglePause:function(id) {
         	if(!Crafty.support.audio || !id || !this.sounds[id]) return;
           var s = this.sounds[id];
-          console.log("SOUND!!!!!!", s.obj.paused);
           if(s.obj.paused) {
           	s.obj.play();
           } else {
