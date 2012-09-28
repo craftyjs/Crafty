@@ -836,7 +836,7 @@ Crafty.extend({
 
             Crafty.addEvent(this, window, "blur", function () {
                 if (Crafty.settings.get("autoPause")) {
-                    Crafty.pause();
+                    if(!Crafty._paused) Crafty.pause();
                 }
             });
             Crafty.addEvent(this, window, "focus", function () {
