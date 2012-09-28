@@ -21,6 +21,7 @@ Crafty.extend({
         },
         volume:1, //Global Volume
         muted:false,
+        paused:false,
         /**
          * Function to setup supported formats
          **/
@@ -292,6 +293,69 @@ Crafty.extend({
         */
         unmute:function(){
             this._mute(false);
+        },
+        
+        /**@
+         * #Crafty.audio.pause
+         * @sign public this Crafty.audio.pause(string ID)
+         * 
+         * Pause the Audio instance specified by id param.
+         * 
+         * @example
+         * ~~~
+         * Crafty.audio.pause('music');
+         * ~~~
+         * 
+         * @param {string} id The id of the audio object to pause
+         */
+        pause:function(id) {
+        	if(!Crafty.support.audio || !id || !this.sounds[id]) return;
+          var s = this.sounds[id];
+          if(!s.obj.paused) s.obj.pause();
+        },
+        
+        /**@
+         * #Crafty.audio.unPause
+         * @sign public this Crafty.audio.unPause(string ID)
+         * 
+         * Resume playing the Audio instance specified by id param.
+         * 
+         * @example
+         * ~~~
+         * Crafty.audio.unPause('music');
+         * ~~~
+         * 
+         * @param {string} id The id of the audio object to unPause
+         */
+        unPause:function(id) {
+        	if(!Crafty.support.audio || !id || !this.sounds[id]) return;
+          var s = this.sounds[id];
+          console.log("SOUND!!!!!!", s.obj.paused);
+          if(s.obj.paused) s.obj.play();
+        },
+        
+        /**@
+         * #Crafty.audio.togglePause
+         * @sign public this Crafty.audio.togglePause(string ID)
+         * 
+         * Toggle the pause status of the Audio instance specified by id param.
+         * 
+         * @example
+         * ~~~
+         * Crafty.audio.togglePause('music');
+         * ~~~
+         * 
+         * @param {string} id The id of the audio object to pause/unPause
+         */
+        togglePause:function(id) {
+        	if(!Crafty.support.audio || !id || !this.sounds[id]) return;
+          var s = this.sounds[id];
+          console.log("SOUND!!!!!!", s.obj.paused);
+          if(s.obj.paused) {
+          	s.obj.play();
+          } else {
+          	s.obj.pause();
+          }
         }
 
     } 
