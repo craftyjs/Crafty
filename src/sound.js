@@ -310,8 +310,8 @@ Crafty.extend({
          */
         pause:function(id) {
         	if(!Crafty.support.audio || !id || !this.sounds[id]) return;
-          var s = this.sounds[id];
-          if(!s.obj.paused) s.obj.pause();
+        	var s = this.sounds[id];
+        	if(!s.obj.paused) s.obj.pause();
         },
         
         /**@
@@ -329,8 +329,8 @@ Crafty.extend({
          */
         unpause:function(id) {
         	if(!Crafty.support.audio || !id || !this.sounds[id]) return;
-          var s = this.sounds[id];
-          if(s.obj.paused) s.obj.play();
+        	var s = this.sounds[id];
+        	if(s.obj.paused) s.obj.play();
         },
         
         /**@
@@ -348,13 +348,13 @@ Crafty.extend({
          */
         togglePause:function(id) {
         	if(!Crafty.support.audio || !id || !this.sounds[id]) return;
-          var s = this.sounds[id];
-          if(s.obj.paused) {
-          	s.obj.play();
-          } else {
-          	s.obj.pause();
-          }
-        }
+					var s = this.sounds[id];
+					if(s.obj.paused) {
+						s.obj.play();
+					} else {
+						s.obj.pause();
+					}
+				}
 
     } 
 });
