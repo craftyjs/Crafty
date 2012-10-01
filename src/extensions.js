@@ -612,7 +612,7 @@ Crafty.extend({
             }
 
             return function (amt, cent_x, cent_y, time) {
-                var bounds = Crafty.map.boundaries(),
+                var bounds = this.bounds || Crafty.map.boundaries(),
                     final_zoom = amt ? zoom * amt : 1;
 				if (!amt) {	// we're resetting to defaults
 					zoom = 1;
@@ -655,7 +655,7 @@ Crafty.extend({
             var prop = Crafty.support.prefix + "Transform",
                 act = {};
             return function (amt) {
-                var bounds = Crafty.map.boundaries(),
+                var bounds = this.bounds || Crafty.map.boundaries(),
                     final_zoom = amt ? this._zoom * amt : 1,
 					czoom = final_zoom / this._zoom;
 
@@ -735,7 +735,7 @@ Crafty.extend({
             // clamps the viewport to the viewable area
             // under no circumstances should the viewport see something outside the boundary of the 'world'
             if (!this.clampToEntities) return;
-            var bound = Crafty.map.boundaries();
+            var bound = this.bounds || Crafty.map.boundaries();
 			bound.max.x *= this._zoom;
 			bound.min.x *= this._zoom;
 			bound.max.y *= this._zoom;
@@ -836,7 +836,7 @@ Crafty.extend({
 
             Crafty.addEvent(this, window, "blur", function () {
                 if (Crafty.settings.get("autoPause")) {
-                    Crafty.pause();
+                    if(!Crafty._paused) Crafty.pause();
                 }
             });
             Crafty.addEvent(this, window, "focus", function () {

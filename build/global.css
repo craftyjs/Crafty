@@ -72,7 +72,7 @@ button:active {
 .clearer { clear:both }
 
 .gridlist { padding:0; margin:0; list-style:none }
-.gridlist li { float:left; width:90px; text-align:center }
+.gridlist li { float:left; width:90px;height: 110px; text-align:center }
 .gridlist li a span { display:block; font-size:12px }
 .gridlist li a img { border:1px solid #ccc }
 .gridlist li a:hover img { border:1px solid #9f5600 }
@@ -81,7 +81,7 @@ button:active {
 .demo img { float:left; border:1px solid #aaa; margin-right:5px }
 .demo p { margin-top:-5px }
 
-#doc-nav { float:left;margin: 25px 40px 0 0; width: 140px; }
+#doc-nav { float:left; margin:25px 20px 0 0; width:160px; }
 #doc-level-one { margin:0; padding:0; list-style:none; font-size:12px }
 #doc-level-one li { font-weight:bold; padding:2px 0 }
 #doc-level-one li ul { padding-left:20px }
@@ -89,10 +89,11 @@ button:active {
 #doc-content { float:left; width:600px }
 
 .doc-top { float:right; font-size:12px; margin-top:10px }
-#doc-content dl { background:#eee; padding:10px; font-size:13px; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px;}
+#doc-content dl { background:#eee; padding:5px; font-size:14px }
 #doc-content dt { font-weight:bold; font-family:'Courier New', monospace }
 #doc-content dd { margin:0 0 5px 25px }
 .doc-block { margin-top:50px }
 
 div.doc-contents ul li {display: inline-block; margin: 0px 15px; min-width: 220px;}
 pre code {background-color: whiteSmoke; display: block; padding: 8.5px; margin: -10px 0 18px; line-height: 18px; font-size: 12px; border: 1px solid #CCC; border: 1px solid rgba(0, 0, 0, 0.15); -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; white-space: pre; white-space: pre-wrap; word-wrap: break-word;}
+
