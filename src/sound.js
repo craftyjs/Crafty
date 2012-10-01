@@ -348,13 +348,13 @@ Crafty.extend({
          */
         togglePause:function(id) {
         	if(!Crafty.support.audio || !id || !this.sounds[id]) return;
-					var s = this.sounds[id];
-					if(s.obj.paused) {
-						s.obj.play();
-					} else {
-						s.obj.pause();
-					}
-				}
+        	var s = this.sounds[id];
+        	if(s.obj.paused) {
+        		s.obj.play();
+      		} else {
+      			s.obj.pause();
+    			}
+  			}
 
     } 
 });
