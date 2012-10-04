@@ -14,6 +14,12 @@
     * ~~~
     * 
     * The first selector will return all entities that have the component `MyComponent`. The second will return all entities that have `Hello` and `2D` and `Component` whereas the last will return all entities that have at least one of those components (or).
+    *
+    * ~~~
+    *   Crafty("*")
+    * ~~~
+    * Passing `*` will select all entities.
+    *
     * ~~~
     *   Crafty(1)
     * ~~~
@@ -250,15 +256,24 @@
         /**@
         * #.toggleComponent
         * @comp Crafty Core
-        * @sign public this. toggleComponent(String componentID,String componentToggle)
-        * @param componentID - Component ID to add or remove.
-        * @param componentToggle - Component ID to replace instead of remove
-        * Add or Remove Components
+        * @sign public this .toggleComponent(String ComponentList)
+        * @param ComponentList - A string of components to add or remove separated by a comma `,`
+        * @sign public this .toggleComponent(String Component1[, .., String componentN])
+        * @param Component# - Component ID to add or remove.
+        * Add or Remove Components from an entity.
         * 
         * @example
         * ~~~
         * var e = Crafty.e("2D,DOM,Test");
-        * e.toggleComponent("Test,Test2"); //Remove Test add Test2 and vice versa
+        * e.toggleComponent("Test,Test2"); //Remove Test, add Test2
+        * e.toggleComponent("Test,Test2"); //Add Test, remove Test2
+        * ~~~
+        *
+        * ~~~
+        * var e = Crafty.e("2D,DOM,Test");
+        * e.toggleComponent("Test","Test2"); //Remove Test, add Test2
+        * e.toggleComponent("Test","Test2"); //Add Test, remove Test2
+        * e.toggleComponent("Test");         //Remove Test
         * ~~~
         */
        toggleComponent:function(toggle){
@@ -332,6 +347,13 @@
         * Removes a component from an entity. A soft remove (the default) will only
         * refrain `.has()` from returning true. Hard will remove all
         * associated properties and methods.
+        *
+        * @example
+        * ~~~
+        * var e = Crafty.e("2D,DOM,Test");
+        * e.removeComponent("Test");        //Soft remove Test component
+        * e.removeComponent("Test", false); //Hard remove Test component
+        * ~~~
         */
         removeComponent: function (id, soft) {
             if (soft === false) {
@@ -838,7 +860,7 @@
         timer: {
             prev: (+new Date),
             current: (+new Date),
-            curTime: Date.now(),
+            currentTime: +new Date(),
             frames:0,
             frameTime:0,
             init: function () {
@@ -886,11 +908,11 @@
             */
             step: function () {
                 loops = 0;
-                this.curTime = Date.now();
-                if (this.curTime - nextGameTick > 60 * milliSecPerFrame) {
-                    nextGameTick = this.curTime - milliSecPerFrame;
+                this.currentTime = +new Date();
+                if (this.currentTime - nextGameTick > 60 * milliSecPerFrame) {
+                    nextGameTick = this.currentTime - milliSecPerFrame;
                 }
-                while (this.curTime > nextGameTick) {
+                while (this.currentTime > nextGameTick) {
                     Crafty.trigger("EnterFrame", { frame: frame++ });
                     nextGameTick += milliSecPerFrame;
                     loops++;
@@ -898,10 +920,10 @@
                 if (loops) {
                     Crafty.DrawManager.draw();
                 }
-               if(this.curTime > this.frameTime){
+               if(this.currentTime > this.frameTime){
                     Crafty.trigger("MessureFPS",{value:this.frame});
                     this.frame = 0;
-                    this.frameTime = this.curTime + 1000;
+                    this.frameTime = this.currentTime + 1000;
                 }else{
                     this.frame++;
                 }

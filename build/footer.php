@@ -3,6 +3,7 @@
 
 <div class="clearer"></div>
 <div id="footer">
+
   <div id="contact">
     <a href="http://twitter.com/craftyjs">
       <img src="/images/twitter.png" />
@@ -46,6 +47,7 @@
     &copy; Crafty 2010. Crafty is distributed under the <a href="http://en.wikipedia.org/wiki/MIT_License">MIT</a> or <a href="http://en.wikipedia.org/wiki/GNU_General_Public_License">GPL</a>
     license.
   </p>
+
 </div>
 </body>
 </html>
