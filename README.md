@@ -17,7 +17,7 @@ Other Goodies:
 
 ##Using Crafty
 
-Follow this short tutorial to get started http://craftyjs.github.com/tutorial/bananabomber/create-a-game
+Follow this short tutorial to get started http://craftyengine.com/tutorial/bananabomber/create-a-game
 
 A simple game of pong:
 
@@ -71,7 +71,7 @@ A simple game of pong:
     	.attr({ x: 515, y: 20, w: 100, h: 20, points: 0 })
     	.text("0 Points");
 
-See the game running at http://craftyjs.github.com/tutorial/getting-started/how-crafty-works
+See the game running at http://craftyengine.com/tutorial/getting-started/how-crafty-works
 
 ##Developing
 
