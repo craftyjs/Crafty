@@ -1,10 +1,10 @@
 ﻿{
     "name": "crafty",
-    "version": "0.5.1",
+    "version": "0.5.2",
     "title": "Crafty game framework",
     "author": {
         "name": "Louis Stowasser",
-        "url": "http://craftyjs.com/"
+        "url": "http://craftyengine.com/"
     },
     "branches" : { "develop" : true },
     "licenses": [
