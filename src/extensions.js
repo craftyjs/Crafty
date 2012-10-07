@@ -730,7 +730,14 @@ Crafty.extend({
                 }
             };
         })(),
-
+		/**@
+         * #Crafty.viewport.bounds
+         * @comp Crafty.viewport
+         *
+		 * A rectangle which defines the bounds of the viewport. If this 
+		 * variable is null, Crafty uses the bounding box of all the items
+		 * on the stage.
+         */
         _clamp: function () {
             // clamps the viewport to the viewable area
             // under no circumstances should the viewport see something outside the boundary of the 'world'
