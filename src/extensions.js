@@ -1080,7 +1080,11 @@ Crafty.extend({
     * PLUS: 187,
     * COMMA: 188,
     * MINUS: 189,
-    * PERIOD: 190
+    * PERIOD: 190,
+    * PULT_UP: 29460,
+    * PULT_DOWN: 29461,
+    * PULT_LEFT: 4,
+    * PULT_RIGHT': 5
     * ~~~
     */
     keys: {
@@ -1170,7 +1174,12 @@ Crafty.extend({
         'PLUS': 187,
         'COMMA': 188,
         'MINUS': 189,
-        'PERIOD': 190
+        'PERIOD': 190,
+        'PULT_UP': 29460,
+        'PULT_DOWN': 29461,
+        'PULT_LEFT': 4,
+        'PULT_RIGHT': 5
+
     },
 
     /**@
