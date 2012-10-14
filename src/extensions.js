@@ -99,8 +99,8 @@
         var gl;
         try {
             gl = document.createElement("canvas").getContext("experimental-webgl");
-            gl.viewportWidth = canvas.width;
-            gl.viewportHeight = canvas.height;
+            gl.viewportWidth = support.canvas.width;
+            gl.viewportHeight = support.canvas.height;
         }
         catch (e) { }
         support.webgl = !!gl;
