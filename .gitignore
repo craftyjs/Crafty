@@ -4,3 +4,4 @@ build/api/*
 .*.sw?
 .DS_store
 .project
+.idea
