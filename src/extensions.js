@@ -99,8 +99,8 @@
         var gl;
         try {
             gl = document.createElement("canvas").getContext("experimental-webgl");
-            gl.viewportWidth = canvas.width;
-            gl.viewportHeight = canvas.height;
+            gl.viewportWidth = support.canvas.width;
+            gl.viewportHeight = support.canvas.height;
         }
         catch (e) { }
         support.webgl = !!gl;
@@ -1089,7 +1089,11 @@ Crafty.extend({
     * PLUS: 187,
     * COMMA: 188,
     * MINUS: 189,
-    * PERIOD: 190
+    * PERIOD: 190,
+    * PULT_UP: 29460,
+    * PULT_DOWN: 29461,
+    * PULT_LEFT: 4,
+    * PULT_RIGHT': 5
     * ~~~
     */
     keys: {
@@ -1179,7 +1183,12 @@ Crafty.extend({
         'PLUS': 187,
         'COMMA': 188,
         'MINUS': 189,
-        'PERIOD': 190
+        'PERIOD': 190,
+        'PULT_UP': 29460,
+        'PULT_DOWN': 29461,
+        'PULT_LEFT': 4,
+        'PULT_RIGHT': 5
+
     },
 
     /**@
