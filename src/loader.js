@@ -138,7 +138,7 @@ Crafty.extend({
            
         for (; i < l; ++i) {       
             current = data[i];
-            ext = current.substr(current.lastIndexOf('.') + 1).toLowerCase();
+            ext = current.substr(current.lastIndexOf('.') + 1, 3).toLowerCase();
            
             obj = Crafty.asset(current) || null;   
           
