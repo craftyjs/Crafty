@@ -369,6 +369,27 @@ Crafty.extend({
 			} else {
 				s.obj.pause();
 			}
+		},
+
+		/**@
+		 * #Crafty.audio.getTime
+		 * @sign public this Crafty.audio.getTime(string ID)
+		 *
+		 * Returns the position in the audio file in seconds (e.g. 3.27). Useful if you want to sync an animation to a
+		 * song, for example.
+		 *
+		 * @example
+		 * ~~~
+		 * var time = Crafty.audio.getTime('music');
+		 * ~~~
+		 *
+		 * @param {string} id The id of the audio object whose playback position you want.
+		 */
+		getTime : function(id) {
+			if (!Crafty.support.audio || !id || !this.sounds[id])
+				return 0;
+			var s = this.sounds[id];
+			return s.obj.currentTime;
 		}
 	}
 });
