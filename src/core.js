@@ -139,6 +139,11 @@
                 if (comps && and) for (i = 0; i < l; i++) this.extend(components[comps[i]]);
 
                 this.length = elem; //length is the last index (already incremented)
+				
+				// if there's only one entity, return the actual entity
+				if (elem === 1) {
+					return entities[this[elem-1]];
+				}
 
             } else { //Select a specific entity
 
