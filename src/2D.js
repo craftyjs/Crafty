@@ -295,6 +295,10 @@ Crafty.c("2D", {
 				}
 				this._children = [];
 			}
+			
+			if (this._parent) {
+				this._parent.detach(this);
+			}
 
 			Crafty.map.remove(this);
 
