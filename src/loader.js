@@ -77,7 +77,7 @@ Crafty.extend({
 	* @see Crafty.asset
         * @see Crafty.load
 	*/
-    image_whitelist: ["jpg", "jpeg", "gif", "png"],
+    image_whitelist: ["jpg", "jpeg", "gif", "png", "svg"],
 	/**@
 	* #Crafty.loader
 	* @category Assets
