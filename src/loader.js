@@ -47,7 +47,37 @@ Crafty.extend({
             this.trigger("NewAsset", {key : key, value : value});
         }
     },
-
+        /**@
+	* #Crafty.image_whitelist
+	* @category Assets
+	* 
+    * 
+    * A list of file extensions that can be loaded as images by Crafty.load
+    *
+	* @example
+	* ~~~
+        * Crafty.image_whitelist.push("tif")
+	* Crafty.load(["images/sprite.tif", "sounds/jump.mp3"],
+	*     function() {
+	*         //when loaded
+	*         Crafty.scene("main"); //go to main scene
+	*         Crafty.audio.play("jump.mp3"); //Play the audio file
+	*     },
+	*
+	*     function(e) {
+	*       //progress
+	*     },
+	*
+	*     function(e) {
+	*       //uh oh, error loading
+	*     }
+	* );
+	* ~~~
+	* 
+	* @see Crafty.asset
+        * @see Crafty.load
+	*/
+    image_whitelist: ["jpg", "jpeg", "gif", "png"],
 	/**@
 	* #Crafty.loader
 	* @category Assets
@@ -60,7 +90,7 @@ Crafty.extend({
 	* Preloader for all assets. Takes an array of URLs and
 	* adds them to the `Crafty.assets` object.
 	*
-	* Files with suffixes `jpg`, `jpeg`, `gif` and `png` (case insensitive) will be loaded.
+	* Files with suffixes in `image_whitelist` (case insensitive) will be loaded.
 	*
 	* If `Crafty.support.audio` is `true`, files with the following suffixes `mp3`, `wav`, `ogg` and `mp4` (case insensitive) can be loaded.
 	*
@@ -95,6 +125,7 @@ Crafty.extend({
 	* ~~~
 	* 
 	* @see Crafty.assets
+        * @see Crafty.image_whitelist
 	*/
     load: function (data, oncomplete, onprogress, onerror) {
             
@@ -164,7 +195,7 @@ Crafty.extend({
                 }
                    
                  
-            } else if (ext === "jpg" || ext === "jpeg" || ext === "gif" || ext === "png") { 
+            } else if (Crafty.image_whitelist.indexOf(ext) >= 0) { 
                 if(!obj) {
                     obj = new Image();
                     Crafty.asset(current, obj);   
