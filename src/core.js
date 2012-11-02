@@ -1335,4 +1335,8 @@
 
     //make Crafty global
     window.Crafty = Crafty;
+
+    if (typeof define === 'function') {
+        define('crafty', [], function() { return Crafty; });
+    }
 })(window,
