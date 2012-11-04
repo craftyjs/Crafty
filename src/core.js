@@ -793,6 +793,7 @@
         stop: function (clearState) {
         	this.timer.stop();
         	if (clearState) {
+        	    Crafty.audio.remove();
         		if (Crafty.stage && Crafty.stage.elem.parentNode) {
         			var newCrStage = document.createElement('div');
         			newCrStage.id = "cr-stage";

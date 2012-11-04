@@ -209,6 +209,43 @@ Crafty.extend({
 				}
 			}, true);
 		},
+	    /**@
+		 * #Crafty.audio.remove
+		 * @comp Crafty.audio
+		 * @sign public this Crafty.audio.remove([String id])
+		 * @param id - A string to refer to sounds
+		 *
+		 * Will stop the sound and remove all references to the audio object allowing the browser to free the memory.
+         * If no id is given, all sounds will be removed.
+		 *
+		 * @example
+		 * ~~~
+		 * Crafty.audio.remove("walk");
+		 * ~~~
+		 */
+		remove: function (id) {
+		    if (!Crafty.support.audio)
+		        return;
+
+		    var s;
+
+		    if (!id) {
+		        for (var i in this.sounds) {
+		            s = this.sounds[i];
+		            Crafty.audio.stop(id);
+		            delete Crafty.assets[s.obj.src];
+		            delete Crafty.audio.sounds[id];
+		        }
+		        return;
+		    }
+		    if (!this.sounds[id])
+		        return;
+
+		    s = this.sounds[id];
+		    Crafty.audio.stop(id);
+		    delete Crafty.assets[s.obj.src];
+		    delete Crafty.audio.sounds[id];
+		},
 		/**@
 		 * #Crafty.audio.stop
 		 * @sign public this Crafty.audio.stop([Number ID])
