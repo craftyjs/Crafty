@@ -677,7 +677,8 @@ Crafty.extend({
                     height: act.height * final_zoom
                 }
                 Crafty.viewport.pan('reset');
-                Crafty.stage.inner.style['transform'] = Crafty.stage.inner.style[prop] = 'scale(' + this._zoom + ',' + this._zoom + ')';
+                Crafty.stage.inner.style['transform'] = 
+				Crafty.stage.inner.style[prop] = 'scale(' + this._zoom + ',' + this._zoom + ')';
 
                 if (Crafty.canvas._canvas) {
                     Crafty.canvas.context.scale(czoom, czoom);
