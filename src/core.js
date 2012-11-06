@@ -254,7 +254,7 @@
                 }
             }
 
-            this.trigger("NewComponent", ul);
+            this.trigger("NewComponent", uninit);
             return this;
         },
 
