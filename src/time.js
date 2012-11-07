@@ -7,11 +7,13 @@ Crafty.c("Delay", {
 		this._delays = [];
 		this.bind("EnterFrame", function() {
 			var now = new Date().getTime();
-			for(var index in this._delays) {
+			for (var index = 0; index < this._delays.length; index++) {
 				var item = this._delays[index];
-				if(!item.triggered && item.start + item.delay + item.pause < now) {
-					item.triggered=true;
+				if(item.start + item.delay + item.pause < now) {
 					item.func.call(this);
+					// remove item from array
+					this._delays.splice(index,1);
+					index--;
 				}
 			}
 		});
@@ -29,7 +31,7 @@ Crafty.c("Delay", {
 			}
 		});
 	},
-    /**@
+	/**@
 	* #.delay
 	* @comp Crafty Time
 	* @sign public this.delay(Function callback, Number delay)
@@ -48,7 +50,7 @@ Crafty.c("Delay", {
 	* ~~~
 	* console.log("start");
 	* this.delay(function() {
-	     console.log("100ms later");
+		 console.log("100ms later");
 	* }, 100);
 	* ~~~
 	*/
@@ -57,7 +59,6 @@ Crafty.c("Delay", {
 			start : new Date().getTime(),
 			func : func,
 			delay : delay,
-			triggered : false,
 			pauseBuffer: 0,
 			pause: 0
 		});
