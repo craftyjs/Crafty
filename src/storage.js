@@ -258,13 +258,14 @@ Crafty.storage = (function () {
 	if (typeof indexedDB != 'object') {
 		window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
 		window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction;
+		window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange
 		
 		/* Numeric constants for transaction type are deprecated
 		 * Ensure that the script will work consistenly for recent and legacy browser versions
 		 */
 		if (typeof IDBTransaction == 'object') {
-			transactionType.READ = IDBTransaction.READ || IDBTransaction.readonly || transactionType.READ;
-			transactionType.READ_WRITE = IDBTransaction.READ_WRITE || IDBTransaction.readwrite || transactionType.READ_WRITE;
+			transactionType.READ = IDBTransaction.READ || IDBTransaction.readonly || transactionType.READ || 'read';
+			transactionType.READ_WRITE = IDBTransaction.READ_WRITE || IDBTransaction.readwrite || transactionType.READ_WRITE || 'readwrite';
 		}
 	}
 
@@ -289,9 +290,11 @@ Crafty.storage = (function () {
 					var request = indexedDB.open(gameName);
 					request.onsuccess = function (e) {
 						db = e.target.result;
-						createStores();
 						getTimestamps();
 						openExternal();
+					};
+					request.onupgradeneeded = function (e) {
+						createStores();
 					};
 				}
 				else {
@@ -303,7 +306,7 @@ Crafty.storage = (function () {
 				// get all the timestamps for existing keys
 				function getTimestamps() {
 					try {
-						var trans = db.transaction(['save'], transactionType.READ),
+						var trans = db.transaction(['save'], "read"),
 						store = trans.objectStore('save'),
 						request = store.getAll();
 						request.onsuccess = function (e) {
@@ -323,13 +326,13 @@ Crafty.storage = (function () {
 						for (var i = 0; i < stores.length; i++) {
 							var st = stores[i];
 							if (db.objectStoreNames.contains(st)) continue;
-							db.createObjectStore(st, { keyPath: "key" });
+							var store = db.createObjectStore(st, { keyPath: "key" });
 						}
 					};
 				}
 			},
 
-			save: function (key, type, data) {
+			save: function (key, type, data, callback) {
 				if (db == null) {
 					setTimeout(function () { Crafty.storage.save(key, type, data); }, 1);
 					return;
@@ -338,13 +341,14 @@ Crafty.storage = (function () {
 				var str = serialize(data), t = ts();
 				if (type == 'save')	saveExternal(key, str, t);
 				try {
-					var trans = db.transaction([type], transactionType.READ_WRITE),
-					store = trans.objectStore(type),
-					request = store.put({
+					var request = db.transaction([type], transactionType.READ_WRITE).objectStore(type).add({
 						"data": str,
 						"timestamp": t,
 						"key": key
 					});
+					if (typeof callback == 'function') {
+						request.onsuccess = callback;
+					}
 				}
 				catch (e) {
 					console.error(e);
@@ -357,9 +361,7 @@ Crafty.storage = (function () {
 					return;
 				}
 				try {
-					var trans = db.transaction([type], transactionType.READ),
-					store = trans.objectStore(type),
-					request = store.get(key);
+					var request = db.transaction([type], transactionType.READ).objectStore(type).get(key);
 					request.onsuccess = function (e) {
 						callback(unserialize(e.target.result.data));
 					};
@@ -374,10 +376,8 @@ Crafty.storage = (function () {
 					setTimeout(function () { Crafty.storage.getAllkeys(type, callback); }, 1);
 				}
 				try {
-					var trans = db.transaction([type], transactionType.READ),
-					store = trans.objectStore(type),
-					request = store.getCursor(),
-					res = [];
+					var request = db.transaction([type], transactionType.READ).objectStore(type).openCursor(),
+						res = [];
 					request.onsuccess = function (e) {
 						var cursor = e.target.result;
 						if (cursor) {
