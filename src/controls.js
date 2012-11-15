@@ -258,15 +258,20 @@ Crafty.extend({
 			Crafty.trigger("KeyUp", e);
 		}
 
-		//prevent default actions for all keys except backspace and F1-F12.
+		//prevent default actions for all keys except backspace and F1-F12 and except actions in INPUT and TEXTAREA.
+		//prevent bubbling up for all keys except backspace and F1-F12.
 		//Among others this prevent the arrow keys from scrolling the parent page
 		//of an iframe hosting the game
 		if(Crafty.selected && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
 			if(e.stopPropagation) e.stopPropagation();
             else e.cancelBubble = true;
 
-			if(e.preventDefault) e.preventDefault();
-			else e.returnValue = false;
+			//Don't prevent default actions if target node is input or textarea.
+			if(e.preventDefault && e.target.nodeName !== 'INPUT' && e.target.nodeName !== 'TEXTAREA'){
+				e.preventDefault();
+			} else {
+				e.returnValue = false;
+			}
 			return false;
 		}
 	}
