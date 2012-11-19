@@ -9,9 +9,9 @@
 <body>
 <div id="header">
 	<div id="inner">
-	<a href="http://craftyengine.com"><img id="logo" src="../images/logo.png" alt="Crafty - JavaScript Game Engine" /></a>
+	<a href="http://craftyjs.com"><img id="logo" src="../images/logo.png" alt="Crafty - JavaScript Game Engine" /></a>
 	<ul>
-		<li><a href="http://craftyengine.com/tutorial/">Getting Started</a></li>
+		<li><a href="http://craftyjs.com/tutorial/">Getting Started</a></li>
 		<li><a href="api/">Documentation</a></li>
 		<li><a href="https://groups.google.com/forum/#!forum/craftyjs">Forum</a></li>
 		<li><a href="http://craftycomponents.com/">Modules</a></li>
