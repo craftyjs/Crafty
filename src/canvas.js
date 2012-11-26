@@ -51,6 +51,18 @@ Crafty.c("Canvas", {
 	* 
 	* Method to draw the entity on the canvas element. Can pass rect values for redrawing a segment of the entity.
 	*/
+
+	// Cache the various objects and arrays used in draw:
+	drawVars:{
+		type: "canvas",
+		pos: {},
+		ctx: null,
+		coord: [0, 0, 0, 0],
+		co: {x:0, y:0, w:0, h:0}
+
+
+	},
+
 	draw: function (ctx, x, y, w, h) {
 		if (!this.ready) return;
 		if (arguments.length === 4) {
@@ -61,20 +73,21 @@ Crafty.c("Canvas", {
 			ctx = Crafty.canvas.context;
 		}
 
-		var pos = { //inlined pos() function, for speed
-			_x: (this._x + (x || 0)),
-			_y: (this._y + (y || 0)),
-			_w: (w || this._w),
-			_h: (h || this._h)
-		},
-			context = ctx || Crafty.canvas.context,
-			coord = this.__coord || [0, 0, 0, 0],
-			co = {
-			x: coord[0] + (x || 0),
-			y: coord[1] + (y || 0),
-			w: w || coord[2],
-			h: h || coord[3]
-		};
+		var pos = this.drawVars.pos;
+		pos._x = (this._x + (x || 0))
+		pos._y = (this._y + (y || 0))
+		pos._w = (w || this._w)
+		pos._h =(h || this._h)
+
+
+		context = ctx || Crafty.canvas.context;
+		coord =  this.__coord || [0, 0, 0, 0];
+		var co = this.drawVars.co;
+		co.x = coord[0] + (x || 0);
+		co.y = coord[1] + (y || 0)
+		co.w = w || coord[2]
+		co.h = h || coord[3]
+
 
 		if (this._mbr) {
 			context.save();
@@ -103,7 +116,8 @@ Crafty.c("Canvas", {
 			context.globalAlpha = this._alpha;
 		}
 
-		this.trigger("Draw", { type: "canvas", pos: pos, co: co, ctx: context });
+		this.drawVars.ctx = context;
+		this.trigger("Draw", this.drawVars);
 
 		if (this._mbr || (this._flipX || this._flipY)) {
 			context.restore();
