@@ -71,7 +71,7 @@
 	*/
 		search: function (rect, filter) {
 			var keys = HashMap.key(rect),
-			i, j,
+			i, j,k,
 			hash,
 			results = [];
 
@@ -84,7 +84,9 @@
 					hash = i + SPACE + j;
 
 					if (this.map[hash]) {
-						results = results.concat(this.map[hash]);
+                        for (k = 0; k<this.map[hash].length; k++)
+                            results.push(this.map[hash][k]);
+						//results = results.concat(this.map[hash]);
 					}
 				}
 			}
