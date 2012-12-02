@@ -49,7 +49,7 @@
 			for (i = keys.x1; i <= keys.x2; i++) {
 				//insert into all y buckets
 				for (j = keys.y1; j <= keys.y2; j++) {
-					hash = i + SPACE + j;
+					hash = (i << 16)^j;
 					if (!this.map[hash]) this.map[hash] = [];
 					this.map[hash].push(obj);
 				}
@@ -81,13 +81,11 @@
 			for (i = keys.x1; i <= keys.x2; i++) {
 				//insert into all y buckets
 				for (j = keys.y1; j <= keys.y2; j++) {
-					hash = i + SPACE + j;
-
-					if (this.map[hash]) {
-                        for (k = 0; k<this.map[hash].length; k++)
-                            results.push(this.map[hash][k]);
-						//results = results.concat(this.map[hash]);
-					}
+					cell = this.map[(i << 16)^j];
+					if (cell) {
+                        for (k = 0; k<cell.length; k++)
+                            results.push(cell[k]);
+					}	
 				}
 			}
 
@@ -141,7 +139,7 @@
 			for (i = keys.x1; i <= keys.x2; i++) {
 				//insert into all y buckets
 				for (j = keys.y1; j <= keys.y2; j++) {
-					hash = i + SPACE + j;
+					hash = (i << 16)^j;
 
 					if (this.map[hash]) {
 						var cell = this.map[hash],
@@ -191,9 +189,9 @@
 				if (!this.map[h].length) continue;
 
         //broad phase coordinate
-				var map_coord = h.split(SPACE),
-					i=map_coord[0],
-					j=map_coord[0];
+				var i= h>>16,
+					j=(h<<16)>>16;
+				if (j<0) { i = i^-1 }
 				if (i >= hash.max.x) {
 					hash.max.x = i;
 					for (k in this.map[h]) {
