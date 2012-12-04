@@ -489,6 +489,8 @@
         *
         * Events are arbitrary and provide communication between components.
         * You can trigger or bind an event even if it doesn't exist yet.
+        *
+        * Unlike DOM events, Crafty events are exectued synchronously.
         * 
         * @example
         * ~~~
@@ -576,6 +578,8 @@
         *
         * The first argument is the event name to trigger and the optional
         * second argument is the arbitrary event data. This can be absolutely anything.
+        *
+        * Unlike DOM events, Crafty events are exectued synchronously.
         */
         trigger: function (event, data) {
             if (this.length === 1) {
