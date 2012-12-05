@@ -22,7 +22,8 @@
 		this.map = {};
 	},
 
-	SPACE = " ";
+	SPACE = " ",
+	keyHolder ={};
 
 	HashMap.prototype = {
 	/**@
@@ -69,10 +70,10 @@
     * - If `filter` is `true`, filter the above results by checking that they actually overlap `rect`.
     * The easier usage is with `filter`=`true`. For performance reason, you may use `filter`=`false`, and filter the result yourself. See examples in drawing.js and collision.js
 	*/
+
 		search: function (rect, filter) {
-			var keys = HashMap.key(rect),
+			var keys = HashMap.key(rect, keyHolder ),
 			i, j,k,
-			hash,
 			results = [];
 
 			if (filter === undefined) filter = true; //default filter to true
@@ -84,7 +85,7 @@
 					cell = this.map[(i << 16)^j];
 					if (cell) {
                         for (k = 0; k<cell.length; k++)
-                            results.push(cell[k]);
+                            results.push(cell[k])
 					}	
 				}
 			}
@@ -132,7 +133,7 @@
 
 			if (arguments.length == 1) {
 				obj = keys;
-				keys = HashMap.key(obj);
+				keys = HashMap.key(obj, keyHolder);
 			}
 
 			//search in all x buckets
@@ -143,8 +144,7 @@
 
 					if (this.map[hash]) {
 						var cell = this.map[hash],
-						m,
-						n = cell.length;
+						 m, n = cell.length;
 						//loop over objs in cell and delete
 						for (m = 0; m < n; m++)
 							if (cell[m] && cell[m][0] === obj[0])
@@ -257,15 +257,19 @@
     * 
     * @see Crafty.HashMap.constructor
 	*/
-	HashMap.key = function (obj) {
+	HashMap.key = function (obj, keys) {
 		if (obj.hasOwnProperty('mbr')) {
 			obj = obj.mbr();
 		}
-		var x1 = Math.floor(obj._x / cellsize),
-		y1 = Math.floor(obj._y / cellsize),
-		x2 = Math.floor((obj._w + obj._x) / cellsize),
-		y2 = Math.floor((obj._h + obj._y) / cellsize);
-		return { x1: x1, y1: y1, x2: x2, y2: y2 };
+		if (!keys){
+			keys = {}
+		}
+
+		keys.x1 = Math.floor(obj._x / cellsize);
+		keys.y1 = Math.floor(obj._y / cellsize);
+		keys.x2 = Math.floor((obj._w + obj._x) / cellsize);
+		keys.y2 = Math.floor((obj._h + obj._y) / cellsize);
+		return keys;
 	};
 
 	HashMap.hash = function (keys) {
@@ -281,7 +285,7 @@
 	Entry.prototype = {
 		update: function (rect) {
 			//check if buckets change
-			if (HashMap.hash(HashMap.key(rect)) != HashMap.hash(this.keys)) {
+			if (HashMap.hash(HashMap.key(rect, keyHolder)) != HashMap.hash(this.keys)) {
 				this.map.remove(this.keys, this.obj);
 				var e = this.map.insert(this.obj);
 				this.keys = e.keys;
