@@ -155,6 +155,62 @@
 		},
 
 	/**@
+	* #Crafty.map.refresh
+	* @comp Crafty.map
+	* @sign public void Crafty.map.remove(Entry entry)
+	* @param entry - An entry to update
+	* 
+	* Refresh an entry's keys, and its position in the broad phrase map.
+	*
+	* @example 
+	* ~~~
+	* Crafty.map.refresh(e);
+	* ~~~
+	*/
+		refresh: function(entry) {
+				var keys = entry.keys;
+				var obj = entry.obj;
+				var cell, i, j, m, n;
+
+				//First delete current contents
+				for (i = keys.x1; i <= keys.x2; i++) {
+				//insert into all y buckets
+					for (j = keys.y1; j <= keys.y2; j++) {
+						cell = this.map[(i << 16)^j];
+						if (cell) {
+							n = cell.length;
+							//loop over objs in cell and delete
+							for (m = 0; m < n; m++)
+								if (cell[m] && cell[m][0] === obj[0])
+									cell.splice(m, 1);
+						}
+					}
+				}
+
+				//update keys
+				HashMap.key(obj, keys);
+
+
+
+				//insert into all x buckets
+				for (i = keys.x1; i <= keys.x2; i++) {
+					//insert into all y buckets
+					for (j = keys.y1; j <= keys.y2; j++) {
+						cell = this.map[(i << 16)^j];
+						if (!cell) cell=this.map[(i << 16)^j] = [];
+						cell.push(obj);
+					}
+				}
+
+			return entry;
+		},
+
+
+
+
+		
+
+	/**@
 	* #Crafty.map.boundaries
 	* @comp Crafty.map
 	* @sign public Object Crafty.map.boundaries()
@@ -280,15 +336,13 @@
 		this.keys = keys;
 		this.map = map;
 		this.obj = obj;
-	}
+	};
 
 	Entry.prototype = {
 		update: function (rect) {
 			//check if buckets change
 			if (HashMap.hash(HashMap.key(rect, keyHolder)) != HashMap.hash(this.keys)) {
-				this.map.remove(this.keys, this.obj);
-				var e = this.map.insert(this.obj);
-				this.keys = e.keys;
+					this.map.refresh(this)
 			}
 		}
 	};
