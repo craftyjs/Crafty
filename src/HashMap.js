@@ -172,9 +172,8 @@
 				var obj = entry.obj;
 				var cell, i, j, m, n;
 
-				//First delete current contents
+				//First delete current object from appropriate cells
 				for (i = keys.x1; i <= keys.x2; i++) {
-				//insert into all y buckets
 					for (j = keys.y1; j <= keys.y2; j++) {
 						cell = this.map[(i << 16)^j];
 						if (cell) {
@@ -190,11 +189,8 @@
 				//update keys
 				HashMap.key(obj, keys);
 
-
-
-				//insert into all x buckets
+				//insert into all rows and columns
 				for (i = keys.x1; i <= keys.x2; i++) {
-					//insert into all y buckets
 					for (j = keys.y1; j <= keys.y2; j++) {
 						cell = this.map[(i << 16)^j];
 						if (!cell) cell=this.map[(i << 16)^j] = [];
@@ -314,8 +310,8 @@
     * @see Crafty.HashMap.constructor
 	*/
 	HashMap.key = function (obj, keys) {
-		if (obj.hasOwnProperty('mbr')) {
-			obj = obj.mbr();
+		if (obj._mbr) {
+			obj = obj._mbr
 		}
 		if (!keys){
 			keys = {}
