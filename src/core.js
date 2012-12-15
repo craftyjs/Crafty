@@ -37,6 +37,7 @@
 
     GUID, FPS, frame, components, entities, handlers, onloads, tick, requestID,
 	noSetter, loops, milliSecPerFrame, nextGameTick, slice, rlist, rspace,
+    timeLog={postFrameTimes:[]}
 
 	initState = function () {
     	GUID = 1; //GUID for entity IDs
@@ -937,8 +938,59 @@
                 }else{
                     this.frame++;
                 }
-            
+                
+           
             },
+
+            /**@
+            * #Crafty.timer.debugStep
+            * @comp Crafty.timer
+            * @sign public void Crafty.timer.debugstep()
+            * Replicates the functionality of Crafty.timer.step(), with additional logging hooks.
+            * Easiest usage is just to replace step directly: Crafty.timer.step = Crafty.timer.debugStep
+            */
+            debugStep: function () {
+                loops = 0;
+                timeLog.oldTime = this.currentTime;
+                this.currentTime = +new Date();
+                timeLog.currentTime = this.currentTime;
+                timeLog.delta = timeLog.currentTime - timeLog.oldTime;
+                timeLog.postFrameTimes.length = 0
+             
+                
+                if (this.currentTime - nextGameTick > 60 * milliSecPerFrame) {
+                    nextGameTick = this.currentTime - milliSecPerFrame;
+                }
+                while (this.currentTime > nextGameTick) {
+                    Crafty.trigger("EnterFrame", { frame: frame++ });
+                    nextGameTick += milliSecPerFrame;
+                    loops++;
+                    timeLog.postFrameTimes.push(+new Date());
+                }
+                timeLog.loops=loops
+
+                if (loops) {
+                    timeLog.draw=true
+                    timeLog.preDrawTime = +new Date();
+                    Crafty.DrawManager.draw();
+                    timeLog.postDrawTime = +new Date();
+
+                }
+                else 
+                    timeLog.draw=false
+
+                if(this.currentTime > this.frameTime){
+                    Crafty.trigger("MessureFPS",{value:this.frame});
+                    this.frame = 0;
+                    this.frameTime = this.currentTime + 1000;
+                }else{
+                    this.frame++;
+                }
+                 
+                timeLog.endTime = +new Date();
+                Crafty.trigger("TimeLog", timeLog);
+            },
+
             /**@
             * #Crafty.timer.getFPS
             * @comp Crafty.timer
