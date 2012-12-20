@@ -574,7 +574,9 @@ Crafty.c("Draggable", {
 	*/
 	disableDrag: function () {
 		this.unbind("MouseDown", this._ondown);
-		this.stopDrag();
+		if (this._dragging) {
+			this.stopDrag();
+		}
 		return this;
 	}
 });
