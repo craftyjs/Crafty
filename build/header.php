@@ -12,7 +12,7 @@
 	<a href="http://craftyjs.com"><img id="logo" src="../images/logo.png" alt="Crafty - JavaScript Game Engine" /></a>
 	<ul>
 		<li><a href="http://craftyjs.com/tutorial/">Getting Started</a></li>
-		<li><a href="api/">Documentation</a></li>
+		<li><a href="http://craftyjs.com/api/">Documentation</a></li>
 		<li><a href="https://groups.google.com/forum/#!forum/craftyjs">Forum</a></li>
 		<li><a href="http://craftycomponents.com/">Modules</a></li>
 		<li class="emph"><a href="http://craftycomponents.com/components/single/8/crafty">Download</a></li>
