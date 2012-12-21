@@ -267,10 +267,12 @@ Crafty.extend({
             else e.cancelBubble = true;
 
 			//Don't prevent default actions if target node is input or textarea.
-			if(e.preventDefault && e.target.nodeName !== 'INPUT' && e.target.nodeName !== 'TEXTAREA'){
-				e.preventDefault();
-			} else {
-				e.returnValue = false;
+			if(e.target.nodeName !== 'INPUT' && e.target.nodeName !== 'TEXTAREA'){
+				if(e.preventDefault){
+					e.preventDefault();
+				} else {
+					e.returnValue = false;
+				}
 			}
 			return false;
 		}
