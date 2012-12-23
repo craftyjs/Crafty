@@ -53,7 +53,7 @@ Crafty.c("Delay", {
 	* ~~~
 	*/
 	delay : function(func, delay) {
-		return this._delays.push({
+		this._delays.push({
 			start : new Date().getTime(),
 			func : func,
 			delay : delay,
@@ -61,5 +61,7 @@ Crafty.c("Delay", {
 			pauseBuffer: 0,
 			pause: 0
 		});
+
+    return this;
 	}
 });
