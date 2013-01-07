@@ -247,7 +247,18 @@ Crafty.extend({
 	* Unicode of the key pressed
 	*/
 	keyboardDispatch: function (e) {
-		e.key = e.keyCode || e.which;
+		// Use a Crafty-standard event object to avoid cross-browser issues
+		var original = e,
+			evnt = {},
+			props = "char charCode keyCode type".split(" ");
+		for (i = props.length; i;) {
+			prop = props[--i];
+			evnt[prop] = original[prop];
+		}
+		evnt.which = original.charCode != null ? original.charCode : original.keyCode;
+		evnt.key = original.keyCode || original.which;
+		e = evnt;
+
 		if (e.type === "keydown") {
 			if (Crafty.keydown[e.key] !== true) {
 				Crafty.keydown[e.key] = true;
