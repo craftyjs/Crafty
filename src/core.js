@@ -1177,9 +1177,15 @@
             //    { Move:  {5:[fnA], 6:[fnB, fnC], global:[fnD]},
             //     Change: {6:[fnE]}
             //    }
-            // In this example, when the 'Move' event is triggered on entity #6 (e.g. entity6.trigger('Move')),
-            // it causes the execution of fnB() and fnC(). When the Move event is triggered globally (i.e. Crafty.trigger('Move')),
-            // it will execute fnD. In other words,
+            // In this example, when the 'Move' event is triggered on entity #6 (e.g.
+            // entity6.trigger('Move')), it causes the execution of fnB() and fnC(). When
+            // the Move event is triggered globally (i.e. Crafty.trigger('Move')), it
+            // will execute fnA, fnB, fnC, fnD.
+            // 
+            // In this example, "this" is bound to entity #6 whenever fnB() is executed, and
+            // "this" is bound to Crafty whenever fnD() is executed.
+            //
+            // In other words, the structure of "handlers" is:
             //
             // handlers[event][entityID or 'global'] === (Array of callback functions)
 
