@@ -107,10 +107,10 @@
                         i++;
                     }
                     this.length = i;
-			        // if there's only one entity, return the actual entity
-			        if (i === 1) {
-				        return entities[this[0]];
-			        }
+                    // if there's only one entity, return the actual entity
+                    if (i === 1) {
+                        return entities[this[0]];
+                    }
                     return this;
                 }
 
