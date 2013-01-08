@@ -6,6 +6,8 @@
     *
     * Crafty uses syntax similar to jQuery by having a selector engine to select entities by their components.
     *
+    * If there is more than one match, the return value is an Array-like object listing the ID numbers of each matching entity. If there is exactly one match, the entity itself is returned. If you're not sure how many matches to expect, check the number of matches via Crafty(...).length. Alternatively, use Crafty(...).each(...), which works in all cases.
+    *
     * @example
     * ~~~
     *    Crafty("MyComponent")
@@ -96,11 +98,19 @@
                 i, l;
 
                 if (selector === '*') {
+                    i = 0;
                     for (e in entities) {
-                        this[+e] = entities[e];
-                        elem++;
+                        // entities is something like {2:entity2, 3:entity3, 11:entity11, ...}
+                        // The for...in loop sets e to "2", "3", "11", ... i.e. all
+                        // the entity ID numbers. e is a string, so +e converts to number type.
+                        this[i] = +e;
+                        i++;
                     }
-                    this.length = elem;
+                    this.length = i;
+			        // if there's only one entity, return the actual entity
+			        if (i === 1) {
+				        return entities[this[0]];
+			        }
                     return this;
                 }
 
