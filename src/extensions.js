@@ -164,27 +164,27 @@ Crafty.extend({
     *
     * Entities that add the generated components are also given a component called `Sprite`.
     * 
-    * Examples:
-    *
+    * @example
+    * ~~~
     * Crafty.sprite("imgs/spritemap6.png", {flower:[0,0,20,30]});
     * var flower_entity = Crafty.e("2D, DOM, flower");
-    *
-    * The first line creates a component called "flower" associated with the sub-image of
+    * ~~~
+    * The first line creates a component called `flower` associated with the sub-image of
     * spritemap6.png with top-left corner (0,0), width 20 pixels, and height 30 pixels.
-    * The second line creates an entity with that image. (Note: Crafty.e("flower, 2D, DOM")
-    * would NOT work. When the 2D component is assigned, it erases the width and height
-    * information. So you should list "2D" before "flower".)
-    *
+    * The second line creates an entity with that image. (Note: `Crafty.e("flower, 2D, DOM")`
+    * would NOT work. When the `2D` component is assigned, it erases the width and height
+    * information. So you should list `2D` before `flower`.)
+    * ~~~
     * Crafty.sprite(50, "imgs/spritemap6.png", {flower:[0,0], grass:[0,1,3,1]});
-    *
-    * In this case, the "flower" component is pixels 0 <= x < 50, 0 <= y < 50, and the
-    * "grass" component is pixels 0 <= x < 150, 50 <= y < 100. (The "3" means grass has a
+    * ~~~
+    * In this case, the `flower` component is pixels 0 <= x < 50, 0 <= y < 50, and the
+    * `grass` component is pixels 0 <= x < 150, 50 <= y < 100. (The `3` means grass has a
     * width of 3 tiles, i.e. 150 pixels.)
-    *
+    * ~~~
     * Crafty.sprite(50, 100, "imgs/spritemap6.png", {flower:[0,0], grass:[0,1]}, 10);
-    *
+    * ~~~
     * In this case, each tile is 50x100, and there is a spacing of 10 pixels between
-    * consecutive tiles. So "flower" is pixels 0 <= x < 50, 0 <= y < 100, and "grass" is
+    * consecutive tiles. So `flower` is pixels 0 <= x < 50, 0 <= y < 100, and `grass` is
     * pixels 0 <= x < 50, 110 <= y < 210.
     * 
     * @see Sprite
