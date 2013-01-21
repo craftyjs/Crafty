@@ -827,7 +827,7 @@ Crafty.c("Twoway", {
 	* @comp Twoway
 	* @sign public this .twoway(Number speed[, Number jumpSpeed])
 	* @param speed - Amount of pixels to move left or right
-	* @param jumpSpeed - How high the entity should jump
+	* @param jump - vertical speed for entity's jump
 	* 
 	* Constructor to initialize the speed and power of jump. Component will
 	* listen for key events and move the entity appropriately. This includes
@@ -852,8 +852,8 @@ Crafty.c("Twoway", {
 		});
 
 		if (speed) this._speed = speed;
-		jump = jump || this._speed * 2;
-
+		if (!jump) this._jump = this._speed * 2;
+		
 		this.bind("EnterFrame", function () {
 			if (this.disableControls) return;
 			if (this._up) {
