@@ -825,7 +825,7 @@ Crafty.c("Twoway", {
 	/**@
 	* #.twoway
 	* @comp Twoway
-	* @sign public this .twoway(Number speed[, Number jumpSpeed])
+	* @sign public this .twoway(Number speed[, Number jump])
 	* @param speed - Amount of pixels to move left or right
 	* @param jump - vertical speed for entity's jump
 	* 
