@@ -152,10 +152,10 @@ Crafty.c("Collision", {
 	* @comp Collision
 	* @sign public this .onHit(String component, Function hit[, Function noHit])
 	* @param component - Component to check collisions for
-	* @param hit - Callback method to execute when collided with component
+	* @param hit - Callback method to execute upon collision with component.  Will be passed the results of the collision check in the same format documented for hit().
 	* @param noHit - Callback method executed once as soon as collision stops
 	* 
-	* Creates an enterframe event calling .hit() each time and if collision detected will invoke the callback.
+	* Creates an EnterFrame event calling .hit() each frame.  When a collision is detected the callback will be invoked.  
 	* 
 	* @see .hit
 	*/

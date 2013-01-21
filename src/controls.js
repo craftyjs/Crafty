@@ -258,15 +258,22 @@ Crafty.extend({
 			Crafty.trigger("KeyUp", e);
 		}
 
-		//prevent default actions for all keys except backspace and F1-F12.
+		//prevent default actions for all keys except backspace and F1-F12 and except actions in INPUT and TEXTAREA.
+		//prevent bubbling up for all keys except backspace and F1-F12.
 		//Among others this prevent the arrow keys from scrolling the parent page
 		//of an iframe hosting the game
 		if(Crafty.selected && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
 			if(e.stopPropagation) e.stopPropagation();
             else e.cancelBubble = true;
 
-			if(e.preventDefault) e.preventDefault();
-			else e.returnValue = false;
+			//Don't prevent default actions if target node is input or textarea.
+			if(e.target.nodeName !== 'INPUT' && e.target.nodeName !== 'TEXTAREA'){
+				if(e.preventDefault){
+					e.preventDefault();
+				} else {
+					e.returnValue = false;
+				}
+			}
 			return false;
 		}
 	}
@@ -574,7 +581,9 @@ Crafty.c("Draggable", {
 	*/
 	disableDrag: function () {
 		this.unbind("MouseDown", this._ondown);
-		this.stopDrag();
+		if (this._dragging) {
+			this.stopDrag();
+		}
 		return this;
 	}
 });
@@ -818,7 +827,7 @@ Crafty.c("Twoway", {
 	* @comp Twoway
 	* @sign public this .twoway(Number speed[, Number jumpSpeed])
 	* @param speed - Amount of pixels to move left or right
-	* @param jumpSpeed - How high the entity should jump
+	* @param jump - vertical speed for entity's jump
 	* 
 	* Constructor to initialize the speed and power of jump. Component will
 	* listen for key events and move the entity appropriately. This includes
@@ -843,8 +852,8 @@ Crafty.c("Twoway", {
 		});
 
 		if (speed) this._speed = speed;
-		jump = jump || this._speed * 2;
-
+		if (!jump) this._jump = this._speed * 2;
+		
 		this.bind("EnterFrame", function () {
 			if (this.disableControls) return;
 			if (this._up) {

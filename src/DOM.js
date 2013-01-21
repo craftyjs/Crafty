@@ -103,7 +103,7 @@ Crafty.c("DOM", {
 			prefix = Crafty.support.prefix,
 			trans = [];
 
-		if (this._cssStyles.visibility != this._visible) {
+		if (this._cssStyles.visibility !== this._visible) {
 			this._cssStyles.visibility = this._visible;
 			if (!this._visible) {
 				style.visibility = "hidden";
@@ -116,30 +116,30 @@ Crafty.c("DOM", {
 		if (Crafty.support.css3dtransform) {
 			trans.push("translate3d(" + (~~this._x) + "px," + (~~this._y) + "px,0)");
 		} else {
-			if (this._cssStyles.left != this._x) {
+			if (this._cssStyles.left !== this._x) {
 				this._cssStyles.left = this._x;
 				style.left = ~~(this._x) + "px";
 			}
-			if (this._cssStyles.top != this._y) {
+			if (this._cssStyles.top !== this._y) {
 				this._cssStyles.top = this._y;
 				style.top = ~~(this._y) + "px";
 			}
 		}
 
-		if (this._cssStyles.width != this._w) {
+		if (this._cssStyles.width !== this._w) {
 			this._cssStyles.width = this._w;
 			style.width = ~~(this._w) + "px";
 		}
-		if (this._cssStyles.height != this._h) {
+		if (this._cssStyles.height !== this._h) {
 			this._cssStyles.height = this._h;
 			style.height = ~~(this._h) + "px";
 		}
-		if (this._cssStyles.zIndex != this._z) {
+		if (this._cssStyles.zIndex !== this._z) {
 			this._cssStyles.zIndex = this._z;
 			style.zIndex = this._z;
 		}
 
-		if (this._cssStyles.opacity != this._alpha) {
+		if (this._cssStyles.opacity !== this._alpha) {
 			this._cssStyles.opacity = this._alpha;
 			style.opacity = this._alpha;
 			style[prefix + "Opacity"] = this._alpha;
