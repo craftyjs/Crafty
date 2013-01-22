@@ -186,6 +186,16 @@ Crafty.c("2D", {
 			, get: function () { return this._visible; }
 			, configurable: true
 		});
+		
+		Object.defineProperty(this, 'parent', {		
+			get: function () { return this._parent; }
+			, configurable: true
+		});
+		
+		Object.defineProperty(this, 'numChildren', {		
+			get: function () { return this._children.length; }
+			, configurable: true
+		});
 	},
 
 	_defineGetterSetter_fallback: function() {
