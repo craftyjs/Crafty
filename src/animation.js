@@ -1,8 +1,8 @@
 /**@
 * #SpriteAnimation
 * @category Animation
-* @trigger AnimationEnd - When the animation finishes - { reel }
-* @trigger Change - On each frame
+* @trigger AnimationEnd - When the animation finishes - { reelID }
+* @trigger Change - On each frame { reelID, frameNumber }
 *
 * Used to animate sprites by changing the sprites in the sprite map.
 *
@@ -12,8 +12,9 @@ Crafty.c("SpriteAnimation", {
 	* #._reels
 	* @comp SpriteAnimation
 	*
-	* A map consists of arrays that contains the coordinates of each frame within the sprite, e.g.,
-    * `{"walk_left":[[96,48],[112,48],[128,48]]}`
+	* A map in which the keys are the names assigned to animations defined using
+	* the component (also known as reelIDs), and the values are objects describing
+	* the animation and its state.
 	*/
 	_reels: null,
 	_frame: null,
@@ -332,4 +333,3 @@ function tweenEnterFrame(e) {
 		}
 	}
 }
-
