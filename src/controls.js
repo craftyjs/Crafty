@@ -250,13 +250,14 @@ Crafty.extend({
 		// Use a Crafty-standard event object to avoid cross-browser issues
 		var original = e,
 			evnt = {},
-			props = "char charCode keyCode type".split(" ");
-		for (i = props.length; i;) {
-			prop = props[--i];
+			props = "char charCode keyCode type shiftKey ctrlKey metaKey timestamp".split(" ");
+		for (var i = props.length; i;) {
+			var prop = props[--i];
 			evnt[prop] = original[prop];
 		}
 		evnt.which = original.charCode != null ? original.charCode : original.keyCode;
 		evnt.key = original.keyCode || original.which;
+		evnt.originalEvent = original;
 		e = evnt;
 
 		if (e.type === "keydown") {
