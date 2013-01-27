@@ -4,11 +4,13 @@
 * @trigger AnimationEnd - When the animation finishes - { reelID }
 * @trigger Change - On each frame { reelID, frameNumber }
 *
-* Used to animate sprites by changing the sprites in the sprite map.
+* Used to animate sprites by treating a sprite map as a set of animation frames.
+* Must be applied to an entity that has a sprite-map component.
 *
+* @see crafty.sprite
 */
 Crafty.c("SpriteAnimation", {
-/**@
+	/**@
 	* #._reels
 	* @comp SpriteAnimation
 	*
@@ -23,7 +25,8 @@ Crafty.c("SpriteAnimation", {
 	* #._currentReelId
 	* @comp SpriteAnimation
 	*
-	* The current playing reel (one element of `this._reels`). It is `null` if no reel is playing.
+	* The reelID of the currently playing reel (which is one of the elements in `this._reels`).
+	* This value is `null` if no reel is playing.
 	*/
 	_currentReelId: null,
 
@@ -36,51 +39,41 @@ Crafty.c("SpriteAnimation", {
 	* @comp SpriteAnimation
 	* @sign public this .animate(String reelId, Number fromX, Number y, Number toX)
 	* @param reelId - ID of the animation reel being created
-	* @param fromX - Starting `x` position (in the unit of sprite horizontal size) on the sprite map
-	* @param y - `y` position on the sprite map (in the unit of sprite vertical size). Remains constant through the animation.
-	* @param toX - End `x` position on the sprite map (in the unit of sprite horizontal size)
+	* @param fromX - Starting `x` position on the sprite map (x's unit is the horizontal size of the sprite in the sprite map).
+	* @param y - `y` position on the sprite map (y's unit is the horizontal size of the sprite in the sprite map). Remains constant through the animation.
+	* @param toX - End `x` position on the sprite map. This can be smaller than `fromX`, in which case the frames will play in descending order.
 	* @sign public this .animate(String reelId, Array frames)
 	* @param reelId - ID of the animation reel being created
-	* @param frames - Array of arrays containing the `x` and `y` values: [[x1,y1],[x2,y2],...]
-	* @sign public this .animate(String reelId, Number duration[, Number repeatCount])
-	* @param reelId - ID of the animation reel to play
-	* @param duration - Play the animation within a duration (in frames)
-	* @param repeatCount - number of times to repeat the animation. Use -1 for infinitely
+	* @param frames - Array of arrays containing the `x` and `y` values of successive frames: [[x1,y1],[x2,y2],...] (the values are in the unit of the sprite map's width/height respectively).
 	*
-	* Method to setup animation reels or play pre-made reels. Animation works by changing the sprites over
-	* a duration. Only works for sprites built with the Crafty.sprite methods. See the Tween component for animation of 2D properties.
+	* Method to setup animation reels. Animation works by changing the sprites over
+	* a duration. Only works for sprites built with the Crafty.sprite methods.
+	* See the Tween component for animation of 2D properties.
 	*
 	* To setup an animation reel, pass the name of the reel (used to identify the reel and play it later), and either an
 	* array of absolute sprite positions or the start x on the sprite map, the y on the sprite map and then the end x on the sprite map.
 	*
-	* To play a reel, pass the name of the reel and the duration it should play for (in frames). If you need
-	* to repeat the animation, simply pass in the amount of times the animation should repeat. To repeat
-	* forever, pass in `-1`.
-	*
 	* @example
 	* ~~~
+	*\/\/ Define a sprite-map component
 	* Crafty.sprite(16, "images/sprite.png", {
 	*     PlayerSprite: [0,0]
 	* });
 	*
-	* Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite")
-	*     .animate('PlayerRunning', 0, 0, 3) //setup animation
-	*     .animate('PlayerRunning', 15, -1) // start animation
+	* \/\/ Define an animation on the second row of the sprite map (y=1) from the left most sprite (fromX = 0) to the fourth sprite on that row (toX = 3)
+	* Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite").animate('PlayerRunning', 0, 1, 3);
 	*
-	* Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite")
-	*     .animate('PlayerRunning', 0, 3, 0) //setup animation
-	*     .animate('PlayerRunning', 15, -1) // start animation
+	* \/\/ This is the same animation definition, but using the alternative method
+	* Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite").animate('PlayerRunning', [[0, 1], [3, 1]]);
 	* ~~~
-	*
-	* @see crafty.sprite
 	*/
-	animate: function (reelId, fromx, y, tox) {
+	animate: function (reelId, fromX, y, toX) {
 		var reel, i, tile, tileh, duration, pos;
 
 		//play a reel
 		//.animate('PlayerRunning', 15, -1) // start animation
-		if (arguments.length < 4 && typeof fromx === "number") {
-			duration = fromx;
+		if (arguments.length < 4 && typeof fromX === "number") {
+			duration = fromX;
 
 			//make sure not currently animating
 			this._currentReelId = reelId;
@@ -108,34 +101,34 @@ Crafty.c("SpriteAnimation", {
 			return this;
 		}
 		// .animate('PlayerRunning', 0, 0, 3) //setup animation
-		if (typeof fromx === "number") {
+		if (typeof fromX === "number") {
 			// Defind in Sprite component.
 			tile = this.__tile + parseInt(this.__padding[0] || 0, 10);
 			tileh = this.__tileh + parseInt(this.__padding[1] || 0, 10);
 
 			reel = [];
-			i = fromx;
-			if (tox > fromx) {
-				for (; i <= tox; i++) {
+			i = fromX;
+			if (toX > fromX) {
+				for (; i <= toX; i++) {
 					reel.push([i * tile, y * tileh]);
 				}
 			} else {
-				for (; i >= tox; i--) {
+				for (; i >= toX; i--) {
 					reel.push([i * tile, y * tileh]);
 				}
 			}
 
 			this._reels[reelId] = reel;
-		} else if (typeof fromx === "object") {
+		} else if (typeof fromX === "object") {
 			// @sign public this .animate(reelId, [[x1,y1],[x2,y2],...])
 			i = 0;
 			reel = [];
-			tox = fromx.length - 1;
+			toX = fromX.length - 1;
 			tile = this.__tile + parseInt(this.__padding[0] || 0, 10);
 			tileh = this.__tileh + parseInt(this.__padding[1] || 0, 10);
 
-			for (; i <= tox; i++) {
-				pos = fromx[i];
+			for (; i <= toX; i++) {
+				pos = fromX[i];
 				reel.push([pos[0] * tile, pos[1] * tileh]);
 			}
 
@@ -143,6 +136,33 @@ Crafty.c("SpriteAnimation", {
 		}
 
 		return this;
+	},
+
+	/**@
+	* @sign public this .animate(String reelId, Number duration[, Number repeatCount])
+	* @param reelId - ID of the animation reel to play
+	* @param duration - Play the animation within a duration (in frames)
+	* @param repeatCount - number of times to repeat the animation. Use -1 for infinitely
+	*
+	* Play one of the reels previously defined by calling `.animate(...)`. Simply pass the name of the reel
+	* and the amount of frames the animations should take to play from start to finish. If you wish the
+	* animation to play multiple times in succession, pass in the amount of times as an additional parameter.
+	* To have the animation repeat indefinitely, pass in `-1`.
+	*
+	* @example
+	* ~~~
+	*\/\/ Define a sprite-map component
+	* Crafty.sprite(16, "images/sprite.png", {
+	*     PlayerSprite: [0,0]
+	* });
+	*
+	* \/\/ Play the animation across 20 frame (so each sprite in the 4 sprite animation should be seen for 5 frames) and repeat indefinitely
+	* Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite")
+	*     .animate('PlayerRunning', 0, 0, 3) // setup animation
+	*     .play('PlayerRunning', 15, -1); // start animation
+	* ~~~
+	*/
+	play: function {
 	},
 
 	/**@
