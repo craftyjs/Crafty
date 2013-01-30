@@ -68,10 +68,76 @@ Crafty.c("SpriteAnimation", {
 	* ~~~
 	*/
 	animate: function (reelId, fromX, y, toX) {
+		var reel, i, tile, tileh, pos;
+
+		// Get the dimensions of a single frame, as defind in Sprite component.
+		tile = this.__tile + parseInt(this.__padding[0] || 0, 10);
+		tileh = this.__tileh + parseInt(this.__padding[1] || 0, 10);
+
+		reel = {
+			frames = [],
+			cyclesPerFrame: undefined, // This gets defined when calling play(...)
+			currentFrameNumber: 0,
+			cycleNumber: 0,
+			repeatCount: 0
+		}
+
+		// @sign public this .animate(String reelId, Number fromX, Number y, Number toX)
+		if (typeof fromX === "number") {
+			i = fromX;
+			if (toX > fromX) {
+				for (; i <= toX; i++) {
+					reel.frames.push([i * tile, y * tileh]);
+				}
+			}
+			else {
+				for (; i >= toX; i--) {
+					reel.frames.push([i * tile, y * tileh]);
+				}
+			}
+		}
+		// @sign public this .animate(String reelId, Array frames)
+		else {
+			i = 0;
+			toX = fromX.length - 1;
+
+			for (; i <= toX; i++) {
+				pos = fromX[i];
+				reel.frames.push([pos[0] * tile, pos[1] * tileh]);
+			}
+		}
+
+		this._reels[reelId] = reel;
+		return this;
+	},
+
+	/**@
+	* @sign public this .animate(String reelId, Number duration[, Number repeatCount])
+	* @param reelId - ID of the animation reel to play
+	* @param duration - Play the animation within a duration (in frames)
+	* @param repeatCount - number of times to repeat the animation. Use -1 for infinitely
+	*
+	* Play one of the reels previously defined by calling `.animate(...)`. Simply pass the name of the reel
+	* and the amount of frames the animations should take to play from start to finish. If you wish the
+	* animation to play multiple times in succession, pass in the amount of times as an additional parameter.
+	* To have the animation repeat indefinitely, pass in `-1`.
+	*
+	* @example
+	* ~~~
+	*\/\/ Define a sprite-map component
+	* Crafty.sprite(16, "images/sprite.png", {
+	*     PlayerSprite: [0,0]
+	* });
+	*
+	* \/\/ Play the animation across 20 frame (so each sprite in the 4 sprite animation should be seen for 5 frames) and repeat indefinitely
+	* Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite")
+	*     .animate('PlayerRunning', 0, 0, 3) // setup animation
+	*     .play('PlayerRunning', 15, -1); // start animation
+	* ~~~
+	*/
+	play: function( {
 		var reel, i, tile, tileh, duration, pos;
 
-		//play a reel
-		//.animate('PlayerRunning', 15, -1) // start animation
 		if (arguments.length < 4 && typeof fromX === "number") {
 			duration = fromX;
 
@@ -100,69 +166,6 @@ Crafty.c("SpriteAnimation", {
 			this.bind("EnterFrame", this.updateSprite);
 			return this;
 		}
-		// .animate('PlayerRunning', 0, 0, 3) //setup animation
-		if (typeof fromX === "number") {
-			// Defind in Sprite component.
-			tile = this.__tile + parseInt(this.__padding[0] || 0, 10);
-			tileh = this.__tileh + parseInt(this.__padding[1] || 0, 10);
-
-			reel = [];
-			i = fromX;
-			if (toX > fromX) {
-				for (; i <= toX; i++) {
-					reel.push([i * tile, y * tileh]);
-				}
-			} else {
-				for (; i >= toX; i--) {
-					reel.push([i * tile, y * tileh]);
-				}
-			}
-
-			this._reels[reelId] = reel;
-		} else if (typeof fromX === "object") {
-			// @sign public this .animate(reelId, [[x1,y1],[x2,y2],...])
-			i = 0;
-			reel = [];
-			toX = fromX.length - 1;
-			tile = this.__tile + parseInt(this.__padding[0] || 0, 10);
-			tileh = this.__tileh + parseInt(this.__padding[1] || 0, 10);
-
-			for (; i <= toX; i++) {
-				pos = fromX[i];
-				reel.push([pos[0] * tile, pos[1] * tileh]);
-			}
-
-			this._reels[reelId] = reel;
-		}
-
-		return this;
-	},
-
-	/**@
-	* @sign public this .animate(String reelId, Number duration[, Number repeatCount])
-	* @param reelId - ID of the animation reel to play
-	* @param duration - Play the animation within a duration (in frames)
-	* @param repeatCount - number of times to repeat the animation. Use -1 for infinitely
-	*
-	* Play one of the reels previously defined by calling `.animate(...)`. Simply pass the name of the reel
-	* and the amount of frames the animations should take to play from start to finish. If you wish the
-	* animation to play multiple times in succession, pass in the amount of times as an additional parameter.
-	* To have the animation repeat indefinitely, pass in `-1`.
-	*
-	* @example
-	* ~~~
-	*\/\/ Define a sprite-map component
-	* Crafty.sprite(16, "images/sprite.png", {
-	*     PlayerSprite: [0,0]
-	* });
-	*
-	* \/\/ Play the animation across 20 frame (so each sprite in the 4 sprite animation should be seen for 5 frames) and repeat indefinitely
-	* Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite")
-	*     .animate('PlayerRunning', 0, 0, 3) // setup animation
-	*     .play('PlayerRunning', 15, -1); // start animation
-	* ~~~
-	*/
-	play: function {
 	},
 
 	/**@
