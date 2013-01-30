@@ -1,8 +1,8 @@
 /**@
 * #SpriteAnimation
 * @category Animation
-* @trigger AnimationEnd - When the animation finishes - { reelID }
-* @trigger Change - On each frame { reelID, frameNumber }
+* @trigger AnimationEnd - When the animation finishes - { reelId: <reelID> }
+* @trigger Change - Each frame change - { reelId: <reelID>, frameNumber: <New frame's number> }
 *
 * Used to animate sprites by treating a sprite map as a set of animation frames.
 * Must be applied to an entity that has a sprite-map component.
@@ -158,7 +158,7 @@ Crafty.c("SpriteAnimation", {
 				currentReel.repeatInfinitly = true;
 			}
 			else {
-				currentReal.repeatsRemaining = y;
+				currentReel.repeatsRemaining = y;
 			}
 		}
 
@@ -187,47 +187,40 @@ Crafty.c("SpriteAnimation", {
 	* @comp SpriteAnimation
 	* @sign private void .updateSprite()
 	*
-	* This is called at every `EnterFrame` event when `.animate()` enables animation. It update the SpriteAnimation component when the slide in the sprite should be updated.
+	* This method is called at every `EnterFrame` event when an animation is playing. It manages the animation
+	* as time progresses.
 	*
-	* @example
-	* ~~~
-	* this.bind("EnterFrame", this.updateSprite);
-	* ~~~
-	*
-	* @see crafty.sprite
+	* You shouldn't call this method directly.
 	*/
 	updateSprite: function () {
-		var data = this._frame;
-		if (!data) {
-			return;
+		var currentReel = this._reels[this._currentReelId];
+
+		// Track the amount of update cycles a frame is displayed
+		currentReel.cycleNumber++;
+		if (currentReel.cycleNumber === currentReel.cyclesPerFrame) {
+			currentReel.currentFrameNumber++;
+			currentReel.cycleNumber = 0;
+			this.trigger("Change", { reelId: this._currentReelId, frameNumber: currentReel.currentFrameNumber });
 		}
 
-		if (this._frame.frameNumberBetweenSlides++ === data.numberOfFramesBetweenSlides) {
-			var pos = data.currentReel[data.currentSlideNumber++];
-
-			this.__coord[0] = pos[0];
-			this.__coord[1] = pos[1];
-			this._frame.frameNumberBetweenSlides = 0;
-		}
-
-
-		if (data.currentSlideNumber === data.currentReel.length) {
-			
-			if (this._frame.repeatInfinitly === true || this._frame.repeat > 0) {
-				if (this._frame.repeat) this._frame.repeat--;
-				this._frame.frameNumberBetweenSlides = 0;
-				this._frame.currentSlideNumber = 0;
-			} else {
-				if (this._frame.frameNumberBetweenSlides === data.numberOfFramesBetweenSlides) {
-				    this.trigger("AnimationEnd", { reel: data.currentReel });
-				    this.stop();
-				    return;
-                }
+		// If we went through the reel, loop the animation or end it
+		if (currentReel.currentFrameNumber === currentReel.frames.length) {
+			if (currentReel.repeatInfinitly === true || currentReel.repeatsRemaining > 0) {
+				currentReel.repeatsRemaining--;
+				currentReel.currentFrameNumber = 0;
 			}
-
+			else {
+				this.trigger("AnimationEnd", { reelId: this._currentReelId });
+				this.pause();
+				return;
+			}
 		}
 
-		this.trigger("Change");
+		// Update the displayed sprite
+		var pos = currentReel.frames[currentReel.currentFrameNumber];
+
+		this.__coord[0] = pos[0];
+		this.__coord[1] = pos[1];
 	},
 
 	/**@
