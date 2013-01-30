@@ -112,10 +112,10 @@ Crafty.c("SpriteAnimation", {
 	},
 
 	/**@
-	* @sign public this .animate(String reelId, Number duration[, Number repeatCount])
+	* @sign public this .play(String reelId, Number duration[, Number repeatCount])
 	* @param reelId - ID of the animation reel to play
 	* @param duration - Play the animation within a duration (in frames)
-	* @param repeatCount - number of times to repeat the animation. Use -1 for infinitely
+	* @param repeatCount - number of times to repeat the animation. Use -1 to repeat indefinitely.
 	*
 	* Play one of the reels previously defined by calling `.animate(...)`. Simply pass the name of the reel
 	* and the amount of frames the animations should take to play from start to finish. If you wish the
@@ -168,6 +168,18 @@ Crafty.c("SpriteAnimation", {
 
 		this.bind("EnterFrame", this.updateSprite);
 		return this;
+	},
+
+	/**@
+	* #.resume
+	* @comp SpriteAnimation
+	* @sign public this .resume(String reelId)
+	* @param reelId - ID of the animation to continue playing
+	*
+	* This is simply a convenience method and is identical to calling `.play(reelId, null)`.
+	*/
+	resume: function(reelId) {
+		return this.play(reelId, null);
 	},
 
 	/**@
