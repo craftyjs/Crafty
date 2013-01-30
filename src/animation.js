@@ -19,7 +19,6 @@ Crafty.c("SpriteAnimation", {
 	* the animation and its state.
 	*/
 	_reels: null,
-	_frame: null,
 
 	/**@
 	* #._currentReelId
@@ -79,7 +78,8 @@ Crafty.c("SpriteAnimation", {
 			cyclesPerFrame: undefined, // This gets defined when calling play(...)
 			currentFrameNumber: 0,
 			cycleNumber: 0,
-			repeatCount: 0
+			repeatInfinitly: false,
+			repeatsRemaining: 0
 		}
 
 		// @sign public this .animate(String reelId, Number fromX, Number y, Number toX)
@@ -122,6 +122,11 @@ Crafty.c("SpriteAnimation", {
 	* animation to play multiple times in succession, pass in the amount of times as an additional parameter.
 	* To have the animation repeat indefinitely, pass in `-1`.
 	*
+	* If another animation is currently playing, it will be paused.
+	*
+	* If you simply wish to resume a previously paused animation without having to specify the duration again,
+	* supply `null` as the duration.
+	*
 	* @example
 	* ~~~
 	*\/\/ Define a sprite-map component
@@ -135,37 +140,34 @@ Crafty.c("SpriteAnimation", {
 	*     .play('PlayerRunning', 15, -1); // start animation
 	* ~~~
 	*/
-	play: function( {
+	play: function(reelId, duration, repeatCount) {
 		var reel, i, tile, tileh, duration, pos;
 
-		if (arguments.length < 4 && typeof fromX === "number") {
-			duration = fromX;
+		this.pause(); // This will pause the current animation, if one is playing
 
-			//make sure not currently animating
-			this._currentReelId = reelId;
+		this._currentReelId = reelId;
+		currentReel = this._reels[reelId];
 
-			currentReel = this._reels[reelId];
-
-			this._frame = {
-				currentReel: currentReel,
-				numberOfFramesBetweenSlides: Math.ceil(duration / currentReel.length),
-				currentSlideNumber: 0,
-				frameNumberBetweenSlides: 0,
-				repeat: 0
-			};
-			if (arguments.length === 3 && typeof y === "number") {
-				//User provided repetition count
-				if (y === -1) this._frame.repeatInfinitly = true;
-				else this._frame.repeat = y;
-			}
-
-			pos = this._frame.currentReel[0];
-			this.__coord[0] = pos[0];
-			this.__coord[1] = pos[1];
-
-			this.bind("EnterFrame", this.updateSprite);
-			return this;
+		if (duration !== null) {
+			currentReel.cyclesPerFrame = Math.ceil(duration / currentReel.length);
 		}
+
+		if (arguments.length === 3) {
+			// User provided repetition count
+			if (y === -1) {
+				currentReel.repeatInfinitly = true;
+			}
+			else {
+				currentReal.repeatsRemaining = y;
+			}
+		}
+
+		pos = currentReel.frames[0];
+		this.__coord[0] = pos[0];
+		this.__coord[1] = pos[1];
+
+		this.bind("EnterFrame", this.updateSprite);
+		return this;
 	},
 
 	/**@
