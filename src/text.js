@@ -3,7 +3,14 @@
 * @category Graphics
 * @trigger Change - when the text is changed
 * @requires Canvas or DOM
-* Component to draw text inside the body of an entity.
+* Component to make a text entity.
+* 
+* Note: An entity with the text component is just text! If you want to write text
+* inside an image, you need one entity for the text and another entity for the image.
+* More tips for writing text inside an image: (1) Use the z-index (from 2D component)
+* to ensure that the text is on top of the image, not the other way around; (2)
+* use .attach() (from 2D component) to glue the text to the image so they move and
+* rotate together.
 */
 Crafty.c("Text", {
 	_text: "",
