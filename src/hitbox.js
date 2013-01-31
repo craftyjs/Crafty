@@ -30,7 +30,7 @@ Crafty.c("WiredHitBox", {
 			}
 			var ctx = c.getContext('2d');
 			var drawed = 0, total = Crafty("WiredHitBox").length;
-			this.requires("Collision").bind("EnterFrame", function () {
+			var drawBoxFunction = function () {
 				if (drawed == total) {
 					ctx.clearRect(0, 0, Crafty.viewport.width, Crafty.viewport.height);
 					drawed = 0;
@@ -42,7 +42,16 @@ Crafty.c("WiredHitBox", {
 				ctx.closePath();
 				ctx.stroke();
 				drawed++;
-
+			};
+			this.requires("Collision").bind("EnterFrame", drawBoxFunction);
+			this.bind('RemoveComponent', function (c) {
+				if (c == 'WiredHitBox') {
+					this.unbind('EnterFrame', drawBoxFunction);
+					if (drawed == total) {
+						ctx.clearRect(0, 0, Crafty.viewport.width, Crafty.viewport.height);
+						drawed = 0;
+					}
+				}
 			});
 		}
 
@@ -78,7 +87,7 @@ Crafty.c("SolidHitBox", {
 			}
 			var ctx = c.getContext('2d');
 			var drawed = 0, total = Crafty("SolidHitBox").length;
-			this.requires("Collision").bind("EnterFrame", function () {
+			var drawBoxFunction = function () {
 				if (drawed == total) {
 					ctx.clearRect(0, 0, Crafty.viewport.width, Crafty.viewport.height);
 					drawed = 0;
@@ -90,6 +99,16 @@ Crafty.c("SolidHitBox", {
 				ctx.closePath();
 				ctx.fill();
 				drawed++;
+			}
+			this.requires("Collision").bind("EnterFrame", drawBoxFunction);
+			this.bind("RemoveComponent", function (c) {
+				if (c == 'SolidHitBox') {
+					this.unbind('EnterFrame', drawBoxFunction);
+					if (drawed == total) {
+						ctx.clearRect(0, 0, Crafty.viewport.width, Crafty.viewport.height);
+						drawed = 0;
+					}
+				}
 			});
 		}
 
