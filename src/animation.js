@@ -24,8 +24,9 @@ Crafty.c("SpriteAnimation", {
 	* #._currentReelId
 	* @comp SpriteAnimation
 	*
-	* The reelID of the currently playing reel (which is one of the elements in `this._reels`).
-	* This value is `null` if no reel is playing.
+	* The reelID of the currently active reel (which is one of the elements in `this._reels`).
+	* This value is `null` if no reel is active. Some of the component's actions can be invoked
+	* without specifying a reel, in which case they will work on the active reel.
 	*/
 	_currentReelId: null,
 
@@ -131,7 +132,8 @@ Crafty.c("SpriteAnimation", {
 	* supply `null` as the duration.
 	*
 	* Once an animation ends, it will remain at its last frame. Call `.reset(...)` to reset a reel to its first
-	* frame.
+	* frame, or play the reel from a specific frame. Attempting to play the reel again otherwise will result in
+	* the animation ending immediately.
 	*
 	* @example
 	* ~~~
@@ -147,7 +149,7 @@ Crafty.c("SpriteAnimation", {
 	* ~~~
 	*/
 	play: function(reelId, duration, repeatCount) {
-		var reel, i, tile, tileh, duration, pos;
+		var pos;
 
 		currentReel = this._reels[reelId];
 
@@ -165,15 +167,15 @@ Crafty.c("SpriteAnimation", {
 
 		if (arguments.length === 3) {
 			// User provided repetition count
-			if (y === -1) {
+			if (repeatCount === -1) {
 				currentReel.repeatInfinitly = true;
 			}
 			else {
-				currentReel.repeatsRemaining = y;
+				currentReel.repeatsRemaining = repeatCount || 0;
 			}
 		}
 
-		pos = currentReel.frames[0];
+		pos = currentReel.frames[currentReel.currentFrameNumber];
 		this.__coord[0] = pos[0];
 		this.__coord[1] = pos[1];
 
@@ -225,7 +227,7 @@ Crafty.c("SpriteAnimation", {
 		}
 
 		// If we went through the reel, loop the animation or end it
-		if (currentReel.currentFrameNumber === currentReel.frames.length) {
+		if (currentReel.currentFrameNumber >= currentReel.frames.length) {
 			if (currentReel.repeatInfinitly === true || currentReel.repeatsRemaining > 0) {
 				currentReel.repeatsRemaining--;
 				currentReel.currentFrameNumber = 0;
@@ -253,23 +255,6 @@ Crafty.c("SpriteAnimation", {
 	*/
 	pause: function () {
 		this.unbind("EnterFrame", this.updateSprite);
-		this._currentReelId = null;
-
-		return this;
-	},
-
-	/**@
-	* #.stop
-	* @comp SpriteAnimation
-	* @sign public this .stop(void)
-	*
-	* Stop any animation currently playing.
-	*/
-	stop: function () {
-		this.unbind("EnterFrame", this.updateSprite);
-		this.unbind("AnimationEnd");
-		this._currentReelId = null;
-		this._frame = null;
 
 		return this;
 	},
@@ -277,17 +262,45 @@ Crafty.c("SpriteAnimation", {
 	/**@
 	* #.reset
 	* @comp SpriteAnimation
-	* @sign public this .reset(void)
+	* @sign public this .reset([String reelId])
+	* @param reelId - ID of the animation to reset
 	*
-	* Method will reset the entities sprite to its original.
+	* Resets the specified animation and displays its first frame. If no reelId is specified,
+	* resets the currently playing animation (or does nothing if no animation is playing).
+	*
+	* If an animation ends up being reset and an animation was playing, the animation that was
+	* playing will be paused.
+	*
+	* Keep in mind that resetting an animation will set the animation's state to the one it had
+	* just after defining it using `animate(...)`.
 	*/
-	reset: function () {
-		if (!this._frame) return this;
+	reset: function (reelId) {
+		var reelToReset = this._reels[reelId]
 
-		var co = this._frame.currentReel[0];
-		this.__coord[0] = co[0];
-		this.__coord[1] = co[1];
-		this.stop();
+		if (arguments.length === 0) {
+			if (this._currentReelId !== null) {
+				reelToReset = this._reels.[this._currentReelId];
+			}
+			else {
+				return this;
+			}
+		}
+
+		if (reelToReset === undefined) {
+			throw "The supplied reelId, " + reelId + ", is not recognized.";
+		}
+
+		this.pause();
+
+		reelToReset.cyclesPerFrame = undefined;
+		reelToReset.currentFrameNumber = 0;
+		reelToReset.cycleNumber = 0;
+		reelToReset.repeatInfinitly = false;
+		reelToReset.repeatsRemaining = 0;
+
+		var pos = reelToReset.frames[0];
+		this.__coord[0] = pos[0];
+		this.__coord[1] = pos[1];
 
 		return this;
 	},
@@ -296,10 +309,10 @@ Crafty.c("SpriteAnimation", {
 	* #.isPlaying
 	* @comp SpriteAnimation
 	* @sign public Boolean .isPlaying([String reelId])
-	* @param reelId - Determine if the animation reel with this reelId is playing.
+	* @param reelId - The reelId of the reel we wish to examine
 	*
-	* Determines if an animation is currently playing. If a reel is passed, it will determine
-	* if the passed reel is playing.
+	* Determines if the specified animation is currently playing. If no reelId is specified,
+	* checks if any animation is playing.
 	*
 	* @example
 	* ~~~
