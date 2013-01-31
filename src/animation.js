@@ -97,7 +97,7 @@ Crafty.c("SpriteAnimation", {
 			}
 		}
 		// @sign public this .animate(String reelId, Array frames)
-		else {
+		else if {
 			i = 0;
 			toX = fromX.length - 1;
 
@@ -105,6 +105,9 @@ Crafty.c("SpriteAnimation", {
 				pos = fromX[i];
 				reel.frames.push([pos[0] * tile, pos[1] * tileh]);
 			}
+		}
+		else {
+			throw "Urecognized arguments. Please see the documentation for 'animate(...)'.";
 		}
 
 		this._reels[reelId] = reel;
@@ -127,6 +130,9 @@ Crafty.c("SpriteAnimation", {
 	* If you simply wish to resume a previously paused animation without having to specify the duration again,
 	* supply `null` as the duration.
 	*
+	* Once an animation ends, it will remain at its last frame. Call `.reset(...)` to reset a reel to its first
+	* frame.
+	*
 	* @example
 	* ~~~
 	*\/\/ Define a sprite-map component
@@ -143,10 +149,15 @@ Crafty.c("SpriteAnimation", {
 	play: function(reelId, duration, repeatCount) {
 		var reel, i, tile, tileh, duration, pos;
 
+		currentReel = this._reels[reelId];
+
+		if (currentReel === undefined) {
+			throw "The supplied reelId, " + reelId + ", is not recognized.";
+		}
+
 		this.pause(); // This will pause the current animation, if one is playing
 
 		this._currentReelId = reelId;
-		currentReel = this._reels[reelId];
 
 		if (duration !== null) {
 			currentReel.cyclesPerFrame = Math.ceil(duration / currentReel.length);
@@ -173,12 +184,22 @@ Crafty.c("SpriteAnimation", {
 	/**@
 	* #.resume
 	* @comp SpriteAnimation
-	* @sign public this .resume(String reelId)
+	* @sign public this .resume([String reelId])
 	* @param reelId - ID of the animation to continue playing
 	*
 	* This is simply a convenience method and is identical to calling `.play(reelId, null)`.
+	* You can call this method with no arguments to resume the last animation that played.
 	*/
 	resume: function(reelId) {
+		if (arguments.length === 0) {
+			if (this._currentReelId !== null) {
+				return this.play(this._currentReelId, null);
+			}
+			else {
+				throw "There is no animation to resume.";
+			}
+		}
+
 		return this.play(reelId, null);
 	},
 
@@ -221,6 +242,20 @@ Crafty.c("SpriteAnimation", {
 
 		this.__coord[0] = pos[0];
 		this.__coord[1] = pos[1];
+	},
+
+	/**@
+	* #.pause
+	* @comp SpriteAnimation
+	* @sign public this .pause(void)
+	*
+	* Pauses the currently playing animation, or does nothing if no animation is playing.
+	*/
+	pause: function () {
+		this.unbind("EnterFrame", this.updateSprite);
+		this._currentReelId = null;
+
+		return this;
 	},
 
 	/**@
