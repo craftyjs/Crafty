@@ -262,11 +262,15 @@ Crafty.c("SpriteAnimation", {
 	/**@
 	* #.reset
 	* @comp SpriteAnimation
-	* @sign public this .reset([String reelId])
+	* @sign public this .reset([String reelId, Number frameToDisplay])
 	* @param reelId - ID of the animation to reset
+	* @param frameToDisplay - The frame to show after resetting the animation. 0 based.
 	*
-	* Resets the specified animation and displays its first frame. If no reelId is specified,
+	* Resets the specified animation and displays one of its frames. If no reelId is specified,
 	* resets the currently playing animation (or does nothing if no animation is playing).
+	*
+	* By default, will have the animation display its first frame. When playing an animation, it
+	* will continue from the frame it was reset to.
 	*
 	* If an animation ends up being reset and an animation was playing, the animation that was
 	* playing will be paused.
@@ -274,10 +278,10 @@ Crafty.c("SpriteAnimation", {
 	* Keep in mind that resetting an animation will set the animation's state to the one it had
 	* just after defining it using `animate(...)`.
 	*/
-	reset: function (reelId) {
+	reset: function (reelId, frameToDisplay) {
 		var reelToReset = this._reels[reelId]
 
-		if (arguments.length === 0) {
+		if (reelId == null) {
 			if (this._currentReelId !== null) {
 				reelToReset = this._reels.[this._currentReelId];
 			}
@@ -286,19 +290,26 @@ Crafty.c("SpriteAnimation", {
 			}
 		}
 
+		if (frameToDisplay == null) {
+			frameToDisplay = 0;
+		}
+
 		if (reelToReset === undefined) {
 			throw "The supplied reelId, " + reelId + ", is not recognized.";
+		}
+		if (frameToDisplay >= reelToReset.frames.length) {
+			throw "The request frame exceeds the reel length.";
 		}
 
 		this.pause();
 
 		reelToReset.cyclesPerFrame = undefined;
-		reelToReset.currentFrameNumber = 0;
+		reelToReset.currentFrameNumber = frameToDisplay;
 		reelToReset.cycleNumber = 0;
 		reelToReset.repeatInfinitly = false;
 		reelToReset.repeatsRemaining = 0;
 
-		var pos = reelToReset.frames[0];
+		var pos = reelToReset.frames[frameToDisplay];
 		this.__coord[0] = pos[0];
 		this.__coord[1] = pos[1];
 
@@ -316,8 +327,8 @@ Crafty.c("SpriteAnimation", {
 	*
 	* @example
 	* ~~~
-	* myEntity.isPlaying() //is any animation playing
-	* myEntity.isPlaying('PlayerRunning') //is the PlayerRunning animation playing
+	* myEntity.isPlaying() // is any animation playing
+	* myEntity.isPlaying('PlayerRunning') // is the PlayerRunning animation playing
 	* ~~~
 	*/
 	isPlaying: function (reelId) {
