@@ -30,6 +30,14 @@ Crafty.c("SpriteAnimation", {
 	*/
 	_currentReelId: null,
 
+	/**@
+	* #._isPlaying
+	* @comp SpriteAnimation
+	*
+	* Whether or not an animation is currently playing.
+	*/
+	_isPlaying: false,
+
 	init: function () {
 		this._reels = {};
 	},
@@ -192,6 +200,7 @@ Crafty.c("SpriteAnimation", {
 		this.__coord[1] = pos[1];
 
 		this.bind("EnterFrame", this.updateSprite);
+		this._isPlaying = true;
 		return this;
 	},
 
@@ -267,6 +276,7 @@ Crafty.c("SpriteAnimation", {
 	*/
 	pause: function () {
 		this.unbind("EnterFrame", this.updateSprite);
+		this._isPlaying = false;
 
 		return this;
 	},
@@ -344,8 +354,27 @@ Crafty.c("SpriteAnimation", {
 	* ~~~
 	*/
 	isPlaying: function (reelId) {
+		if (!this._isPlaying) return false;
+
 		if (!reelId) return !!this._currentReelId;
 		return this._currentReelId === reelId;
+	}
+});
+
+	/**@
+	* #.getActiveReel
+	* @comp SpriteAnimation
+	* @sign public { id: String, frame: Number } .getActiveReel()
+	*
+	* Returns information about the active reel, the one currently being displayed.
+	* Returns an object containing the reel's ID and the number of the frame displayed at
+	* the time this method was called. If no reel is active, returns an object with a reel ID
+	* of null.
+	*/
+	getActiveReel: function () {
+		if (!this._currentReelId) return { id: null, frame: 0 };
+
+		return { id: this._currentReelId, frame: this._reels[this._currentReelId].currentFrameNumber };
 	}
 });
 
