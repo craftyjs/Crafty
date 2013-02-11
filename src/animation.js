@@ -75,7 +75,7 @@ Crafty.c("SpriteAnimation", {
 		tileh = this.__tileh + parseInt(this.__padding[1] || 0, 10);
 
 		reel = {
-			frames = [],
+			frames: [],
 			cyclesPerFrame: undefined, // This gets defined when calling play(...)
 			currentFrameNumber: 0,
 			cycleNumber: 0,
@@ -98,7 +98,7 @@ Crafty.c("SpriteAnimation", {
 			}
 		}
 		// @sign public this .animate(String reelId, Array frames)
-		else if {
+		else if (arguments.length === 2) {
 			i = 0;
 			toX = fromX.length - 1;
 
@@ -116,15 +116,17 @@ Crafty.c("SpriteAnimation", {
 	},
 
 	/**@
-	* @sign public this .play(String reelId, Number duration[, Number repeatCount])
+	* @sign public this .play(String reelId, Number duration[, Number repeatCount, Number fromFrame])
 	* @param reelId - ID of the animation reel to play
 	* @param duration - Play the animation within a duration (in frames)
-	* @param repeatCount - number of times to repeat the animation. Use -1 to repeat indefinitely.
+	* @param repeatCount - Number of times to repeat the animation. Use -1 to repeat indefinitely.
+	* @param fromFrame - Frame to start the animation at. If not specified, resumes from the current reel position.
 	*
 	* Play one of the reels previously defined by calling `.animate(...)`. Simply pass the name of the reel
 	* and the amount of frames the animations should take to play from start to finish. If you wish the
 	* animation to play multiple times in succession, pass in the amount of times as an additional parameter.
-	* To have the animation repeat indefinitely, pass in `-1`.
+	* To have the animation repeat indefinitely, pass in `-1`. Finally, you can start the animation at a specific
+	* frame by supplying an additional optional argument.
 	*
 	* If another animation is currently playing, it will be paused.
 	*
@@ -145,10 +147,10 @@ Crafty.c("SpriteAnimation", {
 	* \/\/ Play the animation across 20 frame (so each sprite in the 4 sprite animation should be seen for 5 frames) and repeat indefinitely
 	* Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite")
 	*     .animate('PlayerRunning', 0, 0, 3) // setup animation
-	*     .play('PlayerRunning', 15, -1); // start animation
+	*     .play('PlayerRunning', 20, -1); // start animation
 	* ~~~
 	*/
-	play: function(reelId, duration, repeatCount) {
+	play: function(reelId, duration, repeatCount, fromFrame) {
 		var pos;
 
 		currentReel = this._reels[reelId];
@@ -165,17 +167,27 @@ Crafty.c("SpriteAnimation", {
 			currentReel.cyclesPerFrame = Math.ceil(duration / currentReel.length);
 		}
 
-		if (arguments.length === 3) {
+		if (repeatCount == null) {
+			currentReel.repeatsRemaining = 0;
+		}
+		else {
 			// User provided repetition count
 			if (repeatCount === -1) {
 				currentReel.repeatInfinitly = true;
 			}
 			else {
-				currentReel.repeatsRemaining = repeatCount || 0;
+				currentReel.repeatsRemaining = repeatCount;
 			}
 		}
 
-		pos = currentReel.frames[currentReel.currentFrameNumber];
+		if (fromFrame == null) {
+			fromFrame = currentReel.currentFrameNumber;
+		}
+		else if (fromFrame >= currentReel.frames.length) {
+			throw "The request frame exceeds the reel length.";
+		}
+
+		pos = currentReel.frames[fromFrame];
 		this.__coord[0] = pos[0];
 		this.__coord[1] = pos[1];
 
@@ -279,11 +291,11 @@ Crafty.c("SpriteAnimation", {
 	* just after defining it using `animate(...)`.
 	*/
 	reset: function (reelId, frameToDisplay) {
-		var reelToReset = this._reels[reelId]
+		var reelToReset = this._reels[reelId];
 
 		if (reelId == null) {
 			if (this._currentReelId !== null) {
-				reelToReset = this._reels.[this._currentReelId];
+				reelToReset = this._reels[this._currentReelId];
 			}
 			else {
 				return this;
