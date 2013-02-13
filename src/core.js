@@ -1177,7 +1177,7 @@
         * Unbind any event from any entity or global event.
         */
         unbind: function (event, callback) {
-            var hdl = handlers[event], h, i, l;
+            var hdl = handlers[event], h, i, l, res = false;
 
             //loop over every object bound
             for (h in hdl) {
@@ -1191,14 +1191,14 @@
 
                 //loop over every handler within object
                 for (i = 0, l = hdl[h].length; i < l; i++) {
-                    if (hdl[h][i] === callback) {
+                    if (hdl[h][i] === callback || typeof callback === 'undefined') {
                         delete hdl[h][i];
-                        return true;
+                        res = true;
                     }
                 }
             }
 
-            return false;
+            return res;
         },
 
         /**@
