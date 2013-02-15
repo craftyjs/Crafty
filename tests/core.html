@@ -1,6 +1,18 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" 
                     "http://www.w3.org/TR/html4/loose.dtd">
 <html>
+
+<!-- Note to developers: To run these tests without regenerating crafty.js or
+     setting up a local server:
+       (1) Copy this file into the Crafty parent folder [because firefox security
+             blocks local files from seeing parent folders];
+       (2) Change "../crafty.js" to "./crafty-local.js" (in the HTML head below).
+       (3) Now you can open the HTML file in Firefox.
+       (4) Chrome has more restrictive security, you can pass a flag to loosen
+             the security. Run this command in a Linux terminal:
+             chromium-browser /path/to/core.html --allow-file-access-from-files
+ -->
+
 <head>
 	<script src="http://code.jquery.com/jquery-latest.js"></script>
 	<link rel="stylesheet" href="http://code.jquery.com/qunit/git/qunit.css" type="text/css" media="screen" />
@@ -8,6 +20,10 @@
 	<script type="text/javascript" src="../crafty.js"></script>
 
 <script>
+
+// These tests are NOT atomic / side-effect-free! They must be run in order!
+QUnit.config.reorder = false;
+
 $(document).ready(function() {
 	var first = Crafty.e("test");
 	Crafty.e("test");
@@ -87,7 +103,7 @@ $(document).ready(function() {
     	first.trigger("myevent");
     	equal(triggered, true, "custom event triggered");
     });
-	
+
 	test("unbind", function() {
 		first.bind("myevent", function() {
 			ok(false, "This should not be triggered (unbinding all)");
@@ -109,12 +125,37 @@ $(document).ready(function() {
 		first.trigger("myevent");
 	});
 	
+    test("globalBindAndUnbind", function () {
+    	var flag = 0;
+    	var add_1 = function () {flag += 1;};
+    	var add_10 = function () {flag += 10;};
+    	var add_100 = function () {flag += 100;};
+    	Crafty.bind("theglobalevent", add_1);
+    	Crafty.bind("theglobalevent", add_10);
+    	Crafty.bind("theglobalevent", add_100);
+    	Crafty.trigger("theglobalevent");
+    	equal(flag, 111, "global event binding worked");
+    	Crafty.unbind("theglobalevent", add_1);
+    	Crafty.trigger("theglobalevent");
+    	equal(flag, 221, "global event single-function unbinding worked");
+    	Crafty.unbind("theglobalevent");
+    	Crafty.trigger("theglobalevent");
+    	equal(flag, 221, "global event full unbinding worked");
+    });
+	
 	test("each", function() {
 		var count = 0;
 		Crafty("test").each(function(i) {
 			count++;
 		});
-		equal(count, 8, "Iterated all elements");
+		equal(count, 8, "Iterated all elements with certain component");
+
+		var count = 0;
+		Crafty("*").each(function(i) {
+			count++;
+		});
+		equal(count, 12, "Iterated all elements");
+		
 	});
 	
 	test("requires", function() {
