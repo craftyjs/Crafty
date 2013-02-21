@@ -72,7 +72,7 @@ Crafty.c("SpriteAnimation", {
 	* Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite").animate('PlayerRunning', 0, 1, 3);
 	*
 	* \/\/ This is the same animation definition, but using the alternative method
-	* Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite").animate('PlayerRunning', [[0, 1], [3, 1]]);
+	* Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite").animate('PlayerRunning', [[0, 1], [1, 1], [2, 1], [3, 1]]);
 	* ~~~
 	*/
 	animate: function (reelId, fromX, y, toX) {
@@ -358,8 +358,7 @@ Crafty.c("SpriteAnimation", {
 
 		if (!reelId) return !!this._currentReelId;
 		return this._currentReelId === reelId;
-	}
-});
+	},
 
 	/**@
 	* #.getActiveReel
