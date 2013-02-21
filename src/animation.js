@@ -124,6 +124,7 @@ Crafty.c("SpriteAnimation", {
 	},
 
 	/**@
+	* #.play
 	* @sign public this .play(String reelId, Number duration[, Number repeatCount, Number fromFrame])
 	* @param reelId - ID of the animation reel to play
 	* @param duration - Play the animation within a duration (in frames)
@@ -172,7 +173,7 @@ Crafty.c("SpriteAnimation", {
 		this._currentReelId = reelId;
 
 		if (duration !== null) {
-			currentReel.cyclesPerFrame = Math.ceil(duration / currentReel.length);
+			currentReel.cyclesPerFrame = Math.ceil(duration / currentReel.frames.length);
 		}
 
 		if (repeatCount == null) {
@@ -241,23 +242,26 @@ Crafty.c("SpriteAnimation", {
 
 		// Track the amount of update cycles a frame is displayed
 		currentReel.cycleNumber++;
+
 		if (currentReel.cycleNumber === currentReel.cyclesPerFrame) {
 			currentReel.currentFrameNumber++;
 			currentReel.cycleNumber = 0;
-			this.trigger("Change", { reelId: this._currentReelId, frameNumber: currentReel.currentFrameNumber });
-		}
 
-		// If we went through the reel, loop the animation or end it
-		if (currentReel.currentFrameNumber >= currentReel.frames.length) {
-			if (currentReel.repeatInfinitly === true || currentReel.repeatsRemaining > 0) {
-				currentReel.repeatsRemaining--;
-				currentReel.currentFrameNumber = 0;
+			// If we went through the reel, loop the animation or end it
+			if (currentReel.currentFrameNumber >= currentReel.frames.length) {
+				if (currentReel.repeatInfinitly === true || currentReel.repeatsRemaining > 0) {
+					currentReel.repeatsRemaining--;
+					currentReel.currentFrameNumber = 0;
+				}
+				else {
+					currentReel.currentFrameNumber = currentReel.frames.length - 1;
+					this.trigger("AnimationEnd", { reelId: this._currentReelId });
+					this.pause();
+					return;
+				}
 			}
-			else {
-				this.trigger("AnimationEnd", { reelId: this._currentReelId });
-				this.pause();
-				return;
-			}
+
+			this.trigger("Change", { reelId: this._currentReelId, frameNumber: currentReel.currentFrameNumber });
 		}
 
 		// Update the displayed sprite
