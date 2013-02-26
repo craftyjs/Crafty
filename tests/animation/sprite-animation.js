@@ -12,7 +12,16 @@ spriteAnimation.animate('countEven', [[0, 0], [0, 2], [0, 4], [0, 6], [0, 8]]);
 Crafty.pause();
 //Crafty.bind("EnterFrame", function() { console.log("In da frame!") });
 
-module("Sprite Animation");
+var eventFrames = [];
+spriteAnimation.bind("FrameChange", function(changeData) {
+	eventFrames.push(changeData.frameNumber);
+});
+
+module("Sprite Animation", {
+	setup: function() {
+		eventFrames = [];
+	}
+});
 
 test("Play an animation", function() {
 	// Play for 10 frames, each sprite will show up for one frame
@@ -22,6 +31,8 @@ test("Play an animation", function() {
 		equal(activeReel.frame, i, "Frame " + i + " should be displayed");
 		Crafty.timer.simulateFrames(1);
 	}
+
+	deepEqual(eventFrames, [1, 2, 3, 4, 5, 6, 7, 8, 9], "Expected events for frames 1 through 9");
 });
 
 test("Show the last frame after an animation ends", function() {
@@ -30,6 +41,8 @@ test("Show the last frame after an animation ends", function() {
 	Crafty.timer.simulateFrames(20);
 	activeReel = spriteAnimation.getActiveReel();
 	equal(activeReel.frame, 9, "Frame 9 should be displayed after the animation ends");
+
+	deepEqual(eventFrames, [1, 2, 3, 4, 5, 6, 7, 8, 9], "Expected events for frames 1 through 9");
 });
 
 Crafty.pause();

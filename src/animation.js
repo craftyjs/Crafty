@@ -2,7 +2,7 @@
 * #SpriteAnimation
 * @category Animation
 * @trigger AnimationEnd - When the animation finishes - { reelId: <reelID> }
-* @trigger Change - Each frame change - { reelId: <reelID>, frameNumber: <New frame's number> }
+* @trigger FrameChange - Each frame change - { reelId: <reelID>, frameNumber: <New frame's number> }
 *
 * Used to animate sprites by treating a sprite map as a set of animation frames.
 * Must be applied to an entity that has a sprite-map component.
@@ -261,7 +261,8 @@ Crafty.c("SpriteAnimation", {
 				}
 			}
 
-			this.trigger("Change", { reelId: this._currentReelId, frameNumber: currentReel.currentFrameNumber });
+			this.trigger("FrameChange", { reelId: this._currentReelId, frameNumber: currentReel.currentFrameNumber });
+			this.trigger("Change"); // Needed to trigger a redraw
 		}
 
 		// Update the displayed sprite
