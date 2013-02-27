@@ -219,7 +219,7 @@
         */
         addComponent: function (id) {
             var uninit = [], c = 0, ul, //array of components to init
-            i = 0, l, comps;
+            i = 0, l, comps, comp;
 
             //add multiple arguments
             if (arguments.length > 1) {
