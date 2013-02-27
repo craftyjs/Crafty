@@ -128,7 +128,7 @@ Crafty.c("SpriteAnimation", {
 	* @sign public this .play(String reelId, Number duration[, Number repeatCount, Number fromFrame])
 	* @param reelId - ID of the animation reel to play
 	* @param duration - Play the animation within a duration (in frames)
-	* @param repeatCount - Number of times to repeat the animation. Use -1 to repeat indefinitely.
+	* @param repeatCount - Number of times to repeat the animation (it will play repeatCount + 1 times). Use -1 to repeat indefinitely.
 	* @param fromFrame - Frame to start the animation at. If not specified, resumes from the current reel position.
 	*
 	* Play one of the reels previously defined by calling `.animate(...)`. Simply pass the name of the reel
@@ -189,14 +189,16 @@ Crafty.c("SpriteAnimation", {
 			}
 		}
 
-		if (fromFrame == null) {
-			fromFrame = currentReel.currentFrameNumber;
-		}
-		else if (fromFrame >= currentReel.frames.length) {
-			throw "The request frame exceeds the reel length.";
+		if (fromFrame != null) {
+			if (fromFrame >= currentReel.frames.length) {
+				throw "The request frame exceeds the reel length.";
+			}
+			else {
+				currentReel.currentFrameNumber = fromFrame;
+			}
 		}
 
-		pos = currentReel.frames[fromFrame];
+		pos = currentReel.frames[currentReel.currentFrameNumber];
 		this.__coord[0] = pos[0];
 		this.__coord[1] = pos[1];
 
