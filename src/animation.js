@@ -146,6 +146,9 @@ Crafty.c("SpriteAnimation", {
 	* frame, or play the reel from a specific frame. Attempting to play the reel again otherwise will result in
 	* the animation ending immediately.
 	*
+	* If you play the animation from a certain frame and specify a repeat count, the animation will reset to its
+	* first frame when repeating (and not to the frame you started the animation at).
+	*
 	* @example
 	* ~~~
 	*\/\/ Define a sprite-map component

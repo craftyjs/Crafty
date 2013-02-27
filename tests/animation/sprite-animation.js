@@ -107,9 +107,17 @@ test("Play an animation with an infinite repeat count", function() {
 
 test("Play an animation from a specific frame", function() {
 	spriteAnimation.play('count', 10, 0, 5);
-	Crafty.timer.simulateFrames(4);
+	Crafty.timer.simulateFrames(5);
 
 	deepEqual(eventFrames, [6, 7, 8, 9], "Expected events for frames 6 through 9");
+	deepEqual(finishedAnimations, ['count'], "Expected a single animation end event");
+});
+
+test("Play an animation from a specific frame, with a repeat count", function() {
+	spriteAnimation.play('count', 10, 1, 6);
+	Crafty.timer.simulateFrames(7);
+
+	deepEqual(eventFrames, [7, 8, 9, 0, 1, 2, 3], "Expected events for frames 6 through 9");
 });
 
 Crafty.pause();
