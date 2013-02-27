@@ -20,6 +20,7 @@ spriteAnimation.bind("FrameChange", function(changeData) {
 module("Sprite Animation", {
 	setup: function() {
 		eventFrames = [];
+		spriteAnimation.reset();
 	}
 });
 
