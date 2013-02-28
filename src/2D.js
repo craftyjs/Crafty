@@ -289,10 +289,13 @@ Crafty.c("2D", {
 		this.bind("Remove", function () {
 			if (this._children) {
 				for (var i = 0; i < this._children.length; i++) {
+					// delete the child's _parent link, or else the child will splice itself out of
+					// this._children while destroying itself (which messes up this for-loop iteration).
+					delete this._children[i]._parent;
+					
+					// Destroy child if possible (It's not always possible, e.g. the polygon attached
+					// by areaMap has no .destroy(), it will just get garbage-collected.)
 					if (this._children[i].destroy) {
-						// delete the child's _parent link, or else the child will splice itself out of
-						// this._children while destroying itself (which messes up this for-loop iteration).
-						delete this._children[i]._parent;
 						this._children[i].destroy();
 					}
 				}
