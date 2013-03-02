@@ -27,7 +27,9 @@ module("Sprite Animation", {
 	setup: function() {
 		eventFrames = [];
 		finishedAnimations = [];
-		spriteAnimation.reset();
+		spriteAnimation.reset('count');
+		spriteAnimation.reset('countEven');
+		spriteAnimation.reset('short');
 	}
 });
 
@@ -118,6 +120,37 @@ test("Play an animation from a specific frame, with a repeat count", function() 
 	Crafty.timer.simulateFrames(7);
 
 	deepEqual(eventFrames, [7, 8, 9, 0, 1, 2, 3], "Expected events for frames 6 through 9");
+});
+
+test("Pause an animation", function() {
+	spriteAnimation.play('count', 10);
+	Crafty.timer.simulateFrames(5);
+	spriteAnimation.pause();
+	Crafty.timer.simulateFrames(5);
+
+	deepEqual(eventFrames, [1, 2, 3, 4, 5], "Expected events for frames 1 through 5");
+});
+
+test("Play an animation while another is already playing", function() {
+	spriteAnimation.play('count', 10);
+	Crafty.timer.simulateFrames(5);
+	spriteAnimation.play('short', 4);
+	Crafty.timer.simulateFrames(10);
+
+	deepEqual(eventFrames, [1, 2, 3, 4, 5, 1, 2], "Expected events for frames from both animations");
+	deepEqual(finishedAnimations, ['short'], "Expected end event for the second animation");
+});
+
+test("Pause an animation, then resume it", function() {
+	spriteAnimation.play('count', 10);
+	Crafty.timer.simulateFrames(5);
+	spriteAnimation.pause();
+	Crafty.timer.simulateFrames(5);
+	spriteAnimation.resume();
+	Crafty.timer.simulateFrames(5);
+
+	deepEqual(eventFrames, [1, 2, 3, 4, 5, 6, 7, 8, 9], "Expected events for frames 1 through 9");
+	deepEqual(finishedAnimations, ['count'], "Expected a single animation end event");
 });
 
 Crafty.pause();

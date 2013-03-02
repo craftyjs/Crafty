@@ -220,7 +220,7 @@ Crafty.c("SpriteAnimation", {
 	* You can call this method with no arguments to resume the last animation that played.
 	*/
 	resume: function(reelId) {
-		if (arguments.length === 0) {
+		if (reelId == null) {
 			if (this._currentReelId !== null) {
 				return this.play(this._currentReelId, null);
 			}
