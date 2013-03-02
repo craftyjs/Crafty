@@ -33,6 +33,11 @@ module("Sprite Animation", {
 	}
 });
 
+test("Get the active reel when there is none", function() {
+	activeReel = spriteAnimation.getActiveReel();
+	equal(activeReel.id, null, "The active reel's ID should be null");
+});
+
 test("Play an animation", function() {
 	// Play for 10 frames, each sprite will show up for one frame
 	spriteAnimation.play('count', 10);
@@ -151,6 +156,50 @@ test("Pause an animation, then resume it", function() {
 
 	deepEqual(eventFrames, [1, 2, 3, 4, 5, 6, 7, 8, 9], "Expected events for frames 1 through 9");
 	deepEqual(finishedAnimations, ['count'], "Expected a single animation end event");
+});
+
+test("Try to play an animation after it ends", function() {
+	spriteAnimation.play('count', 10);
+	Crafty.timer.simulateFrames(10);
+	spriteAnimation.play('count', null);
+	Crafty.timer.simulateFrames(1);
+
+	deepEqual(finishedAnimations, ['count', 'count'], "Expected the animation to end twice");
+});
+
+test("Reset an animation", function() {
+	spriteAnimation.play('short', 3);
+	Crafty.timer.simulateFrames(3);
+	spriteAnimation.reset();
+	spriteAnimation.play('short', 3);
+	Crafty.timer.simulateFrames(3);
+
+	deepEqual(eventFrames, [1, 2, 1, 2], "Expected events for frames 1 through 2, twice");
+	deepEqual(finishedAnimations, ['short', 'short'], "Expected the animation to end twice");
+});
+
+test("Reset an animation to a specific frame", function() {
+	spriteAnimation.play('short', 3);
+	Crafty.timer.simulateFrames(3);
+	spriteAnimation.reset(null, 1);
+	spriteAnimation.play('short', 2);
+	Crafty.timer.simulateFrames(2);
+
+	deepEqual(eventFrames, [1, 2, 2], "Expected events for frames 1 through 2 and then 2");
+	deepEqual(finishedAnimations, ['short', 'short'], "Expected the animation to end twice");
+});
+
+test("See if any animation is playing", function() {
+	equal(spriteAnimation.isPlaying(), false, "No animation should be playing");
+	spriteAnimation.play('short', 3);
+	equal(spriteAnimation.isPlaying(), true, "An animation should be playing");
+});
+
+test("See if a specific animation is playing", function() {
+	spriteAnimation.play('count', 3);
+	equal(spriteAnimation.isPlaying('short'), false, "The 'short' animation shouldn't be playing");
+	spriteAnimation.play('short', 3);
+	equal(spriteAnimation.isPlaying('short'), true, "The 'short' animation should be playing");
 });
 
 Crafty.pause();

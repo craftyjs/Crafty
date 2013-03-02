@@ -375,10 +375,11 @@ Crafty.c("SpriteAnimation", {
 	* @comp SpriteAnimation
 	* @sign public { id: String, frame: Number } .getActiveReel()
 	*
-	* Returns information about the active reel, the one currently being displayed.
+	* Returns information about the active reel, the one methods will work on when the reel ID is
+	* not specified.
 	* Returns an object containing the reel's ID and the number of the frame displayed at
 	* the time this method was called. If no reel is active, returns an object with a reel ID
-	* of null.
+	* of null (this will only happen if no animation has been played yet).
 	*/
 	getActiveReel: function () {
 		if (!this._currentReelId) return { id: null, frame: 0 };
