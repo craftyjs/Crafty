@@ -68,7 +68,9 @@ Crafty.c("SpriteAnimation", {
 	*     PlayerSprite: [0,0]
 	* });
 	*
-	* \/\/ Define an animation on the second row of the sprite map (y=1) from the left most sprite (fromX = 0) to the fourth sprite on that row (toX = 3)
+	* \/\/ Define an animation on the second row of the sprite map (y = 1)
+	* \/\/ from the left most sprite (fromX = 0) to the fourth sprite
+	* \/\/ on that row (toX = 3)
 	* Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite").animate('PlayerRunning', 0, 1, 3);
 	*
 	* \/\/ This is the same animation definition, but using the alternative method
