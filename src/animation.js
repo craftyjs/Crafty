@@ -308,6 +308,9 @@ Crafty.c("SpriteAnimation", {
 	* By default, will have the animation display its first frame. When playing an animation, it
 	* will continue from the frame it was reset to.
 	*
+	* Specify null as the reelId if you only want to specify the frame on the
+	* current animation.
+	*
 	* If an animation ends up being reset and an animation was playing, the animation that was
 	* playing will be paused.
 	*

@@ -212,13 +212,33 @@ playgroundPlay = function() {
 	reelId = $('#playReelId').val();
 
 	duration = parseInt($('#playDuration').val());
-	if (!!duration === false) duration = 0;
+	if (isNaN(duration)) duration = null;
 
 	repeatCount = parseInt($('#playRepeatCount').val());
-	if (!!repeatCount === false) repeatCount = 0;
+	if (isNaN(repeatCount)) repeatCount = null;
 
 	fromFrame = parseInt($('#playFromFrame').val());
-	if (!!fromFrame === false) fromFrame = 0;
+	if (isNaN(fromFrame)) fromFrame = null;
 
 	spriteAnimation.play(reelId, duration, repeatCount, fromFrame);
+}
+
+playgroundPause = function() {
+	spriteAnimation.pause();
+}
+
+playgroundResume = function() {
+	reelId = $('#resumeReelId').val();
+	if (!!reelId === false) reelId = null;
+
+	spriteAnimation.resume(reelId);
+}
+
+playgroundReset = function() {
+	reelId = $('#resetReelId').val();
+	if (!!reelId === false) reelId = null;
+
+	frameToDisplay = parseInt($('#resetFrameToDisplay').val());
+	if (isNaN(frameToDisplay)) frameToDisplay = null;
+	spriteAnimation.reset(reelId, frameToDisplay);
 }
