@@ -543,7 +543,8 @@ Crafty.DrawManager = (function () {
 			//if the amount of changed objects is over 60% of the total objects
 			//do the naive method redrawing
 			// TODO: I'm not sure this condition really makes that much sense!
-			if (l / this.total2D > 0.6) {
+			console.log("numbers: " + l + "  | "  + this.total2D )
+			if (l / this.total2D > 0.6 && false) {
 				this.drawAll();
 				dirty_rects.length = 0;
 				return;
@@ -552,21 +553,29 @@ Crafty.DrawManager = (function () {
 			// Calculate dirty_rects from all changed objects
 			for  (i=0; i<l; i++){
 				obj = changed_objs[i];
-				if (obj.staleRect)
+				if (obj.staleRect){
 					dirty_rects.push(obj.staleRect)
-				else
+					//console.log("Stale")
+				} else{
 					obj.staleRect ={}
+					//console.log("Creation of stale")
+				}
 				// Assign current position to new rect, and also stale rect 
-				obj.staleRect._x = obj.newRect._x = obj._x;
-				obj.staleRect._y = obj.newRect._y = obj._y;
-				obj.staleRect._w = obj.newRect._w = obj._w;
-				obj.staleRect._h = obj.newRect._h = obj._h;
+				obj.newRect._x = obj._x;
+				obj.newRect._y = obj._y;
+				obj.newRect._w = obj._w;
+				obj.newRect._h = obj._h;
 				dirty_rects.push(obj.newRect)
+
+				//Clear for redrawing next time
+				obj._dirtyFlag = false
 
 
 
 
 			}
+			
+			
 
 
 			dirty_rects = this.merge(dirty_rects);
@@ -577,6 +586,8 @@ Crafty.DrawManager = (function () {
 				q = Crafty.map.search(rect, false); //search for ents under dirty rect
 
 				dupes = {};
+				//clear the rect from the main canvas
+				ctx.clearRect(rect._x, rect._y, rect._w, rect._h);
 
 				//loop over found objects removing dupes and adding to obj array
 				for (j = 0, len = q.length; j < len; ++j) {
@@ -589,8 +600,7 @@ Crafty.DrawManager = (function () {
 					objs.push({ obj: obj, rect: rect });
 				}
 
-				//clear the rect from the main canvas
-				ctx.clearRect(rect._x, rect._y, rect._w, rect._h);
+				
 
 			}
 
@@ -631,8 +641,24 @@ Crafty.DrawManager = (function () {
 				ent._changed = false;
 			}
 
+			/*ctx.strokeStyle = 'red';
+            for (i = 0, l=dirty_rects.length; i < l; ++i) { //loop over every dirty rect
+                rect = dirty_rects[i];
+                ctx.strokeRect(rect._x,rect._y,rect._w,rect._h)
+            }*/
+
+            // Cleanup; assign the now stale rectangles and clear the arrays
+            for (i=0, l=changed_objs.length; i<l; i++){
+            	obj = changed_objs[i];
+        		obj.staleRect._x = obj._x;
+				obj.staleRect._y = obj._y;
+				obj.staleRect._w = obj._w;
+				obj.staleRect._h = obj._h;
+            }
+
 			//empty dirty_rects
 			dirty_rects.length = 0;
+			changed_objs.length=0;
 			//all merged IDs are now invalid
 			merged = {};
 		}
