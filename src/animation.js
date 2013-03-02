@@ -198,6 +198,7 @@ Crafty.c("SpriteAnimation", {
 			}
 			else {
 				currentReel.currentFrameNumber = fromFrame;
+				currentReel.cycleNumber = 0;
 			}
 		}
 
@@ -343,6 +344,8 @@ Crafty.c("SpriteAnimation", {
 		reelToReset.cycleNumber = 0;
 		reelToReset.repeatInfinitly = false;
 		reelToReset.repeatsRemaining = 0;
+
+		this.trigger("Change"); // Needed to trigger a redraw
 
 		var pos = reelToReset.frames[frameToDisplay];
 		this.__coord[0] = pos[0];
