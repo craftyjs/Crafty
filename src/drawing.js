@@ -299,7 +299,7 @@ Crafty.extend({
 */
 Crafty.DrawManager = (function () {
 	/** array of dirty rects on screen */
-	var dirty_rects = [],
+	var dirty_rects = [], changed_objs = []
 	/** array of DOMs needed updating */
 		dom = [];
 
@@ -371,6 +371,11 @@ Crafty.DrawManager = (function () {
 			} while (didMerge);
 
 			return set;
+		},
+
+		addCanvas: function addCanvas(current){
+			changed_objs.push(current)
+
 		},
 
 		/**@
@@ -493,6 +498,15 @@ Crafty.DrawManager = (function () {
 			return master;
 		},
 
+
+
+		rectangleManager: {
+
+		},
+
+
+
+
 		/**@
 		* #Crafty.DrawManager.draw
 		* @comp Crafty.DrawManager
@@ -507,10 +521,12 @@ Crafty.DrawManager = (function () {
 		*/
 		draw: function draw() {
 			//if nothing in dirty_rects, stop
-			if (!dirty_rects.length && !dom.length) return;
+			if (!changed_objs.length && !dom.length) return;
 
-			var i = 0, l = dirty_rects.length, k = dom.length, rect, q,
+			var i = 0, l = changed_objs.length, k = dom.length, rect, q,
 				j, len, dupes, obj, ent, objs = [], ctx = Crafty.canvas.context;
+
+			
 
 			//loop over all DOM elements needing updating
 			for (; i < k; ++i) {
@@ -521,15 +537,40 @@ Crafty.DrawManager = (function () {
 			//again, stop if nothing in dirty_rects
 			if (!l) { return; }
 
-			//if the amount of rects is over 60% of the total objects
+
+
+
+			//if the amount of changed objects is over 60% of the total objects
 			//do the naive method redrawing
+			// TODO: I'm not sure this condition really makes that much sense!
 			if (l / this.total2D > 0.6) {
 				this.drawAll();
 				dirty_rects.length = 0;
 				return;
 			}
 
+			// Calculate dirty_rects from all changed objects
+			for  (i=0; i<l; i++){
+				obj = changed_objs[i];
+				if (obj.staleRect)
+					dirty_rects.push(obj.staleRect)
+				else
+					obj.staleRect ={}
+				// Assign current position to new rect, and also stale rect 
+				obj.staleRect._x = obj.newRect._x = obj._x;
+				obj.staleRect._y = obj.newRect._y = obj._y;
+				obj.staleRect._w = obj.newRect._w = obj._w;
+				obj.staleRect._h = obj.newRect._h = obj._h;
+				dirty_rects.push(obj.newRect)
+
+
+
+
+			}
+
+
 			dirty_rects = this.merge(dirty_rects);
+			l = dirty_rects.length;
 			for (i = 0; i < l; ++i) { //loop over every dirty rect
 				rect = dirty_rects[i];
 				if (!rect) continue;
@@ -540,7 +581,7 @@ Crafty.DrawManager = (function () {
 				//loop over found objects removing dupes and adding to obj array
 				for (j = 0, len = q.length; j < len; ++j) {
 					obj = q[j];
-
+      
 					if (dupes[obj[0]] || !obj._visible || !obj.__c.Canvas)
 						continue;
 					dupes[obj[0]] = true;

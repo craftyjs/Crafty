@@ -24,14 +24,28 @@ Crafty.c("Canvas", {
 		//increment the amount of canvas objs
 		Crafty.DrawManager.total2D++;
 
+		this.newRect = {};
+		this._dirtyFlag = true;
+		Crafty.DrawManager.addCanvas(this);
+
 		this.bind("Change", function (e) {
 			//if within screen, add to list
+			this._changed = true
+			if (this._dirtyFlag === false){
+				this._dirtyFlag = true;
+				Crafty.DrawManager.addCanvas(this);
+
+			}
+				
+			
+			return
 			if (this._changed === false) {
 				this._changed = Crafty.DrawManager.add(e || this, this);
 			} else {
 				if (e) this._changed = Crafty.DrawManager.add(e, this);
 			}
 		});
+
 
 		this.bind("Remove", function () {
 			Crafty.DrawManager.total2D--;
