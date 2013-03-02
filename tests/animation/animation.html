@@ -16,5 +16,20 @@
 		<h3>Sprite animation playground:</h3>
 		<div id="cr-stage"></div>
 		<script type="text/javascript" src="sprite-animation.js"></script>
+		<div>
+			<button onclick="playgroundPlay();">Play</button>
+			<label for="playReelId">Reel ID:</label>
+			<select id="playReelId">
+				<option value="count" selected>Count</option>
+				<option value="countEven">Count Even</option>
+				<option value="short">Short</option>
+			</select>
+			<label for="playDuration">Duration:</label>
+			<input type="number" id="playDuration"></input>
+			<label for="playRepeatCount">Repeat count:</label>
+			<input type="number" id="playRepeatCount"></input>
+			<label for="playFromFrame">From frame:</label>
+			<input type="number" id="playFromFrame"></input>
+		</div>
 	</body>
 </html>

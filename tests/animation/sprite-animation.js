@@ -203,3 +203,22 @@ test("See if a specific animation is playing", function() {
 });
 
 Crafty.pause();
+spriteAnimation.reset('count');
+spriteAnimation.reset('countEven');
+spriteAnimation.reset('short');
+
+// Some extra functions for the animation playground
+playgroundPlay = function() {
+	reelId = $('#playReelId').val();
+
+	duration = parseInt($('#playDuration').val());
+	if (!!duration === false) duration = 0;
+
+	repeatCount = parseInt($('#playRepeatCount').val());
+	if (!!repeatCount === false) repeatCount = 0;
+
+	fromFrame = parseInt($('#playFromFrame').val());
+	if (!!fromFrame === false) fromFrame = 0;
+
+	spriteAnimation.play(reelId, duration, repeatCount, fromFrame);
+}
