@@ -201,6 +201,9 @@ Crafty.c("SpriteAnimation", {
 			}
 		}
 
+		this.trigger("FrameChange", { reelId: this._currentReelId, frameNumber: currentReel.currentFrameNumber });
+		this.trigger("Change"); // Needed to trigger a redraw
+
 		pos = currentReel.frames[currentReel.currentFrameNumber];
 		this.__coord[0] = pos[0];
 		this.__coord[1] = pos[1];

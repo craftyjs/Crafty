@@ -79,7 +79,7 @@ test("Get events for each frame change", function() {
 	spriteAnimation.play('count', 10);
 	Crafty.timer.simulateFrames(20);
 
-	deepEqual(eventFrames, [1, 2, 3, 4, 5, 6, 7, 8, 9], "Expected events for frames 1 through 9");
+	deepEqual(eventFrames, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], "Expected events for frames 0 through 9");
 });
 
 test("Get an event when an animation ends", function() {
@@ -93,7 +93,7 @@ test("Play an animation with a repeat count", function() {
 	spriteAnimation.play('short', 3, 2);
 	Crafty.timer.simulateFrames(10);
 
-	deepEqual(eventFrames, [1, 2, 0, 1, 2, 0, 1, 2], "Expected events matching the repeat count");
+	deepEqual(eventFrames, [0, 1, 2, 0, 1, 2, 0, 1, 2], "Expected events matching the repeat count");
 	deepEqual(finishedAnimations, ['short'], "Expected a single animation end event");
 });
 
@@ -101,8 +101,8 @@ test("Play an animation with an infinite repeat count", function() {
 	spriteAnimation.play('short', 3, -1);
 	Crafty.timer.simulateFrames(32);
 
-	expected = [1, 2];
-	for (var i = 0; i < 10; i++) {
+	expected = [];
+	for (var i = 0; i < 11; i++) {
 		expected.push(0);
 		expected.push(1);
 		expected.push(2);
@@ -116,7 +116,7 @@ test("Play an animation from a specific frame", function() {
 	spriteAnimation.play('count', 10, 0, 5);
 	Crafty.timer.simulateFrames(5);
 
-	deepEqual(eventFrames, [6, 7, 8, 9], "Expected events for frames 6 through 9");
+	deepEqual(eventFrames, [5, 6, 7, 8, 9], "Expected events for frames 5 through 9");
 	deepEqual(finishedAnimations, ['count'], "Expected a single animation end event");
 });
 
@@ -124,7 +124,7 @@ test("Play an animation from a specific frame, with a repeat count", function() 
 	spriteAnimation.play('count', 10, 1, 6);
 	Crafty.timer.simulateFrames(7);
 
-	deepEqual(eventFrames, [7, 8, 9, 0, 1, 2, 3], "Expected events for frames 6 through 9");
+	deepEqual(eventFrames, [6, 7, 8, 9, 0, 1, 2, 3], "Expected events for frames 6 through 9 and then 0 through 3");
 });
 
 test("Pause an animation", function() {
@@ -133,7 +133,7 @@ test("Pause an animation", function() {
 	spriteAnimation.pause();
 	Crafty.timer.simulateFrames(5);
 
-	deepEqual(eventFrames, [1, 2, 3, 4, 5], "Expected events for frames 1 through 5");
+	deepEqual(eventFrames, [0, 1, 2, 3, 4, 5], "Expected events for frames 0 through 5");
 });
 
 test("Play an animation while another is already playing", function() {
@@ -142,7 +142,7 @@ test("Play an animation while another is already playing", function() {
 	spriteAnimation.play('short', 4);
 	Crafty.timer.simulateFrames(10);
 
-	deepEqual(eventFrames, [1, 2, 3, 4, 5, 1, 2], "Expected events for frames from both animations");
+	deepEqual(eventFrames, [0, 1, 2, 3, 4, 5, 0, 1, 2], "Expected events for frames from both animations");
 	deepEqual(finishedAnimations, ['short'], "Expected end event for the second animation");
 });
 
@@ -154,7 +154,7 @@ test("Pause an animation, then resume it", function() {
 	spriteAnimation.resume();
 	Crafty.timer.simulateFrames(5);
 
-	deepEqual(eventFrames, [1, 2, 3, 4, 5, 6, 7, 8, 9], "Expected events for frames 1 through 9");
+	deepEqual(eventFrames, [0, 1, 2, 3, 4, 5, 5, 6, 7, 8, 9], "Expected events for frames 0 through 9, with two for frame 5");
 	deepEqual(finishedAnimations, ['count'], "Expected a single animation end event");
 });
 
@@ -174,7 +174,7 @@ test("Reset an animation", function() {
 	spriteAnimation.play('short', 3);
 	Crafty.timer.simulateFrames(3);
 
-	deepEqual(eventFrames, [1, 2, 1, 2], "Expected events for frames 1 through 2, twice");
+	deepEqual(eventFrames, [0, 1, 2, 0, 1, 2], "Expected events for frames 0 through 2, twice");
 	deepEqual(finishedAnimations, ['short', 'short'], "Expected the animation to end twice");
 });
 
@@ -185,7 +185,7 @@ test("Reset an animation to a specific frame", function() {
 	spriteAnimation.play('short', 2);
 	Crafty.timer.simulateFrames(2);
 
-	deepEqual(eventFrames, [1, 2, 2], "Expected events for frames 1 through 2 and then 2");
+	deepEqual(eventFrames, [0, 1, 2, 1, 2], "Expected events for frames 0 through 2 and then 1 through 2");
 	deepEqual(finishedAnimations, ['short', 'short'], "Expected the animation to end twice");
 });
 
