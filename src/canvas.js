@@ -49,7 +49,9 @@ Crafty.c("Canvas", {
 
 		this.bind("Remove", function () {
 			Crafty.DrawManager.total2D--;
-			Crafty.DrawManager.add(this, this);
+			this._dirtyFlag = true;
+			Crafty.DrawManager.addCanvas(this);
+			//Crafty.DrawManager.add(this, this);
 		});
 	},
 
@@ -75,6 +77,7 @@ Crafty.c("Canvas", {
 			ctx = Crafty.canvas.context;
 		}
 
+
 		var pos = { //inlined pos() function, for speed
 			_x: (this._x + (x || 0)),
 			_y: (this._y + (y || 0)),
@@ -89,6 +92,7 @@ Crafty.c("Canvas", {
 			w: w || coord[2],
 			h: h || coord[3]
 		};
+
 
 		if (this._mbr) {
 			context.save();
