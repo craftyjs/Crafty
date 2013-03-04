@@ -298,10 +298,13 @@ Crafty.extend({
 * the best method of drawing in both DOM and canvas
 */
 Crafty.DrawManager = (function () {
+	/** Helper function to sort by globalZ */
+	function zsort(a, b) { return a.obj._globalZ - b.obj._globalZ; };
 	/** array of dirty rects on screen */
 	var dirty_rects = [], changed_objs = [], 
 	/** array of DOMs needed updating */
 		dom = [], 
+	
 	/** object for managing dirty rectangles */
 	rectManager = {
 		merge: function(a, b, target){
@@ -402,100 +405,59 @@ Crafty.DrawManager = (function () {
 		*/
 		merge: function (set) {
 			var newset = []
+			// 
 			do {
 				var didMerge = false, i = 0,
-					l = set.length, current, next, merger;
+					l = set.length, current, next;
 
 				while (i < l) {
 					current = set[i];
 					next = set[i + 1];
 
-					if (i < l - 1 && current._x < next._x + next._w && current._x + current._w > next._x &&
-									current._y < next._y + next._h && current._h + current._y > next._y) {
-
-						/*merger = {
-							_x: ~~Math.min(current._x, next._x),
-							_y: ~~Math.min(current._y, next._y),
-							_w: Math.max(current._x, next._x) + Math.max(current._w, next._w),
-							_h: Math.max(current._y, next._y) + Math.max(current._h, next._h)
-						};
-						merger._w = merger._w - merger._x;
-						merger._h = merger._h - merger._y;
-						merger._w = (merger._w == ~~merger._w) ? merger._w : merger._w + 1 | 0;
-						merger._h = (merger._h == ~~merger._h) ? merger._h : merger._h + 1 | 0;*/
-						merger = rectManager.merge(current, next, current);
-						newset.push(merger);
-
+					// If current and next overlap, merge them together, and skip the index forward
+					if (i < l - 1 && rectManager.overlap(current, next) ){
+						rectManager.merge(current, next, current);
 						i++;
 						didMerge = true;
-					} else newset.push(current);
+					}
+					newset.push(current);
 					i++;
 				}
 
-				current = set;
-				set = newset.length ? newset : set;
-				newset = current;
-				newset.length=0;
-
-				if (didMerge) i = 0;
+				// Use current as a placeholder while we swap set and newset to iterate once through the list again
+				if (newset.length){
+					current = set;
+					set = newset;
+					newset = current;
+					newset.length=0;
+				}
 			} while (didMerge);
 
 			return set;
 		},
 
-		addCanvas: function addCanvas(current){
-			changed_objs.push(current)
-
+		/**@
+		* #Crafty.DrawManager.addCanvas
+		* @comp Crafty.DrawManager
+		* @sign public Crafty.DrawManager.addCanvas(ent)
+		* @param ent - The entity to add
+		* 
+		* Add an entity to the list of Canvas objects to draw
+		*/
+		addCanvas: function addCanvas(ent){
+			changed_objs.push(ent)
 		},
 
 		/**@
-		* #Crafty.DrawManager.add
+		* #Crafty.DrawManager.addDom
 		* @comp Crafty.DrawManager
-		* @sign public Crafty.DrawManager.add(old, current)
-		* @param old - Undocumented
-		* @param current - Undocumented
+		* @sign public Crafty.DrawManager.addDom(ent)
+		* @param ent - The entity to add
 		* 
-		* Calculate the bounding rect of dirty data and add to the register of dirty rectangles
+		* Add an entity to the list of DOM object to draw
 		*/
-		add: function add(old, current) {
-			if (!current) {
-				dom.push(old);
-				return;
-			}
-
-			var rect,
-				before = old._mbr || old,
-				after = current._mbr || current;
-
-			if (old === current) {
-				rect = old.mbr() || old.pos();
-			} else {
-				rect = {
-					_x: ~~Math.min(before._x, after._x),
-					_y: ~~Math.min(before._y, after._y),
-					_w: Math.max(before._w, after._w) + Math.max(before._x, after._x),
-					_h: Math.max(before._h, after._h) + Math.max(before._y, after._y)
-				};
-
-				rect._w = (rect._w - rect._x);
-				rect._h = (rect._h - rect._y);
-			}
-
-			if (rect._w === 0 || rect._h === 0 || !this.onScreen(rect)) {
-				return false;
-			}
-
-			//floor/ceil
-			rect._x = ~~rect._x;
-			rect._y = ~~rect._y;
-			rect._w = (rect._w === ~~rect._w) ? rect._w : rect._w + 1 | 0;
-			rect._h = (rect._h === ~~rect._h) ? rect._h : rect._h + 1 | 0;
-
-			//add to dirty_rects, check for merging
-			dirty_rects.push(rect);
-
-			//if it got merged
-			return true;
+		addDom: function addDom(ent) {
+				dom.push(ent);
 		},
 
 		/**@
@@ -504,13 +466,13 @@ Crafty.DrawManager = (function () {
 		* @sign public Crafty.DrawManager.debug()
 		*/
 		debug: function () {
-			console.log(dirty_rects, dom);
+			console.log(changed_objs, dom);
 		},
 
 		/**@
-		* #Crafty.DrawManager.draw
+		* #Crafty.DrawManager.drawAll
 		* @comp Crafty.DrawManager
-		* @sign public Crafty.DrawManager.draw([Object rect])
+		* @sign public Crafty.DrawManager.drawAll([Object rect])
         * @param rect - a rectangular region {_x: x_val, _y: y_val, _w: w_val, _h: h_val}
         * ~~~
 		* - If rect is omitted, redraw within the viewport
@@ -583,13 +545,11 @@ Crafty.DrawManager = (function () {
         * @see Canvas.draw, DOM.draw
 		*/
 		draw: function draw() {
-			//if nothing in dirty_rects, stop
+			//if no objects have been changed, stop
 			if (!changed_objs.length && !dom.length) return;
 
 			var i = 0, l = changed_objs.length, k = dom.length, rect, q,
 				j, len, dupes, obj, ent, objs = [], ctx = Crafty.canvas.context;
-
-			
 
 			//loop over all DOM elements needing updating
 			for (; i < k; ++i) {
@@ -597,11 +557,9 @@ Crafty.DrawManager = (function () {
 			}
 			//reset DOM array
             dom.length = 0;
-			//again, stop if nothing in dirty_rects
+
+			//again, stop if no canvas components have changed
 			if (!l) { return; }
-
-
-
 
 			//if the amount of changed objects is over 60% of the total objects
 			//do the naive method redrawing
@@ -614,22 +572,21 @@ Crafty.DrawManager = (function () {
 				return;
 			}
 
-			// Calculate dirty_rects from all changed objects
+			// Calculate dirty_rects from all changed objects, then merge some overlapping regions together
 			for  (i=0; i<l; i++){
 				rectManager.createDirty(changed_objs[i])
 			}
-			
-			
-
-
 			dirty_rects = this.merge(dirty_rects);
+
+			// Find entities overlapping dirty screen areas
 			l = dirty_rects.length;
+			dupes = []
 			for (i = 0; i < l; ++i) { //loop over every dirty rect
 				rect = dirty_rects[i];
 				if (!rect) continue;
 				q = Crafty.map.search(rect, false); //search for ents under dirty rect
 
-				dupes = {};
+				dupes.length=0;
 				//clear the rect from the main canvas
 				ctx.clearRect(rect._x, rect._y, rect._w, rect._h);
 
@@ -649,7 +606,7 @@ Crafty.DrawManager = (function () {
 			}
 
 			//sort the objects by the global Z
-			objs.sort(function (a, b) { return a.obj._globalZ - b.obj._globalZ; });
+			objs.sort(zsort);
 			if (!objs.length){ 
 				rectManager.clean()
 				return;
@@ -663,14 +620,7 @@ Crafty.DrawManager = (function () {
 				rect = obj.rect;
 
 				var area = ent._mbr || ent;
-					//Pretty sure this is just checking for overlap...
-
-					// x = (rect._x - area._x <= 0) ? 0 : ~~(rect._x - area._x),
-					// y = (rect._y - area._y < 0) ? 0 : ~~(rect._y - area._y),
-					// w = ~~Math.min(area._w - x, rect._w - (area._x - rect._x), rect._w, area._w),
-					// h = ~~Math.min(area._h - y, rect._h - (area._y - rect._y), rect._h, area._h);
-					//no point drawing with no width or height
-				//if (h === 0 || w === 0) continue;
+				// Check to make sure ent and dirty region overlap at all
 				if (!rectManager.overlap(area, rect))
 					continue;
 				
@@ -685,7 +635,7 @@ Crafty.DrawManager = (function () {
 				ctx.closePath();
 				ctx.restore();
 
-				//allow entity to re-dirty_rects
+				//Now object is up-to-date, reset flag
 				ent._changed = false;
 			}
 
