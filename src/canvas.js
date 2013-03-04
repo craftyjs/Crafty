@@ -23,8 +23,8 @@ Crafty.c("Canvas", {
 
 		//increment the amount of canvas objs
 		Crafty.DrawManager.total2D++;
-
-		this.newRect = {};
+		//Allocate an object to hold this components current region
+		this.currentRect = {};
 		this._dirtyFlag = true;
 		Crafty.DrawManager.addCanvas(this);
 
