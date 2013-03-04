@@ -299,9 +299,75 @@ Crafty.extend({
 */
 Crafty.DrawManager = (function () {
 	/** array of dirty rects on screen */
-	var dirty_rects = [], changed_objs = []
+	var dirty_rects = [], changed_objs = [], 
 	/** array of DOMs needed updating */
-		dom = [];
+		dom = [], 
+	/** object for managing dirty rectangles */
+	rectManager = {
+		merge: function(a, b, target){
+			if (target == null)
+				target={}
+			// Doing it in this order means we can use either a or b as the target, with no conflict
+			// Round resulting values to integers; down for xy, up for wh
+			// Would be slightly off if negative w, h were allowed
+			target._h = Math.max(a._y + a._h, b._y + b._h);
+			target._w = Math.max(a._x + a._w, b._x + b._w);
+			target._x = ~~Math.min(a._x, b._x);
+			target._y = ~~Math.min(a._y, b._y);
+			target._w = (target._w == ~~target._w) ? target._w : ~~target._w + 1 | 0;
+			target._h = (target._h == ~~target._h) ? target._h : ~~target._h + 1 | 0;
+			return target
+		},
+
+		clean: function(){
+			// Cleanup; assign the now stale rectangles and clear the arrays
+            for (var i=0, l=changed_objs.length; i<l; i++){
+            	var obj = changed_objs[i];
+            	if (obj.staleRect == null)
+            			obj.staleRect = {}
+        		obj.staleRect._x = obj._x;
+				obj.staleRect._y = obj._y;
+				obj.staleRect._w = obj._w;
+				obj.staleRect._h = obj._h;
+
+				obj._dirtyFlag = false
+            }
+            changed_objs.length = 0;
+            dirty_rects.length = 0
+
+		},
+
+		// Takes the current and previous position of an object, and pushes the dirty regions onto the stack
+		// If the entity has only moved/changed a little bit, the regions are squashed together
+		createDirty: function(obj){
+			if (obj.staleRect){
+				//If overlap, merge stale and current position together, then return
+				//Otherwise just push stale rectangle
+				if (  rectManager.overlap( obj.staleRect, obj)){
+					rectManager.merge(obj.staleRect, obj, obj.staleRect)
+					dirty_rects.push(obj.staleRect)
+					return
+				}
+				else{
+					dirty_rects.push(obj.staleRect)
+				}
+			}
+
+			// We use the intermediate "currentRect" so it can be modified without messing with obj
+			obj.currentRect._x = obj._x;
+			obj.currentRect._y = obj._y;
+			obj.currentRect._w = obj._w;
+			obj.currentRect._h = obj._h;
+			dirty_rects.push(obj.currentRect)
+			
+		},
+
+		overlap: function(a, b){
+			return (a._x < b._x + b._w && a._y < b._y + b._h 
+					&& a._x + a._w > b._x && a._y + a._h > b._y)
+		}
+
+	};
 
 	return {
 		/**@
@@ -357,7 +423,7 @@ Crafty.DrawManager = (function () {
 						merger._h = merger._h - merger._y;
 						merger._w = (merger._w == ~~merger._w) ? merger._w : merger._w + 1 | 0;
 						merger._h = (merger._h == ~~merger._h) ? merger._h : merger._h + 1 | 0;*/
-						merger = Crafty.DrawManager.mergeRectangles(current, next, current);
+						merger = rectManager.merge(current, next, current);
 						newset.push(merger);
 
 						i++;
@@ -504,79 +570,6 @@ Crafty.DrawManager = (function () {
 
 
 
-		rectangleManager: {
-
-		},
-
-
-
-
-		cleanRects: function(){
-			// Cleanup; assign the now stale rectangles and clear the arrays
-            for (var i=0, l=changed_objs.length; i<l; i++){
-            	var obj = changed_objs[i];
-            	if (obj.staleRect == null)
-            			obj.staleRect = {}
-        		obj.staleRect._x = obj._x;
-				obj.staleRect._y = obj._y;
-				obj.staleRect._w = obj._w;
-				obj.staleRect._h = obj._h;
-
-				obj._dirtyFlag = false
-            }
-            changed_objs.length = 0;
-            dirty_rects.length = 0
-
-		},
-
-		mergeRectangles: function(a, b, target){
-			if (target == null)
-				target={}
-			// Doing it in this order means we can use either a or b as the target, with no conflict
-			// Round resulting values to integers; down for xy, up for wh
-			// Would be slightly off if negative w, h were allowed
-			target._h = Math.max(a._y + a._h, b._y + b._h);
-			target._w = Math.max(a._x + a._w, b._x + b._w);
-			target._x = ~~Math.min(a._x, b._x);
-			target._y = ~~Math.min(a._y, b._y);
-			target._w = (target._w == ~~target._w) ? target._w : ~~target._w + 1 | 0;
-			target._h = (target._h == ~~target._h) ? target._h : ~~target._h + 1 | 0;
-			return target
-						
-
-
-		},
-
-		checkOverlap: function(a, b){
-			return (a._x < b._x + b._w && a._y < b._y + b._h 
-					&& a._x + a._w > b._x && a._y + a._h > b._y)
-		},
-
-
-		// Takes the current and previous position of an object, and pushes the dirty regions onto the stack
-		// If the entity has only moved/changed a little bit, the regions are squashed together
-		createDirty: function(obj){
-			if (obj.staleRect){
-				//true if rects overlap
-				if (  Crafty.DrawManager.checkOverlap( obj.staleRect, obj)){
-					//Merge rectangles into obj.staleRect
-					Crafty.DrawManager.mergeRectangles(obj.staleRect, obj, obj.staleRect)
-					dirty_rects.push(obj.staleRect)
-					return
-				}
-				else{
-					dirty_rects.push(obj.staleRect)
-				}
-			}
-			obj.newRect._x = obj._x;
-			obj.newRect._y = obj._y;
-			obj.newRect._w = obj._w;
-			obj.newRect._h = obj._h;
-			dirty_rects.push(obj.newRect)
-			
-		},
-
-
 		/**@
 		* #Crafty.DrawManager.draw
 		* @comp Crafty.DrawManager
@@ -617,13 +610,13 @@ Crafty.DrawManager = (function () {
 				console.log("numbers: " + l + "  | "  + this.total2D )
 
 				this.drawAll();
-				Crafty.DrawManager.cleanRects()
+				rectManager.clean()
 				return;
 			}
 
 			// Calculate dirty_rects from all changed objects
 			for  (i=0; i<l; i++){
-				Crafty.DrawManager.createDirty(changed_objs[i])
+				rectManager.createDirty(changed_objs[i])
 			}
 			
 			
@@ -658,7 +651,7 @@ Crafty.DrawManager = (function () {
 			//sort the objects by the global Z
 			objs.sort(function (a, b) { return a.obj._globalZ - b.obj._globalZ; });
 			if (!objs.length){ 
-				Crafty.DrawManager.cleanRects();
+				rectManager.clean()
 				return;
 			}
 
@@ -678,7 +671,7 @@ Crafty.DrawManager = (function () {
 					// h = ~~Math.min(area._h - y, rect._h - (area._y - rect._y), rect._h, area._h);
 					//no point drawing with no width or height
 				//if (h === 0 || w === 0) continue;
-				if (!Crafty.DrawManager.checkOverlap(area, rect))
+				if (!rectManager.overlap(area, rect))
 					continue;
 				
 				// Clip to dirty region
@@ -703,7 +696,7 @@ Crafty.DrawManager = (function () {
             } */
 
             //Clean up lists etc
-            Crafty.DrawManager.cleanRects()
+            rectManager.clean()
 			//all merged IDs are now invalid
 			merged = {};
 		}
