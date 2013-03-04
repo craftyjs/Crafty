@@ -29,21 +29,13 @@ Crafty.c("Canvas", {
 		Crafty.DrawManager.addCanvas(this);
 
 		this.bind("Change", function (e) {
-			//if within screen, add to list
+			//flag if changed
 			this._changed = true
 			if (this._dirtyFlag === false){
 				this._dirtyFlag = true;
 				Crafty.DrawManager.addCanvas(this);
-
 			}
-				
 			
-			return
-			if (this._changed === false) {
-				this._changed = Crafty.DrawManager.add(e || this, this);
-			} else {
-				if (e) this._changed = Crafty.DrawManager.add(e, this);
-			}
 		});
 
 
@@ -51,7 +43,6 @@ Crafty.c("Canvas", {
 			Crafty.DrawManager.total2D--;
 			this._dirtyFlag = true;
 			Crafty.DrawManager.addCanvas(this);
-			//Crafty.DrawManager.add(this, this);
 		});
 	},
 
