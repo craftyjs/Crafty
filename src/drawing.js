@@ -399,44 +399,33 @@ Crafty.DrawManager = (function () {
 		},
 
 		/**@
-		* #Crafty.DrawManager.merge
+		* #Crafty.DrawManager.mergeSet
 		* @comp Crafty.DrawManager
-		* @sign public Object Crafty.DrawManager.merge(Object set)
+		* @sign public Object Crafty.DrawManager.mergeSet(Object set)
 		* @param set - an array of rectangular regions
 		* 
-		* Merged into non overlapping rectangular region
+		* Merge any consecutive, overlapping rects into each other.
 		* Its an optimization for the redraw regions.
+		*
+		* The order of set isn't strictly meaningful, 
+		* but overlapping objects will often cause each other to change, 
+		* and will might be consecutive.
 		*/
-		merge: function (set) {
-			var newset = []
-			// 
+		mergeSet: function (set) {
+ 
 			do {
-				var didMerge = false, i = 0,
-					l = set.length, current, next;
-
-				while (i < l) {
-					current = set[i];
-					next = set[i + 1];
-
+				var didMerge = false, i = 0;
+				while (i < set.length-1) {
 					// If current and next overlap, merge them together, and skip the index forward
-					if (i < l - 1 && rectManager.overlap(current, next) ){
-						rectManager.merge(current, next, current);
-						i++;
+					if (rectManager.overlap(set[i], set[i+1]) ){
+						rectManager.merge(set[i], set[i+1], set[i]);
+						//Remove merged rect from array
+						set.splice(i+1, 1);
 						didMerge = true;
 					}
-					newset.push(current);
 					i++;
 				}
-
-				// Use current as a placeholder while we swap set and newset to iterate once through the list again
-				if (newset.length){
-					current = set;
-					set = newset;
-					newset = current;
-					newset.length=0;
-				}
 			} while (didMerge);
-
 			return set;
 		},
 
@@ -580,7 +569,7 @@ Crafty.DrawManager = (function () {
 			for  (i=0; i<l; i++){
 				rectManager.createDirty(changed_objs[i])
 			}
-			dirty_rects = this.merge(dirty_rects);
+			dirty_rects = this.mergeSet(dirty_rects);
 
 			// Find entities overlapping dirty screen areas
 			l = dirty_rects.length;
