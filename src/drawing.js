@@ -318,6 +318,8 @@ Crafty.DrawManager = (function () {
 			target._w = Math.max(a._x + a._w, b._x + b._w);
 			target._x = ~~Math.min(a._x, b._x);
 			target._y = ~~Math.min(a._y, b._y);
+			target._w -= target._x;
+			target._h -= target._y
 			target._w = (target._w == ~~target._w) ? target._w : ~~target._w + 1 | 0;
 			target._h = (target._h == ~~target._h) ? target._h : ~~target._h + 1 | 0;
 			return target
@@ -641,16 +643,17 @@ Crafty.DrawManager = (function () {
 				ent._changed = false;
 			}
 
-			/*ctx.strokeStyle = 'red';
-            for (i = 0, l=dirty_rects.length; i < l; ++i) { //loop over every dirty rect
-                rect = dirty_rects[i];
-                ctx.strokeRect(rect._x,rect._y,rect._w,rect._h)
-            } */
-
+			// Draw dirty rectangles for debugging, if flag is set
+			if (Crafty.DrawManager.debugDirty === true){
+				ctx.strokeStyle = 'red';
+		        for (i = 0, l=dirty_rects.length; i < l; ++i) { 
+		            rect = dirty_rects[i];
+		            ctx.strokeRect(rect._x,rect._y,rect._w,rect._h)
+		        } 
+        	}
             //Clean up lists etc
             rectManager.clean()
-			//all merged IDs are now invalid
-			merged = {};
+
 		}
 	};
 })();
