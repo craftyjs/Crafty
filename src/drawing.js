@@ -305,8 +305,9 @@ Crafty.DrawManager = (function () {
 	/** array of DOMs needed updating */
 		dom = [], 
 	
-	/** object for managing dirty rectangles */
+	/** recManager: an object for managing dirty rectangles. */
 	rectManager = {
+		/** Finds smallest rectangles that overlaps a and b, merges them into target */
 		merge: function(a, b, target){
 			if (target == null)
 				target={}
@@ -322,8 +323,8 @@ Crafty.DrawManager = (function () {
 			return target
 		},
 
+		/** cleans up current dirty state, stores stale state for future passes */
 		clean: function(){
-			// Cleanup; assign the now stale rectangles and clear the arrays
             for (var i=0, l=changed_objs.length; i<l; i++){
             	var obj = changed_objs[i];
             	if (obj.staleRect == null)
@@ -340,8 +341,8 @@ Crafty.DrawManager = (function () {
 
 		},
 
-		// Takes the current and previous position of an object, and pushes the dirty regions onto the stack
-		// If the entity has only moved/changed a little bit, the regions are squashed together
+		/** Takes the current and previous position of an object, and pushes the dirty regions onto the stack
+		* 	If the entity has only moved/changed a little bit, the regions are squashed together */
 		createDirty: function(obj){
 			if (obj.staleRect){
 				//If overlap, merge stale and current position together, then return
@@ -365,6 +366,7 @@ Crafty.DrawManager = (function () {
 			
 		},
 
+		/** Checks whether two rectangles overlap */
 		overlap: function(a, b){
 			return (a._x < b._x + b._w && a._y < b._y + b._h 
 					&& a._x + a._w > b._x && a._y + a._h > b._y)
