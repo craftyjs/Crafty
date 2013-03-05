@@ -299,7 +299,7 @@ Crafty.extend({
 */
 Crafty.DrawManager = (function () {
 	/** Helper function to sort by globalZ */
-	function zsort(a, b) { return a.obj._globalZ - b.obj._globalZ; };
+	function zsort(a, b) { return a._globalZ - b._globalZ; };
 	/** array of dirty rects on screen */
 	var dirty_rects = [], changed_objs = [], 
 	/** array of DOMs needed updating */
@@ -483,7 +483,7 @@ Crafty.DrawManager = (function () {
 			ctx.clearRect(rect._x, rect._y, rect._w, rect._h);
 
 			//sort the objects by the global Z
-			q.sort(function (a, b) { return a._globalZ - b._globalZ; });
+			q.sort(zsort);
 			for (; i < l; i++) {
 				current = q[i];
 				if (current._visible && current.__c.Canvas) {
@@ -542,7 +542,7 @@ Crafty.DrawManager = (function () {
 			if (!changed_objs.length && !dom.length) return;
 
 			var i = 0, l = changed_objs.length, k = dom.length, rect, q,
-				j, len, dupes, obj, ent, objs = [], ctx = Crafty.canvas.context;
+				j, len, obj, ent, ctx = Crafty.canvas.context;
 
 			//loop over all DOM elements needing updating
 			for (; i < k; ++i) {
@@ -571,68 +571,58 @@ Crafty.DrawManager = (function () {
 			}
 			dirty_rects = this.mergeSet(dirty_rects);
 
-			// Find entities overlapping dirty screen areas
+			
 			l = dirty_rects.length;
-			dupes = []
+			var dupes = [], objs = []
+			// For each dirty rectangle, find entities near it, and draw the overlapping ones
 			for (i = 0; i < l; ++i) { //loop over every dirty rect
 				rect = dirty_rects[i];
-				if (!rect) continue;
-				q = Crafty.map.search(rect, false); //search for ents under dirty rect
-
 				dupes.length=0;
+				objs.length=0;
+				if (!rect) continue;
+
+				//search for ents under dirty rect
+				q = Crafty.map.search(rect, false); 
+
 				//clear the rect from the main canvas
 				ctx.clearRect(rect._x, rect._y, rect._w, rect._h);
 
-				//loop over found objects removing dupes and adding to obj array
+				//Then clip drawing region to dirty rectangle
+				ctx.save();
+				ctx.beginPath();
+				ctx.rect(rect._x, rect._y, rect._w, rect._h);
+				ctx.clip();
+
+				// Loop over found objects removing dupes and adding visible canvas objects to array
 				for (j = 0, len = q.length; j < len; ++j) {
 					obj = q[j];
       
 					if (dupes[obj[0]] || !obj._visible || !obj.__c.Canvas)
 						continue;
 					dupes[obj[0]] = true;
-					obj.dirtyRegion = rect;
-					objs.push({ obj: obj, rect:rect });
+					objs.push(obj);
+				}
+
+				// Sort objects by z level
+				objs.sort(zsort)
+				
+				// Then draw each object in that order
+				for (j = 0, len = objs.length; j < len; ++j) {
+					obj = objs[j]
+					var area = obj._mbr || obj;
+					if (rectManager.overlap(area, rect))
+						obj.draw()
+					obj._changed = false
 				}
 
 				
-
-			}
-
-			//sort the objects by the global Z
-			objs.sort(zsort);
-			if (!objs.length){ 
-				rectManager.clean()
-				return;
-			}
-
-			//loop over the objects
-			for (i = 0, l = objs.length; i < l; ++i) {
-				obj = objs[i];
-				
-				ent = obj.obj;
-				rect = obj.rect;
-
-				var area = ent._mbr || ent;
-				// Check to make sure ent and dirty region overlap at all
-				if (!rectManager.overlap(area, rect))
-					continue;
-				
-				// Clip to dirty region
-				ctx.save();
-				ctx.beginPath();
-				ctx.rect(rect._x, rect._y, rect._w, rect._h);
-				ctx.clip();
-
-				//draw entity, then restore to previous clipping state
-				ent.draw();
+				// Close rectangle clipping
 				ctx.closePath();
 				ctx.restore();
 
-				//Now object is up-to-date, reset flag
-				ent._changed = false;
 			}
 
-			// Draw dirty rectangles for debugging, if flag is set
+			// Draw dirty rectangles for debugging, if that flag is set
 			if (Crafty.DrawManager.debugDirty === true){
 				ctx.strokeStyle = 'red';
 		        for (i = 0, l=dirty_rects.length; i < l; ++i) { 
