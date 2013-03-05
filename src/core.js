@@ -225,7 +225,6 @@
             if (arguments.length > 1) {
                 l = arguments.length;
                 for (; i < l; i++) {
-                    this.__c[arguments[i]] = true;
                     uninit.push(arguments[i]);
                 }
                 //split components if contains comma
@@ -233,21 +232,21 @@
                 comps = id.split(rlist);
                 l = comps.length;
                 for (; i < l; i++) {
-                    this.__c[comps[i]] = true;
                     uninit.push(comps[i]);
                 }
                 //single component passed
             } else {
-                this.__c[id] = true;
                 uninit.push(id);
             }
 
             //extend the components
             ul = uninit.length;
             for (; c < ul; c++) {
+                if (this.__c[uninit[c]] == true)
+                    continue
+                this.__c[uninit[c]] = true
                 comp = components[uninit[c]];
                 this.extend(comp);
-
                 //if constructor, call it
                 if (comp && "init" in comp) {
                     comp.init.call(this);
