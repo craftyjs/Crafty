@@ -425,10 +425,10 @@ var DirtyRectangles = (function() {
 						// new_rect, and new_rect is contained with rect, then there are
 						// overlapping rectangles in the list.
 						if (indices_to_delete.length > 0)
-							console.error("dirty rectangle bug!");
+							console.error("Dirty rectangle bug");
 						return;
 					case 3:
-						console.error("Impossible corner count!");
+						console.error("Impossible corner count");
 						return;
 					case 2:
 						// Shrink new_rect to not overlap rect.
@@ -466,7 +466,7 @@ var DirtyRectangles = (function() {
 								indices_to_delete.unshift(index);
 								break;
 							default:
-								console.error("bug!");
+								console.error("Dirty rectangle bug");
 						}
 						break;
 					case 0:
@@ -479,7 +479,7 @@ var DirtyRectangles = (function() {
 								indices_to_delete.unshift(index);
 								break;
 							case 3:
-								console.error("Impossible corner count!");
+								console.error("Impossible corner count");
 								return;
 							case 2:
 								// Shrink rect to not overlap new_rect, continue with insertion.
@@ -488,7 +488,7 @@ var DirtyRectangles = (function() {
 							case 1:
 								// This should be impossible, the earlier case of 1 corner overlapping
 								// should have been triggered.
-								console.error("Impossible corner count!");
+								console.error("Impossible corner count");
 								return;
 						}
 				}
