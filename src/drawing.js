@@ -409,23 +409,22 @@ Crafty.DrawManager = (function () {
 		*
 		* The order of set isn't strictly meaningful, 
 		* but overlapping objects will often cause each other to change, 
-		* and will might be consecutive.
+		* and so might be consecutive.
 		*/
 		mergeSet: function (set) {
- 
-			do {
-				var didMerge = false, i = 0;
-				while (i < set.length-1) {
-					// If current and next overlap, merge them together, and skip the index forward
-					if (rectManager.overlap(set[i], set[i+1]) ){
-						rectManager.merge(set[i], set[i+1], set[i]);
-						//Remove merged rect from array
-						set.splice(i+1, 1);
-						didMerge = true;
-					}
+			var i = 0;
+			while (i < set.length-1) {
+				// If current and next overlap, merge them together into the first, removing the second
+				// Then skip the index backwards to compare the previous pair.
+				// Otherwise skip forward
+				if (rectManager.overlap(set[i], set[i+1])){
+					rectManager.merge(set[i], set[i+1], set[i]);
+					set.splice(i+1, 1);
+					if (i>0) i--
+				} else
 					i++;
-				}
-			} while (didMerge);
+			}
+		
 			return set;
 		},
 
