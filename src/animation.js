@@ -266,8 +266,8 @@ Crafty.c("SpriteAnimation", {
 				}
 				else {
 					currentReel.currentFrameNumber = currentReel.frames.length - 1;
-					this.trigger("AnimationEnd", { reelId: this._currentReelId });
 					this.pause();
+					this.trigger("AnimationEnd", { reelId: this._currentReelId });
 					return;
 				}
 			}
