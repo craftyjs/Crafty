@@ -219,7 +219,7 @@
         */
         addComponent: function (id) {
             var uninit = [], c = 0, ul, //array of components to init
-            i = 0, l, comps;
+            i = 0, l, comps, comp;
 
             //add multiple arguments
             if (arguments.length > 1) {
@@ -506,6 +506,9 @@
         * @see .trigger, .unbind
         */
         bind: function (event, callback) {
+        
+            // (To learn how the handlers object works, see inline comment at Crafty.bind)
+
             //optimization for 1 entity
             if (this.length === 1) {
                 if (!handlers[event]) handlers[event] = {};
@@ -541,6 +544,7 @@
         * @see .bind, .trigger
         */
         unbind: function (event, callback) {
+            // (To learn how the handlers object works, see inline comment at Crafty.bind)
             this.each(function () {
                 var hdl = handlers[event], i = 0, l, current;
                 //if no events, cancel
@@ -582,6 +586,7 @@
         * Unlike DOM events, Crafty events are exectued synchronously.
         */
         trigger: function (event, data) {
+            // (To learn how the handlers object works, see inline comment at Crafty.bind)
             if (this.length === 1) {
                 //find the handlers assigned to the event and entity
                 if (handlers[event] && handlers[event][this[0]]) {
@@ -1130,6 +1135,7 @@
         * @see Crafty.bind
         */
         trigger: function (event, data) {
+            // (To learn how the handlers object works, see inline comment at Crafty.bind)
             var hdl = handlers[event], h, i, l;
             //loop over every object bound
             for (h in hdl) {
@@ -1163,6 +1169,26 @@
         * @see Crafty.trigger, Crafty.unbind
         */
         bind: function (event, callback) {
+            
+            // Background: The structure of the global object "handlers"
+            // ---------------------------------------------------------
+            // Here is an example of what "handlers" can look like:
+            // handlers ===
+            //    { Move:  {5:[fnA], 6:[fnB, fnC], global:[fnD]},
+            //     Change: {6:[fnE]}
+            //    }
+            // In this example, when the 'Move' event is triggered on entity #6 (e.g.
+            // entity6.trigger('Move')), it causes the execution of fnB() and fnC(). When
+            // the Move event is triggered globally (i.e. Crafty.trigger('Move')), it
+            // will execute fnA, fnB, fnC, fnD.
+            // 
+            // In this example, "this" is bound to entity #6 whenever fnB() is executed, and
+            // "this" is bound to Crafty whenever fnD() is executed.
+            //
+            // In other words, the structure of "handlers" is:
+            //
+            // handlers[event][entityID or 'global'] === (Array of callback functions)
+
             if (!handlers[event]) handlers[event] = {};
             var hdl = handlers[event];
 
@@ -1182,6 +1208,7 @@
         * Unbind any event from any entity or global event.
         */
         unbind: function (event, callback) {
+            // (To learn how the handlers object works, see inline comment at Crafty.bind)
             var hdl = handlers[event], h, i, l;
 
             //loop over every object bound
