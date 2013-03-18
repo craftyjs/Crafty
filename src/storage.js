@@ -282,7 +282,7 @@ Crafty.storage = (function() {
    }
 
    var save = function(key, type, data) {
-      if (dbs === null || dbs.save === null) {
+      if (dbs === null || dbs[type] === null) {
          setTimeout(function() {
             Crafty.storage.save(key, type, data);
          }, 1);
@@ -293,7 +293,7 @@ Crafty.storage = (function() {
       var str = serialize(data),
          t = ts();
 
-      dbs.save.get(key, function(err, doc) {
+      dbs[type].get(key, function(err, doc) {
          var newDoc = {
             _id: key,
             timestamp: t,
@@ -305,8 +305,10 @@ Crafty.storage = (function() {
             newDoc._rev = doc._rev;
          }
 
-         dbs.save.put(newDoc, function(err) {
+         dbs[type].put(newDoc, function(err, response) {
             console.log("End Save "+gameName);
+            console.log(response);
+
             isSaving = false;
             if (type == 'save') {
                saveExternal(key, str, t);
@@ -328,12 +330,22 @@ var load = function(key, type, callback) {
    }
 
    console.log("Start load "+gameName);
+   dbs[type].allDocs({}, function(err, docs){
+      console.log(docs);
+      dbs[type].get(key, function(err, doc) {
+         console.log(err);
+         console.log(doc);
+         console.log(unserialize(doc.data));
+         callback(unserialize(doc.data));
+      });
+   })
 
-   dbs[type].get(key, function(err, doc) {
-      console.log(doc);
-      console.log(unserialize(doc.data));
-      callback(unserialize(doc.data));
-   });
+   // dbs[type].get(key, function(err, doc) {
+   //    console.log(err);
+   //    console.log(doc);
+   //    console.log(unserialize(doc.data));
+   //    callback(unserialize(doc.data));
+   // });
 }
 
 var allDocs = function(type, callback) {
