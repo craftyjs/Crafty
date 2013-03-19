@@ -23,13 +23,14 @@ $files = array("license.txt",
                "drawing.js",
                "isometric.js",
                "particles.js",
-               "sound.js", 
+               "sound.js",
                "text.js",
                "loader.js",
                "math.js",
                "time.js",
-               "outro.js");
-			   
+               "outro.js",
+               "pouch.js");
+
 foreach($files as $file) {
 	$src .= file_get_contents("../src/".$file);
 	$src .= "\n\n";

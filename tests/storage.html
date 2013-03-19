@@ -1,11 +1,11 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" 
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
                     "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 	<script src="http://code.jquery.com/jquery-latest.js"></script>
 	<link rel="stylesheet" href="http://code.jquery.com/qunit/git/qunit.css" type="text/css" media="screen" />
 	<script type="text/javascript" src="http://code.jquery.com/qunit/git/qunit.js"></script>
-	<script type="text/javascript" src="../crafty-local.js"></script>
+	<script type="text/javascript" src="../crafty.js"></script>
 
 <script>
 $(document).ready(function() {
@@ -15,23 +15,21 @@ $(document).ready(function() {
 	test("saveAndLoadObject", function() {
 		Crafty.storage.open("MyGame");
 		Crafty.storage.save("LeaderBoard", "save", {name: "Matthew", score: 150});
-		console.log("111");
 		stop();
 		Crafty.storage.load("LeaderBoard", "save", function(lb) {
-			console.log("222");
-				equals(lb["name"], "Matthew");
+				equal(lb["name"], "Matthew");
 			start();
 		});
-		console.log("333");
 	});
 
 	test("saveAndLoadArray", function() {
+		console.log("Start saveAndLoadArrayTest");
 		Crafty.storage.open("MyGame1");
 		Crafty.storage.save("LeaderBoard", "save", [{name: "Matthew", score: 150}, {name: "Louis", score: 17}]);
 		stop();
 		Crafty.storage.load("LeaderBoard", "save", function(lb) {
-			equals(lb[1]["name"], "Louis");
-			equals(lb.length, 2);
+			equal(lb[1]["name"], "Louis");
+			equal(lb.length, 2);
 			start();
 		});
 	});
@@ -44,7 +42,7 @@ $(document).ready(function() {
 			console.log(hero);
 			ok(hero.__c["2D"]);
 			ok(hero.__c["DOM"])
-			equals(hero.x, 0, "Entity state is not saved");
+			equal(hero.x, 0, "Entity state is not saved");
 				start();
 		});
 	});
@@ -53,27 +51,28 @@ $(document).ready(function() {
 		Crafty.storage.open("MyGame3");
 		Crafty.storage.save("LeaderBoard", "save", {name: "Matthew", score: 150});
 
-
 		Crafty.storage.open("MyGame4");
 		Crafty.storage.save("LeaderBoard", "save", {name: "Louis", score: 150});
 
 		stop();
 		Crafty.storage.load("LeaderBoard", "save", function(lb) {
-			equals(lb["name"], "Louis");
+			equal(lb["name"], "Louis");
 			start();
 		});
 
-		stop(500);
-		Crafty.storage.open("MyGame3");
-		Crafty.storage.load("LeaderBoard", "save", function(lb) {
-			equals(lb["name"], "Matthew");
-			start();
-		});
+		stop();
+		setTimeout(function(){
+			Crafty.storage.open("MyGame3");
+			Crafty.storage.load("LeaderBoard", "save", function(lb) {
+				equal(lb["name"], "Matthew");
+				start();
+			});
+		}, 500);
 	})
 
 });
 </script>
-  
+
 </head>
 <body>
 <h1 id="qunit-header">Crafty: Core</h1>
