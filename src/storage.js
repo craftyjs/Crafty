@@ -228,14 +228,23 @@ Crafty.storage = (function() {
    function saveExternal(key, data, ts) {
       if (1 && typeof url == "undefined") return;
 
-      Pouch.replicate(dbs.save, url);
+      Pouch.replicate(dbs.save, url, function(err, changes) {});
    }
 
    function openExternal() {
       // Synchronizes the remote saves on the server with the local saves
       if (1 && typeof url == "undefined") return;
 
-      Pouch.replicate(url, dbs.save);
+      loadExternal();
+   }
+
+   function loadExternal(callback) {
+      if (1 && typeof url == "undefined") return;
+      Pouch.replicate(url, dbs.save, function(err, changes) {
+         if (typeof(callback) === 'function') {
+            callback(err, changes);
+         }
+      });
    }
 
    // open(gameName)
@@ -250,35 +259,29 @@ Crafty.storage = (function() {
    // Init and load the local PouchDB 'save' and 'cache'
 
    function createStores() {
-      console.log("Start createStores "+gameName);
       dbs = {
          save: null,
          cache: null
       };
 
       // Create the save and cache pouches
-      Pouch(gameName+'-save', function(err, db) {
+      Pouch(gameName + '-save', function(err, db) {
          dbs.save = db;
-         console.log("End create Save "+gameName);
       });
 
-      Pouch(gameName+'-cache', function(err, db) {
+      Pouch(gameName + '-cache', function(err, db) {
          dbs.cache = db;
-         console.log("End create Cache "+gameName);
       });
-      console.log("End CreateStores "+gameName);
    }
 
    var open = function(gameName_n) {
-      console.log("Start open "+gameName_n);
-      if(isSaving){
-         setTimeout(open(gameName_n),1);
+      if (isSaving) {
+         setTimeout(open(gameName_n), 1);
       }
       gameName = gameName_n;
       createStores();
       getTimestamps();
       openExternal();
-      console.log("End Open "+gameName_n);
    }
 
    var save = function(key, type, data) {
@@ -301,13 +304,11 @@ Crafty.storage = (function() {
          };
 
          // Only update the _rev field if an existing doc exists
-         if(doc){
+         if (doc) {
             newDoc._rev = doc._rev;
          }
 
          dbs[type].put(newDoc, function(err, response) {
-            console.log("End Save "+gameName);
-            console.log(response);
 
             isSaving = false;
             if (type == 'save') {
@@ -318,71 +319,62 @@ Crafty.storage = (function() {
       });
    }
 
-var load = function(key, type, callback) {
+   var load = function(key, type, callback) {
 
-   // All loading is blocked until the db is initialised and no saving is in progress
-   if (dbs === null || dbs[type] === null || isSaving) {
-      console.log("load timeout "+gameName);
-      setTimeout(function() {
-         Crafty.storage.load(key, type, callback);
-      }, 1);
-      return;
-   }
-
-   console.log("Start load "+gameName);
-   dbs[type].allDocs({}, function(err, docs){
-      console.log(docs);
-      dbs[type].get(key, function(err, doc) {
-         console.log(err);
-         console.log(doc);
-         console.log(unserialize(doc.data));
-         callback(unserialize(doc.data));
-      });
-   })
-
-   // dbs[type].get(key, function(err, doc) {
-   //    console.log(err);
-   //    console.log(doc);
-   //    console.log(unserialize(doc.data));
-   //    callback(unserialize(doc.data));
-   // });
-}
-
-var allDocs = function(type, callback) {
-   if (dbs === null || dbs[type] === null) {
-      setTimeout(function() {
-         allDocs(type, callback);
-      }, 1);
-      return;
-   }
-
-   dbs[type].allDocs({
-      include_docs: true
-   }, function(err, response) {
-      callback(response["rows"]);
-   });
-}
-
-var getAllKeys = function(type, callback) {
-   allDocs(type, function(docs) {
-      var keys = [];
-      for (var i = 0; i < docs.length; i++) {
-         keys.push(docs[i]["key"]);
+      // All loading is blocked until the db is initialised and no saving is in progress
+      if (dbs === null || dbs[type] === null || isSaving) {
+         setTimeout(function() {
+            Crafty.storage.load(key, type, callback);
+         }, 1);
+         return;
       }
-      callback(keys);
-   })
-}
 
-var check = function(key, timestamp) {
-   return timestamps[key] > timestamp;
-}
+      loadExternal(
 
-return {
-   open: open,
-   save: save,
-   load: load,
-   getAllKeys: getAllKeys,
-   check: check,
-   external: external
-};
+      function() {
+         dbs[type].get(key, function(err, doc) {
+            callback(unserialize(doc.data));
+         });
+      });
+
+
+   }
+
+   var allDocs = function(type, callback) {
+      if (dbs === null || dbs[type] === null) {
+         setTimeout(function() {
+            allDocs(type, callback);
+         }, 1);
+         return;
+      }
+
+      dbs[type].allDocs({
+         include_docs: true
+      }, function(err, response) {
+         callback(response["rows"]);
+      });
+   }
+
+   var getAllKeys = function(type, callback) {
+      allDocs(type, function(docs) {
+         var keys = [];
+         for (var i = 0; i < docs.length; i++) {
+            keys.push(docs[i]["key"]);
+         }
+         callback(keys);
+      })
+   }
+
+   var check = function(key, timestamp) {
+      return timestamps[key] > timestamp;
+   }
+
+   return {
+      open: open,
+      save: save,
+      load: load,
+      getAllKeys: getAllKeys,
+      check: check,
+      external: external
+   };
 })();
