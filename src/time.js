@@ -7,13 +7,13 @@ Crafty.c("Delay", {
 		this._delays = [];
 		this.bind("EnterFrame", function() {
 			var now = new Date().getTime();
-			for (var index = 0; index < this._delays.length; index++) {
+			var index = this._delays.length;
+			while (--index >= 0) {
 				var item = this._delays[index];
 				if(item.start + item.delay + item.pause < now) {
 					item.func.call(this);
 					// remove item from array
 					this._delays.splice(index,1);
-					index--;
 				}
 			}
 		});
