@@ -422,6 +422,41 @@ Crafty.extend({
 		 * on the stage.
          */
         bounds:null,
+		
+		/**@
+         * #Crafty.viewport.moveTo
+         * @comp Crafty.viewport
+         * @sign Crafty.viewport.moveTo(Number x, Number y)
+         * @param x - The new absolute position on the horizontal axis
+         * @param y - The new absolute position on the vertical axis
+         *
+         * Will move the viewport to the new position
+         */
+		moveTo: function (x, y) {		
+            var new_x = Math.floor(x),
+				new_y = Math.floor(y),
+				dx = new_x - this['_x'],
+                dy = new_y - this['_y'],
+				context = Crafty.canvas.context,
+                style = Crafty.stage.inner.style,
+                canvas;
+
+            //update viewport and DOM scroll
+			if (dx !== 0) {
+				this._x = new_x;			
+				style.left = new_x + 'px';
+			}
+			if (dy !== 0) {
+				this._y = new_y;
+				style.top = new_y + 'px';				
+			}
+			
+			//only redraw if there was some movement
+			if (context && (dx !== 0 || dy !== 0)) {
+				context.translate(dx, dy);				
+				Crafty.DrawManager.drawAll();
+			}			
+		},
 
         /**@
          * #Crafty.viewport.scroll
