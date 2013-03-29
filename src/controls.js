@@ -36,7 +36,28 @@ Crafty.extend({
 
 		Crafty.selected = selected;
 	},
-
+	/**@
+	* #Crafty.mouseDispatch
+	* @category Input
+	*
+	* Internal method which dispatches mouse events received by Crafty (crafty.stage.elem).
+	* The mouse events get dispatched to the closest entity to the source of the event (if available).
+	* 
+	* This method also sets a global property Crafty.lastEvent, which holds the most recent event that 
+	* occured (useful for determining mouse position in every frame).
+	* ~~~
+	* var newestX = Crafty.lastEvent.realX,
+	* 	  newestY = Crafty.lastEvent.realY;
+	* ~~~
+	*
+	* Notable properties of a MouseEvent e:
+	* ~~~
+	* e.clientX, e.clientY	//(x,y) coordinates of mouse event in web browser screen space
+	* e.realX, e.realY		//(x,y) coordinates of mouse event in world/viewport space
+	* e.mouseButton			// Normalized mouse button according to Crafty.mouseButtons
+	* ~~~
+	* @see Crafty.touchDispatch
+	*/
 	mouseDispatch: function (e) {
 		
 		if (!Crafty.mouseObjs) return;
