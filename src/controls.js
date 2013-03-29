@@ -370,6 +370,7 @@ Crafty.bind("CraftyStop", function () {
 *        console.log("Clicked right button");
 * })
 * ~~~
+* @see Crafty.mouseDispatch
 */
 Crafty.c("Mouse", {
 	init: function () {
