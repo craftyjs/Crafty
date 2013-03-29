@@ -24,12 +24,6 @@
     *   Crafty(1)
     * ~~~
     * Passing an integer will select the entity with that `ID`.
-    *
-    * Finding out the `ID` of an entity can be done by returning the property `0`.
-    * ~~~
-    *    var ent = Crafty.e("2D");
-    *    ent[0]; //ID
-    * ~~~
     */
     var Crafty = function (selector) {
         return new Crafty.fn.init(selector);
@@ -371,6 +365,26 @@
 
             this.trigger("RemoveComponent", id);
             return this;
+        },
+
+        /**@
+        * #.getId
+        * @comp Crafty Core
+        * @sign public Number .getId(void)
+        * Returns the ID of this entity.
+        *
+        * For better performance, simply use the this[0] property.
+        * 
+        * @example
+        * Finding out the `ID` of an entity can be done by returning the property `0`.
+        * ~~~
+        *    var ent = Crafty.e("2D");
+        *    ent[0]; //ID
+        *    ent.getId(); //also ID
+        * ~~~
+        */
+        getId: function () {
+        	return this[0];
         },
 
         /**@
