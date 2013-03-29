@@ -22,7 +22,8 @@
 		this.map = {};
 	},
 
-	SPACE = " ";
+	SPACE = " ",
+	keyHolder ={};
 
 	HashMap.prototype = {
 	/**@
@@ -49,7 +50,7 @@
 			for (i = keys.x1; i <= keys.x2; i++) {
 				//insert into all y buckets
 				for (j = keys.y1; j <= keys.y2; j++) {
-					hash = i + SPACE + j;
+					hash = (i << 16)^j;
 					if (!this.map[hash]) this.map[hash] = [];
 					this.map[hash].push(obj);
 				}
@@ -69,10 +70,10 @@
     * - If `filter` is `true`, filter the above results by checking that they actually overlap `rect`.
     * The easier usage is with `filter`=`true`. For performance reason, you may use `filter`=`false`, and filter the result yourself. See examples in drawing.js and collision.js
 	*/
+
 		search: function (rect, filter) {
-			var keys = HashMap.key(rect),
-			i, j,
-			hash,
+			var keys = HashMap.key(rect, keyHolder ),
+			i, j,k,
 			results = [];
 
 			if (filter === undefined) filter = true; //default filter to true
@@ -81,11 +82,11 @@
 			for (i = keys.x1; i <= keys.x2; i++) {
 				//insert into all y buckets
 				for (j = keys.y1; j <= keys.y2; j++) {
-					hash = i + SPACE + j;
-
-					if (this.map[hash]) {
-						results = results.concat(this.map[hash]);
-					}
+					cell = this.map[(i << 16)^j];
+					if (cell) {
+                        for (k = 0; k<cell.length; k++)
+                            results.push(cell[k])
+					}	
 				}
 			}
 
@@ -132,19 +133,18 @@
 
 			if (arguments.length == 1) {
 				obj = keys;
-				keys = HashMap.key(obj);
+				keys = HashMap.key(obj, keyHolder);
 			}
 
 			//search in all x buckets
 			for (i = keys.x1; i <= keys.x2; i++) {
 				//insert into all y buckets
 				for (j = keys.y1; j <= keys.y2; j++) {
-					hash = i + SPACE + j;
+					hash = (i << 16)^j;
 
 					if (this.map[hash]) {
 						var cell = this.map[hash],
-						m,
-						n = cell.length;
+						 m, n = cell.length;
 						//loop over objs in cell and delete
 						for (m = 0; m < n; m++)
 							if (cell[m] && cell[m][0] === obj[0])
@@ -153,6 +153,58 @@
 				}
 			}
 		},
+
+	/**@
+	* #Crafty.map.refresh
+	* @comp Crafty.map
+	* @sign public void Crafty.map.remove(Entry entry)
+	* @param entry - An entry to update
+	* 
+	* Refresh an entry's keys, and its position in the broad phrase map.
+	*
+	* @example 
+	* ~~~
+	* Crafty.map.refresh(e);
+	* ~~~
+	*/
+		refresh: function(entry) {
+				var keys = entry.keys;
+				var obj = entry.obj;
+				var cell, i, j, m, n;
+
+				//First delete current object from appropriate cells
+				for (i = keys.x1; i <= keys.x2; i++) {
+					for (j = keys.y1; j <= keys.y2; j++) {
+						cell = this.map[(i << 16)^j];
+						if (cell) {
+							n = cell.length;
+							//loop over objs in cell and delete
+							for (m = 0; m < n; m++)
+								if (cell[m] && cell[m][0] === obj[0])
+									cell.splice(m, 1);
+						}
+					}
+				}
+
+				//update keys
+				HashMap.key(obj, keys);
+
+				//insert into all rows and columns
+				for (i = keys.x1; i <= keys.x2; i++) {
+					for (j = keys.y1; j <= keys.y2; j++) {
+						cell = this.map[(i << 16)^j];
+						if (!cell) cell=this.map[(i << 16)^j] = [];
+						cell.push(obj);
+					}
+				}
+
+			return entry;
+		},
+
+
+
+
+		
 
 	/**@
 	* #Crafty.map.boundaries
@@ -189,9 +241,9 @@
 				if (!this.map[h].length) continue;
 
         //broad phase coordinate
-				var map_coord = h.split(SPACE),
-					i=map_coord[0],
-					j=map_coord[0];
+				var i= h>>16,
+					j=(h<<16)>>16;
+				if (j<0) { i = i^-1 }
 				if (i >= hash.max.x) {
 					hash.max.x = i;
 					for (k in this.map[h]) {
@@ -257,15 +309,19 @@
     * 
     * @see Crafty.HashMap.constructor
 	*/
-	HashMap.key = function (obj) {
-		if (obj.hasOwnProperty('mbr')) {
-			obj = obj.mbr();
+	HashMap.key = function (obj, keys) {
+		if (obj._mbr) {
+			obj = obj._mbr
 		}
-		var x1 = Math.floor(obj._x / cellsize),
-		y1 = Math.floor(obj._y / cellsize),
-		x2 = Math.floor((obj._w + obj._x) / cellsize),
-		y2 = Math.floor((obj._h + obj._y) / cellsize);
-		return { x1: x1, y1: y1, x2: x2, y2: y2 };
+		if (!keys){
+			keys = {}
+		}
+
+		keys.x1 = Math.floor(obj._x / cellsize);
+		keys.y1 = Math.floor(obj._y / cellsize);
+		keys.x2 = Math.floor((obj._w + obj._x) / cellsize);
+		keys.y2 = Math.floor((obj._h + obj._y) / cellsize);
+		return keys;
 	};
 
 	HashMap.hash = function (keys) {
@@ -276,15 +332,13 @@
 		this.keys = keys;
 		this.map = map;
 		this.obj = obj;
-	}
+	};
 
 	Entry.prototype = {
 		update: function (rect) {
 			//check if buckets change
-			if (HashMap.hash(HashMap.key(rect)) != HashMap.hash(this.keys)) {
-				this.map.remove(this.keys, this.obj);
-				var e = this.map.insert(this.obj);
-				this.keys = e.keys;
+			if (HashMap.hash(HashMap.key(rect, keyHolder)) != HashMap.hash(this.keys)) {
+					this.map.refresh(this)
 			}
 		}
 	};
