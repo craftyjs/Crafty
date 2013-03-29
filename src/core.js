@@ -1060,6 +1060,7 @@
 
             entities[id] = null; //register the space
             entities[id] = craft = Crafty(id);
+            craft._id = id;
 
             if (arguments.length > 0) {
                 craft.addComponent.apply(craft, arguments);
