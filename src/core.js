@@ -219,7 +219,7 @@
         */
         addComponent: function (id) {
             var uninit = [], c = 0, ul, //array of components to init
-            i = 0, l, comps;
+            i = 0, l, comps, comp;
 
             //add multiple arguments
             if (arguments.length > 1) {
@@ -254,7 +254,7 @@
                 }
             }
 
-            this.trigger("NewComponent", ul);
+            this.trigger("NewComponent", uninit);
             return this;
         },
 
@@ -489,6 +489,8 @@
         *
         * Events are arbitrary and provide communication between components.
         * You can trigger or bind an event even if it doesn't exist yet.
+        *
+        * Unlike DOM events, Crafty events are exectued synchronously.
         * 
         * @example
         * ~~~
@@ -504,6 +506,9 @@
         * @see .trigger, .unbind
         */
         bind: function (event, callback) {
+        
+            // (To learn how the handlers object works, see inline comment at Crafty.bind)
+
             //optimization for 1 entity
             if (this.length === 1) {
                 if (!handlers[event]) handlers[event] = {};
@@ -539,6 +544,7 @@
         * @see .bind, .trigger
         */
         unbind: function (event, callback) {
+            // (To learn how the handlers object works, see inline comment at Crafty.bind)
             this.each(function () {
                 var hdl = handlers[event], i = 0, l, current;
                 //if no events, cancel
@@ -576,8 +582,11 @@
         *
         * The first argument is the event name to trigger and the optional
         * second argument is the arbitrary event data. This can be absolutely anything.
+        *
+        * Unlike DOM events, Crafty events are exectued synchronously.
         */
         trigger: function (event, data) {
+            // (To learn how the handlers object works, see inline comment at Crafty.bind)
             if (this.length === 1) {
                 //find the handlers assigned to the event and entity
                 if (handlers[event] && handlers[event][this[0]]) {
@@ -793,6 +802,7 @@
         stop: function (clearState) {
         	this.timer.stop();
         	if (clearState) {
+        	    Crafty.audio.remove();
         		if (Crafty.stage && Crafty.stage.elem.parentNode) {
         			var newCrStage = document.createElement('div');
         			newCrStage.id = "cr-stage";
@@ -1050,6 +1060,7 @@
 
             entities[id] = null; //register the space
             entities[id] = craft = Crafty(id);
+            craft._id = id;
 
             if (arguments.length > 0) {
                 craft.addComponent.apply(craft, arguments);
@@ -1125,6 +1136,7 @@
         * @see Crafty.bind
         */
         trigger: function (event, data) {
+            // (To learn how the handlers object works, see inline comment at Crafty.bind)
             var hdl = handlers[event], h, i, l;
             //loop over every object bound
             for (h in hdl) {
@@ -1158,6 +1170,26 @@
         * @see Crafty.trigger, Crafty.unbind
         */
         bind: function (event, callback) {
+            
+            // Background: The structure of the global object "handlers"
+            // ---------------------------------------------------------
+            // Here is an example of what "handlers" can look like:
+            // handlers ===
+            //    { Move:  {5:[fnA], 6:[fnB, fnC], global:[fnD]},
+            //     Change: {6:[fnE]}
+            //    }
+            // In this example, when the 'Move' event is triggered on entity #6 (e.g.
+            // entity6.trigger('Move')), it causes the execution of fnB() and fnC(). When
+            // the Move event is triggered globally (i.e. Crafty.trigger('Move')), it
+            // will execute fnA, fnB, fnC, fnD.
+            // 
+            // In this example, "this" is bound to entity #6 whenever fnB() is executed, and
+            // "this" is bound to Crafty whenever fnD() is executed.
+            //
+            // In other words, the structure of "handlers" is:
+            //
+            // handlers[event][entityID or 'global'] === (Array of callback functions)
+
             if (!handlers[event]) handlers[event] = {};
             var hdl = handlers[event];
 
@@ -1177,6 +1209,7 @@
         * Unbind any event from any entity or global event.
         */
         unbind: function (event, callback) {
+            // (To learn how the handlers object works, see inline comment at Crafty.bind)
             var hdl = handlers[event], h, i, l;
 
             //loop over every object bound
