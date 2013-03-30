@@ -247,7 +247,19 @@ Crafty.extend({
 	* Unicode of the key pressed
 	*/
 	keyboardDispatch: function (e) {
-		e.key = e.keyCode || e.which;
+		// Use a Crafty-standard event object to avoid cross-browser issues
+		var original = e,
+			evnt = {},
+			props = "char charCode keyCode type shiftKey ctrlKey metaKey timestamp".split(" ");
+		for (var i = props.length; i;) {
+			var prop = props[--i];
+			evnt[prop] = original[prop];
+		}
+		evnt.which = original.charCode != null ? original.charCode : original.keyCode;
+		evnt.key = original.keyCode || original.which;
+		evnt.originalEvent = original;
+		e = evnt;
+
 		if (e.type === "keydown") {
 			if (Crafty.keydown[e.key] !== true) {
 				Crafty.keydown[e.key] = true;
