@@ -1028,8 +1028,10 @@ Crafty.extend({
                 Crafty.stage.elem.style.height = h + "px";
 
                 if (Crafty.canvas._canvas) {
+                    Crafty.canvas.context.translate(-this._x, -this._y);
                     Crafty.canvas._canvas.width = w;
                     Crafty.canvas._canvas.height = h;
+					Crafty.canvas.context.translate(this._x, this._y);
                     Crafty.DrawManager.drawAll();
                 }
             }
