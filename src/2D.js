@@ -71,16 +71,32 @@ Crafty.c("2D", {
 	* A higher `z` value will be closer to the front of the stage. A smaller `z` value will be closer to the back.
 	* A global Z index is produced based on its `z` value as well as the GID (which entity was created first).
 	* Therefore entities will naturally maintain order depending on when it was created if same z value.
+	*
+	* `z` is required to be an integer, e.g. `z=11.2` is not allowed.
 	* @see ._attr
 	*/
 	_z: 0,
 	/**@
 	* #.rotation
 	* @comp 2D
-	* Set the rotation of your entity. Rotation takes degrees in a clockwise direction.
-	* It is important to note there is no limit on the rotation value. Setting a rotation
-	* mod 360 will give the same rotation without reaching huge numbers.
-	* @see ._attr
+	* The rotation state of the entity, in clockwise degrees.
+	* `this.rotation = 0` sets it to its original orientation; `this.rotation = 10`
+	* sets it to 10 degrees clockwise from its original orientation;
+	* `this.rotation = -10` sets it to 10 degrees counterclockwise from its
+	* original orientation, etc.
+	* 
+	* When modified, will automatically be redrawn. Is actually a getter/setter
+	* so when using this value for calculations and not modifying it,
+	* use the `._rotation` property.
+	*
+	* `this.rotation = 0` does the same thing as `this.rotation = 360` or `720` or
+	* `-360` or `36000` etc. So you can keep increasing or decreasing the angle for continuous
+	* rotation. (Numerical errors do not occur until you get to millions of degrees.)
+	*
+	* The default is to rotate the entity around its (initial) top-left corner; use
+	* `.origin()` to change that.
+	*
+	* @see ._attr, .origin
 	*/
 	_rotation: 0,
 	/**@
