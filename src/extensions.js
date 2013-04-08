@@ -823,7 +823,7 @@ Crafty.extend({
          *
          * @see Crafty.device, Crafty.DOM, Crafty.stage
          */
-        init: function (w, h) {
+        init: function (w, h, stage_elem) {
             Crafty.DOM.window.init();
 
             //fullscreen if mobile or not specified
@@ -831,7 +831,16 @@ Crafty.extend({
             this.height = (!h || Crafty.mobile) ? Crafty.DOM.window.height : h;
 
             //check if stage exists
-            var crstage = document.getElementById("cr-stage");
+            if(typeof stage_elem === 'undefined')
+                stage_elem = "cr-stage";
+
+            var crstage;
+            if(typeof stage_elem === 'string')
+                crstage = document.getElementById(stage_elem);
+            else if(typeof HTMLElement !== "undefined" ? stage_elem instanceof HTMLElement : stage_elem instanceof Element)
+                crstage = stage_elem;
+            else
+                throw new TypeError("stage_elem must be a string or an HTMLElement");
 
             /**@
              * #Crafty.stage
@@ -906,7 +915,7 @@ Crafty.extend({
             //add to the body and give it an ID if not exists
             if (!crstage) {
                 document.body.appendChild(Crafty.stage.elem);
-                Crafty.stage.elem.id = "cr-stage";
+                Crafty.stage.elem.id = stage_elem;
             }
 
             var elem = Crafty.stage.elem.style,

@@ -770,8 +770,8 @@
         * Uses `requestAnimationFrame` to sync the drawing with the browser but will default to `setInterval` if the browser does not support it.
         * @see Crafty.stop,  Crafty.viewport
         */
-        init: function (w, h) {
-            Crafty.viewport.init(w, h);
+        init: function (w, h, stage_elem) {
+            Crafty.viewport.init(w, h, stage_elem);
 
             //call all arbitrary functions attached to onload
             this.trigger("Load");
@@ -813,7 +813,7 @@
         	    Crafty.audio.remove();
         		if (Crafty.stage && Crafty.stage.elem.parentNode) {
         			var newCrStage = document.createElement('div');
-        			newCrStage.id = "cr-stage";
+        			newCrStage.id = Crafty.stage.elem.id;
         			Crafty.stage.elem.parentNode.replaceChild(newCrStage, Crafty.stage.elem);
         		}
         		initState();
