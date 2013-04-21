@@ -7,13 +7,24 @@ Crafty.c("Delay", {
 		this._delays = [];
 		this.bind("EnterFrame", function() {
 			var now = new Date().getTime();
+      var prune = false;
 			for(var index in this._delays) {
 				var item = this._delays[index];
-				if(!item.triggered && item.start + item.delay + item.pause < now) {
+				if(item.start + item.delay + item.pause < now) {
 					item.triggered=true;
+          prune = true;
 					item.func.call(this);
 				}
 			}
+      if (prune) {
+        var new_delays = [];
+        for(var index in this._delays) {
+          var item = this._delays[index];
+          if (!item.triggered)
+            new_delays.push(item);
+        }
+        this._delays = new_delays;
+      }
 		});
 		this.bind("Pause", function() {
 			var now = new Date().getTime();
@@ -53,7 +64,7 @@ Crafty.c("Delay", {
 	* ~~~
 	*/
 	delay : function(func, delay) {
-		return this._delays.push({
+		this._delays.push({
 			start : new Date().getTime(),
 			func : func,
 			delay : delay,
@@ -61,5 +72,7 @@ Crafty.c("Delay", {
 			pauseBuffer: 0,
 			pause: 0
 		});
+
+    return this;
 	}
 });
