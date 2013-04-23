@@ -292,6 +292,16 @@ Crafty.extend({
     *
     * Callbacks are passed with event data.
     * 
+    * @example 
+    * Will add a stage-wide MouseDown event listener to the player. Will log which button was pressed
+    * & the (x,y) coordinates in viewport/world/game space.
+    * ~~~
+    * var player = Crafty.e("2D");
+    *     player.onMouseDown = function(e) {
+    *         console.log(e.mouseButton, e.realX, e.realY);
+    *     };
+    * Crafty.addEvent(player, Crafty.stage.elem, "mousedown", player.onMouseDown);
+    * ~~~
     * @see Crafty.removeEvent
     */
     addEvent: function (ctx, obj, type, callback) {
