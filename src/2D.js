@@ -289,6 +289,12 @@ Crafty.c("2D", {
 		this.bind("Remove", function () {
 			if (this._children) {
 				for (var i = 0; i < this._children.length; i++) {
+					// delete the child's _parent link, or else the child will splice itself out of
+					// this._children while destroying itself (which messes up this for-loop iteration).
+					delete this._children[i]._parent;
+					
+					// Destroy child if possible (It's not always possible, e.g. the polygon attached
+					// by areaMap has no .destroy(), it will just get garbage-collected.)
 					if (this._children[i].destroy) {
 						this._children[i].destroy();
 					}
@@ -564,12 +570,18 @@ Crafty.c("2D", {
 	* #.attach
 	* @comp 2D
 	* @sign public this .attach(Entity obj[, .., Entity objN])
-	* @param obj - Entity(s) to attach
-	* Attaches an entities position and rotation to current entity. When the current entity moves,
-	* the attached entity will move by the same amount. Attached entities stored in _children array,
-	* the parent object is stored in _parent on the child entities.
+	* @param obj - Child entity(s) to attach
+	* Sets one or more entities to be children, with the current entity (`this`)
+	* as the parent. When the parent moves or rotates, its children move or
+	* rotate by the same amount. (But not vice-versa: If you move a child, it
+	* will not move the parent.) When the parent is destroyed, its children are
+	* destroyed.
+	* 
+	* For any entity, `this._children` is the array of its children entity
+	* objects (if any), and `this._parent` is its parent entity object (if any).
 	*
-	* As many objects as wanted can be attached and a hierarchy of objects is possible by attaching.
+	* As many objects as wanted can be attached, and a hierarchy of objects is
+	* possible by attaching.
 	*/
 	attach: function () {
 		var i = 0, arg = arguments, l = arguments.length, obj;
