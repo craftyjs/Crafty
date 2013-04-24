@@ -1151,31 +1151,52 @@
         * @param callbackID - ID of the callback
         * @returns True or false depending on if a callback was unbound
         * Unbind any event from any entity or global event.
+        * @example
+        * ~~~
+        *    var play_gameover_sound = function () {...};
+        *    Crafty.bind('GameOver', play_gameover_sound);
+        *    ...
+        *    Crafty.unbind('GameOver', play_gameover_sound);
+        * ~~~
+        * 
+        * The first line defines a callback function. The second line binds that
+        * function so that `Crafty.trigger('GameOver')` causes that function to
+        * run. The third line unbinds that function.
+        *  
+        * ~~~
+        *    Crafty.unbind('GameOver');
+        * ~~~
+        * 
+        * This unbinds ALL global callbacks for the event 'GameOver'. That
+        * includes all callbacks attached by `Crafty.bind('GameOver', ...)`, but
+        * none of the callbacks attached by `some_entity.bind('GameOver', ...)`.
         */
         unbind: function (event, callback) {
             // (To learn how the handlers object works, see inline comment at Crafty.bind)
-            var hdl = handlers[event], h, i, l;
+            var hdl = handlers[event], i, l, global_callbacks, found_match;
 
-            //loop over every object bound
-            for (h in hdl) {
-                if (!hdl.hasOwnProperty(h)) continue;
-
-                //if passed the ID
-                if (typeof callback === "number") {
-                    delete hdl[h][callback];
-                    return true;
-                }
-
-                //loop over every handler within object
-                for (i = 0, l = hdl[h].length; i < l; i++) {
-                    if (hdl[h][i] === callback) {
-                        delete hdl[h][i];
-                        return true;
-                    }
-                }
+            if (hdl === undefined || hdl['global'] === undefined
+                                           || hdl['global'].length === 0) {
+                return false;
             }
 
-            return false;
+            // If no callback was supplied, delete everything
+            if (arguments.length === 1) {
+                delete hdl['global'];
+                return true;
+            }
+
+            // loop over the globally-attached events
+            global_callbacks = hdl['global'];
+            found_match = false;
+            for (i=0, l=global_callbacks.length; i < l; i++) {
+                if (global_callbacks[i] === callback) {
+                    found_match = true;
+                    global_callbacks.splice(i, 1);
+                    i--;
+                }
+            }
+            return found_match;
         },
 
         /**@
