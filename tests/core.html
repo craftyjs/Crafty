@@ -21,90 +21,93 @@
 
 <script>
 
-// These tests are NOT atomic / side-effect-free! They must be run in order!
-QUnit.config.reorder = false;
-
 $(document).ready(function() {
-	var first = Crafty.e("test");
-	Crafty.e("test");
-	Crafty.e("test");
-	Crafty.e("test");
-	
-	Crafty.e("test2");
-	Crafty.e("test2");
-	Crafty.e("test2");
-	Crafty.e("test2");
-	
-	Crafty.e("test, test2");
-	Crafty.e("test, test2");
-	Crafty.e("test, test2");
-	Crafty.e("test, test2");
-	
-	Crafty.c("comp", {
-		added: true
-	});
+	Crafty.init(500,500);
 	
 	module("CORE");
 		
 	test("selectors", function() {
-		equal( Crafty("test").length, 8, "Single component" );
-		equal( Crafty("test test2").length, 4, "Two components ANDed" );
-		equal( Crafty("test, test2").length, 12, "Two components ORed" );
+		var first = Crafty.e("test");
+		Crafty.e("test");
+		Crafty.e("test");
+		Crafty.e("test");
+		Crafty.e("test, test2");
+		Crafty.e("test, test2");
+		Crafty.e("test2");
+		strictEqual( Crafty("test").length, 6, "Single component" );
+		strictEqual( Crafty("test test2").length, 2, "Two components ANDed" );
+		strictEqual( Crafty("test, test2").length, 7, "Two components ORed" );
 		
-		equal( Crafty("*").length, 13, "All components - universal selector" );
+		strictEqual( Crafty("*").length, 7, "All components - universal selector" );
 		
-		equal( Crafty(1), first, "Get by ID" );
+		strictEqual( Crafty(first[0]), first, "Get by ID" );
+		// Clean up
+		Crafty("*").destroy();
 	});
 	
-	test("addComponent", function() {
+	test("addComponent and removeComponent", function() {
+		var first = Crafty.e("test");
+		Crafty.c("comp", {added: true});
 		first.addComponent("test3");
-		equal( first.has("test3"), true, "component added" );
+		strictEqual( first.has("test3"), true, "component added" );
 		
 		first.addComponent("comp");
-		equal( first.added, true, "component with property exists" );
+		strictEqual( first.added, true, "component with property exists" );
 		
 		first.addComponent("multi1, multi2");
-		equal( first.has("multi1") && first.has("multi2"), true, "multiple components added" );
-	});
-	
-	test("removeComponent", function() {
+		strictEqual( first.has("multi1") && first.has("multi2"), true, "multiple components added" );
+
 		first.removeComponent("test3");
-		equal( first.has("test3"), false, "component removed");
+		strictEqual( first.has("test3"), false, "component removed");
 		
 		first.removeComponent("comp");
-		equal( first.added && !first.has("comp"), true, "component not haz but properties remain" );
+		strictEqual( first.added && !first.has("comp"), true, "soft-removed component (properties remain)" );
+		first.removeComponent("comp", false);
+		strictEqual( !first.added && !first.has("comp"), true, "soft-removed component (properties remain)" );
+		// Clean up
+		Crafty("*").destroy();
 	});
 	
 	test("attr", function() {
+		var first = Crafty.e("test");
 		first.attr("single", true);
-		equal( first.single, true, "single attribute assigned" );
+		strictEqual( first.single, true, "single attribute assigned" );
 		
 		first.attr({prop: "test", another: 56});
-		equal( first.prop, "test", "properties from object assigned" );
-		equal( first.another, 56, "properties from object assigned" );
+		strictEqual( first.prop, "test", "properties from object assigned" );
+		strictEqual( first.another, 56, "properties from object assigned" );
+		// Clean up
+		Crafty("*").destroy();
 	});
 
-    test("setter", function() {
-        first.setter('p1', function(v) {this._p1 = v*2 });
-        first.p1 = 2;
-        equal(first._p1, 4, "single property setter");
+	test("setter", function() {
+		var first = Crafty.e("test");
+		first.setter('p1', function(v) {this._p1 = v*2 });
+		first.p1 = 2;
+		strictEqual(first._p1, 4, "single property setter");
 
-        first.setter('p2', function(v) {this._p2 = v*2 }).setter('p3', function(v) {this._p3 = v*2 });
-        first.p2 = 2;
-        first.p3 = 3;
-        equal(first._p2 + first._p3, 10, "two property setters");
-    });
+		first.setter('p2', function(v) {this._p2 = v*2 }).setter('p3', function(v) {this._p3 = v*2 });
+		first.p2 = 2;
+		first.p3 = 3;
+		strictEqual(first._p2 + first._p3, 10, "two property setters");
+		// Clean up
+		Crafty("*").destroy();
+	});
 	
-    test("bind", function () {
-    	var triggered = false;
-    	first.bind("myevent", function () {
-    		triggered = true;
-    	});
-    	first.trigger("myevent");
-    	equal(triggered, true, "custom event triggered");
-    });
+	test("bind", function () {
+		var first = Crafty.e("test"),
+			triggered = false;
+		first.bind("myevent", function () {
+			triggered = true;
+		});
+		first.trigger("myevent");
+		strictEqual(triggered, true, "custom event triggered");
+		// Clean up
+		Crafty("*").destroy();
+	});
 
 	test("unbind", function() {
+		var first = Crafty.e("test");
 		first.bind("myevent", function() {
 			ok(false, "This should not be triggered (unbinding all)");
 		});
@@ -123,42 +126,54 @@ $(document).ready(function() {
 		first.bind("myevent", callback2);
 		first.unbind("myevent", callback);
 		first.trigger("myevent");
+		// Clean up
+		Crafty("*").destroy();
 	});
 	
-    test("globalBindAndUnbind", function () {
-    	var flag = 0;
-    	var add_1 = function () {flag += 1;};
-    	var add_10 = function () {flag += 10;};
-    	var add_100 = function () {flag += 100;};
-    	Crafty.bind("theglobalevent", add_1);
-    	Crafty.bind("theglobalevent", add_10);
-    	Crafty.bind("theglobalevent", add_100);
-    	Crafty.trigger("theglobalevent");
-    	equal(flag, 111, "global event binding worked");
-    	Crafty.unbind("theglobalevent", add_1);
-    	Crafty.trigger("theglobalevent");
-    	equal(flag, 221, "global event single-function unbinding worked");
-    	Crafty.unbind("theglobalevent");
-    	Crafty.trigger("theglobalevent");
-    	equal(flag, 221, "global event full unbinding worked");
-    });
+	test("globalBindAndUnbind", function () {
+		var flag = 0;
+		var add_1 = function () {flag += 1;};
+		var add_10 = function () {flag += 10;};
+		var add_100 = function () {flag += 100;};
+		Crafty.bind("theglobalevent", add_1);
+		Crafty.bind("theglobalevent", add_10);
+		Crafty.bind("theglobalevent", add_100);
+		Crafty.trigger("theglobalevent");
+		strictEqual(flag, 111, "global event binding worked");
+		Crafty.unbind("theglobalevent", add_1);
+		Crafty.trigger("theglobalevent");
+		strictEqual(flag, 221, "global event single-function unbinding worked");
+		Crafty.unbind("theglobalevent");
+		Crafty.trigger("theglobalevent");
+		strictEqual(flag, 221, "global event full unbinding worked");
+	});
 	
 	test("each", function() {
 		var count = 0;
-		Crafty("test").each(function(i) {
-			count++;
-		});
-		equal(count, 8, "Iterated all elements with certain component");
-
-		var count = 0;
-		Crafty("*").each(function(i) {
-			count++;
-		});
-		equal(count, 12, "Iterated all elements");
+		Crafty.e("test");
+		Crafty.e("test");
+		Crafty.e("test");
+		Crafty.e("test");
+		Crafty.e("test, test2");
+		Crafty.e("test, test2");
+		Crafty.e("test2");
 		
+		Crafty("test").each(function() {
+			count++;
+		});
+		strictEqual(count, 6, "Iterated all elements with certain component");
+
+		count = 0;
+		Crafty("*").each(function() {
+			count++;
+		});
+		strictEqual(count, 7, "Iterated all elements");
+		// Clean up
+		Crafty("*").destroy();
 	});
 	
 	test("requires", function() {
+		var first = Crafty.e("test");
 		Crafty.c("already", {
 			already: true
 		});
@@ -171,67 +186,86 @@ $(document).ready(function() {
 		
 		first.requires("already, notyet");
 		
-		equal(first.already, "already", "Didn't overwrite property");
-		equal(first.notyet, true, "Assigned if didn't have");
+		strictEqual(first.already, "already", "Didn't overwrite property");
+		strictEqual(first.notyet, true, "Assigned if didn't have");
 		ok(first.has("already") && first.has("notyet"), "Both added");
+		// Clean up
+		Crafty("*").destroy();
 	});
 	
 	test("destroy", function() {
-		var id = first[0]; //id
+		var first = Crafty.e("test"),
+			id = first[0]; //id
 		first.destroy();
-		equal(Crafty(id).length, 0, "Not listed");
+		strictEqual(Crafty(id).length, 0, "Not listed");
+		// Clean up
+		Crafty("*").destroy();
 	});
 	
 	module("2D");
 	
 	Crafty.init(500,500);
-	var player = Crafty.e("2D, DOM, Color").attr({w:50, h: 50}).color("red");
 	
 	test("position", function() {
+		var player = Crafty.e("2D, DOM, Color").attr({w:50, h: 50}).color("red");
 		player.x += 50;
-		equal(player._x, 50, "X moved");
+		strictEqual(player._x, 50, "X moved");
 		
 		player.y += 50;
-		equal(player._y, 50, "Y moved");
+		strictEqual(player._y, 50, "Y moved");
 		
 		player.w += 50;
-		equal(player._w, 100, "Width increase");
+		strictEqual(player._w, 100, "Width increase");
 		
 		player.h += 50;
-		equal(player._h, 100, "Height increase");
+		strictEqual(player._h, 100, "Height increase");
 		
-		equal(player._globalZ, 13, "Global Z, Before");
+		strictEqual(player._globalZ, player[0], "Global Z, Before");
 		
 		player.z = 1;
-		equal(player._z, 1, "Z index");
+		strictEqual(player._z, 1, "Z index");
 		
-		equal(player._globalZ, 100013, "Global Z, After");
+		var global_z_guess;
+		if (player[0] < 10) {
+			global_z_guess = parseInt('10000' + player[0], 10);
+		} else {
+			global_z_guess = parseInt('1000' + player[0], 10);
+		}
+		strictEqual(player._globalZ, global_z_guess, "Global Z, After");
+		// Clean up
+		Crafty("*").destroy();
 	});
 	
 	test("intersect", function() {
+		var player = Crafty.e("2D, DOM, Color").attr({w:50, h: 50}).color("red");
 		player.x = 0;
 		player.y = 0;
 		player.w = 50;
 		player.h = 50;
 		
-		equal(player.intersect(0, 0, 100, 50), true, "Intersected");
+		strictEqual(player.intersect(0, 0, 100, 50), true, "Intersected");
 
-		equal(player.intersect({x: 0, y: 0, w: 100, h: 50}), true, "Intersected Again");
+		strictEqual(player.intersect({x: 0, y: 0, w: 100, h: 50}), true, "Intersected Again");
 
-		equal(player.intersect(100, 100, 100, 50), false, "Didn't intersect");
+		strictEqual(player.intersect(100, 100, 100, 50), false, "Didn't intersect");
+		// Clean up
+		Crafty("*").destroy();
 	});
 	
 	test("circle", function() {
+		var player = Crafty.e("2D, DOM, Color").attr({w:50, h: 50}).color("red");
 		var circle = new Crafty.circle(0, 0, 10);
 		
-		equal(circle.containsPoint(1, 2), true, "Contained the point");
-		equal(circle.containsPoint(8, 9), false, "Didn't contain the point");
+		strictEqual(circle.containsPoint(1, 2), true, "Contained the point");
+		strictEqual(circle.containsPoint(8, 9), false, "Didn't contain the point");
 		
 		circle.shift(1, 0);
 		
-		equal(circle.x, 1, "Shifted of one pixel on the x axis");
-		equal(circle.y, 0, "circle.y didn't change");
-		equal(circle.radius, 10, "circle.radius didn't change");
+		strictEqual(circle.x, 1, "Shifted of one pixel on the x axis");
+		strictEqual(circle.y, 0, "circle.y didn't change");
+		strictEqual(circle.radius, 10, "circle.radius didn't change");
+		// Clean up
+		Crafty("*").destroy();
 	});
 
 	test("child", function () {
@@ -249,17 +283,19 @@ $(document).ready(function() {
 		parent0.attach(child2);
 		parent0.attach(child3);
 		parent0.x += 50;
-		equal(child0._x, 51, 'child0 shifted when parent did');
-		equal(child1._x, 52, 'child1 shifted when parent did');
+		strictEqual(child0._x, 51, 'child0 shifted when parent did');
+		strictEqual(child1._x, 52, 'child1 shifted when parent did');
 		child0.x += 1;
 		child1.x += 1;
-		equal(parent0._x, 50, 'child shifts do not move the parent');
+		strictEqual(parent0._x, 50, 'child shifts do not move the parent');
 		child1.destroy();
 		deepEqual(parent0._children, [child0,child2,child3], 'child1 cleared itself from parent0._children when destroyed');
 		parent0.destroy();
-		equal(Crafty(child0_ID).length, 0, 'destruction of parent killed child0');
-		equal(Crafty(child2_ID).length, 0, 'destruction of parent killed child2');
-		equal(Crafty(child3_ID).length, 0, 'destruction of parent killed child3');
+		strictEqual(Crafty(child0_ID).length, 0, 'destruction of parent killed child0');
+		strictEqual(Crafty(child2_ID).length, 0, 'destruction of parent killed child2');
+		strictEqual(Crafty(child3_ID).length, 0, 'destruction of parent killed child3');
+		// Clean up
+		Crafty("*").destroy();
 	});
 
 	test("SAT", function () {
@@ -267,8 +303,10 @@ $(document).ready(function() {
 		var c1 = new Crafty.circle(100, 100, 10);
 		var c2 = new Crafty.circle(100, 105, 10);
 
-		equal((e._SAT(c1, c2).overlap < -18 && e._SAT(c1, c2).overlap > -19), true, "Expected overlap to be -18.47759")
-		console.log();
+		strictEqual((e._SAT(c1, c2).overlap < -18 && e._SAT(c1, c2).overlap > -19), true, "Expected overlap to be -18.47759");
+		console.log(e._SAT(c1, c2).overlap);
+		// Clean up
+		Crafty("*").destroy();
 	});
 });
 </script>
