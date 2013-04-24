@@ -17,9 +17,8 @@ Crafty.c("Delay", {
 						item.start = now;
 						item.pause = 0;
 						item.pauseBuffer = 0;
-						if (item.repeat !== Infinity)
-							item.repeat--;
-					} else if (item.repeat === 0) {
+						item.repeat--;
+					} else if (item.repeat <= 0) {
 						// remove item from array
 						this._delays.splice(index,1);
 					}
@@ -48,7 +47,7 @@ Crafty.c("Delay", {
 	* @param delay - Amount of milliseconds to execute the method
 	* @param repeat - How often to repeat the delayed function. A value of 0 triggers the delayed
 	* function exactly once. A value n > 0 triggers the delayed function exactly n+1 times. A
-	* value of Infinity triggers the delayed function indefinitely.
+	* value of -1 triggers the delayed function indefinitely.
 	* 
 	* The delay method will execute a function after a given amount of time in milliseconds.
 	* 
@@ -71,7 +70,7 @@ Crafty.c("Delay", {
 			start : new Date().getTime(),
 			func : func,
 			delay : delay,
-			repeat: repeat || 0,
+			repeat: ( repeat < 0 ? Infinity : repeat) || 0,
 			pauseBuffer: 0,
 			pause: 0
 		});
