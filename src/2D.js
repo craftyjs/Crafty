@@ -1000,8 +1000,8 @@ Crafty.polygon.prototype = {
 		for (; i < l; i++) {
 			current = this.points[i];
 
-			x = e.o.x + (current[0] - e.o.x) * e.cos + (current[1] - e.o.y) * e.sin;
-			y = e.o.y - (current[0] - e.o.x) * e.sin + (current[1] - e.o.y) * e.cos;
+			x = e.o.x + (current[0] - e.o.x) * e.cos - (current[1] - e.o.y) * e.sin;
+			y = e.o.y + (current[0] - e.o.x) * e.sin + (current[1] - e.o.y) * e.cos;
 
 			current[0] = x;
 			current[1] = y;
