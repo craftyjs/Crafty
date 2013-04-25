@@ -22,7 +22,7 @@ Crafty.c("Collision", {
         this.requires("2D");
         var area = this._mbr || this;
 
-        poly = new Crafty.polygon([0, 0], [area._w, 0], [area._w, area._h], [0, area._h]);
+        var poly = new Crafty.polygon([0, 0], [area._w, 0], [area._w, area._h], [0, area._h]);
         this.map = poly;
         this.attach(this.map);
         this.map.shift(area._x, area._y);
