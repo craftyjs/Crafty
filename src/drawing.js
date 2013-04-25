@@ -60,7 +60,7 @@ Crafty.c("Tint", {
 		var draw = function d(e) {
 			var context = e.ctx || Crafty.canvas.context;
 
-			context.fillStyle = this._color || "rgb(0,0,0)";
+			context.fillStyle = this._color || "rgba(0,0,0, 0)";
 			context.fillRect(e.pos._x, e.pos._y, e.pos._w, e.pos._h);
 		};
 
