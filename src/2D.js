@@ -363,7 +363,7 @@ Crafty.c("2D", {
 		this._mbr = { _x: minx, _y: miny, _w: maxx - minx, _h: maxy - miny };
 
 		//trigger rotation event
-		var difference = this._rotation - v,
+		var difference = v - this._rotation,
 			drad = difference * DEG_TO_RAD;
 
 		this.trigger("Rotate", {
@@ -737,7 +737,7 @@ Crafty.c("2D", {
 		this._origin.y = e.o.y - this._y;
 
 		//modify through the setter method
-		this._attr('_rotation', e.theta);
+		this._attr('_rotation', this._rotation + e.deg);
 	},
 
 	/**@
