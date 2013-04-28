@@ -298,6 +298,24 @@ $(document).ready(function() {
 		Crafty("*").destroy();
 	});
 
+	test("child_rotate", function () {
+		var parent = Crafty.e("2D, DOM, Color")
+			.attr({x:0, y:0, w:50, h:50, rotation:10})
+			.color("red");
+		var child = Crafty.e("2D, DOM, Color")
+			.attr({x:1, y:1, w:50, h:50, rotation:15})
+			.color("red");
+		parent.attach(child);
+		parent.rotation += 20;
+		strictEqual(parent.rotation, 30, 'parent rotates normally');
+		strictEqual(child.rotation, 35, 'child follows parent rotation');
+		child.rotation += 22;
+		strictEqual(parent.rotation, 30, 'parent ignores child rotation');
+		strictEqual(child.rotation, 57, 'child rotates normally');
+		// Clean up
+		Crafty("*").destroy();
+	});
+
 	test("SAT", function () {
 		var e = Crafty.e("2D, Collision");
 		var c1 = new Crafty.circle(100, 100, 10);
