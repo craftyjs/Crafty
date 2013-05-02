@@ -620,6 +620,7 @@
 
         /**@
         * #.each
+        * @comp Crafty Core
         * @sign public this .each(Function method)
         * @param method - Method to call on each iteration
         * Iterates over found entities, calling a function for every entity.
