@@ -814,12 +814,15 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.init
          * @comp Crafty.viewport
-         * @sign public void Crafty.viewport.init([Number width, Number height])
-         * @param width - Width of the viewport
-         * @param height - Height of the viewport
+         * @sign public void Crafty.viewport.init([Number width, Number height, String stage_elem])
+         * @sign public void Crafty.viewport.init([Number width, Number height, HTMLElement stage_elem])
+         * @param Number width - Width of the viewport
+         * @param Number height - Height of the viewport
+         * @param String or HTMLElement stage_elem - the element to use as the stage (either its id or the actual element).
          *
          * Initialize the viewport. If the arguments 'width' or 'height' are missing, or Crafty.mobile is true, use Crafty.DOM.window.width and Crafty.DOM.window.height (full screen model).
-         * Create a div with id `cr-stage`, if there is not already an HTMLElement with id `cr-stage` (by `Crafty.viewport.init`).
+         *
+         * The argument 'stage_elem' is used to specify a stage element other than the default, and can be either a string or an HTMLElement.  If a string is provided, it will look for an element with that id and, if none exists, create a div.  If an HTMLElement is provided, that is used directly.  Omitting this argument is the same as passing an id of 'cr-stage'.
          *
          * @see Crafty.device, Crafty.DOM, Crafty.stage
          */
