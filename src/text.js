@@ -20,14 +20,17 @@ Crafty.c("Text", {
 		"size": "",
 		"family": ""
 	},
+	defaultSize: "10px",
+	defaultFamily: "sans-serif",
 	ready: true,
 
 	init: function () {
 		this.requires("2D");
 
 		this.bind("Draw", function (e) {
-			var font = this._textFont["type"] + ' ' + this._textFont["weight"] + ' ' +
-				this._textFont["size"] + ' ' + this._textFont["family"];
+			var font = this._textFont["type"] + ' ' + this._textFont["weight"] + ' '
+			 	+ (this._textFont["size"] || this.defaultSize) + ' ' 
+				+ (this._textFont["family"] || this.defaultFamily);
 
 			if (e.type === "DOM") {
 				var el = this._element,
