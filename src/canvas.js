@@ -172,7 +172,7 @@ Crafty.extend({
 				return;
 			}
 
-			//create 3 empty canvas elements
+			//create an empty canvas element
 			var c;
 			c = document.createElement("canvas");
 			c.width = Crafty.viewport.width;
@@ -184,6 +184,11 @@ Crafty.extend({
 			Crafty.stage.elem.appendChild(c);
 			Crafty.canvas.context = c.getContext('2d');
 			Crafty.canvas._canvas = c;
+
+			//Set any existing transformations
+			var zoom = Crafty.viewport._zoom
+			if (zoom != 1)
+				Crafty.canvas.context.scale(zoom, zoom);
 		}
 	}
 });
