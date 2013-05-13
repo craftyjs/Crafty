@@ -724,6 +724,66 @@ Crafty.extend({
             }
         })(),
         /**@
+         * #Crafty.viewport.absoluteScale
+         * @comp Crafty.viewport
+         * @sign public void Crafty.viewport.absoluteScale(Number scaleFactor)
+         * @param Number scaleFactor - scale factor relative to original pixels (eg. 2, 4, 0.5)
+         *
+         * Scales the entire canvas by the given factor.
+         *   1.0 = entities render 1:1 between screen pixels and canvas coordinates
+         *   0.5 = entities render at half scale
+         *   2.0 = entities render at 2x scale
+         *
+         * Absolute scale is not cumulative. New scaleFactor will *replace* any previous scaling.
+         *
+         * @example
+         * ~~~
+         * Crafty.init();
+         * Crafty.canvas.init();
+         *
+         * var original = { w: Crafty.viewport.width, h: Crafty.viewport.height };
+         * var scaler = function() {
+         *   var current = { w: Crafty.viewport.width, h: Crafty.viewport.height };
+         *
+         *   // This will reset the scale when it adjusts the canvas element
+         *   // dimensions, so do it right before setting the scale we want.
+         *   Crafty.viewport.reload();
+         *
+         *   if ( current.w > current.h ) {
+         *     // Landscape, scale to fit height
+         *     Crafty.viewport.absoluteScale( current.h / original.h );
+         *   } else {
+         *     // Portrait, scale to fit width
+         *     Crafty.viewport.absoluteScale( current.w / original.w );
+         *   }
+         * };
+         *
+         * // Avoid drawing entities before we're ready to scale.
+         * Crafty.removeEvent( Crafty, window, 'resize', Crafty.viewport.reload );
+         *
+         * // Adjust scale to fit inside resized window.
+         * Crafty.addEvent( Crafty, window, 'resize', scaler );
+         *
+         * // Run the scaler after scene changes, since they reset the scale.
+         * Crafty.bind( 'SceneChange', scaler );
+         * ~~~
+         */
+        absoluteScale: function (scaleFactor) {
+            var ctx = Crafty.canvas.context;
+
+            // Clear entire canvas; scaling invalidates dirty rects and leaves artifacts behind.
+            ctx.save();
+            ctx.setTransform(1,0,0,1,0,0);
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.restore();
+
+            // Trick Crafty.viewport.scale into operating in absolute mode.
+            Crafty.stage.inner.style['transform'] =
+                Crafty.stage.inner.style[Crafty.support.prefix + "Transform"] = 'scale(1, 1)';
+            Crafty.viewport._zoom = 1;
+            Crafty.viewport.scale(scaleFactor);
+        },
+        /**@
          * #Crafty.viewport.mouselook
          * @comp Crafty.viewport
          * @sign public void Crafty.viewport.mouselook(Boolean active)
