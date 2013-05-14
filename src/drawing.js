@@ -318,6 +318,220 @@ Crafty.extend({
 	}
 });
 
+var DirtyRectangles = (function() {
+
+	function x1(rect) { return rect._x; }
+	function x2(rect) { return rect._x + rect._w; }
+	function y1(rect) { return rect._y; }
+	function y2(rect) { return rect._y + rect._h; }
+
+	function intersects(a, b) {
+		return x1(a) < x2(b) && x2(a) > x1(b) && y1(a) < y2(b) && y2(a) > y1(b);
+	}
+
+	var corner_data = {};
+
+	function reset_corner_data() {
+		corner_data.x1y1 = false;
+		corner_data.x1y2 = false;
+		corner_data.x2y1 = false;
+		corner_data.x2y2 = false;
+		corner_data.count = 0;
+	}
+
+	// Return the number of corners of b that are inside a.
+	// _cornersInside stores its results in _corner_data. This is safe to do
+	// since the only recursive call in this file is in tail position.
+	function corners_inside(a, b) {
+		reset_corner_data();
+
+		// The x1, y1 corner of b.
+		if (x1(b) >= x1(a) && x1(b) <= x2(a)) {
+
+			// The x1, y1 corner of b.
+			if (y1(b) >= y1(a) && y1(b) <= y2(a)) {
+				corner_data.x1y1 = true;
+				corner_data.count++;
+			}
+			// The x1, y2 corner of b
+			if (y2(b) >= y1(a) && y2(b) <= y2(a)) {
+				corner_data.x1y2 = true;
+				corner_data.count++;
+			}
+		}
+
+		if (x2(b) >= x1(a) && x2(b) <= x2(a)) {
+			// The x2, y1 corner of b.
+			if (y1(b) >= y1(a) && y1(b) <= y2(a)) {
+				corner_data.x2y1 = true;
+				corner_data.count++;
+			}
+			// The x2, y2 corner of b
+			if (y2(b) >= y1(a) && y2(b) <= y2(a)) {
+				corner_data.x2y2 = true;
+				corner_data.count++;
+			}
+		}
+
+		return corner_data.count;
+	}
+
+	// Shrink contained so that it no longer overlaps containing.
+	// Requires:
+	//   * Exactly two corners of contained are within containing.
+	//   * _cornersInside called for containing and contained.
+	function shrink_rect(containing, contained) {
+
+		// The x1, y1 and x2, y1 corner of contained.
+		if (corner_data.x1y1 && corner_data.x2y1) {
+			contained._h -= y2(containing) - y1(contained);
+			contained._y = y2(containing);
+			return;
+		}
+
+		// The x1, y1 and x1, y2 corner of contained.
+		if (corner_data.x1y1 && corner_data.x1y2) {
+			contained._w -= x2(containing) - x1(contained);
+			contained._x = x2(containing);
+			return;
+		}
+
+		// The x1, y2 and x2, y2 corner of contained.
+		if (corner_data.x1y2 && corner_data.x2y2) {
+			contained._h = y1(containing) - y1(contained);
+			return;
+		}
+
+		// The x2, y1 and x2, y2 corner of contained.
+		if (corner_data.x2y1 && corner_data.x2y2) {
+			contained._w = x1(containing) - x1(contained);
+			return;
+		}
+
+	}
+
+	// Enlarge `a` such that it covers `b` as well.
+	function merge_into(a, b) {
+		var newX2 = Math.max(x2(a), x2(b));
+		var newY2 = Math.max(y2(a), y2(b));
+
+		a._x = Math.min(a._x, b._x);
+		a._y = Math.min(a._y, b._y);
+
+		a._w = newX2 - a._x;
+		a._h = newY2 - a._y;
+	}
+
+	function DirtyRectangles() {
+		this.rectangles = [];
+	};
+
+	DirtyRectangles.prototype.add_rectangle = function(new_rect) {
+		var _this = this;
+
+		var indices_to_delete = [];
+
+		function delete_indices() {
+			var i, index;
+			for (i = 0; i < indices_to_delete.length; i++) {
+				index = indices_to_delete[i];
+				_this.rectangles.splice(index, 1);
+			}
+		}
+
+		var index, rect, corners, indices_to_delete;
+
+		for (index = 0; index < this.rectangles.length; index++) {
+			rect = this.rectangles[index];
+
+			if (intersects(new_rect, rect)) {
+				corners = corners_inside(rect, new_rect);
+				switch (corners) {
+					case 4:
+						// If 4 corners of new_rect lie within rect, we can discard
+						// new_rect.  We shouldn't have found any rectangles to delete,
+						// because if a rectangle in the list is contained within
+						// new_rect, and new_rect is contained with rect, then there are
+						// overlapping rectangles in the list.
+						if (indices_to_delete.length > 0)
+							console.error("Dirty rectangle bug");
+						return;
+					case 3:
+						console.error("Impossible corner count");
+						return;
+					case 2:
+						// Shrink new_rect to not overlap rect.
+						shrink_rect(rect, new_rect);
+						break;
+					case 1:
+						corners = corners_inside(new_rect, rect);
+						switch (corners) {
+							case 1:
+								// Merge the two rectangles.
+								merge_into(rect, new_rect);
+								// TODO: Must remove rect and re-insert it.
+								indices_to_delete.unshift(index);
+								delete_indices();
+								_this.add_rectangle(rect);
+								return;
+							case 2:
+								// This case looks like this:
+								// +--------+=========+----------+
+								// |rect    |         |          |
+								// |        |         |          |
+								// +--------+---------+ new_rect |
+								//          +--------------------+
+								// Note how new_rect has 1 corner in rect, while
+								// rect has 2 corners in new_rect.
+								//
+								// Obviously, we shrink rect to not overlap new_rect.
+								shrink_rect(new_rect, rect);
+								break;
+							case 4:
+								// This case occurs when new_rect and rect have 1 corner in common,
+								// but rect lies entirely within new_rect.
+								// We delete rect, since new_rect encompasses it, and continue with
+								// insertion normally.
+								indices_to_delete.unshift(index);
+								break;
+							default:
+								console.error("Dirty rectangle bug");
+						}
+						break;
+					case 0:
+						// No corners of new_rect are inside rect. Instead, see how many
+						// corners of rect are inside new_rect
+						corners = corners_inside(new_rect, rect);
+						switch (corners) {
+							case 4:
+								// Delete rect, continue with insertion of new_rect
+								indices_to_delete.unshift(index);
+								break;
+							case 3:
+								console.error("Impossible corner count");
+								return;
+							case 2:
+								// Shrink rect to not overlap new_rect, continue with insertion.
+								shrink_rect(new_rect, rect);
+								break;
+							case 1:
+								// This should be impossible, the earlier case of 1 corner overlapping
+								// should have been triggered.
+								console.error("Impossible corner count");
+								return;
+						}
+				}
+			}
+		}
+
+		delete_indices();
+		this.rectangles.push(new_rect);
+	};
+
+	return DirtyRectangles;
+
+})();
+
 /**@
 * #Crafty.DrawManager
 * @category Graphics
@@ -364,42 +578,11 @@ Crafty.DrawManager = (function () {
 		* Its an optimization for the redraw regions.
 		*/
 		merge: function (set) {
-			do {
-				var newset = [], didMerge = false, i = 0,
-					l = set.length, current, next, merger;
-
-				while (i < l) {
-					current = set[i];
-					next = set[i + 1];
-
-					if (i < l - 1 && current._x < next._x + next._w && current._x + current._w > next._x &&
-									current._y < next._y + next._h && current._h + current._y > next._y) {
-
-						merger = {
-							_x: ~~Math.min(current._x, next._x),
-							_y: ~~Math.min(current._y, next._y),
-							_w: Math.max(current._x, next._x) + Math.max(current._w, next._w),
-							_h: Math.max(current._y, next._y) + Math.max(current._h, next._h)
-						};
-						merger._w = merger._w - merger._x;
-						merger._h = merger._h - merger._y;
-						merger._w = (merger._w == ~~merger._w) ? merger._w : merger._w + 1 | 0;
-						merger._h = (merger._h == ~~merger._h) ? merger._h : merger._h + 1 | 0;
-
-						newset.push(merger);
-
-						i++;
-						didMerge = true;
-					} else newset.push(current);
-					i++;
-				}
-
-				set = newset.length ? Crafty.clone(newset) : set;
-
-				if (didMerge) i = 0;
-			} while (didMerge);
-
-			return set;
+			var dr = new DirtyRectangles();
+			for (var i = 0, new_rect; new_rect = set[i]; i++) {
+				dr.add_rectangle(new_rect);
+			}
+			return dr.rectangles;
 		},
 
 		/**@
