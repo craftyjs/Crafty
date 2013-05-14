@@ -336,7 +336,7 @@ Crafty.DrawManager = (function () {
 				obj.staleRect._w = obj._w;
 				obj.staleRect._h = obj._h;
 
-				obj._dirtyFlag = false
+				obj._changed = false
             }
             changed_objs.length = 0;
             dirty_rects.length = 0
@@ -557,8 +557,6 @@ Crafty.DrawManager = (function () {
 			//do the naive method redrawing
 			// TODO: I'm not sure this condition really makes that much sense!
 			if (l / this.total2D > 0.6 ) {
-				console.log("numbers: " + l + "  | "  + this.total2D )
-
 				this.drawAll();
 				rectManager.clean()
 				return;

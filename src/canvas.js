@@ -25,14 +25,13 @@ Crafty.c("Canvas", {
 		Crafty.DrawManager.total2D++;
 		//Allocate an object to hold this components current region
 		this.currentRect = {};
-		this._dirtyFlag = true;
+		this._changed = true;
 		Crafty.DrawManager.addCanvas(this);
 
 		this.bind("Change", function (e) {
 			//flag if changed
-			this._changed = true
-			if (this._dirtyFlag === false){
-				this._dirtyFlag = true;
+			if (this._changed === false){
+				this._changed = true;
 				Crafty.DrawManager.addCanvas(this);
 			}
 			
@@ -41,7 +40,7 @@ Crafty.c("Canvas", {
 
 		this.bind("Remove", function () {
 			Crafty.DrawManager.total2D--;
-			this._dirtyFlag = true;
+			this._changed = true;
 			Crafty.DrawManager.addCanvas(this);
 		});
 	},
