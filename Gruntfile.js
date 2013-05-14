@@ -1,12 +1,20 @@
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
-    // Project configuration.
+    var banner =    '/*! <%= pkg.name %> <%= pkg.version %>\n' +
+                    ' * <%= pkg.author.url %>\n *\n' +
+                    ' * Copyright <%= grunt.template.today("yyyy") %>, <%= pkg.author.name %>\n' +
+                    ' * Dual licensed under the MIT or GPL licenses.\n' +
+                    ' */\n\n';
+
+        // Project configuration.
     grunt.initConfig({
-        pkg:    grunt.file.readJSON('package.json'),
+
+        pkg: grunt.file.readJSON('package.json'),
 
         concat: {
             options: {
-                separator: '\n'
+                separator: '\n',
+                banner: banner
             },
             dist: {
                 src: [
@@ -43,11 +51,7 @@ module.exports = function(grunt) {
 
         uglify: {
             options: {
-                banner: '/*! <%= pkg.name %> <%= pkg.version %>\n' +
-                        ' * <%= pkg.author.url %>\n\n' +
-                        ' * Copyright <%= grunt.template.today("yyyy") %>, <%= pkg.author.name %>\n' +
-                        ' * Dual licensed under the MIT or GPL licenses.' +
-                        ' */\n\n'
+                banner: banner
             },
             build: {
                 src: 'crafty.js',
@@ -61,6 +65,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
 
     // Default task(s).
-    grunt.registerTask('default', ['concat','uglify']);
+    grunt.registerTask('default', ['concat', 'uglify']);
 
 };
