@@ -52,8 +52,9 @@
         "src/time.js",
         "src/outro.js"
     ],
-    "devDependencies": {
-        "grunt-cli":            ">= 0.4.0",
+    "dependencies": {
+        "grunt":            	"0.4.0",
+        "grunt-cli":            "0.1.8",
         "grunt-contrib-uglify": "0.2.0",
         "grunt-contrib-concat": "0.3.0"
     }
