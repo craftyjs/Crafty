@@ -4,6 +4,8 @@
 * @trigger Change - when the text is changed
 * @requires Canvas or DOM
 * Component to make a text entity.
+*
+* By default, text will have the style "10px sans-serif".
 * 
 * Note: An entity with the text component is just text! If you want to write text
 * inside an image, you need one entity for the text and another entity for the image.
