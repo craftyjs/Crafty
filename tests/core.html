@@ -316,13 +316,12 @@ $(document).ready(function() {
 		Crafty("*").destroy();
 	});
 
+	// This test assumes that the "circles" are really octagons, as per Crafty.circle.
 	test("SAT", function () {
 		var e = Crafty.e("2D, Collision");
 		var c1 = new Crafty.circle(100, 100, 10);
 		var c2 = new Crafty.circle(100, 105, 10);
-
-		strictEqual((e._SAT(c1, c2).overlap < -18 && e._SAT(c1, c2).overlap > -19), true, "Expected overlap to be -18.47759");
-		console.log(e._SAT(c1, c2).overlap);
+		strictEqual((e._SAT(c1, c2).overlap < -13.8 && e._SAT(c1, c2).overlap > -13.9), true, "Expected overlap to be about -13.86 ( or 15 cos[pi/8])")
 		// Clean up
 		Crafty("*").destroy();
 	});
