@@ -48,7 +48,7 @@ Crafty.c("Sprite", {
 				);
 			} else if (e.type === "DOM") {
 				var style = this._element.style;
-				style.background = style.backgroundColor + "url('" + this.__image + "') no-repeat -" + co.x + "px -" + co.y + "px";
+				style.background = style.backgroundColor + " url('" + this.__image + "') no-repeat -" + co.x + "px -" + co.y + "px";
 			}
 		};
 
