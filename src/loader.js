@@ -173,27 +173,18 @@ Crafty.extend({
            
             obj = Crafty.asset(current) || null;   
           
-            if (Crafty.support.audio && Crafty.audio.supported[ext]) {   
-                //Create new object if not exists
+            if (Crafty.audio.supports(ext)) {   
+                //Create a new asset if necessary, using the file name as an id
                 if(!obj){
                     var name = current.substr(current.lastIndexOf('/') + 1).toLowerCase();
-                    obj = Crafty.audio.audioElement();
-                    obj.id = name;
-                    obj.src = current;
-                    obj.preload = "auto";
-                    obj.volume = Crafty.audio.volume;
-                    Crafty.asset(current, obj);
-                    Crafty.audio.sounds[name] = {
-                        obj:obj,
-                        played:0
-                    } 
-                }
+                    obj = Crafty.audio.create(name, current).obj;
+            	}
         
-                //addEventListener is supported on IE9 , Audio as well
-                if (obj.addEventListener) {  
-                    obj.addEventListener('canplaythrough', pro, false);     
-                }
-                   
+	            //addEventListener is supported on IE9 , Audio as well
+	            if (obj.addEventListener) {  
+	                obj.addEventListener('canplaythrough', pro, false);     
+	            }
+               
                  
             } else if (Crafty.image_whitelist.indexOf(ext) >= 0) { 
                 if(!obj) {
