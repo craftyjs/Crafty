@@ -89,7 +89,6 @@ Crafty.c("SpriteAnimation", {
 			cyclesPerFrame: undefined, // This gets defined when calling play(...), and indicates the amount of actual frames each individual reel frame is displayed
 			currentFrameNumber: 0,
 			cycleNumber: 0,
-			repeatInfinitly: false,
 			repeatsRemaining: 0
 		}
 
@@ -187,7 +186,7 @@ Crafty.c("SpriteAnimation", {
 		else {
 			// User provided repetition count
 			if (repeatCount === -1) {
-				currentReel.repeatInfinitly = true;
+				currentReel.repeatsRemaining = Infinity;
 			}
 			else {
 				currentReel.repeatsRemaining = repeatCount;
@@ -260,7 +259,7 @@ Crafty.c("SpriteAnimation", {
 
 			// If we went through the reel, loop the animation or end it
 			if (currentReel.currentFrameNumber >= currentReel.frames.length) {
-				if (currentReel.repeatInfinitly === true || currentReel.repeatsRemaining > 0) {
+				if (currentReel.repeatsRemaining > 0) {
 					currentReel.repeatsRemaining--;
 					currentReel.currentFrameNumber = 0;
 				}
@@ -347,7 +346,6 @@ Crafty.c("SpriteAnimation", {
 		reelToReset.cyclesPerFrame = undefined;
 		reelToReset.currentFrameNumber = frameToDisplay;
 		reelToReset.cycleNumber = 0;
-		reelToReset.repeatInfinitly = false;
 		reelToReset.repeatsRemaining = 0;
 
 		this.trigger("Change"); // Needed to trigger a redraw
