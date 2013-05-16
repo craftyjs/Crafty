@@ -86,7 +86,7 @@ Crafty.c("SpriteAnimation", {
 
 		reel = {
 			frames: [],
-			cyclesPerFrame: undefined, // This gets defined when calling play(...)
+			cyclesPerFrame: undefined, // This gets defined when calling play(...), and indicates the amount of actual frames each individual reel frame is displayed
 			currentFrameNumber: 0,
 			cycleNumber: 0,
 			repeatInfinitly: false,
