@@ -177,11 +177,11 @@ Crafty.c("SpriteAnimation", {
 
 		this._currentReelId = reelId;
 
-		if (duration !== null) {
+		if (duration !== undefined && duration !== null) {
 			currentReel.cyclesPerFrame = Math.ceil(duration / currentReel.frames.length);
 		}
 
-		if (repeatCount == null) {
+		if (repeatCount === undefined || repeatCount === null) {
 			currentReel.repeatsRemaining = 0;
 		}
 		else {
@@ -194,7 +194,7 @@ Crafty.c("SpriteAnimation", {
 			}
 		}
 
-		if (fromFrame != null) {
+		if (fromFrame !== undefined && fromFrame !== null) {
 			if (fromFrame >= currentReel.frames.length) {
 				throw "The request frame exceeds the reel length.";
 			}
@@ -226,7 +226,7 @@ Crafty.c("SpriteAnimation", {
 	* You can call this method with no arguments to resume the last animation that played.
 	*/
 	resume: function(reelId) {
-		if (reelId == null) {
+		if (reelId === undefined || reelId === null) {
 			if (this._currentReelId !== null) {
 				return this.play(this._currentReelId, null);
 			}
@@ -322,7 +322,7 @@ Crafty.c("SpriteAnimation", {
 	reset: function (reelId, frameToDisplay) {
 		var reelToReset = this._reels[reelId];
 
-		if (reelId == null) {
+		if (reelId === undefined && reelId === null) {
 			if (this._currentReelId !== null) {
 				reelToReset = this._reels[this._currentReelId];
 			}
@@ -331,7 +331,7 @@ Crafty.c("SpriteAnimation", {
 			}
 		}
 
-		if (frameToDisplay == null) {
+		if (frameToDisplay === undefined && frameToDisplay === null) {
 			frameToDisplay = 0;
 		}
 
