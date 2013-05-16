@@ -7,6 +7,9 @@
 * Used to animate sprites by treating a sprite map as a set of animation frames.
 * Must be applied to an entity that has a sprite-map component.
 *
+* Note: All data recieved from events is only valid until the next event of that
+* type takes place. If you wish to preserve the data, make a copy of it.
+*
 * @see crafty.sprite
 */
 Crafty.c("SpriteAnimation", {
@@ -37,6 +40,22 @@ Crafty.c("SpriteAnimation", {
 	* Whether or not an animation is currently playing.
 	*/
 	_isPlaying: false,
+
+	/**@
+	 * #._frameChangeInfo
+	 * @comp SpriteAnimation
+	 *
+	 * Contains information about the latest frame change event.
+	 */
+	_frameChangeInfo: { reelId: undefined, frameNumber: undefined },
+
+	/**@
+	 * #._animationEndInfo
+	 * @comp SpriteAnimation
+	 *
+	 * Contains information about the latest animation end event.
+	 */
+	_animationEndInfo: { reelId: undefined },
 
 	init: function () {
 		this._reels = {};
@@ -203,7 +222,9 @@ Crafty.c("SpriteAnimation", {
 			}
 		}
 
-		this.trigger("FrameChange", { reelId: this._currentReelId, frameNumber: currentReel.currentFrameNumber });
+		this._frameChangeInfo.reelId = this._currentReelId;
+		this._frameChangeInfo.frameNumber = currentReel.currentFrameNumber;
+		this.trigger("FrameChange", this._frameChangeInfo);
 		this.trigger("Change"); // Needed to trigger a redraw
 
 		pos = currentReel.frames[currentReel.currentFrameNumber];
@@ -266,12 +287,15 @@ Crafty.c("SpriteAnimation", {
 				else {
 					currentReel.currentFrameNumber = currentReel.frames.length - 1;
 					this.pause();
-					this.trigger("AnimationEnd", { reelId: this._currentReelId });
+					this._animationEndInfo.reelId = this._currentReelId
+					this.trigger("AnimationEnd", this._animationEndInfo);
 					return;
 				}
 			}
 
-			this.trigger("FrameChange", { reelId: this._currentReelId, frameNumber: currentReel.currentFrameNumber });
+			this._frameChangeInfo.reelId = this._currentReelId;
+			this._frameChangeInfo.frameNumber = currentReel.currentFrameNumber;
+			this.trigger("FrameChange", this._frameChangeInfo);
 			this.trigger("Change"); // Needed to trigger a redraw
 		}
 
@@ -321,7 +345,7 @@ Crafty.c("SpriteAnimation", {
 	reset: function (reelId, frameToDisplay) {
 		var reelToReset = this._reels[reelId];
 
-		if (reelId === undefined && reelId === null) {
+		if (reelId === undefined || reelId === null) {
 			if (this._currentReelId !== null) {
 				reelToReset = this._reels[this._currentReelId];
 			}
@@ -330,7 +354,7 @@ Crafty.c("SpriteAnimation", {
 			}
 		}
 
-		if (frameToDisplay === undefined && frameToDisplay === null) {
+		if (frameToDisplay === undefined || frameToDisplay === null) {
 			frameToDisplay = 0;
 		}
 
