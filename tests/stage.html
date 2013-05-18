@@ -66,8 +66,8 @@
 		//Make large enough so the viewport won't get clamped
 		Crafty.e("2D, DOM").attr({ x: 0, y: 0, w: Crafty.viewport.width * 2 + 50, h: Crafty.viewport.height*2+35 });
 		Crafty.viewport.follow(e, 0, 0);
-		equal(Crafty.viewport._x, -(Crafty.viewport.width/2 + 100), "Center viewport on entity.x");
-		equal(Crafty.viewport._y, -(Crafty.viewport.height / 2 + 70), "Center viewport on entity.y");
+		equal(Crafty.viewport._x, Math.floor(-(Crafty.viewport.width/2 + 100)), "Center viewport on entity.x");
+		equal(Crafty.viewport._y, Math.floor(-(Crafty.viewport.height / 2 + 70)), "Center viewport on entity.y");
 
 		Crafty.viewport.scroll('x', 0);
 		Crafty.viewport.scroll('y', 0);
@@ -103,9 +103,9 @@
 
 	module("Crafty.timer")
 	test("curTime", 1, function () {
-		var startTime = Crafty.timer.curTime;
+		var startTime = Crafty.timer.currentTime;
 		setTimeout(function () {
-			var endTime = Crafty.timer.curTime;
+			var endTime = Crafty.timer.currentTime;
 			ok(endTime > startTime, "EndTime " + endTime + " must be larger than StartTime " + startTime);
 			start();
 		}, 100);
