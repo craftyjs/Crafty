@@ -23,7 +23,7 @@ Crafty.c("DOM", {
 		this.bind("Change", function () {
 			if (!this._changed) {
 				this._changed = true;
-				Crafty.DrawManager.add(this);
+				Crafty.DrawManager.addDom(this);
 			}
 		});
 

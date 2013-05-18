@@ -23,19 +23,25 @@ Crafty.c("Canvas", {
 
 		//increment the amount of canvas objs
 		Crafty.DrawManager.total2D++;
+		//Allocate an object to hold this components current region
+		this.currentRect = {};
+		this._changed = true;
+		Crafty.DrawManager.addCanvas(this);
 
 		this.bind("Change", function (e) {
-			//if within screen, add to list
-			if (this._changed === false) {
-				this._changed = Crafty.DrawManager.add(e || this, this);
-			} else {
-				if (e) this._changed = Crafty.DrawManager.add(e, this);
+			//flag if changed
+			if (this._changed === false){
+				this._changed = true;
+				Crafty.DrawManager.addCanvas(this);
 			}
+			
 		});
+
 
 		this.bind("Remove", function () {
 			Crafty.DrawManager.total2D--;
-			Crafty.DrawManager.add(this, this);
+			this._changed = true;
+			Crafty.DrawManager.addCanvas(this);
 		});
 	},
 
@@ -87,7 +93,6 @@ Crafty.c("Canvas", {
 		co.y = coord[1] + (y || 0)
 		co.w = w || coord[2]
 		co.h = h || coord[3]
-
 
 		if (this._mbr) {
 			context.save();
