@@ -356,14 +356,16 @@ Crafty.DrawManager = (function () {
 
 		/** cleans up current dirty state, stores stale state for future passes */
 		clean: function(){
-            for (var i=0, l=changed_objs.length; i<l; i++){
-            	var obj = changed_objs[i];
+			var rect, obj, i;
+            for (i=0, l=changed_objs.length; i<l; i++){
+            	obj = changed_objs[i];
+            	rect = obj._mbr || obj;
             	if (obj.staleRect == null)
             			obj.staleRect = {}
-        		obj.staleRect._x = obj._x;
-				obj.staleRect._y = obj._y;
-				obj.staleRect._w = obj._w;
-				obj.staleRect._h = obj._h;
+        		obj.staleRect._x = rect._x;
+				obj.staleRect._y = rect._y;
+				obj.staleRect._w = rect._w;
+				obj.staleRect._h = rect._h;
 
 				obj._changed = false
             }
@@ -375,11 +377,12 @@ Crafty.DrawManager = (function () {
 		/** Takes the current and previous position of an object, and pushes the dirty regions onto the stack
 		* 	If the entity has only moved/changed a little bit, the regions are squashed together */
 		createDirty: function(obj){
+			var rect = obj._mbr || obj;
 			if (obj.staleRect){
 				//If overlap, merge stale and current position together, then return
 				//Otherwise just push stale rectangle
-				if (  rectManager.overlap( obj.staleRect, obj)){
-					rectManager.merge(obj.staleRect, obj, obj.staleRect)
+				if (  rectManager.overlap( obj.staleRect, rect)){
+					rectManager.merge(obj.staleRect, rect, obj.staleRect)
 					dirty_rects.push(obj.staleRect)
 					return
 				}
@@ -389,10 +392,10 @@ Crafty.DrawManager = (function () {
 			}
 
 			// We use the intermediate "currentRect" so it can be modified without messing with obj
-			obj.currentRect._x = obj._x;
-			obj.currentRect._y = obj._y;
-			obj.currentRect._w = obj._w;
-			obj.currentRect._h = obj._h;
+			obj.currentRect._x = rect._x;
+			obj.currentRect._y = rect._y;
+			obj.currentRect._w = rect._w;
+			obj.currentRect._h = rect._h;
 			dirty_rects.push(obj.currentRect)
 			
 		},
