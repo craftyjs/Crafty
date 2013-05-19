@@ -300,7 +300,7 @@ Crafty.extend({
             else e.cancelBubble = true;
 
 			//Don't prevent default actions if target node is input or textarea.
-			if(e.target.nodeName !== 'INPUT' && e.target.nodeName !== 'TEXTAREA'){
+			if(e.target && e.target.nodeName !== 'INPUT' && e.target.nodeName !== 'TEXTAREA'){
 				if(e.preventDefault){
 					e.preventDefault();
 				} else {
