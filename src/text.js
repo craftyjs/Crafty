@@ -4,6 +4,8 @@
 * @trigger Change - when the text is changed
 * @requires Canvas or DOM
 * Component to make a text entity.
+*
+* By default, text will have the style "10px sans-serif".
 * 
 * Note: An entity with the text component is just text! If you want to write text
 * inside an image, you need one entity for the text and another entity for the image.
@@ -14,20 +16,23 @@
 */
 Crafty.c("Text", {
 	_text: "",
-	_textFont: {
-		"type": "",
-		"weight": "",
-		"size": "",
-		"family": ""
-	},
+	defaultSize: "10px",
+	defaultFamily: "sans-serif",
 	ready: true,
 
 	init: function () {
 		this.requires("2D");
+		this._textFont = {
+			"type": "",
+			"weight": "",
+			"size": "",
+			"family": ""
+		};
 
 		this.bind("Draw", function (e) {
-			var font = this._textFont["type"] + ' ' + this._textFont["weight"] + ' ' +
-				this._textFont["size"] + ' ' + this._textFont["family"];
+			var font = this._textFont["type"] + ' ' + this._textFont["weight"] + ' '
+			 	+ (this._textFont["size"] || this.defaultSize) + ' ' 
+				+ (this._textFont["family"] || this.defaultFamily);
 
 			if (e.type === "DOM") {
 				var el = this._element,

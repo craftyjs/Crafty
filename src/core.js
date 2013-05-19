@@ -756,11 +756,13 @@
         * @category Core
         * @trigger EnterFrame - on each frame - { frame: Number }
         * @trigger Load - Just after the viewport is initialised. Before the EnterFrame loops is started
-        * @sign public this Crafty.init([Number width, Number height])
-        * @param width - Width of the stage
-        * @param height - Height of the stage
-        * 
-        * Create a div with id `cr-stage`, if there is not already an HTMLElement with id `cr-stage` (by `Crafty.viewport.init`).
+        * @sign public this Crafty.init([Number width, Number height, String stage_elem])
+        * @sign public this Crafty.init([Number width, Number height, HTMLElement stage_elem])
+        * @param Number width - Width of the stage
+        * @param Number height - Height of the stage
+        * @param String or HTMLElement stage_elem - the element to use for the stage    
+        *
+        * Sets the element to use as the stage, creating it if necessary.  By default a div with id 'cr-stage' is used, but if the 'stage_elem' argument is provided that will be used instead.  (see `Crafty.viewport.init`)     
         *
         * Starts the `EnterFrame` interval. This will call the `EnterFrame` event for every frame.
         *
@@ -771,8 +773,8 @@
         * Uses `requestAnimationFrame` to sync the drawing with the browser but will default to `setInterval` if the browser does not support it.
         * @see Crafty.stop,  Crafty.viewport
         */
-        init: function (w, h) {
-            Crafty.viewport.init(w, h);
+        init: function (w, h, stage_elem) {
+            Crafty.viewport.init(w, h, stage_elem);
 
             //call all arbitrary functions attached to onload
             this.trigger("Load");
@@ -814,7 +816,7 @@
         	    Crafty.audio.remove();
         		if (Crafty.stage && Crafty.stage.elem.parentNode) {
         			var newCrStage = document.createElement('div');
-        			newCrStage.id = "cr-stage";
+        			newCrStage.id = Crafty.stage.elem.id;
         			Crafty.stage.elem.parentNode.replaceChild(newCrStage, Crafty.stage.elem);
         		}
         		initState();

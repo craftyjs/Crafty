@@ -23,19 +23,25 @@ Crafty.c("Canvas", {
 
 		//increment the amount of canvas objs
 		Crafty.DrawManager.total2D++;
+		//Allocate an object to hold this components current region
+		this.currentRect = {};
+		this._changed = true;
+		Crafty.DrawManager.addCanvas(this);
 
 		this.bind("Change", function (e) {
-			//if within screen, add to list
-			if (this._changed === false) {
-				this._changed = Crafty.DrawManager.add(e || this, this);
-			} else {
-				if (e) this._changed = Crafty.DrawManager.add(e, this);
+			//flag if changed
+			if (this._changed === false){
+				this._changed = true;
+				Crafty.DrawManager.addCanvas(this);
 			}
+			
 		});
+
 
 		this.bind("Remove", function () {
 			Crafty.DrawManager.total2D--;
-			Crafty.DrawManager.add(this, this);
+			this._changed = true;
+			Crafty.DrawManager.addCanvas(this);
 		});
 	},
 
@@ -87,7 +93,6 @@ Crafty.c("Canvas", {
 		co.y = coord[1] + (y || 0)
 		co.w = w || coord[2]
 		co.h = h || coord[3]
-
 
 		if (this._mbr) {
 			context.save();
@@ -172,7 +177,7 @@ Crafty.extend({
 				return;
 			}
 
-			//create 3 empty canvas elements
+			//create an empty canvas element
 			var c;
 			c = document.createElement("canvas");
 			c.width = Crafty.viewport.width;
@@ -184,6 +189,11 @@ Crafty.extend({
 			Crafty.stage.elem.appendChild(c);
 			Crafty.canvas.context = c.getContext('2d');
 			Crafty.canvas._canvas = c;
+
+			//Set any existing transformations
+			var zoom = Crafty.viewport._zoom
+			if (zoom != 1)
+				Crafty.canvas.context.scale(zoom, zoom);
 		}
 	}
 });
