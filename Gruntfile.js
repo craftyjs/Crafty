@@ -58,12 +58,21 @@ module.exports = function (grunt) {
                 src: 'crafty.js',
                 dest: 'crafty.min.js'
             }
+        },
+
+        jshint: {
+            files: ['Gruntfile.js', 'src/**/*.js'],
+            options: {
+                globals: {
+                }
+            }
         }
     });
 
     // Load the plugin that provides the "uglify" task.
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-jshint');
 
     // Default task(s).
     grunt.registerTask('default', ['concat', 'uglify']);
