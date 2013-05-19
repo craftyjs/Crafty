@@ -355,10 +355,10 @@ Crafty.c("2D", {
 			y2 = o.y - (this._x + this._w - o.x) * st + (this._y + this._h - o.y) * ct,
 			x3 = o.x + (this._x - o.x) * ct + (this._y + this._h - o.y) * st,
 			y3 = o.y - (this._x - o.x) * st + (this._y + this._h - o.y) * ct,
-			minx = Math.round(Math.min(x0, x1, x2, x3)),
-			miny = Math.round(Math.min(y0, y1, y2, y3)),
-			maxx = Math.round(Math.max(x0, x1, x2, x3)),
-			maxy = Math.round(Math.max(y0, y1, y2, y3));
+			minx = Math.floor(Math.min(x0, x1, x2, x3)),
+			miny = Math.floor(Math.min(y0, y1, y2, y3)),
+			maxx = Math.ceil(Math.max(x0, x1, x2, x3)),
+			maxy = Math.ceil(Math.max(y0, y1, y2, y3));
 
 		this._mbr = { _x: minx, _y: miny, _w: maxx - minx, _h: maxy - miny };
 
