@@ -239,9 +239,12 @@ Crafty.c("DOM", {
 	*
 	* To return a value, pass the property.
 	* 
+	* Note: For text elements, some css properties are controlled by separate functions
+    * `.textFont()` and `.textColor()`, and ignore `.css()` settings. See Text component for details.
+	* 
 	* @example
 	* ~~~
-	* this.css({'text-align', 'center', font: 'Arial'});
+	* this.css({'text-align', 'center', 'text-decoration': 'line-through'});
 	* this.css("textAlign", "center");
 	* this.css("text-align"); //returns center
 	* ~~~
