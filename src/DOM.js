@@ -239,8 +239,8 @@ Crafty.c("DOM", {
 	*
 	* To return a value, pass the property.
 	* 
-	* Note: For text elements, some css properties are controlled by separate functions
-    * `.textFont()` and `.textColor()`, and ignore `.css()` settings. See Text component for details.
+	* Note: For entities with "Text" component, some css properties are controlled by separate functions
+	* `.textFont()` and `.textColor()`, and ignore `.css()` settings. See Text component for details.
 	* 
 	* @example
 	* ~~~
