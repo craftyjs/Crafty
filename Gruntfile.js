@@ -66,6 +66,10 @@ module.exports = function (grunt) {
                 globals: {
                 }
             }
+        },
+
+        qunit: {
+            all: ['tests/**/*.html']
         }
     });
 
@@ -73,6 +77,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-qunit');
 
     // Default task(s).
     grunt.registerTask('default', ['concat', 'uglify']);
