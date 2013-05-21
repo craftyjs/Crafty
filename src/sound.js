@@ -7,9 +7,12 @@ Crafty.extend({
 	 * Due to the nature of HTML5 audio, three types of audio files will be
 	 * required for cross-browser capabilities. These formats are MP3, Ogg and WAV.
 	 * When sound was not muted on before pause, sound will be unmuted after unpause.
-	 * When sound is muted Crafty.pause() does not have any effect on sound.
+	 * When sound is muted Crafty.pause() does not have any effect on sound
+	 *
+	 * The maximum number of sounds that can be played simultaneously is defined by Crafty.audio.maxChannels.  The default value is 7.
 	 */
 	audio: {
+
 		sounds: {},
 		supported: null,
 		codecs: {// Chart from jPlayer
@@ -26,7 +29,7 @@ Crafty.extend({
 		/**
 		 * Function to setup supported formats
 		 **/
-		canPlay: function() {
+		_canPlay: function() {
 			this.supported = {}
 			// Without support, no formats are supported
 			if (!Crafty.support.audio)
@@ -54,7 +57,7 @@ Crafty.extend({
 		supports: function(extension){
 			// Build cache of supported formats, if necessary
 			if (this.supported === null)
-				this.canPlay();		
+				this._canPlay();		
 
 			if (this.supported[extension])
 				return true;
@@ -97,9 +100,9 @@ Crafty.extend({
 			//create an asset and metadata for the audio element
 			Crafty.asset(path, audio);
 			this.sounds[id] = {
-				obj : audio,
-				played : 0,
-				volume : Crafty.audio.volume
+				obj: audio,
+				played: 0,
+				volume: Crafty.audio.volume
 			}
 			return this.sounds[id];
 
@@ -152,8 +155,6 @@ Crafty.extend({
 		add: function(id, url) {
 			if (!Crafty.support.audio)
 				return;
-			//Setup supported Extensions
-
 
 			if (arguments.length === 1 && typeof id === "object") {
 				for (var i in id) {
@@ -205,22 +206,80 @@ Crafty.extend({
 			if (repeat == 0 || !Crafty.support.audio || !this.sounds[id])
 				return;
 			var s = this.sounds[id];
-			s.volume = s.obj.volume = volume || Crafty.audio.volume;
-			if (s.obj.currentTime)
-				s.obj.currentTime = 0;
+			var c = this.getOpenChannel();
+			if (!c)
+				return
+			c.id = id;
+			var a = c.obj;
+
+
+			c.volume = s.volume = s.obj.volume = volume || Crafty.audio.volume;
+
+			a.volume = s.volume;
+			a.src = s.obj.src;
+			
 			if (this.muted)
-				s.obj.volume = 0;
-			s.obj.play();
+				a.volume = 0;
+			a.play();
 			s.played++;
-			s.obj.addEventListener("ended", function() {
+			c.onEnd = function(){
 				if (s.played < repeat || repeat == -1) {
 					if (this.currentTime)
 						this.currentTime = 0;
 					this.play();
 					s.played++;
+				} else {
+					c.active = false;
+					this.pause();
+					this.removeEventListener("ended", c.onEnd, true)
+					this.currentTime = 0;
+					Crafty.trigger("SoundComplete", {id:c.id})
 				}
-			}, true);
+			
+			}
+			a.addEventListener("ended", c.onEnd, true);
 		},
+
+		
+
+		/**@
+		 * #Crafty.audio.setChannels
+		 * @comp Crafty.audio
+		 * @sign public this Crafty.audio.setChannels(Number n)
+		 * @param n - The maximum number of channels
+		 */
+		maxChannels: 7,
+		setChannels: function(n){
+			this.maxChannels = n;
+			if (n>channels.length)
+				this.channels.length = n;
+			
+		},
+
+		channels: [],
+		// Finds an unused audio element, marks it as in use, and return it.
+		getOpenChannel: function (){
+			for ( var i=0; i<this.channels.length; i++){
+				if (this.channels[i].active === false){
+					this.channels[i].active = true;
+					return this.channels[i];
+				}
+			}
+			// If necessary, create a new element, unless we've already reached the max limit
+			if (i<=this.maxChannels){
+				var c = {
+					obj: this.audioElement(), 
+					active: true, 
+					// Checks that the channel is being used to play sound id
+					_is: function(id){ return this.id===id && this.active } 
+				};
+				this.channels.push(c);
+				return c;
+			}
+			// In that case, return null
+			return null;
+		},
+
 	    /**@
 		 * #Crafty.audio.remove
 		 * @comp Crafty.audio
@@ -276,15 +335,20 @@ Crafty.extend({
 				return;
 			var s;
 			if (!id) {
-				for (var i in this.sounds) {
-					s = this.sounds[i];
-					if (!s.obj.paused)
-						s.obj.pause();
+				for (var i in this.channels) {
+
+					c = this.channels[i];
+					if (c.active){
+						c.active = false;
+						c.obj.pause();
+					}
 				}
-			}
-			if (!this.sounds[id])
 				return;
+			}
+			
 			s = this.sounds[id];
+			if (!s)
+				return;
 			if (!s.obj.paused)
 				s.obj.pause();
 		},
@@ -297,10 +361,10 @@ Crafty.extend({
 		_mute: function(mute) {
 			if (!Crafty.support.audio)
 				return;
-			var s;
-			for (var i in this.sounds) {
-				s = this.sounds[i];
-				s.obj.volume = mute ? 0 : s.volume;
+			var c;
+			for (var i in this.channels) {
+				c = this.channels[i];
+				c.obj.volume = mute ? 0 : c.volume;
 			}
 			this.muted = mute;
 		},
@@ -370,9 +434,13 @@ Crafty.extend({
 		pause: function(id) {
 			if (!Crafty.support.audio || !id || !this.sounds[id])
 				return;
-			var s = this.sounds[id];
-			if (!s.obj.paused)
-				s.obj.pause();
+			var c;
+			for (var i in this.channels) {
+				c = this.channels[i];
+				if (c._is(id) && !c.obj.paused)
+					c.obj.pause()
+			}
+			
 		},
 
 		/**@
@@ -391,9 +459,12 @@ Crafty.extend({
 		unpause: function(id) {
 			if (!Crafty.support.audio || !id || !this.sounds[id])
 				return;
-			var s = this.sounds[id];
-			if (s.obj.paused)
-				s.obj.play();
+			var c;
+			for (var i in this.channels) {
+				c = this.channels[i];
+				if (c._is(id) && c.obj.paused )
+					c.obj.play();
+			}
 		},
 
 		/**@
@@ -412,12 +483,17 @@ Crafty.extend({
 		togglePause: function(id) {
 			if (!Crafty.support.audio || !id || !this.sounds[id])
 				return;
-			var s = this.sounds[id];
-			if (s.obj.paused) {
-				s.obj.play();
-			} else {
-				s.obj.pause();
+			var c;
+			for (var i in this.channels) {
+				c = this.channels[i];
+				if (c._is(id) )
+					if(c.obj.paused)
+						c.obj.play();
+					else
+						c.obj.pause();
+					
 			}
+			
 		}
 	}
 });
