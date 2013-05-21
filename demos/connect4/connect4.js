@@ -73,9 +73,9 @@ window.onload = function () {
 	
 	Crafty.scene("win", function() {
 		var bg = Crafty.e("2D, DOM, Image").image("images/win.png", "no-repeat").attr({w: 600, h: 500, z: -1});
-		Crafty.e("2D, DOM, Text").attr({x: 220, y: 200}).text(turn ? "RED" : "YELLOW").css({
-        "font-family": "Arial"
-        , "font-size": "30pt"
+		Crafty.e("2D, DOM, Text").attr({x: 220, y: 200}).text(turn ? "RED" : "YELLOW").textFont({
+        "family": "Arial"
+        , "size": "30pt"
       });
 	});
 

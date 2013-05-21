@@ -7,12 +7,17 @@
 *
 * By default, text will have the style "10px sans-serif".
 * 
-* Note: An entity with the text component is just text! If you want to write text
+* Note 1: An entity with the text component is just text! If you want to write text
 * inside an image, you need one entity for the text and another entity for the image.
 * More tips for writing text inside an image: (1) Use the z-index (from 2D component)
 * to ensure that the text is on top of the image, not the other way around; (2)
 * use .attach() (from 2D component) to glue the text to the image so they move and
 * rotate together.
+* 
+* Note 2: For DOM (but not canvas) text entities, various font settings (like
+* text-decoration and text-align) can be set using `.css()` (see DOM component). But
+* you cannot use `.css()` to set the properties which are controlled by `.textFont()`
+* or `.textColor()` -- the settings will be ignored.
 */
 Crafty.c("Text", {
 	_text: "",
@@ -69,7 +74,6 @@ Crafty.c("Text", {
     * @param text - String of text that will be inserted into the DOM or Canvas element.
     * 
     * This method will update the text inside the entity.
-    * If you use DOM, to modify the font, use the `.css` method inherited from the DOM component.
     *
     * If you need to reference attributes on the entity itself you can pass a function instead of a string.
     * 
@@ -162,5 +166,34 @@ Crafty.c("Text", {
 
 		this.trigger("Change");
 		return this;
+	},
+	/**@
+    * #.unselectable
+    * @comp Text
+    * @triggers Change
+    * @sign public this .unselectable()
+    *
+    * This method sets the text so that it cannot be selected (highlighted) by dragging.
+    * (Canvas text can never be highlighted, so this only matters for DOM text.)
+    * Works by changing the css property "user-select" and its variants.
+    * 
+    * @example
+    * ~~~
+    * Crafty.e("2D, DOM, Text").text('This text cannot be highlighted!').unselectable();
+    * ~~~
+    */
+	unselectable: function () {
+		// http://stackoverflow.com/questions/826782/css-rule-to-disable-text-selection-highlighting
+		if (this.has("DOM")) {
+			this.css({'-webkit-touch-callout': 'none',
+				'-webkit-user-select': 'none',
+				'-khtml-user-select': 'none',
+				'-moz-user-select': 'none',
+				'-ms-user-select': 'none',
+				'user-select': 'none'});
+			this.trigger("Change");
+		}
+		return this;
 	}
+
 });
