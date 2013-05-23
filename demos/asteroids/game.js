@@ -26,7 +26,7 @@ $(document).ready(function() {
 		var score = Crafty.e("2D, DOM, Text")
 			.text("Score: 0")
 			.attr({x: Crafty.viewport.width - 300, y: Crafty.viewport.height - 50, w: 200, h:50})
-			.css({color: "#fff"});
+			.textColor("#FFFFFF");
 			
 		//player entity
 		var player = Crafty.e("2D, Canvas, ship, Controls, Collision")
