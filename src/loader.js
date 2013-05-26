@@ -202,6 +202,9 @@ Crafty.extend({
             obj.onerror = err;
         }
        
+       	// If we aren't trying to handle *any* of the files, that's as complete as it gets!
+       	if (total === 0 )
+       		oncomplete();
        
     },
 	/**@
