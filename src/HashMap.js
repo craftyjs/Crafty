@@ -190,7 +190,7 @@
 
         //broad phase coordinate
 				var map_coord = h.split(SPACE),
-					i=map_coord[0],
+					i=map_coord[1],
 					j=map_coord[0];
 				if (i >= hash.max.x) {
 					hash.max.x = i;
