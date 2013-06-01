@@ -749,11 +749,10 @@ Crafty.c("2D", {
 	_attr: function (name, value) {
 		// Return if there is no change
 		if (this[name] === value){
-			return
+			return;
 		}
 		//keep a reference of the old positions
-		var pos = this.pos(),
-			old = this.mbr() || pos;
+		var old = this.mbr();
 
 		//if rotation, use the rotate method
 		if (name === '_rotation') {
@@ -761,10 +760,10 @@ Crafty.c("2D", {
 			this.trigger("Rotate");
 			//set the global Z and trigger reorder just in case
 		} else if (name === '_z') {
-			this._globalZ = parseInt(value + Crafty.zeroFill(this[0], 5), 10); //magic number 10e5 is the max num of entities
+			this._globalZ = parseInt(value + Crafty.zeroFill(this[0], 5), 10); //magic number 10^5 is the max num of entities
 			this.trigger("reorder");
 			//if the rect bounds change, update the MBR and trigger move
-		} else if (name == '_x' || name === '_y' || name === '_w' || name === '_h') {
+		} else if (name === '_x' || name === '_y' || name === '_w' || name === '_h') {
 			var mbr = this._mbr;
 			if (mbr) {
 				mbr[name] -= this[name] - value;
