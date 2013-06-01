@@ -325,6 +325,46 @@ $(document).ready(function() {
 		// Clean up
 		Crafty("*").destroy();
 	});
+
+        test("disableControl and enableControl", function () {
+            var e = Crafty.e("2D, Twoway")
+                .attr({ x: 0 })
+                .twoway(1);
+
+            equal(e._movement.x, 0);
+            equal(e._x, 0);
+            Crafty.trigger('KeyDown', { key: Crafty.keys.D });
+            Crafty.trigger('EnterFrame');
+            equal(e._movement.x, 1);
+            equal(e._x, 1);
+
+            e.disableControl();
+            Crafty.trigger('EnterFrame');
+            equal(e._movement.x, 1);
+            equal(e._x, 1);
+
+            Crafty.trigger('KeyUp',   { key: Crafty.keys.D });
+            Crafty.trigger('EnterFrame');
+            equal(e._movement.x, 0);
+            equal(e._x, 1);
+
+            e.enableControl();
+            Crafty.trigger('EnterFrame');
+            equal(e._movement.x, 0);
+            equal(e._x, 1);
+
+            Crafty.trigger('KeyDown', { key: Crafty.keys.D });
+            Crafty.trigger('EnterFrame');
+            equal(e._movement.x, 1);
+            equal(e._x, 2);
+
+            Crafty.trigger('KeyUp',   { key: Crafty.keys.D });
+            Crafty.trigger('EnterFrame');
+            equal(e._movement.x, 0);
+            equal(e._x, 2);
+
+            e.destroy();
+        });
 });
 </script>
   
