@@ -292,13 +292,15 @@ Crafty.c("2D", {
 		this.bind("Move", function (e) {
 			var area = this._mbr || this;
 			this._entry.update(area);
-			this._cascade(e);
+			// Move children (if any) by the same amount
+			if (this._children.length > 0) { this._cascade(e); }
 		});
 
 		this.bind("Rotate", function (e) {
 			var old = this._mbr || this;
 			this._entry.update(old);
-			this._cascade(e);
+			// Rotate children (if any) by the same amount
+			if (this._children.length > 0) { this._cascade(e); }
 		});
 
 		//when object is removed, remove from HashMap and destroy attached children
@@ -554,9 +556,11 @@ Crafty.c("2D", {
 	* #._cascade
 	* @comp 2D
     * @sign public void ._cascade(e)
-	* @param e - Amount to move X
-	* Shift move or rotate the entity by an amount. Use negative values
-	* for an opposite direction.
+	* @param e - An object describing the motion
+	* Move or rotate the entity's children according to a certain motion.
+	* This method is part of a function bound to "Move": It is used
+	* internally for ensuring that when a parent moves, the child also
+	* moves in the same way.
 	*/
 	_cascade: function (e) {
 		if (!e) return; //no change in position
