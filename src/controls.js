@@ -765,7 +765,8 @@ Crafty.c("Multiway", {
 	* ~~~
 	*/
 	enableControl: function() {
-		return this.attr('disableControls', false);
+		this.disableControls = false;
+		return this;
 	},
 
 	/**@
@@ -782,7 +783,8 @@ Crafty.c("Multiway", {
 	*/
 
 	disableControl: function() {
-		return this.attr('disableControls', true);
+		this.disableControls = true;
+		return this;
 	},
 
 	speed: function (speed) {
