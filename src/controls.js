@@ -692,6 +692,15 @@ Crafty.c("Multiway", {
 		}
 	},
 
+	_initializeControl: function() {
+		return this.unbind("KeyDown", this._keydown)
+		.unbind("KeyUp", this._keyup)
+		.unbind("EnterFrame", this._enterframe)
+		.bind("KeyDown", this._keydown)
+		.bind("KeyUp", this._keyup)
+		.bind("EnterFrame", this._enterframe);
+	},
+
 	/**@
 	* #.multiway
 	* @comp Multiway
@@ -731,8 +740,7 @@ Crafty.c("Multiway", {
 		this._keyDirection = keys;
 		this.speed(this._speed);
 
-		this.disableControl();
-		this.enableControl();
+		this._initializeControl();
 
 		//Apply movement if key is down when created
 		for (var k in keys) {
@@ -753,15 +761,13 @@ Crafty.c("Multiway", {
 	*
 	* @example
 	* ~~~
-    * this.enableControl();
+	* this.enableControl();
 	* ~~~
 	*/
-  enableControl: function() {
-		this.bind("KeyDown", this._keydown)
-		.bind("KeyUp", this._keyup)
-		.bind("EnterFrame", this._enterframe);
+	enableControl: function() {
+		this.disableControls = false;
 		return this;
-  },
+	},
 
 	/**@
 	* #.disableControl
@@ -776,12 +782,10 @@ Crafty.c("Multiway", {
 	* ~~~
 	*/
 
-  disableControl: function() {
-		this.unbind("KeyDown", this._keydown)
-		.unbind("KeyUp", this._keyup)
-		.unbind("EnterFrame", this._enterframe);
+	disableControl: function() {
+		this.disableControls = true;
 		return this;
-  },
+	},
 
 	speed: function (speed) {
 		for (var k in this._keyDirection) {
