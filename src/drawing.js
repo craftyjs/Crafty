@@ -558,39 +558,31 @@ Crafty.DrawManager = (function () {
 
 
 		/**@
-		* #Crafty.DrawManager.draw
+		* #Crafty.DrawManager.renderCanvas
 		* @comp Crafty.DrawManager
-		* @sign public Crafty.DrawManager.draw()
+		* @sign public Crafty.DrawManager.renderCanvas()
 		* ~~~
+		* - Triggered by the "RenderScene" event
 		* - If the number of rects is over 60% of the total number of objects
 		*	do the naive method redrawing `Crafty.DrawManager.drawAll`
 		* - Otherwise, clear the dirty regions, and redraw entities overlapping the dirty regions.
 		* ~~~
 		* 
-        * @see Canvas.draw, DOM.draw
+		* @see Canvas.draw
 		*/
-		draw: function draw() {
-			//if no objects have been changed, stop
-			if (!changed_objs.length && !dom.length) return;
 
-			var i = 0, l = changed_objs.length, k = dom.length, rect, q,
-				j, len, obj, ent, ctx = Crafty.canvas.context;
-
-			//loop over all DOM elements needing updating
-			for (; i < k; ++i) {
-				dom[i].draw()._changed = false;
-			}
-			//reset DOM array
-            dom.length = 0;
-
-			//again, stop if no canvas components have changed
+		renderCanvas: function() {
+			var l = changed_objs.length;
 			if (!l) { return; }
+
+			var i = 0, l = changed_objs.length, rect, q,
+				j, len, obj, ent, ctx = Crafty.canvas.context, DM = Crafty.DrawManager;
 
 			//if the amount of changed objects is over 60% of the total objects
 			//do the naive method redrawing
 			// TODO: I'm not sure this condition really makes that much sense!
-			if (l / this.total2D > 0.6 ) {
-				this.drawAll();
+			if (l / DM.total2D > 0.6 ) {
+				DM.drawAll();
 				rectManager.clean()
 				return;
 			}
@@ -599,7 +591,7 @@ Crafty.DrawManager = (function () {
 			for  (i=0; i<l; i++){
 				rectManager.createDirty(changed_objs[i])
 			}
-			dirty_rects = this.mergeSet(dirty_rects);
+			dirty_rects = DM.mergeSet(dirty_rects);
 
 			
 			l = dirty_rects.length;
@@ -663,6 +655,34 @@ Crafty.DrawManager = (function () {
             //Clean up lists etc
             rectManager.clean()
 
+		},
+
+		/**@
+		* #Crafty.DrawManager.renderDOM
+		* @comp Crafty.DrawManager
+		* @sign public Crafty.DrawManager.renderDOM()
+		* ~~~
+		* When "RenderScene" is triggered, draws all DOM entities that have been flagged
+		* ~~~
+		* 
+		* @see DOM.draw
+		*/
+		renderDOM: function() {
+
+			//if no objects have been changed, stop
+			if (!dom.length) return;
+
+			var i = 0, k = dom.length;
+			//loop over all DOM elements needing updating
+			for (; i < k; ++i) {
+				dom[i].draw()._changed = false;
+			}
+
+			//reset DOM array
+			dom.length = 0;
+        	
 		}
+
+		
 	};
 })();
