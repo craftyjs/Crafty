@@ -326,6 +326,7 @@ $(document).ready(function() {
 		Crafty("*").destroy();
 	});
 
+
         test("disableControl and enableControl", function () {
             var e = Crafty.e("2D, Twoway")
                 .attr({ x: 0 })
@@ -365,6 +366,59 @@ $(document).ready(function() {
 
             e.destroy();
         });
+
+
+		test("Resizing 2D objects & hitboxes", function(){
+			var e = Crafty.e("2D, Collision");
+			e.attr({x:0, y:0, w:40, h:50})	
+			
+			equal(e.map.points[0][0], 0, "Before rotation: x_0 is 0")
+			equal(e.map.points[0][1], 0, "y_0 is 0")
+			equal(e.map.points[2][0], 40, "x_2 is 40")
+			equal(e.map.points[2][1], 50, "y_2 is 50")
+
+			e.rotation = 90;
+
+			equal( Math.round(e.map.points[0][0]), 0, "After rotation by 90 deg: x_0 is 0")
+			equal( Math.round(e.map.points[0][1]), 0, "y_0 is 0")
+			equal( Math.round(e.map.points[2][0]), -50, "x_2 is -50")
+			equal( Math.round(e.map.points[2][1]), 40, "y_2 is 40")
+
+			// After rotation the MBR will have changed
+			equal( Math.round(e._mbr._w), 50, "_mbr._w is  50" );
+			equal( Math.round(e._mbr._h), 40, "_mbr._h is  40" );
+			equal( Math.round(e._mbr._x), -50, "_mbr._x is -50");
+			equal( Math.round(e._mbr._y), 0, "_mbr._y is 0");
+
+			e.collision();	// Check that regenerating the hitbox while rotated works correctly
+
+			equal( Math.round(e.map.points[0][0]), 0, "After rotation and hitbox regeneration: x_0 is 0")
+			equal( Math.round(e.map.points[0][1]), 0, "y_0 is 0")
+			equal( Math.round(e.map.points[2][0]), -50, "x_2 is -50")
+			equal( Math.round(e.map.points[2][1]), 40, "y_2 is 40")
+
+
+			// Check that changing the width when rotated resizes correctly for both hitbox and MBR
+			// Rotated by 90 degrees, changing the width of the entity should change the height of the hitbox/mbr
+			e.w = 100;
+
+			equal( Math.round(e.map.points[0][0]), 0, "After rotation and increase in width: x_0 is 0")
+			equal( Math.round(e.map.points[0][1]), 0, "y_0 is 0")
+			equal( Math.round(e.map.points[2][0]), -50, "x_2 is -50")
+			equal( Math.round(e.map.points[2][1]), 100, "y_2 is 100")
+
+			// After rotation the MBR will have changed
+			equal( Math.round(e._mbr._w), 50, "_mbr._w is  50" );
+			equal( Math.round(e._mbr._h), 100, "_mbr._h is  100" );
+			equal( Math.round(e._mbr._x), -50, "_mbr._x is -50");
+			equal( Math.round(e._mbr._y), 0, "_mbr._y is 0");
+
+
+
+
+			e.destroy();
+
+		});
 });
 </script>
   

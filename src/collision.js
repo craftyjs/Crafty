@@ -9,23 +9,13 @@ Crafty.c("Collision", {
      * @comp Collision
      * Create a rectangle polygon based on the x, y, w, h dimensions.
      *
-     * You must ensure that the x, y, w, h properties are set before the init function is called. If you have a Car component that sets these properties you should create your entity like this
-     * ~~~
-     * Crafty.e('2D, DOM, Car, Collision');
-     * ~~~
-     * And not like
-     * ~~~
-     * Crafty.e('2D, DOM, Collision, Car');
-     * ~~~
+     * By default, the collision hitbox will match the dimensions (x, y, w, h) and rotation of the object.
      */
     init: function () {
         this.requires("2D");
         var area = this._mbr || this;
 
-        var poly = new Crafty.polygon([0, 0], [area._w, 0], [area._w, area._h], [0, area._h]);
-        this.map = poly;
-        this.attach(this.map);
-        this.map.shift(area._x, area._y);
+        this.collision();
     },
 
     /**@
@@ -38,12 +28,14 @@ Crafty.c("Collision", {
 	* @sign public this .collision(Array point1, .., Array pointN)
 	* @param point# - Array with an `x` and `y` position to generate a polygon
 	* 
-	* Constructor takes a polygon or array of points to use as the hit area.
+	* Constructor takes a polygon or array of points to use as the hit area.  
 	*
 	* The hit area (polygon) must be a convex shape and not concave
 	* for the collision detection to work.
+	*
+	* Points are relative to the object's position and its unrotated state.
     *
-    * If no hit area is specified x, y, w, h properties of the entity will be used.
+    * If no parameter is passed, the x, y, w, h properties of the entity will be used, and the hitbox will be resized when the entity is.
 	* 
 	* @example
 	* ~~~
@@ -57,10 +49,19 @@ Crafty.c("Collision", {
 	* @see Crafty.polygon
 	*/
     collision: function (poly) {
-        var area = this._mbr || this;
-
+        this.unbind("Resize", this._resizeMap)
         if (!poly) {
-            poly = new Crafty.polygon([0, 0], [area._w, 0], [area._w, area._h], [0, area._h]);
+            poly = new Crafty.polygon([0, 0], [this._w, 0], [this._w, this._h], [0, this._h]);
+            this.bind("Resize", this._resizeMap)
+        } 
+
+
+		if (this.rotation) {
+            	poly.rotate({
+            		cos: Math.cos(-this.rotation * DEG_TO_RAD),
+            		sin: Math.sin(-this.rotation * DEG_TO_RAD),
+            		o: {x: this._origin.x, y: this._origin.y }
+            	})
         }
 
         if (arguments.length > 1) {
@@ -71,10 +72,50 @@ Crafty.c("Collision", {
 
         this.map = poly;
         this.attach(this.map);
-        this.map.shift(area._x, area._y);
-
+        this.map.shift(this._x, this._y);
         return this;
     },
+
+
+    // Change the hitbox when a "Resize" event triggers. 
+    _resizeMap: function (e) {
+
+    	var dx, dy, rot= this.rotation * DEG_TO_RAD, points = this.map.points;
+
+    	// Depending on the change of axis, move the corners of the rectangle appropriately
+    	if (e.axis === 'w'){
+
+    		if (rot){
+    			dx = e.amount * Math.cos(rot);
+	 			dy = e.amount * Math.sin(rot);
+	 		} else {
+	 			dx = e.amount;
+	 			dy = 0;
+	 		}
+
+	 		// "top right" point shifts on change of w
+	 		points[1][0] += dx;
+	 		points[1][1] += dy;
+	   	} else {
+
+	   		if (rot){
+		   		dy = e.amount * Math.cos(rot);
+		 		dx = -e.amount * Math.sin(rot);
+	   		} else {
+	   			dx = 0;
+	   			dy = e.amount;
+	   		}
+
+	   		// "bottom left" point shifts on change of h
+   	 		points[3][0] += dx;
+	 		points[3][1] += dy;
+    	}
+
+    	// "bottom right" point shifts on either change
+    	points[2][0] += dx;
+	 	points[2][1] += dy;
+
+   },
 
 	/**@
 	* #.hit
