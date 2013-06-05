@@ -86,19 +86,19 @@ window.onload = function() {
 						function (direction) {
 							if (direction.x < 0) {
 								if (!this.isPlaying("walk_left"))
-									this.pauseAnimation().playAnimation("walk_left", 10, -1);
+									this.pauseAnimation().playAnimation("walk_left", 20, -1);
 							}
 							if (direction.x > 0) {
 								if (!this.isPlaying("walk_right"))
-									this.pauseAnimation().playAnimation("walk_right", 10, -1);
+									this.pauseAnimation().playAnimation("walk_right", 20, -1);
 							}
 							if (direction.y < 0) {
 								if (!this.isPlaying("walk_up"))
-									this.pauseAnimation().playAnimation("walk_up", 10, -1);
+									this.pauseAnimation().playAnimation("walk_up", 20, -1);
 							}
 							if (direction.y > 0) {
 								if (!this.isPlaying("walk_down"))
-									this.pauseAnimation().playAnimation("walk_down", 10, -1);
+									this.pauseAnimation().playAnimation("walk_down", 20, -1);
 							}
 							if(!direction.x && !direction.y) {
 								this.pauseAnimation();
