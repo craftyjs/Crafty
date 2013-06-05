@@ -144,8 +144,8 @@ Crafty.c("SpriteAnimation", {
 	},
 
 	/**@
-	* #.play
-	* @sign public this .play(String reelId, Number duration[, Number repeatCount, Number fromFrame])
+	* #.playAnimation
+	* @sign public this .playAnimation(String reelId, Number duration[, Number repeatCount, Number fromFrame])
 	* @param reelId - ID of the animation reel to play
 	* @param duration - Play the animation within a duration (in frames)
 	* @param repeatCount - Number of times to repeat the animation (it will play repeatCount + 1 times). Use -1 to repeat indefinitely.
@@ -162,7 +162,7 @@ Crafty.c("SpriteAnimation", {
 	* If you simply wish to resume a previously paused animation without having to specify the duration again,
 	* supply `null` as the duration.
 	*
-	* Once an animation ends, it will remain at its last frame. Call `.reset(...)` to reset a reel to its first
+	* Once an animation ends, it will remain at its last frame. Call `.resetAnimation(...)` to reset a reel to its first
 	* frame, or play the reel from a specific frame. Attempting to play the reel again otherwise will result in
 	* the animation ending immediately.
 	*
@@ -179,10 +179,10 @@ Crafty.c("SpriteAnimation", {
 	* \/\/ Play the animation across 20 frame (so each sprite in the 4 sprite animation should be seen for 5 frames) and repeat indefinitely
 	* Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite")
 	*     .animate('PlayerRunning', 0, 0, 3) // setup animation
-	*     .play('PlayerRunning', 20, -1); // start animation
+	*     .playAnimation('PlayerRunning', 20, -1); // start animation
 	* ~~~
 	*/
-	play: function(reelId, duration, repeatCount, fromFrame) {
+	playAnimation: function(reelId, duration, repeatCount, fromFrame) {
 		var pos;
 
 		currentReel = this._reels[reelId];
@@ -191,7 +191,7 @@ Crafty.c("SpriteAnimation", {
 			throw "The supplied reelId, " + reelId + ", is not recognized.";
 		}
 
-		this.pause(); // This will pause the current animation, if one is playing
+		this.pauseAnimation(); // This will pause the current animation, if one is playing
 
 		this._currentReelId = reelId;
 
@@ -237,25 +237,25 @@ Crafty.c("SpriteAnimation", {
 	},
 
 	/**@
-	* #.resume
+	* #.resumeAnimation
 	* @comp SpriteAnimation
-	* @sign public this .resume([String reelId])
+	* @sign public this .resumeAnimation([String reelId])
 	* @param reelId - ID of the animation to continue playing
 	*
-	* This is simply a convenience method and is identical to calling `.play(reelId, null)`.
+	* This is simply a convenience method and is identical to calling `.playAnimation(reelId, null)`.
 	* You can call this method with no arguments to resume the last animation that played.
 	*/
-	resume: function(reelId) {
+	resumeAnimation: function(reelId) {
 		if (reelId === undefined || reelId === null) {
 			if (this._currentReelId !== null) {
-				return this.play(this._currentReelId, null);
+				return this.playAnimation(this._currentReelId, null);
 			}
 			else {
 				throw "There is no animation to resume.";
 			}
 		}
 
-		return this.play(reelId, null);
+		return this.playAnimation(reelId, null);
 	},
 
 	/**@
@@ -286,7 +286,7 @@ Crafty.c("SpriteAnimation", {
 				}
 				else {
 					currentReel.currentFrameNumber = currentReel.frames.length - 1;
-					this.pause();
+					this.pauseAnimation();
 					this._animationEndInfo.reelId = this._currentReelId
 					this.trigger("AnimationEnd", this._animationEndInfo);
 					return;
@@ -307,13 +307,13 @@ Crafty.c("SpriteAnimation", {
 	},
 
 	/**@
-	* #.pause
+	* #.pauseAnimation
 	* @comp SpriteAnimation
-	* @sign public this .pause(void)
+	* @sign public this .pauseAnimation(void)
 	*
 	* Pauses the currently playing animation, or does nothing if no animation is playing.
 	*/
-	pause: function () {
+	pauseAnimation: function () {
 		this.unbind("EnterFrame", this.updateSprite);
 		this._isPlaying = false;
 
@@ -321,9 +321,9 @@ Crafty.c("SpriteAnimation", {
 	},
 
 	/**@
-	* #.reset
+	* #.resetAnimation
 	* @comp SpriteAnimation
-	* @sign public this .reset([String reelId, Number frameToDisplay])
+	* @sign public this .resetAnimation([String reelId, Number frameToDisplay])
 	* @param reelId - ID of the animation to reset
 	* @param frameToDisplay - The frame to show after resetting the animation. 0 based.
 	*
@@ -342,7 +342,7 @@ Crafty.c("SpriteAnimation", {
 	* Keep in mind that resetting an animation will set the animation's state to the one it had
 	* just after defining it using `animate(...)`.
 	*/
-	reset: function (reelId, frameToDisplay) {
+	resetAnimation: function (reelId, frameToDisplay) {
 		var reelToReset = this._reels[reelId];
 
 		if (reelId === undefined || reelId === null) {
@@ -365,7 +365,7 @@ Crafty.c("SpriteAnimation", {
 			throw "The request frame exceeds the reel length.";
 		}
 
-		this.pause();
+		this.pauseAnimation();
 
 		reelToReset.cyclesPerFrame = undefined;
 		reelToReset.currentFrameNumber = frameToDisplay;

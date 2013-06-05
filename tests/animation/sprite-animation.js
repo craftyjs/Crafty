@@ -27,9 +27,9 @@ module("Sprite Animation", {
 	setup: function() {
 		eventFrames = [];
 		finishedAnimations = [];
-		spriteAnimation.reset('count');
-		spriteAnimation.reset('countEven');
-		spriteAnimation.reset('short');
+		spriteAnimation.resetAnimation('count');
+		spriteAnimation.resetAnimation('countEven');
+		spriteAnimation.resetAnimation('short');
 	}
 });
 
@@ -40,7 +40,7 @@ test("Get the active reel when there is none", function() {
 
 test("Play an animation", function() {
 	// Play for 10 frames, each sprite will show up for one frame
-	spriteAnimation.play('count', 10);
+	spriteAnimation.playAnimation('count', 10);
 	for (var i = 0; i < 10; i++) {
 		activeReel = spriteAnimation.getActiveReel();
 		equal(activeReel.frame, i, "Frame " + i + " should be displayed");
@@ -50,7 +50,7 @@ test("Play an animation", function() {
 
 test("Play an animation defined using an array", function() {
 	// Play for 5 frames, each sprite will show up for one frame
-	spriteAnimation.play('countEven', 5);
+	spriteAnimation.playAnimation('countEven', 5);
 	for (var i = 0; i < 5; i++) {
 		activeReel = spriteAnimation.getActiveReel();
 		equal(activeReel.frame, i, "Frame " + i + " should be displayed");
@@ -60,7 +60,7 @@ test("Play an animation defined using an array", function() {
 
 test("Play an animation where sprites are displayed for more than one frame", function() {
 	// Play for 60 frames, each sprite will show up for six frames
-	spriteAnimation.play('count', 60);
+	spriteAnimation.playAnimation('count', 60);
 	for (var i = 0; i < 10; i++) {
 		activeReel = spriteAnimation.getActiveReel();
 		equal(activeReel.frame, i, "Frame " + i + " should be displayed");
@@ -69,28 +69,28 @@ test("Play an animation where sprites are displayed for more than one frame", fu
 });
 
 test("Show the last frame after an animation ends", function() {
-	spriteAnimation.play('count', 10);
+	spriteAnimation.playAnimation('count', 10);
 	Crafty.timer.simulateFrames(20);
 	activeReel = spriteAnimation.getActiveReel();
 	equal(activeReel.frame, 9, "Frame 9 should be displayed after the animation ends");
 });
 
 test("Get events for each frame change", function() {
-	spriteAnimation.play('count', 10);
+	spriteAnimation.playAnimation('count', 10);
 	Crafty.timer.simulateFrames(20);
 
 	deepEqual(eventFrames, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], "Expected events for frames 0 through 9");
 });
 
 test("Get an event when an animation ends", function() {
-	spriteAnimation.play('count', 10);
+	spriteAnimation.playAnimation('count', 10);
 	Crafty.timer.simulateFrames(20);
 
 	deepEqual(finishedAnimations, ['count'], "Should have received an event for the 'count' animation's end");
 });
 
 test("Play an animation with a repeat count", function() {
-	spriteAnimation.play('short', 3, 2);
+	spriteAnimation.playAnimation('short', 3, 2);
 	Crafty.timer.simulateFrames(10);
 
 	deepEqual(eventFrames, [0, 1, 2, 0, 1, 2, 0, 1, 2], "Expected events matching the repeat count");
@@ -98,7 +98,7 @@ test("Play an animation with a repeat count", function() {
 });
 
 test("Play an animation with an infinite repeat count", function() {
-	spriteAnimation.play('short', 3, -1);
+	spriteAnimation.playAnimation('short', 3, -1);
 	Crafty.timer.simulateFrames(32);
 
 	expected = [];
@@ -113,7 +113,7 @@ test("Play an animation with an infinite repeat count", function() {
 });
 
 test("Play an animation from a specific frame", function() {
-	spriteAnimation.play('count', 10, 0, 5);
+	spriteAnimation.playAnimation('count', 10, 0, 5);
 	Crafty.timer.simulateFrames(5);
 
 	deepEqual(eventFrames, [5, 6, 7, 8, 9], "Expected events for frames 5 through 9");
@@ -121,25 +121,25 @@ test("Play an animation from a specific frame", function() {
 });
 
 test("Play an animation from a specific frame, with a repeat count", function() {
-	spriteAnimation.play('count', 10, 1, 6);
+	spriteAnimation.playAnimation('count', 10, 1, 6);
 	Crafty.timer.simulateFrames(7);
 
 	deepEqual(eventFrames, [6, 7, 8, 9, 0, 1, 2, 3], "Expected events for frames 6 through 9 and then 0 through 3");
 });
 
 test("Pause an animation", function() {
-	spriteAnimation.play('count', 10);
+	spriteAnimation.playAnimation('count', 10);
 	Crafty.timer.simulateFrames(5);
-	spriteAnimation.pause();
+	spriteAnimation.pauseAnimation();
 	Crafty.timer.simulateFrames(5);
 
 	deepEqual(eventFrames, [0, 1, 2, 3, 4, 5], "Expected events for frames 0 through 5");
 });
 
 test("Play an animation while another is already playing", function() {
-	spriteAnimation.play('count', 10);
+	spriteAnimation.playAnimation('count', 10);
 	Crafty.timer.simulateFrames(5);
-	spriteAnimation.play('short', 4);
+	spriteAnimation.playAnimation('short', 4);
 	Crafty.timer.simulateFrames(10);
 
 	deepEqual(eventFrames, [0, 1, 2, 3, 4, 5, 0, 1, 2], "Expected events for frames from both animations");
@@ -147,11 +147,11 @@ test("Play an animation while another is already playing", function() {
 });
 
 test("Pause an animation, then resume it", function() {
-	spriteAnimation.play('count', 10);
+	spriteAnimation.playAnimation('count', 10);
 	Crafty.timer.simulateFrames(5);
-	spriteAnimation.pause();
+	spriteAnimation.pauseAnimation();
 	Crafty.timer.simulateFrames(5);
-	spriteAnimation.resume();
+	spriteAnimation.resumeAnimation();
 	Crafty.timer.simulateFrames(5);
 
 	deepEqual(eventFrames, [0, 1, 2, 3, 4, 5, 5, 6, 7, 8, 9], "Expected events for frames 0 through 9, with two for frame 5");
@@ -159,19 +159,19 @@ test("Pause an animation, then resume it", function() {
 });
 
 test("Try to play an animation after it ends", function() {
-	spriteAnimation.play('count', 10);
+	spriteAnimation.playAnimation('count', 10);
 	Crafty.timer.simulateFrames(10);
-	spriteAnimation.play('count', null);
+	spriteAnimation.playAnimation('count', null);
 	Crafty.timer.simulateFrames(1);
 
 	deepEqual(finishedAnimations, ['count', 'count'], "Expected the animation to end twice");
 });
 
 test("Reset an animation", function() {
-	spriteAnimation.play('short', 3);
+	spriteAnimation.playAnimation('short', 3);
 	Crafty.timer.simulateFrames(3);
-	spriteAnimation.reset();
-	spriteAnimation.play('short', 3);
+	spriteAnimation.resetAnimation();
+	spriteAnimation.playAnimation('short', 3);
 	Crafty.timer.simulateFrames(3);
 
 	deepEqual(eventFrames, [0, 1, 2, 0, 1, 2], "Expected events for frames 0 through 2, twice");
@@ -179,10 +179,10 @@ test("Reset an animation", function() {
 });
 
 test("Reset an animation to a specific frame", function() {
-	spriteAnimation.play('short', 3);
+	spriteAnimation.playAnimation('short', 3);
 	Crafty.timer.simulateFrames(3);
-	spriteAnimation.reset(null, 1);
-	spriteAnimation.play('short', 2);
+	spriteAnimation.resetAnimation(null, 1);
+	spriteAnimation.playAnimation('short', 2);
 	Crafty.timer.simulateFrames(2);
 
 	deepEqual(eventFrames, [0, 1, 2, 1, 2], "Expected events for frames 0 through 2 and then 1 through 2");
@@ -191,21 +191,21 @@ test("Reset an animation to a specific frame", function() {
 
 test("See if any animation is playing", function() {
 	equal(spriteAnimation.isPlaying(), false, "No animation should be playing");
-	spriteAnimation.play('short', 3);
+	spriteAnimation.playAnimation('short', 3);
 	equal(spriteAnimation.isPlaying(), true, "An animation should be playing");
 });
 
 test("See if a specific animation is playing", function() {
-	spriteAnimation.play('count', 3);
+	spriteAnimation.playAnimation('count', 3);
 	equal(spriteAnimation.isPlaying('short'), false, "The 'short' animation shouldn't be playing");
-	spriteAnimation.play('short', 3);
+	spriteAnimation.playAnimation('short', 3);
 	equal(spriteAnimation.isPlaying('short'), true, "The 'short' animation should be playing");
 });
 
 Crafty.pause();
-spriteAnimation.reset('count');
-spriteAnimation.reset('countEven');
-spriteAnimation.reset('short');
+spriteAnimation.resetAnimation('count');
+spriteAnimation.resetAnimation('countEven');
+spriteAnimation.resetAnimation('short');
 
 // Some extra functions for the animation playground
 playgroundPlay = function() {
@@ -220,18 +220,18 @@ playgroundPlay = function() {
 	fromFrame = parseInt($('#playFromFrame').val());
 	if (isNaN(fromFrame)) fromFrame = null;
 
-	spriteAnimation.play(reelId, duration, repeatCount, fromFrame);
+	spriteAnimation.playAnimation(reelId, duration, repeatCount, fromFrame);
 }
 
 playgroundPause = function() {
-	spriteAnimation.pause();
+	spriteAnimation.pauseAnimation();
 }
 
 playgroundResume = function() {
 	reelId = $('#resumeReelId').val();
 	if (!!reelId === false) reelId = null;
 
-	spriteAnimation.resume(reelId);
+	spriteAnimation.resumeAnimation(reelId);
 }
 
 playgroundReset = function() {
@@ -240,5 +240,5 @@ playgroundReset = function() {
 
 	frameToDisplay = parseInt($('#resetFrameToDisplay').val());
 	if (isNaN(frameToDisplay)) frameToDisplay = null;
-	spriteAnimation.reset(reelId, frameToDisplay);
+	spriteAnimation.resetAnimation(reelId, frameToDisplay);
 }
