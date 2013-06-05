@@ -30,7 +30,7 @@ window.onload = function() {
 					Crafty.e("2D, DOM, flower, solid, SpriteAnimation")
 						.attr({x: i * 16, y: j * 16})
 						.animate("wind", 0, 1, 3)
-						.animate("wind", 80, -1);
+						.playAnimation("wind", 80, -1);
 				}
 			}
 		}
@@ -86,22 +86,22 @@ window.onload = function() {
 						function (direction) {
 							if (direction.x < 0) {
 								if (!this.isPlaying("walk_left"))
-									this.stop().animate("walk_left", 10, -1);
+									this.pauseAnimation().playAnimation("walk_left", 10, -1);
 							}
 							if (direction.x > 0) {
 								if (!this.isPlaying("walk_right"))
-									this.stop().animate("walk_right", 10, -1);
+									this.pauseAnimation().playAnimation("walk_right", 10, -1);
 							}
 							if (direction.y < 0) {
 								if (!this.isPlaying("walk_up"))
-									this.stop().animate("walk_up", 10, -1);
+									this.pauseAnimation().playAnimation("walk_up", 10, -1);
 							}
 							if (direction.y > 0) {
 								if (!this.isPlaying("walk_down"))
-									this.stop().animate("walk_down", 10, -1);
+									this.pauseAnimation().playAnimation("walk_down", 10, -1);
 							}
 							if(!direction.x && !direction.y) {
-								this.stop();
+								this.pauseAnimation();
 							}
 					})
 					// A rudimentary way to prevent the user from passing solid areas
