@@ -66,6 +66,8 @@ Crafty.c("Particles", {
 		c.width = Crafty.viewport.width;
 		c.height = Crafty.viewport.height;
 		c.style.position = 'absolute';
+		c.style.left = "0px";
+		c.style.top = "0px";
 
 		Crafty.stage.elem.appendChild(c);
 
