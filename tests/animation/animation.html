@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<script src="http://code.jquery.com/jquery-latest.js"></script>
+		<script type="text/javascript" src="http://code.jquery.com/qunit/git/qunit.js"></script>
+		<link rel="stylesheet" href="http://code.jquery.com/qunit/git/qunit.css" type="text/css" media="screen" />
+		<script type="text/javascript" src="../../crafty.js"></script>
+	</head>
+	<body>
+		<h1 id="qunit-header">Crafty: Animation</h1>
+		<h2 id="qunit-banner"></h2>
+		<div id="qunit-testrunner-toolbar"></div>
+		<h2 id="qunit-userAgent"></h2>
+		<ol id="qunit-tests"></ol>
+		<div id="qunit-fixture">test markup, will be hidden</div>
+		<h3>Sprite animation playground:</h3>
+		<div id="cr-stage"></div>
+		<script type="text/javascript" src="sprite-animation.js"></script>
+		<div>
+			<button onclick="playgroundPlay();">Play</button>
+			<label for="playReelId">Reel ID:</label>
+			<select id="playReelId">
+				<option value="count" selected>Count</option>
+				<option value="countEven">Count Even</option>
+				<option value="short">Short</option>
+			</select>
+			<label for="playDuration">Duration:</label>
+			<input type="number" id="playDuration"></input>
+			<label for="playRepeatCount">Repeat count:</label>
+			<input type="number" id="playRepeatCount"></input>
+			<label for="playFromFrame">From frame:</label>
+			<input type="number" id="playFromFrame"></input>
+		</div>
+		<div>
+			<button onclick="playgroundPause();">Pause</button>
+		</div>
+		<div>
+			<button onclick="playgroundResume();">Resume</button>
+			<label for="resumeReelId">Reel ID:</label>
+			<select id="resumeReelId">
+				<option value="" selected>&lt;Current&gt;</option>
+				<option value="count">Count</option>
+				<option value="countEven">Count Even</option>
+				<option value="short">Short</option>
+			</select>
+		</div>
+		<div>
+			<button onclick="playgroundReset();">Reset</button>
+			<label for="resetReelId">Reel ID:</label>
+			<select id="resetReelId">
+				<option value="" selected>&lt;Current&gt;</option>
+				<option value="count">Count</option>
+				<option value="countEven">Count Even</option>
+				<option value="short">Short</option>
+			</select>
+			<label for="resetFrameToDisplay">Frame to display:</label>
+			<input type="number" id="resetFrameToDisplay"></input>
+		</div>
+	</body>
+</html>
