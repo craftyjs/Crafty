@@ -10,7 +10,7 @@
 		'HashMap',
 		'2D',
 		'collision',
-		'hitbox',
+		'DebugLayer',
 		'DOM',
 		'fps',
 		'html',

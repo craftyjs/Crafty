@@ -306,6 +306,10 @@ Crafty.extend({
 			init: function () {
 				this.width = window.innerWidth || (window.document.documentElement.clientWidth || window.document.body.clientWidth);
 				this.height = window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
+				
+				// Bind scene rendering (see drawing.js)
+				Crafty.unbind("RenderScene", Crafty.DrawManager.renderDOM)
+				Crafty.bind("RenderScene", Crafty.DrawManager.renderDOM)
 			},
 
 			width: 0,
