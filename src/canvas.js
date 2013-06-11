@@ -194,6 +194,11 @@ Crafty.extend({
 			var zoom = Crafty.viewport._zoom
 			if (zoom != 1)
 				Crafty.canvas.context.scale(zoom, zoom);
+
+			//Bind rendering of canvas context (see drawing.js)
+			Crafty.unbind("RenderScene", Crafty.DrawManager.renderCanvas)
+			Crafty.bind("RenderScene", Crafty.DrawManager.renderCanvas);
 		}
+
 	}
 });

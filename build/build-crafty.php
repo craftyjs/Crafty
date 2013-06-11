@@ -8,7 +8,6 @@ $files = array("license.txt",
                "HashMap.js",
                "2D.js",
                "collision.js",
-               "hitbox.js",
                "DOM.js",
                "fps.js",
                "html.js",
@@ -28,6 +27,7 @@ $files = array("license.txt",
                "loader.js",
                "math.js",
                "time.js",
+			   "DebugLayer.js",
                "outro.js");
 			   
 foreach($files as $file) {

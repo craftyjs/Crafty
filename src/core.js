@@ -958,7 +958,7 @@
                     loops++;
                 }
                 if (loops) {
-                    Crafty.DrawManager.draw();
+                    Crafty.trigger("RenderScene")
                 }
                if(this.currentTime > this.frameTime){
                     Crafty.trigger("MessureFPS",{value:this.frame});
