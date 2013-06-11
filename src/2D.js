@@ -330,50 +330,73 @@ Crafty.c("2D", {
 		});
 	},
 
+
 	/**
-	* Calculates the MBR when rotated with an origin point
+	* Calculates the MBR when rotated some number of radians about an origin point o.
+	* Necessary on a rotation, or a resize (when already rotated)
+	*/
+
+	_calculateMBR: function(ox, oy, rad){
+		if (rad == 0){
+			this._mbr =null;
+			return;
+		}
+
+		var ct = Math.cos(rad), st = Math.sin(rad);
+		var x0 = ox + (this._x - ox) * ct + (this._y - oy) * st,
+			y0 = oy - (this._x - ox) * st + (this._y - oy) * ct,
+			x1 = ox + (this._x + this._w - ox) * ct + (this._y - oy) * st,
+			y1 = oy - (this._x + this._w - ox) * st + (this._y - oy) * ct,
+			x2 = ox + (this._x + this._w - ox) * ct + (this._y + this._h - oy) * st,
+			y2 = oy - (this._x + this._w - ox) * st + (this._y + this._h - oy) * ct,
+			x3 = ox + (this._x - ox) * ct + (this._y + this._h - oy) * st,
+			y3 = oy - (this._x - ox) * st + (this._y + this._h - oy) * ct,
+			minx = Math.round(Math.min(x0, x1, x2, x3)),
+			miny = Math.round(Math.min(y0, y1, y2, y3)),
+			maxx = Math.round(Math.max(x0, x1, x2, x3)),
+			maxy = Math.round(Math.max(y0, y1, y2, y3));
+		if (!this._mbr)
+			this._mbr = { _x: minx, _y: miny, _w: maxx - minx, _h: maxy - miny };
+		else {
+			this._mbr._x = minx;
+			this._mbr._y = miny;
+			this._mbr._w = maxx - minx;
+			this._mbr._h = maxy - miny;
+		}
+
+	},
+
+	/**
+	* Handle changes that need to happen on a rotation
 	*/
 	_rotate: function (v) {
-		var theta = -1 * (v % 360), //angle always between 0 and 359
-			rad = theta * DEG_TO_RAD,
-			ct = Math.cos(rad), //cache the sin and cosine of theta
-			st = Math.sin(rad),
+		var theta = -1 * (v % 360) //angle always between 0 and 359
+		var difference = this._rotation - v;
+		// skip if there's no rotation!
+		if (difference == 0)
+			return;
+
+		//Calculate the new MBR
+		var	rad = theta * DEG_TO_RAD,
 			o = {
 			x: this._origin.x + this._x,
 			y: this._origin.y + this._y
 		};
 
-		//if the angle is 0 and is currently 0, skip
-		if (!theta) {
-			this._mbr = null;
-			if (!this._rotation % 360) return;
-		}
+		this._calculateMBR(o.x, o.y, rad);
 
-		var x0 = o.x + (this._x - o.x) * ct + (this._y - o.y) * st,
-			y0 = o.y - (this._x - o.x) * st + (this._y - o.y) * ct,
-			x1 = o.x + (this._x + this._w - o.x) * ct + (this._y - o.y) * st,
-			y1 = o.y - (this._x + this._w - o.x) * st + (this._y - o.y) * ct,
-			x2 = o.x + (this._x + this._w - o.x) * ct + (this._y + this._h - o.y) * st,
-			y2 = o.y - (this._x + this._w - o.x) * st + (this._y + this._h - o.y) * ct,
-			x3 = o.x + (this._x - o.x) * ct + (this._y + this._h - o.y) * st,
-			y3 = o.y - (this._x - o.x) * st + (this._y + this._h - o.y) * ct,
-			minx = Math.floor(Math.min(x0, x1, x2, x3)),
-			miny = Math.floor(Math.min(y0, y1, y2, y3)),
-			maxx = Math.ceil(Math.max(x0, x1, x2, x3)),
-			maxy = Math.ceil(Math.max(y0, y1, y2, y3));
 
-		this._mbr = { _x: minx, _y: miny, _w: maxx - minx, _h: maxy - miny };
-
-		//trigger rotation event
-		var difference = this._rotation - v,
-			drad = difference * DEG_TO_RAD;
+		//trigger "Rotate" event
+		var drad = difference * DEG_TO_RAD,
+			ct = Math.cos(rad), 
+			st = Math.sin(rad);
 
 		this.trigger("Rotate", {
 			cos: Math.cos(drad),
 			sin: Math.sin(drad),
 			deg: difference,
 			rad: drad,
-			o: { x: o.x, y: o.y },
+			o: o, 
 			matrix: { M11: ct, M12: st, M21: -st, M22: ct }
 		});
 	},
@@ -767,13 +790,31 @@ Crafty.c("2D", {
 			this._globalZ = parseInt(value + Crafty.zeroFill(this[0], 5), 10); //magic number 10^5 is the max num of entities
 			this.trigger("reorder");
 			//if the rect bounds change, update the MBR and trigger move
-		} else if (name === '_x' || name === '_y' || name === '_w' || name === '_h') {
+		} else if (name === '_x' || name === '_y') {
 			var mbr = this._mbr;
+
 			if (mbr) {
 				mbr[name] -= this[name] - value;
 			}
 			this[name] = value;
+
 			this.trigger("Move", old);
+		
+		} else if (name === '_h' || name ==='_w'){
+			var mbr = this._mbr;
+
+			var oldValue = this[name];		
+			this[name] = value;
+			if (mbr){
+				this._calculateMBR(this._origin.x + this.x, this._origin.y + this.y, -this.rotation*DEG_TO_RAD);
+			}
+			if (name === '_w'){
+				this.trigger("Resize", {axis:'w', amount:value-oldValue})
+			} else if (name === '_h'){
+				this.trigger("Resize", {axis:'h', amount:value-oldValue})
+			}
+			this.trigger("Move", old)
+
 		}
 
 		//everything will assume the value
