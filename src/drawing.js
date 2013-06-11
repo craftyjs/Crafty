@@ -222,6 +222,16 @@ Crafty.extend({
 	* If you want some entities to persist over scenes (as in, not be destroyed)
 	* simply add the component `Persist`.
 	*
+	* Using `Crafty.scene()` is always optional, but some programmers choose
+	* to write games that spend most of the time inside the `init` function of one
+	* scene or another.
+	*
+	* It is bad practice to open a new scene (with `Crafty.scene('foo')`) when you are
+	* inside the `init` function of another scene. (The call stack will grow and grow
+	* if you keep doing that.) Instead, use `return 'foo'`: Whenever an `init` function
+	* returns something with string type, it is interpreted as a new scene to run
+	* immediately.
+	*
 	* @example
 	* ~~~
 	* Crafty.scene("loading", function() {
@@ -262,20 +272,23 @@ Crafty.extend({
 		
 		// If there's one argument, play the scene
 		if (arguments.length === 1) {
-			Crafty.viewport.reset();
-			Crafty("2D").each(function () {
-				if (!this.has("Persist")) this.destroy();
-			});
-			// uninitialize previous scene
-			if (this._current !== null && 'uninitialize' in this._scenes[this._current]) {
-				this._scenes[this._current].uninitialize.call(this);
+			while (true) {
+				Crafty.viewport.reset();
+				Crafty("2D").each(function () {
+					if (!this.has("Persist")) this.destroy();
+				});
+				// uninitialize previous scene
+				if (this._current !== null && 'uninitialize' in this._scenes[this._current]) {
+					this._scenes[this._current].uninitialize.call(this);
+				}
+				var oldScene = this._current;
+				this._current = name;
+				Crafty.trigger("SceneChange", { oldScene: oldScene, newScene: name });
+				// run the initialization, then check the return value. If it's a string,
+				// immediately run that scene next. Otherwise return.
+				name = this._scenes[name].initialize.call(this);
+				if (typeof name !== 'string') return;
 			}
-			// initialize next scene
-			this._scenes[name].initialize.call(this);
-			var oldScene = this._current;
-			this._current = name;
-			Crafty.trigger("SceneChange", { oldScene: oldScene, newScene: name });
-			return;
 		}
 		
 		// If there is more than one argument, add the scene information to _scenes
