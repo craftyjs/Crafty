@@ -421,18 +421,18 @@ Crafty.c("2D", {
 	* @param h - Height of the rect
 	* @sign public Boolean .intersect(Object rect)
 	* @param rect - An object that must have the `x, y, w, h` values as properties
-	* Determines if this entity intersects a rectangle.
+	* Determines if this entity intersects a rectangle.  If the entity is rotated, its MBR is used for the test.
 	*/
 	intersect: function (x, y, w, h) {
-		var rect, obj = this._mbr || this;
+		var rect, mbr = this._mbr || this;
 		if (typeof x === "object") {
 			rect = x;
 		} else {
 			rect = { x: x, y: y, w: w, h: h };
 		}
 
-		return obj._x < rect.x + rect.w && obj._x + obj._w > rect.x &&
-			   obj._y < rect.y + rect.h && obj._h + obj._y > rect.y;
+		return mbr._x < rect.x + rect.w && mbr._x + mbr._w > rect.x &&
+			   mbr._y < rect.y + rect.h && mbr._h + mbr._y > rect.y;
 	},
 
 	/**@
@@ -448,15 +448,15 @@ Crafty.c("2D", {
 	* Determines if this current entity is within another rectangle.
 	*/
 	within: function (x, y, w, h) {
-		var rect;
+		var rect, mbr = this._mbr || this;
 		if (typeof x === "object") {
 			rect = x;
 		} else {
 			rect = { x: x, y: y, w: w, h: h };
 		}
 
-		return rect.x <= this.x && rect.x + rect.w >= this.x + this.w &&
-				rect.y <= this.y && rect.y + rect.h >= this.y + this.h;
+		return rect.x <= mbr.x && rect.x + rect.w >= mbr.x + mbr.w &&
+				rect.y <= mbr.y && rect.y + rect.h >= mbr.y + mbr.h;
 	},
 
 	/**@
@@ -469,18 +469,18 @@ Crafty.c("2D", {
 	* @param h - Height of the rect
 	* @sign public Boolean .contains(Object rect)
 	* @param rect - An object that must have the `x, y, w, h` values as properties
-	* Determines if the rectangle is within the current entity.
+	* Determines if the rectangle is within the current entity.  If the entity is rotated, its MBR is used for the test.
 	*/
 	contains: function (x, y, w, h) {
-		var rect;
+		var rect, mbr = this._mbr || this;
 		if (typeof x === "object") {
 			rect = x;
 		} else {
 			rect = { x: x, y: y, w: w, h: h };
 		}
 
-		return rect.x >= this.x && rect.x + rect.w <= this.x + this.w &&
-				rect.y >= this.y && rect.y + rect.h <= this.y + this.h;
+		return rect.x >= mbr.x && rect.x + rect.w <= mbr.x + mbr.w &&
+				rect.y >= mbr.y && rect.y + rect.h <= mbr.y + mbr.h;
 	},
 
 	/**@
