@@ -1,5 +1,5 @@
 /**@
-* #Crafty Time
+* #Delay
 * @category Utilities
 */
 Crafty.c("Delay", {
@@ -41,7 +41,7 @@ Crafty.c("Delay", {
 	},
 	/**@
 	* #.delay
-	* @comp Crafty Time
+	* @comp Delay
 	* @sign public this.delay(Function callback, Number delay)
 	* @param callback - Method to execute after given amount of milliseconds
 	* @param delay - Amount of milliseconds to execute the method
@@ -60,7 +60,7 @@ Crafty.c("Delay", {
 	* @example
 	* ~~~
 	* console.log("start");
-	* this.delay(function() {
+	* Crafty.e("Delay").delay(function() {
 		 console.log("100ms later");
 	* }, 100, 0);
 	* ~~~
