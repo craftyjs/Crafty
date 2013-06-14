@@ -251,6 +251,58 @@ $(document).ready(function() {
 		// Clean up
 		Crafty("*").destroy();
 	});
+
+	test("within", function() {
+		var player = Crafty.e("2D, DOM, Color").attr({w:50, h: 50});
+		player.x = 0;
+		player.y = 0;
+		player.w = 50;
+		player.h = 50;
+		
+		strictEqual(player.within(0, 0, 50, 50), true, "Within");
+
+		strictEqual(player.within(-1, -1, 51, 51), true, "Within");
+
+
+		strictEqual(player.within({x: 0, y: 0, w: 50, h: 50}), true, "Within Again");
+
+		strictEqual(player.within(0, 0, 40, 50), false, "Wasn't within");
+
+		player.rotation = 90;	// Once rotated, the entity should no longer be within the rectangle
+
+		strictEqual(player.within(0, 0, 50, 50), false, "Rotated, Not within");
+
+		
+		// Clean up
+		Crafty("*").destroy();
+	});
+
+	test("contains", function() {
+		var player = Crafty.e("2D, DOM, Color").attr({w:50, h: 50});
+		player.x = 0;
+		player.y = 0;
+		player.w = 50;
+		player.h = 50;
+		
+
+		strictEqual(player.contains(0, 0, 50, 50), true, "Contains");
+
+		strictEqual(player.contains(1, 1, 49, 49), true, "Contains");
+
+		strictEqual(player.contains({x: 0, y: 0, w: 50, h: 50}), true, "Contains");
+
+		strictEqual(player.contains(1, 1, 51, 51), false, "Doesn't contain");
+
+		player.rotation = 90;
+
+		strictEqual(player.contains(0, 0, 50, 50), false, "Rotated, no longer contains");
+
+		
+		// Clean up
+		Crafty("*").destroy();
+	});
+
+
 	
 	test("circle", function() {
 		var player = Crafty.e("2D, DOM, Color").attr({w:50, h: 50}).color("red");
@@ -413,7 +465,7 @@ $(document).ready(function() {
 			equal( Math.round(e._mbr._x), -50, "_mbr._x is -50");
 			equal( Math.round(e._mbr._y), 0, "_mbr._y is 0");
 
-
+		});
 
 	module("DebugLayer");
 		test("DebugCanvas", function(){
