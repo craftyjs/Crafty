@@ -526,7 +526,9 @@ Crafty.c("2D", {
 	* @param x - X position of the point
 	* @param y - Y position of the point
 	* Determines whether a point is contained by the entity. Unlike other methods,
-	* an object can't be passed. The arguments require the x and y value
+	* an object can't be passed. The arguments require the x and y value. 
+	*
+	* The given point is tested against the first of the following that exists: a mapArea associated with "Mouse", the hitarea associated with "Collision", or the object's MBR.
 	*/
 	isAt: function (x, y) {
 		if (this.mapArea) {
@@ -534,8 +536,9 @@ Crafty.c("2D", {
 		} else if (this.map) {
 			return this.map.containsPoint(x, y);
 		}
-		return this.x <= x && this.x + this.w >= x &&
-			   this.y <= y && this.y + this.h >= y;
+		var mbr = this._mbr || this;
+		return mbr.x <= x && mbr.x + mbr.w >= x &&
+			   mbr.y <= y && mbr.y + mbr.h >= y;
 	},
 
 	/**@
@@ -727,13 +730,14 @@ Crafty.c("2D", {
 	*/
 	flip: function (dir) {
 		dir = dir || "X";
-                if(!this["_flip" + dir]) {
-                    this["_flip" + dir] = true;
-                    this.trigger("Change");
-                }
+	    if(!this["_flip" + dir]) {
+	        this["_flip" + dir] = true;
+	        this.trigger("Change");
+	    }
+        return this;
 	},
 
-        /**@
+    /**@
 	* #.unflip
 	* @comp 2D
 	* @trigger Change - when the entity has unflipped
@@ -749,10 +753,11 @@ Crafty.c("2D", {
 	*/
 	unflip: function (dir) {
 		dir = dir || "X";
-                if(this["_flip" + dir]) {
-                    this["_flip" + dir] = false;
-                    this.trigger("Change");
-                }
+        if(this["_flip" + dir]) {
+            this["_flip" + dir] = false;
+            this.trigger("Change");
+        }
+        return this;
 	},
 
 	/**
@@ -783,8 +788,7 @@ Crafty.c("2D", {
 
 		//if rotation, use the rotate method
 		if (name === '_rotation') {
-			this._rotate(value);
-			this.trigger("Rotate");
+			this._rotate(value); // _rotate triggers "Rotate"
 			//set the global Z and trigger reorder just in case
 		} else if (name === '_z') {
 			this._globalZ = parseInt(value + Crafty.zeroFill(this[0], 5), 10); //magic number 10^5 is the max num of entities
