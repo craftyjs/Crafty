@@ -58,7 +58,7 @@ Crafty.extend({
         */
         place: function (x, y, z, obj) {
             var pos = this.pos2px(x,y);
-            pos.top -= z * (this._tile.width / 2);
+            pos.top -= z * (this._tile.height / 2);
             obj.attr({
                 x: pos.left + Crafty.viewport._x, 
                 y: pos.top + Crafty.viewport._y
