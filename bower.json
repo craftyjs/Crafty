@@ -1,0 +1,9 @@
+{
+  "name": "crafty",
+  "main": "crafty.js",
+  "version": "0.5.3",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/craftyjs/Crafty.git"
+  }
+}
