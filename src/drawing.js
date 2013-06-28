@@ -205,7 +205,8 @@ Crafty.extend({
 	/**@
 	* #Crafty.scene
 	* @category Scenes, Stage
-	* @trigger SceneChange - when a scene is played - { oldScene:String, newScene:String }
+	* @trigger SceneChange - just before a new scene is initialized - { oldScene:String, newScene:String }
+	* @trigger SceneDestroy - just before the current scene is destroyed - { newScene:String  }
 	* @sign public void Crafty.scene(String sceneName, Function init[, Function uninit])
 	* @param sceneName - Name of the scene to add
 	* @param init - Function to execute when scene is played
@@ -262,7 +263,9 @@ Crafty.extend({
 		
 		// If there's one argument, play the scene
 		if (arguments.length === 1) {
+			Crafty.trigger("SceneDestroy", {newScene:name})
 			Crafty.viewport.reset();
+
 			Crafty("2D").each(function () {
 				if (!this.has("Persist")) this.destroy();
 			});
@@ -271,10 +274,11 @@ Crafty.extend({
 				this._scenes[this._current].uninitialize.call(this);
 			}
 			// initialize next scene
-			this._scenes[name].initialize.call(this);
 			var oldScene = this._current;
 			this._current = name;
 			Crafty.trigger("SceneChange", { oldScene: oldScene, newScene: name });
+			this._scenes[name].initialize.call(this);
+			
 			return;
 		}
 		
