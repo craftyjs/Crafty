@@ -32,7 +32,7 @@
     },
 
     GUID, FPS, frame, components, entities, handlers, onloads, tick, requestID,
-	noSetter, loops, milliSecPerFrame, nextGameTick, slice, rlist, rspace,
+	noSetter, loops, milliSecPerFrame, nextGameTick, slice, rlist, rspace, lastFrameTime, endTime, currentTime
 
 	initState = function () {
     	GUID = 1; //GUID for entity IDs
@@ -57,6 +57,9 @@
     	loops = 0;
     	milliSecPerFrame = 1000 / FPS;
     	nextGameTick = (new Date).getTime();
+        currentTime = lastFrameTime = nextGameTick;
+        maxTimestep = 40;  // The goal is about 20ms per time step, but drawing interferes!
+        endTime = 0;        
 
     	slice = Array.prototype.slice;
     	rlist = /\s*,\s*/;
@@ -767,8 +770,7 @@
     Crafty.extend({
         /**@
         * #Crafty.init
-        * @category Core
-        * @trigger EnterFrame - on each frame - { frame: Number }
+        * @category Core        
         * @trigger Load - Just after the viewport is initialised. Before the EnterFrame loops is started
         * @sign public this Crafty.init([Number width, Number height, String stage_elem])
         * @sign public this Crafty.init([Number width, Number height, HTMLElement stage_elem])
@@ -894,7 +896,7 @@
 
         /**@
         * #Crafty.timer
-        * @category Internal
+        * @category Game Loop
         * Handles game ticks
         */
         timer: {
@@ -903,6 +905,7 @@
             currentTime: +new Date(),
             frames:0,
             frameTime:0,
+            maxTimestep: 50,
             init: function () {
                 var onFrame = window.requestAnimationFrame ||
                     window.webkitRequestAnimationFrame ||
@@ -944,29 +947,47 @@
             * #Crafty.timer.step
             * @comp Crafty.timer
             * @sign public void Crafty.timer.step()
+            * @trigger EnterFrame - Triggered on each frame.  Passes the frame number, and the amount of time since the last frame.  If the time is greater than Crafty.timer.maxTimestep, that will be used instead.  (The default value of maxTimestep is 50 ms.) - { frame: Number, dt:Number }
+            * @trigger RenderScene - Triggered every time a scene should be rendered
+            * @trigger MeasureWaitTime - Triggered at the beginning of each step after the first.  Passes the time the game loop waited between steps. - Number
+            * @trigger MeasureFrameTime - Triggered after each step.  Passes the time it took to advance one frame. - Number
+            * @trigger MeasureRenderTime - Triggered after each render. Passes the time it took to render the scene - Number
             * Advances the game by triggering `EnterFrame` and calls `Crafty.DrawManager.draw` to update the stage.
             */
             step: function () {
+                var drawTimeStart, dt;
                 loops = 0;
-                this.currentTime = +new Date();
-                if (this.currentTime - nextGameTick > 60 * milliSecPerFrame) {
-                    nextGameTick = this.currentTime - milliSecPerFrame;
+                currentTime = this.currentTime = +new Date();
+                if (endTime>0)
+                    Crafty.trigger("MeasureWaitTime", currentTime-endTime)
+                if (currentTime - nextGameTick > 60 * milliSecPerFrame) {
+                    nextGameTick = currentTime - milliSecPerFrame;
                 }
-                while (this.currentTime > nextGameTick) {
-                    Crafty.trigger("EnterFrame", { frame: frame++ });
+                while (this.currentTime > nextGameTick) {                    
+                    dt = currentTime - lastFrameTime;
+                    lastFrameTime = currentTime;
+                    if (dt > Crafty.timer.maxTimestep) dt = Crafty.timer.maxTimestep;
+                    Crafty.trigger("EnterFrame", { frame: frame++, dt:dt });
                     nextGameTick += milliSecPerFrame;
                     loops++;
+                    currentTime = +new Date();
+                    Crafty.trigger("MeasureFrameTime", currentTime - lastFrameTime);
                 }
                 if (loops) {
+                    drawTimeStart = currentTime;
                     Crafty.trigger("RenderScene")
+                    currentTime = +new Date();
+                    Crafty.trigger("MeasureRenderTime", currentTime - drawTimeStart);
+
                 }
                if(this.currentTime > this.frameTime){
-                    Crafty.trigger("MessureFPS",{value:this.frame});
                     this.frame = 0;
                     this.frameTime = this.currentTime + 1000;
                 }else{
                     this.frame++;
                 }
+
+                endTime = currentTime;
             
             },
             /**@
