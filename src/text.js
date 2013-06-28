@@ -21,7 +21,7 @@
 */
 Crafty.c("Text", {
 	_text: "",
-	defaultSize: "10px",
+	defaultSize: 10,
 	defaultFamily: "sans-serif",
 	ready: true,
 
@@ -30,14 +30,13 @@ Crafty.c("Text", {
 		this._textFont = {
 			"type": "",
 			"weight": "",
-			"size": "",
-			"family": ""
+			"size": this.defaultSize,
+			"family": this.defaultFamily
 		};
 
 		this.bind("Draw", function (e) {
 			var font = this._textFont["type"] + ' ' + this._textFont["weight"] + ' '
-			 	+ (this._textFont["size"] || this.defaultSize) + ' ' 
-				+ (this._textFont["family"] || this.defaultFamily);
+			 	+ this._textFont["size"] +  'px ' + this._textFont["family"] ;
 
 			if (e.type === "DOM") {
 				var el = this._element,
@@ -55,8 +54,7 @@ Crafty.c("Text", {
 				context.fillStyle = this._textColor || "rgb(0,0,0)";
 				context.font = font;
 
-				context.translate(this.x, this.y + this.h);
-				context.fillText(this._text, 0, 0);
+				context.fillText(this._text, this.x, this.y);
 
 				metrics = context.measureText(this._text);
 				this._w = metrics.width;
@@ -96,6 +94,10 @@ Crafty.c("Text", {
 			this._text = text.call(this);
 		else
 			this._text = text;
+        if (Crafty.canvas) {
+            this._w = Crafty.canvas.context.measureText(this._text).width;
+            this._h = this._textFont["size"];
+        }
 		this.trigger("Change");
 		return this;
 	},
@@ -137,12 +139,13 @@ Crafty.c("Text", {
     * @sign public this .textFont(Object map)
     * @param map - Object where the key is the property to modify and the value as the property value
     *
-    * Use this method to set font property of the text entity.
+    * Use this method to set font property of the text entity (sizes are set in
+    * pixels).
     * 
     * @example
     * ~~~
     * Crafty.e("2D, DOM, Text").textFont({ type: 'italic', family: 'Arial' });
-    * Crafty.e("2D, Canvas, Text").textFont({ size: '20px', weight: 'bold' });
+    * Crafty.e("2D, Canvas, Text").textFont({ size: 20, weight: 'bold' });
     *
     * Crafty.e("2D, Canvas, Text").textFont("type", "italic");
     * Crafty.e("2D, Canvas, Text").textFont("type"); // italic

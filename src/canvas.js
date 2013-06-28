@@ -195,6 +195,9 @@ Crafty.extend({
 			if (zoom != 1)
 				Crafty.canvas.context.scale(zoom, zoom);
 
+            //Set text (x,y) to top left
+            Crafty.canvas.context.textBaseline = "top";
+
 			//Bind rendering of canvas context (see drawing.js)
 			Crafty.unbind("RenderScene", Crafty.DrawManager.renderCanvas)
 			Crafty.bind("RenderScene", Crafty.DrawManager.renderCanvas);
