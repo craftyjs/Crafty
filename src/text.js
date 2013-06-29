@@ -21,7 +21,7 @@
 */
 Crafty.c("Text", {
 	_text: "",
-	defaultSize: 10,
+	defaultSize: "10px",
 	defaultFamily: "sans-serif",
 	ready: true,
 
@@ -36,7 +36,7 @@ Crafty.c("Text", {
 
 		this.bind("Draw", function (e) {
 			var font = this._textFont["type"] + ' ' + this._textFont["weight"] + ' '
-			 	+ this._textFont["size"] +  'px ' + this._textFont["family"] ;
+			 	+ this._textFont["size"] +  ' ' + this._textFont["family"] ;
 
 			if (e.type === "DOM") {
 				var el = this._element,
@@ -46,8 +46,7 @@ Crafty.c("Text", {
 				style.font = font;
 				el.innerHTML = this._text;
 			} else if (e.type === "canvas") {
-				var context = e.ctx,
-                    metrics = null;
+				var context = e.ctx;
 
 				context.save();
 
@@ -56,12 +55,22 @@ Crafty.c("Text", {
 
 				context.fillText(this._text, this.x, this.y);
 
-				metrics = context.measureText(this._text);
-				this._w = metrics.width;
-
 				context.restore();
 			}
 		});
+	},
+
+	getDimensions: function() {
+		var width = Crafty.canvas.context.measureText(this._text).width;
+		//hacky way to get the height
+		var d = document.createElement("span");
+		d.style.font = this._textFont["type"] + ' ' + this._textFont["weight"] + ' '
+			 	+ this._textFont["size"] +  ' ' + this._textFont["family"] ;
+		d.textContent = this._text;
+		document.body.appendChild(d);
+		var height = d.offsetHeight+1; //+1 in case
+		document.body.removeChild(d);
+		return { w : width, h : height};
 	},
 
 	/**@
@@ -94,10 +103,10 @@ Crafty.c("Text", {
 			this._text = text.call(this);
 		else
 			this._text = text;
-        if (Crafty.canvas) {
-            this._w = Crafty.canvas.context.measureText(this._text).width;
-            this._h = this._textFont["size"];
-        }
+
+        if (Crafty.canvas) 
+			this.attr(this.getDimensions());
+
 		this.trigger("Change");
 		return this;
 	},
@@ -166,6 +175,9 @@ Crafty.c("Text", {
 		} else {
 			this._textFont[key] = value;
 		}
+
+        if (Crafty.canvas) 
+			this.attr(this.getDimensions());
 
 		this.trigger("Change");
 		return this;
