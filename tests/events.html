@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" 
+                    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<!-- Note to developers: To run these tests without regenerating crafty.js or
+     setting up a local server:
+       (1) Copy this file into the Crafty parent folder [because firefox security
+             blocks local files from seeing parent folders];
+       (2) Change "../crafty.js" to "./crafty-local.js" (in the HTML head below).
+       (3) Now you can open the HTML file in Firefox.
+       (4) Chrome has more restrictive security, you can pass a flag to loosen
+             the security. Run this command in a Linux terminal:
+             chromium-browser /path/to/core.html --allow-file-access-from-files
+ -->
+
+<head>
+	<script src="http://code.jquery.com/jquery-latest.js"></script>
+	<link rel="stylesheet" href="http://code.jquery.com/qunit/git/qunit.css" type="text/css" media="screen" />
+	<script type="text/javascript" src="http://code.jquery.com/qunit/git/qunit.js"></script>
+	<script type="text/javascript" src="../crafty.js"></script>
+
+<script>
+
+$(document).ready(function() {
+	Crafty.init(500,500);
+	
+	module("EVENTS");
+		
+	test("Global binding events", function() {
+		var x = 0;
+		function add(){x++}
+
+		Crafty.bind("Increment", add)
+		Crafty.trigger("Increment")
+		strictEqual(x, 1, "Crafty.bind fired once");
+		
+
+		x = 0;
+		Crafty.unbind("Increment", add)
+		Crafty.trigger("Increment")
+		strictEqual(x, 0, "Crafty.bind does not fire once unbound");
+
+		x = 0;
+		Crafty.one("Increment", add)
+		Crafty.trigger("Increment")
+		Crafty.trigger("Increment")
+		strictEqual(x, 1, "Event bound by Crafty.one fires exactly once");
+
+		x = 0;
+		Crafty.uniqueBind("Increment", add);
+		Crafty.uniqueBind("Increment", add);
+		Crafty.trigger("Increment");
+		strictEqual(x, 1, "Event bound twice by Crafty.uniqueBound fires only once");
+		
+		x = 0;
+		Crafty.unbind("Increment", add);
+		Crafty.trigger("Increment")
+		strictEqual(x, 0, "uniqueBound does not fire once unbound");
+
+	});
+
+	test("Entity binding events", function() {
+		
+		var x = 0;
+		function add(){x++}
+		var e = Crafty.e("Triggerable")
+
+		e.bind("Increment", add)
+		e.trigger("Increment")
+		strictEqual(x, 1, ".bind fired once");
+		
+
+		x = 0;
+		e.unbind("Increment", add)
+		e.trigger("Increment")
+		strictEqual(x, 0, ".bind does not fire once unbound");
+
+		x = 0;
+		e.one("Increment", add)
+		e.trigger("Increment")
+		e.trigger("Increment")
+		strictEqual(x, 1, "Event bound by .one fires exactly once");
+
+		x = 0;
+		e.uniqueBind("Increment", add);
+		e.uniqueBind("Increment", add);
+		e.trigger("Increment");
+		strictEqual(x, 1, "Event bound twice by .uniqueBound fires only once");
+		
+		x = 0;
+		e.unbind("Increment", add);
+		e.trigger("Increment")
+		strictEqual(x, 0, "uniqueBound does not fire once unbound");
+
+		e.destroy();
+	});
+	
+
+});
+</script>
+  
+</head>
+<body>
+<h1 id="qunit-header">Crafty: Events</h1>
+<h2 id="qunit-banner"></h2>
+<div id="qunit-testrunner-toolbar"></div>
+<h2 id="qunit-userAgent"></h2>
+<ol id="qunit-tests"></ol>
+<div id="qunit-fixture">test markup, will be hidden</div>
+</body>
+</html>

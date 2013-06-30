@@ -553,6 +553,46 @@
         },
 
         /**@
+        * #.uniqueBind
+        * @category Crafty Core
+        * @sign public Number ..uniqueBind(String eventName, Function callback)
+        * @param eventName - Name of the event to bind to
+        * @param callback - Method to execute upon event triggered
+        * @returns ID of the current callback used to unbind
+        * 
+        * Works like Crafty.bind, but prevents a callback from being bound multiple times.
+        * 
+        * @see .bind
+        */
+        uniqueBind: function (event, callback){
+            this.unbind(event, callback)
+            this.bind(event, callback)
+
+        },
+
+        /**@
+        * #.one
+        * @category Crafty Core
+        * @sign public Number one(String eventName, Function callback)
+        * @param eventName - Name of the event to bind to
+        * @param callback - Method to execute upon event triggered
+        * @returns ID of the current callback used to unbind
+        * 
+        * Works like Crafty.bind, but will be unbound once the event triggers.
+        * 
+        * @see .bind
+        */
+        one: function (event, callback){
+            var self = this;
+            var oneHandler = function(){
+                callback();
+                self.unbind(event, oneHandler);
+            }
+            return self.bind(event, oneHandler);
+
+        },
+
+        /**@
         * #.unbind
         * @comp Crafty Core
         * @sign public this .unbind(String eventName[, Function callback])
@@ -1156,6 +1196,47 @@
 
             if (!hdl.global) hdl.global = [];
             return hdl.global.push(callback) - 1;
+        },
+
+
+        /**@
+        * #Crafty.uniqueBind
+        * @category Core, Events
+        * @sign public Number uniqueBind(String eventName, Function callback)
+        * @param eventName - Name of the event to bind to
+        * @param callback - Method to execute upon event triggered
+        * @returns ID of the current callback used to unbind
+        * 
+        * Works like Crafty.bind, but prevents a callback from being bound multiple times.
+        * 
+        * @see Crafty.bind
+        */
+        uniqueBind: function (event, callback){
+            this.unbind(event, callback)
+            this.bind(event, callback)
+
+        },
+
+        /**@
+        * #Crafty.one
+        * @category Core, Events
+        * @sign public Number one(String eventName, Function callback)
+        * @param eventName - Name of the event to bind to
+        * @param callback - Method to execute upon event triggered
+        * @returns ID of the current callback used to unbind
+        * 
+        * Works like Crafty.bind, but will be unbound once the event triggers.
+        * 
+        * @see Crafty.bind
+        */
+        one: function (event, callback){
+            var self = this;
+            var oneHandler = function(){
+                callback();
+                self.unbind(event, oneHandler);
+            }
+            return self.bind(event, oneHandler);
+
         },
 
         /**@
