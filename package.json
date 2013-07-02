@@ -12,7 +12,7 @@
             "type": "MIT",
             "url": "http://www.opensource.org/licenses/mit-license.php"
         },
-		{
+        {
             "type": "GPL",
             "url": "http://www.opensource.org/licenses/gpl-license.php"
         }
@@ -43,7 +43,7 @@
         "src/animation.js",
         "src/drawing.js",
         "src/isometric.js",
-		"src/diamondiso.js",
+        "src/diamondiso.js",
         "src/particles.js",
         "src/sound.js",
         "src/text.js",
@@ -51,5 +51,13 @@
         "src/math.js",
         "src/time.js",
         "src/outro.js"
-    ]
+    ],
+    "dependencies": {
+        "grunt":                "0.4.0",
+        "grunt-cli":            "0.1.8",
+        "grunt-contrib-uglify": "0.2.0",
+        "grunt-contrib-concat": "0.3.0",
+        "grunt-contrib-jshint": "0.5.2",
+        "grunt-contrib-qunit":  "0.2.1"
+    }
 }
