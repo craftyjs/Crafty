@@ -584,8 +584,8 @@
         */
         one: function (event, callback){
             var self = this;
-            var oneHandler = function(){
-                callback();
+            var oneHandler = function(data){
+                callback.call(self, data);
                 self.unbind(event, oneHandler);
             }
             return self.bind(event, oneHandler);
@@ -622,8 +622,7 @@
                 for (; i < l; i++) {
                     current = hdl[this[0]];
                     if (current[i] == callback) {
-                        current.splice(i, 1);
-                        i--;
+                        delete current[i]
                     }
                 }
             });
@@ -652,9 +651,14 @@
             if (this.length === 1) {
                 //find the handlers assigned to the event and entity
                 if (handlers[event] && handlers[event][this[0]]) {
-                    var callbacks = handlers[event][this[0]], i = 0, l = callbacks.length;
-                    for (; i < l; i++) {
-                        callbacks[i].call(this, data);
+                    var callbacks = handlers[event][this[0]], i;
+                    for (i=0; i<callbacks.length; i++) {
+                        if (typeof callbacks[i] === "undefined"){
+                            callbacks.splice(i, 1)
+                            i--
+                        } else {
+                            callbacks[i].call(this, data);
+                        }
                     }
                 }
                 return this;
@@ -663,9 +667,14 @@
             this.each(function () {
                 //find the handlers assigned to the event and entity
                 if (handlers[event] && handlers[event][this[0]]) {
-                    var callbacks = handlers[event][this[0]], i = 0, l = callbacks.length;
-                    for (; i < l; i++) {
-                        callbacks[i].call(this, data);
+                    var callbacks = handlers[event][this[0]],  i;
+                    for (i=0; i<callbacks.length; i++) {
+                        if (typeof callbacks[i] === "undefined"){
+                            callbacks.splice(i, 1)
+                            i--
+                        } else {
+                            callbacks[i].call(this, data);
+                        }
                     }
                 }
             });
@@ -1137,22 +1146,31 @@
         * @see Crafty.bind
         */
         trigger: function (event, data) {
+
             // (To learn how the handlers object works, see inline comment at Crafty.bind)
-            var hdl = handlers[event], h, i, l;
+            var hdl = handlers[event], h, i, l, callbacks, context;
             //loop over every object bound
             for (h in hdl) {
+
+                // Check whether h needs to be processed
                 if (!hdl.hasOwnProperty(h)) continue;
+                callbacks = hdl[h];
+                if (!callbacks || callbacks.length==0) continue;
+
+                //if an entity, call with that context; else the global context
+                if (entities[h])
+                    context = Crafty(+h);
+                else
+                    context = Crafty;
 
                 //loop over every handler within object
-                for (i = 0, l = hdl[h].length; i < l; i++) {
-                    if (hdl[h] && hdl[h][i]) {
-                        //if an entity, call with that context
-                        if (entities[h]) {
-                            hdl[h][i].call(Crafty(+h), data);
-                        } else { //else call with Crafty context
-                            hdl[h][i].call(Crafty, data);
-                        }
-                    }
+                for (i=0; i < callbacks.length; i++) {
+                    // Remove a callback if it has been deleted
+                    if (typeof callbacks[i] === "undefined"){
+                        callbacks.splice(i, 1);
+                        i--;
+                    } else
+                        callbacks[i].call(context, data);                                        
                 }
             }
         },
@@ -1231,8 +1249,8 @@
         */
         one: function (event, callback){
             var self = this;
-            var oneHandler = function(){
-                callback();
+            var oneHandler = function(data){
+                callback.call(self, data);
                 self.unbind(event, oneHandler);
             }
             return self.bind(event, oneHandler);
@@ -1290,8 +1308,7 @@
             for (i=0, l=global_callbacks.length; i < l; i++) {
                 if (global_callbacks[i] === callback) {
                     found_match = true;
-                    global_callbacks.splice(i, 1);
-                    i--;
+                    delete global_callbacks[i]
                 }
             }
             return found_match;
