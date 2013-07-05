@@ -20,7 +20,7 @@ Other Goodies:
 Follow this short tutorial to get started http://craftyengine.com/tutorial/bananabomber/create-a-game
 
 A simple game of pong:
-
+```javascript
     Crafty.init(600, 300);
     Crafty.background('rgb(127,127,127)');
     
@@ -70,7 +70,7 @@ A simple game of pong:
     Crafty.e("RightPoints, DOM, 2D, Text")
     	.attr({ x: 515, y: 20, w: 100, h: 20, points: 0 })
     	.text("0 Points");
-
+```
 See the game running at http://craftyengine.com/tutorial/getting-started/how-crafty-works
 
 ##Developing
