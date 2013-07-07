@@ -444,7 +444,7 @@ Crafty.c("2D", {
 	* @param w - Width of the rect
 	* @param h - Height of the rect
 	* @sign public Boolean .within(Object rect)
-	* @param rect - An object that must have the `x, y, w, h` values as properties
+	* @param rect - An object that must have the `_x, _y, _w, _h` values as properties
 	* Determines if this current entity is within another rectangle.
 	*/
 	within: function (x, y, w, h) {
@@ -452,11 +452,11 @@ Crafty.c("2D", {
 		if (typeof x === "object") {
 			rect = x;
 		} else {
-			rect = { x: x, y: y, w: w, h: h };
+			rect = { _x: x, _y: y, _w: w, _h: h };
 		}
 
-		return rect.x <= mbr.x && rect.x + rect.w >= mbr.x + mbr.w &&
-				rect.y <= mbr.y && rect.y + rect.h >= mbr.y + mbr.h;
+		return rect._x <= mbr._x && rect._x + rect._w >= mbr._x + mbr._w &&
+				rect._y <= mbr._y && rect._y + rect._h >= mbr._y + mbr._h;
 	},
 
 	/**@
@@ -468,7 +468,7 @@ Crafty.c("2D", {
 	* @param w - Width of the rect
 	* @param h - Height of the rect
 	* @sign public Boolean .contains(Object rect)
-	* @param rect - An object that must have the `x, y, w, h` values as properties
+	* @param rect - An object that must have the `_x, _y, _w, _h` values as properties.  
 	* Determines if the rectangle is within the current entity.  If the entity is rotated, its MBR is used for the test.
 	*/
 	contains: function (x, y, w, h) {
@@ -476,11 +476,11 @@ Crafty.c("2D", {
 		if (typeof x === "object") {
 			rect = x;
 		} else {
-			rect = { x: x, y: y, w: w, h: h };
+			rect = { _x: x, _y: y, _w: w, _h: h };
 		}
 
-		return rect.x >= mbr.x && rect.x + rect.w <= mbr.x + mbr.w &&
-				rect.y >= mbr.y && rect.y + rect.h <= mbr.y + mbr.h;
+		return rect._x >= mbr._x && rect._x + rect._w <= mbr._x + mbr._w &&
+				rect._y >= mbr._y && rect._y + rect._h <= mbr._y + mbr._h;
 	},
 
 	/**@
@@ -537,8 +537,8 @@ Crafty.c("2D", {
 			return this.map.containsPoint(x, y);
 		}
 		var mbr = this._mbr || this;
-		return mbr.x <= x && mbr.x + mbr.w >= x &&
-			   mbr.y <= y && mbr.y + mbr.h >= y;
+		return mbr._x <= x && mbr._x + mbr._w >= x &&
+			   mbr._y <= y && mbr._y + mbr._h >= y;
 	},
 
 	/**@

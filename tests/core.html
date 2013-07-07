@@ -264,13 +264,15 @@ $(document).ready(function() {
 		strictEqual(player.within(-1, -1, 51, 51), true, "Within");
 
 
-		strictEqual(player.within({x: 0, y: 0, w: 50, h: 50}), true, "Within Again");
+		strictEqual(player.within({_x: 0, _y: 0, _w: 50, _h: 50}), true, "Within Again");
 
 		strictEqual(player.within(0, 0, 40, 50), false, "Wasn't within");
 
 		player.rotation = 90;	// Once rotated, the entity should no longer be within the rectangle
 
 		strictEqual(player.within(0, 0, 50, 50), false, "Rotated, Not within");
+		strictEqual(player.within(-50, 0, 50, 50), true, "Rotated, within rotated area");
+
 
 		
 		// Clean up
@@ -289,13 +291,14 @@ $(document).ready(function() {
 
 		strictEqual(player.contains(1, 1, 49, 49), true, "Contains");
 
-		strictEqual(player.contains({x: 0, y: 0, w: 50, h: 50}), true, "Contains");
+		strictEqual(player.contains({_x: 0, _y: 0, _w: 50, _h: 50}), true, "Contains");
 
 		strictEqual(player.contains(1, 1, 51, 51), false, "Doesn't contain");
 
 		player.rotation = 90;
 
 		strictEqual(player.contains(0, 0, 50, 50), false, "Rotated, no longer contains");
+		strictEqual(player.within(-50, 0, 50, 50), true, "Rotated, contains rotated area");
 
 		
 		// Clean up
