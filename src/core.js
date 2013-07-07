@@ -366,15 +366,19 @@
         * ~~~
         */
         removeComponent: function (id, soft) {
-            if (soft === false) {
-                var props = components[id], prop;
-                for (prop in props) {
+            var comp = components[id];
+            this.trigger("RemoveComponent", id);
+            if (comp && "remove" in comp){
+                comp.remove.call(this, false);
+            }
+            if (soft === false && comp) {
+                for (var prop in comp) {
                     delete this[prop];
                 }
             }
             delete this.__c[id];
 
-            this.trigger("RemoveComponent", id);
+            
             return this;
         },
 
@@ -732,7 +736,13 @@
         destroy: function () {
             //remove all event handlers, delete from entities
             this.each(function () {
+                var comp;
                 this.trigger("Remove");
+                for (var compName in this.__c){
+                    comp = components[compName];                    
+                    if (comp && "remove" in comp)
+                        comp.remove.call(this, true);                   
+                }
                 for (var e in handlers) {
                     this.unbind(e);
                 }
@@ -1064,11 +1074,14 @@
         * Creates a component where the first argument is the ID and the second
         * is the object that will be inherited by entities.
         *
-        * There is a convention for writing components. 
+        * A couple of methods are treated specially. They are invoked in partiular contexts, and (in those contexts) cannot be overridden by other components.
+        *
+        * - `init` will be called when the component is added to an entity
+        * - `remove` will be called just before a component is removed, or before an entity is destroyed. It is passed a single boolean parameter that is `true` if the entity is being destroyed.
+        * 
+        * In addition to these hardcoded special methods, there are some conventions for writing components. 
         *
         * - Properties or methods that start with an underscore are considered private.
-        * - A method called `init` will automatically be called as soon as the
-        * component is added to an entity.
         * - A method with the same name as the component is considered to be a constructor
         * and is generally used when you need to pass configuration data to the component on a per entity basis.
         *
