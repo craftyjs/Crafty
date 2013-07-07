@@ -64,8 +64,34 @@ $(document).ready(function() {
 		strictEqual( first.added && !first.has("comp"), true, "soft-removed component (properties remain)" );
 		first.removeComponent("comp", false);
 		strictEqual( !first.added && !first.has("comp"), true, "hard-removed component (properties are gone)" );
+
 		// Clean up
 		Crafty("*").destroy();
+	});
+
+	test("remove", function() {
+		var removeRan = false, destroyFlag = false;
+
+		Crafty.c("comp", {
+			remove: function(destroyed){
+				removeRan = true;
+				destroyFlag = destroyed;
+			}
+		})
+		e = Crafty.e("comp, blank");
+		e.removeComponent("blank");
+		strictEqual( removeRan, false, "Remove doesn't run on other component removal");
+
+		removeRan = false;
+		e.removeComponent("comp");
+		strictEqual( removeRan, true, "Remove runs on correct component removal");
+		strictEqual( destroyFlag, false, "Destroy flag false on regular removal");
+		
+		removeRan = false;
+		e.addComponent("comp");
+		e.destroy()
+		strictEqual( removeRan, true, "Remove runs on component destrution");
+		strictEqual( destroyFlag, true, "Destroy flag true on destruction");
 	});
 	
 	test("attr", function() {
