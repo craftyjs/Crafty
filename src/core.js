@@ -810,11 +810,13 @@
         },
 
         /**@
-        * #.getVersion
-        * @comp Crafty Core
-        * @sign public this .getVersion()
+        * #Crafty.getVersion
+        * @category Core
+        * @sign public String Crafty.getVersion()
         * @returns Actually crafty version
-        *
+        * 
+        * Return current version of crafty
+        * 
         * @example
         * ~~~
         * Crafty.getVersion(); //'0.5.2'
