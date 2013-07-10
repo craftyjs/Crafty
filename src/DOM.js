@@ -99,7 +99,7 @@ Crafty.c("DOM", {
 	draw: function () {
 		var style = this._element.style,
 			coord = this.__coord || [0, 0, 0, 0],
-			co = { x: coord[0], y: coord[1] },
+			co = { x: coord[0], y: coord[1], w: coord[2], h: coord[3] },
 			prefix = Crafty.support.prefix,
 			trans = [];
 
