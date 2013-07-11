@@ -78,7 +78,7 @@ $(document).ready(function() {
 				destroyFlag = destroyed;
 			}
 		})
-		e = Crafty.e("comp, blank");
+		var e = Crafty.e("comp, blank");
 		e.removeComponent("blank");
 		strictEqual( removeRan, false, "Remove doesn't run on other component removal");
 
