@@ -21,8 +21,11 @@
 */
 Crafty.c("Text", {
 	_text: "",
+<<<<<<< HEAD
 	defaultSize: "10px",
 	defaultFamily: "sans-serif",
+=======
+>>>>>>> upstream/master
 	ready: true,
 
 	init: function () {

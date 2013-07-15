@@ -47,6 +47,7 @@ Crafty.c("Sprite", {
 								 pos._h //height on canvas
 				);
 			} else if (e.type === "DOM") {
+<<<<<<< HEAD
 				//Get scale (ratio of entity dimensions to sprite's dimensions)
 				// If needed, we will scale up the entire sprite sheet, and then modify the position accordingly
 				var vscale = this._h/co.h, hscale =this._w/co.w;
@@ -56,6 +57,10 @@ Crafty.c("Sprite", {
 				if (vscale != 1 || hscale != 1){
 					this._element.style.backgroundSize = (this.img.width * hscale) + "px" + " " + (this.img.height * vscale) + "px";
 				}
+=======
+				this._element.style.background = "url('" + this.__image + "') no-repeat -" + co.x + "px -" + co.y + "px";
+				this._element.style.backgroundSize = 'cover';
+>>>>>>> upstream/master
 			}
 		};
 
