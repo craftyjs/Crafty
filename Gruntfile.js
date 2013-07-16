@@ -1,13 +1,31 @@
 module.exports = function (grunt) {
-
+    var pkg = grunt.file.readJSON('package.json');
+    var fileList = pkg.files, version = pkg.version;
     var banner =    '/**\n' +
                     ' * <%= pkg.name %> <%= pkg.version %>\n' +
                     ' * <%= pkg.author.url %>\n *\n' +
                     ' * Copyright <%= grunt.template.today("yyyy") %>, <%= pkg.author.name %>\n' +
                     ' * Dual licensed under the MIT or GPL licenses.\n' +
                     ' */\n\n';
+    
 
-        // Project configuration.
+    var getFiles = function (){
+        return fileList
+        
+    };
+
+    var docGen = function(){
+        done = this.async();
+        buildDir = "build/api/"
+        var callback = function(){
+            console.log("Documentation created in " + buildDir)
+            done();
+        }
+        var md = require("./build/api-gen");
+        md.document(getFiles(), buildDir, "build/template.html", version, callback);
+    };
+
+    // Project configuration.
     grunt.initConfig({
 
         pkg: grunt.file.readJSON('package.json'),
@@ -18,34 +36,7 @@ module.exports = function (grunt) {
                 banner: banner
             },
             dist: {
-                src: [
-                    'src/core.js',
-                    'src/intro.js',
-                    'src/HashMap.js',
-                    'src/2D.js',
-                    'src/collision.js',
-                    'src/hitbox.js',
-                    'src/DOM.js',
-                    'src/fps.js',
-                    'src/html.js',
-                    'src/storage.js',
-                    'src/extensions.js',
-                    'src/device.js',
-                    'src/sprite.js',
-                    'src/canvas.js',
-                    'src/controls.js',
-                    'src/animate.js',
-                    'src/animation.js',
-                    'src/drawing.js',
-                    'src/isometric.js',
-                    'src/particles.js',
-                    'src/sound.js',
-                    'src/text.js',
-                    'src/loader.js',
-                    'src/math.js',
-                    'src/time.js',
-                    'src/outro.js'
-                ],
+                src: getFiles(),
                 dest: 'crafty.js'
             }
         },
@@ -56,7 +47,7 @@ module.exports = function (grunt) {
             },
             build: {
                 src: 'crafty.js',
-                dest: 'crafty.min.js'
+                dest: 'crafty-min.js'
             }
         },
 
@@ -69,8 +60,9 @@ module.exports = function (grunt) {
         },
 
         qunit: {
-            all: ['tests/**/*.html']
-        }
+            all: ['tests/**/core.html']
+        }, 
+
     });
 
     // Load the plugin that provides the "uglify" task.
@@ -78,8 +70,17 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-qunit');
+    
+    // Defined tasks for Crafty
+    grunt.registerTask('api', "Generate api documentation", docGen)
 
-    // Default task(s).
-    grunt.registerTask('default', ['concat', 'uglify']);
+
+    // Default task.
+    grunt.registerTask('default', ['concat']);
+
+    // Task chains
+    grunt.registerTask('check', ['concat', 'qunit', 'jshint'])
+    grunt.registerTask('release', ['concat', 'uglify', 'api']);
+
 
 };

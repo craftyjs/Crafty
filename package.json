@@ -1,6 +1,6 @@
 ﻿{
     "name": "crafty",
-    "version": "0.5.3",
+    "version": "0.5.4",
     "title": "Crafty game framework",
     "author": {
         "name": "Louis Stowasser",
@@ -31,7 +31,6 @@
         "src/HashMap.js",
         "src/2D.js",
         "src/collision.js",
-        "src/hitbox.js",
         "src/DOM.js",
         "src/html.js",
         "src/storage.js",
@@ -50,6 +49,7 @@
         "src/loader.js",
         "src/math.js",
         "src/time.js",
+        "src/DebugLayer.js",
         "src/outro.js"
     ],
     "dependencies": {
@@ -58,6 +58,7 @@
         "grunt-contrib-uglify": "0.2.0",
         "grunt-contrib-concat": "0.3.0",
         "grunt-contrib-jshint": "0.5.2",
-        "grunt-contrib-qunit":  "0.2.1"
+        "grunt-contrib-qunit":  "0.2.1",
+        "marked":               "0.2.9"
     }
 }
