@@ -58,7 +58,8 @@ function docs($files, $path, $save) {
 							break;
 						case PARAM:
 							$split = preg_split("/\s+-\s+/", $value);
-							$block .= "{$split[0]}\n:\t{$split[1]}\n\n";
+							$split1 = (isset($split[1])) ? $split[1] : "";
+							$block .= "{$split[0]}\n:\t{$split1}\n\n";
 							break;
 						case RETURNS:
 							$block .= "###Returns\n"."<span class=\"returns\">".$value."</span>\n\n";
