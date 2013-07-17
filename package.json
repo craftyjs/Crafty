@@ -1,6 +1,6 @@
 ﻿{
     "name": "crafty",
-    "version": "0.5.3",
+    "version": "0.5.4",
     "title": "Crafty game framework",
     "author": {
         "name": "Louis Stowasser",
@@ -12,7 +12,7 @@
             "type": "MIT",
             "url": "http://www.opensource.org/licenses/mit-license.php"
         },
-		{
+        {
             "type": "GPL",
             "url": "http://www.opensource.org/licenses/gpl-license.php"
         }
@@ -31,7 +31,6 @@
         "src/HashMap.js",
         "src/2D.js",
         "src/collision.js",
-        "src/hitbox.js",
         "src/DOM.js",
         "src/html.js",
         "src/storage.js",
@@ -43,13 +42,23 @@
         "src/animation.js",
         "src/drawing.js",
         "src/isometric.js",
-		"src/diamondiso.js",
+        "src/diamondiso.js",
         "src/particles.js",
         "src/sound.js",
         "src/text.js",
         "src/loader.js",
         "src/math.js",
         "src/time.js",
+        "src/DebugLayer.js",
         "src/outro.js"
-    ]
+    ],
+    "dependencies": {
+        "grunt":                "0.4.0",
+        "grunt-cli":            "0.1.8",
+        "grunt-contrib-uglify": "0.2.0",
+        "grunt-contrib-concat": "0.3.0",
+        "grunt-contrib-jshint": "0.5.2",
+        "grunt-contrib-qunit":  "0.2.1",
+        "marked":               "0.2.9"
+    }
 }
