@@ -862,7 +862,7 @@
         * #Crafty.getVersion
         * @category Core
         * @sign public String Crafty.getVersion()
-        * @returns Actually crafty version
+        * @returns Current version of Crafty as a string
         * 
         * Return current version of crafty
         * 
