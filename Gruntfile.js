@@ -1,3 +1,5 @@
+require("coffee-script")
+
 module.exports = function (grunt) {
     var pkg = grunt.file.readJSON('package.json');
     var fileList = pkg.files, version = pkg.version;

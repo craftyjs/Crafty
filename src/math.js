@@ -58,6 +58,7 @@ Crafty.math = {
 	},
 
 	/**@
+	 * #Crafty.math.degToRad
      * Converts angle from degree to radian.
 	 * @comp Crafty.math
      * @param angleInDeg - The angle in degree.

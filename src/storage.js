@@ -117,6 +117,7 @@
 
     /**@
 	 * #LoadData event
+	 * @comp Storage
 	 * @param data - An object containing all the data that been saved
 	 * @param process - The function to turn a string into an entity
 	 * 

@@ -539,7 +539,6 @@ $(document).ready(function() {
 		test("Hitbox debugging", function(){
 			var e = Crafty.e("2D, Collision, WiredHitBox").attr({x:10, y:10, w:10, h:20}).collision();
 			e.matchHitBox(); // only necessary until collision works properly!
-			console.log("poly: \n" + e.polygon.points.toSource())
 			equal(e.polygon.points[0][0], 10, "WiredHitBox -- correct x coord for upper right corner");
 			equal(e.polygon.points[2][1], 30, "correct y coord for lower right corner");
 			notEqual(typeof e._debug.strokeStyle, "undefined" , "stroke style is assigned");

@@ -145,6 +145,7 @@ Crafty.c("SpriteAnimation", {
 
 	/**@
 	* #.playAnimation
+	* @comp SpriteAnimation
 	* @sign public this .playAnimation(String reelId, Number duration[, Number repeatCount, Number fromFrame])
 	* @param reelId - ID of the animation reel to play
 	* @param duration - Play the animation within a duration (in frames)

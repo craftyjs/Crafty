@@ -561,8 +561,8 @@
 
         /**@
         * #.uniqueBind
-        * @category Crafty Core
-        * @sign public Number ..uniqueBind(String eventName, Function callback)
+        * @comp Crafty Core
+        * @sign public Number .uniqueBind(String eventName, Function callback)
         * @param eventName - Name of the event to bind to
         * @param callback - Method to execute upon event triggered
         * @returns ID of the current callback used to unbind
@@ -579,7 +579,7 @@
 
         /**@
         * #.one
-        * @category Crafty Core
+        * @comp Crafty Core
         * @sign public Number one(String eventName, Function callback)
         * @param eventName - Name of the event to bind to
         * @param callback - Method to execute upon event triggered
@@ -862,7 +862,7 @@
         * #Crafty.getVersion
         * @category Core
         * @sign public String Crafty.getVersion()
-        * @returns Actually crafty version
+        * @returns Current version of Crafty as a string
         * 
         * Return current version of crafty
         * 

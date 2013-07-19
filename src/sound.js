@@ -319,6 +319,7 @@ Crafty.extend({
 		},
 		/**@
 		 * #Crafty.audio.stop
+		 * @comp Crafty.audio
 		 * @sign public this Crafty.audio.stop([Number ID])
 		 *
 		 * Stops any playing sound. if id is not set, stop all sounds which are playing
@@ -354,6 +355,7 @@ Crafty.extend({
 		},
 		/**
 		 * #Crafty.audio._mute
+		 * @comp Crafty.audio
 		 * @sign public this Crafty.audio._mute([Boolean mute])
 		 *
 		 * Mute or unmute every Audio instance that is playing.
@@ -370,6 +372,7 @@ Crafty.extend({
 		},
 		/**@
 		 * #Crafty.audio.toggleMute
+		 * @comp Crafty.audio
 		 * @sign public this Crafty.audio.toggleMute()
 		 *
 		 * Mute or unmute every Audio instance that is playing. Toggles between
@@ -391,6 +394,7 @@ Crafty.extend({
 		},
 		/**@
 		 * #Crafty.audio.mute
+		 * @comp Crafty.audio
 		 * @sign public this Crafty.audio.mute()
 		 *
 		 * Mute every Audio instance that is playing.
@@ -405,6 +409,7 @@ Crafty.extend({
 		},
 		/**@
 		 * #Crafty.audio.unmute
+		 * @comp Crafty.audio
 		 * @sign public this Crafty.audio.unmute()
 		 *
 		 * Unmute every Audio instance that is playing.
@@ -420,6 +425,7 @@ Crafty.extend({
 
 		/**@
 		 * #Crafty.audio.pause
+		 * @comp Crafty.audio
 		 * @sign public this Crafty.audio.pause(string ID)
 		 *
 		 * Pause the Audio instance specified by id param.
@@ -445,6 +451,7 @@ Crafty.extend({
 
 		/**@
 		 * #Crafty.audio.unpause
+		 * @comp Crafty.audio
 		 * @sign public this Crafty.audio.unpause(string ID)
 		 *
 		 * Resume playing the Audio instance specified by id param.
@@ -469,6 +476,7 @@ Crafty.extend({
 
 		/**@
 		 * #Crafty.audio.togglePause
+		 * @comp Crafty.audio
 		 * @sign public this Crafty.audio.togglePause(string ID)
 		 *
 		 * Toggle the pause status of the Audio instance specified by id param.

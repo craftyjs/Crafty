@@ -110,7 +110,7 @@ class DocBlock
             when "return", "returns"
                 if not @isFunctionTag(@prevTag)
                     @code.push("<dl>")
-                #@code.push("<dt class='return'>[returns]</dt><dd>#{value}</dd>")
+                @code.push("<dt class='return'>[returns]</dt><dd>#{value}</dd>")
             when "example"
                 @code.push("<h4> Example </h4>\n")
             else

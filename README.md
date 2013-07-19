@@ -75,13 +75,13 @@ See the game running at http://craftyengine.com/tutorial/getting-started/how-cra
 
 ##Developing
 
-If you want to fix a bug, please submit a pull request against the development branch.
+If you want to fix a bug, please submit a pull request against the development branch.  Some guides to help you can be found [on the wiki](https://github.com/craftyjs/Crafty/wiki)
+    
+If you would like to make larger contributions please catch us in the [forum](https://groups.google.com/forum/?fromgroups#!forum/craftyjs) and we will help you get started. Much appreciated :-)
 
-If you would like to make larger contributions please catch us in the forum and we will help you get started. Much appreciated :-)
 
+### Quick build instructions
 
-### Using a grunt
+The easiest way to build crafty uses [gruntjs](http://gruntjs.com/), which requires [node](nodejs.org/) and [npm](https://npmjs.org/).  If you have grunt, node, and npm already installed, then run `npm install` from Crafty's root directory.  (This will pull down about 30MB of node packages.)  From then on, just run `grunt` to build.
 
-1. npm install -g grunt-cli
-2. npm init
-3. grunt <rules>
+([Full instructions here](https://github.com/craftyjs/Crafty/wiki/Building).)
