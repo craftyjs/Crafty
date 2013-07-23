@@ -1,431 +1,558 @@
 var Crafty = require('./core.js'),
-    document = window.document;
+	document = window.document;
+
+Crafty.easing = function(duration) {
+	this.timePerFrame = 1000 / Crafty.timer.FPS();
+	this.duration = duration;   //default duration given in ms
+	this.reset();
+};
+
+
+Crafty.easing.prototype = {
+	duration: 0,
+	clock:0,
+	steps: null,
+	complete: false,
+	paused: false,
+	
+	// init values 
+	reset: function(){		
+		this.loops = 1;
+		this.clock = 0;
+		this.complete = false;
+		this.paused = false;  
+	},
+
+	repeat: function(loopCount){
+		this.loops = loopCount;
+	},
+
+	setProgress: function(progress, loopCount){
+		this.clock = this.duration * progress;
+		if (typeof loopCount !== "undefined")
+			this.loops = loopCount;
+		
+	},
+
+	pause: function(){
+		this.paused = true;
+	},
+
+	resume: function(){
+		this.paused = false;
+		this.complete = false;
+	},
+
+	// Increment the clock by some amount dt
+	// Handles looping and sets a flag on completion
+	tick: function(dt){
+		if (this.paused || this.complete) return;
+		this.clock += dt;
+		this.frames = Math.floor(this.clock/this.timePerFrame);
+		while (this.clock >= this.duration && this.complete === false){
+			this.loops--;
+			if (this.loops > 0)
+				this.clock -= this.duration;
+			else
+				this.complete = true;
+		}
+	},
+
+	// same as value for now; with other time value functions would be more useful
+	time: function(){
+		return ( Math.min(this.clock/this.duration, 1) );
+		
+	},
+
+	// Value is where along the tweening curve we are
+	// For now it's simply linear; but we can easily add new types
+	value: function(){
+		return this.time();
+	}
+
+};
+
+
+
+
+
 
 /**@
- * #SpriteAnimation
- * @category Animation
- * @trigger AnimationEnd - When the animation finishes - { reelId: <reelID> }
- * @trigger FrameChange - Each frame change - { reelId: <reelID>, frameNumber: <New frame's number> }
- *
- * Used to animate sprites by treating a sprite map as a set of animation frames.
- * Must be applied to an entity that has a sprite-map component.
- *
- * Note: All data recieved from events is only valid until the next event of that
- * type takes place. If you wish to preserve the data, make a copy of it.
- *
- * @see crafty.sprite
- */
+* #SpriteAnimation
+* @category Animation
+* @trigger StartAnimation - When an animation starts playing, or is resumed from the paused state - {Reel}
+* @trigger AnimationEnd - When the animation finishes - { Reel }
+* @trigger FrameChange - Each time the frame of the current reel changes - { Reel }
+* @trigger ReelChange - When the reel changes - { Reel }
+*
+* Used to animate sprites by treating a sprite map as a set of animation frames.
+* Must be applied to an entity that has a sprite-map component.
+*
+* To define an animation, see the `reel` method.  To play an animation, see the `animate` method.
+*   
+* A reel is an object that contains the animation frames and current state for an animation.  The reel object has the following properties:
+* @param id: (String) - the name of the reel
+* @param frames: (Array) - A list of frames in the format [xpos, ypos]
+* @param currentFrame: (Number) - The index of the current frame
+* @param easing: (Crafty.easing object) - The object that handles the internal progress of the animation.  
+* @param duration: (Number) - The duration in milliseconds.
+* 
+* Many animation related events pass a reel object as data.  As typical with events, this should be treated as read only data that might be later altered by the entity.  If you wish to preserve the data, make a copy of it.
+*
+* @see crafty.sprite
+*/
 Crafty.c("SpriteAnimation", {
-    /**@
-     * #._reels
-     * @comp SpriteAnimation
-     *
-     * A map in which the keys are the names assigned to animations defined using
-     * the component (also known as reelIDs), and the values are objects describing
-     * the animation and its state.
-     */
-    _reels: null,
+	/*
+	*
+	* A map in which the keys are the names assigned to animations defined using
+	* the component (also known as reelIDs), and the values are objects describing
+	* the animation and its state.
+	*/
+	_reels: null,
 
-    /**@
-     * #._currentReelId
-     * @comp SpriteAnimation
-     *
-     * The reelID of the currently active reel (which is one of the elements in `this._reels`).
-     * This value is `null` if no reel is active. Some of the component's actions can be invoked
-     * without specifying a reel, in which case they will work on the active reel.
-     */
-    _currentReelId: null,
+	/*
+	* The reelID of the currently active reel (which is one of the elements in `this._reels`).
+	* This value is `null` if no reel is active. Some of the component's actions can be invoked
+	* without specifying a reel, in which case they will work on the active reel.
+	*/
+	_currentReelId: null,
 
-    /**@
-     * #._isPlaying
-     * @comp SpriteAnimation
-     *
-     * Whether or not an animation is currently playing.
-     */
-    _isPlaying: false,
+	/*
+	* The currently active reel.
+	* This value is `null` if no reel is active. 
+	*/
+	_currentReel: null,
 
-    /**@
-     * #._frameChangeInfo
-     * @comp SpriteAnimation
-     *
-     * Contains information about the latest frame change event.
-     */
-    _frameChangeInfo: {
-        reelId: undefined,
-        frameNumber: undefined
-    },
+	/*
+	* Whether or not an animation is currently playing.
+	*/
+	_isPlaying: false,
 
-    /**@
-     * #._animationEndInfo
-     * @comp SpriteAnimation
-     *
-     * Contains information about the latest animation end event.
-     */
-    _animationEndInfo: {
-        reelId: undefined
-    },
 
-    init: function () {
-        this._reels = {};
-    },
+	init: function () {
+		this._reels = {};
+	},
 
-    /**@
-     * #.animate
-     * @comp SpriteAnimation
-     * @sign public this .animate(String reelId, Number fromX, Number y, Number toX)
-     * @param reelId - ID of the animation reel being created
-     * @param fromX - Starting `x` position on the sprite map (x's unit is the horizontal size of the sprite in the sprite map).
-     * @param y - `y` position on the sprite map (y's unit is the horizontal size of the sprite in the sprite map). Remains constant through the animation.
-     * @param toX - End `x` position on the sprite map. This can be smaller than `fromX`, in which case the frames will play in descending order.
-     * @sign public this .animate(String reelId, Array frames)
-     * @param reelId - ID of the animation reel being created
-     * @param frames - Array of arrays containing the `x` and `y` values of successive frames: [[x1,y1],[x2,y2],...] (the values are in the unit of the sprite map's width/height respectively).
-     *
-     * Method to setup animation reels. Animation works by changing the sprites over
-     * a duration. Only works for sprites built with the Crafty.sprite methods.
-     * See the Tween component for animation of 2D properties.
-     *
-     * To setup an animation reel, pass the name of the reel (used to identify the reel and play it later), and either an
-     * array of absolute sprite positions or the start x on the sprite map, the y on the sprite map and then the end x on the sprite map.
-     *
-     * @example
-     * ~~~
-     *\/\/ Define a sprite-map component
-     * Crafty.sprite(16, "images/sprite.png", {
-     *     PlayerSprite: [0,0]
-     * });
-     *
-     * \/\/ Define an animation on the second row of the sprite map (y = 1)
-     * \/\/ from the left most sprite (fromX = 0) to the fourth sprite
-     * \/\/ on that row (toX = 3)
-     * Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite").animate('PlayerRunning', 0, 1, 3);
-     *
-     * \/\/ This is the same animation definition, but using the alternative method
-     * Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite").animate('PlayerRunning', [[0, 1], [1, 1], [2, 1], [3, 1]]);
-     * ~~~
-     */
-    animate: function (reelId, fromX, y, toX) {
-        var reel, i, tile, tileh, pos;
+	/**@
+	* #.reel
+	* @comp SpriteAnimation
+	* Used to define reels, to change the active reel, and to fetch the id of the active reel.
+	*
+	* @sign public this .reel(String reelId, Duration duration, Number fromX, Number fromY, Number frameCount)
+	* Defines a reel by starting and ending position on the sprite sheet.
+	* @param reelId - ID of the animation reel being created
+	* @param duration - The length of the animation in milliseconds.
+	* @param fromX - Starting `x` position on the sprite map (x's unit is the horizontal size of the sprite in the sprite map).
+	* @param fromY - `y` position on the sprite map (y's unit is the horizontal size of the sprite in the sprite map). Remains constant through the animation.
+	* @param frameCount - The number of sequential frames in the animation.  If negative, the animation will play backwards.
+	*
+	* @sign public this .reel(String reelId, Duration duration, Array frames)
+	* Defines a reel by an explicit list of frames
+	* @param reelId - ID of the animation reel being created
+	* @param duration - The length of the animation in milliseconds.
+	* @param frames - An array of arrays containing the `x` and `y` values of successive frames: [[x1,y1],[x2,y2],...] (the values are in the unit of the sprite map's width/height respectively).
+	*
+	* @sign public this .reel(String reelId)
+	* Switches to the specified reel.  The sprite will be updated to that reel's current frame
+	* @param reelID - the ID to switch to
+	*
+	* @sign public Reel .reel()
+	* @return The id of the current reel
+	*
+	*
+	* A method to handle animation reels.  Only works for sprites built with the Crafty.sprite methods.
+	* See the Tween component for animation of 2D properties.
+	*
+	* To setup an animation reel, pass the name of the reel (used to identify the reel later), and either an
+	* array of absolute sprite positions or the start x on the sprite map, the y on the sprite map and then the end x on the sprite map.
+	*
+	*
+	* @example
+	* ~~~
+	* // Define a sprite-map component
+	* Crafty.sprite(16, "images/sprite.png", {
+	*     PlayerSprite: [0,0]
+	* });
+	*
+	* // Define an animation on the second row of the sprite map (y = 1)
+	* // from the left most sprite (fromX = 0) to the fourth sprite
+	* // on that row (toX = 3), with a duration of 1 second
+	* Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite").reel('PlayerRunning', 1000, 0, 1, 3);
+	*
+	* // This is the same animation definition, but using the alternative method
+	* Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite").reel('PlayerRunning', 1000, [[0, 1], [1, 1], [2, 1], [3, 1]]);
+	* ~~~
+	*/
+	reel: function (reelId, duration, fromX, fromY, frameCount) {
+		// @sign public this .reel()
+		if (arguments.length === 0)
+			return this._currentReelId;
 
-        // Get the dimensions of a single frame, as defind in Sprite component.
-        tile = this.__tile + parseInt(this.__padding[0] || 0, 10);
-        tileh = this.__tileh + parseInt(this.__padding[1] || 0, 10);
+		// @sign public this .reel(String reelID)
+		if (arguments.length === 1 && typeof reelId === "string"){
+			if (typeof this._reels[reelId] === "undefined")
+				throw("The specified reel " + reelId + " is undefined.");
+			this.pauseAnimation();
+			if (this._currentReelId !== reelId) {
+				this._currentReelId = reelId;
+				this._currentReel = this._reels[reelId];
+				// Change the visible sprite
+				this._updateSprite();
+				// Trigger event
+				this.trigger("ReelChange", this._currentReel);
+			}
+			return this;
+		}
 
-        reel = {
-            frames: [],
-            cyclesPerFrame: undefined, // This gets defined when calling play(...), and indicates the amount of actual frames each individual reel frame is displayed
-            currentFrameNumber: 0,
-            cycleNumber: 0,
-            repeatsRemaining: 0
-        };
 
-        // @sign public this .animate(String reelId, Number fromX, Number y, Number toX)
-        if (typeof fromX === "number") {
-            i = fromX;
-            if (toX > fromX) {
-                for (; i <= toX; i++) {
-                    reel.frames.push([i * tile, y * tileh]);
-                }
-            } else {
-                for (; i >= toX; i--) {
-                    reel.frames.push([i * tile, y * tileh]);
-                }
-            }
-        }
-        // @sign public this .animate(String reelId, Array frames)
-        else if (arguments.length === 2) {
-            i = 0;
-            toX = fromX.length - 1;
+		var reel, i, tile, tileh, pos;
 
-            for (; i <= toX; i++) {
-                pos = fromX[i];
-                reel.frames.push([pos[0] * tile, pos[1] * tileh]);
-            }
-        } else {
-            throw "Urecognized arguments. Please see the documentation for 'animate(...)'.";
-        }
+		// Get the dimensions of a single frame, as defind in Sprite component.
+		tile = this.__tile + parseInt(this.__padding[0] || 0, 10);
+		tileh = this.__tileh + parseInt(this.__padding[1] || 0, 10);
 
-        this._reels[reelId] = reel;
-        return this;
-    },
+		reel = {
+			id: reelId,
+			frames: [],
+			currentFrame: 0,
+			easing: new Crafty.easing(duration), 
+			defaultLoops: 1
+		};
 
-    /**@
-     * #.playAnimation
-     * @comp SpriteAnimation
-     * @sign public this .playAnimation(String reelId, Number duration[, Number repeatCount, Number fromFrame])
-     * @param reelId - ID of the animation reel to play
-     * @param duration - Play the animation within a duration (in frames)
-     * @param repeatCount - Number of times to repeat the animation (it will play repeatCount + 1 times). Use -1 to repeat indefinitely.
-     * @param fromFrame - Frame to start the animation at. If not specified, resumes from the current reel position.
-     *
-     * Play one of the reels previously defined by calling `.animate(...)`. Simply pass the name of the reel
-     * and the amount of frames the animations should take to play from start to finish. If you wish the
-     * animation to play multiple times in succession, pass in the amount of times as an additional parameter.
-     * To have the animation repeat indefinitely, pass in `-1`. Finally, you can start the animation at a specific
-     * frame by supplying an additional optional argument.
-     *
-     * If another animation is currently playing, it will be paused.
-     *
-     * If you simply wish to resume a previously paused animation without having to specify the duration again,
-     * supply `null` as the duration.
-     *
-     * Once an animation ends, it will remain at its last frame. Call `.resetAnimation(...)` to reset a reel to its first
-     * frame, or play the reel from a specific frame. Attempting to play the reel again otherwise will result in
-     * the animation ending immediately.
-     *
-     * If you play the animation from a certain frame and specify a repeat count, the animation will reset to its
-     * first frame when repeating (and not to the frame you started the animation at).
-     *
-     * @example
-     * ~~~
-     *\/\/ Define a sprite-map component
-     * Crafty.sprite(16, "images/sprite.png", {
-     *     PlayerSprite: [0,0]
-     * });
-     *
-     * \/\/ Play the animation across 20 frame (so each sprite in the 4 sprite animation should be seen for 5 frames) and repeat indefinitely
-     * Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite")
-     *     .animate('PlayerRunning', 0, 0, 3) // setup animation
-     *     .playAnimation('PlayerRunning', 20, -1); // start animation
-     * ~~~
-     */
-    playAnimation: function (reelId, duration, repeatCount, fromFrame) {
-        var pos;
+		reel.duration = reel.easing.duration;
 
-        currentReel = this._reels[reelId];
+		// @sign public this .reel(String reelId, Number duration, Number fromX, Number y, Number toX)
+		if (typeof fromX === "number") {
+			i = fromX;
+			y = fromY;
+			if (frameCount >= 0) {
+				for (; i <= fromX + frameCount ; i++) {
+					reel.frames.push([i * tile, y * tileh]);
+				}
+			}
+			else {
+				for (; i >= fromX + frameCount; i--) {
+					reel.frames.push([i * tile, y * tileh]);
+				}
+			}
+		}
+		// @sign public this .reel(String reelId, Number duration, Array frames)
+		else if (arguments.length === 3 && typeof fromX === "object") {
 
-        if (currentReel === undefined) {
-            throw "The supplied reelId, " + reelId + ", is not recognized.";
-        }
+			i = 0;
+			toX = fromX.length - 1;
 
-        this.pauseAnimation(); // This will pause the current animation, if one is playing
+			for (; i <= toX; i++) {
+				pos = fromX[i];
+				reel.frames.push([pos[0] * tile, pos[1] * tileh]);
+			}
+		}
+		else {
+			throw "Urecognized arguments. Please see the documentation for 'reel(...)'.";
+		}
 
-        this._currentReelId = reelId;
+		this._reels[reelId] = reel;
 
-        if (duration !== undefined && duration !== null) {
-            currentReel.cyclesPerFrame = Math.ceil(duration / currentReel.frames.length);
-        }
+		return this;
+	},
 
-        if (repeatCount === undefined || repeatCount === null) {
-            currentReel.repeatsRemaining = 0;
-        } else {
-            // User provided repetition count
-            if (repeatCount === -1) {
-                currentReel.repeatsRemaining = Infinity;
-            } else {
-                currentReel.repeatsRemaining = repeatCount;
-            }
-        }
+	/**@
+	* #.animate
+	* @comp SpriteAnimation
+	* @sign public this .animate([String reelId] [, Number loopCount])
+	* @param reelId - ID of the animation reel to play.  Defaults to the current reel if none is specified.
+	* @param loopCount - Number of times to repeat the animation. Use -1 to repeat indefinitely.  Defaults to 1.
+	*
+	* Play one of the reels previously defined through `.reel(...)`. Simply pass the name of the reel. If you wish the
+	* animation to play multiple times in succession, pass in the amount of times as an additional parameter.
+	* To have the animation repeat indefinitely, pass in `-1`. 
+	*
+	* If another animation is currently playing, it will be paused.
+	*
+	* This will always play an animation from the beginning.  If you wish to resume from the current state of a reel, use `resumeAnimation()`.
+	*
+	* Once an animation ends, it will remain at its last frame.
+	*
+	*
+	* @example
+	* ~~~
+	* // Define a sprite-map component
+	* Crafty.sprite(16, "images/sprite.png", {
+	*     PlayerSprite: [0,0]
+	* });
+	*
+	* // Play the animation across 20 frames (so each sprite in the 4 sprite animation should be seen for 5 frames) and repeat indefinitely
+	* Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite")
+	*     .reel('PlayerRunning', 20, 0, 0, 3) // setup animation
+	*     .animate('PlayerRunning', -1); // start animation
+	* ~~~
+	*/
+	animate: function(reelId, loopCount) {
 
-        if (fromFrame !== undefined && fromFrame !== null) {
-            if (fromFrame >= currentReel.frames.length) {
-                throw "The request frame exceeds the reel length.";
-            } else {
-                currentReel.currentFrameNumber = fromFrame;
-                currentReel.cycleNumber = 0;
-            }
-        }
+		var pos;
 
-        this._frameChangeInfo.reelId = this._currentReelId;
-        this._frameChangeInfo.frameNumber = currentReel.currentFrameNumber;
-        this.trigger("FrameChange", this._frameChangeInfo);
-        this.trigger("Change"); // Needed to trigger a redraw
 
-        pos = currentReel.frames[currentReel.currentFrameNumber];
-        this.__coord[0] = pos[0];
-        this.__coord[1] = pos[1];
+		// switch to the specified reel if necessary
+		if (typeof reelId === "string")
+			this.reel(reelId);
 
-        this.bind("EnterFrame", this.updateSprite);
-        this._isPlaying = true;
-        return this;
-    },
+		var currentReel = this._currentReel;
 
-    /**@
-     * #.resumeAnimation
-     * @comp SpriteAnimation
-     * @sign public this .resumeAnimation([String reelId])
-     * @param reelId - ID of the animation to continue playing
-     *
-     * This is simply a convenience method and is identical to calling `.playAnimation(reelId, null)`.
-     * You can call this method with no arguments to resume the last animation that played.
-     */
-    resumeAnimation: function (reelId) {
-        if (reelId === undefined || reelId === null) {
-            if (this._currentReelId !== null) {
-                return this.playAnimation(this._currentReelId, null);
-            } else {
-                throw "There is no animation to resume.";
-            }
-        }
+		if (typeof currentReel === "undefined" || currentReel === null)
+			throw("No reel is specified, and there is no currently active reel.");
 
-        return this.playAnimation(reelId, null);
-    },
+		this.pauseAnimation(); // This will pause the current animation, if one is playing
 
-    /**@
-     * #.updateSprite
-     * @comp SpriteAnimation
-     * @sign private void .updateSprite()
-     *
-     * This method is called at every `EnterFrame` event when an animation is playing. It manages the animation
-     * as time progresses.
-     *
-     * You shouldn't call this method directly.
-     */
-    updateSprite: function () {
-        var currentReel = this._reels[this._currentReelId];
+		// Handle repeats; if loopCount is undefined and reelID is a number, calling with that signature
+		if (typeof loopCount === "undefined") 
+			if (typeof reelId === "number")
+				loopCount = reelId;
+			else
+				loopCount = 1;
 
-        // Track the amount of update cycles a frame is displayed
-        currentReel.cycleNumber++;
+		// set the animation to the beginning
+		currentReel.easing.reset();
+		
 
-        if (currentReel.cycleNumber === currentReel.cyclesPerFrame) {
-            currentReel.currentFrameNumber++;
-            currentReel.cycleNumber = 0;
+		// user provided loop count. 
+		this.loops(loopCount);
 
-            // If we went through the reel, loop the animation or end it
-            if (currentReel.currentFrameNumber >= currentReel.frames.length) {
-                if (currentReel.repeatsRemaining > 0) {
-                    currentReel.repeatsRemaining--;
-                    currentReel.currentFrameNumber = 0;
-                } else {
-                    currentReel.currentFrameNumber = currentReel.frames.length - 1;
-                    this.pauseAnimation();
-                    this._animationEndInfo.reelId = this._currentReelId;
-                    this.trigger("AnimationEnd", this._animationEndInfo);
-                    return;
-                }
-            }
+		// trigger the necessary events and switch to the first frame
+		this._setFrame(0);
 
-            this._frameChangeInfo.reelId = this._currentReelId;
-            this._frameChangeInfo.frameNumber = currentReel.currentFrameNumber;
-            this.trigger("FrameChange", this._frameChangeInfo);
-            this.trigger("Change"); // Needed to trigger a redraw
-        }
+		// Start the anim
+		this.bind("EnterFrame", this._animationTick);
+		this._isPlaying = true;
 
-        // Update the displayed sprite
-        var pos = currentReel.frames[currentReel.currentFrameNumber];
+		this.trigger("StartAnimation", currentReel);
+		return this;
+	},
 
-        this.__coord[0] = pos[0];
-        this.__coord[1] = pos[1];
-    },
+	/**@
+	* #.resumeAnimation
+	* @comp SpriteAnimation
+	* @sign public this .resumeAnimation()
+	*
+	* This will resume animation of the current reel from its current state.  
+	* If a reel is already playing, or there is no current reel, there will be no effect.
+	*/
+	resumeAnimation: function() {
+		if (this._isPlaying === false &&  this._currentReel !== null) {
+			this.bind("EnterFrame", this._animationTick);
+			this._isPlaying = true;
+			this._currentReel.easing.resume();
+			this.trigger("StartAnimation", this._currentReel);
+		}	
+		return this;	
+	},
 
-    /**@
-     * #.pauseAnimation
-     * @comp SpriteAnimation
-     * @sign public this .pauseAnimation(void)
-     *
-     * Pauses the currently playing animation, or does nothing if no animation is playing.
-     */
-    pauseAnimation: function () {
-        this.unbind("EnterFrame", this.updateSprite);
-        this._isPlaying = false;
+	/**@
+	* #.pauseAnimation
+	* @comp SpriteAnimation
+	* @sign public this .pauseAnimation(void)
+	*
+	* Pauses the currently playing animation, or does nothing if no animation is playing.
+	*/
+	pauseAnimation: function () {
+		if (this._isPlaying === true) {
+			this.unbind("EnterFrame", this._animationTick);
+			this._isPlaying = false;
+			this._reels[this._currentReelId].easing.pause();
+		}
+		return this;
+	},
 
-        return this;
-    },
+	/**@
+	* #.resetAnimation
+	* @comp SpriteAnimation
+	* @sign public this .resetAnimation()
+	*
+	* Resets the current animation to its initial state.  Resets the number of loops to the last specified value, which defaults to 1.
+	*   
+	* Neither pauses nor resumes the current animation.
+	*/
+	resetAnimation: function(){
+		var currentReel = this._currentReel;
+		if  (currentReel === null)
+			throw("No active reel to reset.");
+		this.reelPosition(0);
+		currentReel.easing.repeat(currentReel.defaultLoops);
+		return this;
+   },
 
-    /**@
-     * #.resetAnimation
-     * @comp SpriteAnimation
-     * @sign public this .resetAnimation([String reelId, Number frameToDisplay])
-     * @param reelId - ID of the animation to reset
-     * @param frameToDisplay - The frame to show after resetting the animation. 0 based.
-     *
-     * Resets the specified animation and displays one of its frames. If no reelId is specified,
-     * resets the currently playing animation (or does nothing if no animation is playing).
-     *
-     * By default, will have the animation display its first frame. When playing an animation, it
-     * will continue from the frame it was reset to.
-     *
-     * Specify null as the reelId if you only want to specify the frame on the
-     * current animation.
-     *
-     * If an animation ends up being reset and an animation was playing, the animation that was
-     * playing will be paused.
-     *
-     * Keep in mind that resetting an animation will set the animation's state to the one it had
-     * just after defining it using `animate(...)`.
-     */
-    resetAnimation: function (reelId, frameToDisplay) {
-        var reelToReset = this._reels[reelId];
 
-        if (reelId === undefined || reelId === null) {
-            if (this._currentReelId !== null) {
-                reelToReset = this._reels[this._currentReelId];
-            } else {
-                return this;
-            }
-        }
+	/**@
+	* #.loops
+	* @comp SpriteAnimation
+	* @sign public this .loops(Number loopCount)
+	* @param loopCount - The number of times to play the animation
+	*
+	* Sets the number of times the animation will loop for.  
+	* If called while an animation is in progress, the current state will be considered the first loop.
+	*
+	* @sign public Number .loops()
+	* @returns The number of loops left.  Returns 0 if no reel is active.
+	*/
+	loops: function(loopCount) {
+		if (arguments.length === 0){
+			if (this._currentReel !== null)
+				return this._currentReel.easing.loops;
+			else
+				return 0;
+		}
 
-        if (frameToDisplay === undefined || frameToDisplay === null) {
-            frameToDisplay = 0;
-        }
+		if (this._currentReel !== null){
+			if (loopCount < 0)
+				loopCount = Infinity;
+			this._currentReel.easing.repeat(loopCount);
+			this._currentReel.defaultLoops = loopCount;
+		}
+		return this;
 
-        if (reelToReset === undefined) {
-            throw "The supplied reelId, " + reelId + ", is not recognized.";
-        }
-        if (frameToDisplay >= reelToReset.frames.length) {
-            throw "The request frame exceeds the reel length.";
-        }
+	},
 
-        this.pauseAnimation();
+	/**@
+	* #.reelPosition
+	* @comp SpriteAnimation
+	*
+	* @sign public this .reelPosition(Integer position)
+	* Sets the position of the current reel by frame number.
+	* @param position - the frame to jump to.  This is zero-indexed.  A negative values counts back from the last frame.
+	*
+	* @sign public this .reelPosition(Number position)
+	* Sets the position of the current reel by percent progress.
+	* @param position - a non-integer number between 0 and 1
+	*
+	* @sign public this .reelPosition(String position)
+	* Jumps to the specified position.  The only currently accepted value is "end", which will jump to the end of the reel.
+	* 
+	* @sign public Number .reelPosition()
+	* @returns The current frame number
+	* 
+	*/
+	reelPosition: function(position) {
+		if (this._currentReel === null)
+			throw("No active reel.");
 
-        reelToReset.cyclesPerFrame = undefined;
-        reelToReset.currentFrameNumber = frameToDisplay;
-        reelToReset.cycleNumber = 0;
-        reelToReset.repeatsRemaining = 0;
+		if (arguments.length === 0)
+			return this._currentReel.currentFrame;
 
-        this.trigger("Change"); // Needed to trigger a redraw
+		var progress,
+			l = this._currentReel.frames.length;
+		if (position === "end")
+			position = l - 1;
 
-        var pos = reelToReset.frames[frameToDisplay];
-        this.__coord[0] = pos[0];
-        this.__coord[1] = pos[1];
+		if (position < 1 && position > 0) {
+			progress = position;
+			position = Math.floor(l * progress);
+		} else {
+			if (position !== Math.floor(position))
+				throw("Position " + position + " is invalid."); 
+			if (position < 0)
+				position = l - 1 + position;
+			progress = position / l;
+		}
+		// cap to last frame
+		position = Math.min(position, l-1);
+		position = Math.max(position, 0);
+		this._setProgress(progress);
+		this._setFrame(position);
 
-        return this;
-    },
+		return this;
+		
+	},
 
-    /**@
-     * #.isPlaying
-     * @comp SpriteAnimation
-     * @sign public Boolean .isPlaying([String reelId])
-     * @param reelId - The reelId of the reel we wish to examine
-     *
-     * Determines if the specified animation is currently playing. If no reelId is specified,
-     * checks if any animation is playing.
-     *
-     * @example
-     * ~~~
-     * myEntity.isPlaying() // is any animation playing
-     * myEntity.isPlaying('PlayerRunning') // is the PlayerRunning animation playing
-     * ~~~
-     */
-    isPlaying: function (reelId) {
-        if (!this._isPlaying) return false;
+	
+	// Bound to "EnterFrame".  Progresses the animation by dt, changing the frame if necessary.
+	_animationTick: function(frameData) {
+		var currentReel = this._reels[this._currentReelId];
+		currentReel.easing.tick(frameData.dt);
+		var progress = currentReel.easing.value();
+		var frameNumber = Math.min( Math.floor(currentReel.frames.length * progress), currentReel.frames.length - 1);
 
-        if (!reelId) return !!this._currentReelId;
-        return this._currentReelId === reelId;
-    },
+		this._setFrame(frameNumber);
 
-    /**@
-     * #.getActiveReel
-     * @comp SpriteAnimation
-     * @sign public { id: String, frame: Number } .getActiveReel()
-     *
-     * Returns information about the active reel, the one methods will work on when the reel ID is
-     * not specified.
-     * Returns an object containing the reel's ID and the number of the frame displayed at
-     * the time this method was called. If no reel is active, returns an object with a reel ID
-     * of null (this will only happen if no animation has been played yet).
-     */
-    getActiveReel: function () {
-        if (!this._currentReelId) return {
-            id: null,
-            frame: 0
-        };
+		if(currentReel.easing.complete === true){
+			this.trigger("AnimationEnd", this._currentReel);
+			this.pauseAnimation();
+		}
+	},
 
-        return {
-            id: this._currentReelId,
-            frame: this._reels[this._currentReelId].currentFrameNumber
-        };
-    }
+
+
+	
+
+	// Set the current frame and update the displayed sprite
+	// The actual progress for the animation must be set seperately.
+	_setFrame: function(frameNumber) {
+		var currentReel = this._currentReel;
+		if (frameNumber === currentReel.currentFrame)
+			return;
+		currentReel.currentFrame = frameNumber;
+		this._updateSprite();
+		this.trigger("FrameChange", currentReel); 
+	},
+
+	// Update the displayed sprite.
+	_updateSprite: function() {
+		var currentReel = this._currentReel;
+		var pos = currentReel.frames[currentReel.currentFrame];
+		this.__coord[0] = pos[0];
+		this.__coord[1] = pos[1];
+		this.trigger("Change"); // needed to trigger a redraw
+
+	},
+
+
+	// Sets the internal state of the current reel's easing object
+	_setProgress: function(progress, repeats) {
+		this._currentReel.easing.setProgress(progress, repeats);
+
+	},
+
+
+	/**@
+	* #.isPlaying
+	* @comp SpriteAnimation
+	* @sign public Boolean .isPlaying([String reelId])
+	* @param reelId - The reelId of the reel we wish to examine
+	* @returns The current animation state
+	*
+	* Determines if the specified animation is currently playing. If no reelId is specified,
+	* checks if any animation is playing.
+	*
+	* @example
+	* ~~~
+	* myEntity.isPlaying() // is any animation playing
+	* myEntity.isPlaying('PlayerRunning') // is the PlayerRunning animation playing
+	* ~~~
+	*/
+	isPlaying: function (reelId) {
+		if (!this._isPlaying) return false;
+
+		if (!reelId) return !!this._currentReelId;
+		return this._currentReelId === reelId;
+	},
+
+	/**@
+	* #.getReel
+	* @comp SpriteAnimation
+	* @sign public Reel .getReel()
+	* @returns The current reel, or null if there is no active reel
+	* 
+	* @sign public Reel .getReel(reelId)
+	* @param reelId - The id of the reel to fetch.  
+	* @returns The specified reel, or `undefined` if no such reel exists.
+	*
+	*/
+	getReel: function (reelId) {
+		if (arguments.length === 0){
+			if (!this._currentReelId) return null;
+			reelId = this._currentReelId;
+		}
+
+		return this._reels[reelId];
+	}
 });
 
 /**@
@@ -436,83 +563,123 @@ Crafty.c("SpriteAnimation", {
  * Component to animate the change in 2D properties over time.
  */
 Crafty.c("Tween", {
-    _step: null,
-    _numProps: 0,
+	_step: null,
+	_numProps: 0,
+	tweenStart:{},
+	tweenGroup:{},
 
-    /**@
-     * #.tween
-     * @comp Tween
-     * @sign public this .tween(Object properties, Number duration)
-     * @param properties - Object of 2D properties and what they should animate to
-     * @param duration - Duration to animate the properties over (in frames)
-     *
-     * This method will animate a 2D entities properties over the specified duration.
-     * These include `x`, `y`, `w`, `h`, `alpha` and `rotation`.
-     *
-     * The object passed should have the properties as keys and the value should be the resulting
-     * values of the properties.
-     *
-     * @example
-     * Move an object to 100,100 and fade out in 200 frames.
-     * ~~~
-     * Crafty.e("2D, Tween")
-     *    .attr({alpha: 1.0, x: 0, y: 0})
-     *    .tween({alpha: 0.0, x: 100, y: 100}, 200)
-     * ~~~
-     */
-    tween: function (props, duration) {
-        this.each(function () {
-            if (this._step === null) {
-                this._step = {};
-                this.bind('EnterFrame', tweenEnterFrame);
-                this.bind('RemoveComponent', function (c) {
-                    if (c == 'Tween') {
-                        this.unbind('EnterFrame', tweenEnterFrame);
-                    }
-                });
-            }
+	init: function(){
+		this.tweens = [];
+		this.bind("EnterFrame", this._tweenTick);
 
-            for (var prop in props) {
-                this._step[prop] = {
-                    prop: props[prop],
-                    val: (props[prop] - this[prop]) / duration,
-                    rem: duration
-                };
-                this._numProps++;
-            }
-        });
-        return this;
-    }
+	},
+
+	_tweenTick: function(frameData){
+		var tween, v, i;
+		for ( i = this.tweens.length-1; i>=0; i--){
+			tween = this.tweens[i];
+			tween.easing.tick(frameData.dt);
+			v  = tween.easing.value();
+			this._doTween(tween.props, v);
+			if (tween.easing.complete) {
+				this.tweens.splice(i, 1);
+				this._endTween(tween.props);
+			}
+		}
+	},
+
+	_doTween: function(props, v){
+		for (var name in props)
+			this[name] = (1-v) * this.tweenStart[name] + v * props[name];
+
+	},
+
+
+
+	/**@
+	* #.tween
+	* @comp Tween
+	* @sign public this .tween(Object properties, Number|String duration)
+	* @param properties - Object of numeric properties and what they should animate to
+	* @param duration - Duration to animate the properties over, in milliseconds.
+	*
+	* This method will animate numeric properties over the specified duration.
+	* These include `x`, `y`, `w`, `h`, `alpha` and `rotation`.
+	*
+	* The object passed should have the properties as keys and the value should be the resulting
+	* values of the properties.  The passed object might be modified if later calls to tween animate the same properties.
+	*
+	* @example
+	* Move an object to 100,100 and fade out over 200 ms.
+	* ~~~
+	* Crafty.e("2D, Tween")
+	*    .attr({alpha: 1.0, x: 0, y: 0})
+	*    .tween({alpha: 0.0, x: 100, y: 100}, 200)
+	* ~~~
+	* @example
+	* Rotate an object over 2 seconds
+	* ~~~
+	* Crafty.e("2D, Tween")
+	*    .attr({rotate:0})
+	*    .tween({rotate:180}, 2000)
+	* ~~~
+	*
+	*/
+	tween: function (props, duration) {
+		
+		var tween = {
+			props: props,
+			easing: new Crafty.easing(duration)
+		};
+
+		// Tweens are grouped together by the original function call.
+		// Individual properties must belong to only a single group
+		// When a new tween starts, if it already belongs to a group, move it to the new one
+		// Record the group it currently belongs to, as well as its starting coordinate.
+		for (var propname in props){
+			if (typeof this.tweenGroup[propname] !== "undefined")
+				this.cancelTween(propname);
+			this.tweenStart[propname] = this[propname];
+			this.tweenGroup[propname] = props;
+		}
+		this.tweens.push(tween);
+		
+		return this;
+
+	},
+
+	/**@
+	* #.cancelTween
+	* @comp Tween
+	* @sign public this .cancelTween(String target)
+	* @param target - The property to cancel
+	* 
+	* @sign public this .cancelTween(Object target)
+	* @param target - An object containing the properties to cancel.
+	*
+	* Stops tweening the specified property or properties.  
+	* Passing the object used to start the tween might be a typical use of the second signature.
+	*/
+	cancelTween: function(target){
+		if (typeof target === "string"){
+			if (typeof this.tweenGroup[target] == "object" )
+				delete this.tweenGroup[target][target];
+		} else if (typeof target === "object") {
+			for (var propname in target)
+				this.cancelTween(propname);
+		}
+
+		return this;
+		
+	},
+
+	/*
+	* Stops tweening the specified group of properties, and fires the "TweenEnd" event.
+	*/
+	_endTween: function(properties){
+		for (var propname in properties){
+			delete this.tweenGroup[propname];
+		}
+		this.trigger("TweenEnd", properties);
+	}
 });
-
-function tweenEnterFrame(e) {
-    if (this._numProps <= 0) return;
-
-    var prop, k;
-    for (k in this._step) {
-        prop = this._step[k];
-        this[k] += prop.val;
-        if (--prop.rem === 0) {
-            // decimal numbers rounding fix
-            this[k] = prop.prop;
-            this.trigger("TweenEnd", k);
-            // make sure the duration wasn't changed in TweenEnd
-            if (this._step[k].rem <= 0) {
-                delete this._step[k];
-            }
-            this._numProps--;
-        }
-    }
-
-    if (this.has('Mouse')) {
-        var over = Crafty.over,
-            mouse = Crafty.mousePos;
-        if (over && over[0] == this[0] && !this.isAt(mouse.x, mouse.y)) {
-            this.trigger('MouseOut', Crafty.lastEvent);
-            Crafty.over = null;
-        } else if ((!over || over[0] != this[0]) && this.isAt(mouse.x, mouse.y)) {
-            Crafty.over = this;
-            this.trigger('MouseOver', Crafty.lastEvent);
-        }
-    }
-}
