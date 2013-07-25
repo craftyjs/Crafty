@@ -431,7 +431,7 @@ Crafty.c("SpriteAnimation", {
 */
 Crafty.c("Tween", {
 	_step: null,
-	_numProps: 0,
+	paused: false,
 
 	/**@
 	* #.tween
@@ -440,7 +440,7 @@ Crafty.c("Tween", {
 	* @param properties - Object of 2D properties and what they should animate to
 	* @param duration - Duration to animate the properties over (in frames)
 	*
-	* This method will animate a 2D entities properties over the specified duration.
+	* This method will animate a 2D entity's properties over the specified duration.
 	* These include `x`, `y`, `w`, `h`, `alpha` and `rotation`.
 	*
 	* The object passed should have the properties as keys and the value should be the resulting
@@ -451,13 +451,25 @@ Crafty.c("Tween", {
 	* ~~~
 	* Crafty.e("2D, Tween")
 	*    .attr({alpha: 1.0, x: 0, y: 0})
-	*    .tween({alpha: 0.0, x: 100, y: 100}, 200)
+	*    .tween({alpha: 0.0, x: 100, y: 100}, 200);
+	* ~~~
+	*
+	* The animations can also be chained in sequence.
+	*
+	* @example
+	* Move an object to 100,100 and THEN fade out in 200 frames.
+	* ~~~
+	* Crafty.e("2D, Tween")
+	*    .attr({alpha: 1.0, x: 0, y: 0})
+	*    .tween({x: 100, y: 100}, 200)
+	*    .tween({alpha: 0.0}, 200);
 	* ~~~
 	*/
 	tween: function (props, duration) {
 		this.each(function () {
-			if (this._step == null) {
-				this._step = {};
+
+			if (this._step === null) {
+				this._step = [];
 				this.bind('EnterFrame', tweenEnterFrame);
 				this.bind('RemoveComponent', function (c) {
 					if (c == 'Tween') {
@@ -465,34 +477,73 @@ Crafty.c("Tween", {
 					}
 				});
 			}
+			this._step.push({props: {}, _numProps: 0});
 
 			for (var prop in props) {
-				this._step[prop] = { prop: props[prop], val: (props[prop] - this[prop]) / duration, rem: duration };
-				this._numProps++;
+				this._step[this._step.length-1].props[prop] = { tgt: props[prop], val: (props[prop] - this[prop]) / duration, rem: duration };
+				this._step[this._step.length-1]._numProps++;
 			}
 		});
+		return this;
+	},
+	
+	/**@
+	* #.pause
+	* @comp Tween
+	* @sign public this .pause(void)
+	*
+	* Pause or resume the tweening animation that is being executed.
+	*/
+	pause: function () {
+		if (this._step!=null && this._step.length > 0 ) this.paused = !this.paused;
+		return this;
+	},
+	
+	/**@
+	* #.stop
+	* @comp Tween
+	* @sign public this .stop(void)
+	*
+	* Stop the tweening animation that is being executed and remove all the tweening animations that are in the queue.
+	*/
+	stop: function () {
+		if (this._step!=null){
+			this._step = [];
+			this.paused = false;
+		}
+
 		return this;
 	}
 });
 
 function tweenEnterFrame(e) {
-	if (this._numProps <= 0) return;
+	if (this._step.length <= 0 || this.paused) return;
 
 	var prop, k;
-	for (k in this._step) {
-		prop = this._step[k];
+	for (k in this._step[0].props) {
+		prop = this._step[0].props[k];
 		this[k] += prop.val;
-		if (--prop.rem == 0) {
+		if (--prop.rem <= 0) {
 			// decimal numbers rounding fix
-			this[k] = prop.prop;
+			this[k] = prop.tgt;
 			this.trigger("TweenEnd", k);
 			// make sure the duration wasn't changed in TweenEnd
-			if (this._step[k].rem <= 0) {
-				delete this._step[k];
+			if (this._step[0].props[k].rem <= 0) {
+				delete this._step[0].props[k];
 			}
-			this._numProps--;
-		}
+			this._step[0]._numProps--;
+			if (this._step[0]._numProps<=0){
+				this._step.shift();
+				if (this._step.length > 0){
+					for (k in this._step[0].props){
+						this._step[0].props[k].val=(this._step[0].props[k].tgt - this[k]) / this._step[0].props[k].rem;
+					}
+				}
+			}
+ 		}
 	}
+
+
 
 	if (this.has('Mouse')) {
 		var over = Crafty.over,
