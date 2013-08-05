@@ -327,6 +327,7 @@ Crafty.storage = (function () {
             if (db.objectStoreNames.contains(st)) continue;
             var store = db.createObjectStore(st, { keyPath: "key" });
           }
+				}
 			},
 
 			save: function (key, type, data, callback) {
