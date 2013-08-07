@@ -1072,7 +1072,7 @@
                 while (frames-- > 0) {
                     Crafty.trigger("EnterFrame", { frame: frame++ });
                 }
-                Crafty.DrawManager.draw();
+                Crafty.trigger("RenderScene");
             }
 
         },
