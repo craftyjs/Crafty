@@ -62,7 +62,11 @@ module.exports = function (grunt) {
         },
 
         qunit: {
-            all: ['tests/**/core.html']
+            all: ['tests/core.html',
+            	'tests/animation/animation.html',
+            	'tests/stage.html',
+            	'tests/events.html',
+            	'tests/math.html']
         }, 
 
     });
