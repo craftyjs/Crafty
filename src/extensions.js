@@ -578,8 +578,8 @@ Crafty.extend({
          * Centers the viewport on the given entity
          */
         centerOn: function (targ, time) {
-            var x = targ.x,
-                    y = targ.y,
+            var x = targ.x + Crafty.viewport.x,
+                    y = targ.y + Crafty.viewport.y,
                     mid_x = targ.w / 2,
                     mid_y = targ.h / 2,
                     cent_x = Crafty.viewport.width / 2,
