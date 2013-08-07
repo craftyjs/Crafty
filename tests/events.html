@@ -2,21 +2,25 @@
                     "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 
-<!-- Note to developers: To run these tests without regenerating crafty.js or
-     setting up a local server:
-       (1) Copy this file into the Crafty parent folder [because firefox security
-             blocks local files from seeing parent folders];
-       (2) Change "../crafty.js" to "./crafty-local.js" (in the HTML head below).
-       (3) Now you can open the HTML file in Firefox.
-       (4) Chrome has more restrictive security, you can pass a flag to loosen
-             the security. Run this command in a Linux terminal:
+<!-- Note to developers: Grunt will run these tests in a webkit-based browser
+    (like safari or chrome). If you don't have grunt, and/or want to test in other
+    browsers, here is the easiest way:
+       (1) Change "../crafty.js" to "../crafty-local.js" (in the HTML head below).
+       (2) Open this file in a browser to run the tests.
+             ...However, browser security settings may keep it from working.
+       -- To run the tests in firefox: First you need to go to about:config in firefox, and
+             switch "security.fileuri.strict_origin_policy" to false. [This only changes the
+             security settings when firefox opens an HTML file saved on your computer; it does
+             not affect your security when you are browsing the internet.]
+       -- To run the tests in chrome: You need to pass a flag when opening chrome.
+             For example, in Linux, you would run this command in a Linux terminal:      
              chromium-browser /path/to/core.html --allow-file-access-from-files
  -->
 
 <head>
-	<script src="http://code.jquery.com/jquery-latest.js"></script>
-	<link rel="stylesheet" href="http://code.jquery.com/qunit/git/qunit.css" type="text/css" media="screen" />
-	<script type="text/javascript" src="http://code.jquery.com/qunit/git/qunit.js"></script>
+	<script src="./lib/jquery.min.js"></script>
+	<link rel="stylesheet" href="./lib/qunit.css" type="text/css" media="screen" />
+	<script type="text/javascript" src="./lib/qunit.js"></script>
 	<script type="text/javascript" src="../crafty.js"></script>
 
 <script>
