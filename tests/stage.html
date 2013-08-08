@@ -97,6 +97,15 @@
 		Crafty.timer.simulateFrames(10);
 		equal(Crafty.viewport._x, -e.w / 2 + Crafty.viewport.width / 2, "Entity still centered 10 frames later");
 
+		
+		var e2 = Crafty.e("2D, DOM").attr({ x: 450, y: 450, w: 20, h: 20 });
+		Crafty.viewport.scroll('x', 1500);
+		Crafty.viewport.scroll('y', 300);
+		Crafty.viewport.centerOn(e2, 1);
+		Crafty.timer.simulateFrames(1);
+		equal(Crafty.viewport._x, -(e2.x + e2.w/2 - Crafty.viewport.width / 2), "Entity centered from non-zero origin");
+		equal(Crafty.viewport._y, -(e2.y + e2.h/2 - Crafty.viewport.height / 2), "Entity centered from non-zero origin");
+		
 		Crafty.viewport.scroll('x', 0);
 		Crafty.viewport.scroll('y', 0);
 	});
