@@ -35,6 +35,7 @@
         "src/html.js",
         "src/storage.js",
         "src/extensions.js",
+        "src/viewport.js",
         "src/device.js",
         "src/sprite.js",
         "src/canvas.js",
