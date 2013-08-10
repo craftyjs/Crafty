@@ -227,7 +227,7 @@ Crafty.c("DebugPolygon", {
 		ctx = Crafty.DebugCanvas.context;
 		ctx.beginPath();
 		for (var p in this.polygon.points) {
-			ctx.lineTo(Crafty.viewport.x + this.map.points[p][0], Crafty.viewport.y + this.map.points[p][1]);
+			ctx.lineTo(this.map.points[p][0],this.map.points[p][1]);
 		}
 		ctx.closePath();
 
@@ -323,10 +323,8 @@ Crafty.DebugCanvas  = {
 				Crafty.DebugCanvas.context = c.getContext('2d');
 				Crafty.DebugCanvas._canvas = c;
 
-				//Set any existing transformations
-				var zoom = Crafty.viewport._zoom
-				if (zoom != 1)
-					Crafty.DebugCanvas.context.scale(zoom, zoom);
+
+				
 			}
 			//Bind rendering of canvas context (see drawing.js)
 			Crafty.unbind("RenderScene", Crafty.DebugCanvas.renderScene)
@@ -344,8 +342,12 @@ Crafty.DebugCanvas  = {
 				ctx = Crafty.DebugCanvas.context,
 				current;
 
+			var view = Crafty.viewport;
+			ctx.setTransform(view._scale, 0, 0, view._scale, view._x, view._y)
+
 			ctx.clearRect(rect._x, rect._y, rect._w, rect._h);
 
+			
 			//sort the objects by the global Z
 			//q.sort(zsort);
 			for (; i < l; i++) {

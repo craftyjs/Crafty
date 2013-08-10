@@ -2,6 +2,9 @@ Crafty.extend({
      /**@
     * #Crafty.viewport
     * @category Stage
+    * @trigger ViewportScroll - when the viewport's x or y coordinates change
+    * @trigger ViewportScale - when the viewport's scale changes
+    * @trigger InvalidateViewport - when the viewport changes
     * 
     * Viewport is essentially a 2D camera looking at the stage. Can be moved which
     * in turn will react just like a camera moving in that direction.
@@ -45,13 +48,22 @@ Crafty.extend({
         _y: 0,
 		
 		/**@
+         * #Crafty.viewport._scale
+         * @comp Crafty.viewport
+         *
+		 * What scale to render the viewport at.  This does not alter the size of the stage itself, but the magnification of what it shows.
+         */
+
+        _scale: 1,
+
+        /**@
          * #Crafty.viewport.bounds
          * @comp Crafty.viewport
          *
-		 * A rectangle which defines the bounds of the viewport. If this 
-		 * variable is null, Crafty uses the bounding box of all the items
-		 * on the stage.
-         */
+         * A rectangle which defines the bounds of the viewport. If this 
+         * variable is null, Crafty uses the bounding box of all the items
+         * on the stage.
+         */         
         bounds:null,
 
         /**@
@@ -73,26 +85,13 @@ Crafty.extend({
          */
         scroll: function (axis, v) {
             v = Math.floor(v);
-            var change = v - this[axis], //change in direction
-                context = Crafty.canvas.context,
-                style = Crafty.stage.inner.style,
-                canvas;
-
-            //update viewport and DOM scroll
-            this[axis] = v;
-			if (context) {
-				if (axis == '_x') {
-					context.translate(change, 0);
-				} else {
-					context.translate(0, change);
-				}
-				Crafty.DrawManager.drawAll();
-			}
-            style[axis == '_x' ? "left" : "top"] = v + "px";
+            this[axis] = v
+            Crafty.trigger("ViewportScroll")
+            Crafty.trigger("InvalidateViewport")
         },
 
         rect: function () {
-            return { _x: -this._x, _y: -this._y, _w: this.width, _h: this.height };
+            return {  _x: -this._x/this._scale, _y: -this._y/this._scale, _w: this.width/this._scale, _h: this.height/this._scale };
         },
 
         /**@
@@ -268,7 +267,7 @@ Crafty.extend({
                     if (Crafty.canvas._canvas) {
 						var czoom = zoom / (zoom - zoom_tick);
 						Crafty.canvas.context.scale(czoom, czoom);
-                        Crafty.DrawManager.drawAll();
+                        Crafty.trigger("InvalidateViewport")
                     }
                     Crafty.viewport.x -= diff.width * prct.width;
                     Crafty.viewport.y -= diff.height * prct.height;
@@ -317,30 +316,16 @@ Crafty.extend({
          * ~~~
          */
         scale: (function () {
-            var prop = Crafty.support.prefix + "Transform",
-                act = {};
             return function (amt) {
                 var bounds = this.bounds || Crafty.map.boundaries(),
-                    final_zoom = amt ? this._zoom * amt : 1,
-					czoom = final_zoom / this._zoom;
+                    final_zoom = amt ?  amt : 1;
+					
 
                 this._zoom = final_zoom;
-                act.width = bounds.max.x - bounds.min.x;
-                act.height = bounds.max.y - bounds.min.y;
-                var new_s = {
-                    width: act.width * final_zoom,
-                    height: act.height * final_zoom
-                }
-                Crafty.viewport.pan('reset');
-                Crafty.stage.inner.style['transform'] = 
-				Crafty.stage.inner.style[prop] = 'scale(' + this._zoom + ',' + this._zoom + ')';
-
-                if (Crafty.canvas._canvas) {
-                    Crafty.canvas.context.scale(czoom, czoom);
-                    Crafty.DrawManager.drawAll();
-                }
-                //Crafty.viewport.width = new_s.width;
-                //Crafty.viewport.height = new_s.height;
+                this._scale = final_zoom;
+                Crafty.trigger("InvalidateViewport");
+                Crafty.trigger("ViewportScale");
+                
             }
         })(),
         /**@
@@ -548,6 +533,7 @@ Crafty.extend({
             Crafty.stage.elem.appendChild(Crafty.stage.inner);
             Crafty.stage.inner.style.position = "absolute";
             Crafty.stage.inner.style.zIndex = "1";
+            Crafty.stage.inner.style.transformStyle = "preserve-3d";  // Seems necessary for Firefox to preserve zIndexes?
 
             //css style
             elem.width = this.width + "px";
@@ -600,6 +586,7 @@ Crafty.extend({
                 this.__defineSetter__('y', function (v) { this.scroll('_y', v); });
                 this.__defineGetter__('x', function () { return this._x; });
                 this.__defineGetter__('y', function () { return this._y; });
+                
                 //IE9
             } else if (Crafty.support.defineProperty) {
                 Object.defineProperty(this, 'x', { set: function (v) { this.scroll('_x', v); }, get: function () { return this._x; } });
@@ -608,7 +595,7 @@ Crafty.extend({
                 //create empty entity waiting for enterframe
                 this.x = this._x;
                 this.y = this._y;
-                Crafty.e("viewport");
+                Crafty.e("ViewportSetter");
             }
         },
 
@@ -638,7 +625,7 @@ Crafty.extend({
                 if (Crafty.canvas._canvas) {
                     Crafty.canvas._canvas.width = w;
                     Crafty.canvas._canvas.height = h;
-                    Crafty.DrawManager.drawAll();
+                    Crafty.trigger("InvalidateViewport")
                 }
             }
 
@@ -669,7 +656,7 @@ Crafty.extend({
 /**
 * Entity fixes the lack of setter support
 */
-Crafty.c("viewport", {
+Crafty.c("ViewportSetter", {
     init: function () {
         this.bind("EnterFrame", function () {
             if (Crafty.viewport._x !== Crafty.viewport.x) {
@@ -679,6 +666,7 @@ Crafty.c("viewport", {
             if (Crafty.viewport._y !== Crafty.viewport.y) {
                 Crafty.viewport.scroll('_y', Crafty.viewport.y);
             }
+
         });
     }
 });

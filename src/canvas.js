@@ -191,7 +191,7 @@ Crafty.extend({
 			Crafty.canvas._canvas = c;
 
 			//Set any existing transformations
-			var zoom = Crafty.viewport._zoom
+			var zoom = Crafty.viewport._scale
 			if (zoom != 1)
 				Crafty.canvas.context.scale(zoom, zoom);
 
