@@ -59,6 +59,7 @@
         "grunt-contrib-concat": "0.3.0",
         "grunt-contrib-jshint": "0.5.2",
         "grunt-contrib-qunit":  "0.2.1",
+        "grunt-jsvalidate":     "0.2.1",
         "marked":               "0.2.9",
         "coffee-script":        "1.6.3"
     }
