@@ -726,7 +726,7 @@ Crafty.c("Multiway", {
 		this._speed = { x: 3, y: 3 };
 
 		if (keys) {
-			if (speed.x && speed.y) {
+			if (speed.x !== undefined && speed.y !== undefined) {
 				this._speed.x = speed.x;
 				this._speed.y = speed.y;
 			} else {
