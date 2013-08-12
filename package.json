@@ -4,7 +4,7 @@
     "title": "Crafty game framework",
     "author": {
         "name": "Louis Stowasser",
-        "url": "http://craftyengine.com/"
+        "url": "http://craftyjs.com/"
     },
     "branches" : { "develop" : true },
     "licenses": [
@@ -25,7 +25,6 @@
     "jsfiddle" : "disable",
     "homepage": "https://github.com/craftyjs/Crafty",
     "files": [
-        "src/license.txt",
         "src/core.js",
         "src/intro.js",
         "src/HashMap.js",
