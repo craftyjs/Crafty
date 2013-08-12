@@ -1037,6 +1037,8 @@
                 if (loops) {
                     drawTimeStart = currentTime;
                     Crafty.trigger("RenderScene")
+                    // Post-render cleanup opportunity
+                    Crafty.trigger("PostRender");
                     currentTime = +new Date();
                     Crafty.trigger("MeasureRenderTime", currentTime - drawTimeStart);
 

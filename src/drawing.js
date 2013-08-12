@@ -337,7 +337,10 @@ Crafty.DrawManager = (function () {
 	/** array of dirty rects on screen */
 	var dirty_rects = [], changed_objs = [], 
 	/** array of DOMs needed updating */
-		dom = [], 
+	dom = [], 
+
+	dirtyViewport = false,
+
 	
 	/** recManager: an object for managing dirty rectangles. */
 	rectManager = {
@@ -412,6 +415,9 @@ Crafty.DrawManager = (function () {
 		}
 
 	};
+
+	Crafty.bind("InvalidateViewport", function(){dirtyViewport=true});
+	Crafty.bind("PostRender", function(){dirtyViewport=false});
 
 	return {
 		/**@
@@ -577,15 +583,21 @@ Crafty.DrawManager = (function () {
 
 		renderCanvas: function() {
 			var l = changed_objs.length;
-			if (!l) { return; }
+			if (!l && !dirtyViewport) { return; }
 
 			var i = 0, l = changed_objs.length, rect, q,
 				j, len, obj, ent, ctx = Crafty.canvas.context, DM = Crafty.DrawManager;
+			
 
+			if (dirtyViewport){
+				var view = Crafty.viewport;
+				ctx.setTransform(view._scale, 0, 0, view._scale, view.x, view.y)
+
+			}
 			//if the amount of changed objects is over 60% of the total objects
 			//do the naive method redrawing
 			// TODO: I'm not sure this condition really makes that much sense!
-			if (l / DM.total2D > 0.6 ) {
+			if (l / DM.total2D > 0.6 || dirtyViewport) {
 				DM.drawAll();
 				rectManager.clean()
 				return;
@@ -672,6 +684,15 @@ Crafty.DrawManager = (function () {
 		* @see DOM.draw
 		*/
 		renderDOM: function() {
+			// Adjust the viewport
+			if (dirtyViewport){
+				var style = Crafty.stage.inner.style, view = Crafty.viewport;
+				
+				style.transform = style[Crafty.support.prefix + "Transform"] = "scale(" + view._scale + ", " + view._scale + ")" 
+				style.left = view.x + "px";
+				style.top = view.y + "px";
+				style.zIndex = 10;
+			}
 
 			//if no objects have been changed, stop
 			if (!dom.length) return;
