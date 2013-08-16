@@ -30,36 +30,22 @@
     var Crafty = function (selector) {
         return new Crafty.fn.init(selector);
     },
-
-    GUID, FPS, frame, components, entities, handlers, onloads, tick, requestID,
-	noSetter, loops, milliSecPerFrame, nextGameTick, slice, rlist, rspace, lastFrameTime, endTime, currentTime
+    // Internal variables
+    GUID, frame, components, entities, handlers, onloads,
+	noSetter,  slice, rlist, rspace, milliSecPerFrame
+    
 
 	initState = function () {
     	GUID = 1; //GUID for entity IDs
-    	FPS = 50;
-    	frame = 1;
 
     	components = {}; //map of components and their functions
     	entities = {}; //map of entities and their data
     	handlers = {}; //global event handlers
     	onloads = []; //temporary storage of onload handlers
-    	tick;
-
-    	/*
-		* `window.requestAnimationFrame` or its variants is called for animation.
-		* `.requestID` keeps a record of the return value previous `window.requestAnimationFrame` call.
-		* This is an internal variable. Used to stop frame.
-		*/
-    	requestID;
 
     	noSetter;
 
-    	loops = 0;
-    	milliSecPerFrame = 1000 / FPS;
-    	nextGameTick = (new Date).getTime();
-        currentTime = lastFrameTime = nextGameTick;
-        maxTimestep = 40;  // The goal is about 20ms per time step, but drawing interferes!
-        endTime = 0;        
+
 
     	slice = Array.prototype.slice;
     	rlist = /\s*,\s*/;
@@ -960,124 +946,214 @@
         * @category Game Loop
         * Handles game ticks
         */
-        timer: {
-            prev: (+new Date),
-            current: (+new Date),
-            currentTime: +new Date(),
-            frames:0,
-            frameTime:0,
-            maxTimestep: 50,
-            init: function () {
-                var onFrame = window.requestAnimationFrame ||
-                    window.webkitRequestAnimationFrame ||
-                    window.mozRequestAnimationFrame ||
-                    window.oRequestAnimationFrame ||
-                    window.msRequestAnimationFrame ||
-                    null;
+        timer: (function () {
+            /*
+            * `window.requestAnimationFrame` or its variants is called for animation.
+            * `.requestID` keeps a record of the return value previous `window.requestAnimationFrame` call.
+            * This is an internal variable. Used to stop frame.
+            */
+            var tick, requestID;
 
-                if (onFrame) {
-                    tick = function () {
-                        Crafty.timer.step();
-                        requestID = onFrame(tick);
-                        //console.log(requestID + ', ' + frame)
+            // Internal variables used to control the game loop.  Use Crafty.timer.steptype() to set these.
+            var mode = "fixed",
+                maxFramesPerStep = 5,
+                maxTimestep = 40;
+                
+            // variables used by the game loop to track state
+            var endTime = 0, 
+                timeSlip = 0, 
+                gameTime,
+                frame = 0;
+            
+            // Controls the target rate of fixed mode loop.  Set these with the Crafty.timer.FPS function
+            var FPS = 50, milliSecPerFrame = 1000 / FPS;
+
+
+            
+
+            return {
+                init: function () {
+                    // When first called, set the  gametime one frame before now!
+                    if (typeof gameTime == "undefined")
+                        gameTime = (+new Date()) - milliSecPerFrame;
+                    var onFrame = window.requestAnimationFrame ||
+                        window.webkitRequestAnimationFrame ||
+                        window.mozRequestAnimationFrame ||
+                        window.oRequestAnimationFrame ||
+                        window.msRequestAnimationFrame ||
+                        null;
+
+                    if (onFrame) {
+                        tick = function () {
+                            Crafty.timer.step();
+                            requestID = onFrame(tick);
+                            //console.log(requestID + ', ' + frame)
+                        }
+
+                        tick();
+                    } else {
+                        tick = setInterval(function () { Crafty.timer.step(); }, 1000 / FPS);
+                    }
+                },
+
+                stop: function () {
+                    Crafty.trigger("CraftyStopTimer");
+
+                    if (typeof tick === "number") clearInterval(tick);
+
+                    var onFrame = window.cancelRequestAnimationFrame ||
+                        window.webkitCancelRequestAnimationFrame ||
+                        window.mozCancelRequestAnimationFrame ||
+                        window.oCancelRequestAnimationFrame ||
+                        window.msCancelRequestAnimationFrame ||
+                        null;
+
+                    if (onFrame) onFrame(requestID);
+                    tick = null;
+                },
+
+
+                /**@
+                * #Crafty.timer.steptype
+                * @comp Crafty.timer
+                * Can be called to set the type of timestep the game loop uses
+                * @sign public void Crafty.timer.steptype(mode [, maxTimeStep])
+                * @param mode - the type of time loop.  Allowed values are "fixed", "semifixed", and "variable".  Crafty defaults to "fixed".
+                * @param mode - For "fixed", sets the max number of frames per step.   For "variable" and "semifixed", sets the maximum time step allowed.
+                * 
+                * * In "fixed" mode, each frame is sent the same value of `dt`, and to achieve the target game speed, mulitiple frame events are triggered before each render.
+                * * In "variable" mode, there is only one frame triggered per render.  This recieves a value of `dt` equal to the actual elapsed time since the last frame.
+                * * In "semifixed" mode, multiple frames per render are processed, and the total time since the last frame is divided evenly between them. 
+                * 
+                */
+
+                steptype: function(mode, option){
+                    if (mode === "variable" || mode === "semifixed"){
+                        mode = "variable";
+                        if (option)
+                            maxTimestep = option;
+
+                    } else if (mode === "fixed" ){
+                        mode = mode;
+                        if (option)
+                            maxFramesPerStep = option;
+                    } else {
+                        throw "Invalid step type specified"
                     }
 
-                    tick();
-                } else {
-                    tick = setInterval(function () { Crafty.timer.step(); }, 1000 / FPS);
-                }
-            },
 
-            stop: function () {
-                Crafty.trigger("CraftyStopTimer");
+                },
 
-                if (typeof tick === "number") clearInterval(tick);
-
-                var onFrame = window.cancelRequestAnimationFrame ||
-                    window.webkitCancelRequestAnimationFrame ||
-                    window.mozCancelRequestAnimationFrame ||
-                    window.oCancelRequestAnimationFrame ||
-                    window.msCancelRequestAnimationFrame ||
-                    null;
-
-                if (onFrame) onFrame(requestID);
-                tick = null;
-            },
-
-            /**@
-            * #Crafty.timer.step
-            * @comp Crafty.timer
-            * @sign public void Crafty.timer.step()
-            * @trigger EnterFrame - Triggered on each frame.  Passes the frame number, and the amount of time since the last frame.  If the time is greater than Crafty.timer.maxTimestep, that will be used instead.  (The default value of maxTimestep is 50 ms.) - { frame: Number, dt:Number }
-            * @trigger RenderScene - Triggered every time a scene should be rendered
-            * @trigger MeasureWaitTime - Triggered at the beginning of each step after the first.  Passes the time the game loop waited between steps. - Number
-            * @trigger MeasureFrameTime - Triggered after each step.  Passes the time it took to advance one frame. - Number
-            * @trigger MeasureRenderTime - Triggered after each render. Passes the time it took to render the scene - Number
-            * Advances the game by triggering `EnterFrame` and calls `Crafty.DrawManager.draw` to update the stage.
-            */
-            step: function () {
-                var drawTimeStart, dt;
-                loops = 0;
-                currentTime = this.currentTime = +new Date();
-                if (endTime>0)
-                    Crafty.trigger("MeasureWaitTime", currentTime-endTime)
-                if (currentTime - nextGameTick > 60 * milliSecPerFrame) {
-                    nextGameTick = currentTime - milliSecPerFrame;
-                }
-                while (this.currentTime > nextGameTick) {                    
-                    dt = currentTime - lastFrameTime;
-                    lastFrameTime = currentTime;
-                    if (dt > Crafty.timer.maxTimestep) dt = Crafty.timer.maxTimestep;
-                    Crafty.trigger("EnterFrame", { frame: frame++, dt:dt });
-                    nextGameTick += milliSecPerFrame;
-                    loops++;
+                /**@
+                * #Crafty.timer.step
+                * @comp Crafty.timer
+                * @sign public void Crafty.timer.step()
+                * @trigger EnterFrame - Triggered on each frame.  Passes the frame number, and the amount of time since the last frame.  If the time is greater than maxTimestep, that will be used instead.  (The default value of maxTimestep is 50 ms.) - { frame: Number, dt:Number }
+                * @trigger RenderScene - Triggered every time a scene should be rendered
+                * @trigger MeasureWaitTime - Triggered at the beginning of each step after the first.  Passes the time the game loop waited between steps. - Number
+                * @trigger MeasureFrameTime - Triggered after each step.  Passes the time it took to advance one frame. - Number
+                * @trigger MeasureRenderTime - Triggered after each render. Passes the time it took to render the scene - Number
+                * Advances the game by triggering `EnterFrame` and `RenderScene`
+                */
+                step: function () {
+                    var drawTimeStart, dt, lastFrameTime, loops=0;
+                    
                     currentTime = +new Date();
-                    Crafty.trigger("MeasureFrameTime", currentTime - lastFrameTime);
-                }
-                if (loops) {
-                    drawTimeStart = currentTime;
-                    Crafty.trigger("RenderScene")
-                    // Post-render cleanup opportunity
-                    Crafty.trigger("PostRender");
-                    currentTime = +new Date();
-                    Crafty.trigger("MeasureRenderTime", currentTime - drawTimeStart);
+                    if (endTime>0)
+                        Crafty.trigger("MeasureWaitTime", currentTime-endTime)
+                    
+                    // If we're currently ahead of the current time, we need to wait until we're not!
+                    if (gameTime + timeSlip >= currentTime){
+                        endTime = currentTime;
+                        return;
+                    }
 
-                }
-               if(this.currentTime > this.frameTime){
-                    this.frame = 0;
-                    this.frameTime = this.currentTime + 1000;
-                }else{
-                    this.frame++;
-                }
+                    var netTimeStep = currentTime - (gameTime + timeSlip);
+                    // We try to keep up with the target FPS by processing multiple frames per render
+                    // If we're hopelessly behind, stop trying to catch up.
+                    if (netTimeStep > milliSecPerFrame * 20){
+                        //gameTime = currentTime - milliSecPerFrame;
+                        timeSlip += netTimeStep - milliSecPerFrame;
+                        netTimeStep = milliSecPerFrame;
+                    }
 
-                endTime = currentTime;
-            
-            },
-            /**@
-            * #Crafty.timer.getFPS
-            * @comp Crafty.timer
-            * @sign public void Crafty.timer.getFPS()
-            * Returns the target frames per second. This is not an actual frame rate.
-            */
-            getFPS: function () {
-                return FPS;
-            },
+                    // Set up how time is incremented
+                    if (mode === "fixed"){
+                        loops = Math.ceil( netTimeStep/milliSecPerFrame )
+                        // maxFramesPerStep adjusts how willing we are to delay drawing in order to keep at the target FPS
+                        loops = Math.min(loops, maxFramesPerStep) 
+                        dt = milliSecPerFrame;
+                    } else if (mode === "variable") {
+                        loops = 1;
+                        dt = netTimeStep;
+                        // maxTimestep is the maximum time to be processed in a frame.  (Large dt => unstable physics)
+                        dt = Math.min(dt, maxTimestep)
+                    } else if (mode ==="semifixed") {
+                        loops = Math.ceil(netTimeStep / maxTimestep)
+                        dt = netTimeStep/loops
+                    }
 
-            /**@
-            * #Crafty.timer.simulateFrames
-            * @comp Crafty.timer
-            * Advances the game state by a number of frames and draws the resulting stage at the end. Useful for tests and debugging.
-            * @sign public this Crafty.timer.simulateFrames(Number frames)
-            * @param frames - number of frames to simulate
-            */
-            simulateFrames: function (frames) {
-                while (frames-- > 0) {
-                    Crafty.trigger("EnterFrame", { frame: frame++ });
+                    // Process frames, incrementing the game clock with each frame.
+                    // dt is determined by the mode
+                    for (var i=0; i<loops; i++ ) {    
+                        lastFrameTime = currentTime;
+                        // Everything that changes over time hooks into this event
+                        Crafty.trigger("EnterFrame", { frame: frame++, dt:dt, gameTime: gameTime });
+                        gameTime += dt;
+                        currentTime = +new Date();
+                        Crafty.trigger("MeasureFrameTime", currentTime - lastFrameTime);
+                    }
+
+                    //If any frames were processed, render the results
+                    if (loops > 0) {
+                        drawTimeStart = currentTime;
+                        Crafty.trigger("RenderScene")
+                        // Post-render cleanup opportunity
+                        Crafty.trigger("PostRender");
+                        currentTime = +new Date();
+                        Crafty.trigger("MeasureRenderTime", currentTime - drawTimeStart);
+                    }
+
+                    endTime = currentTime;            
+                },
+                /**@
+                * #Crafty.timer.FPS
+                * @comp Crafty.timer
+                * @sign public void Crafty.timer.FPS()
+                * Returns the target frames per second. This is not an actual frame rate.
+                * @sign public void Crafty.timer.FPS(Number value)
+                * @param value - the target rate
+                * Sets the target frames per second. This is not an actual frame rate.
+                * The default rate is 50.
+                */
+                FPS: function (value) {
+                    if (typeof value == "undefined")
+                        return FPS;
+                    else{
+                        FPS = value;
+                        milliSecPerFrame = 1000 / FPS;
+                    }
+                },
+
+                /**@
+                * #Crafty.timer.simulateFrames
+                * @comp Crafty.timer
+                * Advances the game state by a number of frames and draws the resulting stage at the end. Useful for tests and debugging.
+                * @sign public this Crafty.timer.simulateFrames(Number frames[, Number timestep])
+                * @param frames - number of frames to simulate
+                * @param timestep - the duration to pass each frame.  Defaults to milliSecPerFrame (20 ms) if not specified.
+                */
+                simulateFrames: function (frames, timestep) {
+                    if (typeof timestep === "undefined")
+                        timestep = milliSecPerFrame;
+                    while (frames-- > 0) {
+                        Crafty.trigger("EnterFrame", { frame: frame++, dt:timestep });
+                    }
+                    Crafty.trigger("RenderScene");
                 }
-                Crafty.trigger("RenderScene");
             }
+        })(),
 
-        },
 
         /**@
         * #Crafty.e
