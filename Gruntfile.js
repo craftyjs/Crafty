@@ -17,7 +17,8 @@ module.exports = function (grunt) {
 
     var docGen = function(){
         done = this.async();
-        buildDir = "build/api/"
+        buildDir = "build/api/";
+        grunt.file.mkdir(buildDir);
         var callback = function(){
             console.log("Documentation created in " + buildDir)
             done();
