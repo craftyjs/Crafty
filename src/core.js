@@ -197,11 +197,13 @@
         * This means it will copy properties and assign methods to
         * augment the functionality of the entity.
         *
-        * There are multiple methods of adding components. Passing a
-        * string with a list of component names or passing multiple
-        * arguments with the component names.
+        * For adding multiple components, you can either pass a string with 
+        * all the component names (separated by commas), or pass each component name as
+        * an argument.
         *
         * If the component has a function named `init` it will be called.
+        *
+        * If the entity already has the component, the component is skipped (nothing happens).
         *
         * @example
         * ~~~
@@ -317,20 +319,12 @@
         * Makes sure the entity has the components listed. If the entity does not
         * have the component, it will add it.
         * 
+        * (This function is the exactly same as `.addComponent`.)
+        * 
         * @see .addComponent
         */
         requires: function (list) {
-            var comps = list.split(rlist),
-            i = 0, l = comps.length,
-            comp;
-
-            //loop over the list of components and add if needed
-            for (; i < l; ++i) {
-                comp = comps[i];
-                if (!this.has(comp)) this.addComponent(comp);
-            }
-
-            return this;
+            return this.addComponent(list);
         },
 
         /**@
