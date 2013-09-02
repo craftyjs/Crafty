@@ -319,7 +319,11 @@
         * Makes sure the entity has the components listed. If the entity does not
         * have the component, it will add it.
         * 
-        * (This function is the exactly same as `.addComponent`.)
+        * (In the current version of Crafty, this function behaves exactly the same
+        * as `addComponent`. By convention, developers have used `requires` for
+        * component dependencies -- i.e. to indicate specifically that one component
+        * will only work properly if another component is present -- and used
+        * `addComponent` in all other situations.)
         * 
         * @see .addComponent
         */
