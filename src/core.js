@@ -912,7 +912,7 @@
         * ~~~
         */
         pause: function (toggle) {
-            if (arguments.length == 1 ? toggle : !this._paused) {
+            if (arguments.length === 1 ? toggle : !this._paused) {
                 this.trigger('Pause');
                 this._paused = true;
                 setTimeout(function(){ Crafty.timer.stop(); }, 0);
@@ -974,7 +974,7 @@
             return {
                 init: function () {
                     // When first called, set the  gametime one frame before now!
-                    if (typeof gameTime == "undefined")
+                    if (typeof gameTime === "undefined")
                         gameTime = (+new Date()) - milliSecPerFrame;
                     var onFrame = window.requestAnimationFrame ||
                         window.webkitRequestAnimationFrame ||
