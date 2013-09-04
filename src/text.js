@@ -30,14 +30,13 @@ Crafty.c("Text", {
 		this._textFont = {
 			"type": "",
 			"weight": "",
-			"size": "",
-			"family": ""
+			"size": this.defaultSize,
+			"family": this.defaultFamily
 		};
 
 		this.bind("Draw", function (e) {
 			var font = this._textFont["type"] + ' ' + this._textFont["weight"] + ' '
-			 	+ (this._textFont["size"] || this.defaultSize) + ' ' 
-				+ (this._textFont["family"] || this.defaultFamily);
+			 	+ this._textFont["size"] +  ' ' + this._textFont["family"] ;
 
 			if (e.type === "DOM") {
 				var el = this._element,
@@ -47,23 +46,31 @@ Crafty.c("Text", {
 				style.font = font;
 				el.innerHTML = this._text;
 			} else if (e.type === "canvas") {
-				var context = e.ctx,
-                    metrics = null;
+				var context = e.ctx;
 
 				context.save();
 
 				context.fillStyle = this._textColor || "rgb(0,0,0)";
 				context.font = font;
 
-				context.translate(this.x, this.y + this.h);
-				context.fillText(this._text, 0, 0);
-
-				metrics = context.measureText(this._text);
-				this._w = metrics.width;
+				context.fillText(this._text, this.x, this.y);
 
 				context.restore();
 			}
 		});
+	},
+
+	getDimensions: function() {
+		var width = Crafty.canvas.context.measureText(this._text).width;
+		//hacky way to get the height
+		var d = document.createElement("span");
+		d.style.font = this._textFont["type"] + ' ' + this._textFont["weight"] + ' '
+			 	+ this._textFont["size"] +  ' ' + this._textFont["family"] ;
+		d.textContent = this._text;
+		document.body.appendChild(d);
+		var height = d.offsetHeight+1; //+1 in case
+		document.body.removeChild(d);
+		return { w : width, h : height};
 	},
 
 	/**@
@@ -96,6 +103,10 @@ Crafty.c("Text", {
 			this._text = text.call(this);
 		else
 			this._text = text;
+
+        if (Crafty.canvas) 
+			this.attr(this.getDimensions());
+
 		this.trigger("Change");
 		return this;
 	},
@@ -137,12 +148,13 @@ Crafty.c("Text", {
     * @sign public this .textFont(Object map)
     * @param map - Object where the key is the property to modify and the value as the property value
     *
-    * Use this method to set font property of the text entity.
+    * Use this method to set font property of the text entity (sizes are set in
+    * pixels).
     * 
     * @example
     * ~~~
     * Crafty.e("2D, DOM, Text").textFont({ type: 'italic', family: 'Arial' });
-    * Crafty.e("2D, Canvas, Text").textFont({ size: '20px', weight: 'bold' });
+    * Crafty.e("2D, Canvas, Text").textFont({ size: 20, weight: 'bold' });
     *
     * Crafty.e("2D, Canvas, Text").textFont("type", "italic");
     * Crafty.e("2D, Canvas, Text").textFont("type"); // italic
@@ -163,6 +175,9 @@ Crafty.c("Text", {
 		} else {
 			this._textFont[key] = value;
 		}
+
+        if (Crafty.canvas) 
+			this.attr(this.getDimensions());
 
 		this.trigger("Change");
 		return this;
