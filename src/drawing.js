@@ -10,7 +10,7 @@ Crafty.c("Color", {
 	init: function () {
 		this.bind("Draw", function (e) {
 			if (e.type === "DOM") {
-				e.style.background = this._color;
+				e.style.backgroundColor = this._color;
 				e.style.lineHeight = 0;
 			} else if (e.type === "canvas") {
 				if (this._color) e.ctx.fillStyle = this._color;

@@ -47,14 +47,15 @@ Crafty.c("Sprite", {
 								 pos._h //height on canvas
 				);
 			} else if (e.type === "DOM") {
-				//Get scale (ratio of entity dimensions to sprite's dimensions)
+				// Get scale (ratio of entity dimensions to sprite's dimensions)
 				// If needed, we will scale up the entire sprite sheet, and then modify the position accordingly
-				var vscale = this._h/co.h, hscale =this._w/co.w;
+				var vscale = this._h/co.h, hscale = this._w/co.w,
+				    style = this._element.style;
 
-				this._element.style.background = "url('" + this.__image + "') no-repeat -" + co.x*hscale + "px -" + co.y*vscale + "px";
+				style.background = style.backgroundColor + " url('" + this.__image + "') no-repeat -" + co.x*hscale + "px -" + co.y*vscale + "px";
 				// style.backgroundSize must be set AFTER style.background!
-				if (vscale != 1 || hscale != 1){
-					this._element.style.backgroundSize = (this.img.width * hscale) + "px" + " " + (this.img.height * vscale) + "px";
+				if (vscale != 1 || hscale != 1) {
+					style.backgroundSize = (this.img.width * hscale) + "px" + " " + (this.img.height * vscale) + "px";
 				}
 			}
 		};
