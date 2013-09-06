@@ -101,13 +101,13 @@ Crafty.extend({
          * ~~~
          * var iso = Crafty.isometric.size(128,96);
          * var px = iso.pos2px(12800,4800);
-         * console.log(px); //Object { x=-100, y=-100}
+         * console.log(px); //Object { x=100, y=100}
          * ~~~
          */
         px2pos:function(left,top){
             return {
-                x:Math.ceil(-left / this._tile.width - (top & 1)*0.5),
-                y:-top / this._tile.height * 2
+                x:-Math.ceil(-left / this._tile.width - (top & 1)*0.5),
+                y:top / this._tile.height * 2
             }; 
         },
         /**@
