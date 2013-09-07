@@ -66,7 +66,8 @@ module.exports = function (grunt) {
             	'tests/animation/animation.html',
             	'tests/stage.html',
             	'tests/events.html',
-            	'tests/math.html']
+            	'tests/math.html',
+            	'tests/isometric.html']
         }, 
 
         jsvalidate: {
