@@ -207,7 +207,7 @@ Crafty.extend({
 	* @category Scenes, Stage
 	* @trigger SceneChange - just before a new scene is initialized - { oldScene:String, newScene:String }
 	* @trigger SceneDestroy - just before the current scene is destroyed - { newScene:String  }
-	* @sign public void Crafty.scene(String sceneName, Function init[, Function uninit])
+	* @sign public void Crafty.scene(String sceneName, (Function|Object) obj[, Function uninit])
 	* @param sceneName - Name of the scene to add
 	* @param init - Function to execute when scene is played
 	* @param uninit - Function to execute before next scene is played, after entities with `2D` are destroyed
@@ -225,8 +225,8 @@ Crafty.extend({
 	*
 	* @example
 	* ~~~
-	* Crafty.scene("loading", function() {
-	*     Crafty.background("#000");
+	* Crafty.scene("loading", function(obj) {
+	*     Crafty.background(obj);
 	*     Crafty.e("2D, DOM, Text")
 	*           .attr({ w: 100, h: 20, x: 150, y: 120 })
 	*           .text("Loading")
@@ -240,7 +240,7 @@ Crafty.extend({
 	* ~~~
 	* This defines (but does not play) two scenes as discussed below.
 	* ~~~
-	* Crafty.scene("loading");
+	* Crafty.scene("loading", "#000");
 	* ~~~
 	* This command will clear the stage by destroying all `2D` entities (except
 	* those with the `Persist` component). Then it will set the background to
@@ -254,7 +254,7 @@ Crafty.extend({
 	* another command of the form `Crafty.scene(scene_name)` (if ever), then the
 	* game will send a message to the server.
 	*/
-	scene: function (name, intro, outro) {
+	scene: function (name, obj, outro) {
 		// ---FYI---
 		// this._current is the name (ID) of the scene in progress.
 		// this._scenes is an object like the following:
@@ -262,7 +262,7 @@ Crafty.extend({
 		//  'Another scene': {'initialize': fnC, 'uninitialize': fnD}}
 		
 		// If there's one argument, play the scene
-		if (arguments.length === 1) {
+		if (arguments.length === 1 || typeof(arguments[1]) !== "function") {
 			Crafty.trigger("SceneDestroy", {newScene:name})
 			Crafty.viewport.reset();
 
@@ -277,14 +277,14 @@ Crafty.extend({
 			var oldScene = this._current;
 			this._current = name;
 			Crafty.trigger("SceneChange", { oldScene: oldScene, newScene: name });
-			this._scenes[name].initialize.call(this);
+			this._scenes[name].initialize.call(this, obj);
 			
 			return;
 		}
 		
 		// If there is more than one argument, add the scene information to _scenes
 		this._scenes[name] = {};
-		this._scenes[name].initialize = intro;
+		this._scenes[name].initialize = obj;
 		if (typeof outro !== 'undefined') {
 			this._scenes[name].uninitialize = outro;
 		}
