@@ -637,8 +637,10 @@
         *
         * Unlike DOM events, Crafty events are exectued synchronously.
         */
-        trigger: function (event, data) {
+        trigger: function (event, data_n) {
             // (To learn how the handlers object works, see inline comment at Crafty.bind)
+            var args = Array.prototype.slice.call(arguments);
+            args.shift();
             if (this.length === 1) {
                 //find the handlers assigned to the event and entity
                 if (handlers[event] && handlers[event][this[0]]) {
@@ -648,7 +650,7 @@
                             callbacks.splice(i, 1)
                             i--
                         } else {
-                            callbacks[i].call(this, data);
+                            callbacks[i].apply(this, args);
                         }
                     }
                 }
@@ -664,7 +666,7 @@
                             callbacks.splice(i, 1)
                             i--
                         } else {
-                            callbacks[i].call(this, data);
+                            callbacks[i].apply(this, args);
                         }
                     }
                 }
