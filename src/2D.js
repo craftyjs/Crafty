@@ -854,7 +854,7 @@ Crafty.c("2D", {
 			var oldValue = this[name];		
 			this[name] = value;
 			if (mbr){
-				this._calculateMBR(this._origin.x + this.x, this._origin.y + this.y, -this.rotation*DEG_TO_RAD);
+				this._calculateMBR(this._origin.x + this._x, this._origin.y + this._y, -this._rotation*DEG_TO_RAD);
 			}
 			if (name === '_w'){
 				this.trigger("Resize", {axis:'w', amount:value-oldValue})
