@@ -163,7 +163,8 @@ Crafty.extend({
     * If the sprite image has no consistent tile size, `1` or no argument need be
     * passed for tile size.
     *
-    * Entities that add the generated components are also given a component called `Sprite`.
+    * Entities that add the generated components are also given the `2D` component, and
+    * a component called `Sprite`.
     * 
     * @example
     * ~~~
@@ -172,9 +173,9 @@ Crafty.extend({
     * ~~~
     * The first line creates a component called `flower` associated with the sub-image of
     * spritemap6.png with top-left corner (0,0), width 20 pixels, and height 30 pixels.
-    * The second line creates an entity with that image. (Note: `Crafty.e("flower, 2D, DOM")`
-    * would NOT work. When the `2D` component is assigned, it erases the width and height
-    * information. So you should list `2D` before `flower`.)
+    * The second line creates an entity with that image. (Note: The `2D` is not really
+    * necessary here, because adding the `flower` component automatically also adds the
+    * `2D` component.)
     * ~~~
     * Crafty.sprite(50, "imgs/spritemap6.png", {flower:[0,0], grass:[0,1,3,1]});
     * ~~~
@@ -248,7 +249,7 @@ Crafty.extend({
                 __coord: [x, y, w, h],
 
                 init: function () {
-                    this.requires("Sprite");
+                    this.requires("2D, Sprite");
                     this.__trim = [0, 0, 0, 0];
                     this.__image = url;
                     this.__coord = [this.__coord[0], this.__coord[1], this.__coord[2], this.__coord[3]];
