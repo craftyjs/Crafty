@@ -1444,7 +1444,9 @@
             return comp in components;
         },
 
-        debug: function () {
+        debug: function (str) {
+            // access internal variables - handlers or entities
+            if (str === 'handlers') { return handlers; }
             return entities;
         },
 
