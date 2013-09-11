@@ -1,45 +1,45 @@
 /**@
-* #Delay
-* @category Utilities
-*/
+ * #Delay
+ * @category Utilities
+ */
 Crafty.c("Delay", {
-	init : function() {
-		this._delays = [];
-		this.bind("EnterFrame", function() {
-			var now = new Date().getTime();
-			var index = this._delays.length;
-			while (--index >= 0) {
-				var item = this._delays[index];
-				if(item.start + item.delay + item.pause < now) {
-					item.func.call(this);
-					if (item.repeat > 0 ) {
-						// reschedule item
-						item.start = now;
-						item.pause = 0;
-						item.pauseBuffer = 0;
-						item.repeat--;
-					} else if (item.repeat <= 0) {
-						// remove item from array
-						this._delays.splice(index,1);
-					}
-				}
-			}
-		});
-		this.bind("Pause", function() {
-			var now = new Date().getTime();
-			for(var index in this._delays) {
-				this._delays[index].pauseBuffer = now;
-			}
-		});
-		this.bind("Unpause", function() {
-			var now = new Date().getTime();
-			for(var index in this._delays) {
-				var item = this._delays[index];
-				item.pause += now-item.pauseBuffer;
-			}
-		});
-	},
-	/**@
+    init: function () {
+        this._delays = [];
+        this.bind("EnterFrame", function () {
+            var now = new Date().getTime();
+            var index = this._delays.length;
+            while (--index >= 0) {
+                var item = this._delays[index];
+                if (item.start + item.delay + item.pause < now) {
+                    item.func.call(this);
+                    if (item.repeat > 0) {
+                        // reschedule item
+                        item.start = now;
+                        item.pause = 0;
+                        item.pauseBuffer = 0;
+                        item.repeat--;
+                    } else if (item.repeat <= 0) {
+                        // remove item from array
+                        this._delays.splice(index, 1);
+                    }
+                }
+            }
+        });
+        this.bind("Pause", function () {
+            var now = new Date().getTime();
+            for (var index in this._delays) {
+                this._delays[index].pauseBuffer = now;
+            }
+        });
+        this.bind("Unpause", function () {
+            var now = new Date().getTime();
+            for (var index in this._delays) {
+                var item = this._delays[index];
+                item.pause += now - item.pauseBuffer;
+            }
+        });
+    },
+    /**@
 	* #.delay
 	* @comp Delay
 	* @sign public this.delay(Function callback, Number delay)
@@ -65,15 +65,15 @@ Crafty.c("Delay", {
 	* }, 100, 0);
 	* ~~~
 	*/
-	delay : function(func, delay, repeat) {
-		this._delays.push({
-			start : new Date().getTime(),
-			func : func,
-			delay : delay,
-			repeat: ( repeat < 0 ? Infinity : repeat) || 0,
-			pauseBuffer: 0,
-			pause: 0
-		});
-		return this;
-	}
+    delay: function (func, delay, repeat) {
+        this._delays.push({
+            start: new Date().getTime(),
+            func: func,
+            delay: delay,
+            repeat: (repeat < 0 ? Infinity : repeat) || 0,
+            pauseBuffer: 0,
+            pause: 0
+        });
+        return this;
+    }
 });

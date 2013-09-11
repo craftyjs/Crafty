@@ -1,83 +1,83 @@
 (function (window, initComponents, undefined) {
     /**@
-    * #Crafty
-    * @category Core
-    * Select a set of or single entities by components or an entity's ID.
-    *
-    * Crafty uses syntax similar to jQuery by having a selector engine to select entities by their components.
-    *
-    * If there is more than one match, the return value is an Array-like object listing the ID numbers of each matching entity. If there is exactly one match, the entity itself is returned. If you're not sure how many matches to expect, check the number of matches via Crafty(...).length. Alternatively, use Crafty(...).each(...), which works in all cases.
-    *
-    * @example
-    * ~~~
-    *    Crafty("MyComponent")
-    *    Crafty("Hello 2D Component")
-    *    Crafty("Hello, 2D, Component")
-    * ~~~
-    * 
-    * The first selector will return all entities that have the component `MyComponent`. The second will return all entities that have `Hello` and `2D` and `Component` whereas the last will return all entities that have at least one of those components (or).
-    *
-    * ~~~
-    *   Crafty("*")
-    * ~~~
-    * Passing `*` will select all entities.
-    *
-    * ~~~
-    *   Crafty(1)
-    * ~~~
-    * Passing an integer will select the entity with that `ID`.
-    */
+     * #Crafty
+     * @category Core
+     * Select a set of or single entities by components or an entity's ID.
+     *
+     * Crafty uses syntax similar to jQuery by having a selector engine to select entities by their components.
+     *
+     * If there is more than one match, the return value is an Array-like object listing the ID numbers of each matching entity. If there is exactly one match, the entity itself is returned. If you're not sure how many matches to expect, check the number of matches via Crafty(...).length. Alternatively, use Crafty(...).each(...), which works in all cases.
+     *
+     * @example
+     * ~~~
+     *    Crafty("MyComponent")
+     *    Crafty("Hello 2D Component")
+     *    Crafty("Hello, 2D, Component")
+     * ~~~
+     *
+     * The first selector will return all entities that have the component `MyComponent`. The second will return all entities that have `Hello` and `2D` and `Component` whereas the last will return all entities that have at least one of those components (or).
+     *
+     * ~~~
+     *   Crafty("*")
+     * ~~~
+     * Passing `*` will select all entities.
+     *
+     * ~~~
+     *   Crafty(1)
+     * ~~~
+     * Passing an integer will select the entity with that `ID`.
+     */
     var Crafty = function (selector) {
         return new Crafty.fn.init(selector);
     },
-    // Internal variables
-    GUID, frame, components, entities, handlers, onloads,
-	noSetter,  slice, rlist, rspace, milliSecPerFrame
-    
-
-	initState = function () {
-    	GUID = 1; //GUID for entity IDs
-
-    	components = {}; //map of components and their functions
-    	entities = {}; //map of entities and their data
-    	handlers = {}; //global event handlers
-    	onloads = []; //temporary storage of onload handlers
-
-    	noSetter;
+        // Internal variables
+        GUID, frame, components, entities, handlers, onloads,
+        noSetter, slice, rlist, rspace, milliSecPerFrame
 
 
+        initState = function () {
+            GUID = 1; //GUID for entity IDs
 
-    	slice = Array.prototype.slice;
-    	rlist = /\s*,\s*/;
-    	rspace = /\s+/;
-    };
+            components = {}; //map of components and their functions
+            entities = {}; //map of entities and their data
+            handlers = {}; //global event handlers
+            onloads = []; //temporary storage of onload handlers
+
+            noSetter;
+
+
+
+            slice = Array.prototype.slice;
+            rlist = /\s*,\s*/;
+            rspace = /\s+/;
+        };
 
     initState();
 
     /**@
-    * #Crafty Core
-    * @category Core
-    * @trigger NewEntityName - After setting new name for entity - String - entity name
-    * @trigger NewComponent - when a new component is added to the entity - String - Component
-    * @trigger RemoveComponent - when a component is removed from the entity - String - Component
-    * @trigger Remove - when the entity is removed by calling .destroy()
-    * 
-    * Set of methods added to every single entity.
-    */
+     * #Crafty Core
+     * @category Core
+     * @trigger NewEntityName - After setting new name for entity - String - entity name
+     * @trigger NewComponent - when a new component is added to the entity - String - Component
+     * @trigger RemoveComponent - when a component is removed from the entity - String - Component
+     * @trigger Remove - when the entity is removed by calling .destroy()
+     *
+     * Set of methods added to every single entity.
+     */
     Crafty.fn = Crafty.prototype = {
 
         init: function (selector) {
             //select entities by component
             if (typeof selector === "string") {
                 var elem = 0, //index elements
-                e, //entity forEach
-                current,
-                and = false, //flags for multiple
-                or = false,
-                del,
-                comps,
-                score,
-                i, l;
+                    e, //entity forEach
+                    current,
+                    and = false, //flags for multiple
+                    or = false,
+                    del,
+                    comps,
+                    score,
+                    i, l;
 
                 if (selector === '*') {
                     i = 0;
@@ -120,7 +120,7 @@
                         for (; i < l; i++) //loop over components
                             if (current.__c[comps[i]]) score++; //if component exists add to score
 
-                        //if anded comps and has all OR ored comps and at least 1
+                            //if anded comps and has all OR ored comps and at least 1
                         if (and && score === l || or && score > 0) this[elem++] = +e;
 
                     } else if (current.__c[selector]) this[elem++] = +e; //convert to int
@@ -128,14 +128,15 @@
 
                 //extend all common components
                 if (elem > 0 && !and && !or) this.extend(components[selector]);
-                if (comps && and) for (i = 0; i < l; i++) this.extend(components[comps[i]]);
+                if (comps && and)
+                    for (i = 0; i < l; i++) this.extend(components[comps[i]]);
 
                 this.length = elem; //length is the last index (already incremented)
-				
-				// if there's only one entity, return the actual entity
-				if (elem === 1) {
-					return entities[this[elem-1]];
-				}
+
+                // if there's only one entity, return the actual entity
+                if (elem === 1) {
+                    return entities[this[elem - 1]];
+                }
 
             } else { //Select a specific entity
 
@@ -165,16 +166,16 @@
         },
 
         /**@
-        * #.setName
-        * @comp Crafty Core
-        * @sign public this .setName(String name)
-        * @param name - A human readable name for debugging purposes.
-        *
-        * @example
-        * ~~~
-        * this.setName("Player");
-        * ~~~
-        */
+         * #.setName
+         * @comp Crafty Core
+         * @sign public this .setName(String name)
+         * @param name - A human readable name for debugging purposes.
+         *
+         * @example
+         * ~~~
+         * this.setName("Player");
+         * ~~~
+         */
         setName: function (name) {
             var entityName = String(name);
 
@@ -185,35 +186,38 @@
         },
 
         /**@
-        * #.addComponent
-        * @comp Crafty Core
-        * @sign public this .addComponent(String componentList)
-        * @param componentList - A string of components to add separated by a comma `,`
-        * @sign public this .addComponent(String Component1[, .., String ComponentN])
-        * @param Component# - Component ID to add.
-        * Adds a component to the selected entities or entity.
-        *
-        * Components are used to extend the functionality of entities.
-        * This means it will copy properties and assign methods to
-        * augment the functionality of the entity.
-        *
-        * For adding multiple components, you can either pass a string with 
-        * all the component names (separated by commas), or pass each component name as
-        * an argument.
-        *
-        * If the component has a function named `init` it will be called.
-        *
-        * If the entity already has the component, the component is skipped (nothing happens).
-        *
-        * @example
-        * ~~~
-        * this.addComponent("2D, Canvas");
-        * this.addComponent("2D", "Canvas");
-        * ~~~
-        */
+         * #.addComponent
+         * @comp Crafty Core
+         * @sign public this .addComponent(String componentList)
+         * @param componentList - A string of components to add separated by a comma `,`
+         * @sign public this .addComponent(String Component1[, .., String ComponentN])
+         * @param Component# - Component ID to add.
+         * Adds a component to the selected entities or entity.
+         *
+         * Components are used to extend the functionality of entities.
+         * This means it will copy properties and assign methods to
+         * augment the functionality of the entity.
+         *
+         * For adding multiple components, you can either pass a string with
+         * all the component names (separated by commas), or pass each component name as
+         * an argument.
+         *
+         * If the component has a function named `init` it will be called.
+         *
+         * If the entity already has the component, the component is skipped (nothing happens).
+         *
+         * @example
+         * ~~~
+         * this.addComponent("2D, Canvas");
+         * this.addComponent("2D", "Canvas");
+         * ~~~
+         */
         addComponent: function (id) {
-            var uninit = [], c = 0, ul, //array of components to init
-            i = 0, l, comps, comp;
+            var uninit = [],
+                c = 0,
+                ul, //array of components to init
+                i = 0,
+                l, comps, comp;
 
             //add multiple arguments
             if (arguments.length > 1) {
@@ -252,57 +256,58 @@
         },
 
         /**@
-        * #.toggleComponent
-        * @comp Crafty Core
-        * @sign public this .toggleComponent(String ComponentList)
-        * @param ComponentList - A string of components to add or remove separated by a comma `,`
-        * @sign public this .toggleComponent(String Component1[, .., String componentN])
-        * @param Component# - Component ID to add or remove.
-        * Add or Remove Components from an entity.
-        * 
-        * @example
-        * ~~~
-        * var e = Crafty.e("2D,DOM,Test");
-        * e.toggleComponent("Test,Test2"); //Remove Test, add Test2
-        * e.toggleComponent("Test,Test2"); //Add Test, remove Test2
-        * ~~~
-        *
-        * ~~~
-        * var e = Crafty.e("2D,DOM,Test");
-        * e.toggleComponent("Test","Test2"); //Remove Test, add Test2
-        * e.toggleComponent("Test","Test2"); //Add Test, remove Test2
-        * e.toggleComponent("Test");         //Remove Test
-        * ~~~
-        */
-       toggleComponent:function(toggle){
-            var i = 0, l, comps;
+         * #.toggleComponent
+         * @comp Crafty Core
+         * @sign public this .toggleComponent(String ComponentList)
+         * @param ComponentList - A string of components to add or remove separated by a comma `,`
+         * @sign public this .toggleComponent(String Component1[, .., String componentN])
+         * @param Component# - Component ID to add or remove.
+         * Add or Remove Components from an entity.
+         *
+         * @example
+         * ~~~
+         * var e = Crafty.e("2D,DOM,Test");
+         * e.toggleComponent("Test,Test2"); //Remove Test, add Test2
+         * e.toggleComponent("Test,Test2"); //Add Test, remove Test2
+         * ~~~
+         *
+         * ~~~
+         * var e = Crafty.e("2D,DOM,Test");
+         * e.toggleComponent("Test","Test2"); //Remove Test, add Test2
+         * e.toggleComponent("Test","Test2"); //Add Test, remove Test2
+         * e.toggleComponent("Test");         //Remove Test
+         * ~~~
+         */
+        toggleComponent: function (toggle) {
+            var i = 0,
+                l, comps;
             if (arguments.length > 1) {
                 l = arguments.length;
-                        
+
                 for (; i < l; i++) {
-                    if(this.has(arguments[i])){ 
+                    if (this.has(arguments[i])) {
                         this.removeComponent(arguments[i]);
-                    }else{
+                    } else {
                         this.addComponent(arguments[i]);
                     }
                 }
-            //split components if contains comma
+                //split components if contains comma
             } else if (toggle.indexOf(',') !== -1) {
                 comps = toggle.split(rlist);
                 l = comps.length;
                 for (; i < l; i++) {
-                    if(this.has(comps[i])){ 
+                    if (this.has(comps[i])) {
                         this.removeComponent(comps[i]);
-                    }else{
+                    } else {
                         this.addComponent(comps[i]);
                     }
                 }
-                
-            //single component passed
+
+                //single component passed
             } else {
-                if(this.has(toggle)){ 
+                if (this.has(toggle)) {
                     this.removeComponent(toggle);
-                }else{
+                } else {
                     this.addComponent(toggle);
                 }
             }
@@ -311,48 +316,48 @@
         },
 
         /**@
-        * #.requires
-        * @comp Crafty Core
-        * @sign public this .requires(String componentList)
-        * @param componentList - List of components that must be added
-        * 
-        * Makes sure the entity has the components listed. If the entity does not
-        * have the component, it will add it.
-        * 
-        * (In the current version of Crafty, this function behaves exactly the same
-        * as `addComponent`. By convention, developers have used `requires` for
-        * component dependencies -- i.e. to indicate specifically that one component
-        * will only work properly if another component is present -- and used
-        * `addComponent` in all other situations.)
-        * 
-        * @see .addComponent
-        */
+         * #.requires
+         * @comp Crafty Core
+         * @sign public this .requires(String componentList)
+         * @param componentList - List of components that must be added
+         *
+         * Makes sure the entity has the components listed. If the entity does not
+         * have the component, it will add it.
+         *
+         * (In the current version of Crafty, this function behaves exactly the same
+         * as `addComponent`. By convention, developers have used `requires` for
+         * component dependencies -- i.e. to indicate specifically that one component
+         * will only work properly if another component is present -- and used
+         * `addComponent` in all other situations.)
+         *
+         * @see .addComponent
+         */
         requires: function (list) {
             return this.addComponent(list);
         },
 
         /**@
-        * #.removeComponent
-        * @comp Crafty Core
-        * @sign public this .removeComponent(String Component[, soft])
-        * @param component - Component to remove
-        * @param soft - Whether to soft remove it (defaults to `true`)
-        *
-        * Removes a component from an entity. A soft remove (the default) will only
-        * refrain `.has()` from returning true. Hard will remove all
-        * associated properties and methods.
-        *
-        * @example
-        * ~~~
-        * var e = Crafty.e("2D,DOM,Test");
-        * e.removeComponent("Test");        //Soft remove Test component
-        * e.removeComponent("Test", false); //Hard remove Test component
-        * ~~~
-        */
+         * #.removeComponent
+         * @comp Crafty Core
+         * @sign public this .removeComponent(String Component[, soft])
+         * @param component - Component to remove
+         * @param soft - Whether to soft remove it (defaults to `true`)
+         *
+         * Removes a component from an entity. A soft remove (the default) will only
+         * refrain `.has()` from returning true. Hard will remove all
+         * associated properties and methods.
+         *
+         * @example
+         * ~~~
+         * var e = Crafty.e("2D,DOM,Test");
+         * e.removeComponent("Test");        //Soft remove Test component
+         * e.removeComponent("Test", false); //Hard remove Test component
+         * ~~~
+         */
         removeComponent: function (id, soft) {
             var comp = components[id];
             this.trigger("RemoveComponent", id);
-            if (comp && "remove" in comp){
+            if (comp && "remove" in comp) {
                 comp.remove.call(this, false);
             }
             if (soft === false && comp) {
@@ -362,67 +367,67 @@
             }
             delete this.__c[id];
 
-            
+
             return this;
         },
 
         /**@
-        * #.getId
-        * @comp Crafty Core
-        * @sign public Number .getId(void)
-        * Returns the ID of this entity.
-        *
-        * For better performance, simply use the this[0] property.
-        * 
-        * @example
-        * Finding out the `ID` of an entity can be done by returning the property `0`.
-        * ~~~
-        *    var ent = Crafty.e("2D");
-        *    ent[0]; //ID
-        *    ent.getId(); //also ID
-        * ~~~
-        */
+         * #.getId
+         * @comp Crafty Core
+         * @sign public Number .getId(void)
+         * Returns the ID of this entity.
+         *
+         * For better performance, simply use the this[0] property.
+         *
+         * @example
+         * Finding out the `ID` of an entity can be done by returning the property `0`.
+         * ~~~
+         *    var ent = Crafty.e("2D");
+         *    ent[0]; //ID
+         *    ent.getId(); //also ID
+         * ~~~
+         */
         getId: function () {
-        	return this[0];
+            return this[0];
         },
 
         /**@
-        * #.has
-        * @comp Crafty Core
-        * @sign public Boolean .has(String component)
-        * Returns `true` or `false` depending on if the
-        * entity has the given component.
-        *
-        * For better performance, simply use the `.__c` object
-        * which will be `true` if the entity has the component or
-        * will not exist (or be `false`).
-        */
+         * #.has
+         * @comp Crafty Core
+         * @sign public Boolean .has(String component)
+         * Returns `true` or `false` depending on if the
+         * entity has the given component.
+         *
+         * For better performance, simply use the `.__c` object
+         * which will be `true` if the entity has the component or
+         * will not exist (or be `false`).
+         */
         has: function (id) {
             return !!this.__c[id];
         },
 
         /**@
-        * #.attr
-        * @comp Crafty Core
-        * @sign public this .attr(String property, * value)
-        * @param property - Property of the entity to modify
-        * @param value - Value to set the property to
-        * @sign public this .attr(Object map)
-        * @param map - Object where the key is the property to modify and the value as the property value
-        * @trigger Change - when properties change - {key: value}
-        * 
-        * Use this method to set any property of the entity.
-        * 
-        * @example
-        * ~~~
-        * this.attr({key: "value", prop: 5});
-        * this.key; //value
-        * this.prop; //5
-        *
-        * this.attr("key", "newvalue");
-        * this.key; //newvalue
-        * ~~~
-        */
+         * #.attr
+         * @comp Crafty Core
+         * @sign public this .attr(String property, * value)
+         * @param property - Property of the entity to modify
+         * @param value - Value to set the property to
+         * @sign public this .attr(Object map)
+         * @param map - Object where the key is the property to modify and the value as the property value
+         * @trigger Change - when properties change - {key: value}
+         *
+         * Use this method to set any property of the entity.
+         *
+         * @example
+         * ~~~
+         * this.attr({key: "value", prop: 5});
+         * this.key; //value
+         * this.prop; //5
+         *
+         * this.attr("key", "newvalue");
+         * this.key; //newvalue
+         * ~~~
+         */
         attr: function (key, value) {
             if (arguments.length === 1) {
                 //if just the key, return the value
@@ -445,12 +450,12 @@
         },
 
         /**@
-        * #.toArray
-        * @comp Crafty Core
-        * @sign public this .toArray(void)
-        * 
-        * This method will simply return the found entities as an array.
-        */
+         * #.toArray
+         * @comp Crafty Core
+         * @sign public this .toArray(void)
+         *
+         * This method will simply return the found entities as an array.
+         */
         toArray: function () {
             return slice.call(this, 0);
         },
@@ -485,41 +490,41 @@
         },
 
         /**@
-        * #.bind
-        * @comp Crafty Core
-        * @sign public this .bind(String eventName, Function callback)
-        * @param eventName - Name of the event to bind to
-        * @param callback - Method to execute when the event is triggered
-        * Attach the current entity (or entities) to listen for an event.
-        *
-        * Callback will be invoked when an event with the event name passed
-        * is triggered. Depending on the event, some data may be passed
-        * via an argument to the callback function.
-        *
-        * The first argument is the event name (can be anything) whilst the
-        * second argument is the callback. If the event has data, the
-        * callback should have an argument.
-        *
-        * Events are arbitrary and provide communication between components.
-        * You can trigger or bind an event even if it doesn't exist yet.
-        *
-        * Unlike DOM events, Crafty events are exectued synchronously.
-        * 
-        * @example
-        * ~~~
-        * this.attr("triggers", 0); //set a trigger count
-        * this.bind("myevent", function() {
-        *     this.triggers++; //whenever myevent is triggered, increment
-        * });
-        * this.bind("EnterFrame", function() {
-        *     this.trigger("myevent"); //trigger myevent on every frame
-        * });
-        * ~~~
-        * 
-        * @see .trigger, .unbind
-        */
+         * #.bind
+         * @comp Crafty Core
+         * @sign public this .bind(String eventName, Function callback)
+         * @param eventName - Name of the event to bind to
+         * @param callback - Method to execute when the event is triggered
+         * Attach the current entity (or entities) to listen for an event.
+         *
+         * Callback will be invoked when an event with the event name passed
+         * is triggered. Depending on the event, some data may be passed
+         * via an argument to the callback function.
+         *
+         * The first argument is the event name (can be anything) whilst the
+         * second argument is the callback. If the event has data, the
+         * callback should have an argument.
+         *
+         * Events are arbitrary and provide communication between components.
+         * You can trigger or bind an event even if it doesn't exist yet.
+         *
+         * Unlike DOM events, Crafty events are exectued synchronously.
+         *
+         * @example
+         * ~~~
+         * this.attr("triggers", 0); //set a trigger count
+         * this.bind("myevent", function() {
+         *     this.triggers++; //whenever myevent is triggered, increment
+         * });
+         * this.bind("EnterFrame", function() {
+         *     this.trigger("myevent"); //trigger myevent on every frame
+         * });
+         * ~~~
+         *
+         * @see .trigger, .unbind
+         */
         bind: function (event, callback) {
-        
+
             // (To learn how the handlers object works, see inline comment at Crafty.bind)
 
             //optimization for 1 entity
@@ -544,38 +549,38 @@
         },
 
         /**@
-        * #.uniqueBind
-        * @comp Crafty Core
-        * @sign public Number .uniqueBind(String eventName, Function callback)
-        * @param eventName - Name of the event to bind to
-        * @param callback - Method to execute upon event triggered
-        * @returns ID of the current callback used to unbind
-        * 
-        * Works like Crafty.bind, but prevents a callback from being bound multiple times.
-        * 
-        * @see .bind
-        */
-        uniqueBind: function (event, callback){
+         * #.uniqueBind
+         * @comp Crafty Core
+         * @sign public Number .uniqueBind(String eventName, Function callback)
+         * @param eventName - Name of the event to bind to
+         * @param callback - Method to execute upon event triggered
+         * @returns ID of the current callback used to unbind
+         *
+         * Works like Crafty.bind, but prevents a callback from being bound multiple times.
+         *
+         * @see .bind
+         */
+        uniqueBind: function (event, callback) {
             this.unbind(event, callback)
             this.bind(event, callback)
 
         },
 
         /**@
-        * #.one
-        * @comp Crafty Core
-        * @sign public Number one(String eventName, Function callback)
-        * @param eventName - Name of the event to bind to
-        * @param callback - Method to execute upon event triggered
-        * @returns ID of the current callback used to unbind
-        * 
-        * Works like Crafty.bind, but will be unbound once the event triggers.
-        * 
-        * @see .bind
-        */
-        one: function (event, callback){
+         * #.one
+         * @comp Crafty Core
+         * @sign public Number one(String eventName, Function callback)
+         * @param eventName - Name of the event to bind to
+         * @param callback - Method to execute upon event triggered
+         * @returns ID of the current callback used to unbind
+         *
+         * Works like Crafty.bind, but will be unbound once the event triggers.
+         *
+         * @see .bind
+         */
+        one: function (event, callback) {
             var self = this;
-            var oneHandler = function(data){
+            var oneHandler = function (data) {
                 callback.call(self, data);
                 self.unbind(event, oneHandler);
             }
@@ -584,22 +589,24 @@
         },
 
         /**@
-        * #.unbind
-        * @comp Crafty Core
-        * @sign public this .unbind(String eventName[, Function callback])
-        * @param eventName - Name of the event to unbind
-        * @param callback - Function to unbind
-        * Removes binding with an event from current entity.
-        *
-        * Passing an event name will remove all events bound to
-        * that event. Passing a reference to the callback will
-        * unbind only that callback.
-        * @see .bind, .trigger
-        */
+         * #.unbind
+         * @comp Crafty Core
+         * @sign public this .unbind(String eventName[, Function callback])
+         * @param eventName - Name of the event to unbind
+         * @param callback - Function to unbind
+         * Removes binding with an event from current entity.
+         *
+         * Passing an event name will remove all events bound to
+         * that event. Passing a reference to the callback will
+         * unbind only that callback.
+         * @see .bind, .trigger
+         */
         unbind: function (event, callback) {
             // (To learn how the handlers object works, see inline comment at Crafty.bind)
             this.each(function () {
-                var hdl = handlers[event], i = 0, l, current;
+                var hdl = handlers[event],
+                    i = 0,
+                    l, current;
                 //if no events, cancel
                 if (hdl && hdl[this[0]]) l = hdl[this[0]].length;
                 else return this;
@@ -622,29 +629,30 @@
         },
 
         /**@
-        * #.trigger
-        * @comp Crafty Core
-        * @sign public this .trigger(String eventName[, Object data])
-        * @param eventName - Event to trigger
-        * @param data - Arbitrary data that will be passed into every callback as an argument
-        * Trigger an event with arbitrary data. Will invoke all callbacks with
-        * the context (value of `this`) of the current entity object.
-        *
-        * *Note: This will only execute callbacks within the current entity, no other entity.*
-        *
-        * The first argument is the event name to trigger and the optional
-        * second argument is the arbitrary event data. This can be absolutely anything.
-        *
-        * Unlike DOM events, Crafty events are exectued synchronously.
-        */
+         * #.trigger
+         * @comp Crafty Core
+         * @sign public this .trigger(String eventName[, Object data])
+         * @param eventName - Event to trigger
+         * @param data - Arbitrary data that will be passed into every callback as an argument
+         * Trigger an event with arbitrary data. Will invoke all callbacks with
+         * the context (value of `this`) of the current entity object.
+         *
+         * *Note: This will only execute callbacks within the current entity, no other entity.*
+         *
+         * The first argument is the event name to trigger and the optional
+         * second argument is the arbitrary event data. This can be absolutely anything.
+         *
+         * Unlike DOM events, Crafty events are exectued synchronously.
+         */
         trigger: function (event, data) {
             // (To learn how the handlers object works, see inline comment at Crafty.bind)
             if (this.length === 1) {
                 //find the handlers assigned to the event and entity
                 if (handlers[event] && handlers[event][this[0]]) {
-                    var callbacks = handlers[event][this[0]], i;
-                    for (i=0; i<callbacks.length; i++) {
-                        if (typeof callbacks[i] === "undefined"){
+                    var callbacks = handlers[event][this[0]],
+                        i;
+                    for (i = 0; i < callbacks.length; i++) {
+                        if (typeof callbacks[i] === "undefined") {
                             callbacks.splice(i, 1)
                             i--
                         } else {
@@ -658,9 +666,10 @@
             this.each(function () {
                 //find the handlers assigned to the event and entity
                 if (handlers[event] && handlers[event][this[0]]) {
-                    var callbacks = handlers[event][this[0]],  i;
-                    for (i=0; i<callbacks.length; i++) {
-                        if (typeof callbacks[i] === "undefined"){
+                    var callbacks = handlers[event][this[0]],
+                        i;
+                    for (i = 0; i < callbacks.length; i++) {
+                        if (typeof callbacks[i] === "undefined") {
                             callbacks.splice(i, 1)
                             i--
                         } else {
@@ -673,28 +682,29 @@
         },
 
         /**@
-        * #.each
-        * @comp Crafty Core
-        * @sign public this .each(Function method)
-        * @param method - Method to call on each iteration
-        * Iterates over found entities, calling a function for every entity.
-        *
-        * The function will be called for every entity and will pass the index
-        * in the iteration as an argument. The context (value of `this`) of the
-        * function will be the current entity in the iteration.
-        * 
-        * @example
-        * Destroy every second 2D entity
-        * ~~~
-        * Crafty("2D").each(function(i) {
-        *     if(i % 2 === 0) {
-        *         this.destroy();
-        *     }
-        * });
-        * ~~~
-        */
+         * #.each
+         * @comp Crafty Core
+         * @sign public this .each(Function method)
+         * @param method - Method to call on each iteration
+         * Iterates over found entities, calling a function for every entity.
+         *
+         * The function will be called for every entity and will pass the index
+         * in the iteration as an argument. The context (value of `this`) of the
+         * function will be the current entity in the iteration.
+         *
+         * @example
+         * Destroy every second 2D entity
+         * ~~~
+         * Crafty("2D").each(function(i) {
+         *     if(i % 2 === 0) {
+         *         this.destroy();
+         *     }
+         * });
+         * ~~~
+         */
         each: function (func) {
-            var i = 0, l = this.length;
+            var i = 0,
+                l = this.length;
             for (; i < l; i++) {
                 //skip if not exists
                 if (!entities[this[i]]) continue;
@@ -704,19 +714,19 @@
         },
 
         /**@
-        * #.clone
-        * @comp Crafty Core
-        * @sign public Entity .clone(void)
-        * @returns Cloned entity of the current entity
-        * 
-        * Method will create another entity with the exact same
-        * properties, components and methods as the current entity.
-        */
+         * #.clone
+         * @comp Crafty Core
+         * @sign public Entity .clone(void)
+         * @returns Cloned entity of the current entity
+         *
+         * Method will create another entity with the exact same
+         * properties, components and methods as the current entity.
+         */
         clone: function () {
             var comps = this.__c,
-            comp,
-            prop,
-            clone = Crafty.e();
+                comp,
+                prop,
+                clone = Crafty.e();
 
             for (comp in comps) {
                 clone.addComponent(comp);
@@ -731,17 +741,17 @@
         },
 
         /**@
-        * #.setter
-        * @comp Crafty Core
-        * @sign public this .setter(String property, Function callback)
-        * @param property - Property to watch for modification
-        * @param callback - Method to execute if the property is modified
-        * Will watch a property waiting for modification and will then invoke the
-        * given callback when attempting to modify.
-        *
-        * *Note: Support in IE<9 is slightly different. The method will be executed
-        * after the property has been set*
-        */
+         * #.setter
+         * @comp Crafty Core
+         * @sign public this .setter(String property, Function callback)
+         * @param property - Property to watch for modification
+         * @param callback - Method to execute if the property is modified
+         * Will watch a property waiting for modification and will then invoke the
+         * given callback when attempting to modify.
+         *
+         * *Note: Support in IE<9 is slightly different. The method will be executed
+         * after the property has been set*
+         */
         setter: function (prop, callback) {
             if (Crafty.support.setter) {
                 this.__defineSetter__(prop, callback);
@@ -761,20 +771,20 @@
         },
 
         /**@
-        * #.destroy
-        * @comp Crafty Core
-        * @sign public this .destroy(void)
-        * Will remove all event listeners and delete all properties as well as removing from the stage
-        */
+         * #.destroy
+         * @comp Crafty Core
+         * @sign public this .destroy(void)
+         * Will remove all event listeners and delete all properties as well as removing from the stage
+         */
         destroy: function () {
             //remove all event handlers, delete from entities
             this.each(function () {
                 var comp;
                 this.trigger("Remove");
-                for (var compName in this.__c){
-                    comp = components[compName];                    
+                for (var compName in this.__c) {
+                    comp = components[compName];
                     if (comp && "remove" in comp)
-                        comp.remove.call(this, true);                   
+                        comp.remove.call(this, true);
                 }
                 for (var e in handlers) {
                     this.unbind(e);
@@ -788,11 +798,12 @@
     Crafty.fn.init.prototype = Crafty.fn;
 
     /**
-    * Extension method to extend the namespace and
-    * selector instances
-    */
+     * Extension method to extend the namespace and
+     * selector instances
+     */
     Crafty.extend = Crafty.fn.extend = function (obj) {
-        var target = this, key;
+        var target = this,
+            key;
 
         //don't bother with nulls
         if (!obj) return target;
@@ -806,32 +817,32 @@
     };
 
     /**@
-    * #Crafty.extend
-    * @category Core
-    * Used to extend the Crafty namespace.
-    */
+     * #Crafty.extend
+     * @category Core
+     * Used to extend the Crafty namespace.
+     */
     Crafty.extend({
         /**@
-        * #Crafty.init
-        * @category Core        
-        * @trigger Load - Just after the viewport is initialised. Before the EnterFrame loops is started
-        * @sign public this Crafty.init([Number width, Number height, String stage_elem])
-        * @sign public this Crafty.init([Number width, Number height, HTMLElement stage_elem])
-        * @param Number width - Width of the stage
-        * @param Number height - Height of the stage
-        * @param String or HTMLElement stage_elem - the element to use for the stage    
-        *
-        * Sets the element to use as the stage, creating it if necessary.  By default a div with id 'cr-stage' is used, but if the 'stage_elem' argument is provided that will be used instead.  (see `Crafty.viewport.init`)     
-        *
-        * Starts the `EnterFrame` interval. This will call the `EnterFrame` event for every frame.
-        *
-        * Can pass width and height values for the stage otherwise will default to window size (see `Crafty.DOM.window`).
-        *
-        * All `Load` events will be executed.
-        *
-        * Uses `requestAnimationFrame` to sync the drawing with the browser but will default to `setInterval` if the browser does not support it.
-        * @see Crafty.stop,  Crafty.viewport
-        */
+         * #Crafty.init
+         * @category Core
+         * @trigger Load - Just after the viewport is initialised. Before the EnterFrame loops is started
+         * @sign public this Crafty.init([Number width, Number height, String stage_elem])
+         * @sign public this Crafty.init([Number width, Number height, HTMLElement stage_elem])
+         * @param Number width - Width of the stage
+         * @param Number height - Height of the stage
+         * @param String or HTMLElement stage_elem - the element to use for the stage
+         *
+         * Sets the element to use as the stage, creating it if necessary.  By default a div with id 'cr-stage' is used, but if the 'stage_elem' argument is provided that will be used instead.  (see `Crafty.viewport.init`)
+         *
+         * Starts the `EnterFrame` interval. This will call the `EnterFrame` event for every frame.
+         *
+         * Can pass width and height values for the stage otherwise will default to window size (see `Crafty.DOM.window`).
+         *
+         * All `Load` events will be executed.
+         *
+         * Uses `requestAnimationFrame` to sync the drawing with the browser but will default to `setInterval` if the browser does not support it.
+         * @see Crafty.stop,  Crafty.viewport
+         */
         init: function (w, h, stage_elem) {
             Crafty.viewport.init(w, h, stage_elem);
 
@@ -843,82 +854,86 @@
         },
 
         /**@
-        * #Crafty.getVersion
-        * @category Core
-        * @sign public String Crafty.getVersion()
-        * @returns Current version of Crafty as a string
-        * 
-        * Return current version of crafty
-        * 
-        * @example
-        * ~~~
-        * Crafty.getVersion(); //'0.5.2'
-        * ~~~
-        */
+         * #Crafty.getVersion
+         * @category Core
+         * @sign public String Crafty.getVersion()
+         * @returns Current version of Crafty as a string
+         *
+         * Return current version of crafty
+         *
+         * @example
+         * ~~~
+         * Crafty.getVersion(); //'0.5.2'
+         * ~~~
+         */
         getVersion: function () {
             return '0.5.3';
         },
 
         /**@
-        * #Crafty.stop
-        * @category Core
-        * @trigger CraftyStop - when the game is stopped
-        * @sign public this Crafty.stop([bool clearState])
-		* @param clearState - if true the stage and all game state is cleared.
-        *
-        * Stops the EnterFrame interval and removes the stage element.
-        *
-        * To restart, use `Crafty.init()`.
-        * @see Crafty.init
-        */
+         * #Crafty.stop
+         * @category Core
+         * @trigger CraftyStop - when the game is stopped
+         * @sign public this Crafty.stop([bool clearState])
+         * @param clearState - if true the stage and all game state is cleared.
+         *
+         * Stops the EnterFrame interval and removes the stage element.
+         *
+         * To restart, use `Crafty.init()`.
+         * @see Crafty.init
+         */
         stop: function (clearState) {
-        	this.timer.stop();
-        	if (clearState) {
-        	    Crafty.audio.remove();
-        		if (Crafty.stage && Crafty.stage.elem.parentNode) {
-        			var newCrStage = document.createElement('div');
-        			newCrStage.id = Crafty.stage.elem.id;
-        			Crafty.stage.elem.parentNode.replaceChild(newCrStage, Crafty.stage.elem);
-        		}
-        		initState();
-        		initComponents(Crafty, window, window.document);
-        	}
+            this.timer.stop();
+            if (clearState) {
+                Crafty.audio.remove();
+                if (Crafty.stage && Crafty.stage.elem.parentNode) {
+                    var newCrStage = document.createElement('div');
+                    newCrStage.id = Crafty.stage.elem.id;
+                    Crafty.stage.elem.parentNode.replaceChild(newCrStage, Crafty.stage.elem);
+                }
+                initState();
+                initComponents(Crafty, window, window.document);
+            }
 
             Crafty.trigger("CraftyStop");
 
-        	return this;
+            return this;
         },
 
         /**@
-        * #Crafty.pause
-        * @category Core
-        * @trigger Pause - when the game is paused
-        * @trigger Unpause - when the game is unpaused
-        * @sign public this Crafty.pause(void)
-        * 
-        * Pauses the game by stopping the EnterFrame event from firing. If the game is already paused it is unpaused.
-        * You can pass a boolean parameter if you want to pause or unpause mo matter what the current state is.
-        * Modern browsers pauses the game when the page is not visible to the user. If you want the Pause event
-        * to be triggered when that happens you can enable autoPause in `Crafty.settings`.
-        * 
-        * @example
-        * Have an entity pause the game when it is clicked.
-        * ~~~
-        * button.bind("click", function() {
-        *     Crafty.pause();
-        * });
-        * ~~~
-        */
+         * #Crafty.pause
+         * @category Core
+         * @trigger Pause - when the game is paused
+         * @trigger Unpause - when the game is unpaused
+         * @sign public this Crafty.pause(void)
+         *
+         * Pauses the game by stopping the EnterFrame event from firing. If the game is already paused it is unpaused.
+         * You can pass a boolean parameter if you want to pause or unpause mo matter what the current state is.
+         * Modern browsers pauses the game when the page is not visible to the user. If you want the Pause event
+         * to be triggered when that happens you can enable autoPause in `Crafty.settings`.
+         *
+         * @example
+         * Have an entity pause the game when it is clicked.
+         * ~~~
+         * button.bind("click", function() {
+         *     Crafty.pause();
+         * });
+         * ~~~
+         */
         pause: function (toggle) {
             if (arguments.length === 1 ? toggle : !this._paused) {
                 this.trigger('Pause');
                 this._paused = true;
-                setTimeout(function(){ Crafty.timer.stop(); }, 0);
+                setTimeout(function () {
+                    Crafty.timer.stop();
+                }, 0);
                 Crafty.keydown = {};
             } else {
                 this.trigger('Unpause');
                 this._paused = false;
-                setTimeout(function(){ Crafty.timer.init(); }, 0);
+                setTimeout(function () {
+                    Crafty.timer.init();
+                }, 0);
             }
             return this;
         },
@@ -927,9 +942,9 @@
          * #Crafty.isPaused
          * @category Core
          * @sign public this Crafty.isPaused()
-         * 
+         *
          * Check whether the game is already paused or not.
-         * 
+         *
          * @example
          * ~~~
          * Crafty.isPaused();
@@ -940,34 +955,35 @@
         },
 
         /**@
-        * #Crafty.timer
-        * @category Game Loop
-        * Handles game ticks
-        */
+         * #Crafty.timer
+         * @category Game Loop
+         * Handles game ticks
+         */
         timer: (function () {
             /*
-            * `window.requestAnimationFrame` or its variants is called for animation.
-            * `.requestID` keeps a record of the return value previous `window.requestAnimationFrame` call.
-            * This is an internal variable. Used to stop frame.
-            */
+             * `window.requestAnimationFrame` or its variants is called for animation.
+             * `.requestID` keeps a record of the return value previous `window.requestAnimationFrame` call.
+             * This is an internal variable. Used to stop frame.
+             */
             var tick, requestID;
 
             // Internal variables used to control the game loop.  Use Crafty.timer.steptype() to set these.
             var mode = "fixed",
                 maxFramesPerStep = 5,
                 maxTimestep = 40;
-                
+
             // variables used by the game loop to track state
-            var endTime = 0, 
-                timeSlip = 0, 
+            var endTime = 0,
+                timeSlip = 0,
                 gameTime,
                 frame = 0;
-            
+
             // Controls the target rate of fixed mode loop.  Set these with the Crafty.timer.FPS function
-            var FPS = 50, milliSecPerFrame = 1000 / FPS;
+            var FPS = 50,
+                milliSecPerFrame = 1000 / FPS;
 
 
-            
+
 
             return {
                 init: function () {
@@ -990,7 +1006,9 @@
 
                         tick();
                     } else {
-                        tick = setInterval(function () { Crafty.timer.step(); }, 1000 / FPS);
+                        tick = setInterval(function () {
+                            Crafty.timer.step();
+                        }, 1000 / FPS);
                     }
                 },
 
@@ -1012,26 +1030,26 @@
 
 
                 /**@
-                * #Crafty.timer.steptype
-                * @comp Crafty.timer
-                * Can be called to set the type of timestep the game loop uses
-                * @sign public void Crafty.timer.steptype(mode [, maxTimeStep])
-                * @param mode - the type of time loop.  Allowed values are "fixed", "semifixed", and "variable".  Crafty defaults to "fixed".
-                * @param mode - For "fixed", sets the max number of frames per step.   For "variable" and "semifixed", sets the maximum time step allowed.
-                * 
-                * * In "fixed" mode, each frame is sent the same value of `dt`, and to achieve the target game speed, mulitiple frame events are triggered before each render.
-                * * In "variable" mode, there is only one frame triggered per render.  This recieves a value of `dt` equal to the actual elapsed time since the last frame.
-                * * In "semifixed" mode, multiple frames per render are processed, and the total time since the last frame is divided evenly between them. 
-                * 
-                */
+                 * #Crafty.timer.steptype
+                 * @comp Crafty.timer
+                 * Can be called to set the type of timestep the game loop uses
+                 * @sign public void Crafty.timer.steptype(mode [, maxTimeStep])
+                 * @param mode - the type of time loop.  Allowed values are "fixed", "semifixed", and "variable".  Crafty defaults to "fixed".
+                 * @param mode - For "fixed", sets the max number of frames per step.   For "variable" and "semifixed", sets the maximum time step allowed.
+                 *
+                 * * In "fixed" mode, each frame is sent the same value of `dt`, and to achieve the target game speed, mulitiple frame events are triggered before each render.
+                 * * In "variable" mode, there is only one frame triggered per render.  This recieves a value of `dt` equal to the actual elapsed time since the last frame.
+                 * * In "semifixed" mode, multiple frames per render are processed, and the total time since the last frame is divided evenly between them.
+                 *
+                 */
 
-                steptype: function(mode, option){
-                    if (mode === "variable" || mode === "semifixed"){
+                steptype: function (mode, option) {
+                    if (mode === "variable" || mode === "semifixed") {
                         mode = "variable";
                         if (option)
                             maxTimestep = option;
 
-                    } else if (mode === "fixed" ){
+                    } else if (mode === "fixed") {
                         mode = mode;
                         if (option)
                             maxFramesPerStep = option;
@@ -1043,25 +1061,25 @@
                 },
 
                 /**@
-                * #Crafty.timer.step
-                * @comp Crafty.timer
-                * @sign public void Crafty.timer.step()
-                * @trigger EnterFrame - Triggered on each frame.  Passes the frame number, and the amount of time since the last frame.  If the time is greater than maxTimestep, that will be used instead.  (The default value of maxTimestep is 50 ms.) - { frame: Number, dt:Number }
-                * @trigger RenderScene - Triggered every time a scene should be rendered
-                * @trigger MeasureWaitTime - Triggered at the beginning of each step after the first.  Passes the time the game loop waited between steps. - Number
-                * @trigger MeasureFrameTime - Triggered after each step.  Passes the time it took to advance one frame. - Number
-                * @trigger MeasureRenderTime - Triggered after each render. Passes the time it took to render the scene - Number
-                * Advances the game by triggering `EnterFrame` and `RenderScene`
-                */
+                 * #Crafty.timer.step
+                 * @comp Crafty.timer
+                 * @sign public void Crafty.timer.step()
+                 * @trigger EnterFrame - Triggered on each frame.  Passes the frame number, and the amount of time since the last frame.  If the time is greater than maxTimestep, that will be used instead.  (The default value of maxTimestep is 50 ms.) - { frame: Number, dt:Number }
+                 * @trigger RenderScene - Triggered every time a scene should be rendered
+                 * @trigger MeasureWaitTime - Triggered at the beginning of each step after the first.  Passes the time the game loop waited between steps. - Number
+                 * @trigger MeasureFrameTime - Triggered after each step.  Passes the time it took to advance one frame. - Number
+                 * @trigger MeasureRenderTime - Triggered after each render. Passes the time it took to render the scene - Number
+                 * Advances the game by triggering `EnterFrame` and `RenderScene`
+                 */
                 step: function () {
-                    var drawTimeStart, dt, lastFrameTime, loops=0;
-                    
+                    var drawTimeStart, dt, lastFrameTime, loops = 0;
+
                     currentTime = +new Date();
-                    if (endTime>0)
-                        Crafty.trigger("MeasureWaitTime", currentTime-endTime)
-                    
+                    if (endTime > 0)
+                        Crafty.trigger("MeasureWaitTime", currentTime - endTime)
+
                     // If we're currently ahead of the current time, we need to wait until we're not!
-                    if (gameTime + timeSlip >= currentTime){
+                    if (gameTime + timeSlip >= currentTime) {
                         endTime = currentTime;
                         return;
                     }
@@ -1069,34 +1087,38 @@
                     var netTimeStep = currentTime - (gameTime + timeSlip);
                     // We try to keep up with the target FPS by processing multiple frames per render
                     // If we're hopelessly behind, stop trying to catch up.
-                    if (netTimeStep > milliSecPerFrame * 20){
+                    if (netTimeStep > milliSecPerFrame * 20) {
                         //gameTime = currentTime - milliSecPerFrame;
                         timeSlip += netTimeStep - milliSecPerFrame;
                         netTimeStep = milliSecPerFrame;
                     }
 
                     // Set up how time is incremented
-                    if (mode === "fixed"){
-                        loops = Math.ceil( netTimeStep/milliSecPerFrame )
+                    if (mode === "fixed") {
+                        loops = Math.ceil(netTimeStep / milliSecPerFrame)
                         // maxFramesPerStep adjusts how willing we are to delay drawing in order to keep at the target FPS
-                        loops = Math.min(loops, maxFramesPerStep) 
+                        loops = Math.min(loops, maxFramesPerStep)
                         dt = milliSecPerFrame;
                     } else if (mode === "variable") {
                         loops = 1;
                         dt = netTimeStep;
                         // maxTimestep is the maximum time to be processed in a frame.  (Large dt => unstable physics)
                         dt = Math.min(dt, maxTimestep)
-                    } else if (mode ==="semifixed") {
+                    } else if (mode === "semifixed") {
                         loops = Math.ceil(netTimeStep / maxTimestep)
-                        dt = netTimeStep/loops
+                        dt = netTimeStep / loops
                     }
 
                     // Process frames, incrementing the game clock with each frame.
                     // dt is determined by the mode
-                    for (var i=0; i<loops; i++ ) {    
+                    for (var i = 0; i < loops; i++) {
                         lastFrameTime = currentTime;
                         // Everything that changes over time hooks into this event
-                        Crafty.trigger("EnterFrame", { frame: frame++, dt:dt, gameTime: gameTime });
+                        Crafty.trigger("EnterFrame", {
+                            frame: frame++,
+                            dt: dt,
+                            gameTime: gameTime
+                        });
                         gameTime += dt;
                         currentTime = +new Date();
                         Crafty.trigger("MeasureFrameTime", currentTime - lastFrameTime);
@@ -1112,40 +1134,43 @@
                         Crafty.trigger("MeasureRenderTime", currentTime - drawTimeStart);
                     }
 
-                    endTime = currentTime;            
+                    endTime = currentTime;
                 },
                 /**@
-                * #Crafty.timer.FPS
-                * @comp Crafty.timer
-                * @sign public void Crafty.timer.FPS()
-                * Returns the target frames per second. This is not an actual frame rate.
-                * @sign public void Crafty.timer.FPS(Number value)
-                * @param value - the target rate
-                * Sets the target frames per second. This is not an actual frame rate.
-                * The default rate is 50.
-                */
+                 * #Crafty.timer.FPS
+                 * @comp Crafty.timer
+                 * @sign public void Crafty.timer.FPS()
+                 * Returns the target frames per second. This is not an actual frame rate.
+                 * @sign public void Crafty.timer.FPS(Number value)
+                 * @param value - the target rate
+                 * Sets the target frames per second. This is not an actual frame rate.
+                 * The default rate is 50.
+                 */
                 FPS: function (value) {
                     if (typeof value == "undefined")
                         return FPS;
-                    else{
+                    else {
                         FPS = value;
                         milliSecPerFrame = 1000 / FPS;
                     }
                 },
 
                 /**@
-                * #Crafty.timer.simulateFrames
-                * @comp Crafty.timer
-                * Advances the game state by a number of frames and draws the resulting stage at the end. Useful for tests and debugging.
-                * @sign public this Crafty.timer.simulateFrames(Number frames[, Number timestep])
-                * @param frames - number of frames to simulate
-                * @param timestep - the duration to pass each frame.  Defaults to milliSecPerFrame (20 ms) if not specified.
-                */
+                 * #Crafty.timer.simulateFrames
+                 * @comp Crafty.timer
+                 * Advances the game state by a number of frames and draws the resulting stage at the end. Useful for tests and debugging.
+                 * @sign public this Crafty.timer.simulateFrames(Number frames[, Number timestep])
+                 * @param frames - number of frames to simulate
+                 * @param timestep - the duration to pass each frame.  Defaults to milliSecPerFrame (20 ms) if not specified.
+                 */
                 simulateFrames: function (frames, timestep) {
                     if (typeof timestep === "undefined")
                         timestep = milliSecPerFrame;
                     while (frames-- > 0) {
-                        Crafty.trigger("EnterFrame", { frame: frame++, dt:timestep });
+                        Crafty.trigger("EnterFrame", {
+                            frame: frame++,
+                            dt: timestep
+                        });
                     }
                     Crafty.trigger("RenderScene");
                 }
@@ -1154,29 +1179,30 @@
 
 
         /**@
-        * #Crafty.e
-        * @category Core
-        * @trigger NewEntity - When the entity is created and all components are added - { id:Number }
-        * @sign public Entity Crafty.e(String componentList)
-        * @param componentList - List of components to assign to new entity
-        * @sign public Entity Crafty.e(String component1[, .., String componentN])
-        * @param component# - Component to add
-        * 
-        * Creates an entity. Any arguments will be applied in the same
-        * way `.addComponent()` is applied as a quick way to add components.
-        *
-        * Any component added will augment the functionality of
-        * the created entity by assigning the properties and methods from the component to the entity.
-        * 
-        * @example
-        * ~~~
-        * var myEntity = Crafty.e("2D, DOM, Color");
-        * ~~~
-        * 
-        * @see Crafty.c
-        */
+         * #Crafty.e
+         * @category Core
+         * @trigger NewEntity - When the entity is created and all components are added - { id:Number }
+         * @sign public Entity Crafty.e(String componentList)
+         * @param componentList - List of components to assign to new entity
+         * @sign public Entity Crafty.e(String component1[, .., String componentN])
+         * @param component# - Component to add
+         *
+         * Creates an entity. Any arguments will be applied in the same
+         * way `.addComponent()` is applied as a quick way to add components.
+         *
+         * Any component added will augment the functionality of
+         * the created entity by assigning the properties and methods from the component to the entity.
+         *
+         * @example
+         * ~~~
+         * var myEntity = Crafty.e("2D, DOM, Color");
+         * ~~~
+         *
+         * @see Crafty.c
+         */
         e: function () {
-            var id = UID(), craft;
+            var id = UID(),
+                craft;
 
             entities[id] = null; //register the space
             entities[id] = craft = Crafty(id);
@@ -1184,90 +1210,93 @@
             if (arguments.length > 0) {
                 craft.addComponent.apply(craft, arguments);
             }
-            craft.setName('Entity #'+id); //set default entity human readable name
+            craft.setName('Entity #' + id); //set default entity human readable name
             craft.addComponent("obj"); //every entity automatically assumes obj
 
-            Crafty.trigger("NewEntity", { id: id });
+            Crafty.trigger("NewEntity", {
+                id: id
+            });
 
             return craft;
         },
 
         /**@
-        * #Crafty.c
-        * @category Core
-        * @sign public void Crafty.c(String name, Object component)
-        * @param name - Name of the component
-        * @param component - Object with the components properties and methods
-        * Creates a component where the first argument is the ID and the second
-        * is the object that will be inherited by entities.
-        *
-        * A couple of methods are treated specially. They are invoked in partiular contexts, and (in those contexts) cannot be overridden by other components.
-        *
-        * - `init` will be called when the component is added to an entity
-        * - `remove` will be called just before a component is removed, or before an entity is destroyed. It is passed a single boolean parameter that is `true` if the entity is being destroyed.
-        * 
-        * In addition to these hardcoded special methods, there are some conventions for writing components. 
-        *
-        * - Properties or methods that start with an underscore are considered private.
-        * - A method with the same name as the component is considered to be a constructor
-        * and is generally used when you need to pass configuration data to the component on a per entity basis.
-        *
-        * @example
-        * ~~~
-        * Crafty.c("Annoying", {
-        *     _message: "HiHi",
-        *     init: function() {
-        *         this.bind("EnterFrame", function() { alert(this.message); });
-        *     },
-        *     annoying: function(message) { this.message = message; }
-        * });
-        *
-        * Crafty.e("Annoying").annoying("I'm an orange...");
-        * ~~~
-        *
-        * 
-        * WARNING: 
-        *
-        * in the example above the field _message is local to the entity. That is, if you create many entities with the Annoying component they can all have different values for _message. That is because it is a simple value, and simple values are copied by value. If however the field had been an object or array, the value would have been shared by all entities with the component because complex types are copied by reference in javascript. This is probably not what you want and the following example demonstrates how to work around it:
-        *
-        * ~~~
-        * Crafty.c("MyComponent", {
-        *     _iAmShared: { a: 3, b: 4 },
-        *     init: function() {
-        *         this._iAmNotShared = { a: 3, b: 4 };
-        *     },
-        * });
-        * ~~~
-        *
-        * @see Crafty.e
-        */
+         * #Crafty.c
+         * @category Core
+         * @sign public void Crafty.c(String name, Object component)
+         * @param name - Name of the component
+         * @param component - Object with the components properties and methods
+         * Creates a component where the first argument is the ID and the second
+         * is the object that will be inherited by entities.
+         *
+         * A couple of methods are treated specially. They are invoked in partiular contexts, and (in those contexts) cannot be overridden by other components.
+         *
+         * - `init` will be called when the component is added to an entity
+         * - `remove` will be called just before a component is removed, or before an entity is destroyed. It is passed a single boolean parameter that is `true` if the entity is being destroyed.
+         *
+         * In addition to these hardcoded special methods, there are some conventions for writing components.
+         *
+         * - Properties or methods that start with an underscore are considered private.
+         * - A method with the same name as the component is considered to be a constructor
+         * and is generally used when you need to pass configuration data to the component on a per entity basis.
+         *
+         * @example
+         * ~~~
+         * Crafty.c("Annoying", {
+         *     _message: "HiHi",
+         *     init: function() {
+         *         this.bind("EnterFrame", function() { alert(this.message); });
+         *     },
+         *     annoying: function(message) { this.message = message; }
+         * });
+         *
+         * Crafty.e("Annoying").annoying("I'm an orange...");
+         * ~~~
+         *
+         *
+         * WARNING:
+         *
+         * in the example above the field _message is local to the entity. That is, if you create many entities with the Annoying component they can all have different values for _message. That is because it is a simple value, and simple values are copied by value. If however the field had been an object or array, the value would have been shared by all entities with the component because complex types are copied by reference in javascript. This is probably not what you want and the following example demonstrates how to work around it:
+         *
+         * ~~~
+         * Crafty.c("MyComponent", {
+         *     _iAmShared: { a: 3, b: 4 },
+         *     init: function() {
+         *         this._iAmNotShared = { a: 3, b: 4 };
+         *     },
+         * });
+         * ~~~
+         *
+         * @see Crafty.e
+         */
         c: function (compName, component) {
             components[compName] = component;
         },
 
         /**@
-        * #Crafty.trigger
-        * @category Core, Events
-        * @sign public void Crafty.trigger(String eventName, * data)
-        * @param eventName - Name of the event to trigger
-        * @param data - Arbitrary data to pass into the callback as an argument
-        * 
-        * This method will trigger every single callback attached to the event name. This means
-        * every global event and every entity that has a callback.
-        * 
-        * @see Crafty.bind
-        */
+         * #Crafty.trigger
+         * @category Core, Events
+         * @sign public void Crafty.trigger(String eventName, * data)
+         * @param eventName - Name of the event to trigger
+         * @param data - Arbitrary data to pass into the callback as an argument
+         *
+         * This method will trigger every single callback attached to the event name. This means
+         * every global event and every entity that has a callback.
+         *
+         * @see Crafty.bind
+         */
         trigger: function (event, data) {
 
             // (To learn how the handlers object works, see inline comment at Crafty.bind)
-            var hdl = handlers[event], h, i, l, callbacks, context;
+            var hdl = handlers[event],
+                h, i, l, callbacks, context;
             //loop over every object bound
             for (h in hdl) {
 
                 // Check whether h needs to be processed
                 if (!hdl.hasOwnProperty(h)) continue;
                 callbacks = hdl[h];
-                if (!callbacks || callbacks.length==0) continue;
+                if (!callbacks || callbacks.length == 0) continue;
 
                 //if an entity, call with that context; else the global context
                 if (entities[h])
@@ -1276,32 +1305,32 @@
                     context = Crafty;
 
                 //loop over every handler within object
-                for (i=0; i < callbacks.length; i++) {
+                for (i = 0; i < callbacks.length; i++) {
                     // Remove a callback if it has been deleted
-                    if (typeof callbacks[i] === "undefined"){
+                    if (typeof callbacks[i] === "undefined") {
                         callbacks.splice(i, 1);
                         i--;
                     } else
-                        callbacks[i].call(context, data);                                        
+                        callbacks[i].call(context, data);
                 }
             }
         },
 
         /**@
-        * #Crafty.bind
-        * @category Core, Events
-        * @sign public Number bind(String eventName, Function callback)
-        * @param eventName - Name of the event to bind to
-        * @param callback - Method to execute upon event triggered
-        * @returns ID of the current callback used to unbind
-        * 
-        * Binds to a global event. Method will be executed when `Crafty.trigger` is used
-        * with the event name.
-        * 
-        * @see Crafty.trigger, Crafty.unbind
-        */
+         * #Crafty.bind
+         * @category Core, Events
+         * @sign public Number bind(String eventName, Function callback)
+         * @param eventName - Name of the event to bind to
+         * @param callback - Method to execute upon event triggered
+         * @returns ID of the current callback used to unbind
+         *
+         * Binds to a global event. Method will be executed when `Crafty.trigger` is used
+         * with the event name.
+         *
+         * @see Crafty.trigger, Crafty.unbind
+         */
         bind: function (event, callback) {
-            
+
             // Background: The structure of the global object "handlers"
             // ---------------------------------------------------------
             // Here is an example of what "handlers" can look like:
@@ -1330,38 +1359,38 @@
 
 
         /**@
-        * #Crafty.uniqueBind
-        * @category Core, Events
-        * @sign public Number uniqueBind(String eventName, Function callback)
-        * @param eventName - Name of the event to bind to
-        * @param callback - Method to execute upon event triggered
-        * @returns ID of the current callback used to unbind
-        * 
-        * Works like Crafty.bind, but prevents a callback from being bound multiple times.
-        * 
-        * @see Crafty.bind
-        */
-        uniqueBind: function (event, callback){
+         * #Crafty.uniqueBind
+         * @category Core, Events
+         * @sign public Number uniqueBind(String eventName, Function callback)
+         * @param eventName - Name of the event to bind to
+         * @param callback - Method to execute upon event triggered
+         * @returns ID of the current callback used to unbind
+         *
+         * Works like Crafty.bind, but prevents a callback from being bound multiple times.
+         *
+         * @see Crafty.bind
+         */
+        uniqueBind: function (event, callback) {
             this.unbind(event, callback)
             this.bind(event, callback)
 
         },
 
         /**@
-        * #Crafty.one
-        * @category Core, Events
-        * @sign public Number one(String eventName, Function callback)
-        * @param eventName - Name of the event to bind to
-        * @param callback - Method to execute upon event triggered
-        * @returns ID of the current callback used to unbind
-        * 
-        * Works like Crafty.bind, but will be unbound once the event triggers.
-        * 
-        * @see Crafty.bind
-        */
-        one: function (event, callback){
+         * #Crafty.one
+         * @category Core, Events
+         * @sign public Number one(String eventName, Function callback)
+         * @param eventName - Name of the event to bind to
+         * @param callback - Method to execute upon event triggered
+         * @returns ID of the current callback used to unbind
+         *
+         * Works like Crafty.bind, but will be unbound once the event triggers.
+         *
+         * @see Crafty.bind
+         */
+        one: function (event, callback) {
             var self = this;
-            var oneHandler = function(data){
+            var oneHandler = function (data) {
                 callback.call(self, data);
                 self.unbind(event, oneHandler);
             }
@@ -1370,41 +1399,41 @@
         },
 
         /**@
-        * #Crafty.unbind
-        * @category Core, Events
-        * @sign public Boolean Crafty.unbind(String eventName, Function callback)
-        * @param eventName - Name of the event to unbind
-        * @param callback - Function to unbind
-        * @sign public Boolean Crafty.unbind(String eventName, Number callbackID)
-        * @param callbackID - ID of the callback
-        * @returns True or false depending on if a callback was unbound
-        * Unbind any event from any entity or global event.
-        * @example
-        * ~~~
-        *    var play_gameover_sound = function () {...};
-        *    Crafty.bind('GameOver', play_gameover_sound);
-        *    ...
-        *    Crafty.unbind('GameOver', play_gameover_sound);
-        * ~~~
-        * 
-        * The first line defines a callback function. The second line binds that
-        * function so that `Crafty.trigger('GameOver')` causes that function to
-        * run. The third line unbinds that function.
-        *  
-        * ~~~
-        *    Crafty.unbind('GameOver');
-        * ~~~
-        * 
-        * This unbinds ALL global callbacks for the event 'GameOver'. That
-        * includes all callbacks attached by `Crafty.bind('GameOver', ...)`, but
-        * none of the callbacks attached by `some_entity.bind('GameOver', ...)`.
-        */
+         * #Crafty.unbind
+         * @category Core, Events
+         * @sign public Boolean Crafty.unbind(String eventName, Function callback)
+         * @param eventName - Name of the event to unbind
+         * @param callback - Function to unbind
+         * @sign public Boolean Crafty.unbind(String eventName, Number callbackID)
+         * @param callbackID - ID of the callback
+         * @returns True or false depending on if a callback was unbound
+         * Unbind any event from any entity or global event.
+         * @example
+         * ~~~
+         *    var play_gameover_sound = function () {...};
+         *    Crafty.bind('GameOver', play_gameover_sound);
+         *    ...
+         *    Crafty.unbind('GameOver', play_gameover_sound);
+         * ~~~
+         *
+         * The first line defines a callback function. The second line binds that
+         * function so that `Crafty.trigger('GameOver')` causes that function to
+         * run. The third line unbinds that function.
+         *
+         * ~~~
+         *    Crafty.unbind('GameOver');
+         * ~~~
+         *
+         * This unbinds ALL global callbacks for the event 'GameOver'. That
+         * includes all callbacks attached by `Crafty.bind('GameOver', ...)`, but
+         * none of the callbacks attached by `some_entity.bind('GameOver', ...)`.
+         */
         unbind: function (event, callback) {
             // (To learn how the handlers object works, see inline comment at Crafty.bind)
-            var hdl = handlers[event], i, l, global_callbacks, found_match;
+            var hdl = handlers[event],
+                i, l, global_callbacks, found_match;
 
-            if (hdl === undefined || hdl['global'] === undefined
-                                           || hdl['global'].length === 0) {
+            if (hdl === undefined || hdl['global'] === undefined || hdl['global'].length === 0) {
                 return false;
             }
 
@@ -1417,7 +1446,7 @@
             // loop over the globally-attached events
             global_callbacks = hdl['global'];
             found_match = false;
-            for (i=0, l=global_callbacks.length; i < l; i++) {
+            for (i = 0, l = global_callbacks.length; i < l; i++) {
                 if (global_callbacks[i] === callback) {
                     found_match = true;
                     delete global_callbacks[i]
@@ -1427,11 +1456,11 @@
         },
 
         /**@
-        * #Crafty.frame
-        * @category Core
-        * @sign public Number Crafty.frame(void)
-        * Returns the current frame number
-        */
+         * #Crafty.frame
+         * @category Core
+         * @sign public Number Crafty.frame(void)
+         * Returns the current frame number
+         */
         frame: function () {
             return frame;
         },
@@ -1446,63 +1475,65 @@
 
         debug: function (str) {
             // access internal variables - handlers or entities
-            if (str === 'handlers') { return handlers; }
+            if (str === 'handlers') {
+                return handlers;
+            }
             return entities;
         },
 
         /**@
-        * #Crafty.settings
-        * @category Core
-        * Modify the inner workings of Crafty through the settings.
-        */
+         * #Crafty.settings
+         * @category Core
+         * Modify the inner workings of Crafty through the settings.
+         */
         settings: (function () {
             var states = {},
-            callbacks = {};
+                callbacks = {};
 
             return {
-            /**@
-            * #Crafty.settings.register
-            * @comp Crafty.settings
-            * @sign public void Crafty.settings.register(String settingName, Function callback)
-            * @param settingName - Name of the setting
-            * @param callback - Function to execute when use modifies setting
-            * 
-            * Use this to register custom settings. Callback will be executed when `Crafty.settings.modify` is used.
-            * 
-            * @see Crafty.settings.modify
-            */
+                /**@
+                 * #Crafty.settings.register
+                 * @comp Crafty.settings
+                 * @sign public void Crafty.settings.register(String settingName, Function callback)
+                 * @param settingName - Name of the setting
+                 * @param callback - Function to execute when use modifies setting
+                 *
+                 * Use this to register custom settings. Callback will be executed when `Crafty.settings.modify` is used.
+                 *
+                 * @see Crafty.settings.modify
+                 */
                 register: function (setting, callback) {
                     callbacks[setting] = callback;
                 },
 
-            /**@
-            * #Crafty.settings.modify
-            * @comp Crafty.settings
-            * @sign public void Crafty.settings.modify(String settingName, * value)
-            * @param settingName - Name of the setting
-            * @param value - Value to set the setting to
-            * 
-            * Modify settings through this method.
-            * 
-            * @see Crafty.settings.register, Crafty.settings.get
-            */
+                /**@
+                 * #Crafty.settings.modify
+                 * @comp Crafty.settings
+                 * @sign public void Crafty.settings.modify(String settingName, * value)
+                 * @param settingName - Name of the setting
+                 * @param value - Value to set the setting to
+                 *
+                 * Modify settings through this method.
+                 *
+                 * @see Crafty.settings.register, Crafty.settings.get
+                 */
                 modify: function (setting, value) {
                     if (!callbacks[setting]) return;
                     callbacks[setting].call(states[setting], value);
                     states[setting] = value;
                 },
 
-            /**@
-            * #Crafty.settings.get
-            * @comp Crafty.settings
-            * @sign public * Crafty.settings.get(String settingName)
-            * @param settingName - Name of the setting
-            * @returns Current value of the setting
-            * 
-            * Returns the current value of the setting.
-            * 
-            * @see Crafty.settings.register, Crafty.settings.get
-            */
+                /**@
+                 * #Crafty.settings.get
+                 * @comp Crafty.settings
+                 * @sign public * Crafty.settings.get(String settingName)
+                 * @param settingName - Name of the setting
+                 * @returns Current value of the setting
+                 *
+                 * Returns the current value of the setting.
+                 *
+                 * @see Crafty.settings.register, Crafty.settings.get
+                 */
                 get: function (setting) {
                     return states[setting];
                 }
@@ -1513,8 +1544,9 @@
     });
 
     /**
-    * Return a unique ID
-    */
+     * Return a unique ID
+     */
+
     function UID() {
         var id = GUID++;
         //if GUID is not unique
@@ -1525,15 +1557,16 @@
     }
 
     /**@
-    * #Crafty.clone
-    * @category Core
-    * @sign public Object .clone(Object obj)
-    * @param obj - an object
-    * 
-    * Deep copy (a.k.a clone) of an object.
-    */
+     * #Crafty.clone
+     * @category Core
+     * @sign public Object .clone(Object obj)
+     * @param obj - an object
+     *
+     * Deep copy (a.k.a clone) of an object.
+     */
+
     function clone(obj) {
-        if (obj === null || typeof(obj) != 'object')
+        if (obj === null || typeof (obj) != 'object')
             return obj;
 
         var temp = obj.constructor(); // changed
@@ -1547,7 +1580,9 @@
         if (!Crafty.support.setter && Crafty.support.defineProperty) {
             noSetter = [];
             Crafty.bind("EnterFrame", function () {
-                var i = 0, l = noSetter.length, current;
+                var i = 0,
+                    l = noSetter.length,
+                    current;
                 for (; i < l; ++i) {
                     current = noSetter[i];
                     if (current.obj[current.prop] !== current.obj['_' + current.prop]) {
@@ -1562,7 +1597,9 @@
 
     // export Crafty
     if (typeof define === 'function') { // AMD
-        define('crafty', [], function() { return Crafty; });
+        define('crafty', [], function () {
+            return Crafty;
+        });
     } else if (typeof exports === 'object') { // CommonJS
         module.exports = Crafty;
     } else { // browser global
