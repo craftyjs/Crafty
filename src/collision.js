@@ -49,10 +49,10 @@ Crafty.c("Collision", {
      * @see Crafty.polygon
      */
     collision: function (poly) {
-        this.unbind("Resize", this._resizeMap)
+        this.unbind("Resize", this._resizeMap);
         if (!poly) {
             poly = new Crafty.polygon([0, 0], [this._w, 0], [this._w, this._h], [0, this._h]);
-            this.bind("Resize", this._resizeMap)
+            this.bind("Resize", this._resizeMap);
         }
 
 
@@ -64,7 +64,7 @@ Crafty.c("Collision", {
                     x: this._origin.x,
                     y: this._origin.y
                 }
-            })
+            });
         }
 
         if (arguments.length > 1) {

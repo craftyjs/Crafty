@@ -47,7 +47,7 @@ Crafty.extend({
      * occured (useful for determining mouse position in every frame).
      * ~~~
      * var newestX = Crafty.lastEvent.realX,
-     * 	  newestY = Crafty.lastEvent.realY;
+     *     newestY = Crafty.lastEvent.realY;
      * ~~~
      *
      * Notable properties of a MouseEvent e:
@@ -89,7 +89,7 @@ Crafty.extend({
             while (typeof (tar.id) != 'string' && tar.id.indexOf('ent') == -1) {
                 tar = tar.parentNode;
             }
-            ent = Crafty(parseInt(tar.id.replace('ent', '')))
+            ent = Crafty(parseInt(tar.id.replace('ent', '')));
             if (ent.has('Mouse') && ent.isAt(x, y))
                 closest = ent;
         }
@@ -528,7 +528,7 @@ Crafty.c("Draggable", {
                 y: Math.sin(dir / 180 * Math.PI)
             };
         } else {
-            var r = Math.sqrt(dir.x * dir.x + dir.y * dir.y)
+            var r = Math.sqrt(dir.x * dir.x + dir.y * dir.y);
             this._dir = {
                 x: dir.x / r,
                 y: dir.y / r

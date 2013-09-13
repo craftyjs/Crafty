@@ -21,8 +21,8 @@ Crafty.c("DebugCanvas", {
             alpha: 1.0,
             lineWidth: 1
         };
-        this.bind("RemoveComponent", this.onDebugRemove)
-        this.bind("Remove", this.onDebugDestroy)
+        this.bind("RemoveComponent", this.onDebugRemove);
+        this.bind("Remove", this.onDebugDestroy);
     },
 
     // When component is removed
@@ -103,7 +103,7 @@ Crafty.c("DebugCanvas", {
     }
 
 
-})
+});
 
 
 
@@ -137,8 +137,8 @@ Crafty.c("DebugRectangle", {
      */
     debugRectangle: function (rect) {
         this.debugRect = rect;
-        this.unbind("DebugDraw", this.drawDebugRect)
-        this.bind("DebugDraw", this.drawDebugRect)
+        this.unbind("DebugDraw", this.drawDebugRect);
+        this.bind("DebugDraw", this.drawDebugRect);
         return this;
 
     },
@@ -160,7 +160,7 @@ Crafty.c("DebugRectangle", {
 
 
 
-})
+});
 
 
 
@@ -177,20 +177,20 @@ Crafty.c("VisibleMBR", {
     init: function () {
         this.requires("DebugRectangle")
             .debugFill("purple")
-            .bind("EnterFrame", this._assignRect)
+            .bind("EnterFrame", this._assignRect);
     },
 
     // Internal method for updating the MBR drawn.
     _assignRect: function () {
         if (this._mbr)
-            this.debugRectangle(this._mbr)
+            this.debugRectangle(this._mbr);
         else
             this.debugRectangle(this);
 
     }
 
 
-})
+});
 
 
 /**@
@@ -221,8 +221,8 @@ Crafty.c("DebugPolygon", {
      */
     debugPolygon: function (poly) {
         this.polygon = poly;
-        this.unbind("DebugDraw", this.drawDebugPolygon)
-        this.bind("DebugDraw", this.drawDebugPolygon)
+        this.unbind("DebugDraw", this.drawDebugPolygon);
+        this.bind("DebugDraw", this.drawDebugPolygon);
         return this;
     },
 
@@ -260,7 +260,7 @@ Crafty.c("WiredHitBox", {
     matchHitBox: function () {
         this.debugPolygon(this.map);
     }
-})
+});
 
 /**@
  * #SolidHitBox
@@ -280,7 +280,7 @@ Crafty.c("SolidHitBox", {
     matchHitBox: function () {
         this.debugPolygon(this.map);
     }
-})
+});
 
 Crafty.DebugCanvas = {
     context: null,
@@ -294,7 +294,7 @@ Crafty.DebugCanvas = {
         var list = this.entities;
         for (var i = list.length - 1; i >= 0; i--)
             if (list[i] == ent)
-                list.splice(i, 1)
+                list.splice(i, 1);
 
     },
 
@@ -330,7 +330,7 @@ Crafty.DebugCanvas = {
 
         }
         //Bind rendering of canvas context (see drawing.js)
-        Crafty.unbind("RenderScene", Crafty.DebugCanvas.renderScene)
+        Crafty.unbind("RenderScene", Crafty.DebugCanvas.renderScene);
         Crafty.bind("RenderScene", Crafty.DebugCanvas.renderScene);
 
     },
@@ -346,7 +346,7 @@ Crafty.DebugCanvas = {
             current;
 
         var view = Crafty.viewport;
-        ctx.setTransform(view._scale, 0, 0, view._scale, view._x, view._y)
+        ctx.setTransform(view._scale, 0, 0, view._scale, view._x, view._y);
 
         ctx.clearRect(rect._x, rect._y, rect._w, rect._h);
 

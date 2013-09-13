@@ -265,7 +265,7 @@ Crafty.extend({
         if (arguments.length === 1) {
             Crafty.trigger("SceneDestroy", {
                 newScene: name
-            })
+            });
             Crafty.viewport.reset();
 
             Crafty("2D").each(function () {
@@ -357,7 +357,7 @@ Crafty.DrawManager = (function () {
             /** Finds smallest rectangles that overlaps a and b, merges them into target */
             merge: function (a, b, target) {
                 if (target == null)
-                    target = {}
+                    target = {};
                     // Doing it in this order means we can use either a or b as the target, with no conflict
                     // Round resulting values to integers; down for xy, up for wh
                     // Would be slightly off if negative w, h were allowed
@@ -366,10 +366,10 @@ Crafty.DrawManager = (function () {
                 target._x = ~~Math.min(a._x, b._x);
                 target._y = ~~Math.min(a._y, b._y);
                 target._w -= target._x;
-                target._h -= target._y
+                target._h -= target._y;
                 target._w = (target._w == ~~target._w) ? target._w : ~~target._w + 1 | 0;
                 target._h = (target._h == ~~target._h) ? target._h : ~~target._h + 1 | 0;
-                return target
+                return target;
             },
 
             /** cleans up current dirty state, stores stale state for future passes */
@@ -379,32 +379,32 @@ Crafty.DrawManager = (function () {
                     obj = changed_objs[i];
                     rect = obj._mbr || obj;
                     if (obj.staleRect == null)
-                        obj.staleRect = {}
+                        obj.staleRect = {};
                     obj.staleRect._x = rect._x;
                     obj.staleRect._y = rect._y;
                     obj.staleRect._w = rect._w;
                     obj.staleRect._h = rect._h;
 
-                    obj._changed = false
+                    obj._changed = false;
                 }
                 changed_objs.length = 0;
-                dirty_rects.length = 0
+                dirty_rects.length = 0;
 
             },
 
             /** Takes the current and previous position of an object, and pushes the dirty regions onto the stack
-             * 	If the entity has only moved/changed a little bit, the regions are squashed together */
+             *  If the entity has only moved/changed a little bit, the regions are squashed together */
             createDirty: function (obj) {
                 var rect = obj._mbr || obj;
                 if (obj.staleRect) {
                     //If overlap, merge stale and current position together, then return
                     //Otherwise just push stale rectangle
                     if (rectManager.overlap(obj.staleRect, rect)) {
-                        rectManager.merge(obj.staleRect, rect, obj.staleRect)
-                        dirty_rects.push(obj.staleRect)
-                        return
+                        rectManager.merge(obj.staleRect, rect, obj.staleRect);
+                        dirty_rects.push(obj.staleRect);
+                        return;
                     } else {
-                        dirty_rects.push(obj.staleRect)
+                        dirty_rects.push(obj.staleRect);
                     }
                 }
 
@@ -413,22 +413,22 @@ Crafty.DrawManager = (function () {
                 obj.currentRect._y = rect._y;
                 obj.currentRect._w = rect._w;
                 obj.currentRect._h = rect._h;
-                dirty_rects.push(obj.currentRect)
+                dirty_rects.push(obj.currentRect);
 
             },
 
             /** Checks whether two rectangles overlap */
             overlap: function (a, b) {
-                return (a._x < b._x + b._w && a._y < b._y + b._h && a._x + a._w > b._x && a._y + a._h > b._y)
+                return (a._x < b._x + b._w && a._y < b._y + b._h && a._x + a._w > b._x && a._y + a._h > b._y);
             }
 
         };
 
     Crafty.bind("InvalidateViewport", function () {
-        dirtyViewport = true
+        dirtyViewport = true;
     });
     Crafty.bind("PostRender", function () {
-        dirtyViewport = false
+        dirtyViewport = false;
     });
 
     return {
@@ -475,7 +475,7 @@ Crafty.DrawManager = (function () {
                 if (rectManager.overlap(set[i], set[i + 1])) {
                     rectManager.merge(set[i], set[i + 1], set[i]);
                     set.splice(i + 1, 1);
-                    if (i > 0) i--
+                    if (i > 0) i--;
                 } else
                     i++;
             }
@@ -492,7 +492,7 @@ Crafty.DrawManager = (function () {
          * Add an entity to the list of Canvas objects to draw
          */
         addCanvas: function addCanvas(ent) {
-            changed_objs.push(ent)
+            changed_objs.push(ent);
         },
 
         /**@
@@ -616,7 +616,7 @@ Crafty.DrawManager = (function () {
 
             if (dirtyViewport) {
                 var view = Crafty.viewport;
-                ctx.setTransform(view._scale, 0, 0, view._scale, view.x, view.y)
+                ctx.setTransform(view._scale, 0, 0, view._scale, view.x, view.y);
 
             }
             //if the amount of changed objects is over 60% of the total objects
@@ -624,20 +624,20 @@ Crafty.DrawManager = (function () {
             // TODO: I'm not sure this condition really makes that much sense!
             if (l / DM.total2D > 0.6 || dirtyViewport) {
                 DM.drawAll();
-                rectManager.clean()
+                rectManager.clean();
                 return;
             }
 
             // Calculate dirty_rects from all changed objects, then merge some overlapping regions together
             for (i = 0; i < l; i++) {
-                rectManager.createDirty(changed_objs[i])
+                rectManager.createDirty(changed_objs[i]);
             }
             dirty_rects = DM.mergeSet(dirty_rects);
 
 
             l = dirty_rects.length;
             var dupes = [],
-                objs = []
+                objs = [];
                 // For each dirty rectangle, find entities near it, and draw the overlapping ones
             for (i = 0; i < l; ++i) { //loop over every dirty rect
                 rect = dirty_rects[i];
@@ -668,15 +668,15 @@ Crafty.DrawManager = (function () {
                 }
 
                 // Sort objects by z level
-                objs.sort(zsort)
+                objs.sort(zsort);
 
                 // Then draw each object in that order
                 for (j = 0, len = objs.length; j < len; ++j) {
-                    obj = objs[j]
+                    obj = objs[j];
                     var area = obj._mbr || obj;
                     if (rectManager.overlap(area, rect))
-                        obj.draw()
-                    obj._changed = false
+                        obj.draw();
+                    obj._changed = false;
                 }
 
 
@@ -691,11 +691,11 @@ Crafty.DrawManager = (function () {
                 ctx.strokeStyle = 'red';
                 for (i = 0, l = dirty_rects.length; i < l; ++i) {
                     rect = dirty_rects[i];
-                    ctx.strokeRect(rect._x, rect._y, rect._w, rect._h)
+                    ctx.strokeRect(rect._x, rect._y, rect._w, rect._h);
                 }
             }
             //Clean up lists etc
-            rectManager.clean()
+            rectManager.clean();
 
         },
 
@@ -715,7 +715,7 @@ Crafty.DrawManager = (function () {
                 var style = Crafty.stage.inner.style,
                     view = Crafty.viewport;
 
-                style.transform = style[Crafty.support.prefix + "Transform"] = "scale(" + view._scale + ", " + view._scale + ")"
+                style.transform = style[Crafty.support.prefix + "Transform"] = "scale(" + view._scale + ", " + view._scale + ")";
                 style.left = view.x + "px";
                 style.top = view.y + "px";
                 style.zIndex = 10;

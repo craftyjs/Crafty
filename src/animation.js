@@ -114,7 +114,7 @@ Crafty.c("SpriteAnimation", {
             currentFrameNumber: 0,
             cycleNumber: 0,
             repeatsRemaining: 0
-        }
+        };
 
         // @sign public this .animate(String reelId, Number fromX, Number y, Number toX)
         if (typeof fromX === "number") {
@@ -286,7 +286,7 @@ Crafty.c("SpriteAnimation", {
                 } else {
                     currentReel.currentFrameNumber = currentReel.frames.length - 1;
                     this.pauseAnimation();
-                    this._animationEndInfo.reelId = this._currentReelId
+                    this._animationEndInfo.reelId = this._currentReelId;
                     this.trigger("AnimationEnd", this._animationEndInfo);
                     return;
                 }

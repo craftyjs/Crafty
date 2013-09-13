@@ -32,7 +32,7 @@ Crafty.extend({
                     'dir': eventData.alpha,
                     // deviceorientation does not provide this data
                     'motUD': null
-                }
+                };
             } else if (window.OrientationEvent) {
                 data = {
                     // x is the left-to-right tilt from -1 to +1, so we need to convert to degrees
@@ -45,7 +45,7 @@ Crafty.extend({
                     'dir': null,
                     // z is the vertical acceleration of the device
                     'motUD': eventData.z
-                }
+                };
             }
 
             Crafty.device._deviceOrientationCallback(data);
@@ -109,7 +109,7 @@ Crafty.extend({
                     Crafty.addEvent(this, window, 'deviceorientation', this._normalizeDeviceOrientation);
                 } else if (window.OrientationEvent) {
                     // Listen for the MozOrientation event and handle OrientationData object
-                    Crafty.addEvent(this, window, 'MozOrientation', this._normalizeDeviceOrientation)
+                    Crafty.addEvent(this, window, 'MozOrientation', this._normalizeDeviceOrientation);
                 }
             }
         },

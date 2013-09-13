@@ -14,8 +14,8 @@ Crafty._rectPool = (function () {
     return {
         get: function (x, y, w, h) {
             if (pool.length <= pointer)
-                pool.push({})
-            var r = pool[pointer++]
+                pool.push({});
+            var r = pool[pointer++];
             r._x = x;
             r._y = y;
             r._w = w;
@@ -25,8 +25,8 @@ Crafty._rectPool = (function () {
 
         copy: function (o) {
             if (pool.length <= pointer)
-                pool.push({})
-            var r = pool[pointer++]
+                pool.push({});
+            var r = pool[pointer++];
             r._x = o._x;
             r._y = o._y;
             r._w = o._w;
@@ -36,10 +36,9 @@ Crafty._rectPool = (function () {
 
         recycle: function (o) {
             pointer--;
-            return
         }
     };
-})()
+})();
 
 
 /**@
@@ -336,7 +335,7 @@ Crafty.c("2D", {
                 this.alpha !== this._alpha || this.visible !== this._visible) {
 
                 //save the old positions
-                var old = Crafty._rectPool.copy(this)
+                var old = Crafty._rectPool.copy(this);
 
                 //if rotation has changed, use the private rotate method
                 if (this.rotation !== this._rotation) {
@@ -508,7 +507,7 @@ Crafty.c("2D", {
      * Handle changes that need to happen on a rotation
      */
     _rotate: function (v) {
-        var theta = -1 * (v % 360) //angle always between 0 and 359
+        var theta = -1 * (v % 360); //angle always between 0 and 359
         var difference = this._rotation - v;
         // skip if there's no rotation!
         if (difference == 0)
@@ -981,12 +980,12 @@ Crafty.c("2D", {
                 this.trigger("Resize", {
                     axis: 'w',
                     amount: value - oldValue
-                })
+                });
             } else if (name === '_h') {
                 this.trigger("Resize", {
                     axis: 'h',
                     amount: value - oldValue
-                })
+                });
             }
             this.trigger("Move", old);
 
@@ -1041,9 +1040,9 @@ Crafty.c("Gravity", {
      * @example
      * ~~~
      * Crafty.e("2D, DOM, Color, Gravity")
-     *	 .color("red")
-     *	 .attr({ w: 100, h: 100 })
-     *	 .gravity("platform")
+     *   .color("red")
+     *   .attr({ w: 100, h: 100 })
+     *   .gravity("platform");
      * ~~~
      */
     gravity: function (comp) {
@@ -1366,4 +1365,4 @@ Crafty.matrix.prototype = {
         if (row < 1 || row > this.mtx.length || col < 1 || col > this.mtx[0].length) return null;
         return this.mtx[row - 1][col - 1];
     }
-}
+};
