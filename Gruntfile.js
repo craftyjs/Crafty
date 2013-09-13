@@ -1,4 +1,4 @@
-require("coffee-script")
+require("coffee-script");
 
 module.exports = function (grunt) {
     var pkg = grunt.file.readJSON('package.json');
@@ -11,7 +11,7 @@ module.exports = function (grunt) {
                     ' */\n\n';
 
     var getFiles = function (){
-        return fileList
+        return fileList;
         
     };
 
@@ -20,9 +20,9 @@ module.exports = function (grunt) {
         buildDir = "build/api/";
         grunt.file.mkdir(buildDir);
         var callback = function(){
-            console.log("Documentation created in " + buildDir)
+            console.log("Documentation created in " + buildDir);
             done();
-        }
+        };
         var md = require("./build/api-gen");
         md.document(getFiles(), buildDir, "build/template.html", version, callback);
     };
@@ -83,14 +83,14 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-jsvalidate');
     
     // Defined tasks for Crafty
-    grunt.registerTask('api', "Generate api documentation", docGen)
+    grunt.registerTask('api', "Generate api documentation", docGen);
 
 
     // Default task.
     grunt.registerTask('default', ['concat', 'jsvalidate']);
 
     // Task chains
-    grunt.registerTask('check', ['concat', 'jsvalidate', 'qunit', 'jshint'])
+    grunt.registerTask('check', ['concat', 'jsvalidate', 'qunit', 'jshint']);
     grunt.registerTask('release', ['concat', 'uglify', 'api']);
 
 

@@ -85,19 +85,19 @@ Crafty.c("Canvas", {
         }
 
         var pos = this.drawVars.pos;
-        pos._x = (this._x + (x || 0))
-        pos._y = (this._y + (y || 0))
-        pos._w = (w || this._w)
-        pos._h = (h || this._h)
+        pos._x = (this._x + (x || 0));
+        pos._y = (this._y + (y || 0));
+        pos._w = (w || this._w);
+        pos._h = (h || this._h);
 
 
         context = ctx || Crafty.canvas.context;
         coord = this.__coord || [0, 0, 0, 0];
         var co = this.drawVars.co;
         co.x = coord[0] + (x || 0);
-        co.y = coord[1] + (y || 0)
-        co.w = w || coord[2]
-        co.h = h || coord[3]
+        co.y = coord[1] + (y || 0);
+        co.w = w || coord[2];
+        co.h = h || coord[3];
 
         if (this._mbr) {
             context.save();
@@ -113,10 +113,10 @@ Crafty.c("Canvas", {
             context.save();
             context.scale((this._flipX ? -1 : 1), (this._flipY ? -1 : 1));
             if (this._flipX) {
-                pos._x = -(pos._x + pos._w)
+                pos._x = -(pos._x + pos._w);
             }
             if (this._flipY) {
-                pos._y = -(pos._y + pos._h)
+                pos._y = -(pos._y + pos._h);
             }
         }
 
@@ -196,12 +196,12 @@ Crafty.extend({
             Crafty.canvas._canvas = c;
 
             //Set any existing transformations
-            var zoom = Crafty.viewport._scale
+            var zoom = Crafty.viewport._scale;
             if (zoom != 1)
                 Crafty.canvas.context.scale(zoom, zoom);
 
             //Bind rendering of canvas context (see drawing.js)
-            Crafty.unbind("RenderScene", Crafty.DrawManager.renderCanvas)
+            Crafty.unbind("RenderScene", Crafty.DrawManager.renderCanvas);
             Crafty.bind("RenderScene", Crafty.DrawManager.renderCanvas);
         }
 

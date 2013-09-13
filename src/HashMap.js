@@ -85,7 +85,7 @@
                     cell = this.map[(i << 16) ^ j];
                     if (cell) {
                         for (k = 0; k < cell.length; k++)
-                            results.push(cell[k])
+                            results.push(cell[k]);
                     }
                 }
             }
@@ -98,7 +98,7 @@
                     obj = results[i];
                     if (!obj) continue; //skip if deleted
                     id = obj[0]; //unique ID
-                    obj = obj._mbr || obj
+                    obj = obj._mbr || obj;
                     //check if not added to hash and that actually intersects
                     if (!found[id] && obj._x < rect._x + rect._w && obj._x + obj._w > rect._x &&
                         obj._y < rect._y + rect._h && obj._h + obj._y > rect._y)
@@ -256,7 +256,7 @@
                 var i = h >> 16,
                     j = (h << 16) >> 16;
                 if (j < 0) {
-                    i = i ^ -1
+                    i = i ^ -1;
                 }
                 if (i >= hash.max.x) {
                     hash.max.x = i;
@@ -325,10 +325,10 @@
      */
     HashMap.key = function (obj, keys) {
         if (obj._mbr) {
-            obj = obj._mbr
+            obj = obj._mbr;
         }
         if (!keys) {
-            keys = {}
+            keys = {};
         }
 
         keys.x1 = Math.floor(obj._x / cellsize);
@@ -352,7 +352,7 @@
         update: function (rect) {
             //check if buckets change
             if (HashMap.hash(HashMap.key(rect, keyHolder)) != HashMap.hash(this.keys)) {
-                this.map.refresh(this)
+                this.map.refresh(this);
             }
         }
     };
