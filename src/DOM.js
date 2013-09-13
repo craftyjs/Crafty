@@ -329,8 +329,8 @@ Crafty.extend({
                 this.height = window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
 
                 // Bind scene rendering (see drawing.js)
-                Crafty.unbind("RenderScene", Crafty.DrawManager.renderDOM)
-                Crafty.bind("RenderScene", Crafty.DrawManager.renderDOM)
+                Crafty.unbind("RenderScene", Crafty.DrawManager.renderDOM);
+                Crafty.bind("RenderScene", Crafty.DrawManager.renderDOM);
             },
 
             width: 0,
@@ -391,7 +391,7 @@ Crafty.extend({
          */
         camelize: function (str) {
             return str.replace(/-+(.)?/g, function (match, chr) {
-                return chr ? chr.toUpperCase() : ''
+                return chr ? chr.toUpperCase() : '';
             });
         },
 
@@ -400,7 +400,7 @@ Crafty.extend({
          */
         csselize: function (str) {
             return str.replace(/[A-Z]/g, function (chr) {
-                return chr ? '-' + chr.toLowerCase() : ''
+                return chr ? '-' + chr.toLowerCase() : '';
             });
         },
 
@@ -419,7 +419,7 @@ Crafty.extend({
             return {
                 x: (x - Crafty.stage.x + document.body.scrollLeft + document.documentElement.scrollLeft - Crafty.viewport._x) / Crafty.viewport._scale,
                 y: (y - Crafty.stage.y + document.body.scrollTop + document.documentElement.scrollTop - Crafty.viewport._y) / Crafty.viewport._scale
-            }
+            };
         }
     }
 });

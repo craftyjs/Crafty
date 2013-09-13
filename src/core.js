@@ -32,7 +32,7 @@
     },
         // Internal variables
         GUID, frame, components, entities, handlers, onloads,
-        noSetter, slice, rlist, rspace, milliSecPerFrame
+        noSetter, slice, rlist, rspace, milliSecPerFrame;
 
 
         initState = function () {
@@ -241,8 +241,8 @@
             ul = uninit.length;
             for (; c < ul; c++) {
                 if (this.__c[uninit[c]] == true)
-                    continue
-                this.__c[uninit[c]] = true
+                    continue;
+                this.__c[uninit[c]] = true;
                 comp = components[uninit[c]];
                 this.extend(comp);
                 //if constructor, call it
@@ -561,8 +561,8 @@
          * @see .bind
          */
         uniqueBind: function (event, callback) {
-            this.unbind(event, callback)
-            this.bind(event, callback)
+            this.unbind(event, callback);
+            this.bind(event, callback);
 
         },
 
@@ -583,7 +583,7 @@
             var oneHandler = function (data) {
                 callback.call(self, data);
                 self.unbind(event, oneHandler);
-            }
+            };
             return self.bind(event, oneHandler);
 
         },
@@ -620,7 +620,7 @@
                 for (; i < l; i++) {
                     current = hdl[this[0]];
                     if (current[i] == callback) {
-                        delete current[i]
+                        delete current[i];
                     }
                 }
             });
@@ -653,8 +653,8 @@
                         i;
                     for (i = 0; i < callbacks.length; i++) {
                         if (typeof callbacks[i] === "undefined") {
-                            callbacks.splice(i, 1)
-                            i--
+                            callbacks.splice(i, 1);
+                            i--;
                         } else {
                             callbacks[i].call(this, data);
                         }
@@ -670,8 +670,8 @@
                         i;
                     for (i = 0; i < callbacks.length; i++) {
                         if (typeof callbacks[i] === "undefined") {
-                            callbacks.splice(i, 1)
-                            i--
+                            callbacks.splice(i, 1);
+                            i--;
                         } else {
                             callbacks[i].call(this, data);
                         }
@@ -1002,7 +1002,7 @@
                             Crafty.timer.step();
                             requestID = onFrame(tick);
                             //console.log(requestID + ', ' + frame)
-                        }
+                        };
 
                         tick();
                     } else {
@@ -1054,7 +1054,7 @@
                         if (option)
                             maxFramesPerStep = option;
                     } else {
-                        throw "Invalid step type specified"
+                        throw "Invalid step type specified";
                     }
 
 
@@ -1076,7 +1076,7 @@
 
                     currentTime = +new Date();
                     if (endTime > 0)
-                        Crafty.trigger("MeasureWaitTime", currentTime - endTime)
+                        Crafty.trigger("MeasureWaitTime", currentTime - endTime);
 
                     // If we're currently ahead of the current time, we need to wait until we're not!
                     if (gameTime + timeSlip >= currentTime) {
@@ -1095,18 +1095,18 @@
 
                     // Set up how time is incremented
                     if (mode === "fixed") {
-                        loops = Math.ceil(netTimeStep / milliSecPerFrame)
+                        loops = Math.ceil(netTimeStep / milliSecPerFrame);
                         // maxFramesPerStep adjusts how willing we are to delay drawing in order to keep at the target FPS
-                        loops = Math.min(loops, maxFramesPerStep)
+                        loops = Math.min(loops, maxFramesPerStep);
                         dt = milliSecPerFrame;
                     } else if (mode === "variable") {
                         loops = 1;
                         dt = netTimeStep;
                         // maxTimestep is the maximum time to be processed in a frame.  (Large dt => unstable physics)
-                        dt = Math.min(dt, maxTimestep)
+                        dt = Math.min(dt, maxTimestep);
                     } else if (mode === "semifixed") {
-                        loops = Math.ceil(netTimeStep / maxTimestep)
-                        dt = netTimeStep / loops
+                        loops = Math.ceil(netTimeStep / maxTimestep);
+                        dt = netTimeStep / loops;
                     }
 
                     // Process frames, incrementing the game clock with each frame.
@@ -1127,7 +1127,7 @@
                     //If any frames were processed, render the results
                     if (loops > 0) {
                         drawTimeStart = currentTime;
-                        Crafty.trigger("RenderScene")
+                        Crafty.trigger("RenderScene");
                         // Post-render cleanup opportunity
                         Crafty.trigger("PostRender");
                         currentTime = +new Date();
@@ -1174,7 +1174,7 @@
                     }
                     Crafty.trigger("RenderScene");
                 }
-            }
+            };
         })(),
 
 
@@ -1371,8 +1371,8 @@
          * @see Crafty.bind
          */
         uniqueBind: function (event, callback) {
-            this.unbind(event, callback)
-            this.bind(event, callback)
+            this.unbind(event, callback);
+            this.bind(event, callback);
 
         },
 
@@ -1393,7 +1393,7 @@
             var oneHandler = function (data) {
                 callback.call(self, data);
                 self.unbind(event, oneHandler);
-            }
+            };
             return self.bind(event, oneHandler);
 
         },
@@ -1433,23 +1433,23 @@
             var hdl = handlers[event],
                 i, l, global_callbacks, found_match;
 
-            if (hdl === undefined || hdl['global'] === undefined || hdl['global'].length === 0) {
+            if (hdl === undefined || hdl.global === undefined || hdl.global.length === 0) {
                 return false;
             }
 
             // If no callback was supplied, delete everything
             if (arguments.length === 1) {
-                delete hdl['global'];
+                delete hdl.global;
                 return true;
             }
 
             // loop over the globally-attached events
-            global_callbacks = hdl['global'];
+            global_callbacks = hdl.global;
             found_match = false;
             for (i = 0, l = global_callbacks.length; i < l; i++) {
                 if (global_callbacks[i] === callback) {
                     found_match = true;
-                    delete global_callbacks[i]
+                    delete global_callbacks[i];
                 }
             }
             return found_match;
