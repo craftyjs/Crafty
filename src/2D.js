@@ -475,6 +475,9 @@ Crafty.c("2D", {
 
         var ct = Math.cos(rad),
             st = Math.sin(rad);
+        // Special case 90 degree rotations to prevent rounding problems
+        ct = (ct < 1e-10 && ct > -1e-10) ? 0 : ct;
+        st = (st < 1e-10 && st > -1e-10) ? 0 : st;
         var x0 = ox + (this._x - ox) * ct + (this._y - oy) * st,
             y0 = oy - (this._x - ox) * st + (this._y - oy) * ct,
             x1 = ox + (this._x + this._w - ox) * ct + (this._y - oy) * st,
@@ -483,18 +486,18 @@ Crafty.c("2D", {
             y2 = oy - (this._x + this._w - ox) * st + (this._y + this._h - oy) * ct,
             x3 = ox + (this._x - ox) * ct + (this._y + this._h - oy) * st,
             y3 = oy - (this._x - ox) * st + (this._y + this._h - oy) * ct,
-            minx = Math.round(Math.min(x0, x1, x2, x3)),
-            miny = Math.round(Math.min(y0, y1, y2, y3)),
-            maxx = Math.round(Math.max(x0, x1, x2, x3)),
-            maxy = Math.round(Math.max(y0, y1, y2, y3));
-        if (!this._mbr)
+            minx = Math.floor(Math.min(x0, x1, x2, x3)),
+            miny = Math.floor(Math.min(y0, y1, y2, y3)),
+            maxx = Math.ceil(Math.max(x0, x1, x2, x3)),
+            maxy = Math.ceil(Math.max(y0, y1, y2, y3));
+        if (!this._mbr) {
             this._mbr = {
                 _x: minx,
                 _y: miny,
                 _w: maxx - minx,
                 _h: maxy - miny
             };
-        else {
+        } else {
             this._mbr._x = minx;
             this._mbr._y = miny;
             this._mbr._w = maxx - minx;
