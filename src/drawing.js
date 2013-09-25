@@ -358,17 +358,14 @@ Crafty.DrawManager = (function () {
             merge: function (a, b, target) {
                 if (target == null)
                     target = {};
-                    // Doing it in this order means we can use either a or b as the target, with no conflict
-                    // Round resulting values to integers; down for xy, up for wh
-                    // Would be slightly off if negative w, h were allowed
+                // Doing it in this order means we can use either a or b as the target, with no conflict
                 target._h = Math.max(a._y + a._h, b._y + b._h);
                 target._w = Math.max(a._x + a._w, b._x + b._w);
-                target._x = ~~Math.min(a._x, b._x);
-                target._y = ~~Math.min(a._y, b._y);
+                target._x = Math.min(a._x, b._x);
+                target._y = Math.min(a._y, b._y);
                 target._w -= target._x;
                 target._h -= target._y;
-                target._w = (target._w == ~~target._w) ? target._w : ~~target._w + 1 | 0;
-                target._h = (target._h == ~~target._h) ? target._h : ~~target._h + 1 | 0;
+                
                 return target;
             },
 
@@ -638,12 +635,22 @@ Crafty.DrawManager = (function () {
             l = dirty_rects.length;
             var dupes = [],
                 objs = [];
-                // For each dirty rectangle, find entities near it, and draw the overlapping ones
+            // For each dirty rectangle, find entities near it, and draw the overlapping ones
             for (i = 0; i < l; ++i) { //loop over every dirty rect
                 rect = dirty_rects[i];
                 dupes.length = 0;
                 objs.length = 0;
                 if (!rect) continue;
+
+                // Find the smallest rectangle with integer coordinates that encloses rect
+                rect._w = rect._x + rect._w;
+                rect._h = rect._y + rect._h;
+                rect._x = (rect._x > 0) ? (rect._x|0) : (rect._x|0) - 1;
+                rect._y = (rect._y > 0) ? (rect._y|0) : (rect._y|0) - 1;
+                rect._w -= rect._x;
+                rect._h -= rect._y;
+                rect._w = (rect._w === (rect._w|0)) ? rect._w : (rect._w|0) + 1;
+                rect._h = (rect._h === (rect._h|0)) ? rect._h : (rect._h|0) + 1;
 
                 //search for ents under dirty rect
                 q = Crafty.map.search(rect, false);
@@ -678,7 +685,6 @@ Crafty.DrawManager = (function () {
                         obj.draw();
                     obj._changed = false;
                 }
-
 
                 // Close rectangle clipping
                 ctx.closePath();
