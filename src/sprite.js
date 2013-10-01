@@ -93,8 +93,8 @@ Crafty.c("Sprite", {
      * The coordinate of the slide within the sprite in the format of [x, y, w, h].
      */
     sprite: function (x, y, w, h) {
-        this.__coord = [x * this.__tile + this.__padding[0] + this.__trim[0],
-            y * this.__tileh + this.__padding[1] + this.__trim[1],
+        this.__coord = [x * (this.__tile + this.__padding[0]) + this.__trim[0],
+            y * (this.__tileh + this.__padding[1]) + this.__trim[1],
             this.__trim[2] || w * this.__tile || this.__tile,
             this.__trim[3] || h * this.__tileh || this.__tileh
         ];
