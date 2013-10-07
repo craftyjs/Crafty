@@ -43,10 +43,6 @@
             handlers = {}; //global event handlers
             onloads = []; //temporary storage of onload handlers
 
-            noSetter;
-
-
-
             slice = Array.prototype.slice;
             rlist = /\s*,\s*/;
             rspace = /\s+/;
@@ -240,7 +236,7 @@
             //extend the components
             ul = uninit.length;
             for (; c < ul; c++) {
-                if (this.__c[uninit[c]] == true)
+                if (this.__c[uninit[c]] === true)
                     continue;
                 this.__c[uninit[c]] = true;
                 comp = components[uninit[c]];
@@ -1296,7 +1292,7 @@
                 // Check whether h needs to be processed
                 if (!hdl.hasOwnProperty(h)) continue;
                 callbacks = hdl[h];
-                if (!callbacks || callbacks.length == 0) continue;
+                if (!callbacks || callbacks.length === 0) continue;
 
                 //if an entity, call with that context; else the global context
                 if (entities[h])

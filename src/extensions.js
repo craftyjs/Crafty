@@ -42,12 +42,12 @@
      * Is `Object.defineProperty` supported?
      */
     support.defineProperty = (function () {
-        if (!'defineProperty' in Object) return false;
+        if (!('defineProperty' in Object)) return false;
         try {
             Object.defineProperty({}, 'x', {});
         } catch (e) {
-            return false
-        };
+            return false;
+        }
         return true;
     })();
 
@@ -114,7 +114,7 @@
      * @comp Crafty.support
      * Is css3Dtransform supported by browser.
      */
-    support.css3dtransform = (typeof document.createElement("div").style["Perspective"] !== "undefined") || (typeof document.createElement("div").style[support.prefix + "Perspective"] !== "undefined");
+    support.css3dtransform = (typeof document.createElement("div").style.Perspective !== "undefined") || (typeof document.createElement("div").style[support.prefix + "Perspective"] !== "undefined");
 
     /**@
      * #Crafty.support.deviceorientation
@@ -224,7 +224,7 @@ Crafty.extend({
             Crafty.asset(url, img);
             img.onload = function () {
                 //all components with this img are now ready
-                for (spriteName in map) {
+                for (var spriteName in map) {
                     Crafty(spriteName).each(function () {
                         this.ready = true;
                         this.trigger("Change");
@@ -314,7 +314,7 @@ Crafty.extend({
 
         //save anonymous function to be able to remove
         var afn = function (e) {
-            var e = e || window.event;
+            e = e || window.event;
 
             if (typeof callback === 'function') {
                 callback.call(ctx, e);

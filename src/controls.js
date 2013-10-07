@@ -75,7 +75,7 @@ Crafty.extend({
             type = e.type;
 
         //Normalize button according to http://unixpapa.com/js/mouse.html
-        if (e.which == null) {
+        if (typeof e.which === 'undefined') {
             e.mouseButton = (e.button < 2) ? Crafty.mouseButtons.LEFT : ((e.button == 4) ? Crafty.mouseButtons.MIDDLE : Crafty.mouseButtons.RIGHT);
         } else {
             e.mouseButton = (e.which < 2) ? Crafty.mouseButtons.LEFT : ((e.which == 2) ? Crafty.mouseButtons.MIDDLE : Crafty.mouseButtons.RIGHT);
@@ -89,7 +89,7 @@ Crafty.extend({
             while (typeof (tar.id) != 'string' && tar.id.indexOf('ent') == -1) {
                 tar = tar.parentNode;
             }
-            ent = Crafty(parseInt(tar.id.replace('ent', '')));
+            ent = Crafty(parseInt(tar.id.replace('ent', ''), 10));
             if (ent.has('Mouse') && ent.isAt(x, y))
                 closest = ent;
         }
@@ -211,10 +211,10 @@ Crafty.extend({
         first.target.dispatchEvent(simulatedEvent);
 
         // trigger click when it should be triggered
-        if (lastEvent != null && lastEvent.type == 'mousedown' && type == 'mouseup') {
+        if (lastEvent !== null && lastEvent.type == 'mousedown' && type == 'mouseup') {
             type = 'click';
 
-            var simulatedEvent = document.createEvent("MouseEvent");
+            simulatedEvent = document.createEvent("MouseEvent");
             simulatedEvent.initMouseEvent(type, true, true, window, 1,
                 first.screenX,
                 first.screenY,
@@ -280,7 +280,7 @@ Crafty.extend({
             var prop = props[--i];
             evnt[prop] = original[prop];
         }
-        evnt.which = original.charCode != null ? original.charCode : original.keyCode;
+        evnt.which = original.charCode !== null ? original.charCode : original.keyCode;
         evnt.key = original.keyCode || original.which;
         evnt.originalEvent = original;
         e = evnt;
@@ -462,7 +462,7 @@ Crafty.c("Draggable", {
             var pos = Crafty.DOM.translate(e.clientX, e.clientY);
 
             // ignore invalid 0 0 position - strange problem on ipad
-            if (pos.x == 0 || pos.y == 0) {
+            if (pos.x === 0 || pos.y === 0) {
                 return false;
             }
 
@@ -484,7 +484,7 @@ Crafty.c("Draggable", {
         };
 
         this._onup = function upper(e) {
-            if (this._dragging == true) {
+            if (this._dragging === true) {
                 Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
                 Crafty.removeEvent(this, Crafty.stage.elem, "mouseup", this._onup);
                 this._dragging = false;
@@ -522,7 +522,7 @@ Crafty.c("Draggable", {
     dragDirection: function (dir) {
         if (typeof dir === 'undefined') {
             this._dir = null;
-        } else if (("" + parseInt(dir)) == dir) { //dir is a number
+        } else if (("" + parseInt(dir, 10)) == dir) { //dir is a number
             this._dir = {
                 x: Math.cos(dir / 180 * Math.PI),
                 y: Math.sin(dir / 180 * Math.PI)

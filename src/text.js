@@ -35,7 +35,7 @@ Crafty.c("Text", {
         };
 
         this.bind("Draw", function (e) {
-            var font = this._textFont["type"] + ' ' + this._textFont["weight"] + ' ' + (this._textFont["size"] || this.defaultSize) + ' ' + (this._textFont["family"] || this.defaultFamily);
+            var font = this._textFont.type + ' ' + this._textFont.weight + ' ' + (this._textFont.size || this.defaultSize) + ' ' + (this._textFont.family || this.defaultFamily);
 
             if (e.type === "DOM") {
                 var el = this._element,
@@ -154,7 +154,7 @@ Crafty.c("Text", {
             }
 
             if (typeof key === "object") {
-                for (propertyKey in key) {
+                for (var propertyKey in key) {
                     this._textFont[propertyKey] = key[propertyKey];
                 }
             }

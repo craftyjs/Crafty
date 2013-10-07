@@ -30,7 +30,7 @@ Crafty.extend({
          * Function to setup supported formats
          **/
         _canPlay: function () {
-            this.supported = {}
+            this.supported = {};
             // Without support, no formats are supported
             if (!Crafty.support.audio)
                 return;
@@ -89,7 +89,7 @@ Crafty.extend({
             //check extension, return if not supported
             var ext = path.substr(path.lastIndexOf('.') + 1).toLowerCase();
             if (!this.supports(ext))
-                return false
+                return false;
 
             //initiate the audio element
             var audio = this.audioElement();
@@ -104,7 +104,7 @@ Crafty.extend({
                 obj: audio,
                 played: 0,
                 volume: Crafty.audio.volume
-            }
+            };
             return this.sounds[id];
 
         },
@@ -157,9 +157,11 @@ Crafty.extend({
             if (!Crafty.support.audio)
                 return;
 
+            var src;
+
             if (arguments.length === 1 && typeof id === "object") {
                 for (var i in id) {
-                    for (var src in id[i]) {
+                    for (src in id[i]) {
                         if (Crafty.audio.create(i, id[i][src]))
                             break;
                     }
@@ -204,12 +206,12 @@ Crafty.extend({
          * ~~~
          */
         play: function (id, repeat, volume) {
-            if (repeat == 0 || !Crafty.support.audio || !this.sounds[id])
+            if (repeat === 0 || !Crafty.support.audio || !this.sounds[id])
                 return;
             var s = this.sounds[id];
             var c = this.getOpenChannel();
             if (!c)
-                return
+                return;
             c.id = id;
             var a = c.obj;
 
@@ -232,14 +234,14 @@ Crafty.extend({
                 } else {
                     c.active = false;
                     this.pause();
-                    this.removeEventListener("ended", c.onEnd, true)
+                    this.removeEventListener("ended", c.onEnd, true);
                     this.currentTime = 0;
                     Crafty.trigger("SoundComplete", {
                         id: c.id
-                    })
+                    });
                 }
 
-            }
+            };
             a.addEventListener("ended", c.onEnd, true);
         },
 
@@ -275,7 +277,7 @@ Crafty.extend({
                     active: true,
                     // Checks that the channel is being used to play sound id
                     _is: function (id) {
-                        return this.id === id && this.active
+                        return this.id === id && this.active;
                     }
                 };
                 this.channels.push(c);
@@ -449,7 +451,7 @@ Crafty.extend({
             for (var i in this.channels) {
                 c = this.channels[i];
                 if (c._is(id) && !c.obj.paused)
-                    c.obj.pause()
+                    c.obj.pause();
             }
 
         },

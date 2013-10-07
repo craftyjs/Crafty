@@ -85,9 +85,9 @@ Crafty.extend({
          */
         scroll: function (axis, v) {
             v = Math.floor(v);
-            this[axis] = v
-            Crafty.trigger("ViewportScroll")
-            Crafty.trigger("InvalidateViewport")
+            this[axis] = v;
+            Crafty.trigger("ViewportScroll");
+            Crafty.trigger("InvalidateViewport");
         },
 
         rect: function () {
@@ -114,7 +114,7 @@ Crafty.extend({
 
             function enterFrame(e) {
                 var l = 0;
-                for (i in tweens) {
+                for (var i in tweens) {
                     var prop = tweens[i];
                     if (prop.remTime > 0) {
                         prop.current += prop.diff;
@@ -131,12 +131,12 @@ Crafty.extend({
             return function (axis, v, time) {
                 Crafty.viewport.follow();
                 if (axis == 'reset') {
-                    for (i in tweens) {
+                    for (var i in tweens) {
                         tweens[i].remTime = 0;
                     }
                     return;
                 }
-                if (time == 0) time = 1;
+                if (time === 0) time = 1;
                 tweens[axis] = {
                     diff: -v / time,
                     current: Crafty.viewport[axis],
@@ -146,7 +146,7 @@ Crafty.extend({
                     Crafty.bind("EnterFrame", enterFrame);
                     bound = true;
                 }
-            }
+            };
         })(),
 
         /**@
@@ -188,7 +188,7 @@ Crafty.extend({
 
                 target.bind('Change', change);
                 change.call(target);
-            }
+            };
         })(),
 
         /**@
@@ -271,7 +271,7 @@ Crafty.extend({
                     if (Crafty.canvas._canvas) {
                         var czoom = zoom / (zoom - zoom_tick);
                         Crafty.canvas.context.scale(czoom, czoom);
-                        Crafty.trigger("InvalidateViewport")
+                        Crafty.trigger("InvalidateViewport");
                     }
                     Crafty.viewport.x -= diff.width * prct.width;
                     Crafty.viewport.y -= diff.height * prct.height;
@@ -293,7 +293,7 @@ Crafty.extend({
                 prct.width = cent_x / act.width;
                 prct.height = cent_y / act.height;
 
-                if (time == 0) time = 1;
+                if (time === 0) time = 1;
                 zoom_tick = (final_zoom - zoom) / time;
                 dur = time;
 
@@ -302,7 +302,7 @@ Crafty.extend({
                     Crafty.bind('EnterFrame', enterFrame);
                     bound = true;
                 }
-            }
+            };
         })(),
         /**@
          * #Crafty.viewport.scale
@@ -330,7 +330,7 @@ Crafty.extend({
                 Crafty.trigger("InvalidateViewport");
                 Crafty.trigger("ViewportScale");
 
-            }
+            };
         })(),
         /**@
          * #Crafty.viewport.mouselook
@@ -345,7 +345,7 @@ Crafty.extend({
         mouselook: (function () {
             var active = false,
                 dragging = false,
-                lastMouse = {}
+                lastMouse = {};
             old = {};
 
 
@@ -369,9 +369,13 @@ Crafty.extend({
                         y: arg.clientY - lastMouse.y
                     };
 
+                    lastMouse.x = arg.clientX;
+                    lastMouse.y = arg.clientY;
+
                     Crafty.viewport.x += diff.x;
                     Crafty.viewport.y += diff.y;
                     Crafty.viewport._clamp();
+                    break;
                 case 'start':
                     lastMouse.x = arg.clientX;
                     lastMouse.y = arg.clientY;
@@ -553,7 +557,7 @@ Crafty.extend({
                 elem.top = "0px";
 
                 // remove default gray highlighting after touch
-                if (typeof elem.webkitTapHighlightColor != undefined) {
+                if (typeof elem.webkitTapHighlightColor !== undefined) {
                     elem.webkitTapHighlightColor = "rgba(0,0,0,0)";
                 }
 
@@ -656,7 +660,7 @@ Crafty.extend({
                 if (Crafty.canvas._canvas) {
                     Crafty.canvas._canvas.width = w;
                     Crafty.canvas._canvas.height = h;
-                    Crafty.trigger("InvalidateViewport")
+                    Crafty.trigger("InvalidateViewport");
                 }
             }
 
