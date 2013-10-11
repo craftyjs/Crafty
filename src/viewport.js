@@ -623,10 +623,18 @@ Crafty.extend({
                     }
                 });
             } else {
-                //create empty entity waiting for enterframe
+                // IE8 has no getter/setters -- Check for an update each frame.
                 this.x = this._x;
                 this.y = this._y;
-                Crafty.e("ViewportSetter");
+                Crafty.bind("EnterFrame", function () {
+                    if (Crafty.viewport._x !== Crafty.viewport.x) {
+                        Crafty.viewport.scroll('_x', Crafty.viewport.x);
+                    }
+
+                    if (Crafty.viewport._y !== Crafty.viewport.y) {
+                        Crafty.viewport.scroll('_y', Crafty.viewport.y);
+                    }
+                });
             }
         },
 
@@ -680,24 +688,5 @@ Crafty.extend({
             Crafty.viewport.mouselook('stop');
             Crafty.viewport.scale();
         }
-    }
-});
-
-
-/**
- * Entity fixes the lack of setter support
- */
-Crafty.c("ViewportSetter", {
-    init: function () {
-        this.bind("EnterFrame", function () {
-            if (Crafty.viewport._x !== Crafty.viewport.x) {
-                Crafty.viewport.scroll('_x', Crafty.viewport.x);
-            }
-
-            if (Crafty.viewport._y !== Crafty.viewport.y) {
-                Crafty.viewport.scroll('_y', Crafty.viewport.y);
-            }
-
-        });
     }
 });
