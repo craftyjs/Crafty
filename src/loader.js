@@ -176,6 +176,8 @@ Crafty.extend({
             if (j === total && oncomplete) oncomplete();
         };
 
+        // Call oncomplete() if there isn't anything to load.
+        if (l == 0) oncomplete();
         for (; i < l; ++i) {
             current = data[i];
             ext = current.substr(current.lastIndexOf('.') + 1, 3).toLowerCase();
