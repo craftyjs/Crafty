@@ -1605,4 +1605,4 @@
     } else { // browser global
         window.Crafty = Crafty;
     }
-})(window,
+})(window);
