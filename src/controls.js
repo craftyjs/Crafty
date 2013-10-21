@@ -450,49 +450,47 @@ Crafty.c("Draggable", {
     _dragging: false,
     _dir: null,
 
-    _ondrag: null,
-    _ondown: null,
-    _onup: null,
-
-    //Note: the code is note tested with zoom, etc., that may distort the direction between the viewport and the coordinate on the canvas.
+    //Note: the code is not tested with zoom, etc., that may distort the direction between the viewport and the coordinate on the canvas.
     init: function () {
         this.requires("Mouse");
-
-        this._ondrag = function (e) {
-            var pos = Crafty.DOM.translate(e.clientX, e.clientY);
-
-            // ignore invalid 0 0 position - strange problem on ipad
-            if (pos.x === 0 || pos.y === 0) {
-                return false;
-            }
-
-            if (this._dir) {
-                var len = (pos.x - this._origMouseDOMPos.x) * this._dir.x + (pos.y - this._origMouseDOMPos.y) * this._dir.y;
-                this.x = this._oldX + len * this._dir.x;
-                this.y = this._oldY + len * this._dir.y;
-            } else {
-                this.x = this._oldX + (pos.x - this._origMouseDOMPos.x);
-                this.y = this._oldY + (pos.y - this._origMouseDOMPos.y);
-            }
-
-            this.trigger("Dragging", e);
-        };
-
-        this._ondown = function (e) {
-            if (e.mouseButton !== Crafty.mouseButtons.LEFT) return;
-            this._startDrag(e);
-        };
-
-        this._onup = function upper(e) {
-            if (this._dragging === true) {
-                Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
-                Crafty.removeEvent(this, Crafty.stage.elem, "mouseup", this._onup);
-                this._dragging = false;
-                this.trigger("StopDrag", e);
-            }
-        };
-
         this.enableDrag();
+    },
+
+    _ondrag: function (e) {
+        // While a drag is occurring, this method is bound to the mousemove DOM event
+        var pos = Crafty.DOM.translate(e.clientX, e.clientY);
+
+        // ignore invalid 0 0 position - strange problem on ipad
+        if (pos.x === 0 || pos.y === 0) {
+            return false;
+        }
+
+        if (this._dir) {
+            var len = (pos.x - this._origMouseDOMPos.x) * this._dir.x + (pos.y - this._origMouseDOMPos.y) * this._dir.y;
+            this.x = this._oldX + len * this._dir.x;
+            this.y = this._oldY + len * this._dir.y;
+        } else {
+            this.x = this._oldX + (pos.x - this._origMouseDOMPos.x);
+            this.y = this._oldY + (pos.y - this._origMouseDOMPos.y);
+        }
+
+        this.trigger("Dragging", e);
+    },
+
+    _ondown: function (e) {
+        // When dragging is enabled, this method is bound to the MouseDown crafty event
+        if (e.mouseButton !== Crafty.mouseButtons.LEFT) return;
+        this._startDrag(e);
+    },
+
+    _onup: function (e) {
+        // While a drag is occurring, this method is bound to mouseup DOM event
+        if (this._dragging === true) {
+            Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
+            Crafty.removeEvent(this, Crafty.stage.elem, "mouseup", this._onup);
+            this._dragging = false;
+            this.trigger("StopDrag", e);
+        }
     },
 
     /**@
