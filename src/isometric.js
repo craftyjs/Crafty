@@ -85,7 +85,7 @@ Crafty.extend({
             return {
                 left: x * this._tile.width + (y & 1) * (this._tile.width / 2),
                 top: y * this._tile.height / 2
-            }
+            };
         },
         /**@
          * #Crafty.isometric.px2pos
@@ -136,7 +136,7 @@ Crafty.extend({
                 return {
                     top: -Crafty.viewport._y + Crafty.viewport.height / 2 - this._tile.height / 2,
                     left: -Crafty.viewport._x + Crafty.viewport.width / 2 - this._tile.width / 2
-                }
+                };
             }
         },
         /**@

@@ -315,8 +315,8 @@ Crafty.extend({
      * @see Text.textColor
      */
     toRGB: function (hex, alpha) {
-        var hex = (hex.charAt(0) === '#') ? hex.substr(1) : hex,
-            c = [],
+        hex = (hex.charAt(0) === '#') ? hex.substr(1) : hex;
+        var c = [],
             result;
 
         c[0] = parseInt(hex.substr(0, 2), 16);
@@ -339,10 +339,10 @@ Crafty.extend({
  */
 Crafty.DrawManager = (function () {
     /** Helper function to sort by globalZ */
-
     function zsort(a, b) {
         return a._globalZ - b._globalZ;
-    };
+    }
+
     /** array of dirty rects on screen */
     var dirty_rects = [],
         changed_objs = [],
@@ -356,7 +356,7 @@ Crafty.DrawManager = (function () {
         rectManager = {
             /** Finds smallest rectangles that overlaps a and b, merges them into target */
             merge: function (a, b, target) {
-                if (target == null)
+                if (typeof target === 'undefined')
                     target = {};
                 // Doing it in this order means we can use either a or b as the target, with no conflict
                 target._h = Math.max(a._y + a._h, b._y + b._h);
@@ -375,7 +375,7 @@ Crafty.DrawManager = (function () {
                 for (i = 0, l = changed_objs.length; i < l; i++) {
                     obj = changed_objs[i];
                     rect = obj._mbr || obj;
-                    if (obj.staleRect == null)
+                    if (typeof obj.staleRect === 'undefined')
                         obj.staleRect = {};
                     obj.staleRect._x = rect._x;
                     obj.staleRect._y = rect._y;
@@ -524,8 +524,8 @@ Crafty.DrawManager = (function () {
          * ~~~
          */
         drawAll: function (rect) {
-            var rect = rect || Crafty.viewport.rect(),
-                q = Crafty.map.search(rect),
+            rect = rect || Crafty.viewport.rect();
+            var q = Crafty.map.search(rect),
                 i = 0,
                 l = q.length,
                 ctx = Crafty.canvas.context,
@@ -605,7 +605,6 @@ Crafty.DrawManager = (function () {
             }
 
             var i = 0,
-                l = changed_objs.length,
                 rect, q,
                 j, len, obj, ent, ctx = Crafty.canvas.context,
                 DM = Crafty.DrawManager;

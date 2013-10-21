@@ -221,7 +221,7 @@ Crafty.storage = (function () {
                     }
                 }
             }
-        }
+        };
         xhr.send("mode=timestamps&game=" + gameName);
     }
 
@@ -243,7 +243,7 @@ Crafty.storage = (function () {
                     Crafty.storage.save(key, 'save', data);
                 }
             }
-        }
+        };
         xhr.send("mode=load&key=" + key + "&game=" + gameName);
     }
 
@@ -260,7 +260,7 @@ Crafty.storage = (function () {
     if (typeof indexedDB != 'object') {
         window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
         window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction;
-        window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange
+        window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
 
         /* Numeric constants for transaction type are deprecated
          * Ensure that the script will work consistenly for recent and legacy browser versions
@@ -287,7 +287,7 @@ Crafty.storage = (function () {
                     stores.push('save');
                     stores.push('cache');
                 }
-                if (db == null) {
+                if (db === null) {
                     var request = indexedDB.open(gameName);
                     request.onsuccess = function (e) {
                         db = e.target.result;
@@ -336,7 +336,7 @@ Crafty.storage = (function () {
             },
 
             save: function (key, type, data, callback) {
-                if (db == null) {
+                if (db === null) {
                     setTimeout(function () {
                         Crafty.storage.save(key, type, data);
                     }, 1);
@@ -361,7 +361,7 @@ Crafty.storage = (function () {
             },
 
             load: function (key, type, callback) {
-                if (db == null) {
+                if (db === null) {
                     setTimeout(function () {
                         Crafty.storage.load(key, type, callback);
                     }, 1);
@@ -378,7 +378,7 @@ Crafty.storage = (function () {
             },
 
             getAllKeys: function (type, callback) {
-                if (db == null) {
+                if (db === null) {
                     setTimeout(function () {
                         Crafty.storage.getAllkeys(type, callback);
                     }, 1);
@@ -415,7 +415,7 @@ Crafty.storage = (function () {
                     db = {
                         save: openDatabase(gameName_n + '_save', '1.0', 'Saves games for ' + gameName_n, 5 * 1024 * 1024),
                         cache: openDatabase(gameName_n + '_cache', '1.0', 'Cache for ' + gameName_n, 5 * 1024 * 1024)
-                    }
+                    };
                 } else {
                     // allows for any other types that can be thought of
                     var args = arguments,
@@ -427,7 +427,7 @@ Crafty.storage = (function () {
                     }
                 }
 
-                db['save'].transaction(function (tx) {
+                db.save.transaction(function (tx) {
                     tx.executeSql('SELECT key, timestamp FROM data', [], function (tx, res) {
                         var i = 0,
                             a = res.rows,
@@ -440,7 +440,7 @@ Crafty.storage = (function () {
             },
 
             save: function (key, type, data) {
-                if (typeof db[type] == 'undefined' && gameName != '') {
+                if (typeof db[type] == 'undefined' && gameName !== '') {
                     this.open(gameName, type);
                 }
 
@@ -460,7 +460,7 @@ Crafty.storage = (function () {
             },
 
             load: function (key, type, callback) {
-                if (db[type] == null) {
+                if (typeof db[type] === 'undefined') {
                     setTimeout(function () {
                         Crafty.storage.load(key, type, callback);
                     }, 1);
@@ -477,7 +477,7 @@ Crafty.storage = (function () {
             },
 
             getAllKeys: function (type, callback) {
-                if (db[type] == null) {
+                if (typeof db[type] === 'undefined') {
                     setTimeout(function () {
                         Crafty.storage.getAllKeys(type, callback);
                     }, 1);
@@ -537,7 +537,7 @@ Crafty.storage = (function () {
             check: function (key, timestamp) {
                 var ts = window.localStorage[gameName + '.save.' + key + '.ts'];
 
-                return (parseInt(timestamp) > parseInt(ts));
+                return (parseInt(timestamp, 10) > parseInt(ts, 10));
             },
 
             external: external
@@ -590,7 +590,7 @@ Crafty.storage = (function () {
                     result = reg.exec(document.cookie),
                     ts = result[0].replace(header + '=', '');
 
-                return (parseInt(timestamp) > parseInt(ts));
+                return (parseInt(timestamp, 10) > parseInt(ts, 10));
             },
 
             external: external

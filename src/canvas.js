@@ -120,9 +120,11 @@ Crafty.c("Canvas", {
             }
         }
 
+        var globalpha;
+
         //draw with alpha
         if (this._alpha < 1.0) {
-            var globalpha = context.globalAlpha;
+            globalpha = context.globalAlpha;
             context.globalAlpha = this._alpha;
         }
 

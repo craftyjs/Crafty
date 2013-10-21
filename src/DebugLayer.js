@@ -338,8 +338,8 @@ Crafty.DebugCanvas = {
 
     // copied from drawAll()
     renderScene: function (rect) {
-        var rect = rect || Crafty.viewport.rect(),
-            q = Crafty.DebugCanvas.entities,
+        rect = rect || Crafty.viewport.rect();
+        var q = Crafty.DebugCanvas.entities,
             i = 0,
             l = q.length,
             ctx = Crafty.DebugCanvas.context,

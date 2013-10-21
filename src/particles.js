@@ -81,7 +81,7 @@ Crafty.c("Particles", {
         }).bind("RemoveComponent", function (id) {
             if (id === "particles")
                 Crafty.stage.elem.removeChild(c);
-        });;
+        });
 
         relativeX = this.x + Crafty.viewport.x;
         relativeY = this.y + Crafty.viewport.y;
@@ -169,10 +169,10 @@ Crafty.c("Particles", {
 
         init: function (options) {
             this.position = this.vectorHelpers.create(0, 0);
-            if (typeof options == 'undefined') var options = {};
+            if (typeof options == 'undefined') options = {};
 
             //Create current config by merging given options and presets.
-            for (key in this.presets) {
+            for (var key in this.presets) {
                 if (typeof options[key] != 'undefined') this[key] = options[key];
                 else this[key] = this.presets[key];
             }

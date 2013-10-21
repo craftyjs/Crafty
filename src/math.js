@@ -249,7 +249,7 @@ Crafty.math.Vector2D = (function () {
         this.x += vecRH.x;
         this.y += vecRH.y;
         return this;
-    } // add
+    }; // add
 
     /**@
      * #.angleBetween
@@ -265,7 +265,7 @@ Crafty.math.Vector2D = (function () {
      */
     Vector2D.prototype.angleBetween = function (vecRH) {
         return Math.atan2(this.x * vecRH.y - this.y * vecRH.x, this.x * vecRH.x + this.y * vecRH.y);
-    } // angleBetween
+    }; // angleBetween
 
     /**@
      * #.angleTo
@@ -682,7 +682,7 @@ Crafty.math.Matrix2D = (function () {
             this.f = f;
         } else if (arguments.length > 0)
             throw "Unexpected number of arguments for Matrix2D()";
-    } // class Matrix2D
+    }; // class Matrix2D
 
     Matrix2D.prototype.a = 1;
     Matrix2D.prototype.b = 0;
@@ -1053,7 +1053,7 @@ Crafty.math.Matrix2D = (function () {
         } // else
 
         return this;
-    } // translate
+    }; // translate
 
     return Matrix2D;
 })();

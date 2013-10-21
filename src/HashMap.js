@@ -346,7 +346,7 @@
         this.keys = keys;
         this.map = map;
         this.obj = obj;
-    };
+    }
 
     Entry.prototype = {
         update: function (rect) {

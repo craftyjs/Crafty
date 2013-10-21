@@ -40,31 +40,31 @@ Crafty.c("Delay", {
         });
     },
     /**@
-	* #.delay
-	* @comp Delay
-	* @sign public this.delay(Function callback, Number delay)
-	* @param callback - Method to execute after given amount of milliseconds
-	* @param delay - Amount of milliseconds to execute the method
-	* @param repeat - How often to repeat the delayed function. A value of 0 triggers the delayed
-	* function exactly once. A value n > 0 triggers the delayed function exactly n+1 times. A
-	* value of -1 triggers the delayed function indefinitely.
-	* 
-	* The delay method will execute a function after a given amount of time in milliseconds.
-	* 
-	* It is not a wrapper for `setTimeout`.
-	* 
-	* If Crafty is paused, the delay is interrupted with the pause and then resume when unpaused
-	*
-	* If the entity is destroyed, the delay is also destroyed and will not have effect. 
-	*
-	* @example
-	* ~~~
-	* console.log("start");
-	* Crafty.e("Delay").delay(function() {
-		 console.log("100ms later");
-	* }, 100, 0);
-	* ~~~
-	*/
+     * #.delay
+     * @comp Delay
+     * @sign public this.delay(Function callback, Number delay)
+     * @param callback - Method to execute after given amount of milliseconds
+     * @param delay - Amount of milliseconds to execute the method
+     * @param repeat - How often to repeat the delayed function. A value of 0 triggers the delayed
+     * function exactly once. A value n > 0 triggers the delayed function exactly n+1 times. A
+     * value of -1 triggers the delayed function indefinitely.
+     *
+     * The delay method will execute a function after a given amount of time in milliseconds.
+     *
+     * It is not a wrapper for `setTimeout`.
+     *
+     * If Crafty is paused, the delay is interrupted with the pause and then resume when unpaused
+     *
+     * If the entity is destroyed, the delay is also destroyed and will not have effect.
+     *
+     * @example
+     * ~~~
+     * console.log("start");
+     * Crafty.e("Delay").delay(function() {
+     *   console.log("100ms later");
+     * }, 100, 0);
+     * ~~~
+     */
     delay: function (func, delay, repeat) {
         this._delays.push({
             start: new Date().getTime(),

@@ -468,7 +468,7 @@ Crafty.c("2D", {
      */
 
     _calculateMBR: function (ox, oy, rad) {
-        if (rad == 0) {
+        if (rad === 0) {
             this._mbr = null;
             return;
         }
@@ -513,7 +513,7 @@ Crafty.c("2D", {
         var theta = -1 * (v % 360); //angle always between 0 and 359
         var difference = this._rotation - v;
         // skip if there's no rotation!
-        if (difference == 0)
+        if (difference === 0)
             return;
 
         //Calculate the new MBR
@@ -817,9 +817,10 @@ Crafty.c("2D", {
      * every entity attached.
      */
     detach: function (obj) {
+        var i;
         //if nothing passed, remove all attached objects
         if (!obj) {
-            for (var i = 0; i < this._children.length; i++) {
+            for (i = 0; i < this._children.length; i++) {
                 this._children[i]._parent = null;
             }
             this._children = [];
@@ -827,7 +828,7 @@ Crafty.c("2D", {
         }
 
         //if obj passed, find the handler and unbind
-        for (var i = 0; i < this._children.length; i++) {
+        for (i = 0; i < this._children.length; i++) {
             if (this._children[i] == obj) {
                 this._children.splice(i, 1);
             }
@@ -953,6 +954,7 @@ Crafty.c("2D", {
         //keep a reference of the old positions
         var old = Crafty._rectPool.copy(this);
 
+        var mbr;
         //if rotation, use the rotate method
         if (name === '_rotation') {
             this._rotate(value); // _rotate triggers "Rotate"
@@ -962,7 +964,7 @@ Crafty.c("2D", {
             this.trigger("reorder");
             //if the rect bounds change, update the MBR and trigger move
         } else if (name === '_x' || name === '_y') {
-            var mbr = this._mbr;
+            mbr = this._mbr;
 
             if (mbr) {
                 mbr[name] -= this[name] - value;
@@ -972,7 +974,7 @@ Crafty.c("2D", {
             this.trigger("Move", old);
 
         } else if (name === '_h' || name === '_w') {
-            var mbr = this._mbr;
+            mbr = this._mbr;
 
             var oldValue = this[name];
             this[name] = value;

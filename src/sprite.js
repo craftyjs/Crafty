@@ -82,7 +82,7 @@ Crafty.c("Sprite", {
      * @example
      * ~~~
      * Crafty.e("2D, DOM, Sprite")
-     * 	.sprite(0, 0, 2, 2);
+     *   .sprite(0, 0, 2, 2);
      * ~~~
      */
 
@@ -119,7 +119,7 @@ Crafty.c("Sprite", {
      * @example
      * ~~~
      * Crafty.e("2D, DOM, Sprite")
-     * 	.crop(40, 40, 22, 23);
+     *   .crop(40, 40, 22, 23);
      * ~~~
      */
     crop: function (x, y, w, h) {

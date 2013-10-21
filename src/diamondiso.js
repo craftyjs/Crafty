@@ -42,12 +42,12 @@ Crafty.extend({
          * @see Crafty.diamondIso.place
          */
         init: function (tw, th, mw, mh) {
-            this._tile.width = parseInt(tw);
-            this._tile.height = parseInt(th) || parseInt(tw) / 2;
+            this._tile.width = parseInt(tw, 10);
+            this._tile.height = parseInt(th, 10) || parseInt(tw, 10) / 2;
             this._tile.r = this._tile.width / this._tile.height;
 
-            this._map.width = parseInt(mw);
-            this._map.height = parseInt(mh) || parseInt(mw);
+            this._map.width = parseInt(mw, 10);
+            this._map.height = parseInt(mh, 10) || parseInt(mw, 10);
 
             this._origin.x = this._map.height * this._tile.width / 2;
             return this;
@@ -121,14 +121,14 @@ Crafty.extend({
             return {
                 left: ((x - y) * this._tile.width / 2 + this._origin.x),
                 top: ((x + y) * this._tile.height / 2)
-            }
+            };
         },
         px2pos: function (left, top) {
             var x = (left - this._origin.x) / this._tile.r;
             return {
                 x: ((top + x) / this._tile.height),
                 y: ((top - x) / this._tile.height)
-            }
+            };
         },
 
         polygon: function (obj) {

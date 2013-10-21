@@ -57,4 +57,4 @@ Crafty['import'] = function (obj, scene) {
         ent = Crafty(key);
         ent.attr(obj[key]);
     }
-}
+};
