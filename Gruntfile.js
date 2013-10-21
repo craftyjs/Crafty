@@ -12,7 +12,7 @@ module.exports = function (grunt) {
 
     var getFiles = function (){
         return fileList;
-        
+
     };
 
     var docGen = function(){
@@ -67,8 +67,9 @@ module.exports = function (grunt) {
             	'tests/stage.html',
             	'tests/events.html',
             	'tests/math.html',
-            	'tests/isometric.html']
-        }, 
+            	'tests/isometric.html',
+                'tests/loader.html']
+        },
 
         jsvalidate: {
             files: "crafty.js"
@@ -82,7 +83,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-jsvalidate');
-    
+
     // Defined tasks for Crafty
     grunt.registerTask('api', "Generate api documentation", docGen);
 
