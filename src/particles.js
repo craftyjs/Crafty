@@ -1,3 +1,6 @@
+var Crafty = require('./core.js'),
+    document = window.document;
+
 /**@
  * #Particles
  * @category Graphics

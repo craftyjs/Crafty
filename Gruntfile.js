@@ -32,14 +32,23 @@ module.exports = function (grunt) {
 
         pkg: grunt.file.readJSON('package.json'),
 
-        concat: {
-            options: {
-                separator: '\n',
-                banner: banner
-            },
+        usebanner: {
             dist: {
-                src: getFiles(),
-                dest: 'crafty.js'
+                options: {
+                    position: 'top',
+                    banner: banner
+                },
+                files: {
+                    src: ['crafty.js']
+                }
+            }
+        },
+
+        browserify: {
+            dist: {
+                files: {
+                    'crafty.js': ['src/*.js']
+                }
             }
         },
 
@@ -79,22 +88,27 @@ module.exports = function (grunt) {
     });
 
     // Load the plugin that provides the "uglify" task.
-    grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-jsvalidate');
+    grunt.loadNpmTasks('grunt-browserify');
+    grunt.loadNpmTasks('grunt-banner');
     
+    // Build
+    grunt.registerTask('build', ['browserify', 'usebanner']);
+
     // Defined tasks for Crafty
     grunt.registerTask('api', "Generate api documentation", docGen);
 
-
     // Default task.
-    grunt.registerTask('default', ['concat', 'jsvalidate']);
+    grunt.registerTask('default', ['build', 'jsvalidate']);
 
     // Task chains
-    grunt.registerTask('check', ['concat', 'jsvalidate', 'qunit', 'jshint']);
-    grunt.registerTask('release', ['concat', 'uglify', 'api']);
+    grunt.registerTask('check', ['build', 'jsvalidate', 'qunit', 'jshint']);
+    grunt.registerTask('release', ['build', 'uglify', 'api']);
+
+    grunt.registerTask('validate', ['qunit']);
 
 
 };

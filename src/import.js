@@ -1,3 +1,6 @@
+var Crafty = require('./core.js'),
+    document = window.document;
+
 /**@
  * #Crafty.import
  * @sign public void Crafty.import(String url[, String scene])

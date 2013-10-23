@@ -1,3 +1,6 @@
+var Crafty = require('./core.js'),
+    document = window.document;
+
 Crafty.extend({
     /**@
      * #Crafty.device

@@ -1,3 +1,6 @@
+var Crafty = require('./core.js'),
+    document = window.document;
+
 Crafty.extend({
     over: null, //object mouseover, waiting for out
     mouseObjs: 0,
