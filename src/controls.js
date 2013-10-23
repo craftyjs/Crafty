@@ -860,63 +860,76 @@ Crafty.c("Fourway", {
 });
 
 /**@
- * #Twoway
- * @category Input
- * Move an entity left or right using the arrow keys or `D` and `A` and jump using up arrow or `W`.
- *
- * When direction changes a NewDirection event is triggered with an object detailing the new direction: {x: x_movement, y: y_movement}. This is consistent with Fourway and Multiway components.
- * When entity has moved on x-axis a Moved event is triggered with an object specifying the old position {x: old_x, y: old_y}
- */
+* #Twoway
+* @category Input
+* Move an entity left or right using the arrow keys or `D` and `A` and jump using up arrow or `W`.
+*
+* When direction changes a NewDirection event is triggered with an object detailing the new direction: {x: x_movement, y: y_movement}. This is consistent with Fourway and Multiway components.
+* When entity has moved on x-axis a Moved event is triggered with an object specifying the old position {x: old_x, y: old_y}
+*/
 Crafty.c("Twoway", {
-    _speed: 3,
-    _up: false,
+	_speed: 3,
+	_up: false,
+	_jumpSpeed: 0,
 
-    init: function () {
-        this.requires("Fourway, Keyboard");
-    },
+	init: function () {
+		this.requires("Fourway, Keyboard");
+	},
 
-    /**@
-     * #.twoway
-     * @comp Twoway
-     * @sign public this .twoway(Number speed[, Number jump])
-     * @param speed - Amount of pixels to move left or right
-     * @param jump - Vertical jump speed
-     *
-     * Constructor to initialize the speed and power of jump. Component will
-     * listen for key events and move the entity appropriately. This includes
-     * ~~~
-     * `Up Arrow`, `Right Arrow`, `Left Arrow` as well as W, A, D. Used with the
-     * `gravity` component to simulate jumping.
-     * ~~~
-     *
-     * The key presses will move the entity in that direction by the speed passed in
-     * the argument. Pressing the `Up Arrow` or `W` will cause the entity to jump.
-     *
-     * @see Gravity, Fourway
-     */
-    twoway: function (speed, jump) {
+	/**@
+	* #.twoway
+	* @comp Twoway
+	* @sign public this .twoway(Number speed[, Number jump])
+	* @param speed - Amount of pixels to move left or right
+	* @param jump - Vertical jump speed
+	* 
+	* Constructor to initialize the speed and power of jump. Component will
+	* listen for key events and move the entity appropriately. This includes
+	* ~~~
+	* `Up Arrow`, `Right Arrow`, `Left Arrow` as well as W, A, D. Used with the
+	* `gravity` component to simulate jumping.
+	* ~~~
+	* 
+	* The key presses will move the entity in that direction by the speed passed in
+	* the argument. Pressing the `Up Arrow` or `W` will cause the entity to jump.
+	* 
+	* After calling twoway, in order to alter speed movement speed or jump speed, one can do, respectively:
+	* this._speed = newSpeed;
+	* this._jumpSpeed = newJumpSpeed;
+	* 
+	* @see Gravity, Fourway
+	*/
+	twoway: function (speed, jump) {
 
-        this.multiway(speed, {
-            RIGHT_ARROW: 0,
-            LEFT_ARROW: 180,
-            D: 0,
-            A: 180,
-            Q: 180
-        });
+		this.multiway(speed, {
+			RIGHT_ARROW: 0,
+			LEFT_ARROW: 180,
+			D: 0,
+			A: 180,
+			Q: 180
+		});
 
-        if (speed) this._speed = speed;
-        if (arguments.length < 2) jump = this._speed * 2;
+		if (speed) this._speed = speed;
+		if (arguments.length>1) 
+		    this._jumpSpeed = jump;
+		else
+		    this._jumpSpeed = this._speed * 2;	
 
-        this.bind("EnterFrame", function () {
-            if (this.disableControls) return;
-            if (this._up) {
-                this.y -= jump;
-                this._falling = true;
-            }
-        }).bind("KeyDown", function () {
-            if (this.isDown("UP_ARROW") || this.isDown("W") || this.isDown("Z")) this._up = true;
-        });
+		this.bind("EnterFrame", this._jump)
+		    .bind("KeyDown", function () {
+			if (this.isDown("UP_ARROW") || this.isDown("W") || this.isDown("Z")) this._up = true;
+		    });
+		
 
-        return this;
-    }
+		return this;
+	},
+	
+	_jump: function () {
+		if (this.disableControls) return;
+		if (this._up) {
+			this.y -= this._jumpSpeed;
+			this._falling = true;
+			this.trigger('Moved', { x: this._x, y: this._y + this._jumpSpeed });
+		}
+	}
 });
