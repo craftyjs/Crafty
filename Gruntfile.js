@@ -49,12 +49,20 @@ module.exports = function (grunt) {
                 files: {
                     'crafty.js': ['src/*.js']
                 }
+            },
+            debug: {
+                files: {
+                    'crafty.js': ['src/*.js']
+                },
+                options: {
+                    debug: true
+                }
             }
         },
 
         watch: {
             files: ['src/*.js'],
-            tasks: ['build']
+            tasks: ['build:dev']
         },
 
         uglify: {
@@ -101,19 +109,25 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-banner');
     
-    // Build
-    grunt.registerTask('build', ['browserify', 'usebanner']);
+    // Build development
+    grunt.registerTask('build:dev', ['browserify:debug', 'usebanner']);
+    
+    // Build release
+    grunt.registerTask('build:release', ['browserify:dist', 'usebanner']);
 
-    // Defined tasks for Crafty
+    // Building the documentation
     grunt.registerTask('api', "Generate api documentation", docGen);
 
     // Default task.
-    grunt.registerTask('default', ['build', 'jsvalidate']);
+    grunt.registerTask('default', ['build:dev', 'jsvalidate']);
 
-    // Task chains
-    grunt.registerTask('check', ['build', 'jsvalidate', 'qunit', 'jshint']);
-    grunt.registerTask('release', ['build', 'uglify', 'api']);
+    // Run the test suite
+    grunt.registerTask('check', ['build:dev', 'jsvalidate', 'qunit', 'jshint']);
 
+    // Make crafty.js ready for release - minified version
+    grunt.registerTask('release', ['build:release', 'uglify', 'api']);
+
+    // Run only tests
     grunt.registerTask('validate', ['qunit']);
 
 
