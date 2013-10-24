@@ -863,7 +863,8 @@ Crafty.extend({
      * ~~~
      */
     getVersion: function () {
-        return '0.5.3';
+        var pjson = require('../package.json');
+        return pjson.version;
     },
 
     /**@

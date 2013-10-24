@@ -29,6 +29,11 @@ $(document).ready(function() {
 	Crafty.init(500,500);
 	
 	module("CORE");
+
+	test("getVersion", function() {
+		var actualVersion = "0.5.4";
+		strictEqual(Crafty.getVersion(), actualVersion, "The actual library version");
+	});
 		
 	test("selectors", function() {
 		var first = Crafty.e("test");
