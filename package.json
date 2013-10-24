@@ -1,68 +1,72 @@
 {
-    "name": "crafty",
-    "version": "0.5.4",
-    "title": "Crafty game framework",
-    "author": {
-        "name": "Louis Stowasser",
-        "url": "http://craftyjs.com/"
+  "name": "crafty",
+  "version": "0.5.4",
+  "title": "Crafty game framework",
+  "author": {
+    "name": "Louis Stowasser",
+    "url": "http://craftyjs.com/"
+  },
+  "branches": {
+    "develop": true
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://www.opensource.org/licenses/mit-license.php"
     },
-    "branches" : { "develop" : true },
-    "licenses": [
-        {
-            "type": "MIT",
-            "url": "http://www.opensource.org/licenses/mit-license.php"
-        },
-        {
-            "type": "GPL",
-            "url": "http://www.opensource.org/licenses/gpl-license.php"
-        }
-    ],
-    "description": "Crafty is a modern component and event based framework for javascript games that targets DOM and canvas. Check out the DEV version if you want to play with the latest and greatest.",
-    "keywords": [
-        "framework",
-        "javascript"
-    ],
-    "scripts": {
-        "test": "grunt check"
-    },
-    "jsfiddle" : "disable",
-    "homepage": "https://github.com/craftyjs/Crafty",
-    "files": [
-        "src/core.js",
-        "src/intro.js",
-        "src/HashMap.js",
-        "src/2D.js",
-        "src/collision.js",
-        "src/DOM.js",
-        "src/html.js",
-        "src/storage.js",
-        "src/extensions.js",
-        "src/viewport.js",
-        "src/device.js",
-        "src/sprite.js",
-        "src/canvas.js",
-        "src/controls.js",
-        "src/animation.js",
-        "src/drawing.js",
-        "src/isometric.js",
-        "src/diamondiso.js",
-        "src/particles.js",
-        "src/sound.js",
-        "src/text.js",
-        "src/loader.js",
-        "src/math.js",
-        "src/time.js",
-        "src/DebugLayer.js",
-        "src/outro.js"
-    ],
-    "dependencies": {
-        "grunt":                "0.4.0",
-        "grunt-contrib-uglify": "0.2.0",
-        "grunt-contrib-concat": "0.3.0",
-        "grunt-contrib-jshint": "0.5.2",
-        "grunt-contrib-qunit":  "0.2.1",
-        "grunt-jsvalidate":     "0.2.1",
-        "marked":               "0.2.9",
-        "coffee-script":        "1.6.3"
+    {
+      "type": "GPL",
+      "url": "http://www.opensource.org/licenses/gpl-license.php"
     }
+  ],
+  "description": "Crafty is a modern component and event based framework for javascript games that targets DOM and canvas. Check out the DEV version if you want to play with the latest and greatest.",
+  "keywords": [
+    "framework",
+    "javascript"
+  ],
+  "scripts": {
+    "test": "grunt check"
+  },
+  "jsfiddle": "disable",
+  "homepage": "https://github.com/craftyjs/Crafty",
+  "files": [
+    "src/core.js",
+    "src/HashMap.js",
+    "src/2D.js",
+    "src/collision.js",
+    "src/DOM.js",
+    "src/html.js",
+    "src/storage.js",
+    "src/extensions.js",
+    "src/viewport.js",
+    "src/device.js",
+    "src/sprite.js",
+    "src/canvas.js",
+    "src/controls.js",
+    "src/animation.js",
+    "src/drawing.js",
+    "src/isometric.js",
+    "src/diamondiso.js",
+    "src/particles.js",
+    "src/sound.js",
+    "src/text.js",
+    "src/loader.js",
+    "src/math.js",
+    "src/time.js",
+    "src/DebugLayer.js"
+  ],
+  "dependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-uglify": "0.2.0",
+    "grunt-contrib-concat": "0.3.0",
+    "grunt-contrib-jshint": "0.5.2",
+    "grunt-contrib-qunit": "0.2.1",
+    "grunt-jsvalidate": "0.2.1",
+    "marked": "0.2.9",
+    "coffee-script": "1.6.3",
+    "browserify": "~2.34.3",
+    "grunt-browserify": "~1.2.9",
+    "grunt-banner": "~0.2.0",
+    "grunt-contrib-watch": "~0.5.3"
+  }
 }

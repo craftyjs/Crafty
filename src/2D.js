@@ -1,3 +1,6 @@
+var Crafty = require('./core.js'),
+    document = window.document,
+    HashMap = require('./HashMap.js');
 // Crafty._rectPool 
 //
 // This is a private object used internally by 2D methods
@@ -47,7 +50,7 @@ Crafty._rectPool = (function () {
  * Functions related with querying entities.
  * @see Crafty.HashMap
  */
-Crafty.map = new Crafty.HashMap();
+Crafty.map = new HashMap();
 var M = Math,
     Mc = M.cos,
     Ms = M.sin,

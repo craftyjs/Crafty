@@ -1,3 +1,6 @@
+var Crafty = require('./core.js'),
+    document = window.document;
+
 /**@
  * #Crafty.math
  * @category 2D

@@ -1,10 +1,11 @@
+var Crafty = require('./core.js'),
+    document = window.document;
+
 /**
  * Spatial HashMap for broad phase collision
  *
  * @author Louis Stowasser
  */
-(function (parent) {
-
 
     /**@
      * #Crafty.HashMap.constructor
@@ -357,5 +358,4 @@
         }
     };
 
-    parent.HashMap = HashMap;
-})(Crafty);
+    module.exports = HashMap;

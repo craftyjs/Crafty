@@ -1,3 +1,7 @@
+var Crafty = require('./core.js'),
+    document = window.document,
+    DEG_TO_RAD = Math.PI / 180;
+
 /**@
  * #Collision
  * @category 2D
