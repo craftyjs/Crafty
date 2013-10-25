@@ -90,7 +90,8 @@ module.exports = function (grunt) {
                 'tests/events.html',
                 'tests/math.html',
                 'tests/isometric.html',
-                'tests/loader.html'
+                'tests/loader.html',
+                'tests/text.html'
             ]
         }, 
 
