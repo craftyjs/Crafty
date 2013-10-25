@@ -2,20 +2,19 @@
                     "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 
-<!-- Note to developers: Grunt will run these tests in a webkit-based browser
-    (like safari or chrome). If you don't have grunt, and/or want to test in other
-    browsers, here is the easiest way:
-       (1) Change "../crafty.js" to "../crafty-local.js" (in the HTML head below).
-       (2) Open this file in a browser to run the tests.
-             ...However, browser security settings may keep it from working.
-       -- To run the tests in firefox: First you need to go to about:config in firefox, and
+<!-- Note to developers: Run the "grunt check" task to run these tests in the
+    PhantomJS browser. (PhantomJS is based on webkit, so it should behave similar
+    to safari or chrome.) To run in other browsers, run "grunt" (the default task)
+    to compile crafty.js, then open this HTML file to run the tests. However,
+    you may need to change browser security settings:
+       * To run the tests in firefox: First you need to go to about:config in firefox, and
              switch "security.fileuri.strict_origin_policy" to false. [This only changes the
              security settings when firefox opens an HTML file saved on your computer; it does
              not affect your security when you are browsing the internet.]
-       -- To run the tests in chrome: You need to pass a flag when opening chrome.
+       * To run the tests in chrome: You need to pass a flag when opening chrome.
              For example, in Linux, you would run this command in a Linux terminal:      
              chromium-browser /path/to/core.html --allow-file-access-from-files
- -->
+-->
 
 <head>
 	<script src="./lib/jquery.min.js"></script>
