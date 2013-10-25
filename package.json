@@ -64,7 +64,6 @@
     "grunt-jsvalidate": "0.2.1",
     "marked": "0.2.9",
     "coffee-script": "1.6.3",
-    "browserify": "~2.34.3",
     "grunt-browserify": "~1.2.9",
     "grunt-banner": "~0.2.0",
     "grunt-contrib-watch": "~0.5.3"
