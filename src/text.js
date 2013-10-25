@@ -158,7 +158,11 @@ Crafty.c("Text", {
 
             if (typeof key === "object") {
                 for (var propertyKey in key) {
-                    this._textFont[propertyKey] = key[propertyKey];
+                    if(propertyKey == 'family'){
+                        this._textFont[propertyKey] = "'" + key[propertyKey] + "'";
+                    } else {
+                        this._textFont[propertyKey] = key[propertyKey]; 
+                    }
                 }
             }
         } else {
