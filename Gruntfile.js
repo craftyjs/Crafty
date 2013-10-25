@@ -12,7 +12,6 @@ module.exports = function (grunt) {
 
     var getFiles = function (){
         return fileList;
-        
     };
 
     var docGen = function(){
@@ -90,7 +89,8 @@ module.exports = function (grunt) {
                 'tests/stage.html',
                 'tests/events.html',
                 'tests/math.html',
-                'tests/isometric.html'
+                'tests/isometric.html',
+                'tests/loader.html'
             ]
         }, 
 

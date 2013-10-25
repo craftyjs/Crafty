@@ -204,7 +204,9 @@ Crafty.extend({
                     Crafty.asset(current, obj);
                 }
                 obj.onload = pro;
-                obj.src = ""; // workaround for webkit bug
+                if (Crafty.support.prefix === 'webkit') {
+                    obj.src = ""; // workaround for webkit bug
+                }
                 obj.src = current; //setup src after onload function Opera/IE Bug
 
             } else {
