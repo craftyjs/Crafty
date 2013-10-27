@@ -220,6 +220,11 @@ Crafty.extend({
         paddingX = parseInt(paddingX || 0, 10); //just incase
         paddingY = parseInt(paddingY || 0, 10);
 
+        var markSpritesReady = function() {
+            this.ready = true;
+            this.trigger("Change");
+        };
+
         img = Crafty.asset(url);
         if (!img) {
             img = new Image();
@@ -228,13 +233,31 @@ Crafty.extend({
             img.onload = function () {
                 //all components with this img are now ready
                 for (var spriteName in map) {
-                    Crafty(spriteName).each(function () {
-                        this.ready = true;
-                        this.trigger("Change");
-                    });
+                    Crafty(spriteName).each(markSpritesReady);
                 }
             };
         }
+
+        var sharedSpriteInit = function() {
+            this.requires("2D, Sprite");
+            this.__trim = [0, 0, 0, 0];
+            this.__image = url;
+            this.__coord = [this.__coord[0], this.__coord[1], this.__coord[2], this.__coord[3]];
+            this.__tile = tile;
+            this.__tileh = tileh;
+            this.__padding = [paddingX, paddingY];
+            this.img = img;
+
+            //draw now
+            if (this.img.complete && this.img.width > 0) {
+                this.ready = true;
+                this.trigger("Change");
+            }
+
+            //set the width and height to the sprite size
+            this.w = this.__coord[2];
+            this.h = this.__coord[3];
+        };
 
         for (spriteName in map) {
             if (!map.hasOwnProperty(spriteName)) continue;
@@ -250,26 +273,7 @@ Crafty.extend({
                 ready: false,
                 __coord: [x, y, w, h],
 
-                init: function () {
-                    this.requires("2D, Sprite");
-                    this.__trim = [0, 0, 0, 0];
-                    this.__image = url;
-                    this.__coord = [this.__coord[0], this.__coord[1], this.__coord[2], this.__coord[3]];
-                    this.__tile = tile;
-                    this.__tileh = tileh;
-                    this.__padding = [paddingX, paddingY];
-                    this.img = img;
-
-                    //draw now
-                    if (this.img.complete && this.img.width > 0) {
-                        this.ready = true;
-                        this.trigger("Change");
-                    }
-
-                    //set the width and height to the sprite size
-                    this.w = this.__coord[2];
-                    this.h = this.__coord[3];
-                }
+                init: sharedSpriteInit
             });
         }
 
