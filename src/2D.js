@@ -1316,7 +1316,7 @@ Crafty.circle.prototype = {
      *
      * @example
      * ~~~
-     * var poly = new Crafty.circle(0, 0, 10);
+     * var circle = new Crafty.circle(0, 0, 10);
      * circle.shift(5,5);
      * //{x: 5, y: 5, radius: 10};
      * ~~~
