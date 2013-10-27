@@ -1,6 +1,10 @@
 var Crafty = require('./core.js'),
     document = window.document;
 
+// Directive for jshint to ignore evals
+// eval is used to support IE8, so this can be removed if we decide to drop that
+/* jshint evil:true */
+
 /**@
  * #Storage
  * @category Utilities

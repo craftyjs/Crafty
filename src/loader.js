@@ -380,6 +380,8 @@ Crafty.extend({
             $script.path = function (p) {
                 scriptpath = p;
             };
+            // This function is a tangled mess of conciseness, so suppress warnings here
+            /* jshint -W030 */
             $script.ready = function (deps, ready, req) {
                 deps = deps[push] ? deps : [deps];
                 var missing = [];
@@ -395,7 +397,7 @@ Crafty.extend({
                 }(deps.join('|'));
                 return $script;
             };
-
+            /* jshint +W030 */
             $script.noConflict = function () {
                 win.$script = old;
                 return this;
