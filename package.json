@@ -9,6 +9,12 @@
   "branches": {
     "develop": true
   },
+  "repository": {
+    {
+      "type": "git",
+      "url": "https://github.com/craftyjs/Crafty.git"
+    }
+  },
   "licenses": [
     {
       "type": "MIT",
