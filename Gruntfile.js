@@ -1,4 +1,5 @@
 require("coffee-script");
+var fs = require('fs');
 
 module.exports = function (grunt) {
     var pkg = grunt.file.readJSON('package.json');
@@ -109,6 +110,10 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-jsvalidate');
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-banner');
+
+    grunt.registerTask('version', 'Takes the version into src/version.js', function() {
+        fs.writeFileSync('src/version.js', 'module.exports = "' + version + '";');
+    });
     
     // Build development
     grunt.registerTask('build:dev', ['browserify:debug', 'usebanner']);
@@ -126,7 +131,7 @@ module.exports = function (grunt) {
     grunt.registerTask('check', ['build:dev', 'jsvalidate', 'qunit', 'jshint']);
 
     // Make crafty.js ready for release - minified version
-    grunt.registerTask('release', ['build:release', 'uglify', 'api']);
+    grunt.registerTask('release', ['version', 'build:release', 'uglify', 'api']);
 
     // Run only tests
     grunt.registerTask('validate', ['qunit']);
