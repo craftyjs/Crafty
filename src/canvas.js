@@ -109,7 +109,7 @@ Crafty.c("Canvas", {
             pos._x = -this._origin.x;
             pos._y = -this._origin.y;
 
-            context.rotate((this._rotation % 360) * (Math.PI / 180));
+            context.rotate(Crafty.math.degToRad(this._rotation % 360));
         }
 
         if (this._flipX || this._flipY) {

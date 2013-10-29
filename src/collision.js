@@ -1,6 +1,5 @@
 var Crafty = require('./core.js'),
-    document = window.document,
-    DEG_TO_RAD = Math.PI / 180;
+    document = window.document;
 
 /**@
  * #Collision
@@ -62,8 +61,8 @@ Crafty.c("Collision", {
 
         if (this.rotation) {
             poly.rotate({
-                cos: Math.cos(-this.rotation * DEG_TO_RAD),
-                sin: Math.sin(-this.rotation * DEG_TO_RAD),
+                cos: Math.cos(Crafty.math.degToRad(-this.rotation)),
+                sin: Math.sin(Crafty.math.degToRad(-this.rotation)),
                 o: {
                     x: this._origin.x,
                     y: this._origin.y
@@ -87,7 +86,7 @@ Crafty.c("Collision", {
     // Change the hitbox when a "Resize" event triggers. 
     _resizeMap: function (e) {
 
-        var dx, dy, rot = this.rotation * DEG_TO_RAD,
+        var dx, dy, rot = Crafty.math.degToRad(this.rotation),
             points = this.map.points;
 
         // Depending on the change of axis, move the corners of the rectangle appropriately
