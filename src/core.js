@@ -1,3 +1,5 @@
+var version = require('./version');
+
 /**@
  * #Crafty
  * @category Core
@@ -863,8 +865,7 @@ Crafty.extend({
      * ~~~
      */
     getVersion: function () {
-        var pjson = require('../package.json');
-        return pjson.version;
+        return version;
     },
 
     /**@
