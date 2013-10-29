@@ -10,10 +10,8 @@
     "develop": true
   },
   "repository": {
-    {
-      "type": "git",
-      "url": "https://github.com/craftyjs/Crafty.git"
-    }
+    "type": "git",
+    "url": "https://github.com/craftyjs/Crafty.git"
   },
   "licenses": [
     {
