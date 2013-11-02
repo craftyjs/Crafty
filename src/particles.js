@@ -4,6 +4,7 @@ var Crafty = require('./core.js'),
 /**@
  * #Particles
  * @category Graphics
+ * @trigger ParticleEnd - when the particle animation has finished
  * Based on Parcycle by Mr. Speaker, licensed under the MIT, Ported by Leo Koppelkamm
  * **This is canvas only & won't do anything if the browser doesn't support it!**
  * To see how this works take a look in https://github.com/craftyjs/Crafty/blob/master/src/particles.js
@@ -12,6 +13,7 @@ Crafty.c("Particles", {
     init: function () {
         //We need to clone it
         this._Particles = Crafty.clone(this._Particles);
+        this._Particles.parentEntity = this;
     },
 
     /**@
@@ -313,6 +315,7 @@ Crafty.c("Particles", {
             this.active = false;
             this.elapsedFrames = 0;
             this.emitCounter = 0;
+            this.parentEntity.trigger("ParticleEnd");
         },
 
         render: function (context) {
