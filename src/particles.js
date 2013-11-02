@@ -12,6 +12,7 @@ Crafty.c("Particles", {
     init: function () {
         //We need to clone it
         this._Particles = Crafty.clone(this._Particles);
+        this._Particles.parentEntity = this;
     },
 
     /**@
@@ -313,6 +314,7 @@ Crafty.c("Particles", {
             this.active = false;
             this.elapsedFrames = 0;
             this.emitCounter = 0;
+            this.parentEntity.trigger("ParticleAnimEnded", null);
         },
 
         render: function (context) {
