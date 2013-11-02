@@ -51,6 +51,7 @@ Crafty.extend({
                 key: key,
                 value: value
             });
+            return value;
         }
     },
     /**@
