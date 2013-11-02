@@ -935,12 +935,12 @@ Crafty.c("2D", {
      * Method for rotation rather than through a setter
      */
     rotate: function (e) {
-        //assume event data origin
-        this._origin.x = e.o.x - this._x;
-        this._origin.y = e.o.y - this._y;
-
-        //modify through the setter method
+        var x2, y2;
+        x2 =  (this._x + this._origin.x - e.o.x) * e.cos + (this._y + this._origin.y - e.o.y) * e.sin + (e.o.x - this._origin.x)
+        y2 =  (this._y + this._origin.y - e.o.y) * e.cos - (this._x + this._origin.x - e.o.x) * e.sin + (e.o.y - this._origin.y);
         this._attr('_rotation', this._rotation - e.deg);
+        this._attr('_x', x2 );
+        this._attr('_y', y2 );        
     },
 
     /**@

@@ -410,25 +410,36 @@ $(document).ready(function() {
 	});
 
 	test("child_rotate", function () {
+		var Round = function(x){ return Math.round(x*100)/100 };
 		var no_getter_setters = !(Crafty.support.setter || Crafty.support.defineProperty);
 		var parent = Crafty.e("2D, DOM, Color")
 			.attr({x:0, y:0, w:50, h:50, rotation:10})
 			.color("red");
 		var child = Crafty.e("2D, DOM, Color")
-			.attr({x:1, y:1, w:50, h:50, rotation:15})
+			.attr({x:10, y:10, w:50, h:50, rotation:15})
 			.color("red");
 		parent.attach(child);
+
 		parent.rotation += 20;
 		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
 		strictEqual(parent.rotation, 30, 'parent rotates normally');
 		strictEqual(child.rotation, 35, 'child follows parent rotation');
+
 		child.rotation += 22;
 		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
 		strictEqual(parent.rotation, 30, 'parent ignores child rotation');
 		strictEqual(child.rotation, 57, 'child rotates normally');
+
+		parent.rotation = 100;	// Rotation by 90 degrees from initial position
+		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
+		strictEqual( Round(child.x), -10, "Child moved around parent upon rotation (x).")
+		strictEqual( Round(child.y), 10, "Child moved around parent upon rotation (y).")
+
 		// Clean up
 		Crafty("*").destroy();
 	});
+
+
 
 	// This test assumes that the "circles" are really octagons, as per Crafty.circle.
 	test("SAT", function () {
