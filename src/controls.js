@@ -916,8 +916,9 @@ Crafty.c("Twoway", {
                 this.y -= jump;
                 this._falling = true;
             }
-        }).bind("KeyDown", function () {
-            if (this.isDown("UP_ARROW") || this.isDown("W") || this.isDown("Z")) this._up = true;
+        }).bind("KeyDown", function (e) {
+            if (e.key === Crafty.keys["UP_ARROW"] || e.key === Crafty.keys["W"] || e.key === Crafty.keys["Z"])
+                this._up = true;
         });
 
         return this;
