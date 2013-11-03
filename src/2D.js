@@ -1019,6 +1019,7 @@ Crafty.c("Gravity", {
     _gy: 0,
     _falling: true,
     _anti: null,
+	_attachedToEntity: null,
 
     init: function () {
         this.requires("2D");
@@ -1027,13 +1028,15 @@ Crafty.c("Gravity", {
     /**@
      * #.gravity
      * @comp Gravity
-     * @sign public this .gravity([comp])
+     * @sign public this .gravity([comp], [shouldAttach])
      * @param comp - The name of a component that will stop this entity from falling
-     *
+     * @param shouldAttach - The truth value if the entity should attach upon landing on platform.
+	 *
      * Enable gravity for this entity no matter whether comp parameter is not specified,
      * If comp parameter is specified all entities with that component will stop this entity from falling.
      * For a player entity in a platform game this would be a component that is added to all entities
      * that the player should be able to walk on.
+	 * If you have moving platforms set shouldAttach to true.
      *
      * @example
      * ~~~
@@ -1043,11 +1046,13 @@ Crafty.c("Gravity", {
      *   .gravity("platform");
      * ~~~
      */
-    gravity: function (comp) {
+    gravity: function (comp, shouldAttach) {
         if (comp) this._anti = comp;
+		this._shouldAttach = !!shouldAttach;
 
         this.bind("EnterFrame", this._enterFrame);
 
+		
         return this;
     },
 
@@ -1110,8 +1115,25 @@ Crafty.c("Gravity", {
 
         if (hit) { //stop falling if found
             if (this._falling) this.stopFalling(hit);
+			
+			if (this._shouldAttach) {
+				//detach from old entity, attach to new one
+				if (this._attachedToEntity !== hit) {
+					if (this._attachedToEntity)
+						this._attachedToEntity.detach(this);
+					this._attachedToEntity = hit;
+					this._attachedToEntity.attach(this);
+				}
+			}
         } else {
             this._falling = true; //keep falling otherwise
+			
+			if (this._shouldAttach) {
+				//detach from old entity
+				if (this._attachedToEntity)
+					this._attachedToEntity.detach(this);
+				this._attachedToEntity = null;
+			}
         }
     },
 
