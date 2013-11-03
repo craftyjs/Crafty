@@ -57,6 +57,14 @@ module.exports = function (grunt) {
                 options: {
                     debug: true
                 }
+            },
+			server: {
+                files: {
+                    'crafty.js': ['src/server/server_version.js', 'src/*_server.js']
+                },
+                options: {
+                    debug: true
+                }
             }
         },
 
@@ -117,6 +125,9 @@ module.exports = function (grunt) {
     
     // Build development
     grunt.registerTask('build:dev', ['browserify:debug', 'usebanner']);
+	
+	// Build server development
+    grunt.registerTask('build:server', ['browserify:server', 'usebanner']);
     
     // Build release
     grunt.registerTask('build:release', ['browserify:dist', 'usebanner']);
@@ -126,6 +137,9 @@ module.exports = function (grunt) {
 
     // Default task.
     grunt.registerTask('default', ['build:dev', 'jsvalidate']);
+	
+	// Build server
+    grunt.registerTask('server', ['build:server', 'jsvalidate', 'qunit', 'jshint']);
 
     // Run the test suite
     grunt.registerTask('check', ['build:dev', 'jsvalidate', 'qunit', 'jshint']);
