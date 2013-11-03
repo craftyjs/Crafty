@@ -1,4 +1,4 @@
-var Crafty = require('./core.js'),
+var Crafty = require('./core_server.js'),
     document = window.document;
 
 // Directive for jshint to ignore evals

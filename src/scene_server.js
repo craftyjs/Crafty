@@ -1,4 +1,4 @@
-var Crafty = require('./core.js');
+var Crafty = require('./core_server.js');
 
 Crafty.extend({
     _scenes: {},
