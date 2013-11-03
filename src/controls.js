@@ -917,7 +917,7 @@ Crafty.c("Twoway", {
                 this._falling = true;
             }
         }).bind("KeyDown", function (e) {
-            if (e.key === Crafty.keys["UP_ARROW"] || e.key === Crafty.keys["W"] || e.key === Crafty.keys["Z"])
+            if (e.key === Crafty.keys.UP_ARROW || e.key === Crafty.keys.W || e.key === Crafty.keys.Z)
                 this._up = true;
         });
 
