@@ -548,59 +548,73 @@ $(document).ready(function() {
 		});
 
 		asyncTest("gravity - player falls through platform", 2, function() {
+			var no_getter_setters = !(Crafty.support.setter || Crafty.support.defineProperty);
 			var player = Crafty.e("2D, Gravity")
 				.attr({ x:0, y: 0, w: 10, h: 10 })
 				.gravity();
 			var platform = Crafty.e("2D, platform")
 				.attr({ x:0, y: 50, w: 10, h: 10 });
+			if (no_getter_setters) Crafty.trigger("EnterFrame");
+
 			
 			setTimeout(function() {
 				notStrictEqual(player.y, 0, "Player changed y after enabling gravity" );
 				notStrictEqual(player.y, platform.y, "Player fell through platform" );
+				
 				start();
+				player.destroy();
+				platform.destroy();
 			}, 2000);
 		});
 		
 		asyncTest("gravity - player lands on platform", 1, function() {
+			var no_getter_setters = !(Crafty.support.setter || Crafty.support.defineProperty);
 			var player = Crafty.e("2D, Gravity")
 				.attr({ x:0, y: 0, w: 10, h: 10 })
 				.gravity("platform");
 			var platform = Crafty.e("2D, platform")
 				.attr({ x:0, y: 50, w: 10, h: 10 });
+			if (no_getter_setters) Crafty.trigger("EnterFrame");
 			
 			setTimeout(function() {
 				strictEqual(player.y + player.h, platform.y, "Player lands on platform" );
+				
 				start();
+				player.destroy();
+				platform.destroy();
 			}, 2000);
 		});
 		
 		asyncTest("gravity - player moves with platform", 5, function() {
-			var player = Crafty.e("2D, Collision, Gravity")
-				.attr({ x:0, y: 0, w: 10, h: 10 })
-				.gravity("platform", true);
-			var platform = Crafty.e("2D, Collision, platform")
+			var no_getter_setters = !(Crafty.support.setter || Crafty.support.defineProperty);
+			var platform = Crafty.e("2D, platform")
 				.attr({ x:0, y: 50, w: 10, h: 10 });
+			if (no_getter_setters) Crafty.trigger("EnterFrame");
+			var player = Crafty.e("2D, Gravity")
+				.attr({ x:0, y: 35, w: 10, h: 10 })
+				.gravity("platform", true);
+			if (no_getter_setters) Crafty.trigger("EnterFrame");
 			
 			setTimeout(function() {
 				platform.x += 50;
-				setTimeout(function() {
-					strictEqual(player.x, platform.x, "Player moved horizontally with platform" );
-					platform.y += 200;
-					setTimeout(function() {
-						strictEqual(player.y + player.h, platform.y, "Player moved vertically downwards with platform" );
-						platform.y -= 100;
-						setTimeout(function() {
-							strictEqual(player.y + player.h, platform.y, "Player moved vertically upwards with platform" );
-							platform.attr({ x:5, y: 55});
-							setTimeout(function() {
-								strictEqual(player.x, platform.x, "Player x matches platform x after diagonal move" );
-								strictEqual(player.y + player.h, platform.y, "Players y matches platform y after diagonal move" );
-								start(); //count assertions
-							}, 1000);
-						}, 1000);
-					}, 1000);
-				}, 1000);
+				if (no_getter_setters) Crafty.trigger("EnterFrame");
+				strictEqual(player.x, platform.x, "Player moved horizontally with platform" );
+				platform.y += 200;
+				if (no_getter_setters) Crafty.trigger("EnterFrame");
+				strictEqual(player.y + player.h, platform.y, "Player moved vertically downwards with platform" );
+				platform.y -= 100;
+				if (no_getter_setters) Crafty.trigger("EnterFrame");
+				strictEqual(player.y + player.h, platform.y, "Player moved vertically upwards with platform" );
+				platform.attr({ x:5, y: 55});
+				if (no_getter_setters) Crafty.trigger("EnterFrame");
+				strictEqual(player.x, platform.x, "Player x matches platform x after diagonal move" );
+				strictEqual(player.y + player.h, platform.y, "Players y matches platform y after diagonal move" );
+				
+				start();
+				player.destroy();
+				platform.destroy();
 			}, 2000);
+
 		});
 
 	module("DebugLayer");
