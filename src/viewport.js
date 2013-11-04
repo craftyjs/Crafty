@@ -63,9 +63,19 @@ Crafty.extend({
          * #Crafty.viewport.bounds
          * @comp Crafty.viewport
          *
-         * A rectangle which defines the bounds of the viewport. If this
-         * variable is null, Crafty uses the bounding box of all the items
-         * on the stage.
+         * A rectangle which defines the bounds of the viewport.
+         * It should be an object with two properties, `max` and `min`, 
+         * which are each an object with `x` and `y` properties.
+         *
+         * If this property is null, Crafty uses the bounding box of all the items
+         * on the stage.  This is the initial value.
+         *
+         * @example
+         * Set the bounds to a 500 by 500 square:
+         *
+         * ~~~
+         * Crafty.viewport.bounds = {min:{x:0, y:0}, max:{x:500, y:500}};
+         * ~~~
          */
         bounds: null,
 
