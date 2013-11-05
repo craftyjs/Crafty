@@ -47,12 +47,29 @@ module.exports = function (grunt) {
         browserify: {
             dist: {
                 files: {
-                    'crafty.js': ['src/*.js']
+                    'crafty.js': [
+                        'src/frontend/*.js', 
+                        'src/common/*.js'
+                    ]
                 }
             },
             debug: {
                 files: {
-                    'crafty.js': ['src/*.js']
+                    'crafty.js': [
+                        'src/frontend/*.js', 
+                        'src/common/*.js'
+                    ]
+                },
+                options: {
+                    debug: true
+                }
+            },
+            server: {
+                files: {
+                    'crafty.js': [
+                        'src/backend/*.js',
+                        'src/common/*.js'
+                    ]
                 },
                 options: {
                     debug: true
@@ -61,7 +78,10 @@ module.exports = function (grunt) {
         },
 
         watch: {
-            files: ['src/*.js'],
+            files: [
+                'src/frontend/*.js', 
+                'src/common/*.js'
+            ],
             tasks: ['build:dev']
         },
 
@@ -117,6 +137,9 @@ module.exports = function (grunt) {
     
     // Build development
     grunt.registerTask('build:dev', ['browserify:debug', 'usebanner']);
+
+    // Build backend development
+    grunt.registerTask('build:server', ['browserify:server', 'usebanner']);
     
     // Build release
     grunt.registerTask('build:release', ['browserify:dist', 'usebanner']);
@@ -126,6 +149,9 @@ module.exports = function (grunt) {
 
     // Default task.
     grunt.registerTask('default', ['build:dev', 'jsvalidate']);
+
+    // Run the backend test suite
+    grunt.registerTask('server', ['build:server', 'jsvalidate', 'qunit', 'jshint']);
 
     // Run the test suite
     grunt.registerTask('check', ['build:dev', 'jsvalidate', 'qunit', 'jshint']);

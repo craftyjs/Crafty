@@ -1,4 +1,4 @@
-var Crafty = require('./core.js'),
+var Crafty = require('../common/core.js'),
     document = window.document;
 
 Crafty.extend({

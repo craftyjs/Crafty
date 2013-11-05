@@ -1,0 +1,6 @@
+window = { 
+	document:{
+		createElement: function() {}
+	}
+};
+
