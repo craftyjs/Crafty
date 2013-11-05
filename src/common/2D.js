@@ -1,6 +1,16 @@
 var Crafty = require('./core.js'),
     document = window.document,
     HashMap = require('./HashMap.js');
+
+Crafty.extend({
+    zeroFill: function (number, width) {
+        width -= number.toString().length;
+        if (width > 0)
+            return new Array(width + (/\./.test(number) ? 2 : 1)).join('0') + number;
+        return number.toString();
+    }
+});
+
 // Crafty._rectPool 
 //
 // This is a private object used internally by 2D methods
