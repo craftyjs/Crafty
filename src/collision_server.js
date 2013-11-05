@@ -1,4 +1,4 @@
-var Crafty = require('./core_server.js'),
+var Crafty = require('./core.js'),
     document = window.document,
     DEG_TO_RAD = Math.PI / 180;
 

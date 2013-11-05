@@ -1,6 +1,6 @@
-var Crafty = require('./core_server.js'),
+var Crafty = require('./core.js'),
     document = window.document,
-    HashMap = require('./HashMap_server.js');
+    HashMap = require('./HashMap.js');
 // Crafty._rectPool 
 //
 // This is a private object used internally by 2D methods

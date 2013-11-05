@@ -58,13 +58,9 @@ module.exports = function (grunt) {
                     debug: true
                 }
             },
-            server: {
+			server: {
                 files: {
-                    'crafty.js': [
-                        'src/server/_SERVER_preCrafty.js', 
-                        'src/*_server.js',
-                        'src/server/_SERVER_postCrafty.js'
-                    ]
+                    'crafty.js': ['src/server/server_version.js', 'src/*_server.js']
                 },
                 options: {
                     debug: true
@@ -129,20 +125,20 @@ module.exports = function (grunt) {
     
     // Build development
     grunt.registerTask('build:dev', ['browserify:debug', 'usebanner']);
+	
+	// Build server development
+    grunt.registerTask('build:server', ['browserify:server', 'usebanner']);
     
     // Build release
     grunt.registerTask('build:release', ['browserify:dist', 'usebanner']);
-    
-    // Build server development
-    grunt.registerTask('build:server', ['browserify:server', 'usebanner']);
-    
+
     // Building the documentation
     grunt.registerTask('api', "Generate api documentation", docGen);
 
     // Default task.
     grunt.registerTask('default', ['build:dev', 'jsvalidate']);
-    
-    // Build server
+	
+	// Build server
     grunt.registerTask('server', ['build:server', 'jsvalidate', 'qunit', 'jshint']);
 
     // Run the test suite
