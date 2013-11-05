@@ -452,47 +452,47 @@ $(document).ready(function() {
 	});
 
 
-        test("disableControl and enableControl", function () {
-            var no_getter_setters = !(Crafty.support.setter || Crafty.support.defineProperty);
-            var e = Crafty.e("2D, Twoway")
-                .attr({ x: 0 })
-                .twoway(1);
-            if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
+		test("disableControl and enableControl", function () {
+			var no_getter_setters = !(Crafty.support.setter || Crafty.support.defineProperty);
+			var e = Crafty.e("2D, Twoway")
+				.attr({ x: 0 })
+				.twoway(1);
+			if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
 
-            equal(e._movement.x, 0);
-            equal(e._x, 0);
-            Crafty.trigger('KeyDown', { key: Crafty.keys.D });
-            Crafty.trigger('EnterFrame');
-            equal(e._movement.x, 1);
-            equal(e._x, 1);
+			equal(e._movement.x, 0);
+			equal(e._x, 0);
+			Crafty.trigger('KeyDown', { key: Crafty.keys.D });
+			Crafty.trigger('EnterFrame');
+			equal(e._movement.x, 1);
+			equal(e._x, 1);
 
-            e.disableControl();
-            Crafty.trigger('EnterFrame');
-            equal(e._movement.x, 1);
-            equal(e._x, 1);
+			e.disableControl();
+			Crafty.trigger('EnterFrame');
+			equal(e._movement.x, 1);
+			equal(e._x, 1);
 
-            Crafty.trigger('KeyUp',   { key: Crafty.keys.D });
-            Crafty.trigger('EnterFrame');
-            equal(e._movement.x, 0);
-            equal(e._x, 1);
+			Crafty.trigger('KeyUp',   { key: Crafty.keys.D });
+			Crafty.trigger('EnterFrame');
+			equal(e._movement.x, 0);
+			equal(e._x, 1);
 
-            e.enableControl();
-            Crafty.trigger('EnterFrame');
-            equal(e._movement.x, 0);
-            equal(e._x, 1);
+			e.enableControl();
+			Crafty.trigger('EnterFrame');
+			equal(e._movement.x, 0);
+			equal(e._x, 1);
 
-            Crafty.trigger('KeyDown', { key: Crafty.keys.D });
-            Crafty.trigger('EnterFrame');
-            equal(e._movement.x, 1);
-            equal(e._x, 2);
+			Crafty.trigger('KeyDown', { key: Crafty.keys.D });
+			Crafty.trigger('EnterFrame');
+			equal(e._movement.x, 1);
+			equal(e._x, 2);
 
-            Crafty.trigger('KeyUp',   { key: Crafty.keys.D });
-            Crafty.trigger('EnterFrame');
-            equal(e._movement.x, 0);
-            equal(e._x, 2);
+			Crafty.trigger('KeyUp',   { key: Crafty.keys.D });
+			Crafty.trigger('EnterFrame');
+			equal(e._movement.x, 0);
+			equal(e._x, 2);
 
-            e.destroy();
-        });
+			e.destroy();
+		});
 
 
 		test("Resizing 2D objects & hitboxes", function(){
@@ -545,6 +545,76 @@ $(document).ready(function() {
 			equal( Math.round(e._mbr._y), 0, "_mbr._y is 0");
 			
 			e.destroy();
+		});
+
+		asyncTest("gravity - player falls through platform", 2, function() {
+			var no_getter_setters = !(Crafty.support.setter || Crafty.support.defineProperty);
+			var player = Crafty.e("2D, Gravity")
+				.attr({ x:0, y: 0, w: 10, h: 10 })
+				.gravity();
+			var platform = Crafty.e("2D, platform")
+				.attr({ x:0, y: 50, w: 10, h: 10 });
+			if (no_getter_setters) Crafty.trigger("EnterFrame");
+
+			
+			setTimeout(function() {
+				notStrictEqual(player.y, 0, "Player changed y after enabling gravity" );
+				notStrictEqual(player.y, platform.y, "Player fell through platform" );
+				
+				start();
+				player.destroy();
+				platform.destroy();
+			}, 2000);
+		});
+		
+		asyncTest("gravity - player lands on platform", 1, function() {
+			var no_getter_setters = !(Crafty.support.setter || Crafty.support.defineProperty);
+			var player = Crafty.e("2D, Gravity")
+				.attr({ x:0, y: 0, w: 10, h: 10 })
+				.gravity("platform");
+			var platform = Crafty.e("2D, platform")
+				.attr({ x:0, y: 50, w: 10, h: 10 });
+			if (no_getter_setters) Crafty.trigger("EnterFrame");
+			
+			setTimeout(function() {
+				strictEqual(player.y + player.h, platform.y, "Player lands on platform" );
+				
+				start();
+				player.destroy();
+				platform.destroy();
+			}, 2000);
+		});
+		
+		asyncTest("gravity - player moves with platform", 5, function() {
+			var no_getter_setters = !(Crafty.support.setter || Crafty.support.defineProperty);
+			var platform = Crafty.e("2D, platform")
+				.attr({ x:0, y: 50, w: 10, h: 10 });
+			if (no_getter_setters) Crafty.trigger("EnterFrame");
+			var player = Crafty.e("2D, Gravity")
+				.attr({ x:0, y: 35, w: 10, h: 10 })
+				.gravity("platform", true);
+			if (no_getter_setters) Crafty.trigger("EnterFrame");
+			
+			setTimeout(function() {
+				platform.x += 50;
+				if (no_getter_setters) Crafty.trigger("EnterFrame");
+				strictEqual(player.x, platform.x, "Player moved horizontally with platform" );
+				platform.y += 200;
+				if (no_getter_setters) Crafty.trigger("EnterFrame");
+				strictEqual(player.y + player.h, platform.y, "Player moved vertically downwards with platform" );
+				platform.y -= 100;
+				if (no_getter_setters) Crafty.trigger("EnterFrame");
+				strictEqual(player.y + player.h, platform.y, "Player moved vertically upwards with platform" );
+				platform.attr({ x:5, y: 55});
+				if (no_getter_setters) Crafty.trigger("EnterFrame");
+				strictEqual(player.x, platform.x, "Player x matches platform x after diagonal move" );
+				strictEqual(player.y + player.h, platform.y, "Players y matches platform y after diagonal move" );
+				
+				start();
+				player.destroy();
+				platform.destroy();
+			}, 2000);
+
 		});
 
 	module("DebugLayer");
