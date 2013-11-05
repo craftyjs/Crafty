@@ -986,7 +986,7 @@ Crafty.extend({
             init: function () {
                 // When first called, set the  gametime one frame before now!
                 if (typeof gameTime === "undefined")
-                    gameTime = (+new Date()) - milliSecPerFrame;
+                    gameTime = (new Date().getTime()) - milliSecPerFrame;
                 var onFrame = window.requestAnimationFrame ||
                     window.webkitRequestAnimationFrame ||
                     window.mozRequestAnimationFrame ||
@@ -1071,7 +1071,7 @@ Crafty.extend({
             step: function () {
                 var drawTimeStart, dt, lastFrameTime, loops = 0;
 
-                currentTime = +new Date();
+                currentTime = new Date().getTime();
                 if (endTime > 0)
                     Crafty.trigger("MeasureWaitTime", currentTime - endTime);
 
@@ -1117,7 +1117,7 @@ Crafty.extend({
                         gameTime: gameTime
                     });
                     gameTime += dt;
-                    currentTime = +new Date();
+                    currentTime = new Date().getTime();
                     Crafty.trigger("MeasureFrameTime", currentTime - lastFrameTime);
                 }
 
@@ -1127,7 +1127,7 @@ Crafty.extend({
                     Crafty.trigger("RenderScene");
                     // Post-render cleanup opportunity
                     Crafty.trigger("PostRender");
-                    currentTime = +new Date();
+                    currentTime = new Date().getTime();
                     Crafty.trigger("MeasureRenderTime", currentTime - drawTimeStart);
                 }
 
