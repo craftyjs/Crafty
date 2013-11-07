@@ -57,7 +57,8 @@
     "src/loader.js",
     "src/math.js",
     "src/time.js",
-    "src/DebugLayer.js"
+    "src/DebugLayer.js",
+    "src/support.js"
   ],
   "dependencies": {
     "grunt": "~0.4.1",
