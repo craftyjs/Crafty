@@ -629,7 +629,8 @@ Crafty.extend({
                     },
                     get: function () {
                         return this._x;
-                    }
+                    },
+                    configurable : true
                 });
                 Object.defineProperty(this, 'y', {
                     set: function (v) {
@@ -637,7 +638,8 @@ Crafty.extend({
                     },
                     get: function () {
                         return this._y;
-                    }
+                    },
+                    configurable : true
                 });
             } else {
                 // IE8 has no getter/setters -- Check for an update each frame.
