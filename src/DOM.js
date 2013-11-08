@@ -16,6 +16,13 @@ Crafty.c("DOM", {
     //holds current styles, so we can check if there are changes to be written to the DOM
     _cssStyles: null,
 
+    /**@
+     * #.avoidCss3dTransforms
+     * @comp DOM
+     * Avoids using of CSS 3D Transform for positioning when true. Default value is false.
+     */
+    avoidCss3dTransforms: false,
+
     init: function () {
         this._cssStyles = {
             visibility: '',
@@ -133,7 +140,7 @@ Crafty.c("DOM", {
         }
 
         //utilize CSS3 if supported
-        if (Crafty.support.css3dtransform) {
+        if (Crafty.support.css3dtransform && !this.avoidCss3dTransforms) {
             trans.push("translate3d(" + (~~this._x) + "px," + (~~this._y) + "px,0)");
         } else {
             if (this._cssStyles.left !== this._x) {
