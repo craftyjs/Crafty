@@ -189,10 +189,11 @@ Crafty.extend({
          * @comp Crafty.audio
          * @sign public this Crafty.audio.play(String id)
          * @sign public this Crafty.audio.play(String id, Number repeatCount)
-         * @sign public this Crafty.audio.play(String id, Number repeatCount,Number volume)
+         * @sign public this Crafty.audio.play(String id, Number repeatCount, Number volume)
          * @param id - A string to refer to sounds
          * @param repeatCount - Repeat count for the file, where -1 stands for repeat forever.
          * @param volume - volume can be a number between 0.0 and 1.0
+         * @returns The audio element used to play the sound.  Null if the call failed due to a lack of open channels.
          *
          * Will play a sound previously added by using the ID that was used in `Crafty.audio.add`.
          * Has a default maximum of 5 channels so that the same sound can play simultaneously unless all of the channels are playing.
@@ -214,7 +215,7 @@ Crafty.extend({
             var s = this.sounds[id];
             var c = this.getOpenChannel();
             if (!c)
-                return;
+                return null;
             c.id = id;
             var a = c.obj;
 
@@ -246,6 +247,8 @@ Crafty.extend({
 
             };
             a.addEventListener("ended", c.onEnd, true);
+
+            return a;
         },
 
 
