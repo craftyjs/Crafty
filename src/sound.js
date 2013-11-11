@@ -347,24 +347,14 @@ Crafty.extend({
         stop: function (id) {
             if (!Crafty.support.audio)
                 return;
-            var s;
-            if (!id) {
-                for (var i in this.channels) {
-
-                    c = this.channels[i];
-                    if (c.active) {
-                        c.active = false;
-                        c.obj.pause();
-                    }
+            for (var i in this.channels) {
+                c = this.channels[i];
+                if ( (!id && c.active) || c._is(id) ) {
+                    c.active = false;
+                    c.obj.pause();
                 }
-                return;
             }
-
-            s = this.sounds[id];
-            if (!s)
-                return;
-            if (!s.obj.paused)
-                s.obj.pause();
+            return;
         },
         /**
          * #Crafty.audio._mute
