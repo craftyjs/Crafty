@@ -908,12 +908,16 @@ Crafty.c("Twoway", {
         });
 
         if (speed) this._speed = speed;
-        if (arguments.length < 2) jump = this._speed * 2;
+        if (arguments.length < 2){
+          this._jumpSpeed = this._speed * 2;
+        } else{
+          this._jumpSpeed = jump;
+        }
 
         this.bind("EnterFrame", function () {
             if (this.disableControls) return;
             if (this._up) {
-                this.y -= jump;
+                this.y -= this._jumpSpeed;
                 this._falling = true;
             }
         }).bind("KeyDown", function (e) {
