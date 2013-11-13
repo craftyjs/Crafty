@@ -59,6 +59,11 @@ Crafty.c("Collision", {
             this.bind("Resize", this._resizeMap);
         }
 
+        if (arguments.length > 1) {
+            //convert args to array to create polygon
+            var args = Array.prototype.slice.call(arguments, 0);
+            poly = new Crafty.polygon(args);
+        }
 
         if (this.rotation) {
             poly.rotate({
@@ -69,12 +74,6 @@ Crafty.c("Collision", {
                     y: this._origin.y
                 }
             });
-        }
-
-        if (arguments.length > 1) {
-            //convert args to array to create polygon
-            var args = Array.prototype.slice.call(arguments, 0);
-            poly = new Crafty.polygon(args);
         }
 
         this.map = poly;
