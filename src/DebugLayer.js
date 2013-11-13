@@ -230,10 +230,13 @@ Crafty.c("DebugPolygon", {
     },
 
     drawDebugPolygon: function () {
+        if (typeof this.polygon === "undefined")
+            return;
+
         ctx = Crafty.DebugCanvas.context;
         ctx.beginPath();
         for (var p in this.polygon.points) {
-            ctx.lineTo(this.map.points[p][0], this.map.points[p][1]);
+            ctx.lineTo(this.polygon.points[p][0], this.polygon.points[p][1]);
         }
         ctx.closePath();
 
