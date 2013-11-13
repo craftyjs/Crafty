@@ -5,10 +5,10 @@ Crafty.sprite(64, 'numbers.png', { 'numbers': [0, 0] });
 // Add an animation to the stage
 spriteAnimation = Crafty.e('2D, DOM, numbers, SpriteAnimation');
 spriteAnimation.attr({ x: 10, y: 10 });
-spriteAnimation.reel('count', 200, 0, 0, 9);	// 10 frames
-spriteAnimation.reel('countSlow', 1200, 0, 0, 9);	//60 frames
+spriteAnimation.reel('count', 200, 0, 0, 10);	// 10 frames duration
+spriteAnimation.reel('countSlow', 1200, 0, 0, 10);	//60 frames duration
 spriteAnimation.reel('countEven', 100, [[0, 0], [2, 0], [4, 0], [6, 0], [8, 0]]);	// 5 frames
-spriteAnimation.reel('short', 60, 0, 0, 2);	// 3 frames
+spriteAnimation.reel('short', 60, 0, 0, 3);	// 3 frames
 
 // We don't want anything to actually run in an uncontrolled manner during tests
 Crafty.pause();
@@ -205,7 +205,7 @@ test("Test using .getReel() to get specific reels", function(){
 
 test("Test using .reel to set an animation using start and end values", function(){
 
-	var ret = spriteAnimation.reel('short-test', 3, 0, 0, 2);
+	var ret = spriteAnimation.reel('short-test', 3, 0, 0, 3);
 	equal(ret, spriteAnimation, ".reel returned self correctly");
 	spriteAnimation.reel('short-test');
 	var reel = spriteAnimation.getReel('short-test');

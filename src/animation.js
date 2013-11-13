@@ -226,12 +226,12 @@ Crafty.c("SpriteAnimation", {
 			i = fromX;
 			y = fromY;
 			if (frameCount >= 0) {
-				for (; i <= fromX + frameCount ; i++) {
+				for (; i < fromX + frameCount ; i++) {
 					reel.frames.push([i * tile, y * tileh]);
 				}
 			}
 			else {
-				for (; i >= fromX + frameCount; i--) {
+				for (; i > fromX + frameCount; i--) {
 					reel.frames.push([i * tile, y * tileh]);
 				}
 			}
