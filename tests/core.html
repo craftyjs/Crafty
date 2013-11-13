@@ -24,6 +24,13 @@
 
 <script>
 
+
+Round = function(x){
+	return Math.round(x*100)/100
+
+}
+
+
 $(document).ready(function() {
 	Crafty.init(500,500);
 	
@@ -627,6 +634,40 @@ $(document).ready(function() {
 			e.destroy();
 
 		});
+
+	module("Easing");
+		test("Crafty.easing duration", function() {
+			var e = new Crafty.easing(80); 	// 4 frames == 80ms by default
+			equal(e.duration, 80, "Default duration in ms");			
+		})
+		test("Crafty.easing", function() {
+			var e = new Crafty.easing(80); 	// 4 frames == 80ms by default
+			e.tick(20);
+			e.tick(20);
+			equal(e.value(), 0.5, ".5 after two steps");
+			e.tick(20);
+			e.tick(20);
+			equal( e.value(), 1, "1 after completed")
+			e.tick(20);
+			equal( e.value(), 1, "Remains 1 after completion")
+		})
+		
+		test("Tween", function(){
+			var e = Crafty.e("2D, Tween")
+			e.x = 0;
+			e.y = 10;
+			var ret = e.tween({x:10, y:16}, 200); // 10 frames == 200 ms by efault
+			equal(ret, e, ".tween() returned self correctly");
+			Crafty.timer.simulateFrames(5);
+			equal(Round(e.x), 5, "Halfway tweened x");
+			equal(Round(e.y), 13, "Halfway tweened y");
+			Crafty.timer.simulateFrames(10);
+			equal(e.x, 10, "Fully tweened x");
+			equal(e.y, 16, "Fully tweened y");
+
+		})
+
+
 });
 </script>
   
