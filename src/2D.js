@@ -1045,6 +1045,7 @@ Crafty.c("Gravity", {
      */
     gravity: function (comp) {
         if (comp) this._anti = comp;
+        if(isNaN(this._jumpSpeed)) this._jumpSpeed = 0; //set to 0 if Twoway component is not present
 
         this.bind("EnterFrame", this._enterFrame);
 
@@ -1108,8 +1109,10 @@ Crafty.c("Gravity", {
             }
         }
 
-        if (hit) { //stop falling if found
-            if (this._falling) this.stopFalling(hit);
+        if (hit) { //stop falling if found and player is moving down
+            if (this._falling && ((this._gy > this._jumpSpeed) || !this._up)){
+              this.stopFalling(hit);
+            } 
         } else {
             this._falling = true; //keep falling otherwise
         }
