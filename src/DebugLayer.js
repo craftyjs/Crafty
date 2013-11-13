@@ -232,7 +232,7 @@ Crafty.c("DebugPolygon", {
     drawDebugPolygon: function () {
         ctx = Crafty.DebugCanvas.context;
         ctx.beginPath();
-        for (var p in this.polygon.points) {
+        for (var p in this.map.points) {
             ctx.lineTo(this.map.points[p][0], this.map.points[p][1]);
         }
         ctx.closePath();
