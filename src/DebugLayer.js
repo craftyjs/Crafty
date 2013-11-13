@@ -259,6 +259,7 @@ Crafty.c("WiredHitBox", {
         this.requires("DebugPolygon")
             .debugStroke("red")
             .matchHitBox();
+        this.bind("NewHitbox", this.matchHitBox);
     },
     matchHitBox: function () {
         this.debugPolygon(this.map);
@@ -279,6 +280,7 @@ Crafty.c("SolidHitBox", {
         this.requires("Collision, DebugPolygon")
             .debugFill("orange").debugAlpha(0.7)
             .matchHitBox();
+        this.bind("NewHitbox", this.matchHitBox);
     },
     matchHitBox: function () {
         this.debugPolygon(this.map);

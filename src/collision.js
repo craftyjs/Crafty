@@ -26,6 +26,8 @@ Crafty.c("Collision", {
      * #.collision
      * @comp Collision
      *
+     * @trigger NewHitbox - when a new hitbox is assigned - Crafty.polygon
+     *
      * @sign public this .collision([Crafty.polygon polygon])
      * @param polygon - Crafty.polygon object that will act as the hit area
      *
@@ -79,6 +81,7 @@ Crafty.c("Collision", {
         this.map = poly;
         this.attach(this.map);
         this.map.shift(this._x, this._y);
+        this.trigger("NewHitbox", poly);
         return this;
     },
 
