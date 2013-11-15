@@ -295,7 +295,7 @@ Crafty.storage = (function () {
                     stores.push('cache');
                 }
                 if (db === null) {
-                    var request = indexedDB.open(gameName);
+                    var request = indexedDB.open(gameName, 1);
                     request.onsuccess = function (e) {
                         db = e.target.result;
                         getTimestamps();
@@ -329,16 +329,13 @@ Crafty.storage = (function () {
                 }
 
                 function createStores() {
-                    var request = db.setVersion("1.0");
-                    request.onsuccess = function (e) {
-                        for (var i = 0; i < stores.length; i++) {
-                            var st = stores[i];
-                            if (db.objectStoreNames.contains(st)) continue;
-                            var store = db.createObjectStore(st, {
-                                keyPath: "key"
-                            });
-                        }
-                    };
+                    for (var i = 0; i < stores.length; i++) {
+                        var st = stores[i];
+                        if (db.objectStoreNames.contains(st)) continue;
+                        var store = db.createObjectStore(st, {
+                            keyPath: "key"
+                        });
+                    }
                 }
             },
 
