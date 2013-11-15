@@ -21,6 +21,8 @@ var Crafty = require('./core.js'),
  * text-decoration and text-align) can be set using `.css()` (see DOM component). But
  * you cannot use `.css()` to set the properties which are controlled by `.textFont()`
  * or `.textColor()` -- the settings will be ignored.
+ *
+ * Note 3: If you use canvas text with glyphs that are taller than standard letters, portions of the glyphs might be cut off.
  */
 Crafty.c("Text", {
     _text: "",
@@ -33,12 +35,12 @@ Crafty.c("Text", {
         this._textFont = {
             "type": "",
             "weight": "",
-            "size": "",
-            "family": ""
+            "size": this.defaultSize,
+            "family": this.defaultFamily
         };
 
         this.bind("Draw", function (e) {
-            var font = this._textFont.type + ' ' + this._textFont.weight + ' ' + (this._textFont.size || this.defaultSize) + ' ' + (this._textFont.family || this.defaultFamily);
+            var font = this._fontString();
 
             if (e.type === "DOM") {
                 var el = this._element,
@@ -48,24 +50,46 @@ Crafty.c("Text", {
                 style.font = font;
                 el.innerHTML = this._text;
             } else if (e.type === "canvas") {
-                var context = e.ctx,
-                    metrics = null;
+                var context = e.ctx;
 
                 context.save();
 
+                context.textBaseline = "top";
                 context.fillStyle = this._textColor || "rgb(0,0,0)";
                 context.font = font;
 
-                context.translate(this.x, this.y + this.h);
-                context.fillText(this._text, 0, 0);
-
-                metrics = context.measureText(this._text);
-                this._w = metrics.width;
+                context.fillText(this._text, this._x, this._y);
 
                 context.restore();
             }
         });
     },
+
+    // takes a CSS font-size string and gets the height of the resulting font in px
+    _getFontHeight: (function(){
+        // regex for grabbing the first string of letters
+        var re = /([a-zA-Z]+)\b/;
+        // From the CSS spec.  "em" and "ex" are undefined on a canvas.
+        var multipliers = {
+            "px": 1,
+            "pt": 4/3,
+            "pc": 16,
+            "cm": 96/2.54,
+            "mm": 96/25.4,
+            "in": 96,
+            "em": undefined, 
+            "ex": undefined
+        };
+        return function (font){
+            var number = parseFloat(font);  
+            var match = re.exec(font);
+            var unit =  match ? match[1] : "px";
+            if (multipliers[unit] !== undefined)
+                return Math.ceil(number * multipliers[unit]);
+            else
+                return Math.ceil(number);
+        };
+    })(),
 
     /**@
      * #.text
@@ -97,8 +121,29 @@ Crafty.c("Text", {
             this._text = text.call(this);
         else
             this._text = text;
+
+        if (this.has("Canvas") )
+            this._resizeForCanvas();
+
         this.trigger("Change");
         return this;
+    },
+
+    // Calculates the height and width of text on the canvas
+    // Width is found by using the canvas measureText function
+    // Height is only estimated -- it calculates the font size in pixels, and sets the height to 110% of that.
+    _resizeForCanvas: function(){
+        var ctx = Crafty.canvas.context;
+        ctx.font = this._fontString();
+        this.w = ctx.measureText(this._text).width;
+
+        var size = (this._textFont.size || this.defaultSize);
+        this.h = 1.1 * this._getFontHeight(size);
+    },
+
+    // Returns the font string to use
+    _fontString: function(){
+        return this._textFont.type + ' ' + this._textFont.weight + ' ' + this._textFont.size  + ' ' + this._textFont.family;
     },
 
     /**@
@@ -168,6 +213,9 @@ Crafty.c("Text", {
         } else {
             this._textFont[key] = value;
         }
+
+        if (this.has("Canvas") )
+            this._resizeForCanvas();
 
         this.trigger("Change");
         return this;
