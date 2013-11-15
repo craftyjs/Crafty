@@ -163,7 +163,7 @@ Crafty.math = {
     /**@
      * #Crafty.math.randomNumber
      * @comp Crafty.math
-     * @sign public Number Crafty.math.randomInt(Number start, Number end)
+     * @sign public Number Crafty.math.randomNumber(Number start, Number end)
      * @param start - Smallest number value that can be returned.
      * @param end - Biggest number value that can be returned.
      * @return A random number.
