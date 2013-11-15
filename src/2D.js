@@ -1124,6 +1124,7 @@ Crafty.c("Gravity", {
         //this._gy = -1 * this._bounce;
         this._falling = false;
         if (this._up) this._up = false;
+        this._multijumpsLeft = this._multijumpsLimit;
         this.trigger("hit");
     },
 

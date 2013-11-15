@@ -921,10 +921,37 @@ Crafty.c("Twoway", {
                 this._falling = true;
             }
         }).bind("KeyDown", function (e) {
-            if (e.key === Crafty.keys.UP_ARROW || e.key === Crafty.keys.W || e.key === Crafty.keys.Z)
+            if (e.key === Crafty.keys.UP_ARROW || e.key === Crafty.keys.W || e.key === Crafty.keys.Z){
+              if(((this._falling && this._solidAir) || this._up) && this._multijumpsLeft > 0){
+                this._gy = -this._multijumpsSpeed;
+                this._multijumpsLeft -= 1;
                 this._up = true;
-        });
+              } else if (!this._falling){
+                this._multijumpsLeft -= 1;
+                this._up = true;
+              }
+            }
 
+        });
         return this;
+    },
+
+    /**@
+     * #.multijumps
+     * @comp Twoway
+     * @sign public this .multijumps(Number limit, Number speed, Boolean solidAir)
+     * @param limit - Amount of jumps the character can perform
+     * @param speed - Extra jumps speed
+     * @param solidAir - Specifies whether character can start jumping if not on solid ground
+     *
+     * Enables the character to jump multiple times.
+     *
+     */
+
+    multijumps: function(limit, speed, solidAir){
+      this._multijumpsLimit = limit;
+      this._multijumpsLeft = this._multijumpsLimit;
+      this._multijumpsSpeed = speed / 3; //divide so the multijump power corresponds to twoway jump power value
+      this._solidAir = solidAir;
     }
 });
