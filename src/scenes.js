@@ -10,18 +10,23 @@ Crafty.extend({
      * @category Scenes, Stage
      * @trigger SceneChange - just before a new scene is initialized - { oldScene:String, newScene:String }
      * @trigger SceneDestroy - just before the current scene is destroyed - { newScene:String  }
+     *
      * @sign public void Crafty.scene(String sceneName, Function init[, Function uninit])
      * @param sceneName - Name of the scene to add
      * @param init - Function to execute when scene is played
      * @param uninit - Function to execute before next scene is played, after entities with `2D` are destroyed
-     * @sign public void Crafty.scene(String sceneName)
+     *
+     * @sign public void Crafty.scene(String sceneName[, Data])
      * @param sceneName - Name of scene to play
+     * @param Data - The init function of the scene will be called with this data as its parameter.  Can be of any type other than a function.
      *
      * Method to create scenes on the stage. Pass an ID and function to register a scene.
      *
      * To play a scene, just pass the ID. When a scene is played, all
      * previously-created entities with the `2D` component are destroyed. The
      * viewport is also reset.
+     *
+     * You can optionally specify an arugment that will be passed to the scene's init function.
      *
      * If you want some entities to persist over scenes (as in, not be destroyed)
      * simply add the component `Persist`.
@@ -40,6 +45,16 @@ Crafty.extend({
      * Crafty.scene("UFO_dance",
      *              function() {Crafty.background("#444"); Crafty.e("UFO");},
      *              function() {...send message to server...});
+     *
+     * // An example of an init function which accepts arguments, in this case an object.
+     * Crafty.scene("square", function(attributes) {
+     *     Crafty.background("#000");
+     *     Crafty.e("2D, DOM, Color")
+     *           .attr(attributes)
+     *           .color("red");
+     * 
+     * });
+     *
      * ~~~
      * This defines (but does not play) two scenes as discussed below.
      * ~~~
@@ -56,6 +71,11 @@ Crafty.extend({
      * gray and create a UFO entity. Finally, the next time the game encounters
      * another command of the form `Crafty.scene(scene_name)` (if ever), then the
      * game will send a message to the server.
+     * ~~~
+     * Crafty.scene("square", {x:10, y:10, w:20, h:20});
+     * ~~~
+     * This will clear the stage, set the background black, and create a red square with the specified position and dimensions.
+     * ~~~
      */
     scene: function (name, intro, outro) {
         // ---FYI---
@@ -65,7 +85,7 @@ Crafty.extend({
         //  'Another scene': {'initialize': fnC, 'uninitialize': fnD}}
 
         // If there's one argument, play the scene
-        if (arguments.length === 1) {
+        if (arguments.length === 1 || typeof(arguments[1]) !== "function") {
             Crafty.trigger("SceneDestroy", {
                 newScene: name
             });
@@ -85,7 +105,7 @@ Crafty.extend({
                 oldScene: oldScene,
                 newScene: name
             });
-            this._scenes[name].initialize.call(this);
+            this._scenes[name].initialize.call(this, arguments[1]);
 
             return;
         }
