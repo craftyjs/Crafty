@@ -103,32 +103,21 @@ Crafty.c("Tint", {
  * Draw an image with or without repeating (tiling).
  */
 Crafty.c("Image", {
-    _repeat: "repeat",
+    _imgURL: null,
+    _img: null,
     ready: false,
 
-    init: function () {
-        var draw = function (e) {
-            if (e.type === "canvas") {
-                //skip if no image
-                if (!this.ready || !this._pattern) return;
-
-                var context = e.ctx;
-
-                context.fillStyle = this._pattern;
-
-                context.save();
-                context.translate(e.pos._x, e.pos._y);
-                context.fillRect(0, 0, this._w, this._h);
-                context.restore();
-            } else if (e.type === "DOM") {
-                if (this.__image)
-                    e.style.background = "url(" + this.__image + ") " + this._repeat;
-            }
-        };
-
-        this.bind("Draw", draw).bind("RemoveComponent", function (id) {
-            if (id === "Image") this.unbind("Draw", draw);
-        });
+    init: function() {
+         this.requires('2D');
+        if (!this.has('DOM')) {
+             this.requires('Canvas');
+            this.draw = _imageDraw;
+        } else {
+            this.bind('Resize', _imageResize)
+                .bind('Remove', function(comp) {
+                    if (comp === 'Image') this.unbind('Resize', _imageResize);
+                })
+        }
     },
 
     /**@
@@ -161,45 +150,63 @@ Crafty.c("Image", {
      *
      * @see Crafty.sprite
      */
-    image: function (url, repeat) {
-        this.__image = url;
-        this._repeat = repeat || "no-repeat";
+    image: function(url, repeat) {
+        this._imgURL = url;
 
-        this.img = Crafty.asset(url);
-        if (!this.img) {
-            this.img = new Image();
-            Crafty.asset(url, this.img);
-            this.img.src = url;
-            var self = this;
+        this._repeat = repeat || 'no-repeat';
+        this._img = Crafty.asset(url);
 
-            this.img.onload = function () {
-                if (self.has("Canvas")) self._pattern = Crafty.canvas.context.createPattern(self.img, self._repeat);
-                self.ready = true;
-
-                if (self._repeat === "no-repeat") {
-                    self.w = self.img.width;
-                    self.h = self.img.height;
-                }
-
-                self.trigger("Change");
-            };
-
-            return this;
+        if(!this._img) {
+            throw '[Crafty#Image] load your image before use it';
         } else {
-            this.ready = true;
-            if (this.has("Canvas")) this._pattern = Crafty.canvas.context.createPattern(this.img, this._repeat);
-            if (this._repeat === "no-repeat") {
-                this.w = this.img.width;
-                this.h = this.img.height;
+            this._w = this._img.width;
+            this._h = this._img.height;
+
+            if (this.has('DOM')) {
+                var style = this._element.style;
+
+                style.background = 'url(' + this._imgURL + ') ' + this._repeat;
+                if (this._repeat === 'no-repeat') {
+                    this._element.style.backgroundSize = this._w + 'px ' + this._h + 'px';
+                }
+            } else {
+                this._pattern = Crafty.canvas.context.createPattern(this._img, this._repeat);
             }
+
+            this.trigger('Change');
         }
 
-
-        this.trigger("Change");
+        this.ready = true;
 
         return this;
     }
 });
+
+var _imageDraw = function() {
+    var ctx = Crafty.canvas.context,
+        w, h;
+
+    ctx.save();
+
+    ctx.translate(this._x, this._y);
+
+    if (this._repeat === 'no-repeat') {
+        if (this._w !== this._img.width || this._h !== this._img.height) {
+            ctx.scale(this._w/this._img.width, this._h/this._img.height);
+        }
+        ctx.drawImage(this._img, 0, 0);
+    } else {
+            ctx.fillStyle = this._pattern;
+            ctx.fillRect(0, 0, this._w, this._h);
+    }
+
+    ctx.restore();
+},
+
+_imageResize = function() {
+    if (this._repeat === 'no-repeat') 
+        this._element.style.backgroundSize = this._w + 'px ' + this._h + 'px';
+};
 
 Crafty.extend({
     _scenes: {},
