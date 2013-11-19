@@ -220,7 +220,11 @@ Crafty.c("Image", {
     _imgRemove: function(id) {
         if (id === "Image") {
             this.unbind("Draw", this._imgDraw);
-            this.undraw();
+            this.unbind("Remove", this._imgRemove);
+            if (this.has('DOM')) {
+                this.undraw();
+            }
+            this.ready = false;
             this.trigger('Change');
         }
     }
