@@ -103,21 +103,13 @@ Crafty.c("Tint", {
  * Draw an image with or without repeating (tiling).
  */
 Crafty.c("Image", {
-    _imgURL: null,
-    _img: null,
+    _repeat: null,
     ready: false,
 
-    init: function() {
-         this.requires('2D');
-        if (!this.has('DOM')) {
-             this.requires('Canvas');
-            this.draw = _imageDraw;
-        } else {
-            this.bind('Resize', _imageResize)
-                .bind('Remove', function(comp) {
-                    if (comp === 'Image') this.unbind('Resize', _imageResize);
-                })
-        }
+    init: function () {
+        this.requires('2D');
+        if (!this.has('DOM')) this.requires('Canvas');
+        this.bind("Draw", _imgDraw).bind("RemoveComponent", _imgRemove);
     },
 
     /**@
@@ -150,62 +142,83 @@ Crafty.c("Image", {
      *
      * @see Crafty.sprite
      */
-    image: function(url, repeat) {
-        this._imgURL = url;
+    image: function (url, repeat) {
+        this.__image = url;
+        this._repeat = repeat;
 
-        this._repeat = repeat || 'no-repeat';
-        this._img = Crafty.asset(url);
+        this.img = Crafty.asset(url);
+        if (!this.img) {
+            this.img = new Image();
+            Crafty.asset(url, this.img);
 
-        if(!this._img) {
-            throw '[Crafty#Image] load your image before use it';
-        } else {
-            this._w = this._img.width;
-            this._h = this._img.height;
-
-            if (this.has('DOM')) {
-                var style = this._element.style;
-
-                style.background = 'url(' + this._imgURL + ') ' + this._repeat;
-                if (this._repeat === 'no-repeat') {
-                    this._element.style.backgroundSize = this._w + 'px ' + this._h + 'px';
-                }
-            } else {
-                this._pattern = Crafty.canvas.context.createPattern(this._img, this._repeat);
+            var self = this;
+            this.img.onload = function() {
+                self._imgConfig();
             }
-
-            this.trigger('Change');
+            this.img.src = url;
+        } else {
+            this._imgConfig();
         }
 
-        this.ready = true;
-
         return this;
+    },
+
+    // to avoid duplicated code
+    _imgConfig: function() {
+        if (this._w === 0 || this._h === 0) {
+            this.attr({
+                w: this.img.width,
+                h: this.img.height
+            });
+        }
+        if (this.has('Canvas')) {
+            if (this._repeat) {
+                this._pattern = Crafty.canvas.context.createPattern(this.img, this._repeat);
+            }
+        } else {
+            this._element.style.background = "url(" + this.__image + ") " + (this._repeat || 'no-repeat');
+        }
+        this.ready = true;
+        this.trigger("Change");
     }
 });
 
-var _imageDraw = function() {
-    var ctx = Crafty.canvas.context,
-        w, h;
+// Draw event 'Image' callback 
+var _imgDraw = function (e) {
+    if (!this.ready) return;
+    
+    if (e.type === "canvas" && this.img) {
+        var context = e.ctx;
 
-    ctx.save();
-
-    ctx.translate(this._x, this._y);
-
-    if (this._repeat === 'no-repeat') {
-        if (this._w !== this._img.width || this._h !== this._img.height) {
-            ctx.scale(this._w/this._img.width, this._h/this._img.height);
+        if (this._pattern) {
+            context.save();
+            context.fillStyle = this._pattern;
+            context.translate(e.pos._x, e.pos._y);
+            context.fillRect(0, 0, this._w, this._h);
+            context.restore();
+        } else {
+            if (this._w !== this.img.width || this._h !== this.img.height) {
+                context.drawImage(this.img, 0, 0, this._w, this._h);
+            } else {
+                context.save();
+                context.translate(e.pos._x, e.pos._y);
+                context.drawImage(this.img, 0, 0);
+                context.restore();
+            }
         }
-        ctx.drawImage(this._img, 0, 0);
-    } else {
-            ctx.fillStyle = this._pattern;
-            ctx.fillRect(0, 0, this._w, this._h);
+    } else if (e.type === "DOM") {
+        if (this.__image) {
+            if ((!this._repeat || this._repeat === 'no-repeat') && (this._w !== this.img.width || this._h !== this.img.height)) {
+                 e.style.backgroundSize = this._w + 'px ' + this._h + 'px';
+            }
+        }
     }
-
-    ctx.restore();
 },
 
-_imageResize = function() {
-    if (this._repeat === 'no-repeat') 
-        this._element.style.backgroundSize = this._w + 'px ' + this._h + 'px';
+// Remove event 'Image' callback 
+_imgRemove = function() {
+    if (id === "Image")
+        this.unbind("Draw", draw);
 };
 
 Crafty.extend({
