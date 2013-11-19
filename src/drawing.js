@@ -172,7 +172,7 @@ Crafty.c("Image", {
             });
         }
         if (this.has('Canvas')) {
-            if (this._repeat) {
+            if (this._repeat && this._repeat !== 'no-repeat') {
                 this._pattern = Crafty.canvas.context.createPattern(this.img, this._repeat);
             }
         } else {
