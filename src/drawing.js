@@ -109,7 +109,7 @@ Crafty.c("Image", {
     init: function () {
         this.requires('2D');
         if (!this.has('DOM')) this.requires('Canvas');
-        this.bind("Draw", _imgDraw).bind("RemoveComponent", _imgRemove);
+        this.bind("Draw", this._imgDraw).bind("RemoveComponent", this._imgRemove);
     },
 
     /**@
@@ -149,10 +149,10 @@ Crafty.c("Image", {
         this.img = Crafty.asset(url);
         if (!this.img) {
             this.img = new Image();
-            Crafty.asset(url, this.img);
 
             var self = this;
             this.img.onload = function() {
+                Crafty.asset(url, self.img);
                 self._imgConfig();
             }
             this.img.src = url;
@@ -176,50 +176,55 @@ Crafty.c("Image", {
                 this._pattern = Crafty.canvas.context.createPattern(this.img, this._repeat);
             }
         } else {
-            this._element.style.background = "url(" + this.__image + ") " + (this._repeat || 'no-repeat');
+            var style = this._element.style;
+            style["background-image"] = "url(" + this.__image + ")";
+            style["background-repeat"] = this._repeat || 'no-repeat';
         }
         this.ready = true;
         this.trigger("Change");
+    },
+
+    // Draw event 'Image' callback 
+    _imgDraw: function (e) {
+        if (!this.ready) return;
+        
+        if (e.type === "canvas" && this.img) {
+            var context = e.ctx;
+
+            if (this._pattern) {
+                context.save();
+                context.fillStyle = this._pattern;
+                context.translate(e.pos._x, e.pos._y);
+                context.fillRect(0, 0, this._w, this._h);
+                context.restore();
+            } else {
+                if (this._w !== this.img.width || this._h !== this.img.height) {
+                    context.drawImage(this.img, 0, 0, this._w, this._h);
+                } else {
+                    context.save();
+                    context.translate(e.pos._x, e.pos._y);
+                    context.drawImage(this.img, 0, 0);
+                    context.restore();
+                }
+            }
+        } else if (e.type === "DOM") {
+            if (this.__image) {
+                if ((!this._repeat || this._repeat === 'no-repeat') && (this._w !== this.img.width || this._h !== this.img.height)) {
+                     e.style["background-size"] = this._w + 'px ' + this._h + 'px';
+                }
+            }
+        }
+    },
+
+    // Remove event 'Image' callback 
+    _imgRemove: function(id) {
+        if (id === "Image") {
+            this.unbind("Draw", this._imgDraw);
+            this.undraw();
+            this.trigger('Change');
+        }
     }
 });
-
-// Draw event 'Image' callback 
-var _imgDraw = function (e) {
-    if (!this.ready) return;
-    
-    if (e.type === "canvas" && this.img) {
-        var context = e.ctx;
-
-        if (this._pattern) {
-            context.save();
-            context.fillStyle = this._pattern;
-            context.translate(e.pos._x, e.pos._y);
-            context.fillRect(0, 0, this._w, this._h);
-            context.restore();
-        } else {
-            if (this._w !== this.img.width || this._h !== this.img.height) {
-                context.drawImage(this.img, 0, 0, this._w, this._h);
-            } else {
-                context.save();
-                context.translate(e.pos._x, e.pos._y);
-                context.drawImage(this.img, 0, 0);
-                context.restore();
-            }
-        }
-    } else if (e.type === "DOM") {
-        if (this.__image) {
-            if ((!this._repeat || this._repeat === 'no-repeat') && (this._w !== this.img.width || this._h !== this.img.height)) {
-                 e.style.backgroundSize = this._w + 'px ' + this._h + 'px';
-            }
-        }
-    }
-},
-
-// Remove event 'Image' callback 
-_imgRemove = function() {
-    if (id === "Image")
-        this.unbind("Draw", draw);
-};
 
 Crafty.extend({
     _scenes: {},
