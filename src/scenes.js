@@ -11,12 +11,12 @@ Crafty.extend({
      * @trigger SceneChange - just before a new scene is initialized - { oldScene:String, newScene:String }
      * @trigger SceneDestroy - just before the current scene is destroyed - { newScene:String  }
      *
-     * @sign public void Crafty.scene(String sceneName, Function init[, Function uninit])
+     * @sign public void Crafty.defineScene(String sceneName, Function init[, Function uninit])
      * @param sceneName - Name of the scene to add
      * @param init - Function to execute when scene is played
      * @param uninit - Function to execute before next scene is played, after entities with `2D` are destroyed
      *
-     * @sign public void Crafty.scene(String sceneName[, Data])
+     * @sign public void Crafty.runScene(String sceneName[, Data])
      * @param sceneName - Name of scene to play
      * @param Data - The init function of the scene will be called with this data as its parameter.  Can be of any type other than a function.
      *
@@ -33,7 +33,7 @@ Crafty.extend({
      *
      * @example
      * ~~~
-     * Crafty.scene("loading", function() {
+     * Crafty.defineScene("loading", function() {
      *     Crafty.background("#000");
      *     Crafty.e("2D, DOM, Text")
      *           .attr({ w: 100, h: 20, x: 150, y: 120 })
@@ -42,12 +42,12 @@ Crafty.extend({
      *           .textColor("#FFFFFF");
      * });
      *
-     * Crafty.scene("UFO_dance",
+     * Crafty.defineScene("UFO_dance",
      *              function() {Crafty.background("#444"); Crafty.e("UFO");},
      *              function() {...send message to server...});
      *
      * // An example of an init function which accepts arguments, in this case an object.
-     * Crafty.scene("square", function(attributes) {
+     * Crafty.defineScene("square", function(attributes) {
      *     Crafty.background("#000");
      *     Crafty.e("2D, DOM, Color")
      *           .attr(attributes)
@@ -58,64 +58,62 @@ Crafty.extend({
      * ~~~
      * This defines (but does not play) two scenes as discussed below.
      * ~~~
-     * Crafty.scene("loading");
+     * Crafty.runScene("loading");
      * ~~~
      * This command will clear the stage by destroying all `2D` entities (except
      * those with the `Persist` component). Then it will set the background to
      * black and display the text "Loading".
      * ~~~
-     * Crafty.scene("UFO_dance");
+     * Crafty.runScene("UFO_dance");
      * ~~~
      * This command will clear the stage by destroying all `2D` entities (except
      * those with the `Persist` component). Then it will set the background to
      * gray and create a UFO entity. Finally, the next time the game encounters
-     * another command of the form `Crafty.scene(scene_name)` (if ever), then the
+     * another command of the form `Crafty.runScene(scene_name)` (if ever), then the
      * game will send a message to the server.
      * ~~~
-     * Crafty.scene("square", {x:10, y:10, w:20, h:20});
+     * Crafty.runScene("square", {x:10, y:10, w:20, h:20});
      * ~~~
      * This will clear the stage, set the background black, and create a red square with the specified position and dimensions.
      * ~~~
      */
-    scene: function (name, intro, outro) {
+    defineScene: function (name, intro, outro) {
         // ---FYI---
         // this._current is the name (ID) of the scene in progress.
         // this._scenes is an object like the following:
         // {'Opening scene': {'initialize': fnA, 'uninitialize': fnB},
         //  'Another scene': {'initialize': fnC, 'uninitialize': fnD}}
 
-        // If there's one argument, play the scene
-        if (arguments.length === 1 || typeof(arguments[1]) !== "function") {
-            Crafty.trigger("SceneDestroy", {
-                newScene: name
-            });
-            Crafty.viewport.reset();
-
-            Crafty("2D").each(function () {
-                if (!this.has("Persist")) this.destroy();
-            });
-            // uninitialize previous scene
-            if (this._current !== null && 'uninitialize' in this._scenes[this._current]) {
-                this._scenes[this._current].uninitialize.call(this);
-            }
-            // initialize next scene
-            var oldScene = this._current;
-            this._current = name;
-            Crafty.trigger("SceneChange", {
-                oldScene: oldScene,
-                newScene: name
-            });
-            this._scenes[name].initialize.call(this, arguments[1]);
-
-            return;
-        }
-
-        // If there is more than one argument, add the scene information to _scenes
         this._scenes[name] = {};
         this._scenes[name].initialize = intro;
         if (typeof outro !== 'undefined') {
             this._scenes[name].uninitialize = outro;
         }
+        return;
+    },
+    runScene: function(name, Data){
+
+        Crafty.trigger("SceneDestroy", {
+            newScene: name
+        });
+        Crafty.viewport.reset();
+
+        Crafty("2D").each(function () {
+            if (!this.has("Persist")) this.destroy();
+        });
+        // uninitialize previous scene
+        if (this._current !== null && 'uninitialize' in this._scenes[this._current]) {
+            this._scenes[this._current].uninitialize.call(this);
+        }
+        // initialize next scene
+        var oldScene = this._current;
+        this._current = name;
+        Crafty.trigger("SceneChange", {
+            oldScene: oldScene,
+            newScene: name
+        });
+        this._scenes[name].initialize.call(this, Data);
+
         return;
     }
 });
