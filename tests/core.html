@@ -287,6 +287,20 @@ $(document).ready(function() {
 
 		Crafty("*").destroy();
 	});
+
+
+	test("Scene uninit function called", function(){
+        var x = 0;
+        var y = 0;
+        var sceneInit = function(){ x = 13;}
+        var sceneUninit = function(){ x = 20;}
+        var sceneGame = function(){ y = 5;}
+        Crafty.defineScene("test-uninit", sceneInit, sceneUninit);
+        Crafty.defineScene("game", sceneGame);
+        Crafty.enterScene("test-uninit");
+        Crafty.enterScene("game");
+        equal(x, 20, "Uninit scene called successfully when chanced to another scene");
+    });
 	
 	module("2D");
 	
