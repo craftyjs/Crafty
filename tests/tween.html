@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" 
+                    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<script src="./lib/jquery.min.js"></script>
+	<link rel="stylesheet" href="./lib/qunit.css" type="text/css" media="screen" />
+	<script type="text/javascript" src="./lib/qunit.js"></script>
+	<script type="text/javascript" src="../crafty.js"></script>
+
+<script>
+
+var Round = function(x){
+    return Math.round(x*100)/100;
+}
+$(document).ready(function() {
+	module("Tween");
+	
+	Crafty.init(500,500);
+	
+	test("Tween", function(){
+	    var e = Crafty.e("2D, Tween")
+	    e.x = 0;
+	    e.y = 10;
+	    var ret = e.tween({x:10, y:16}, 200); // 10 frames == 200 ms by efault
+	    equal(ret, e, ".tween() returned self correctly");
+	    Crafty.timer.simulateFrames(5);
+	    equal(Round(e.x), 5, "Halfway tweened x");
+	    equal(Round(e.y), 13, "Halfway tweened y");
+	    Crafty.timer.simulateFrames(10);
+	    equal(e.x, 10, "Fully tweened x");
+	    equal(e.y, 16, "Fully tweened y");
+    });
+	asyncTest('correct tweening', function() {
+	    expect(1);
+	    
+	    var e1 = Crafty.e('2D, Tween')
+	             .attr({x:0,y:0})
+	             .tween({x:100}, 50);
+	    e1.bind('TweenEnd', function() {
+	        ok(this.x===100);
+	        start();
+	    });
+	});	
+	
+	asyncTest('correct tweening with multiple entities', function() {
+	    expect(1);
+	    
+	    var e1 = Crafty.e('2D, Tween')
+	             .attr({x:0,y:0})
+	             .tween({x:100}, 50);
+	    var e2 = Crafty.e('2D, Tween')
+	             .attr({x:0,y:0})
+	             .tween({x:100}, 50);
+	    e1.bind('TweenEnd', function() {
+	        ok(this.x===100);
+	        start();
+	    });
+	});
+	    
+});
+</script>
+
+</html>
+</head>
+<body>
+<h1 id="qunit-header">Crafty: Tween</h1>
+<h2 id="qunit-banner"></h2>
+<div id="qunit-testrunner-toolbar"></div>
+<h2 id="qunit-userAgent"></h2>
+<ol id="qunit-tests"></ol>
+<div id="qunit-fixture">test markup, will be hidden</div>
+</body>
+</html>
