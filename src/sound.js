@@ -262,9 +262,8 @@ Crafty.extend({
         maxChannels: 7,
         setChannels: function (n) {
             this.maxChannels = n;
-            if (n > channels.length)
+            if (n < channels.length)
                 this.channels.length = n;
-
         },
 
         channels: [],
@@ -277,7 +276,7 @@ Crafty.extend({
                 }
             }
             // If necessary, create a new element, unless we've already reached the max limit
-            if (i <= this.maxChannels) {
+            if (i < this.maxChannels) {
                 var c = {
                     obj: this.audioElement(),
                     active: true,
