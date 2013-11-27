@@ -262,9 +262,6 @@ Crafty.extend({
         maxChannels: 7,
         setChannels: function (n) {
             this.maxChannels = n;
-            if (n > channels.length)
-                this.channels.length = n;
-
         },
 
         channels: [],
