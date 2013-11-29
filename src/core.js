@@ -1040,14 +1040,14 @@ Crafty.extend({
              *
              */
 
-            steptype: function (mode, option) {
-                if (mode === "variable" || mode === "semifixed") {
-                    mode = "variable";
+            steptype: function (newmode, option) {
+                if (newmode === "variable" || newmode === "semifixed") {
+                    mode = newmode;
                     if (option)
                         maxTimestep = option;
 
-                } else if (mode === "fixed") {
-                    mode = mode;
+                } else if (newmode === "fixed") {
+                    mode = "fixed";
                     if (option)
                         maxFramesPerStep = option;
                 } else {
