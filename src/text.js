@@ -77,11 +77,11 @@ Crafty.c("Text", {
             "cm": 96/2.54,
             "mm": 96/25.4,
             "in": 96,
-            "em": undefined, 
+            "em": undefined,
             "ex": undefined
         };
         return function (font){
-            var number = parseFloat(font);  
+            var number = parseFloat(font);
             var match = re.exec(font);
             var unit =  match ? match[1] : "px";
             if (multipliers[unit] !== undefined)
@@ -206,7 +206,7 @@ Crafty.c("Text", {
                     if(propertyKey == 'family'){
                         this._textFont[propertyKey] = "'" + key[propertyKey] + "'";
                     } else {
-                        this._textFont[propertyKey] = key[propertyKey]; 
+                        this._textFont[propertyKey] = key[propertyKey];
                     }
                 }
             }

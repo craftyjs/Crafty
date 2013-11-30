@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" 
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
                     "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 
@@ -12,7 +12,7 @@
              security settings when firefox opens an HTML file saved on your computer; it does
              not affect your security when you are browsing the internet.]
        * To run the tests in chrome: You need to pass a flag when opening chrome.
-             For example, in Linux, you would run this command in a Linux terminal:      
+             For example, in Linux, you would run this command in a Linux terminal:
              chromium-browser /path/to/core.html --allow-file-access-from-files
 -->
 
@@ -26,14 +26,14 @@
 
 $(document).ready(function() {
   Crafty.init(500,500);
-  
+
   module("DOM");
-  
+
   test("avoidCss3dTransforms", function() {
     var useCss3dTransforms = Crafty.e("2D, DOM")
       .attr({x: 10, y: 10})
       .draw();
-    
+
     strictEqual(useCss3dTransforms.avoidCss3dTransforms, false);
     strictEqual(useCss3dTransforms._cssStyles.transform, "translate3d(10px,10px,0)");
     strictEqual(useCss3dTransforms._cssStyles.top, "");
@@ -52,7 +52,7 @@ $(document).ready(function() {
   });
 });
 </script>
-  
+
 </head>
 <body>
 <h1 id="qunit-header">Crafty: Core</h1>

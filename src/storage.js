@@ -53,7 +53,7 @@ var Crafty = require('./core.js'),
 	 * @param key - A unique key to search for
 	 * @param type - 'save' or 'cache'
 	 * @param callback - Do things with the data you get back
-	 * 
+	 *
 	 * Loads a piece of data from the database.
 	 * Entities will be reconstructed from the serialized string
 

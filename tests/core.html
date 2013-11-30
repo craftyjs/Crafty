@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" 
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
                     "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 
@@ -12,7 +12,7 @@
              security settings when firefox opens an HTML file saved on your computer; it does
              not affect your security when you are browsing the internet.]
        * To run the tests in chrome: You need to pass a flag when opening chrome.
-             For example, in Linux, you would run this command in a Linux terminal:      
+             For example, in Linux, you would run this command in a Linux terminal:
              chromium-browser /path/to/core.html --allow-file-access-from-files
 -->
 
@@ -33,14 +33,14 @@ Round = function(x){
 
 $(document).ready(function() {
 	Crafty.init(500,500);
-	
+
 	module("CORE");
 
 	test("getVersion", function() {
-		
+
 		ok(Crafty.getVersion(), "The actual library version");
 	});
-		
+
 	test("selectors", function() {
 		var first = Crafty.e("test");
 		Crafty.e("test");
@@ -52,29 +52,29 @@ $(document).ready(function() {
 		strictEqual( Crafty("test").length, 6, "Single component" );
 		strictEqual( Crafty("test test2").length, 2, "Two components ANDed" );
 		strictEqual( Crafty("test, test2").length, 7, "Two components ORed" );
-		
+
 		strictEqual( Crafty("*").length, 7, "All components - universal selector" );
-		
+
 		strictEqual( Crafty(first[0]), first, "Get by ID" );
 		// Clean up
 		Crafty("*").destroy();
 	});
-	
+
 	test("addComponent and removeComponent", function() {
 		var first = Crafty.e("test");
 		Crafty.c("comp", {added: true});
 		first.addComponent("test3");
 		strictEqual( first.has("test3"), true, "component added" );
-		
+
 		first.addComponent("comp");
 		strictEqual( first.added, true, "component with property exists" );
-		
+
 		first.addComponent("multi1, multi2");
 		strictEqual( first.has("multi1") && first.has("multi2"), true, "multiple components added" );
 
 		first.removeComponent("test3");
 		strictEqual( first.has("test3"), false, "component removed");
-		
+
 		first.removeComponent("comp");
 		strictEqual( first.added && !first.has("comp"), true, "soft-removed component (properties remain)" );
 		first.removeComponent("comp", false);
@@ -101,19 +101,19 @@ $(document).ready(function() {
 		e.removeComponent("comp");
 		strictEqual( removeRan, true, "Remove runs on correct component removal");
 		strictEqual( destroyFlag, false, "Destroy flag false on regular removal");
-		
+
 		removeRan = false;
 		e.addComponent("comp");
 		e.destroy()
 		strictEqual( removeRan, true, "Remove runs on component destrution");
 		strictEqual( destroyFlag, true, "Destroy flag true on destruction");
 	});
-	
+
 	test("attr", function() {
 		var first = Crafty.e("test");
 		first.attr("single", true);
 		strictEqual( first.single, true, "single attribute assigned" );
-		
+
 		first.attr({prop: "test", another: 56});
 		strictEqual( first.prop, "test", "properties from object assigned" );
 		strictEqual( first.another, 56, "properties from object assigned" );
@@ -139,7 +139,7 @@ $(document).ready(function() {
 		// Clean up
 		Crafty("*").destroy();
 	});
-	
+
 	test("bind", function () {
 		var first = Crafty.e("test"),
 			triggered = false;
@@ -159,15 +159,15 @@ $(document).ready(function() {
 		});
 		first.unbind("myevent");
 		first.trigger("myevent");
-		
+
 		function callback() {
 			ok(false, "This should also not be triggered (unbind by FN)");
 		}
-		
+
 		function callback2() {
 			ok(true, "This should be triggered");
 		}
-		
+
 		first.bind("myevent", callback);
 		first.bind("myevent", callback2);
 		first.unbind("myevent", callback);
@@ -175,7 +175,7 @@ $(document).ready(function() {
 		// Clean up
 		Crafty("*").destroy();
 	});
-	
+
 	test("globalBindAndUnbind", function () {
 		var flag = 0;
 		var add_1 = function () {flag += 1;};
@@ -193,7 +193,7 @@ $(document).ready(function() {
 		Crafty.trigger("theglobalevent");
 		strictEqual(flag, 221, "global event full unbinding worked");
 	});
-	
+
 	test("each", function() {
 		var count = 0;
 		Crafty.e("test");
@@ -203,7 +203,7 @@ $(document).ready(function() {
 		Crafty.e("test, test2");
 		Crafty.e("test, test2");
 		Crafty.e("test2");
-		
+
 		Crafty("test").each(function() {
 			count++;
 		});
@@ -217,7 +217,7 @@ $(document).ready(function() {
 		// Clean up
 		Crafty("*").destroy();
 	});
-	
+
 	test("requires", function() {
 		var first = Crafty.e("test");
 		Crafty.c("already", {
@@ -226,19 +226,19 @@ $(document).ready(function() {
 		Crafty.c("notyet", {
 			notyet: true
 		});
-		
+
 		first.addComponent("already");
 		first.already = "already";
-		
+
 		first.requires("already, notyet");
-		
+
 		strictEqual(first.already, "already", "Didn't overwrite property");
 		strictEqual(first.notyet, true, "Assigned if didn't have");
 		ok(first.has("already") && first.has("notyet"), "Both added");
 		// Clean up
 		Crafty("*").destroy();
 	});
-	
+
 	test("destroy", function() {
 		var first = Crafty.e("test"),
 			id = first[0]; //id
@@ -247,34 +247,34 @@ $(document).ready(function() {
 		// Clean up
 		Crafty("*").destroy();
 	});
-	
+
 	module("2D");
-	
+
 	test("position", function() {
 		var no_getter_setters = !(Crafty.support.setter || Crafty.support.defineProperty);
 		var player = Crafty.e("2D, DOM, Color").attr({w:50, h: 50}).color("red");
 		player.x += 50;
 		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
 		strictEqual(player._x, 50, "X moved");
-		
+
 		player.y += 50;
 		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
 		strictEqual(player._y, 50, "Y moved");
-		
+
 		player.w += 50;
 		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
 		strictEqual(player._w, 100, "Width increase");
-		
+
 		player.h += 50;
 		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
 		strictEqual(player._h, 100, "Height increase");
-		
+
 		strictEqual(player._globalZ, player[0], "Global Z, Before");
-		
+
 		player.z = 1;
 		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
 		strictEqual(player._z, 1, "Z index");
-		
+
 		var global_z_guess;
 		if (player[0] < 10) {
 			global_z_guess = parseInt('10000' + player[0], 10);
@@ -285,7 +285,7 @@ $(document).ready(function() {
 		// Clean up
 		Crafty("*").destroy();
 	});
-	
+
 	test("intersect", function() {
 		var no_getter_setters = !(Crafty.support.setter || Crafty.support.defineProperty);
 		var player = Crafty.e("2D, DOM, Color").attr({w:50, h: 50}).color("red");
@@ -312,7 +312,7 @@ $(document).ready(function() {
 		player.w = 50;
 		player.h = 50;
 		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
-		
+
 		strictEqual(player.within(0, 0, 50, 50), true, "Within");
 
 		strictEqual(player.within(-1, -1, 51, 51), true, "Within");
@@ -329,7 +329,7 @@ $(document).ready(function() {
 		strictEqual(player.within(-50, 0, 50, 50), true, "Rotated, within rotated area");
 
 
-		
+
 		// Clean up
 		Crafty("*").destroy();
 	});
@@ -342,7 +342,7 @@ $(document).ready(function() {
 		player.w = 50;
 		player.h = 50;
 		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
-		
+
 
 		strictEqual(player.contains(0, 0, 50, 50), true, "Contains");
 
@@ -357,25 +357,25 @@ $(document).ready(function() {
 
 		strictEqual(player.contains(0, 0, 50, 50), false, "Rotated, no longer contains");
 		strictEqual(player.within(-50, 0, 50, 50), true, "Rotated, contains rotated area");
-		
+
 		// Clean up
 		Crafty("*").destroy();
 	});
 
 
-	
+
 	test("circle", function() {
 		var no_getter_setters = !(Crafty.support.setter || Crafty.support.defineProperty);
 		var player = Crafty.e("2D, DOM, Color").attr({w:50, h: 50}).color("red");
 		var circle = new Crafty.circle(0, 0, 10);
 		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
-		
+
 		strictEqual(circle.containsPoint(1, 2), true, "Contained the point");
 		strictEqual(circle.containsPoint(8, 9), false, "Didn't contain the point");
-		
+
 		circle.shift(1, 0);
 		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
-		
+
 		strictEqual(circle.x, 1, "Shifted of one pixel on the x axis");
 		strictEqual(circle.y, 0, "circle.y didn't change");
 		strictEqual(circle.radius, 10, "circle.radius didn't change");
@@ -505,9 +505,9 @@ $(document).ready(function() {
 		test("Resizing 2D objects & hitboxes", function(){
 			var no_getter_setters = !(Crafty.support.setter || Crafty.support.defineProperty);
 			var e = Crafty.e("2D, Collision");
-			e.attr({x:0, y:0, w:40, h:50})	
+			e.attr({x:0, y:0, w:40, h:50})
 			if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
-			
+
 			equal(e.map.points[0][0], 0, "Before rotation: x_0 is 0")
 			equal(e.map.points[0][1], 0, "y_0 is 0")
 			equal(e.map.points[2][0], 40, "x_2 is 40")
@@ -550,7 +550,7 @@ $(document).ready(function() {
 			equal( Math.round(e._mbr._h), 100, "_mbr._h is  100" );
 			equal( Math.round(e._mbr._x), -50, "_mbr._x is -50");
 			equal( Math.round(e._mbr._y), 0, "_mbr._y is 0");
-			
+
 			e.destroy();
 		});
 
@@ -570,15 +570,15 @@ $(document).ready(function() {
 			equal(e._debug.strokeStyle, "green", "stroke style set correctly on entity");
 
 			e.debugDraw(ctx);
-			equal(ctx.fillStyle, "#800080", "context.fillStyle set correctly on draw");  // fillStyle will report the hex code 
-			equal(ctx.strokeStyle, "#008000", "context.strokeStyle set correctly on draw"); 
+			equal(ctx.fillStyle, "#800080", "context.fillStyle set correctly on draw");  // fillStyle will report the hex code
+			equal(ctx.strokeStyle, "#008000", "context.strokeStyle set correctly on draw");
 
 			e.debugFill();
 			equal(e._debug.fillStyle, "red", "default fill style set correctly");
 
 			e.debugStroke();
 			equal(e._debug.strokeStyle, "red", "default stroke style set correctly");
-		
+
 
 			e.destroy();
 
@@ -638,7 +638,7 @@ $(document).ready(function() {
 	module("Easing");
 		test("Crafty.easing duration", function() {
 			var e = new Crafty.easing(80); 	// 4 frames == 80ms by default
-			equal(e.duration, 80, "Default duration in ms");			
+			equal(e.duration, 80, "Default duration in ms");
 		})
 		test("Crafty.easing", function() {
 			var e = new Crafty.easing(80); 	// 4 frames == 80ms by default
@@ -651,7 +651,7 @@ $(document).ready(function() {
 			e.tick(20);
 			equal( e.value(), 1, "Remains 1 after completion")
 		})
-		
+
 		test("Tween", function(){
 			var e = Crafty.e("2D, Tween")
 			e.x = 0;
@@ -670,7 +670,7 @@ $(document).ready(function() {
 
 });
 </script>
-  
+
 </head>
 <body>
 <h1 id="qunit-header">Crafty: Core</h1>
