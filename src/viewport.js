@@ -64,7 +64,7 @@ Crafty.extend({
          * @comp Crafty.viewport
          *
          * A rectangle which defines the bounds of the viewport.
-         * It should be an object with two properties, `max` and `min`, 
+         * It should be an object with two properties, `max` and `min`,
          * which are each an object with `x` and `y` properties.
          *
          * If this property is null, Crafty uses the bounding box of all the items

@@ -107,7 +107,7 @@ Crafty.extend({
             vp._w += (this._tile.width / 2 + ow);
             vp._h += (this._tile.height / 2 + oh);
             /*  Crafty.viewport.x = -vp._x;
-            Crafty.viewport.y = -vp._y;    
+            Crafty.viewport.y = -vp._y;
             Crafty.viewport.width = vp._w;
             Crafty.viewport.height = vp._h;   */
 

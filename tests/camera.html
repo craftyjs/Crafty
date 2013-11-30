@@ -13,15 +13,15 @@
     <li data-image-entities='2D, DOM, Image'
         data-hotspot-entities='2D, DOM, Color, Mouse'
     > (DD) Click is not working, Zoom is working, Hotspot visible</li>
-    
+
     <li data-image-entities='2D, Canvas, Image'
         data-hotspot-entities='2D, Canvas, Color, Mouse'
     > (CC) Click is working, Zoom is not working, Hotspot visible</li>
-        
+
     <li data-image-entities='2D, Canvas, Image'
         data-hotspot-entities='2D, DOM, Color, Mouse'
     > (CD) Click is not working, Zoom is not working, Hotspot is visible and zooming.</li>
-        
+
     <li data-image-entities='2D, DOM, Image'
         data-hotspot-entities='2D, Canvas, Color, Mouse'
     > (DC) Click is not working (wrong hotspot), Zoom is working, Hotspot invisible</li>
@@ -38,9 +38,9 @@
       }
     , imageEntities = '2D, DOM, Image'
     , hotspotEntities = '2D, DOM, Color, Mouse';
-    
-    
-  
+
+
+
     config.imagePath = 'http://placekitten.com/' + config.playgroundWidth + '/' + config.playgroundHeight
 
     Crafty.scene('main', function() {

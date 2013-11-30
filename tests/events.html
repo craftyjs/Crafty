@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" 
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
                     "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 
@@ -12,7 +12,7 @@
              security settings when firefox opens an HTML file saved on your computer; it does
              not affect your security when you are browsing the internet.]
        * To run the tests in chrome: You need to pass a flag when opening chrome.
-             For example, in Linux, you would run this command in a Linux terminal:      
+             For example, in Linux, you would run this command in a Linux terminal:
              chromium-browser /path/to/core.html --allow-file-access-from-files
 -->
 
@@ -26,9 +26,9 @@
 
 $(document).ready(function() {
 	Crafty.init(500,500);
-	
+
 	module("EVENTS");
-		
+
 	test("Global binding events", function() {
 		var x = 0;
 		function add(){x++}
@@ -36,7 +36,7 @@ $(document).ready(function() {
 		Crafty.bind("Increment", add)
 		Crafty.trigger("Increment")
 		strictEqual(x, 1, "Crafty.bind fired once");
-		
+
 
 		x = 0;
 		Crafty.unbind("Increment", add)
@@ -54,7 +54,7 @@ $(document).ready(function() {
 		Crafty.uniqueBind("Increment", add);
 		Crafty.trigger("Increment");
 		strictEqual(x, 1, "Event bound twice by Crafty.uniqueBound fires only once");
-		
+
 		x = 0;
 		Crafty.unbind("Increment", add);
 		Crafty.trigger("Increment")
@@ -63,7 +63,7 @@ $(document).ready(function() {
 	});
 
 	test("Entity binding events", function() {
-		
+
 		var x = 0;
 		function add(){x++}
 		var e = Crafty.e("Triggerable")
@@ -71,7 +71,7 @@ $(document).ready(function() {
 		e.bind("Increment", add)
 		e.trigger("Increment")
 		strictEqual(x, 1, ".bind fired once");
-		
+
 
 		x = 0;
 		e.unbind("Increment", add)
@@ -89,7 +89,7 @@ $(document).ready(function() {
 		e.uniqueBind("Increment", add);
 		e.trigger("Increment");
 		strictEqual(x, 1, "Event bound twice by .uniqueBound fires only once");
-		
+
 		x = 0;
 		e.unbind("Increment", add);
 		e.trigger("Increment")
@@ -145,13 +145,13 @@ $(document).ready(function() {
 		strictEqual(temp.def, 1, "second one() should trigger once");
 
 		Crafty.unbind("Event A")
-		
+
 	});
 
 	test("Data passing", function(){
 		var x = 0, e;
 		function add(data){x+=data.amount}
-		
+
 		x = 0;
 		e = Crafty.e("Triggerable")
 		e.bind("Increment", add)
@@ -182,10 +182,10 @@ $(document).ready(function() {
 
 
 	});
-			
+
 });
 </script>
-  
+
 </head>
 <body>
 <h1 id="qunit-header">Crafty: Events</h1>

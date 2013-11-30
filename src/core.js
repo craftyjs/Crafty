@@ -28,7 +28,7 @@ var version = require('./version');
  * ~~~
  * Passing an integer will select the entity with that `ID`.
  */
- 
+
 var Crafty = function (selector) {
     return new Crafty.fn.init(selector);
 },
@@ -464,7 +464,7 @@ Crafty.fn = Crafty.prototype = {
     * @sign public this .timeout(Function callback, Number delay)
     * @param callback - Method to execute after given amount of milliseconds
     * @param delay - Amount of milliseconds to execute the method
-    * 
+    *
     * The delay method will execute a function after a given amount of time in milliseconds.
     *
     * Essentially a wrapper for `setTimeout`.
@@ -1339,7 +1339,7 @@ Crafty.extend({
         // entity6.trigger('Move')), it causes the execution of fnB() and fnC(). When
         // the Move event is triggered globally (i.e. Crafty.trigger('Move')), it
         // will execute fnA, fnB, fnC, fnD.
-        // 
+        //
         // In this example, "this" is bound to entity #6 whenever fnB() is executed, and
         // "this" is bound to Crafty whenever fnD() is executed.
         //

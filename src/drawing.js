@@ -370,7 +370,7 @@ Crafty.DrawManager = (function () {
                 target._y = Math.min(a._y, b._y);
                 target._w -= target._x;
                 target._h -= target._y;
-                
+
                 return target;
             },
 

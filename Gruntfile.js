@@ -95,7 +95,7 @@ module.exports = function (grunt) {
                 'tests/text.html',
                 'tests/dom.html'
             ]
-        }, 
+        },
 
         jsvalidate: {
             files: "crafty.js"
@@ -115,10 +115,10 @@ module.exports = function (grunt) {
     grunt.registerTask('version', 'Takes the version into src/version.js', function() {
         fs.writeFileSync('src/version.js', 'module.exports = "' + version + '";');
     });
-    
+
     // Build development
     grunt.registerTask('build:dev', ['browserify:debug', 'usebanner']);
-    
+
     // Build release
     grunt.registerTask('build:release', ['browserify:dist', 'usebanner']);
 

@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" 
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
                     "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -62,7 +62,7 @@
 		Crafty.viewport.follow(e, 0, 0);
 		equal(Crafty.viewport._x, -100, "Center viewport on entity.x but take clamp into account");
 		equal(Crafty.viewport._y, -70, "Center viewport on entity.y but take clamp into account");
-		
+
 		//Make large enough so the viewport won't get clamped
 		Crafty.e("2D, DOM").attr({ x: 0, y: 0, w: Crafty.viewport.width * 2 + 50, h: Crafty.viewport.height*2+35 });
 		Crafty.viewport.follow(e, 0, 0);
@@ -97,7 +97,7 @@
 		Crafty.timer.simulateFrames(10);
 		equal(Crafty.viewport._x, -e.w / 2 + Crafty.viewport.width / 2, "Entity still centered 10 frames later");
 
-		Crafty.viewport.clampToEntities = false;		
+		Crafty.viewport.clampToEntities = false;
 		var e2 = Crafty.e("2D, DOM").attr({ x: 450, y: 450, w: 20, h: 20 });
 		Crafty.viewport.scroll('x', 1500);
 		Crafty.viewport.scroll('y', 300);
@@ -105,8 +105,8 @@
 		Crafty.timer.simulateFrames(1);
 		equal(Crafty.viewport._x, Math.floor(-(e2.x + e2.w/2 - Crafty.viewport.width / 2)), "Entity centered from non-zero origin");
 		equal(Crafty.viewport._y, Math.floor(-(e2.y + e2.h/2 - Crafty.viewport.height / 2)), "Entity centered from non-zero origin");
-		
-		Crafty.viewport.clampToEntities = true;	
+
+		Crafty.viewport.clampToEntities = true;
 		Crafty.viewport.scroll('x', 0);
 		Crafty.viewport.scroll('y', 0);
 	});
@@ -122,7 +122,7 @@
 				lastKnownTime = params.gameTime;
 			}
 		});
-		
+
 		setTimeout(function () {
 			var endTime = lastKnownTime;
 			ok(endTime > startTime, "EndTime " + endTime + " must be larger than StartTime " + startTime);
@@ -133,7 +133,7 @@
 
 });
 </script>
-  
+
 </head>
 <body>
 <h1 id="qunit-header">Crafty: Stage</h1>

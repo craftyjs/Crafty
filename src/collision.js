@@ -86,7 +86,7 @@ Crafty.c("Collision", {
     },
 
 
-    // Change the hitbox when a "Resize" event triggers. 
+    // Change the hitbox when a "Resize" event triggers.
     _resizeMap: function (e) {
 
         var dx, dy, rot = this.rotation * DEG_TO_RAD,
