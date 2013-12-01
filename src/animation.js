@@ -563,12 +563,10 @@ Crafty.c("SpriteAnimation", {
  * Component to animate the change in 2D properties over time.
  */
 Crafty.c("Tween", {
-	_step: null,
-	_numProps: 0,
-	tweenStart:{},
-	tweenGroup:{},
 
 	init: function(){
+		this.tweenGroup = {};
+		this.tweenStart = {};
 		this.tweens = [];
 		this.bind("EnterFrame", this._tweenTick);
 
