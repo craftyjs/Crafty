@@ -217,7 +217,7 @@ Crafty.extend({
             if (!c)
                 return null;
             c.id = id;
-            c.repeat = repeat
+            c.repeat = repeat;
             var a = c.obj;
 
 
@@ -271,13 +271,13 @@ Crafty.extend({
         // Finds an unused audio element, marks it as in use, and return it.
         getOpenChannel: function () {
             for (var i = 0; i < this.channels.length; i++) {
-                var chan = this.channels[i]
-                if (chan.active === false
+                var chan = this.channels[i];
                   /*
-                   * Also look for stuff that's out of use,
+                   * Second test looks for stuff that's out of use,
                    * but fallen foul of Chromium bug 280417
                    */
-                   || chan.obj.ended && chan.repeat <= this.sounds[chan.id].played) {
+                if (chan.active === false ||
+                      chan.obj.ended && chan.repeat <= this.sounds[chan.id].played) {
                     chan.active = true;
                     return chan;
                 }
