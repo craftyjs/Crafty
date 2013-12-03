@@ -58,7 +58,20 @@ Crafty.c("DOM", {
             this._element.className = str;
         }
 
-        this.bind("NewComponent", updateClass).bind("RemoveComponent", updateClass);
+        function removeClass(removedComponent) {
+            var i = 0,
+                c = this.__c,
+                str = "";
+            for (i in c) {
+              if(i != removedComponent) {
+                str += ' ' + i;
+              }
+            }
+            str = str.substr(1);
+            this._element.className = str;
+        }
+
+        this.bind("NewComponent", updateClass).bind("RemoveComponent", removeClass);
 
         if (Crafty.support.prefix === "ms" && Crafty.support.version < 9) {
             this._filters = {};

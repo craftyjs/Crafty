@@ -50,6 +50,19 @@ $(document).ready(function() {
     // Clean up
     Crafty("*").destroy();
   });
+  test("removeComponent removes element class", function() {
+    var element = Crafty.e("DOM");
+    hasClassName = function(el, name) {
+      return el._element.className.indexOf(name) >= 0;
+    };
+    element.addComponent("removeMe");
+    strictEqual(element.has("removeMe"), true, "component added");
+    strictEqual(hasClassName(element, "removeMe"), true, "classname added");
+
+    element.removeComponent("removeMe");
+    strictEqual(element.has("removeMe"), false, "component removed");
+    strictEqual(hasClassName(element, "removeMe"), false, "classname removed");
+  });
 });
 </script>
   
