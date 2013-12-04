@@ -37,6 +37,7 @@
     "src/core.js",
     "src/HashMap.js",
     "src/2D.js",
+    "src/scenes.js",
     "src/collision.js",
     "src/DOM.js",
     "src/html.js",
