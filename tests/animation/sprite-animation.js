@@ -357,6 +357,24 @@ test("Play an animation where sprites are displayed for more than one frame", fu
 	}
 });
 
+test("Play an animation at twice the rate", function(){
+	spriteAnimation.animationSpeed = 2;
+	spriteAnimation.animate('count');
+	Crafty.timer.simulateFrames(3);
+	var activeReel = spriteAnimation.getReel();
+	equal(activeReel.currentFrame, 6, "Frame 6 should be displayed after 3 ticks at double speed");
+	spriteAnimation.animationSpeed = 1;
+})
+
+test("Play an animation at half the rate", function(){
+	spriteAnimation.animationSpeed = 0.5;
+	spriteAnimation.animate('count');
+	Crafty.timer.simulateFrames(6);
+	var activeReel = spriteAnimation.getReel();
+	equal(activeReel.currentFrame, 3, "Frame 3 should be displayed after 6 ticks at half speed");
+	spriteAnimation.animationSpeed = 1;
+})
+
 test("Show the last frame after an animation ends", function() {
 	spriteAnimation.animate('count');
 	Crafty.timer.simulateFrames(20);
