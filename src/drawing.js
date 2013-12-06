@@ -122,8 +122,8 @@ Crafty.c("Image", {
                 context.restore();
             } else if (e.type === "DOM") {
                 if (this.__image) {
-                  e.style["background-image"] = "url(" + this.__image + ")";
-                  e.style["background-repeat"] = this._repeat;
+                  e.style.backgroundImage = "url(" + this.__image + ")";
+                  e.style.backgroundRepeat = this._repeat;
                 }
             }
         };
