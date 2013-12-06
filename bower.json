@@ -1,7 +1,7 @@
 {
   "name": "crafty",
-  "main": "dist/crafty.js",
-  "version": "0.6",
+  "main": "crafty.js",
+  "version": "0.6.1",
   "repository": {
     "type": "git",
     "url": "git://github.com/craftyjs/Crafty.git"
