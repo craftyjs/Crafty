@@ -88,8 +88,8 @@ Crafty.c("Canvas", {
         }
 
         var pos = this.drawVars.pos;
-        pos._x = (this._x + (x || 0));
-        pos._y = (this._y + (y || 0));
+        pos._x = ~~((this._x + (x || 0))+0.5);
+        pos._y = ~~((this._y + (y || 0))+0.5);
         pos._w = (w || this._w);
         pos._h = (h || this._h);
 
