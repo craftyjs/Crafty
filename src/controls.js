@@ -228,8 +228,14 @@ Crafty.extend({
             first.target.dispatchEvent(simulatedEvent);
         }
 
-        if (e.preventDefault) e.preventDefault();
-        else e.returnValue = false;
+        //Don't prevent default actions if target node is input or textarea.
+        if (e.target && e.target.nodeName !== 'INPUT' && e.target.nodeName !== 'TEXTAREA') {
+            if (e.preventDefault) {
+                e.preventDefault();
+            } else {
+                e.returnValue = false;
+            }
+        }
     },
 
 
