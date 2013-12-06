@@ -28,16 +28,22 @@ $(document).ready(function() {
   Crafty.init(500,500);
   
   module("DOM");
-  
+
   test("avoidCss3dTransforms", function() {
     var useCss3dTransforms = Crafty.e("2D, DOM")
       .attr({x: 10, y: 10})
       .draw();
     
     strictEqual(useCss3dTransforms.avoidCss3dTransforms, false);
-    strictEqual(useCss3dTransforms._cssStyles.transform, "translate3d(10px,10px,0)");
-    strictEqual(useCss3dTransforms._cssStyles.top, "");
-    strictEqual(useCss3dTransforms._cssStyles.left, "");
+    if (Crafty.support.css3dtransform) {
+      strictEqual(useCss3dTransforms._cssStyles.transform, "translate3d(10px,10px,0)");
+      strictEqual(useCss3dTransforms._cssStyles.top, "");
+      strictEqual(useCss3dTransforms._cssStyles.left, "");
+    } else {
+      strictEqual(avoidCss3dTransforms._cssStyles.transform, "");
+      strictEqual(avoidCss3dTransforms._cssStyles.top, 10);
+      strictEqual(avoidCss3dTransforms._cssStyles.left, 10);
+    }
 
     var avoidCss3dTransforms = Crafty.e("2D, DOM")
       .attr({x: 10, y: 10, avoidCss3dTransforms: true})
@@ -50,6 +56,7 @@ $(document).ready(function() {
     // Clean up
     Crafty("*").destroy();
   });
+
   test("removeComponent removes element class", function() {
     var element = Crafty.e("DOM");
     hasClassName = function(el, name) {
