@@ -2,29 +2,44 @@
                     "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 
-<!-- Note to developers: To run these tests without regenerating crafty.js or
-     setting up a local server:
-       (1) Copy this file into the Crafty parent folder [because firefox security
-             blocks local files from seeing parent folders];
-       (2) Change "../crafty.js" to "./crafty-local.js" (in the HTML head below).
-       (3) Now you can open the HTML file in Firefox.
-       (4) Chrome has more restrictive security, you can pass a flag to loosen
-             the security. Run this command in a Linux terminal:
+<!-- Note to developers: Run the "grunt check" task to run these tests in the
+    PhantomJS browser. (PhantomJS is based on webkit, so it should behave similar
+    to safari or chrome.) To run in other browsers, run "grunt" (the default task)
+    to compile crafty.js, then open this HTML file to run the tests. However,
+    you may need to change browser security settings:
+       * To run the tests in firefox: First you need to go to about:config in firefox, and
+             switch "security.fileuri.strict_origin_policy" to false. [This only changes the
+             security settings when firefox opens an HTML file saved on your computer; it does
+             not affect your security when you are browsing the internet.]
+       * To run the tests in chrome: You need to pass a flag when opening chrome.
+             For example, in Linux, you would run this command in a Linux terminal:      
              chromium-browser /path/to/core.html --allow-file-access-from-files
- -->
+-->
 
 <head>
-	<script src="http://code.jquery.com/jquery-latest.js"></script>
-	<link rel="stylesheet" href="http://code.jquery.com/qunit/git/qunit.css" type="text/css" media="screen" />
-	<script type="text/javascript" src="http://code.jquery.com/qunit/git/qunit.js"></script>
+	<script src="./lib/jquery.min.js"></script>
+	<link rel="stylesheet" href="./lib/qunit.css" type="text/css" media="screen" />
+	<script type="text/javascript" src="./lib/qunit.js"></script>
 	<script type="text/javascript" src="../crafty.js"></script>
 
 <script>
+
+
+Round = function(x){
+	return Math.round(x*100)/100
+
+}
+
 
 $(document).ready(function() {
 	Crafty.init(500,500);
 	
 	module("CORE");
+
+	test("getVersion", function() {
+		
+		ok(Crafty.getVersion(), "The actual library version");
+	});
 		
 	test("selectors", function() {
 		var first = Crafty.e("test");
@@ -64,8 +79,34 @@ $(document).ready(function() {
 		strictEqual( first.added && !first.has("comp"), true, "soft-removed component (properties remain)" );
 		first.removeComponent("comp", false);
 		strictEqual( !first.added && !first.has("comp"), true, "hard-removed component (properties are gone)" );
+
 		// Clean up
 		Crafty("*").destroy();
+	});
+
+	test("remove", function() {
+		var removeRan = false, destroyFlag = false;
+
+		Crafty.c("comp", {
+			remove: function(destroyed){
+				removeRan = true;
+				destroyFlag = destroyed;
+			}
+		})
+		var e = Crafty.e("comp, blank");
+		e.removeComponent("blank");
+		strictEqual( removeRan, false, "Remove doesn't run on other component removal");
+
+		removeRan = false;
+		e.removeComponent("comp");
+		strictEqual( removeRan, true, "Remove runs on correct component removal");
+		strictEqual( destroyFlag, false, "Destroy flag false on regular removal");
+		
+		removeRan = false;
+		e.addComponent("comp");
+		e.destroy()
+		strictEqual( removeRan, true, "Remove runs on component destrution");
+		strictEqual( destroyFlag, true, "Destroy flag true on destruction");
 	});
 	
 	test("attr", function() {
@@ -81,6 +122,11 @@ $(document).ready(function() {
 	});
 
 	test("setter", function() {
+		if (!(Crafty.support.setter || Crafty.support.defineProperty)) {
+			// IE8 has a setter() function but it behaves differently. No test is currently written for IE8.
+			expect(0);
+			return;
+		}
 		var first = Crafty.e("test");
 		first.setter('p1', function(v) {this._p1 = v*2 });
 		first.p1 = 2;
@@ -204,25 +250,29 @@ $(document).ready(function() {
 	
 	module("2D");
 	
-	Crafty.init(500,500);
-	
 	test("position", function() {
+		var no_getter_setters = !(Crafty.support.setter || Crafty.support.defineProperty);
 		var player = Crafty.e("2D, DOM, Color").attr({w:50, h: 50}).color("red");
 		player.x += 50;
+		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
 		strictEqual(player._x, 50, "X moved");
 		
 		player.y += 50;
+		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
 		strictEqual(player._y, 50, "Y moved");
 		
 		player.w += 50;
+		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
 		strictEqual(player._w, 100, "Width increase");
 		
 		player.h += 50;
+		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
 		strictEqual(player._h, 100, "Height increase");
 		
 		strictEqual(player._globalZ, player[0], "Global Z, Before");
 		
 		player.z = 1;
+		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
 		strictEqual(player._z, 1, "Z index");
 		
 		var global_z_guess;
@@ -237,12 +287,14 @@ $(document).ready(function() {
 	});
 	
 	test("intersect", function() {
+		var no_getter_setters = !(Crafty.support.setter || Crafty.support.defineProperty);
 		var player = Crafty.e("2D, DOM, Color").attr({w:50, h: 50}).color("red");
 		player.x = 0;
 		player.y = 0;
 		player.w = 50;
 		player.h = 50;
-		
+		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
+
 		strictEqual(player.intersect(0, 0, 100, 50), true, "Intersected");
 
 		strictEqual(player.intersect({x: 0, y: 0, w: 100, h: 50}), true, "Intersected Again");
@@ -251,15 +303,78 @@ $(document).ready(function() {
 		// Clean up
 		Crafty("*").destroy();
 	});
+
+	test("within", function() {
+		var no_getter_setters = !(Crafty.support.setter || Crafty.support.defineProperty);
+		var player = Crafty.e("2D, DOM, Color").attr({w:50, h: 50});
+		player.x = 0;
+		player.y = 0;
+		player.w = 50;
+		player.h = 50;
+		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
+		
+		strictEqual(player.within(0, 0, 50, 50), true, "Within");
+
+		strictEqual(player.within(-1, -1, 51, 51), true, "Within");
+
+
+		strictEqual(player.within({_x: 0, _y: 0, _w: 50, _h: 50}), true, "Within Again");
+
+		strictEqual(player.within(0, 0, 40, 50), false, "Wasn't within");
+
+		player.rotation = 90;	// Once rotated, the entity should no longer be within the rectangle
+		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
+
+		strictEqual(player.within(0, 0, 50, 50), false, "Rotated, Not within");
+		strictEqual(player.within(-50, 0, 50, 50), true, "Rotated, within rotated area");
+
+
+		
+		// Clean up
+		Crafty("*").destroy();
+	});
+
+	test("contains", function() {
+		var no_getter_setters = !(Crafty.support.setter || Crafty.support.defineProperty);
+		var player = Crafty.e("2D, DOM, Color").attr({w:50, h: 50});
+		player.x = 0;
+		player.y = 0;
+		player.w = 50;
+		player.h = 50;
+		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
+		
+
+		strictEqual(player.contains(0, 0, 50, 50), true, "Contains");
+
+		strictEqual(player.contains(1, 1, 49, 49), true, "Contains");
+
+		strictEqual(player.contains({_x: 0, _y: 0, _w: 50, _h: 50}), true, "Contains");
+
+		strictEqual(player.contains(1, 1, 51, 51), false, "Doesn't contain");
+
+		player.rotation = 90;
+		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
+
+		strictEqual(player.contains(0, 0, 50, 50), false, "Rotated, no longer contains");
+		strictEqual(player.within(-50, 0, 50, 50), true, "Rotated, contains rotated area");
+		
+		// Clean up
+		Crafty("*").destroy();
+	});
+
+
 	
 	test("circle", function() {
+		var no_getter_setters = !(Crafty.support.setter || Crafty.support.defineProperty);
 		var player = Crafty.e("2D, DOM, Color").attr({w:50, h: 50}).color("red");
 		var circle = new Crafty.circle(0, 0, 10);
+		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
 		
 		strictEqual(circle.containsPoint(1, 2), true, "Contained the point");
 		strictEqual(circle.containsPoint(8, 9), false, "Didn't contain the point");
 		
 		circle.shift(1, 0);
+		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
 		
 		strictEqual(circle.x, 1, "Shifted of one pixel on the x axis");
 		strictEqual(circle.y, 0, "circle.y didn't change");
@@ -269,6 +384,7 @@ $(document).ready(function() {
 	});
 
 	test("child", function () {
+		var no_getter_setters = !(Crafty.support.setter || Crafty.support.defineProperty);
 		var parent0 = Crafty.e("2D, DOM, Color").attr({x:0, y:0, w:50, h:50}).color("red");
 		var child0 = Crafty.e("2D, DOM, Color").attr({x:1, y:1, w:50, h:50}).color("red");
 		var child1 = Crafty.e("2D, DOM, Color").attr({x:2, y:2, w:50, h:50}).color("red");
@@ -283,10 +399,12 @@ $(document).ready(function() {
 		parent0.attach(child2);
 		parent0.attach(child3);
 		parent0.x += 50;
+		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
 		strictEqual(child0._x, 51, 'child0 shifted when parent did');
 		strictEqual(child1._x, 52, 'child1 shifted when parent did');
 		child0.x += 1;
 		child1.x += 1;
+		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
 		strictEqual(parent0._x, 50, 'child shifts do not move the parent');
 		child1.destroy();
 		deepEqual(parent0._children, [child0,child2,child3], 'child1 cleared itself from parent0._children when destroyed');
@@ -299,22 +417,36 @@ $(document).ready(function() {
 	});
 
 	test("child_rotate", function () {
+		var Round = function(x){ return Math.round(x*100)/100 };
+		var no_getter_setters = !(Crafty.support.setter || Crafty.support.defineProperty);
 		var parent = Crafty.e("2D, DOM, Color")
 			.attr({x:0, y:0, w:50, h:50, rotation:10})
 			.color("red");
 		var child = Crafty.e("2D, DOM, Color")
-			.attr({x:1, y:1, w:50, h:50, rotation:15})
+			.attr({x:10, y:10, w:50, h:50, rotation:15})
 			.color("red");
 		parent.attach(child);
+
 		parent.rotation += 20;
+		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
 		strictEqual(parent.rotation, 30, 'parent rotates normally');
 		strictEqual(child.rotation, 35, 'child follows parent rotation');
+
 		child.rotation += 22;
+		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
 		strictEqual(parent.rotation, 30, 'parent ignores child rotation');
 		strictEqual(child.rotation, 57, 'child rotates normally');
+
+		parent.rotation = 100;	// Rotation by 90 degrees from initial position
+		if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
+		strictEqual( Round(child.x), -10, "Child moved around parent upon rotation (x).")
+		strictEqual( Round(child.y), 10, "Child moved around parent upon rotation (y).")
+
 		// Clean up
 		Crafty("*").destroy();
 	});
+
+
 
 	// This test assumes that the "circles" are really octagons, as per Crafty.circle.
 	test("SAT", function () {
@@ -325,6 +457,200 @@ $(document).ready(function() {
 		// Clean up
 		Crafty("*").destroy();
 	});
+
+
+        test("disableControl and enableControl", function () {
+            var no_getter_setters = !(Crafty.support.setter || Crafty.support.defineProperty);
+            var e = Crafty.e("2D, Twoway")
+                .attr({ x: 0 })
+                .twoway(1);
+            if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
+
+            equal(e._movement.x, 0);
+            equal(e._x, 0);
+            Crafty.trigger('KeyDown', { key: Crafty.keys.D });
+            Crafty.trigger('EnterFrame');
+            equal(e._movement.x, 1);
+            equal(e._x, 1);
+
+            e.disableControl();
+            Crafty.trigger('EnterFrame');
+            equal(e._movement.x, 1);
+            equal(e._x, 1);
+
+            Crafty.trigger('KeyUp',   { key: Crafty.keys.D });
+            Crafty.trigger('EnterFrame');
+            equal(e._movement.x, 0);
+            equal(e._x, 1);
+
+            e.enableControl();
+            Crafty.trigger('EnterFrame');
+            equal(e._movement.x, 0);
+            equal(e._x, 1);
+
+            Crafty.trigger('KeyDown', { key: Crafty.keys.D });
+            Crafty.trigger('EnterFrame');
+            equal(e._movement.x, 1);
+            equal(e._x, 2);
+
+            Crafty.trigger('KeyUp',   { key: Crafty.keys.D });
+            Crafty.trigger('EnterFrame');
+            equal(e._movement.x, 0);
+            equal(e._x, 2);
+
+            e.destroy();
+        });
+
+
+		test("Resizing 2D objects & hitboxes", function(){
+			var no_getter_setters = !(Crafty.support.setter || Crafty.support.defineProperty);
+			var e = Crafty.e("2D, Collision");
+			e.attr({x:0, y:0, w:40, h:50})	
+			if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
+			
+			equal(e.map.points[0][0], 0, "Before rotation: x_0 is 0")
+			equal(e.map.points[0][1], 0, "y_0 is 0")
+			equal(e.map.points[2][0], 40, "x_2 is 40")
+			equal(e.map.points[2][1], 50, "y_2 is 50")
+
+			e.rotation = 90;
+			if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
+
+			equal( Math.round(e.map.points[0][0]), 0, "After rotation by 90 deg: x_0 is 0")
+			equal( Math.round(e.map.points[0][1]), 0, "y_0 is 0")
+			equal( Math.round(e.map.points[2][0]), -50, "x_2 is -50")
+			equal( Math.round(e.map.points[2][1]), 40, "y_2 is 40")
+
+			// After rotation the MBR will have changed
+			equal( Math.round(e._mbr._w), 50, "_mbr._w is  50" );
+			equal( Math.round(e._mbr._h), 40, "_mbr._h is  40" );
+			equal( Math.round(e._mbr._x), -50, "_mbr._x is -50");
+			equal( Math.round(e._mbr._y), 0, "_mbr._y is 0");
+
+			e.collision();	// Check that regenerating the hitbox while rotated works correctly
+
+			equal( Math.round(e.map.points[0][0]), 0, "After rotation and hitbox regeneration: x_0 is 0")
+			equal( Math.round(e.map.points[0][1]), 0, "y_0 is 0")
+			equal( Math.round(e.map.points[2][0]), -50, "x_2 is -50")
+			equal( Math.round(e.map.points[2][1]), 40, "y_2 is 40")
+
+
+			// Check that changing the width when rotated resizes correctly for both hitbox and MBR
+			// Rotated by 90 degrees, changing the width of the entity should change the height of the hitbox/mbr
+			e.w = 100;
+			if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
+
+			equal( Math.round(e.map.points[0][0]), 0, "After rotation and increase in width: x_0 is 0")
+			equal( Math.round(e.map.points[0][1]), 0, "y_0 is 0")
+			equal( Math.round(e.map.points[2][0]), -50, "x_2 is -50")
+			equal( Math.round(e.map.points[2][1]), 100, "y_2 is 100")
+
+			// After rotation the MBR will have changed
+			equal( Math.round(e._mbr._w), 50, "_mbr._w is  50" );
+			equal( Math.round(e._mbr._h), 100, "_mbr._h is  100" );
+			equal( Math.round(e._mbr._x), -50, "_mbr._x is -50");
+			equal( Math.round(e._mbr._y), 0, "_mbr._y is 0");
+			
+			e.destroy();
+		});
+
+	module("DebugLayer");
+		test("DebugCanvas", function(){
+			if (!(Crafty.support.canvas)) {
+				expect(0);
+				return;
+			}
+			var e = Crafty.e("2D, DebugCanvas");
+			var ctx = Crafty.DebugCanvas.context;
+
+			e.debugFill("purple");
+			equal(e._debug.fillStyle, "purple", "fill style set correctly on entity");
+
+			e.debugStroke("green")
+			equal(e._debug.strokeStyle, "green", "stroke style set correctly on entity");
+
+			e.debugDraw(ctx);
+			equal(ctx.fillStyle, "#800080", "context.fillStyle set correctly on draw");  // fillStyle will report the hex code 
+			equal(ctx.strokeStyle, "#008000", "context.strokeStyle set correctly on draw"); 
+
+			e.debugFill();
+			equal(e._debug.fillStyle, "red", "default fill style set correctly");
+
+			e.debugStroke();
+			equal(e._debug.strokeStyle, "red", "default stroke style set correctly");
+		
+
+			e.destroy();
+
+		});
+
+		test("VisibleMBR and DebugRect", function(){
+			var no_getter_setters = !(Crafty.support.setter || Crafty.support.defineProperty);
+			var e = Crafty.e("2D, VisibleMBR").attr({x:10, y:10, w:10, h:20});
+			if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
+			e._assignRect();
+			if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
+			equal(e.debugRect._x, 10, "debugRect has correct x coord");
+			equal(e.debugRect._h, 20, "debugRect has correct height");
+
+			e.rotation = 90;
+			if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
+			e._assignRect();
+			if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
+			equal(e.debugRect._h, 10, "debugRect has correct height of MBR after rotation");
+
+			e.destroy();
+
+		});
+
+		test("Hitbox debugging", function(){
+			var no_getter_setters = !(Crafty.support.setter || Crafty.support.defineProperty);
+			var e = Crafty.e("2D, Collision, WiredHitBox").attr({x:10, y:10, w:10, h:20}).collision();
+			if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
+			e.matchHitBox(); // only necessary until collision works properly!
+			if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
+			equal(e.polygon.points[0][0], 10, "WiredHitBox -- correct x coord for upper right corner");
+			equal(e.polygon.points[2][1], 30, "correct y coord for lower right corner");
+			notEqual(typeof e._debug.strokeStyle, "undefined" , "stroke style is assigned");
+			equal(typeof e._debug.fillStyle, "undefined", "fill style is undefined");
+
+			e.destroy();
+
+			var e = Crafty.e("2D, Collision, SolidHitBox").attr({x:10, y:10, w:10, h:20}).collision();
+			if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
+			e.matchHitBox(); // only necessary until collision works properly!
+			if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
+			equal(e.polygon.points[0][0], 10, "SolidHitBox -- correct x coord for upper right corner");
+			equal(e.polygon.points[2][1], 30, "correct y coord for lower right corner");
+			equal(typeof e._debug.strokeStyle, "undefined" , "stroke style is undefined");
+			notEqual(typeof e._debug.fillStyle, "undefined", "fill style is assigned");
+
+			e.collision( new Crafty.polygon([0, 0], [15, 0], [0, 15]) );
+			if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
+			e.matchHitBox();
+			if (no_getter_setters) { Crafty.trigger("EnterFrame"); }
+			equal(e.polygon.points[2][1], 25, "After change -- correct y coord for third point");
+
+			e.destroy();
+
+		});
+
+	module("Easing");
+		test("Crafty.easing duration", function() {
+			var e = new Crafty.easing(80); 	// 4 frames == 80ms by default
+			equal(e.duration, 80, "Default duration in ms");			
+		})
+		test("Crafty.easing", function() {
+			var e = new Crafty.easing(80); 	// 4 frames == 80ms by default
+			e.tick(20);
+			e.tick(20);
+			equal(e.value(), 0.5, ".5 after two steps");
+			e.tick(20);
+			e.tick(20);
+			equal( e.value(), 1, "1 after completed")
+			e.tick(20);
+			equal( e.value(), 1, "Remains 1 after completion")
+		})
 });
 </script>
   

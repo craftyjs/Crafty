@@ -2,9 +2,9 @@
                     "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-	<script src="http://code.jquery.com/jquery-latest.js"></script>
-	<link rel="stylesheet" href="http://code.jquery.com/qunit/git/qunit.css" type="text/css" media="screen" />
-	<script type="text/javascript" src="http://code.jquery.com/qunit/git/qunit.js"></script>
+	<script src="./lib/jquery.min.js"></script>
+	<link rel="stylesheet" href="./lib/qunit.css" type="text/css" media="screen" />
+	<script type="text/javascript" src="./lib/qunit.js"></script>
 	<script type="text/javascript" src="../crafty.js"></script>
 
 <script>
@@ -97,15 +97,33 @@
 		Crafty.timer.simulateFrames(10);
 		equal(Crafty.viewport._x, -e.w / 2 + Crafty.viewport.width / 2, "Entity still centered 10 frames later");
 
+		
+		var e2 = Crafty.e("2D, DOM").attr({ x: 450, y: 450, w: 20, h: 20 });
+		Crafty.viewport.scroll('x', 1500);
+		Crafty.viewport.scroll('y', 300);
+		Crafty.viewport.centerOn(e2, 1);
+		Crafty.timer.simulateFrames(1);
+		equal(Crafty.viewport._x, -(e2.x + e2.w/2 - Crafty.viewport.width / 2), "Entity centered from non-zero origin");
+		equal(Crafty.viewport._y, -(e2.y + e2.h/2 - Crafty.viewport.height / 2), "Entity centered from non-zero origin");
+		
 		Crafty.viewport.scroll('x', 0);
 		Crafty.viewport.scroll('y', 0);
 	});
 
 	module("Crafty.timer")
 	test("curTime", 1, function () {
-		var startTime = Crafty.timer.currentTime;
+		var startTime, lastKnownTime;
+		Crafty.e("").bind("EnterFrame", function(params){
+			if(!startTime){
+				startTime = params.gameTime;
+			}
+			else{
+				lastKnownTime = params.gameTime;
+			}
+		});
+		
 		setTimeout(function () {
-			var endTime = Crafty.timer.currentTime;
+			var endTime = lastKnownTime;
 			ok(endTime > startTime, "EndTime " + endTime + " must be larger than StartTime " + startTime);
 			start();
 		}, 100);
