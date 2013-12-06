@@ -217,7 +217,6 @@ Crafty.extend({
             if (!c)
                 return null;
             c.id = id;
-            c.repeat = repeat;
             var a = c.obj;
 
 
@@ -231,7 +230,7 @@ Crafty.extend({
             a.play();
             s.played++;
             c.onEnd = function () {
-                if (s.played < c.repeat || repeat == -1) {
+                if (s.played < repeat || repeat == -1) {
                     if (this.currentTime)
                         this.currentTime = 0;
                     this.play();
@@ -263,27 +262,22 @@ Crafty.extend({
         maxChannels: 7,
         setChannels: function (n) {
             this.maxChannels = n;
-            if (n < this.channels.length)
+            if (n > channels.length)
                 this.channels.length = n;
+
         },
 
         channels: [],
         // Finds an unused audio element, marks it as in use, and return it.
         getOpenChannel: function () {
             for (var i = 0; i < this.channels.length; i++) {
-                var chan = this.channels[i];
-                  /*
-                   * Second test looks for stuff that's out of use,
-                   * but fallen foul of Chromium bug 280417
-                   */
-                if (chan.active === false ||
-                      chan.obj.ended && chan.repeat <= this.sounds[chan.id].played) {
-                    chan.active = true;
-                    return chan;
+                if (this.channels[i].active === false) {
+                    this.channels[i].active = true;
+                    return this.channels[i];
                 }
             }
             // If necessary, create a new element, unless we've already reached the max limit
-            if (i < this.maxChannels) {
+            if (i <= this.maxChannels) {
                 var c = {
                     obj: this.audioElement(),
                     active: true,

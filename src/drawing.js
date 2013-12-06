@@ -121,10 +121,8 @@ Crafty.c("Image", {
                 context.fillRect(0, 0, this._w, this._h);
                 context.restore();
             } else if (e.type === "DOM") {
-                if (this.__image) {
-                  e.style["background-image"] = "url(" + this.__image + ")";
-                  e.style["background-repeat"] = this._repeat;
-                }
+                if (this.__image)
+                    e.style.background = "url(" + this.__image + ") " + this._repeat;
             }
         };
 
