@@ -128,6 +128,14 @@ Crafty.c("SpriteAnimation", {
 	*/
 	_isPlaying: false,
 
+	/**@
+	* #.animationSpeed
+	* @comp SpriteAnimation
+	*
+	* The playback rate of the animation.  This property defaults to 1.
+	*/
+	animationSpeed: 1,
+
 
 	init: function () {
 		this._reels = {};
@@ -464,9 +472,10 @@ Crafty.c("SpriteAnimation", {
 
 	
 	// Bound to "EnterFrame".  Progresses the animation by dt, changing the frame if necessary.
+	// dt is multiplied by the animationSpeed property
 	_animationTick: function(frameData) {
 		var currentReel = this._reels[this._currentReelId];
-		currentReel.easing.tick(frameData.dt);
+		currentReel.easing.tick(frameData.dt * this.animationSpeed);
 		var progress = currentReel.easing.value();
 		var frameNumber = Math.min( Math.floor(currentReel.frames.length * progress), currentReel.frames.length - 1);
 
@@ -563,12 +572,10 @@ Crafty.c("SpriteAnimation", {
  * Component to animate the change in 2D properties over time.
  */
 Crafty.c("Tween", {
-	_step: null,
-	_numProps: 0,
-	tweenStart:{},
-	tweenGroup:{},
 
 	init: function(){
+		this.tweenGroup = {};
+		this.tweenStart = {};
 		this.tweens = [];
 		this.bind("EnterFrame", this._tweenTick);
 
