@@ -410,10 +410,8 @@ Crafty.extend({
             bound.max.y *= this._zoom;
             bound.min.y *= this._zoom;
             if (bound.max.x - bound.min.x > Crafty.viewport.width) {
-                bound.max.x -= Crafty.viewport.width;
-
-                if (Crafty.viewport.x < -bound.max.x) {
-                    Crafty.viewport.x = -bound.max.x;
+                if (Crafty.viewport.x < -bound.max.x + Crafty.viewport.width) {
+                    Crafty.viewport.x = -bound.max.x + Crafty.viewport.width;
                 } else if (Crafty.viewport.x > -bound.min.x) {
                     Crafty.viewport.x = -bound.min.x;
                 }
@@ -421,10 +419,8 @@ Crafty.extend({
                 Crafty.viewport.x = -1 * (bound.min.x + (bound.max.x - bound.min.x) / 2 - Crafty.viewport.width / 2);
             }
             if (bound.max.y - bound.min.y > Crafty.viewport.height) {
-                bound.max.y -= Crafty.viewport.height;
-
-                if (Crafty.viewport.y < -bound.max.y) {
-                    Crafty.viewport.y = -bound.max.y;
+                if (Crafty.viewport.y < -bound.max.y + Crafty.viewport.height) {
+                    Crafty.viewport.y = -bound.max.y + Crafty.viewport.height;
                 } else if (Crafty.viewport.y > -bound.min.y) {
                     Crafty.viewport.y = -bound.min.y;
                 }
