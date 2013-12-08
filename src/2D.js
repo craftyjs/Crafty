@@ -1012,6 +1012,8 @@ Crafty.c("2D", {
 /**@
  * #Gravity
  * @category 2D
+ * @trigger Moved - When entity has moved on y-axis a Moved event is triggered with an object specifying the old position {x: old_x, y: old_y}
+ * 
  * Adds gravitational pull to the entity.
  */
 Crafty.c("Gravity", {
@@ -1079,6 +1081,7 @@ Crafty.c("Gravity", {
             //if falling, move the players Y
             this._gy += this._gravityConst;
             this.y += this._gy;
+            this.trigger('Moved', { x: this._x, y: this._y - this._gy });
         } else {
             this._gy = 0; //reset change in y
         }
