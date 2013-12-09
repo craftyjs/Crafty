@@ -78,6 +78,7 @@ module.exports = function (grunt) {
         jshint: {
             files: ['Gruntfile.js', 'src/**/*.js'],
             options: {
+                trailing: true,
                 globals: {
                 }
             }
