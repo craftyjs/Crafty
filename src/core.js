@@ -53,7 +53,7 @@ var Crafty = function (selector) {
 initState();
 
 /**@
- * #Crafty Core
+ * #Crafty.Core
  * @category Core
  * @trigger NewEntityName - After setting new name for entity - String - entity name
  * @trigger NewComponent - when a new component is added to the entity - String - Component
