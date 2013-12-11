@@ -520,7 +520,7 @@ Crafty.DrawManager = (function () {
 
             if (dirtyViewport) {
                 var view = Crafty.viewport;
-                ctx.setTransform(view._scale, 0, 0, view._scale, view.x, view.y);
+                ctx.setTransform(view._scale, 0, 0, view._scale, view._x*view._scale, view._y*view._scale);
 
             }
             //if the amount of changed objects is over 60% of the total objects
@@ -629,8 +629,8 @@ Crafty.DrawManager = (function () {
                     view = Crafty.viewport;
 
                 style.transform = style[Crafty.support.prefix + "Transform"] = "scale(" + view._scale + ", " + view._scale + ")";
-                style.left = view.x + "px";
-                style.top = view.y + "px";
+                style.left = view.x * view._scale + "px";
+                style.top = view.y * view._scale + "px";
                 style.zIndex = 10;
             }
 
