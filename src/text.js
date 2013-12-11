@@ -28,6 +28,8 @@ Crafty.c("Text", {
     _text: "",
     defaultSize: "10px",
     defaultFamily: "sans-serif",
+    defaultVariant: "normal",
+    defaultLineHeight: "normal",
     ready: true,
 
     init: function () {
@@ -36,7 +38,9 @@ Crafty.c("Text", {
             "type": "",
             "weight": "",
             "size": this.defaultSize,
-            "family": this.defaultFamily
+            "lineHeight":this.defaultLineHeight,
+            "family": this.defaultFamily,
+            "variant": this.defaultVariant
         };
 
         this.bind("Draw", function (e) {
@@ -143,9 +147,8 @@ Crafty.c("Text", {
 
     // Returns the font string to use
     _fontString: function(){
-        return this._textFont.type + ' ' + this._textFont.weight + ' ' + this._textFont.size  + ' ' + this._textFont.family;
+        return this._textFont.type + ' ' + this._textFont.variant  + ' ' + this._textFont.weight + ' ' + this._textFont.size  + ' / ' + this._textFont.lineHeight + ' ' + this._textFont.family;
     },
-
     /**@
      * #.textColor
      * @comp Text
@@ -183,7 +186,9 @@ Crafty.c("Text", {
      * @sign public this .textFont(Object map)
      * @param map - Object where the key is the property to modify and the value as the property value
      *
-     * Use this method to set font property of the text entity.
+     * Use this method to set font property of the text entity.  Possible values are: type, weight, size, family, lineHeight, and variant.
+     *
+     * When rendered by the canvas, lineHeight and variant will be ignored.
      *
      * @example
      * ~~~
