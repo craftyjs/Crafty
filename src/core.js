@@ -27,6 +27,14 @@ var version = require('./version');
  *   Crafty(1)
  * ~~~
  * Passing an integer will select the entity with that `ID`.
+ *
+ * To work directly with an array of entities, use the `get()` method on a selection.
+ * To call a function in the context of each entity, use the `.each()` method.
+ *
+ * The event related methods such as `bind` and `trigger` will work on selections of entities.
+ *
+ * @see .get
+ * @see .each
  */
  
 var Crafty = function (selector) {
@@ -452,7 +460,8 @@ Crafty.fn = Crafty.prototype = {
      * @comp Crafty Core
      * @sign public this .toArray(void)
      *
-     * This method will simply return the found entities as an array.
+     * This method will simply return the found entities as an array of ids.  To get an array of the actual entities, use `get()`.
+     * @see .get
      */
     toArray: function () {
         return slice.call(this, 0);
@@ -709,6 +718,53 @@ Crafty.fn = Crafty.prototype = {
             func.call(entities[this[i]], i);
         }
         return this;
+    },
+
+    /**@
+     * #.get
+     * @comp Crafty Core
+     * @sign public Array .get()
+     * @returns An array of entities corresponding to the active selector
+     * 
+     * @sign public Entity .get(Number index)
+     * @returns an entity belonging to the current selection
+     * @param index - The index of the entity to return.  If negative, counts back from the end of the array.
+     * 
+     *
+     * @example
+     * Get an array containing every "2D" entity
+     * ~~~
+     * var arr = Crafty("2D").get()
+     * ~~~
+     * Get the first entity matching the selector
+     * ~~~
+     * // equivalent to Crafty("2D").get()[0], but doesn't create a new array
+     * var e = Crafty("2D").get(0)
+     * ~~~
+     * Get the last "2D" entity matching the selector
+     * ~~~
+     * var e = Crafty("2D").get(-1)
+     * ~~~
+     * 
+     */
+    get: function(index) {
+        var l = this.length;
+        if (typeof index !== "undefined") {
+            if (index >= l || index+l < 0)
+                return undefined;
+            if (index>=0)
+                return entities[this[index]];
+            else
+                return entities[this[index+l]];
+        } else {
+            var i=0, result = [];
+            for (; i < l; i++) {
+                //skip if not exists
+                if (!entities[this[i]]) continue;
+                result.push( entities[this[i]] );
+            }
+            return result;
+        }
     },
 
     /**@

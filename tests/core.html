@@ -217,6 +217,67 @@ $(document).ready(function() {
 		// Clean up
 		Crafty("*").destroy();
 	});
+
+	test("Crafty.get() to find an array", function(){
+		Crafty.e("test");
+		Crafty.e("test");
+		Crafty.e("test");
+		
+		var collection = Crafty("test");
+		var result = collection.get();
+		equal(result.length, 3, "resultant array should be length 3");
+		equal(result[0].has("test"), true, "Result elements should have correct component");
+		equal(collection[0], result[0].getId(), "First id of result should match first id of Crafty array");
+
+		Crafty("*").destroy();
+	})
+
+	test("Crafty.get(index) to find the indicated entity", function(){
+		Crafty.e("test");
+		Crafty.e("test");
+		Crafty.e("test");
+		var collection, result;
+		
+		collection = Crafty("test");
+		result = collection.get(0);
+		equal(result.has("test"), true, "Result should have correct component");
+		equal(result.getId(), collection[0], "result should be first element of collection");
+
+		result = collection.get(-1);
+		equal(result.has("test"), true, "Result should have correct component");
+		equal(result.getId(), collection[2], "result should be last element of collection");
+
+		Crafty("*").destroy();
+	})
+
+	test("Crafty.get(index) error checking", function(){
+		Crafty.e("test");
+		Crafty.e("test");
+		Crafty.e("test");
+		var collection, result;
+		
+		collection = Crafty("test");
+		
+		result = collection.get(3);
+		equal(typeof result, "undefined", "result of get(3) should be undefined")
+
+		result = collection.get(-4);
+		equal(typeof result, "undefined", "result of get(-4) should be undefined")
+
+
+
+		Crafty("*").destroy();
+	})
+
+	test("Crafty.get with only one object", function(){
+		var e = Crafty.e("test");
+		var collection = Crafty("test");
+		result = collection.get(0);
+		equal(result.getId(), e.getId(), "result of get(0) is correct entity")
+		result = collection.get();
+		equal(result.length, 1, "result of get() is array of length 1");
+		Crafty("*").destroy();
+	})
 	
 	test("requires", function() {
 		var first = Crafty.e("test");
