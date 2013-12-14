@@ -24,14 +24,14 @@ Crafty['import'] = function (obj, scene) {
     //if its a string, load the script file
     if (typeof obj === "string") {
         if (levelData) {
-            if (scene) Crafty.import(levelData[scene]);
-            else Crafty.import(levelData);
+            if (scene) Crafty['import'].apply(levelData[scene]);
+            else Crafty['import'].apply(levelData);
         } else {
             var elem;
             elem = document.createElement("script");
             elem.onload = function () {
-                if (scene) Crafty.import(levelData[scene]);
-                else Crafty.import(levelData);
+                if (scene) Crafty['import'].apply(levelData[scene]);
+                else Crafty['import'].apply(levelData);
             };
             elem.src = obj;
         }
