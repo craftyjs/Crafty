@@ -102,7 +102,7 @@ Crafty.c("Canvas", {
         co.w = w || coord[2];
         co.h = h || coord[3];
 
-        if (this._mbr) {
+        if (this._rotation !== 0) {
             context.save();
 
             context.translate(this._origin.x + this._x, this._origin.y + this._y);
@@ -134,7 +134,7 @@ Crafty.c("Canvas", {
         this.drawVars.ctx = context;
         this.trigger("Draw", this.drawVars);
 
-        if (this._mbr || (this._flipX || this._flipY)) {
+        if (this._rotation !== 0 || (this._flipX || this._flipY)) {
             context.restore();
         }
         if (globalpha) {

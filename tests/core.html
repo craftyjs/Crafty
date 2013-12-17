@@ -550,6 +550,40 @@ $(document).ready(function() {
 	});
 
 
+	test("adjustable boundary", function(){
+		e = Crafty.e("2D").attr({
+			x: 10, y:10, w: 10, h: 10
+		})
+
+		// Four argument version
+		e.offsetBoundary(10, 1, 3, 0);
+		equal(e._bx1, 10, "X1 boundary set");
+		equal(e._bx2, 3, "X2 boundary set");
+		equal(e._by1, 1, "Y1 boundary set");
+		equal(e._by2, 0, "Y2 boundary set");	
+
+		e._calculateMBR(10, 10, 0)
+
+		var mbr = e._mbr;
+
+		equal(mbr._h, 11, "MBR height uses boundaries (11)");
+		equal(mbr._w, 23, "MBR width uses boundaries (23)");
+
+		// One argument version
+		e.offsetBoundary(5);
+		equal(e._bx1, 5, "X1 boundary set");
+		equal(e._bx2, 5, "X2 boundary set");
+		equal(e._by1, 5, "Y1 boundary set");
+		equal(e._by2, 5, "Y2 boundary set");
+
+		
+
+		Crafty("*").destroy();
+
+
+	})
+
+
         test("disableControl and enableControl", function () {
             var e = Crafty.e("2D, Twoway")
                 .attr({ x: 0 })
