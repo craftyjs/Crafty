@@ -17,9 +17,15 @@ Crafty.c("Collision", {
      */
     init: function () {
         this.requires("2D");
-        var area = this._mbr || this;
-
         this.collision();
+    },
+
+
+    // Run by Crafty when the component is removed
+    remove: function() {
+        this._cbr = null;
+        this.unbind("Resize", this._resizeMap);
+        this.unbind("Resize", this._checkBounds);
     },
 
     /**@
@@ -43,6 +49,8 @@ Crafty.c("Collision", {
      *
      * If no parameter is passed, the x, y, w, h properties of the entity will be used, and the hitbox will be resized when the entity is.
      *
+     * If a hitbox is set that is outside of the bounds of the entity itself, there will be a small performance penalty as it is tracked separately.
+     *
      * @example
      * ~~~
      * Crafty.e("2D, Collision").collision(
@@ -55,18 +63,32 @@ Crafty.c("Collision", {
      * @see Crafty.polygon
      */
     collision: function (poly) {
+        // Unbind anything bound to "Resize"
         this.unbind("Resize", this._resizeMap);
+        this.unbind("Resize", this._checkBounds);
+
+        
+
         if (!poly) {
+            // If no polygon is specified, then a polygon is created that matches the bounds of the entity
+            // It will be adjusted on a "Resize" event
             poly = new Crafty.polygon([0, 0], [this._w, 0], [this._w, this._h], [0, this._h]);
             this.bind("Resize", this._resizeMap);
+            this._cbr = null;
+        } else {
+            // Otherwise, we set the specified hitbox, converting from a list of arguments to a polygon if necessary
+            if (arguments.length > 1) {
+                //convert args to array to create polygon
+                var args = Array.prototype.slice.call(arguments, 0);
+                poly = new Crafty.polygon(args);
+            }
+            // Check to see if the polygon sits outside the entity, and set _cbr appropriately
+            // On resize, the new bounds will be checked if necessary
+            this._findBounds(poly.points);
         }
 
-        if (arguments.length > 1) {
-            //convert args to array to create polygon
-            var args = Array.prototype.slice.call(arguments, 0);
-            poly = new Crafty.polygon(args);
-        }
 
+        // If the entity is currently rotated, the points in the hitbox must also be rotated
         if (this.rotation) {
             poly.rotate({
                 cos: Math.cos(-this.rotation * DEG_TO_RAD),
@@ -78,6 +100,7 @@ Crafty.c("Collision", {
             });
         }
 
+        // Finally, assign the hitbox, and attach it to the "Collision" entity
         this.map = poly;
         this.attach(this.map);
         this.map.shift(this._x, this._y);
@@ -86,7 +109,66 @@ Crafty.c("Collision", {
     },
 
 
-    // Change the hitbox when a "Resize" event triggers.
+    // If the hitbox is set by hand, it might extend beyond the entity.
+    // In such a case, we need to track this separately.
+    // This function finds a (non-minimal) bounding circle around the hitbox.
+    //
+    // It uses a pretty naive algorithm to do so, for more complicated options see [wikipedia](http://en.wikipedia.org/wiki/Bounding_sphere).
+    _findBounds: function(points) {
+        var minX = Infinity, maxX = -Infinity, minY=Infinity, maxY=-Infinity;
+        var p;
+
+        // Calculate the MBR of the points by finding the min/max x and y
+        for (var i=0; i<points.length; ++i){
+            p = points[i];
+            if (p[0] < minX)
+                minX = p[0];
+            if (p[0] > maxX)
+                maxX = p[0];
+            if (p[1] < minY)
+                minY = p[1];
+            if (p[1] > maxY)
+                maxY = p[1];
+        }
+
+        // This describes a circle centered on the MBR of the points, with a diameter equal to its diagonal
+        // It will be used to find a rough bounding box round the points, even if they've been rotated
+        var cbr = {
+                cx: (minX + maxX) / 2,
+                cy: (minY + maxY) / 2,
+                r: Math.sqrt( (maxX - minX)*(maxX - minX) + (maxY - minY)*(maxY - minY))/2,
+        };
+
+        // We need to worry about resizing, but only if resizing could possibly change whether the hitbox is in or out of bounds
+        // Thus if the upper-left corner is out of bounds, then there's no need to recheck on resize
+        if (minX >= 0 && minY >= 0) {
+            this._checkBounds = function() {
+                if (this._cbr === null && this._w < maxX || this._h < maxY ){
+                   this._cbr = cbr;
+                   this._calculateMBR();
+                } else if (this._cbr) {
+                    this._cbr = null;
+                    this._calculateMBR();
+                }
+            };
+            this.bind("Resize", this._checkBounds);
+        }
+        
+        // If the hitbox is within the entity, _cbr is null
+        // Otherwise, set it, and immediately calculate the bounding box.
+        if (minX >= 0 && minY >= 0 && maxX <= this._w && maxY <= this._h){
+            this._cbr = null;
+            return false;
+        } else {
+            this._cbr = cbr;
+            this._calculateMBR();
+            return true;
+        }
+        
+    },
+
+    // The default behavior is to match the hitbox to the entity.  
+    // This function will change the hitbox when a "Resize" event triggers. 
     _resizeMap: function (e) {
 
         var dx, dy, rot = this.rotation * DEG_TO_RAD,
@@ -152,7 +234,7 @@ Crafty.c("Collision", {
      * @see .onHit, 2D
      */
     hit: function (comp) {
-        var area = this._mbr || this,
+        var area = this._cbr || this._mbr || this,
             results = Crafty.map.search(area, false),
             i = 0,
             l = results.length,
@@ -167,7 +249,7 @@ Crafty.c("Collision", {
 
         for (; i < l; ++i) {
             obj = results[i];
-            oarea = obj._mbr || obj; //use the mbr
+            oarea = obj._cbr || obj._mbr || obj; //use the mbr
 
             if (!obj) continue;
             id = obj[0];

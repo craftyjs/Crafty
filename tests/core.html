@@ -673,6 +673,92 @@ $(document).ready(function() {
 			e.destroy();
 		});
 
+	test("Hitboxes outside of entities (CBR)", function(){
+		var poly = new Crafty.polygon([
+          [-8, 6],
+          [0, -8],
+          [8, -14],
+          [16, -8],
+          [24, 6]
+      	]);
+      	
+      	var e = Crafty.e("2D, Collision").attr({
+          x: 50,
+          y: 50,
+          w: 16,
+          h: 16
+        }).collision(poly);
+
+        ok(e._cbr !== null, "_cbr exists");
+        var cbr = e._cbr;
+        // Test whether cbr actually bounds hitbox+object
+        ok(cbr._x <= 42, "cbr x position correct");
+        ok(cbr._y <= 36, "cbr y position correct");
+        ok(cbr._x + cbr._w >= 74, "cbr width correct");
+        ok(cbr._y + cbr._h >= 66, "cbr height correct");
+
+        var x0 = cbr._x, y0 = cbr._y;
+
+        e.x += 10;
+        e.y += 15;
+
+        equal(cbr._x, x0 + 10, "cbr x position moves correctly");
+        equal(cbr._y, y0 + 15, "cbr y position moves correctly");
+        Crafty("*").destroy();
+	})
+
+	test("CBRs on resize", function(){
+		var poly = new Crafty.polygon([
+          [0, 0],
+          [0, 12],
+          [12, 12],
+          [12, 0]
+      	]);
+      	
+      	var e = Crafty.e("2D, Collision").attr({
+          x: 50,
+          y: 50,
+          w: 15,
+          h: 15
+        }).collision(poly);
+
+        ok(e._cbr === null, "_cbr should not exist");
+        
+        e.w = 10;
+
+        ok(e._cbr !== null, "_cbr should now exist after entity shrinks");
+
+        e.w = 20;
+
+        ok(e._cbr === null, "_cbr should not exist after entity grows again");
+
+        Crafty("*").destroy();
+	})
+
+	test("CBRs should be removed on removal of component", function(){
+		var poly = new Crafty.polygon([
+          [0, 0],
+          [0, 12],
+          [12, 12],
+          [12, 0]
+      	]);
+      	
+      	var e = Crafty.e("2D, Collision").attr({
+          x: 50,
+          y: 50,
+          w: 10,
+          h: 10
+        }).collision(poly);
+
+        ok(e._cbr !== null, "_cbr should exist to begin with");
+        
+        e.removeComponent("Collision");
+
+        ok(e._cbr === null, "_cbr should now be removed along with Collision");
+
+
+	})
+
 	module("DebugLayer");
 		test("DebugCanvas", function(){
 			if (!(Crafty.support.canvas)) {
