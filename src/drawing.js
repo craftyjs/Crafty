@@ -32,7 +32,7 @@ Crafty.c("Color", {
      * Will create a rectangle of solid color for the entity, or return the color if no argument is given.
      *
      * The argument must be a color readable depending on which browser you
-     * choose to support. IE 8 and below doesn't support the rgb() syntax.
+     * choose to support.
      *
      * @example
      * ~~~
