@@ -457,13 +457,7 @@ Crafty.c("2D", {
             sin: Math.sin(drad),
             deg: difference,
             rad: drad,
-            o: o,
-            matrix: {
-                M11: ct,
-                M12: st,
-                M21: -st,
-                M22: ct
-            }
+            o: o
         });
     },
 
