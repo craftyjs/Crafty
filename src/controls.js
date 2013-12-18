@@ -252,14 +252,14 @@ Crafty.extend({
      *   .attr({x: 100, y: 100, w: 50, h: 50})
      *   .color("red")
      *   .bind('KeyDown', function(e) {
-     *     if(e.key == Crafty.keys['LEFT_ARROW']) {
-     *       this.x=this.x-1;
-     *     } else if (e.key == Crafty.keys['RIGHT_ARROW']) {
-     *     this.x=this.x+1;
-     *     } else if (e.key == Crafty.keys['UP_ARROW']) {
-     *     this.y=this.y-1;
-     *     } else if (e.key == Crafty.keys['DOWN_ARROW']) {
-     *     this.y=this.y+1;
+     *     if(e.key == Crafty.keys.LEFT_ARROW) {
+     *       this.x = this.x-1;
+     *     } else if (e.key == Crafty.keys.RIGHT_ARROW) {
+     *       this.x = this.x+1;
+     *     } else if (e.key == Crafty.keys.UP_ARROW) {
+     *       this.y = this.y-1;
+     *     } else if (e.key == Crafty.keys.DOWN_ARROW) {
+     *       this.y = this.y+1;
      *     }
      *   });
      * ~~~
