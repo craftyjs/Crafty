@@ -290,12 +290,6 @@ Crafty.c("DOM", {
     }
 });
 
-/**
- * Fix IE6 background flickering
- */
-try {
-    document.execCommand("BackgroundImageCache", false, true);
-} catch (e) {}
 
 Crafty.extend({
     /**@
