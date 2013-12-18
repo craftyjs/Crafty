@@ -34,7 +34,7 @@ var Crafty = function (selector) {
 },
     // Internal variables
     GUID, frame, components, entities, handlers, onloads,
-    noSetter, slice, rlist, rspace, milliSecPerFrame;
+    slice, rlist, rspace, milliSecPerFrame;
 
 
     initState = function () {
@@ -747,8 +747,6 @@ Crafty.fn = Crafty.prototype = {
      * Will watch a property waiting for modification and will then invoke the
      * given callback when attempting to modify.
      *
-     * *Note: Support in IE<9 is slightly different. The method will be executed
-     * after the property has been set*
      */
     setter: function (prop, callback) {
         if (Crafty.support.setter) {
@@ -757,12 +755,6 @@ Crafty.fn = Crafty.prototype = {
             Object.defineProperty(this, prop, {
                 set: callback,
                 configurable: true
-            });
-        } else {
-            noSetter.push({
-                prop: prop,
-                obj: this,
-                fn: callback
             });
         }
         return this;
@@ -1572,24 +1564,6 @@ function clone(obj) {
         temp[key] = clone(obj[key]);
     return temp;
 }
-
-Crafty.bind("Load", function () {
-    if (!Crafty.support.setter && Crafty.support.defineProperty) {
-        noSetter = [];
-        Crafty.bind("EnterFrame", function () {
-            var i = 0,
-                l = noSetter.length,
-                current;
-            for (; i < l; ++i) {
-                current = noSetter[i];
-                if (current.obj[current.prop] !== current.obj['_' + current.prop]) {
-                    current.fn.call(current.obj, current.obj[current.prop]);
-                }
-            }
-        });
-    }
-});
-
 
 // export Crafty
 if (typeof define === 'function') { // AMD
