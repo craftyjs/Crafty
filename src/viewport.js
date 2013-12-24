@@ -665,19 +665,6 @@ Crafty.extend({
                     },
                     configurable : true
                 });
-            } else {
-                // IE8 has no getter/setters -- Check for an update each frame.
-                this.x = this._x;
-                this.y = this._y;
-                Crafty.bind("EnterFrame", function () {
-                    if (Crafty.viewport._x !== Crafty.viewport.x) {
-                        Crafty.viewport.scroll('_x', Crafty.viewport.x);
-                    }
-
-                    if (Crafty.viewport._y !== Crafty.viewport.y) {
-                        Crafty.viewport.scroll('_y', Crafty.viewport.y);
-                    }
-                });
             }
         },
 

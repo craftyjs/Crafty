@@ -318,81 +318,6 @@ Crafty.c("2D", {
         });
     },
 
-    _defineGetterSetter_fallback: function () {
-        //set the public properties to the current private properties
-        this.x = this._x;
-        this.y = this._y;
-        this.w = this._w;
-        this.h = this._h;
-        this.z = this._z;
-        this.rotation = this._rotation;
-        this.alpha = this._alpha;
-        this.visible = this._visible;
-
-        //on every frame check for a difference in any property
-        this.bind("EnterFrame", function () {
-            //if there are differences between the public and private properties
-            if (this.x !== this._x || this.y !== this._y ||
-                this.w !== this._w || this.h !== this._h ||
-                this.z !== this._z || this.rotation !== this._rotation ||
-                this.alpha !== this._alpha || this.visible !== this._visible) {
-
-                //save the old positions
-                var old = Crafty._rectPool.copy(this);
-
-                //if rotation has changed, use the private rotate method
-                if (this.rotation !== this._rotation) {
-                    this._rotate(this.rotation);
-                } else {
-                    //update the MBR
-                    var mbr = this._mbr,
-                        moved = false;
-                    // If the browser doesn't have getters or setters,
-                    // {x, y, w, h, z} and {_x, _y, _w, _h, _z} may be out of sync,
-                    // in which case t checks if they are different on tick and executes the Change event.
-                    if (mbr) { //check each value to see which has changed
-                        if (this.x !== this._x) {
-                            mbr._x -= this.x - this._x;
-                            moved = true;
-                        } else if (this.y !== this._y) {
-                            mbr._y -= this.y - this._y;
-                            moved = true;
-                        } else if (this.w !== this._w) {
-                            mbr._w -= this.w - this._w;
-                            moved = true;
-                        } else if (this.h !== this._h) {
-                            mbr._h -= this.h - this._h;
-                            moved = true;
-                        } else if (this.z !== this._z) {
-                            mbr._z -= this.z - this._z;
-                            moved = true;
-                        }
-                    }
-
-                    //if the moved flag is true, trigger a move
-                    if (moved) this.trigger("Move", old);
-                }
-
-                //set the public properties to the private properties
-                this._x = this.x;
-                this._y = this.y;
-                this._w = this.w;
-                this._h = this.h;
-                this._z = this.z;
-                this._rotation = this.rotation;
-                this._alpha = this.alpha;
-                this._visible = this.visible;
-
-                //trigger the changes
-                this.trigger("Change", old);
-                //without this entities weren't added correctly to Crafty.map.map in IE8.
-                //not entirely sure this is the best way to fix it though
-                this.trigger("Move", old);
-                Crafty._rectPool.recycle(old);
-            }
-        });
-    },
-
     init: function () {
         this._globalZ = this[0];
         this._origin = {
@@ -406,13 +331,6 @@ Crafty.c("2D", {
         } else if (Crafty.support.defineProperty) {
             //IE9 supports Object.defineProperty
             this._defineGetterSetter_defineProperty();
-        } else {
-            /*
-			If no setters and getters are supported (e.g. IE8) supports,
-			check on every frame for a difference between this._(x|y|w|h|z...)
-			and this.(x|y|w|h|z) and update accordingly.
-			*/
-            this._defineGetterSetter_fallback();
         }
 
         //insert self into the HashMap
@@ -539,13 +457,7 @@ Crafty.c("2D", {
             sin: Math.sin(drad),
             deg: difference,
             rad: drad,
-            o: o,
-            matrix: {
-                M11: ct,
-                M12: st,
-                M21: -st,
-                M22: ct
-            }
+            o: o
         });
     },
 

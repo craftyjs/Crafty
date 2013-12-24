@@ -73,21 +73,6 @@ Crafty.c("DOM", {
 
         this.bind("NewComponent", updateClass).bind("RemoveComponent", removeClass);
 
-        if (Crafty.support.prefix === "ms" && Crafty.support.version < 9) {
-            this._filters = {};
-
-            this.bind("Rotate", function (e) {
-                var m = e.matrix,
-                    elem = this._element.style,
-                    M11 = m.M11.toFixed(8),
-                    M12 = m.M12.toFixed(8),
-                    M21 = m.M21.toFixed(8),
-                    M22 = m.M22.toFixed(8);
-
-                this._filters.rotation = "progid:DXImageTransform.Microsoft.Matrix(M11=" + M11 + ", M12=" + M12 + ", M21=" + M21 + ", M22=" + M22 + ",sizingMethod='auto expand')";
-            });
-        }
-
         this.bind("Remove", this.undraw);
         this.bind("RemoveComponent", function (compName) {
             if (compName === "DOM")
@@ -185,17 +170,6 @@ Crafty.c("DOM", {
             style[prefix + "Opacity"] = this._alpha;
         }
 
-        //if not version 9 of IE
-        if (prefix === "ms" && Crafty.support.version < 9) {
-            //for IE version 8, use ImageTransform filter
-            if (Crafty.support.version === 8) {
-                this._filters.alpha = "progid:DXImageTransform.Microsoft.Alpha(Opacity=" + (this._alpha * 100) + ")"; // first!
-                //all other versions use filter
-            } else {
-                this._filters.alpha = "alpha(opacity=" + (this._alpha * 100) + ")";
-            }
-        }
-
         if (this._mbr) {
             var origin = this._origin.x + "px " + this._origin.y + "px";
             style.transformOrigin = origin;
@@ -206,21 +180,10 @@ Crafty.c("DOM", {
 
         if (this._flipX) {
             trans.push("scaleX(-1)");
-            if (prefix === "ms" && Crafty.support.version < 9) {
-                this._filters.flipX = "fliph";
-            }
         }
 
         if (this._flipY) {
             trans.push("scaleY(-1)");
-            if (prefix === "ms" && Crafty.support.version < 9) {
-                this._filters.flipY = "flipv";
-            }
-        }
-
-        //apply the filters if IE
-        if (prefix === "ms" && Crafty.support.version < 9) {
-            this.applyFilters();
         }
 
         if (this._cssStyles.transform != trans.join(" ")) {
@@ -236,18 +199,6 @@ Crafty.c("DOM", {
         });
 
         return this;
-    },
-
-    applyFilters: function () {
-        this._element.style.filter = "";
-        var str = "";
-
-        for (var filter in this._filters) {
-            if (!this._filters.hasOwnProperty(filter)) continue;
-            str += this._filters[filter] + " ";
-        }
-
-        this._element.style.filter = str;
     },
 
     /**@
@@ -324,12 +275,6 @@ Crafty.c("DOM", {
     }
 });
 
-/**
- * Fix IE6 background flickering
- */
-try {
-    document.execCommand("BackgroundImageCache", false, true);
-} catch (e) {}
 
 Crafty.extend({
     /**@
