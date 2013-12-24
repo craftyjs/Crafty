@@ -324,6 +324,13 @@ Crafty.c("2D", {
             x: 0,
             y: 0
         };
+
+        // offsets for the basic bounding box
+        this._bx1 = 0;
+        this._bx2 = 0;
+        this._by1 = 0;
+        this._by2 = 0;
+
         this._children = [];
 
         if (Crafty.support.setter) {
@@ -383,34 +390,66 @@ Crafty.c("2D", {
     },
 
 
+    /**@
+     * #.offsetBoundary
+     * @comp 2D
+     * Extends the MBR of the entity by a specified amount.
+     * 
+     * @trigger BoundaryOffset - when the MBR offset changes
+     * @sign public this .offsetBoundary(Number dx1, Number dy1, Number dx2, Number dy2)
+     * @param dx1 - Extends the MBR to the left by this amount
+     * @param dy1 - Extends the MBR upward by this amount
+     * @param dx2 - Extends the MBR to the right by this amount
+     * @param dy2 - Extends the MBR downward by this amount
+     *
+     * @sign public this .offsetBoundary(Number offset)
+     * @param offset - Extend the MBR in all directions by this amount
+     *
+     * You would most likely use this function to ensure that custom canvas rendering beyond the extent of the entity's normal bounds is not clipped.
+     */
+    offsetBoundary: function(x1, y1, x2, y2){
+        if (arguments.length === 1)
+            y1 = x2 = y2 = x1;
+        this._bx1 = x1;
+        this._bx2 = x2;
+        this._by1 = y1;
+        this._by2 = y2;
+        this.trigger("BoundaryOffset");
+        this._calculateMBR(this._origin.x + this._x, this._origin.y + this._y, -this._rotation * DEG_TO_RAD);
+        return this;
+    },
+
     /**
      * Calculates the MBR when rotated some number of radians about an origin point o.
-     * Necessary on a rotation, or a resize (when already rotated)
+     * Necessary on a rotation, or a resize
      */
 
     _calculateMBR: function (ox, oy, rad) {
-        if (rad === 0) {
-            this._mbr = null;
-            return;
-        }
+        // axis-aligned (unrotated) coordinates, relative to the origin point
+        var dx1 = this._x - this._bx1 - ox,
+            dx2 = this._x + this._w + this._bx2 - ox,
+            dy1 = this._y - this._by1 - oy, 
+            dy2 = this._y + this._h + this._by2 - oy;
 
         var ct = Math.cos(rad),
             st = Math.sin(rad);
         // Special case 90 degree rotations to prevent rounding problems
         ct = (ct < 1e-10 && ct > -1e-10) ? 0 : ct;
         st = (st < 1e-10 && st > -1e-10) ? 0 : st;
-        var x0 = ox + (this._x - ox) * ct + (this._y - oy) * st,
-            y0 = oy - (this._x - ox) * st + (this._y - oy) * ct,
-            x1 = ox + (this._x + this._w - ox) * ct + (this._y - oy) * st,
-            y1 = oy - (this._x + this._w - ox) * st + (this._y - oy) * ct,
-            x2 = ox + (this._x + this._w - ox) * ct + (this._y + this._h - oy) * st,
-            y2 = oy - (this._x + this._w - ox) * st + (this._y + this._h - oy) * ct,
-            x3 = ox + (this._x - ox) * ct + (this._y + this._h - oy) * st,
-            y3 = oy - (this._x - ox) * st + (this._y + this._h - oy) * ct,
-            minx = Math.floor(Math.min(x0, x1, x2, x3)),
-            miny = Math.floor(Math.min(y0, y1, y2, y3)),
-            maxx = Math.ceil(Math.max(x0, x1, x2, x3)),
-            maxy = Math.ceil(Math.max(y0, y1, y2, y3));
+
+        // Calculate the new points relative to the origin, then find the new (absolute) bounding coordinates!
+        var x0 =   dx1 * ct + dy1 * st,
+            y0 = - dx1 * st + dy1 * ct,
+            x1 =   dx2 * ct + dy1 * st,
+            y1 = - dx2 * st + dy1 * ct,
+            x2 =   dx2 * ct + dy2 * st,
+            y2 = - dx2 * st + dy2 * ct,
+            x3 =   dx1 * ct + dy2 * st,
+            y3 = - dx1 * st + dy2 * ct,
+            minx = Math.floor(Math.min(x0, x1, x2, x3) + ox),
+            miny = Math.floor(Math.min(y0, y1, y2, y3) + oy),
+            maxx = Math.ceil(Math.max(x0, x1, x2, x3) + ox),
+            maxy = Math.ceil(Math.max(y0, y1, y2, y3) + oy);
         if (!this._mbr) {
             this._mbr = {
                 _x: minx,
