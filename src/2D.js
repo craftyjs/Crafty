@@ -57,6 +57,14 @@ var M = Math,
     PI = M.PI,
     DEG_TO_RAD = PI / 180;
 
+Crafty.extend({
+    zeroFill: function (number, width) {
+        width -= number.toString().length;
+        if (width > 0)
+            return new Array(width + (/\./.test(number) ? 2 : 1)).join('0') + number;
+        return number.toString();
+    }
+});
 
 /**@
  * #2D
