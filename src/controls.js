@@ -925,10 +925,10 @@ Crafty.c("Twoway", {
             if (this._up) {
                 this.y -= this._jumpSpeed;
                 this._falling = true;
-		this.trigger('Moved', { x: this._x, y: this._y + this._jumpSpeed });
+                this.trigger('Moved', { x: this._x, y: this._y + this._jumpSpeed });
             }
         }).bind("KeyDown", function (e) {
-            if (e.key === Crafty.keys.UP_ARROW || e.key === Crafty.keys.W || e.key === Crafty.keys.Z)
+            if (!this._falling && (e.key === Crafty.keys.UP_ARROW || e.key === Crafty.keys.W || e.key === Crafty.keys.Z))
                 this._up = true;
         });
 
