@@ -73,13 +73,13 @@ Crafty.c("Sprite", {
     /**@
      * #.sprite
      * @comp Sprite
-     * @sign public this .sprite(Number x, Number y, Number w, Number h)
+     * @sign public this .sprite(Number x, Number y[, Number w, Number h])
      * @param x - X cell position
      * @param y - Y cell position
-     * @param w - Width in cells
-     * @param h - Height in cells
+     * @param w - Width in cells. Optional.
+     * @param h - Height in cells. Optional.
      *
-     * Uses a new location on the sprite map as its sprite.
+     * Uses a new location on the sprite map as its sprite. If w or h are ommitted, the width and height are not changed.
      *
      * Values should be in tiles or cells (not pixels).
      *
@@ -97,11 +97,14 @@ Crafty.c("Sprite", {
      * The coordinate of the slide within the sprite in the format of [x, y, w, h].
      */
     sprite: function (x, y, w, h) {
-        this.__coord = [x * (this.__tile + this.__padding[0]) + this.__trim[0],
-            y * (this.__tileh + this.__padding[1]) + this.__trim[1],
-            this.__trim[2] || w * this.__tile || this.__tile,
-            this.__trim[3] || h * this.__tileh || this.__tileh
-        ];
+        this.__coord = this.__coord || [0, 0, 0, 0];
+
+        this.__coord[0] = x * (this.__tile + this.__padding[0]) + (this.__padBorder ? this.__padding[0] : 0) + this.__trim[0];
+        this.__coord[1] = y * (this.__tileh + this.__padding[1]) + (this.__padBorder ? this.__padding[1] : 0) + this.__trim[1];
+        if (typeof(w)!=='undefined' && typeof(h)!=='undefined') {
+            this.__coord[2] = this.__trim[2] || w * this.__tile || this.__tile;
+            this.__coord[3] = this.__trim[3] || h * this.__tileh || this.__tileh;
+        }
 
         this.trigger("Change");
         return this;
