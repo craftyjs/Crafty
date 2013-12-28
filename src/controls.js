@@ -815,8 +815,8 @@ Crafty.c("Multiway", {
         for (var k in this._keyDirection) {
             var keyCode = Crafty.keys[k] || k;
             this._keys[keyCode] = {
-                x: Math.round(Math.cos(this._keyDirection[k] * (Math.PI / 180)) * 1000 * speed.x) / 1000,
-                y: Math.round(Math.sin(this._keyDirection[k] * (Math.PI / 180)) * 1000 * speed.y) / 1000
+                x: Math.round(Math.cos(Crafty.math.degToRad(this._keyDirection[k])) * 1000 * speed.x) / 1000,
+                y: Math.round(Math.sin(Crafty.math.degToRad(this._keyDirection[k])) * 1000 * speed.y) / 1000
             };
         }
         return this;

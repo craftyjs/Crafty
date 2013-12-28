@@ -207,7 +207,7 @@ Crafty.c("Particles", {
             particle.position.x = this.position.x + this.positionRandom.x * this.RANDM1TO1();
             particle.position.y = this.position.y + this.positionRandom.y * this.RANDM1TO1();
 
-            var newAngle = (this.angle + this.angleRandom * this.RANDM1TO1()) * (Math.PI / 180); // convert to radians
+            var newAngle = Crafty.math.degToRad(this.angle + this.angleRandom * this.RANDM1TO1()); // convert to radians
             var vector = this.vectorHelpers.create(Math.sin(newAngle), -Math.cos(newAngle)); // Could move to lookup for speed
             var vectorSpeed = this.speed + this.speedRandom * this.RANDM1TO1();
             particle.direction = this.vectorHelpers.multiply(vector, vectorSpeed);
