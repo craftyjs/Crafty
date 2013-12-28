@@ -78,6 +78,7 @@ module.exports = function (grunt) {
         jshint: {
             files: ['Gruntfile.js', 'src/**/*.js'],
             options: {
+                trailing: true,
                 globals: {
                 }
             }
@@ -97,7 +98,7 @@ module.exports = function (grunt) {
                 'tests/tween.html',
                 'tests/sound.html'
             ]
-        }, 
+        },
 
         jsvalidate: {
             files: "crafty.js"
@@ -117,10 +118,10 @@ module.exports = function (grunt) {
     grunt.registerTask('version', 'Takes the version into src/version.js', function() {
         fs.writeFileSync('src/version.js', 'module.exports = "' + version + '";');
     });
-    
+
     // Build development
     grunt.registerTask('build:dev', ['browserify:debug', 'usebanner']);
-    
+
     // Build release
     grunt.registerTask('build:release', ['browserify:dist', 'usebanner']);
 

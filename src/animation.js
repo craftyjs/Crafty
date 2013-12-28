@@ -14,13 +14,13 @@ Crafty.easing.prototype = {
 	steps: null,
 	complete: false,
 	paused: false,
-	
-	// init values 
-	reset: function(){		
+
+	// init values
+	reset: function(){
 		this.loops = 1;
 		this.clock = 0;
 		this.complete = false;
-		this.paused = false;  
+		this.paused = false;
 	},
 
 	repeat: function(loopCount){
@@ -31,7 +31,7 @@ Crafty.easing.prototype = {
 		this.clock = this.duration * progress;
 		if (typeof loopCount !== "undefined")
 			this.loops = loopCount;
-		
+
 	},
 
 	pause: function(){
@@ -61,7 +61,7 @@ Crafty.easing.prototype = {
 	// same as value for now; with other time value functions would be more useful
 	time: function(){
 		return ( Math.min(this.clock/this.duration, 1) );
-		
+
 	},
 
 	// Value is where along the tweening curve we are
@@ -89,14 +89,14 @@ Crafty.easing.prototype = {
 * Must be applied to an entity that has a sprite-map component.
 *
 * To define an animation, see the `reel` method.  To play an animation, see the `animate` method.
-*   
+*
 * A reel is an object that contains the animation frames and current state for an animation.  The reel object has the following properties:
 * @param id: (String) - the name of the reel
 * @param frames: (Array) - A list of frames in the format [xpos, ypos]
 * @param currentFrame: (Number) - The index of the current frame
-* @param easing: (Crafty.easing object) - The object that handles the internal progress of the animation.  
+* @param easing: (Crafty.easing object) - The object that handles the internal progress of the animation.
 * @param duration: (Number) - The duration in milliseconds.
-* 
+*
 * Many animation related events pass a reel object as data.  As typical with events, this should be treated as read only data that might be later altered by the entity.  If you wish to preserve the data, make a copy of it.
 *
 * @see crafty.sprite
@@ -119,7 +119,7 @@ Crafty.c("SpriteAnimation", {
 
 	/*
 	* The currently active reel.
-	* This value is `null` if no reel is active. 
+	* This value is `null` if no reel is active.
 	*/
 	_currentReel: null,
 
@@ -223,7 +223,7 @@ Crafty.c("SpriteAnimation", {
 			id: reelId,
 			frames: [],
 			currentFrame: 0,
-			easing: new Crafty.easing(duration), 
+			easing: new Crafty.easing(duration),
 			defaultLoops: 1
 		};
 
@@ -273,7 +273,7 @@ Crafty.c("SpriteAnimation", {
 	*
 	* Play one of the reels previously defined through `.reel(...)`. Simply pass the name of the reel. If you wish the
 	* animation to play multiple times in succession, pass in the amount of times as an additional parameter.
-	* To have the animation repeat indefinitely, pass in `-1`. 
+	* To have the animation repeat indefinitely, pass in `-1`.
 	*
 	* If another animation is currently playing, it will be paused.
 	*
@@ -312,7 +312,7 @@ Crafty.c("SpriteAnimation", {
 		this.pauseAnimation(); // This will pause the current animation, if one is playing
 
 		// Handle repeats; if loopCount is undefined and reelID is a number, calling with that signature
-		if (typeof loopCount === "undefined") 
+		if (typeof loopCount === "undefined")
 			if (typeof reelId === "number")
 				loopCount = reelId;
 			else
@@ -320,9 +320,9 @@ Crafty.c("SpriteAnimation", {
 
 		// set the animation to the beginning
 		currentReel.easing.reset();
-		
 
-		// user provided loop count. 
+
+		// user provided loop count.
 		this.loops(loopCount);
 
 		// trigger the necessary events and switch to the first frame
@@ -341,7 +341,7 @@ Crafty.c("SpriteAnimation", {
 	* @comp SpriteAnimation
 	* @sign public this .resumeAnimation()
 	*
-	* This will resume animation of the current reel from its current state.  
+	* This will resume animation of the current reel from its current state.
 	* If a reel is already playing, or there is no current reel, there will be no effect.
 	*/
 	resumeAnimation: function() {
@@ -350,8 +350,8 @@ Crafty.c("SpriteAnimation", {
 			this._isPlaying = true;
 			this._currentReel.easing.resume();
 			this.trigger("StartAnimation", this._currentReel);
-		}	
-		return this;	
+		}
+		return this;
 	},
 
 	/**@
@@ -376,7 +376,7 @@ Crafty.c("SpriteAnimation", {
 	* @sign public this .resetAnimation()
 	*
 	* Resets the current animation to its initial state.  Resets the number of loops to the last specified value, which defaults to 1.
-	*   
+	*
 	* Neither pauses nor resumes the current animation.
 	*/
 	resetAnimation: function(){
@@ -395,7 +395,7 @@ Crafty.c("SpriteAnimation", {
 	* @sign public this .loops(Number loopCount)
 	* @param loopCount - The number of times to play the animation
 	*
-	* Sets the number of times the animation will loop for.  
+	* Sets the number of times the animation will loop for.
 	* If called while an animation is in progress, the current state will be considered the first loop.
 	*
 	* @sign public Number .loops()
@@ -433,10 +433,10 @@ Crafty.c("SpriteAnimation", {
 	*
 	* @sign public this .reelPosition(String position)
 	* Jumps to the specified position.  The only currently accepted value is "end", which will jump to the end of the reel.
-	* 
+	*
 	* @sign public Number .reelPosition()
 	* @returns The current frame number
-	* 
+	*
 	*/
 	reelPosition: function(position) {
 		if (this._currentReel === null)
@@ -455,7 +455,7 @@ Crafty.c("SpriteAnimation", {
 			position = Math.floor(l * progress);
 		} else {
 			if (position !== Math.floor(position))
-				throw("Position " + position + " is invalid."); 
+				throw("Position " + position + " is invalid.");
 			if (position < 0)
 				position = l - 1 + position;
 			progress = position / l;
@@ -467,10 +467,10 @@ Crafty.c("SpriteAnimation", {
 		this._setFrame(position);
 
 		return this;
-		
+
 	},
 
-	
+
 	// Bound to "EnterFrame".  Progresses the animation by dt, changing the frame if necessary.
 	// dt is multiplied by the animationSpeed property
 	_animationTick: function(frameData) {
@@ -489,7 +489,7 @@ Crafty.c("SpriteAnimation", {
 
 
 
-	
+
 
 	// Set the current frame and update the displayed sprite
 	// The actual progress for the animation must be set seperately.
@@ -499,7 +499,7 @@ Crafty.c("SpriteAnimation", {
 			return;
 		currentReel.currentFrame = frameNumber;
 		this._updateSprite();
-		this.trigger("FrameChange", currentReel); 
+		this.trigger("FrameChange", currentReel);
 	},
 
 	// Update the displayed sprite.
@@ -548,9 +548,9 @@ Crafty.c("SpriteAnimation", {
 	* @comp SpriteAnimation
 	* @sign public Reel .getReel()
 	* @returns The current reel, or null if there is no active reel
-	* 
+	*
 	* @sign public Reel .getReel(reelId)
-	* @param reelId - The id of the reel to fetch.  
+	* @param reelId - The id of the reel to fetch.
 	* @returns The specified reel, or `undefined` if no such reel exists.
 	*
 	*/
@@ -633,7 +633,7 @@ Crafty.c("Tween", {
 	*
 	*/
 	tween: function (props, duration) {
-		
+
 		var tween = {
 			props: props,
 			easing: new Crafty.easing(duration)
@@ -650,7 +650,7 @@ Crafty.c("Tween", {
 			this.tweenGroup[propname] = props;
 		}
 		this.tweens.push(tween);
-		
+
 		return this;
 
 	},
@@ -660,11 +660,11 @@ Crafty.c("Tween", {
 	* @comp Tween
 	* @sign public this .cancelTween(String target)
 	* @param target - The property to cancel
-	* 
+	*
 	* @sign public this .cancelTween(Object target)
 	* @param target - An object containing the properties to cancel.
 	*
-	* Stops tweening the specified property or properties.  
+	* Stops tweening the specified property or properties.
 	* Passing the object used to start the tween might be a typical use of the second signature.
 	*/
 	cancelTween: function(target){
@@ -677,7 +677,7 @@ Crafty.c("Tween", {
 		}
 
 		return this;
-		
+
 	},
 
 	/*

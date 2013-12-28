@@ -111,7 +111,7 @@ Crafty.extend({
             return {
                 x: -Math.ceil(-left / this._tile.width - (top & 1) * 0.5),
                 y: top / this._tile.height * 2
-            }; 
+            };
         },
         /**@
          * #Crafty.isometric.centerAt

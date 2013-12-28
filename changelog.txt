@@ -140,7 +140,7 @@ v0.3.2
 
 * Fixed a collision bug
 
-v0.3.1 
+v0.3.1
 
 * Window resize even on fullscreen
 * Use scrollTop and scrollLeft

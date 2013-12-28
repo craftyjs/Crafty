@@ -1,14 +1,14 @@
 var Crafty = require('./core.js'),
     document = window.document,
     HashMap = require('./HashMap.js');
-// Crafty._rectPool 
+// Crafty._rectPool
 //
 // This is a private object used internally by 2D methods
 // Cascade and _attr need to keep track of an entity's old position,
 // but we want to avoid creating temp objects every time an attribute is set.
 // The solution is to have a pool of objects that can be reused.
 //
-// The current implementation makes a BIG ASSUMPTION:  that if multiple rectangles are requested, 
+// The current implementation makes a BIG ASSUMPTION:  that if multiple rectangles are requested,
 // the later one is recycled before any preceding ones.  This matches how they are used in the code.
 // Each rect is created by a triggered event, and will be recycled by the time the event is complete.
 Crafty._rectPool = (function () {
@@ -436,7 +436,7 @@ Crafty.c("2D", {
         // axis-aligned (unrotated) coordinates, relative to the origin point
         var dx1 = this._x - this._bx1 - ox,
             dx2 = this._x + this._w + this._bx2 - ox,
-            dy1 = this._y - this._by1 - oy, 
+            dy1 = this._y - this._by1 - oy,
             dy2 = this._y + this._h + this._by2 - oy;
 
         var ct = Math.cos(rad),
@@ -899,7 +899,7 @@ Crafty.c("2D", {
         y2 =  (this._y + this._origin.y - e.o.y) * e.cos - (this._x + this._origin.x - e.o.x) * e.sin + (e.o.y - this._origin.y);
         this._attr('_rotation', this._rotation - e.deg);
         this._attr('_x', x2 );
-        this._attr('_y', y2 );        
+        this._attr('_y', y2 );
     },
 
     /**@
@@ -1074,7 +1074,7 @@ Crafty.c("Gravity", {
         if (hit) { //stop falling if found and player is moving down
             if (this._falling && ((this._gy > this._jumpSpeed) || !this._up)){
               this.stopFalling(hit);
-            } 
+            }
         } else {
             this._falling = true; //keep falling otherwise
         }

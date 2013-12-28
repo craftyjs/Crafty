@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" 
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
                     "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -152,7 +152,6 @@
 		equal(Crafty.viewport._x, -e.w / 2 + Crafty.viewport.width / 2, "Entity still centered 10 frames later");
 		equal(done, 0, "CameraAnimationDone doesn't fire after completion");
 
-			
 		var e2 = Crafty.e("2D, DOM").attr({ x: 450, y: 450, w: 20, h: 20 });
 		Crafty.viewport.scroll('x', 1500);
 		Crafty.viewport.scroll('y', 300);
@@ -177,7 +176,7 @@
 				lastKnownTime = params.gameTime;
 			}
 		});
-		
+
 		setTimeout(function () {
 			var endTime = lastKnownTime;
 			ok(endTime > startTime, "EndTime " + endTime + " must be larger than StartTime " + startTime);
@@ -188,7 +187,7 @@
 
 });
 </script>
-  
+
 </head>
 <body>
 <h1 id="qunit-header">Crafty: Stage</h1>
