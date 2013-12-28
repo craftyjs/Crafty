@@ -156,7 +156,7 @@ Crafty.extend({
         });
         this._scenes[name].initialize.call(this, data);
 
-        return; 
+        return;
 
     }
 });

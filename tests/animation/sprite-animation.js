@@ -42,7 +42,7 @@ test("Test .getReel() with no active reel", function(){
 test("Test .reel() with no active reel", function() {
 	var ret;
 	var newAnimation = Crafty.e("SpriteAnimation");
-	
+
 	ret = newAnimation.reel();
 	strictEqual(ret, null, "reel() returns null");
 
@@ -52,7 +52,7 @@ test("Test .reel() with no active reel", function() {
 
 test("Test .animate() with no active reel", function() {
 	var newAnimation = Crafty.e("SpriteAnimation");
-	
+
 	throws(function(){newAnimation.animate()}, /No reel is specified, and there is no currently active reel./, "Throws when calling .animate().")
 	throws(function(){newAnimation.animate(3)}, /No reel is specified, and there is no currently active reel./, "Throws when calling .animate() with loop count.")
 
@@ -121,7 +121,7 @@ test("Test .resetAnimation() with no active reel", function() {
 	newAnimation.destroy();
 });
 
-	
+
 
 
 test("Test .isPlaying() with no active reel", function() {
@@ -162,19 +162,19 @@ test("Test reel switching functionality", function(){
 	equal(spriteAnimation._currentReelId, "short", "Correct _currentReelId after switching");
 	equal(spriteAnimation._currentReel.id, "short", "Correct _currentReel.id after switching");
 	var e ="";
-	
+
 	throws( function(){spriteAnimation.reel("wrong");}, /The specified reel wrong is undefined/,  "Function should throw on bad reel");
-	
+
 	equal(spriteAnimation._currentReelId, "short", "Correct _currentReelId after attempting to switch to bad reel");
-	
-	
+
+
 });
 
 test("Test using reel() with no arguments", function(){
 	spriteAnimation.reel("count");
 	var ret = spriteAnimation.reel();
 	equal(ret, "count", ".reel() returns the current id");
-	
+
 	// Test setting reel id manually, since that's what reel() should return
 	// Don't ever do this in actual code!
 	spriteAnimation._currentReelId = null;
@@ -183,7 +183,7 @@ test("Test using reel() with no arguments", function(){
 	// Reset currentReelId, since we messed it up!
 	spriteAnimation.reel("count");
 
-	
+
 });
 
 test("Test using .getReel() with no arguments", function(){
@@ -210,7 +210,7 @@ test("Test using .reel to set an animation using start and end values", function
 	spriteAnimation.reel('short-test');
 	var reel = spriteAnimation.getReel('short-test');
 	equal(reel.id, "short-test", "Id of reel is set correctly.");
-	
+
 	equal(reel.duration, 3, "Reel has correct duration.")
 	equal(reel.currentFrame, 0, "Reel starts with correct currentFrame of 0.");
 	equal(reel.defaultLoops, 1, "Reel starts with correct default number of loops.");
@@ -230,7 +230,7 @@ test("Test using .reel to set an animation using an array of frames", function()
 	spriteAnimation.reel('short-test-2');
 	var reel = spriteAnimation.getReel('short-test-2');
 	equal(reel.id, "short-test-2", "Id of reel is set correctly.");
-	
+
 	equal(reel.duration, 3, "Reel has correct duration.")
 	equal(reel.currentFrame, 0, "Reel starts with correct currentFrame of 0.");
 	equal(reel.defaultLoops, 1, "Reel starts with correct default number of loops.");
@@ -241,7 +241,7 @@ test("Test using .reel to set an animation using an array of frames", function()
 	deepEqual(frames[0], [0, 0], "First frame is correct.");
 	deepEqual(frames[1], [64, 0], "Second frame is correct.");
 	deepEqual(frames[2], [128, 0], "Third frame is correct.");
-	
+
 })
 
 module("Reel state");
@@ -432,7 +432,7 @@ test("Play an animation with an infinite repeat count", function() {
 			expected.push(0);
 		expected.push(1);
 		expected.push(2);
-	}	
+	}
 
 	deepEqual(eventFrames, expected, "Expected events matching the amount of frames that pass");
 	deepEqual(finishedAnimations, [], "Expected no animation to end");
