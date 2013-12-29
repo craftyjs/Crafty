@@ -182,10 +182,10 @@ Crafty.c("SpriteAnimation", {
 	*     PlayerSprite: [0,0]
 	* });
 	*
-	* // Define an animation on the second row of the sprite map (y = 1)
+	* // Define an animation on the second row of the sprite map (fromY = 1)
 	* // from the left most sprite (fromX = 0) to the fourth sprite
-	* // on that row (toX = 3), with a duration of 1 second
-	* Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite").reel('PlayerRunning', 1000, 0, 1, 3);
+	* // on that row (frameCount = 4), with a duration of 1 second
+	* Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite").reel('PlayerRunning', 1000, 0, 1, 4);
 	*
 	* // This is the same animation definition, but using the alternative method
 	* Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite").reel('PlayerRunning', 1000, [[0, 1], [1, 1], [2, 1], [3, 1]]);
@@ -229,7 +229,7 @@ Crafty.c("SpriteAnimation", {
 
 		reel.duration = reel.easing.duration;
 
-		// @sign public this .reel(String reelId, Number duration, Number fromX, Number y, Number toX)
+		// @sign public this .reel(String reelId, Number duration, Number fromX, Number fromY, Number frameDuration)
 		if (typeof fromX === "number") {
 			i = fromX;
 			y = fromY;
@@ -246,11 +246,8 @@ Crafty.c("SpriteAnimation", {
 		}
 		// @sign public this .reel(String reelId, Number duration, Array frames)
 		else if (arguments.length === 3 && typeof fromX === "object") {
-
-			i = 0;
-			toX = fromX.length - 1;
-
-			for (; i <= toX; i++) {
+			// In this case, fromX is actually the array of frames
+			for (i=0; i < fromX.length; i++) {
 				pos = fromX[i];
 				reel.frames.push([pos[0] * tile, pos[1] * tileh]);
 			}
