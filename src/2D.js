@@ -353,7 +353,8 @@ Crafty.c("2D", {
 
         //when object changes, update HashMap
         this.bind("Move", function (e) {
-            var area = this._mbr || this;
+            // Choose the largest bounding region that exists
+            var area = this._cbr || this._mbr || this;
             this._entry.update(area);
             // Move children (if any) by the same amount
             if (this._children.length > 0) {
@@ -362,7 +363,8 @@ Crafty.c("2D", {
         });
 
         this.bind("Rotate", function (e) {
-            var old = this._mbr || this;
+            // Choose the largest bounding region that exists
+            var old = this._cbr || this._mbr || this;
             this._entry.update(old);
             // Rotate children (if any) by the same amount
             if (this._children.length > 0) {
@@ -423,7 +425,7 @@ Crafty.c("2D", {
         this._by1 = y1;
         this._by2 = y2;
         this.trigger("BoundaryOffset");
-        this._calculateMBR(this._origin.x + this._x, this._origin.y + this._y, -this._rotation * DEG_TO_RAD);
+        this._calculateMBR();
         return this;
     },
 
@@ -432,7 +434,10 @@ Crafty.c("2D", {
      * Necessary on a rotation, or a resize
      */
 
-    _calculateMBR: function (ox, oy, rad) {
+    _calculateMBR: function () {
+        var ox = this._origin.x + this._x,
+            oy = this._origin.y + this._y,
+            rad = -this._rotation * DEG_TO_RAD;
         // axis-aligned (unrotated) coordinates, relative to the origin point
         var dx1 = this._x - this._bx1 - ox,
             dx2 = this._x + this._w + this._bx2 - ox,
@@ -472,6 +477,23 @@ Crafty.c("2D", {
             this._mbr._h = maxy - miny;
         }
 
+        // If a collision hitbox exists AND sits outside the entity, find a bounding box for both.
+        // `_cbr` contains information about a bounding circle of the hitbox. 
+        // The bounds of `_cbr` will be the union of the `_mbr` and the bounding box of that circle.
+        // This will not be a minimal region, but since it's only used for the broad phase pass it's good enough. 
+        //
+        // cbr is calculated by the `_checkBounds` method of the "Collision" component
+        if (this._cbr) {
+            var cbr = this._cbr;
+            var cx = cbr.cx, cy = cbr.cy, r = cbr.r;
+            var cx2 = ox + (cx + this._x - ox) * ct + (cy + this._y - oy) * st;
+            var cy2 = oy - (cx + this._x - ox) * st + (cy + this._y - oy) * ct;
+            cbr._x = Math.min(cx2 - r, minx);
+            cbr._y = Math.min(cy2 - r, miny);
+            cbr._w = Math.max(cx2 + r, maxx) - cbr._x;
+            cbr._h = Math.max(cy2 + r, maxy) - cbr._y;
+        }
+
     },
 
     /**
@@ -483,6 +505,8 @@ Crafty.c("2D", {
         // skip if there's no rotation!
         if (difference === 0)
             return;
+        else
+            this._rotation = v;
 
         //Calculate the new MBR
         var rad = theta * DEG_TO_RAD,
@@ -491,7 +515,7 @@ Crafty.c("2D", {
                 y: this._origin.y + this._y
             };
 
-        this._calculateMBR(o.x, o.y, rad);
+        this._calculateMBR();
 
 
         //trigger "Rotate" event
@@ -926,10 +950,15 @@ Crafty.c("2D", {
             this.trigger("reorder");
             //if the rect bounds change, update the MBR and trigger move
         } else if (name === '_x' || name === '_y') {
+            // mbr is the minimal bounding rectangle of the entity
             mbr = this._mbr;
-
             if (mbr) {
                 mbr[name] -= this[name] - value;
+                // cbr is a non-minmal bounding rectangle that contains both hitbox and mbr
+                // It will exist only when the collision hitbox sits outside the entity
+                if (this._cbr){
+                    this._cbr[name] -= this[name] - value;
+                }
             }
             this[name] = value;
 
@@ -941,7 +970,7 @@ Crafty.c("2D", {
             var oldValue = this[name];
             this[name] = value;
             if (mbr) {
-                this._calculateMBR(this._origin.x + this._x, this._origin.y + this._y, -this._rotation * DEG_TO_RAD);
+                this._calculateMBR();
             }
             if (name === '_w') {
                 this.trigger("Resize", {
