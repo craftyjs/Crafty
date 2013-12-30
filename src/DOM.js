@@ -218,10 +218,11 @@ Crafty.c("DOM", {
     /**@
      * #.css
      * @comp DOM
-     * @sign public * css(String property, String value)
+     * @sign public css(String property, String value)
      * @param property - CSS property to modify
      * @param value - Value to give the CSS property
-     * @sign public * css(Object map)
+     *
+     * @sign public  css(Object map)
      * @param map - Object where the key is the CSS property and the value is CSS value
      *
      * Apply CSS styles to the element.

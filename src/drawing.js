@@ -35,10 +35,10 @@ Crafty.c("Color", {
      * choose to support.
      *
      * @example
-     * ~~~
+     * ```
      * Crafty.e("2D, DOM, Color")
      *    .color("#969696");
-     * ~~~
+     * ```
      */
     color: function (color) {
         if (!color) return this._color;
@@ -426,10 +426,9 @@ Crafty.DrawManager = (function () {
          * @comp Crafty.DrawManager
          * @sign public Crafty.DrawManager.drawAll([Object rect])
          * @param rect - a rectangular region {_x: x_val, _y: y_val, _w: w_val, _h: h_val}
-         * ~~~
+         *
          * - If rect is omitted, redraw within the viewport
          * - If rect is provided, redraw within the rect
-         * ~~~
          */
         drawAll: function (rect) {
             rect = rect || Crafty.viewport.rect();
@@ -457,10 +456,9 @@ Crafty.DrawManager = (function () {
          * @comp Crafty.DrawManager
          * @sign public Crafty.DrawManager.boundingRect(set)
          * @param set - Undocumented
-         * ~~~
+         *
          * - Calculate the common bounding rect of multiple canvas entities.
          * - Returns coords
-         * ~~~
          */
         boundingRect: function (set) {
             if (!set || !set.length) return;
@@ -496,12 +494,11 @@ Crafty.DrawManager = (function () {
          * #Crafty.DrawManager.renderCanvas
          * @comp Crafty.DrawManager
          * @sign public Crafty.DrawManager.renderCanvas()
-         * ~~~
+         *
          * - Triggered by the "RenderScene" event
          * - If the number of rects is over 60% of the total number of objects
          *	do the naive method redrawing `Crafty.DrawManager.drawAll`
          * - Otherwise, clear the dirty regions, and redraw entities overlapping the dirty regions.
-         * ~~~
          *
          * @see Canvas.draw
          */
@@ -616,9 +613,8 @@ Crafty.DrawManager = (function () {
          * #Crafty.DrawManager.renderDOM
          * @comp Crafty.DrawManager
          * @sign public Crafty.DrawManager.renderDOM()
-         * ~~~
+         *
          * When "RenderScene" is triggered, draws all DOM entities that have been flagged
-         * ~~~
          *
          * @see DOM.draw
          */

@@ -224,7 +224,7 @@ Crafty.c("Collision", {
      * ~~~
      * [{
      *    obj: [entity],
-     *    type "MBR" or "SAT",
+     *    type: "MBR" or "SAT",
      *    overlap: [number]
      * }]
      * ~~~

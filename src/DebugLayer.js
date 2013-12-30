@@ -56,9 +56,10 @@ Crafty.c("DebugCanvas", {
      * @comp DebugCanvas
      * @sign public  .debugFill([String fillStyle])
      * @param fillStyle - The color the component will be filled with.  Defaults to "red". Pass the boolean false to turn off filling.
+     * @example
      * ~~~
      * var myEntity = Crafty.e("2D, Collision, SolidHitBox ").debugFill("purple")
-     *~~~
+     * ~~~
      */
     debugFill: function (fillStyle) {
         if (typeof fillStyle === 'undefined')
@@ -72,9 +73,10 @@ Crafty.c("DebugCanvas", {
      * @comp DebugCanvas
      * @sign public  .debugStroke([String strokeStyle])
      * @param strokeStyle - The color the component will be outlined with.  Defaults to "red".  Pass the boolean false to turn this off.
+     * @example
      * ~~~
      * var myEntity = Crafty.e("2D, Collision, WiredHitBox ").debugStroke("white")
-     *~~~
+     * ~~~
      */
     debugStroke: function (strokeStyle) {
         if (typeof strokeStyle === 'undefined')

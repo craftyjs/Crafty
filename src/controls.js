@@ -55,9 +55,12 @@ Crafty.extend({
      *
      * Notable properties of a MouseEvent e:
      * ~~~
-     * e.clientX, e.clientY	//(x,y) coordinates of mouse event in web browser screen space
-     * e.realX, e.realY		//(x,y) coordinates of mouse event in world/viewport space
-     * e.mouseButton			// Normalized mouse button according to Crafty.mouseButtons
+     * //(x,y) coordinates of mouse event in web browser screen space
+     * e.clientX, e.clientY	
+     * //(x,y) coordinates of mouse event in world/viewport space
+     * e.realX, e.realY		
+     * // Normalized mouse button according to Crafty.mouseButtons
+     * e.mouseButton			
      * ~~~
      * @see Crafty.touchDispatch
      */
@@ -181,7 +184,7 @@ Crafty.extend({
      *
      * TouchEvents have a different structure then MouseEvents.
      * The relevant data lives in e.changedTouches[0].
-     * To normalize TouchEvents we catch em and dispatch a mock MouseEvent instead.
+     * To normalize TouchEvents we catch them and dispatch a mock MouseEvent instead.
      *
      * @see Crafty.mouseDispatch
      */
@@ -378,11 +381,9 @@ Crafty.bind("CraftyStop", function () {
  * @trigger MouseMove - when the mouse is over the entity and moves - MouseEvent
  * Crafty adds the mouseButton property to MouseEvents that match one of
  *
- * ~~~
  * - Crafty.mouseButtons.LEFT
  * - Crafty.mouseButtons.RIGHT
  * - Crafty.mouseButtons.MIDDLE
- * ~~~
  *
  * @example
  * ~~~
@@ -893,10 +894,8 @@ Crafty.c("Twoway", {
      *
      * Constructor to initialize the speed and power of jump. Component will
      * listen for key events and move the entity appropriately. This includes
-     * ~~~
-     * `Up Arrow`, `Right Arrow`, `Left Arrow` as well as W, A, D. Used with the
+     * `Up Arrow`, `Right Arrow`, `Left Arrow` as well as `W`, `A`, `D`. Used with the
      * `gravity` component to simulate jumping.
-     * ~~~
      *
      * The key presses will move the entity in that direction by the speed passed in
      * the argument. Pressing the `Up Arrow` or `W` will cause the entity to jump.
