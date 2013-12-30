@@ -843,9 +843,12 @@ Crafty.fn = Crafty.prototype = {
 //give the init instances the Crafty prototype
 Crafty.fn.init.prototype = Crafty.fn;
 
-/**
- * Extension method to extend the namespace and
- * selector instances
+
+/**@
+ * #Crafty.extend
+ * @category Core
+ * Used to extend the Crafty namespace.
+ *
  */
 Crafty.extend = Crafty.fn.extend = function (obj) {
     var target = this,
@@ -862,11 +865,7 @@ Crafty.extend = Crafty.fn.extend = function (obj) {
     return target;
 };
 
-/**@
- * #Crafty.extend
- * @category Core
- * Used to extend the Crafty namespace.
- */
+
 Crafty.extend({
     /**@
      * #Crafty.init
@@ -1077,8 +1076,8 @@ Crafty.extend({
             /**@
              * #Crafty.timer.steptype
              * @comp Crafty.timer
-             * Can be called to set the type of timestep the game loop uses
              * @sign public void Crafty.timer.steptype(mode [, maxTimeStep])
+             * Can be called to set the type of timestep the game loop uses
              * @param mode - the type of time loop.  Allowed values are "fixed", "semifixed", and "variable".  Crafty defaults to "fixed".
              * @param mode - For "fixed", sets the max number of frames per step.   For "variable" and "semifixed", sets the maximum time step allowed.
              *
@@ -1203,8 +1202,8 @@ Crafty.extend({
             /**@
              * #Crafty.timer.simulateFrames
              * @comp Crafty.timer
-             * Advances the game state by a number of frames and draws the resulting stage at the end. Useful for tests and debugging.
              * @sign public this Crafty.timer.simulateFrames(Number frames[, Number timestep])
+             * Advances the game state by a number of frames and draws the resulting stage at the end. Useful for tests and debugging.
              * @param frames - number of frames to simulate
              * @param timestep - the duration to pass each frame.  Defaults to milliSecPerFrame (20 ms) if not specified.
              */
@@ -1270,7 +1269,7 @@ Crafty.extend({
      * @category Core
      * @sign public void Crafty.c(String name, Object component)
      * @param name - Name of the component
-     * @param component - Object with the components properties and methods
+     * @param component - Object with the component's properties and methods
      * Creates a component where the first argument is the ID and the second
      * is the object that will be inherited by entities.
      *

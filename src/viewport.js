@@ -509,13 +509,12 @@ Crafty.extend({
              * `Crafty.stage.inner` is a div inside the `#cr-stage` div that holds all DOM entities.
              * If you use canvas, a `canvas` element is created at the same level in the dom
              * as the the `Crafty.stage.inner` div. So the hierarchy in the DOM is
-             *
-             * `Crafty.stage.elem`
-             * <!-- not sure how to do indentation in the document-->
-             *
-             *     - `Crafty.stage.inner` (a div HTMLElement)
-             *
-             *     - `Crafty.canvas._canvas` (a canvas HTMLElement)
+             *  
+             * ~~~
+             * Crafty.stage.elem
+             *  - Crafty.stage.inner (a div HTMLElement)
+             *  - Crafty.canvas._canvas (a canvas HTMLElement)
+             * ~~~
              */
 
             //create stage div to contain everything

@@ -307,10 +307,8 @@ var Crafty = require('./core.js'),
      * @category 2D
      * Broad-phase collision detection engine. See background information at
      *
-     * ~~~
      * - [N Tutorial B - Broad-Phase Collision](http://www.metanetsoftware.com/technique/tutorialB.html)
      * - [Broad-Phase Collision Detection with CUDA](http.developer.nvidia.com/GPUGems3/gpugems3_ch32.html)
-     * ~~~
      * @see Crafty.map
      */
 

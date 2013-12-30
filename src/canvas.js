@@ -13,8 +13,9 @@ var Crafty = require('./core.js'),
  *
  * Create a canvas entity like this
  * ~~~
- * var myEntity = Crafty.e("2D, Canvas, Color").color("green")
- *                                             .attr({x: 13, y: 37, w: 42, h: 42});
+ * var myEntity = Crafty.e("2D, Canvas, Color")
+ *      .color("green")
+ *      .attr({x: 13, y: 37, w: 42, h: 42});
  *~~~
  */
 Crafty.c("Canvas", {

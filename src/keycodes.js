@@ -199,8 +199,8 @@ Crafty.extend({
     /**@
      * #Crafty.mouseButtons
      * @category Input
-     * Object of mouseButton names and the corresponding button ID.
-     * In all mouseEvents we add the e.mouseButton property with a value normalized to match e.button of modern webkit
+     * An object mapping mouseButton names to the corresponding button ID.
+     * In all mouseEvents, we add the `e.mouseButton` property with a value normalized to match e.button of modern webkit browsers:
      *
      * ~~~
      * LEFT: 0,
