@@ -1366,7 +1366,7 @@ Crafty.extend({
      * @sign public Number bind(String eventName, Function callback)
      * @param eventName - Name of the event to bind to
      * @param callback - Method to execute upon event triggered
-     * @returns ID of the current callback used to unbind
+     * @returns callback function which can be used for unbind
      *
      * Binds to a global event. Method will be executed when `Crafty.trigger` is used
      * with the event name.
@@ -1398,7 +1398,8 @@ Crafty.extend({
         var hdl = handlers[event];
 
         if (!hdl.global) hdl.global = [];
-        return hdl.global.push(callback) - 1;
+        hdl.global.push(callback);
+        return callback;
     },
 
 
@@ -1408,7 +1409,7 @@ Crafty.extend({
      * @sign public Number uniqueBind(String eventName, Function callback)
      * @param eventName - Name of the event to bind to
      * @param callback - Method to execute upon event triggered
-     * @returns ID of the current callback used to unbind
+     * @returns callback function which can be used for unbind
      *
      * Works like Crafty.bind, but prevents a callback from being bound multiple times.
      *
@@ -1416,8 +1417,7 @@ Crafty.extend({
      */
     uniqueBind: function (event, callback) {
         this.unbind(event, callback);
-        this.bind(event, callback);
-
+        return this.bind(event, callback);
     },
 
     /**@
@@ -1426,7 +1426,7 @@ Crafty.extend({
      * @sign public Number one(String eventName, Function callback)
      * @param eventName - Name of the event to bind to
      * @param callback - Method to execute upon event triggered
-     * @returns ID of the current callback used to unbind
+     * @returns callback function which can be used for unbind
      *
      * Works like Crafty.bind, but will be unbound once the event triggers.
      *
@@ -1439,7 +1439,6 @@ Crafty.extend({
             self.unbind(event, oneHandler);
         };
         return self.bind(event, oneHandler);
-
     },
 
     /**@
