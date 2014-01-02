@@ -1,4 +1,4 @@
-module("Sound", {
+module("Audio", {
   setup: function() {
     // prepare something for all following tests
   },
