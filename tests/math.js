@@ -3,7 +3,15 @@ var Vector2D = Crafty.math.Vector2D;
 
 // tests for general functions should go here (.abs(), .amountOf(), etc)
 
-module("Math - Vector2D");
+module("Math - Vector2D", {
+  setup: function() {
+    // prepare something for all following tests
+  },
+  teardown: function() {
+    // clean up after each test
+    Crafty("*").destroy();
+  }
+});
 
 test("constructor", function() {
   var v0 = new Vector2D();

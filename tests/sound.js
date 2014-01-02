@@ -1,4 +1,12 @@
-module("Sound");
+module("Sound", {
+  setup: function() {
+    // prepare something for all following tests
+  },
+  teardown: function() {
+    // clean up after each test
+    Crafty("*").destroy();
+  }
+});
 
 //Set up some test fixtures
 function MockAudio() {
@@ -62,7 +70,6 @@ function ChromeBuggedAudio() {
   this.ended = false
 }
 
-Crafty.init();
 
 asyncTest("setChannels", function() {
   // Test that setChannels doesn't break sound

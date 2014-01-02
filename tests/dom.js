@@ -1,4 +1,12 @@
-module("DOM");
+module("DOM", {
+  setup: function() {
+    // prepare something for all following tests
+  },
+  teardown: function() {
+    // clean up after each test
+    Crafty("*").destroy();
+  }
+});
 
 test("avoidCss3dTransforms", function() {
   var useCss3dTransforms = Crafty.e("2D, DOM")
