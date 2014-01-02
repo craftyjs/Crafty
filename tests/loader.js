@@ -1,4 +1,4 @@
-module('LOADER');
+module('Loader');
 
 asyncTest('assets loading', function() {
   expect(1);

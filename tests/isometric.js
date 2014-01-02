@@ -1,4 +1,4 @@
-module("ISOMETRIC");
+module("Isometric");
 
 test("place tile", function() {
   var iso = Crafty.isometric.size(64, 16);

@@ -1,4 +1,4 @@
-module("CORE");
+module("Core");
 
 test("getVersion", function() {
 
