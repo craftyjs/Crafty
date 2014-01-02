@@ -86,17 +86,7 @@ module.exports = function (grunt) {
 
         qunit: {
             all: [
-                'tests/core.html',
-                'tests/animation/animation.html',
-                'tests/stage.html',
-                'tests/events.html',
-                'tests/math.html',
-                'tests/isometric.html',
-                'tests/loader.html',
-                'tests/text.html',
-                'tests/dom.html',
-                'tests/tween.html',
-                'tests/sound.html'
+                'tests/index.js'
             ]
         },
 
