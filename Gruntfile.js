@@ -76,7 +76,7 @@ module.exports = function (grunt) {
         },
 
         jshint: {
-            files: ['Gruntfile.js', 'src/**/*.js'],
+            files: ['Gruntfile.js', 'src/**/*.js', 'tests/*.js'],
             options: {
                 trailing: true,
                 globals: {
@@ -91,7 +91,7 @@ module.exports = function (grunt) {
         },
 
         jsvalidate: {
-            files: "crafty.js"
+            files: ["crafty.js", 'tests/*.js']
         },
 
     });
