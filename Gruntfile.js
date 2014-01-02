@@ -86,12 +86,13 @@ module.exports = function (grunt) {
 
         qunit: {
             all: [
-                'tests/index.html'
+                'tests/index.html',
+                'tests/animation/animation.html'
             ]
         },
 
         jsvalidate: {
-            files: ["crafty.js", 'tests/*.js']
+            files: ['crafty.js', 'tests/*.js']
         },
 
     });
