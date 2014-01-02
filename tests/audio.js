@@ -23,7 +23,7 @@ function MockAudio() {
       default:
         throw new Exception("Not implemented");
     }
-  }
+  };
   this.removeEventListener = function(event, listener) {
     switch (event) {
       case "ended":
@@ -33,14 +33,14 @@ function MockAudio() {
       default:
         throw new Exception("Not implemented");
     }
-  }
+  };
 
   function fireEnded() {
     setTimeout(function() {
       self.ended = true;
       self.endedListeners.forEach(function(f) {
         f.call(self);
-      })
+      });
     }, 0);
   }
   this.play = function() {
@@ -85,7 +85,7 @@ asyncTest("setChannels", function() {
     delete window.Audio; //reset Audio to platform default
     Crafty.audio.channels = [];
     start();
-  })
+  });
 });
 
 test("chromeBug", function() {

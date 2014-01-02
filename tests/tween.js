@@ -9,7 +9,7 @@ module("Tween", {
 });
 
 test("Tween", function() {
-  var e = Crafty.e("2D, Tween")
+  var e = Crafty.e("2D, Tween");
   e.x = 0;
   e.y = 10;
   var ret = e.tween({

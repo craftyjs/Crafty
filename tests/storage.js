@@ -7,7 +7,7 @@ test("saveAndLoadObject", function() {
   });
   stop();
   Crafty.storage.load("LeaderBoard", "save", function(lb) {
-    equal(lb["name"], "Matthew");
+    equal(lb.name, "Matthew");
     start();
   });
 });
@@ -23,7 +23,7 @@ test("saveAndLoadArray", function() {
   }]);
   stop();
   Crafty.storage.load("LeaderBoard", "save", function(lb) {
-    equal(lb[1]["name"], "Louis");
+    equal(lb[1].name, "Louis");
     equal(lb.length, 2);
     start();
   });
@@ -39,7 +39,7 @@ test("saveAndLoadEntity", function() {
   Crafty.storage.load("Hero", "save", function(hero) {
     console.log(hero);
     ok(hero.__c["2D"]);
-    ok(hero.__c["DOM"])
+    ok(hero.__c.DOM);
     equal(hero.x, 0, "Entity state is not saved");
     start();
   });
@@ -61,13 +61,13 @@ test("individualNamespaces", function() {
 
   stop();
   Crafty.storage.load("LeaderBoard", "save", function(lb) {
-    equal(lb["name"], "Louis");
+    equal(lb.name, "Louis");
     start();
   });
 
   Crafty.storage.open("MyGame3");
   Crafty.storage.load("LeaderBoard", "save", function(lb) {
-    equal(lb["name"], "Matthew");
+    equal(lb.name, "Matthew");
     start();
   });
-})
+});
