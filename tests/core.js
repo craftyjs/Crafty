@@ -64,7 +64,7 @@ test("remove", function() {
       removeRan = true;
       destroyFlag = destroyed;
     }
-  })
+  });
   var e = Crafty.e("comp, blank");
   e.removeComponent("blank");
   strictEqual(removeRan, false, "Remove doesn't run on other component removal");
@@ -76,7 +76,7 @@ test("remove", function() {
 
   removeRan = false;
   e.addComponent("comp");
-  e.destroy()
+  e.destroy();
   strictEqual(removeRan, true, "Remove runs on component destrution");
   strictEqual(destroyFlag, true, "Destroy flag true on destruction");
 });
@@ -103,15 +103,15 @@ test("setter", function() {
   }
   var first = Crafty.e("test");
   first.setter('p1', function(v) {
-    this._p1 = v * 2
+    this._p1 = v * 2;
   });
   first.p1 = 2;
   strictEqual(first._p1, 4, "single property setter");
 
   first.setter('p2', function(v) {
-    this._p2 = v * 2
+    this._p2 = v * 2;
   }).setter('p3', function(v) {
-    this._p3 = v * 2
+    this._p3 = v * 2;
   });
   first.p2 = 2;
   first.p3 = 3;
@@ -211,7 +211,7 @@ test("Crafty.get() to find an array", function() {
   equal(result[0].has("test"), true, "Result elements should have correct component");
   equal(collection[0], result[0].getId(), "First id of result should match first id of Crafty array");
 
-})
+});
 
 test("Crafty.get(index) to find the indicated entity", function() {
   Crafty.e("test");
@@ -228,7 +228,7 @@ test("Crafty.get(index) to find the indicated entity", function() {
   equal(result.has("test"), true, "Result should have correct component");
   equal(result.getId(), collection[2], "result should be last element of collection");
 
-})
+});
 
 test("Crafty.get(index) error checking", function() {
   Crafty.e("test");
@@ -239,22 +239,22 @@ test("Crafty.get(index) error checking", function() {
   collection = Crafty("test");
 
   result = collection.get(3);
-  equal(typeof result, "undefined", "result of get(3) should be undefined")
+  equal(typeof result, "undefined", "result of get(3) should be undefined");
 
   result = collection.get(-4);
-  equal(typeof result, "undefined", "result of get(-4) should be undefined")
+  equal(typeof result, "undefined", "result of get(-4) should be undefined");
 
-})
+});
 
 test("Crafty.get with only one object", function() {
   var e = Crafty.e("test");
   var collection = Crafty("test");
   result = collection.get(0);
-  equal(result.getId(), e.getId(), "result of get(0) is correct entity")
+  equal(result.getId(), e.getId(), "result of get(0) is correct entity");
   result = collection.get();
   equal(result.length, 1, "result of get() is array of length 1");
 
-})
+});
 
 test("requires", function() {
   var first = Crafty.e("test");
@@ -298,10 +298,10 @@ test("Scene calling", function() {
   var x = 0;
   var sceneInit = function() {
     x = 13;
-  }
+  };
   Crafty.scene("test-call", sceneInit);
   Crafty.scene("test-call");
-  equal(x, 13, "Scene called succesfully.")
+  equal(x, 13, "Scene called succesfully.");
 
 });
 
@@ -309,10 +309,10 @@ test("Scene parameters", function() {
   var x = 0;
   var paramTaker = function(y) {
     x = y;
-  }
+  };
   Crafty.scene("test-param", paramTaker);
   Crafty.scene("test-param", 11);
-  equal(x, 11, "Scene called succesfully with parameter.")
+  equal(x, 11, "Scene called succesfully with parameter.");
 });
 
 test("Calling a scene destroys 2D entities", function() {
@@ -341,13 +341,13 @@ test("Scene uninit function called", function() {
   var y = 0;
   var sceneInit = function() {
     x = 13;
-  }
+  };
   var sceneUninit = function() {
     x = 20;
-  }
+  };
   var sceneGame = function() {
     y = 5;
-  }
+  };
   Crafty.defineScene("test-uninit", sceneInit, sceneUninit);
   Crafty.defineScene("game", sceneGame);
   Crafty.enterScene("test-uninit");
@@ -378,7 +378,7 @@ test("DebugCanvas", function() {
   e.debugFill("purple");
   equal(e._debug.fillStyle, "purple", "fill style set correctly on entity");
 
-  e.debugStroke("green")
+  e.debugStroke("green");
   equal(e._debug.strokeStyle, "green", "stroke style set correctly on entity");
 
   e.debugDraw(ctx);
@@ -430,23 +430,23 @@ test("Hitbox debugging", function() {
 
   e.destroy();
 
-  var e = Crafty.e("2D, Collision, SolidHitBox").attr({
+  var e2 = Crafty.e("2D, Collision, SolidHitBox").attr({
     x: 10,
     y: 10,
     w: 10,
     h: 20
   }).collision();
-  e.matchHitBox(); // only necessary until collision works properly!
-  equal(e.polygon.points[0][0], 10, "SolidHitBox -- correct x coord for upper right corner");
-  equal(e.polygon.points[2][1], 30, "correct y coord for lower right corner");
-  equal(typeof e._debug.strokeStyle, "undefined", "stroke style is undefined");
-  notEqual(typeof e._debug.fillStyle, "undefined", "fill style is assigned");
+  e2.matchHitBox(); // only necessary until collision works properly!
+  equal(e2.polygon.points[0][0], 10, "SolidHitBox -- correct x coord for upper right corner");
+  equal(e2.polygon.points[2][1], 30, "correct y coord for lower right corner");
+  equal(typeof e2._debug.strokeStyle, "undefined", "stroke style is undefined");
+  notEqual(typeof e2._debug.fillStyle, "undefined", "fill style is assigned");
 
-  e.collision(new Crafty.polygon([0, 0], [15, 0], [0, 15]));
-  e.matchHitBox();
-  equal(e.polygon.points[2][1], 25, "After change -- correct y coord for third point");
+  e2.collision(new Crafty.polygon([0, 0], [15, 0], [0, 15]));
+  e2.matchHitBox();
+  equal(e2.polygon.points[2][1], 25, "After change -- correct y coord for third point");
 
-  e.destroy();
+  e2.destroy();
 
 });
 
@@ -463,7 +463,8 @@ module("Easing", {
 test("Crafty.easing duration", function() {
   var e = new Crafty.easing(80); // 4 frames == 80ms by default
   equal(e.duration, 80, "Default duration in ms");
-})
+});
+
 test("Crafty.easing", function() {
   var e = new Crafty.easing(80); // 4 frames == 80ms by default
   e.tick(20);
@@ -471,7 +472,7 @@ test("Crafty.easing", function() {
   equal(e.value(), 0.5, ".5 after two steps");
   e.tick(20);
   e.tick(20);
-  equal(e.value(), 1, "1 after completed")
+  equal(e.value(), 1, "1 after completed");
   e.tick(20);
-  equal(e.value(), 1, "Remains 1 after completion")
-})
+  equal(e.value(), 1, "Remains 1 after completion");
+});

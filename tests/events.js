@@ -12,23 +12,23 @@ test("Global binding events", function() {
   var x = 0;
 
   function add() {
-    x++
+    x++;
   }
 
-  Crafty.bind("Increment", add)
-  Crafty.trigger("Increment")
+  Crafty.bind("Increment", add);
+  Crafty.trigger("Increment");
   strictEqual(x, 1, "Crafty.bind fired once");
 
 
   x = 0;
-  Crafty.unbind("Increment", add)
-  Crafty.trigger("Increment")
+  Crafty.unbind("Increment", add);
+  Crafty.trigger("Increment");
   strictEqual(x, 0, "Crafty.bind does not fire once unbound");
 
   x = 0;
-  Crafty.one("Increment", add)
-  Crafty.trigger("Increment")
-  Crafty.trigger("Increment")
+  Crafty.one("Increment", add);
+  Crafty.trigger("Increment");
+  Crafty.trigger("Increment");
   strictEqual(x, 1, "Event bound by Crafty.one fires exactly once");
 
   x = 0;
@@ -39,7 +39,7 @@ test("Global binding events", function() {
 
   x = 0;
   Crafty.unbind("Increment", add);
-  Crafty.trigger("Increment")
+  Crafty.trigger("Increment");
   strictEqual(x, 0, "uniqueBound does not fire once unbound");
 
 });
@@ -49,24 +49,24 @@ test("Entity binding events", function() {
   var x = 0;
 
   function add() {
-    x++
+    x++;
   }
-  var e = Crafty.e("Triggerable")
+  var e = Crafty.e("Triggerable");
 
-  e.bind("Increment", add)
-  e.trigger("Increment")
+  e.bind("Increment", add);
+  e.trigger("Increment");
   strictEqual(x, 1, ".bind fired once");
 
 
   x = 0;
-  e.unbind("Increment", add)
-  e.trigger("Increment")
+  e.unbind("Increment", add);
+  e.trigger("Increment");
   strictEqual(x, 0, ".bind does not fire once unbound");
 
   x = 0;
-  e.one("Increment", add)
-  e.trigger("Increment")
-  e.trigger("Increment")
+  e.one("Increment", add);
+  e.trigger("Increment");
+  e.trigger("Increment");
   strictEqual(x, 1, "Event bound by .one fires exactly once");
 
   x = 0;
@@ -77,7 +77,7 @@ test("Entity binding events", function() {
 
   x = 0;
   e.unbind("Increment", add);
-  e.trigger("Increment")
+  e.trigger("Increment");
   strictEqual(x, 0, "uniqueBound does not fire once unbound");
 
   e.destroy();
@@ -147,7 +147,7 @@ test("Multiple bound events", function() {
   strictEqual(temp.abc, 2, "regular event should trigger twice");
   strictEqual(temp.def, 1, "second one() should trigger once");
 
-  Crafty.unbind("Event A")
+  Crafty.unbind("Event A");
 
 });
 
@@ -156,42 +156,42 @@ test("Data passing", function() {
     e;
 
   function add(data) {
-    x += data.amount
+    x += data.amount;
   }
 
   x = 0;
-  e = Crafty.e("Triggerable")
-  e.bind("Increment", add)
+  e = Crafty.e("Triggerable");
+  e.bind("Increment", add);
   e.trigger("Increment", {
     amount: 2
-  })
+  });
   strictEqual(x, 2, "data passed correctly with .bind");
   e.destroy();
 
   x = 0;
-  e = Crafty.e("Triggerable")
-  e.one("Increment", add)
+  e = Crafty.e("Triggerable");
+  e.one("Increment", add);
   e.trigger("Increment", {
     amount: 2
-  })
+  });
   strictEqual(x, 2, "data passed correctly with .one");
   e.destroy();
 
   x = 0;
-  Crafty.bind("Increment", add)
+  Crafty.bind("Increment", add);
   Crafty.trigger("Increment", {
     amount: 2
-  })
+  });
   strictEqual(x, 2, "data passed correctly with Crafty.bind");
-  Crafty.unbind("Increment")
+  Crafty.unbind("Increment");
 
   x = 0;
-  Crafty.one("Increment", add)
+  Crafty.one("Increment", add);
   Crafty.trigger("Increment", {
     amount: 3
-  })
+  });
   strictEqual(x, 3, "data passed correctly with Crafty.one");
-  Crafty.unbind("Increment")
+  Crafty.unbind("Increment");
 
 
 

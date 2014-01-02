@@ -1,11 +1,10 @@
 var reset = function() {
-  Crafty("*").destroy();
   Crafty.viewport.reset();
   Crafty.viewport.scroll('_x', 0);
   Crafty.viewport.scroll('_y', 0);
   Crafty.viewport.clampToEntities = true;
 
-}
+};
 
 test("simulateFrames", function() {
   var framesPlayed = 0;
@@ -17,9 +16,7 @@ test("simulateFrames", function() {
 
   Crafty.timer.simulateFrames(100);
   equal(framesPlayed, 101, "101 frames should have been simulated");
-})
-
-
+});
 
 module("Viewport", {
   setup: function() {
@@ -92,7 +89,7 @@ test("pan", function() {
 
   var done = 0;
   var panDone = function() {
-    done++
+    done++;
   };
   Crafty.one("CameraAnimationDone", panDone);
 
@@ -121,7 +118,7 @@ test("zoom", function() {
 
   var done = 0;
   var panDone = function() {
-    done++
+    done++;
   };
   Crafty.one("CameraAnimationDone", panDone);
 
@@ -160,7 +157,7 @@ test("centerOn", function() {
 
   var done = 0;
   var panDone = function() {
-    done++
+    done++;
   };
   Crafty.one("CameraAnimationDone", panDone);
 

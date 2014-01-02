@@ -200,9 +200,6 @@ test("child", function() {
 });
 
 test("child_rotate", function() {
-  var Round = function(x) {
-    return Math.round(x * 100) / 100
-  };
   var parent = Crafty.e("2D, DOM, Color")
     .attr({
       x: 0,
@@ -232,8 +229,8 @@ test("child_rotate", function() {
   strictEqual(child.rotation, 57, 'child rotates normally');
 
   parent.rotation = 100; // Rotation by 90 degrees from initial position
-  strictEqual(Round(child.x), -10, "Child moved around parent upon rotation (x).")
-  strictEqual(Round(child.y), 10, "Child moved around parent upon rotation (y).")
+  strictEqual(Round(child.x), -10, "Child moved around parent upon rotation (x).");
+  strictEqual(Round(child.y), 10, "Child moved around parent upon rotation (y).");
 
 });
 
@@ -244,7 +241,7 @@ test("SAT", function() {
   var e = Crafty.e("2D, Collision");
   var c1 = new Crafty.circle(100, 100, 10);
   var c2 = new Crafty.circle(100, 105, 10);
-  strictEqual((e._SAT(c1, c2).overlap < -13.8 && e._SAT(c1, c2).overlap > -13.9), true, "Expected overlap to be about -13.86 ( or 15 cos[pi/8])")
+  strictEqual((e._SAT(c1, c2).overlap < -13.8 && e._SAT(c1, c2).overlap > -13.9), true, "Expected overlap to be about -13.86 ( or 15 cos[pi/8])");
 
 });
 
@@ -255,7 +252,7 @@ test("adjustable boundary", function() {
     y: 10,
     w: 10,
     h: 10
-  })
+  });
 
   // Four argument version
   e.offsetBoundary(10, 1, 3, 0);
@@ -264,7 +261,7 @@ test("adjustable boundary", function() {
   equal(e._by1, 1, "Y1 boundary set");
   equal(e._by2, 0, "Y2 boundary set");
 
-  e._calculateMBR(10, 10, 0)
+  e._calculateMBR(10, 10, 0);
 
   var mbr = e._mbr;
 
@@ -278,7 +275,7 @@ test("adjustable boundary", function() {
   equal(e._by1, 5, "Y1 boundary set");
   equal(e._by2, 5, "Y2 boundary set");
 
-})
+});
 
 
 test("disableControl and enableControl", function() {
@@ -339,19 +336,19 @@ test("Resizing 2D objects & hitboxes", function() {
     y: 0,
     w: 40,
     h: 50
-  })
+  });
 
-  equal(e.map.points[0][0], 0, "Before rotation: x_0 is 0")
-  equal(e.map.points[0][1], 0, "y_0 is 0")
-  equal(e.map.points[2][0], 40, "x_2 is 40")
-  equal(e.map.points[2][1], 50, "y_2 is 50")
+  equal(e.map.points[0][0], 0, "Before rotation: x_0 is 0");
+  equal(e.map.points[0][1], 0, "y_0 is 0");
+  equal(e.map.points[2][0], 40, "x_2 is 40");
+  equal(e.map.points[2][1], 50, "y_2 is 50");
 
   e.rotation = 90;
 
-  equal(Math.round(e.map.points[0][0]), 0, "After rotation by 90 deg: x_0 is 0")
-  equal(Math.round(e.map.points[0][1]), 0, "y_0 is 0")
-  equal(Math.round(e.map.points[2][0]), -50, "x_2 is -50")
-  equal(Math.round(e.map.points[2][1]), 40, "y_2 is 40")
+  equal(Math.round(e.map.points[0][0]), 0, "After rotation by 90 deg: x_0 is 0");
+  equal(Math.round(e.map.points[0][1]), 0, "y_0 is 0");
+  equal(Math.round(e.map.points[2][0]), -50, "x_2 is -50");
+  equal(Math.round(e.map.points[2][1]), 40, "y_2 is 40");
 
   // After rotation the MBR will have changed
   equal(Math.round(e._mbr._w), 50, "_mbr._w is  50");
@@ -361,20 +358,20 @@ test("Resizing 2D objects & hitboxes", function() {
 
   e.collision(); // Check that regenerating the hitbox while rotated works correctly
 
-  equal(Math.round(e.map.points[0][0]), 0, "After rotation and hitbox regeneration: x_0 is 0")
-  equal(Math.round(e.map.points[0][1]), 0, "y_0 is 0")
-  equal(Math.round(e.map.points[2][0]), -50, "x_2 is -50")
-  equal(Math.round(e.map.points[2][1]), 40, "y_2 is 40")
+  equal(Math.round(e.map.points[0][0]), 0, "After rotation and hitbox regeneration: x_0 is 0");
+  equal(Math.round(e.map.points[0][1]), 0, "y_0 is 0");
+  equal(Math.round(e.map.points[2][0]), -50, "x_2 is -50");
+  equal(Math.round(e.map.points[2][1]), 40, "y_2 is 40");
 
 
   // Check that changing the width when rotated resizes correctly for both hitbox and MBR
   // Rotated by 90 degrees, changing the width of the entity should change the height of the hitbox/mbr
   e.w = 100;
 
-  equal(Math.round(e.map.points[0][0]), 0, "After rotation and increase in width: x_0 is 0")
-  equal(Math.round(e.map.points[0][1]), 0, "y_0 is 0")
-  equal(Math.round(e.map.points[2][0]), -50, "x_2 is -50")
-  equal(Math.round(e.map.points[2][1]), 100, "y_2 is 100")
+  equal(Math.round(e.map.points[0][0]), 0, "After rotation and increase in width: x_0 is 0");
+  equal(Math.round(e.map.points[0][1]), 0, "y_0 is 0");
+  equal(Math.round(e.map.points[2][0]), -50, "x_2 is -50");
+  equal(Math.round(e.map.points[2][1]), 100, "y_2 is 100");
 
   // After rotation the MBR will have changed
   equal(Math.round(e._mbr._w), 50, "_mbr._w is  50");
@@ -418,7 +415,7 @@ test("Hitboxes outside of entities (CBR)", function() {
   equal(cbr._x, x0 + 10, "cbr x position moves correctly");
   equal(cbr._y, y0 + 15, "cbr y position moves correctly");
 
-})
+});
 
 test("CBRs on resize", function() {
   var poly = new Crafty.polygon([
@@ -445,7 +442,7 @@ test("CBRs on resize", function() {
 
   ok(e._cbr === null, "_cbr should not exist after entity grows again");
 
-})
+});
 
 test("CBRs should be removed on removal of component", function() {
   var poly = new Crafty.polygon([
