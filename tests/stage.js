@@ -22,7 +22,13 @@ test("simulateFrames", function() {
 
 
 module("Viewport", {
-  setup: reset
+  setup: function() {
+    reset();
+  },
+  teardown: function() {
+    // clean up after each test
+    Crafty("*").destroy();
+  }
 });
 
 test("scroll using _x, _y", function() {
@@ -188,7 +194,15 @@ test("centerOn", function() {
   Crafty.viewport.scroll('y', 0);
 });
 
-module("Crafty.timer")
+module("Crafty.timer", {
+  setup: function() {
+    // prepare something for all following tests
+  },
+  teardown: function() {
+    // clean up after each test
+    Crafty("*").destroy();
+  }
+});
 test("curTime", 1, function() {
   var startTime, lastKnownTime;
   Crafty.e("").bind("EnterFrame", function(params) {
