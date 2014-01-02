@@ -104,6 +104,14 @@ module.exports = function (grunt) {
             files: "crafty.js"
         },
 
+        connect: {
+            server: {
+                options: {
+                    keepalive: true
+                }
+            }
+        }
+
     });
 
     // Load the plugin that provides the "uglify" task.
@@ -111,6 +119,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-jsvalidate');
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-banner');
@@ -139,6 +148,5 @@ module.exports = function (grunt) {
 
     // Run only tests
     grunt.registerTask('validate', ['qunit']);
-
 
 };
