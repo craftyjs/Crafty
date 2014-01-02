@@ -76,7 +76,7 @@ module.exports = function (grunt) {
         },
 
         jshint: {
-            files: ['Gruntfile.js', 'src/**/*.js'],
+            files: ['Gruntfile.js', 'src/**/*.js', 'tests/*.js'],
             options: {
                 trailing: true,
                 globals: {
@@ -86,22 +86,12 @@ module.exports = function (grunt) {
 
         qunit: {
             all: [
-                'tests/core.html',
-                'tests/animation/animation.html',
-                'tests/stage.html',
-                'tests/events.html',
-                'tests/math.html',
-                'tests/isometric.html',
-                'tests/loader.html',
-                'tests/text.html',
-                'tests/dom.html',
-                'tests/tween.html',
-                'tests/sound.html'
+                'tests/index.html'
             ]
         },
 
         jsvalidate: {
-            files: "crafty.js"
+            files: ["crafty.js", 'tests/*.js']
         },
 
     });
