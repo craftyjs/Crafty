@@ -1,4 +1,4 @@
-module("EVENTS");
+module("Events");
 
 test("Global binding events", function() {
   var x = 0;

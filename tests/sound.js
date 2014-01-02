@@ -1,4 +1,4 @@
-module("Audio");
+module("Sound");
 
 //Set up some test fixtures
 function MockAudio() {
