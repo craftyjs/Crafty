@@ -652,3 +652,63 @@ Crafty.DrawManager = (function () {
 
     };
 })();
+
+Crafty.extend({
+    /**@
+     * #Crafty.pixelart
+     * @category Graphics
+     * @sign public void Crafty.pixelart(Boolean enabled)
+     *
+     * Sets the image smoothing for drawing images (for both DOM and Canvas).
+     * Setting this to true disables smoothing for images, which is the preferred
+     * way for drawing pixel art. Defaults to false.
+     *
+     * This feature is experimental and you should be careful with cross-browser compatibility. 
+     * The best way to disable image smoothing is to use the Canvas render method and the Sprite component for drawing your entities.
+     *
+     * This method will have no effect for Canvas image smoothing if the canvas is not initialized yet.
+     *
+     * Note that Firefox_26 currently has a [bug](https://bugzilla.mozilla.org/show_bug.cgi?id=696630) 
+     * which prevents disabling image smoothing for Canvas entities that use the Image component. Use the Sprite
+     * component instead.
+     * Note that Webkit (Chrome & Safari) currently has a bug [link1](http://code.google.com/p/chromium/issues/detail?id=134040) 
+     * [link2](http://code.google.com/p/chromium/issues/detail?id=106662) that prevents disabling image smoothing
+     * for DOM entities.
+     *
+     * @example
+     * This is the preferred way to draw pixel art with the best cross-browser compatibility.
+     * ~~~
+     * Crafty.canvas.init();
+     * Crafty.pixelart(true);
+     * 
+     * Crafty.sprite(imgWidth, imgHeight, "spriteMap.png", {sprite1:[0,0]});
+     * Crafty.e("2D, Canvas, sprite1");
+     * ~~~
+     */
+    pixelart: function(enabled) {
+        var context = Crafty.canvas.context;
+        if (context) {
+            context.imageSmoothingEnabled = !enabled;
+            context.mozImageSmoothingEnabled = !enabled;
+            context.webkitImageSmoothingEnabled = !enabled;
+            context.oImageSmoothingEnabled = !enabled;
+            context.msImageSmoothingEnabled = !enabled;
+        }
+
+        var style = Crafty.stage.inner.style;
+        if (enabled) {
+            style[Crafty.DOM.camelize("image-rendering")] = "optimizeSpeed";   /* legacy */
+            style[Crafty.DOM.camelize("image-rendering")] = "-moz-crisp-edges";    /* Firefox */
+            style[Crafty.DOM.camelize("image-rendering")] = "-o-crisp-edges";  /* Opera */
+            style[Crafty.DOM.camelize("image-rendering")] = "-webkit-optimize-contrast";   /* Webkit (Chrome & Safari) */
+            style[Crafty.DOM.camelize("-ms-interpolation-mode")] = "nearest-neighbor";  /* IE */
+            style[Crafty.DOM.camelize("image-rendering")] = "optimize-contrast";   /* CSS3 proposed */
+            style[Crafty.DOM.camelize("image-rendering")] = "pixelated";   /* CSS4 proposed */
+            style[Crafty.DOM.camelize("image-rendering")] = "crisp-edges"; /* CSS4 proposed */
+        } else {
+            style[Crafty.DOM.camelize("image-rendering")] = "optimizeQuality";   /* legacy */
+            style[Crafty.DOM.camelize("-ms-interpolation-mode")] = "bicubic";   /* IE */
+            style[Crafty.DOM.camelize("image-rendering")] = "auto";   /* CSS3 */
+        }
+    }
+});
