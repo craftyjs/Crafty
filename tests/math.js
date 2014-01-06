@@ -247,8 +247,9 @@ test("determinant()", function() {
 });
 
 test("invert()", function() {
-  equal((new Matrix2D()).scale(2, 3).rotate(Math.PI / 2).invert().equals(new Matrix2D(3.061616997868383e-17, -0.3333333333333333, 0.5, 2.041077998578922e-17, 0, 0)),
-    true, "(new Matrix2D()).scale(2, 3).rotate(Math.PI / 2).invert().equals(new Matrix2D(3.061616997868383e-17, -0.3333333333333333, 0.5, 2.041077998578922e-17, 0, 0))");
+  var m = new Matrix2D(4, 3, 3, 2, 0, 0);
+  var m2 = new Matrix2D(-2, 3, 3, -4, 0, 0);
+  ok( m.invert().equals(m2), "Matrix (4,3,3,2) inverts to (-2,3,3,-4)");
 });
 
 test("isIdentity()", function() {
