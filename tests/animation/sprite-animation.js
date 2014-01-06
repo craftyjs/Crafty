@@ -218,8 +218,8 @@ test("Test using .reel to set an animation using start and end values", function
 	var frames = reel.frames;
 	equal(frames.length, 3, "Reel has correct number of frames.");
 	deepEqual(frames[0], [0, 0], "First frame is correct.");
-	deepEqual(frames[1], [64, 0], "Second frame is correct.");
-	deepEqual(frames[2], [128, 0], "Third frame is correct.");
+	deepEqual(frames[1], [1, 0], "Second frame is correct.");
+	deepEqual(frames[2], [2, 0], "Third frame is correct.");
 
 })
 
@@ -239,8 +239,8 @@ test("Test using .reel to set an animation using an array of frames", function()
 	equal(frames.length, 3, "Reel has correct number of frames.");
 	// This relies on the sprite being defined with a size of 64
 	deepEqual(frames[0], [0, 0], "First frame is correct.");
-	deepEqual(frames[1], [64, 0], "Second frame is correct.");
-	deepEqual(frames[2], [128, 0], "Third frame is correct.");
+	deepEqual(frames[1], [1, 0], "Second frame is correct.");
+	deepEqual(frames[2], [2, 0], "Third frame is correct.");
 
 })
 

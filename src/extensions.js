@@ -139,13 +139,14 @@ Crafty.extend({
     /**@
      * #Crafty.sprite
      * @category Graphics
-     * @sign public this Crafty.sprite([Number tile, [Number tileh]], String url, Object map[, Number paddingX[, Number paddingY]])
+     * @sign public this Crafty.sprite([Number tile, [Number tileh]], String url, Object map[, Number paddingX[, Number paddingY[, Boolean paddingAroundBorder]]])
      * @param tile - Tile size of the sprite map, defaults to 1
      * @param tileh - Height of the tile; if provided, tile is interpreted as the width
      * @param url - URL of the sprite image
      * @param map - Object where the key is what becomes a new component and the value points to a position on the sprite map
      * @param paddingX - Horizontal space in between tiles. Defaults to 0.
      * @param paddingY - Vertical space in between tiles. Defaults to paddingX.
+     * @param paddingAroundBorder - If padding should be applied around the border of the sprite sheet. If enabled the first tile starts at (paddingX,paddingY) instead of (0,0). Defaults to false.
      * Generates components based on positions in a sprite image to be applied to entities.
      *
      * Accepts a tile size, URL and map for the name of the sprite and its position.
@@ -186,7 +187,7 @@ Crafty.extend({
      *
      * @see Sprite
      */
-    sprite: function (tile, tileh, url, map, paddingX, paddingY) {
+    sprite: function (tile, tileh, url, map, paddingX, paddingY, paddingAroundBorder) {
         var spriteName, temp, x, y, w, h, img;
 
         //if no tile value, default to 1.
@@ -235,12 +236,13 @@ Crafty.extend({
             this.requires("2D, Sprite");
             this.__trim = [0, 0, 0, 0];
             this.__image = url;
-            this.__coord = [this.__coord[0], this.__coord[1], this.__coord[2], this.__coord[3]];
             this.__tile = tile;
             this.__tileh = tileh;
             this.__padding = [paddingX, paddingY];
+            this.__padBorder = paddingAroundBorder;
+            this.sprite(this.__coord[0], this.__coord[1], this.__coord[2], this.__coord[3]);
+            
             this.img = img;
-
             //draw now
             if (this.img.complete && this.img.width > 0) {
                 this.ready = true;
@@ -256,15 +258,11 @@ Crafty.extend({
             if (!map.hasOwnProperty(spriteName)) continue;
 
             temp = map[spriteName];
-            x = temp[0] * (tile + paddingX);
-            y = temp[1] * (tileh + paddingY);
-            w = temp[2] * tile || tile;
-            h = temp[3] * tileh || tileh;
 
             //generates sprite components for each tile in the map
             Crafty.c(spriteName, {
                 ready: false,
-                __coord: [x, y, w, h],
+                __coord: [temp[0], temp[1], temp[2] || 1, temp[3] || 1],
 
                 init: sharedSpriteInit
             });

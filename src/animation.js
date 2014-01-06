@@ -213,11 +213,7 @@ Crafty.c("SpriteAnimation", {
 		}
 
 
-		var reel, i, tile, tileh, pos;
-
-		// Get the dimensions of a single frame, as defind in Sprite component.
-		tile = this.__tile + parseInt(this.__padding[0] || 0, 10);
-		tileh = this.__tileh + parseInt(this.__padding[1] || 0, 10);
+		var reel, i;
 
 		reel = {
 			id: reelId,
@@ -235,22 +231,18 @@ Crafty.c("SpriteAnimation", {
 			y = fromY;
 			if (frameCount >= 0) {
 				for (; i < fromX + frameCount ; i++) {
-					reel.frames.push([i * tile, y * tileh]);
+					reel.frames.push([i, y]);
 				}
 			}
 			else {
 				for (; i > fromX + frameCount; i--) {
-					reel.frames.push([i * tile, y * tileh]);
+					reel.frames.push([i, y]);
 				}
 			}
 		}
 		// @sign public this .reel(String reelId, Number duration, Array frames)
 		else if (arguments.length === 3 && typeof fromX === "object") {
-			// In this case, fromX is actually the array of frames
-			for (i=0; i < fromX.length; i++) {
-				pos = fromX[i];
-				reel.frames.push([pos[0] * tile, pos[1] * tileh]);
-			}
+			reel.frames = fromX;
 		}
 		else {
 			throw "Urecognized arguments. Please see the documentation for 'reel(...)'.";
@@ -503,9 +495,7 @@ Crafty.c("SpriteAnimation", {
 	_updateSprite: function() {
 		var currentReel = this._currentReel;
 		var pos = currentReel.frames[currentReel.currentFrame];
-		this.__coord[0] = pos[0];
-		this.__coord[1] = pos[1];
-		this.trigger("Change"); // needed to trigger a redraw
+		this.sprite(pos[0], pos[1]); // .sprite will trigger redraw
 
 	},
 
