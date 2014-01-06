@@ -26,9 +26,9 @@ test("Global binding events", function() {
   strictEqual(x, 0, "Crafty.bind does not fire once unbound");
 
   x = 0;
-  var ref = Crafty.bind("Increment", add)
-  Crafty.unbind("Increment", ref)
-  Crafty.trigger("Increment")
+  var ref = Crafty.bind("Increment", add);
+  Crafty.unbind("Increment", ref);
+  Crafty.trigger("Increment");
   strictEqual(x, 0, "Crafty.bind does not fire once unbound via reference");
 
   x = 0;
