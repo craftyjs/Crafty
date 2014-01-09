@@ -33,7 +33,7 @@ var Crafty = function (selector) {
     return new Crafty.fn.init(selector);
 },
     // Internal variables
-    GUID, frame, components, entities, handlers, onloads,
+    GUID, frame=0, components, entities, handlers, onloads,
     noSetter, slice, rlist, rspace, milliSecPerFrame;
 
 
@@ -972,8 +972,7 @@ Crafty.extend({
         // variables used by the game loop to track state
         var endTime = 0,
             timeSlip = 0,
-            gameTime,
-            frame = 0;
+            gameTime;
 
         // Controls the target rate of fixed mode loop.  Set these with the Crafty.timer.FPS function
         var FPS = 50,
