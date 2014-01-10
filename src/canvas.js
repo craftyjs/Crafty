@@ -207,8 +207,17 @@ Crafty.extend({
                 Crafty.canvas.context.scale(zoom, zoom);
 
             //Bind rendering of canvas context (see drawing.js)
-            Crafty.unbind("RenderScene", Crafty.DrawManager.renderCanvas);
-            Crafty.bind("RenderScene", Crafty.DrawManager.renderCanvas);
+            Crafty.uniqueBind("RenderScene", Crafty.DrawManager.renderCanvas);
+
+            Crafty.uniqueBind("ViewportResize", this._resize);
+        },
+
+        // Resize the canvas element to the current viewport
+        _resize: function() {
+            var c = Crafty.canvas._canvas;
+            c.width = Crafty.viewport.width;
+            c.height = Crafty.viewport.height;
+
         }
 
     }
