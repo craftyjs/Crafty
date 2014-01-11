@@ -1,73 +1,33 @@
-module("Storage");
-test("saveAndLoadObject", function() {
-  Crafty.storage.open("MyGame");
-  Crafty.storage.save("LeaderBoard", "save", {
-    name: "Matthew",
-    score: 150
-  });
-  stop();
-  Crafty.storage.load("LeaderBoard", "save", function(lb) {
-    equal(lb.name, "Matthew");
-    start();
-  });
+module("Storage", {
+  setup: function() {
+    reset();
+  },
+  teardown: function() {
+    // clean up after each test
+    Crafty("*").destroy();
+  }
 });
 
-test("saveAndLoadArray", function() {
-  Crafty.storage.open("MyGame1");
-  Crafty.storage.save("LeaderBoard", "save", [{
-    name: "Matthew",
-    score: 150
-  }, {
-    name: "Louis",
-    score: 17
-  }]);
-  stop();
-  Crafty.storage.load("LeaderBoard", "save", function(lb) {
-    equal(lb[1].name, "Louis");
-    equal(lb.length, 2);
-    start();
-  });
+test('get a value', function(){
+  Crafty.storage('name', 'test');
+  var name = Crafty.storage('name');
+
+  equal(name, 'test', 'the values should be equal');
+
+  Crafty.storage.remove('name');
 });
 
-test("saveAndLoadEntity", function() {
-  Crafty.storage.open("MyGame2");
-  Crafty.storage.save("Hero", "save", Crafty.e("2D, DOM").attr({
-    x: 20,
-    y: 137
-  }));
-  stop();
-  Crafty.storage.load("Hero", "save", function(hero) {
-    console.log(hero);
-    ok(hero.__c["2D"]);
-    ok(hero.__c.DOM);
-    equal(hero.x, 0, "Entity state is not saved");
-    start();
-  });
+test('get null when a value does not exist', function(){
+  var name = Crafty.storage('notexisting');
+  equal(name, null, 'should be null');
 });
 
-test("individualNamespaces", function() {
-  Crafty.storage.open("MyGame3");
-  Crafty.storage.save("LeaderBoard", "save", {
-    name: "Matthew",
-    score: 150
-  });
+test('remove an value', function(){
+  var person = Crafty.storage('person', 'test');
+  equal(Crafty.storage('person'), 'test', 'person should be defined');
 
+  Crafty.storage.remove('person');
 
-  Crafty.storage.open("MyGame4");
-  Crafty.storage.save("LeaderBoard", "save", {
-    name: "Louis",
-    score: 150
-  });
-
-  stop();
-  Crafty.storage.load("LeaderBoard", "save", function(lb) {
-    equal(lb.name, "Louis");
-    start();
-  });
-
-  Crafty.storage.open("MyGame3");
-  Crafty.storage.load("LeaderBoard", "save", function(lb) {
-    equal(lb.name, "Matthew");
-    start();
-  });
+  var savedperson = Crafty.storage('person');
+  equal(savedperson, null, 'should be null because we just removed the value');
 });
