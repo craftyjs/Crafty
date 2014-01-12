@@ -59,7 +59,8 @@
     "src/math.js",
     "src/time.js",
     "src/DebugLayer.js",
-    "src/keycodes.js"
+    "src/keycodes.js",
+    "src/model.js"
   ],
   "dependencies": {
     "grunt": "~0.4.1",
