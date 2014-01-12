@@ -298,8 +298,15 @@ Crafty.extend({
                 this.height = window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
 
                 // Bind scene rendering (see drawing.js)
-                Crafty.unbind("RenderScene", Crafty.DrawManager.renderDOM);
-                Crafty.bind("RenderScene", Crafty.DrawManager.renderDOM);
+                Crafty.uniqueBind("RenderScene", Crafty.DrawManager.renderDOM);
+                // Resize the viewport
+                Crafty.uniqueBind("ViewportResize", this._resize);
+
+            },
+
+            _resize: function(){
+                Crafty.stage.elem.style.width = Crafty.viewport.width + "px";
+                Crafty.stage.elem.style.height = Crafty.viewport.height + "px";
             },
 
             width: 0,

@@ -7,6 +7,7 @@ Crafty.extend({
      * @category Stage
      * @trigger ViewportScroll - when the viewport's x or y coordinates change
      * @trigger ViewportScale - when the viewport's scale changes
+     * @trigger ViewportResize - when the viewport's dimension's change
      * @trigger InvalidateViewport - when the viewport changes
      * @trigger StopCamera - when any camera animations should stop, such as at the start of a new animation.
      * @trigger CameraAnimationDone - when a camera animation comes reaches completion
@@ -25,8 +26,8 @@ Crafty.extend({
          * For development it can be useful to set this to false.
          */
         clampToEntities: true,
-        width: 0,
-        height: 0,
+        _width: 0,
+        _height: 0,
         /**@
          * #Crafty.viewport.x
          * @comp Crafty.viewport
@@ -475,9 +476,12 @@ Crafty.extend({
         init: function (w, h, stage_elem) {
             Crafty.DOM.window.init();
 
+            // setters+getters for the viewport
+            this._defineViewportProperties();
+
             //fullscreen if mobile or not specified
-            this.width = (!w || Crafty.mobile) ? Crafty.DOM.window.width : w;
-            this.height = (!h || Crafty.mobile) ? Crafty.DOM.window.height : h;
+            this._width = (!w || Crafty.mobile) ? Crafty.DOM.window.width : w;
+            this._height = (!h || Crafty.mobile) ? Crafty.DOM.window.height : h;
 
             //check if stage exists
             if (typeof stage_elem === 'undefined')
@@ -587,6 +591,10 @@ Crafty.extend({
             elem.height = this.height + "px";
             elem.overflow = "hidden";
 
+
+            // resize events
+            Crafty.bind("ViewportResize", function(){Crafty.trigger("InvalidateViewport");});
+
             if (Crafty.mobile) {
                 elem.position = "absolute";
                 elem.left = "0px";
@@ -629,6 +637,11 @@ Crafty.extend({
                 Crafty.stage.y = offset.y;
             }
 
+            
+        },
+
+        // Create setters/getters for x, y, width, height
+        _defineViewportProperties: function(){
             if (Crafty.support.setter) {
                 //define getters and setters to scroll the viewport
                 this.__defineSetter__('x', function (v) {
@@ -637,12 +650,28 @@ Crafty.extend({
                 this.__defineSetter__('y', function (v) {
                     this.scroll('_y', v);
                 });
+                this.__defineSetter__('width', function (v) {
+                    this._width = v;
+                    Crafty.trigger("ViewportResize");
+                });
+                this.__defineSetter__('height', function (v) {
+                    this._height = v;
+                    Crafty.trigger("ViewportResize");
+                });
                 this.__defineGetter__('x', function () {
                     return this._x;
                 });
                 this.__defineGetter__('y', function () {
                     return this._y;
                 });
+                this.__defineGetter__('width', function () {
+                    return this._width;
+                });
+                this.__defineGetter__('height', function () {
+                    return this._height;
+                });
+
+
 
                 //IE9
             } else if (Crafty.support.defineProperty) {
@@ -661,6 +690,26 @@ Crafty.extend({
                     },
                     get: function () {
                         return this._y;
+                    },
+                    configurable : true
+                });
+                Object.defineProperty(this, 'width', {
+                    set: function (v) {
+                        this._width = v;
+                        Crafty.trigger("ViewportResize");
+                    },
+                    get: function () {
+                        return this._width;
+                    },
+                    configurable : true
+                });
+                Object.defineProperty(this, 'height', {
+                    set: function (v) {
+                        this._height = v;
+                        Crafty.trigger("ViewportResize");
+                    },
+                    get: function () {
+                        return this._height;
                     },
                     configurable : true
                 });
@@ -685,16 +734,9 @@ Crafty.extend({
 
 
             if (Crafty.stage.fullscreen) {
-                this.width = w;
-                this.height = h;
-                Crafty.stage.elem.style.width = w + "px";
-                Crafty.stage.elem.style.height = h + "px";
-
-                if (Crafty.canvas._canvas) {
-                    Crafty.canvas._canvas.width = w;
-                    Crafty.canvas._canvas.height = h;
-                    Crafty.trigger("InvalidateViewport");
-                }
+                this._width = w;
+                this._height = h;
+                Crafty.trigger("ViewportResize");
             }
 
             offset = Crafty.DOM.inner(Crafty.stage.elem);
