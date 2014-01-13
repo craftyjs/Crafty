@@ -216,7 +216,7 @@ Crafty.extend({
 
         var markSpritesReady = function() {
             this.ready = true;
-            this.trigger("Change");
+            this.trigger("Invalidate");
         };
 
         img = Crafty.asset(url);
@@ -246,7 +246,7 @@ Crafty.extend({
             //draw now
             if (this.img.complete && this.img.width > 0) {
                 this.ready = true;
-                this.trigger("Change");
+                this.trigger("Invalidate");
             }
 
             //set the width and height to the sprite size

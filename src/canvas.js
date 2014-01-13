@@ -32,7 +32,7 @@ Crafty.c("Canvas", {
         this._changed = true;
         Crafty.DrawManager.addCanvas(this);
 
-        this.bind("Change", function (e) {
+        this.bind("Invalidate", function (e) {
             //flag if changed
             if (this._changed === false) {
                 this._changed = true;

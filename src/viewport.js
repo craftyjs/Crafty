@@ -201,7 +201,7 @@ Crafty.extend({
 
             function stopFollow(){
                 if (oldTarget)
-                    oldTarget.unbind('Change', change);
+                    oldTarget.unbind('Move', change);
             }
 
             Crafty.bind("StopCamera", stopFollow);
@@ -215,7 +215,7 @@ Crafty.extend({
                 offx = (typeof offsetx != 'undefined') ? offsetx : 0;
                 offy = (typeof offsety != 'undefined') ? offsety : 0;
 
-                target.bind('Change', change);
+                target.bind('Move', change);
                 change.call(target);
             };
         })(),
