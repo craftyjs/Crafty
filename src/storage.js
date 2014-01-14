@@ -1,10 +1,6 @@
 var Crafty = require('./core.js'),
     document = window.document;
 
-// Directive for jshint to ignore evals
-// eval is used to support IE8, so this can be removed if we decide to drop that
-/* jshint evil:true */
-
 /**@
  * #Storage
  * @category Utilities
@@ -24,6 +20,8 @@ var Crafty = require('./core.js'),
  *
  * Storage function is very simple and can be used to either get or set values. 
  * You can store both booleans, strings, objects and arrays.
+ *
+ * Please note: You should not store data, while the game is playing, as it can cause the game to slow down. You should load data when you start the game, or when the user for an example click a "Save gameprocess" button.
  *
  * @example
  * Get an already stored value
@@ -53,6 +51,10 @@ Crafty.storage = function(key, value){
   var storage = window.localStorage,
       _value = value;
 
+  if(!storage){
+    return false;
+  }
+
   if(arguments.length === 1) {
     try {
       return JSON.parse(storage.getItem(key));
@@ -70,7 +72,23 @@ Crafty.storage = function(key, value){
   }
 
 };
-
+/**@
+ * #.storage.remove
+ * @comp Storage
+ * @sign .storage.remove(String key)
+ * @param key - a key where you will like to delete the value of.
+ *
+ * Generally you do not need to remove values from localStorage, but if you do
+ * store large amount of text, or want to unset something you can do that with
+ * this function.
+ *
+ * @example
+ * Get an already stored value
+ * ~~~
+ * Crafty.storage.remove('playername');
+ * ~~~
+ *
+ */
 Crafty.storage.remove = function(key){
   window.localStorage.removeItem(key);
 };
