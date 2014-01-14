@@ -46,7 +46,8 @@ var Crafty = function (selector) {
 
 
     initState = function () {
-        GUID = 1; //GUID for entity IDs
+        GUID = 1, //GUID for entity IDs
+        frame = 0;
 
         components = {}; //map of components and their functions
         entities = {}; //map of entities and their data
@@ -1019,8 +1020,7 @@ Crafty.extend({
         // variables used by the game loop to track state
         var endTime = 0,
             timeSlip = 0,
-            gameTime,
-            frame = 0;
+            gameTime;
 
         // Controls the target rate of fixed mode loop.  Set these with the Crafty.timer.FPS function
         var FPS = 50,

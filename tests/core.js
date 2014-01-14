@@ -284,6 +284,19 @@ test("destroy", function() {
 
 });
 
+test(".frame() function", function(){
+  var frameNumber;
+  var frameFunction = function() {
+    frameNumber = Crafty.frame();
+  };
+  Crafty.bind('EnterFrame', frameFunction);
+  Crafty.timer.simulateFrames(1);
+
+  ok(frameNumber, '.frame function should return a value.');
+
+  Crafty.unbind(frameFunction);
+});
+
 module("Scenes", {
   setup: function() {
     // prepare something for all following tests
