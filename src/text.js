@@ -4,7 +4,7 @@ var Crafty = require('./core.js'),
 /**@
  * #Text
  * @category Graphics
- * @trigger Change - when the text is changed
+ * @trigger Invalidate - when the text is changed
  * @requires Canvas or DOM
  * Component to make a text entity.
  *
@@ -129,7 +129,7 @@ Crafty.c("Text", {
         if (this.has("Canvas") )
             this._resizeForCanvas();
 
-        this.trigger("Change");
+        this.trigger("Invalidate");
         return this;
     },
 
@@ -171,14 +171,14 @@ Crafty.c("Text", {
     textColor: function (color, strength) {
         this._strength = strength;
         this._textColor = Crafty.toRGB(color, this._strength);
-        this.trigger("Change");
+        this.trigger("Invalidate");
         return this;
     },
 
     /**@
      * #.textFont
      * @comp Text
-     * @triggers Change
+     * @triggers Invalidate
      * @sign public this .textFont(String key, * value)
      * @param key - Property of the entity to modify
      * @param value - Value to set the property to
@@ -222,13 +222,13 @@ Crafty.c("Text", {
         if (this.has("Canvas") )
             this._resizeForCanvas();
 
-        this.trigger("Change");
+        this.trigger("Invalidate");
         return this;
     },
     /**@
      * #.unselectable
      * @comp Text
-     * @triggers Change
+     * @triggers Invalidate
      * @sign public this .unselectable()
      *
      * This method sets the text so that it cannot be selected (highlighted) by dragging.
@@ -251,7 +251,7 @@ Crafty.c("Text", {
                 '-ms-user-select': 'none',
                 'user-select': 'none'
             });
-            this.trigger("Change");
+            this.trigger("Invalidate");
         }
         return this;
     }

@@ -25,7 +25,7 @@ Crafty.c("Color", {
     /**@
      * #.color
      * @comp Color
-     * @trigger Change - when the color changes
+     * @trigger Invalidate - when the color changes
      * @sign public this .color(String color)
      * @sign public String .color()
      * @param color - Color of the rectangle
@@ -43,7 +43,7 @@ Crafty.c("Color", {
     color: function (color) {
         if (!color) return this._color;
         this._color = color;
-        this.trigger("Change");
+        this.trigger("Invalidate");
         return this;
     }
 });
@@ -75,7 +75,7 @@ Crafty.c("Tint", {
     /**@
      * #.tint
      * @comp Tint
-     * @trigger Change - when the tint is applied
+     * @trigger Invalidate - when the tint is applied
      * @sign public this .tint(String color, Number strength)
      * @param color - The color in hexadecimal
      * @param strength - Level of opacity
@@ -92,7 +92,7 @@ Crafty.c("Tint", {
         this._strength = strength;
         this._color = Crafty.toRGB(color, this._strength);
 
-        this.trigger("Change");
+        this.trigger("Invalidate");
         return this;
     }
 });
@@ -136,7 +136,7 @@ Crafty.c("Image", {
     /**@
      * #.image
      * @comp Image
-     * @trigger Change - when the image is loaded
+     * @trigger Invalidate - when the image is loaded
      * @sign public this .image(String url[, String repeat])
      * @param url - URL of the image
      * @param repeat - If the image should be repeated to fill the entity.
@@ -183,7 +183,7 @@ Crafty.c("Image", {
                     self.h = self.img.height;
                 }
 
-                self.trigger("Change");
+                self.trigger("Invalidate");
             };
 
             return this;
@@ -197,7 +197,7 @@ Crafty.c("Image", {
         }
 
 
-        this.trigger("Change");
+        this.trigger("Invalidate");
 
         return this;
     }

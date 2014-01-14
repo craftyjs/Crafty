@@ -71,7 +71,7 @@ Crafty.extend({
  * @category 2D
  * Component for any entity that has a position on the stage.
  * @trigger Move - when the entity has moved - { _x:Number, _y:Number, _w:Number, _h:Number } - Old position
- * @trigger Change - when the entity has moved - { _x:Number, _y:Number, _w:Number, _h:Number } - Old position
+ * @trigger Invalidate - when the entity needs to be redrawn
  * @trigger Rotate - when the entity is rotated - { cos:Number, sin:Number, deg:Number, rad:Number, o: {x:Number, y:Number}}
  */
 Crafty.c("2D", {
@@ -871,7 +871,7 @@ Crafty.c("2D", {
     /**@
      * #.flip
      * @comp 2D
-     * @trigger Change - when the entity has flipped
+     * @trigger Invalidate - when the entity has flipped
      * @sign public this .flip(String dir)
      * @param dir - Flip direction
      *
@@ -886,7 +886,7 @@ Crafty.c("2D", {
         dir = dir || "X";
         if (!this["_flip" + dir]) {
             this["_flip" + dir] = true;
-            this.trigger("Change");
+            this.trigger("Invalidate");
         }
         return this;
     },
@@ -894,7 +894,7 @@ Crafty.c("2D", {
     /**@
      * #.unflip
      * @comp 2D
-     * @trigger Change - when the entity has unflipped
+     * @trigger Invalidate - when the entity has unflipped
      * @sign public this .unflip(String dir)
      * @param dir - Unflip direction
      *
@@ -909,7 +909,7 @@ Crafty.c("2D", {
         dir = dir || "X";
         if (this["_flip" + dir]) {
             this["_flip" + dir] = false;
-            this.trigger("Change");
+            this.trigger("Invalidate");
         }
         return this;
     },
@@ -990,8 +990,8 @@ Crafty.c("2D", {
         //everything will assume the value
         this[name] = value;
 
-        //trigger a change
-        this.trigger("Change", old);
+        // flag for redraw
+        this.trigger("Invalidate");
 
         Crafty._rectPool.recycle(old);
     }

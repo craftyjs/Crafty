@@ -40,7 +40,7 @@ Crafty.c("DOM", {
         this._element.style.position = "absolute";
         this._element.id = "ent" + this[0];
 
-        this.bind("Change", function () {
+        this.bind("Invalidate", function () {
             if (!this._changed) {
                 this._changed = true;
                 Crafty.DrawManager.addDom(this);
@@ -270,7 +270,7 @@ Crafty.c("DOM", {
             }
         }
 
-        this.trigger("Change");
+        this.trigger("Invalidate");
 
         return this;
     }

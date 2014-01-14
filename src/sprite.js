@@ -4,7 +4,7 @@ var Crafty = require('./core.js'),
 /**@
  * #Sprite
  * @category Graphics
- * @trigger Change - when the sprites change
+ * @trigger Invalidate - when the sprites change
  * Component for using tiles in a sprite map.
  */
 Crafty.c("Sprite", {
@@ -106,7 +106,7 @@ Crafty.c("Sprite", {
             this.__coord[3] = this.__trim[3] || h * this.__tileh || this.__tileh;
         }
 
-        this.trigger("Change");
+        this.trigger("Invalidate");
         return this;
     },
 
@@ -144,7 +144,7 @@ Crafty.c("Sprite", {
         this._w = w;
         this._h = h;
 
-        this.trigger("Change", old);
+        this.trigger("Invalidate", old);
         return this;
     }
 });
