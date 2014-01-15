@@ -76,8 +76,9 @@ module.exports = function (grunt) {
         },
 
         jshint: {
-            files: ['Gruntfile.js', 'src/**/*.js'],
+            files: ['Gruntfile.js', 'src/**/*.js', 'tests/*.js'],
             options: {
+                trailing: true,
                 globals: {
                 }
             }
@@ -85,23 +86,22 @@ module.exports = function (grunt) {
 
         qunit: {
             all: [
-                'tests/core.html',
-                'tests/animation/animation.html',
-                'tests/stage.html',
-                'tests/events.html',
-                'tests/math.html',
-                'tests/isometric.html',
-                'tests/loader.html',
-                'tests/text.html',
-                'tests/dom.html',
-                'tests/tween.html',
-                'tests/sound.html'
+                'tests/index.html',
+                'tests/animation/animation.html'
             ]
-        }, 
+        },
 
         jsvalidate: {
-            files: "crafty.js"
+            files: ['crafty.js', 'tests/*.js']
         },
+
+        connect: {
+            server: {
+                options: {
+                    keepalive: true
+                }
+            }
+        }
 
     });
 
@@ -110,6 +110,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-jsvalidate');
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-banner');
@@ -117,10 +118,10 @@ module.exports = function (grunt) {
     grunt.registerTask('version', 'Takes the version into src/version.js', function() {
         fs.writeFileSync('src/version.js', 'module.exports = "' + version + '";');
     });
-    
+
     // Build development
     grunt.registerTask('build:dev', ['browserify:debug', 'usebanner']);
-    
+
     // Build release
     grunt.registerTask('build:release', ['browserify:dist', 'usebanner']);
 
@@ -138,6 +139,5 @@ module.exports = function (grunt) {
 
     // Run only tests
     grunt.registerTask('validate', ['qunit']);
-
 
 };

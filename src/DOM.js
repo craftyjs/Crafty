@@ -40,7 +40,7 @@ Crafty.c("DOM", {
         this._element.style.position = "absolute";
         this._element.id = "ent" + this[0];
 
-        this.bind("Change", function () {
+        this.bind("Invalidate", function () {
             if (!this._changed) {
                 this._changed = true;
                 Crafty.DrawManager.addDom(this);
@@ -58,22 +58,20 @@ Crafty.c("DOM", {
             this._element.className = str;
         }
 
-        this.bind("NewComponent", updateClass).bind("RemoveComponent", updateClass);
-
-        if (Crafty.support.prefix === "ms" && Crafty.support.version < 9) {
-            this._filters = {};
-
-            this.bind("Rotate", function (e) {
-                var m = e.matrix,
-                    elem = this._element.style,
-                    M11 = m.M11.toFixed(8),
-                    M12 = m.M12.toFixed(8),
-                    M21 = m.M21.toFixed(8),
-                    M22 = m.M22.toFixed(8);
-
-                this._filters.rotation = "progid:DXImageTransform.Microsoft.Matrix(M11=" + M11 + ", M12=" + M12 + ", M21=" + M21 + ", M22=" + M22 + ",sizingMethod='auto expand')";
-            });
+        function removeClass(removedComponent) {
+            var i = 0,
+                c = this.__c,
+                str = "";
+            for (i in c) {
+              if(i != removedComponent) {
+                str += ' ' + i;
+              }
+            }
+            str = str.substr(1);
+            this._element.className = str;
         }
+
+        this.bind("NewComponent", updateClass).bind("RemoveComponent", removeClass);
 
         this.bind("Remove", this.undraw);
         this.bind("RemoveComponent", function (compName) {
@@ -172,17 +170,6 @@ Crafty.c("DOM", {
             style[prefix + "Opacity"] = this._alpha;
         }
 
-        //if not version 9 of IE
-        if (prefix === "ms" && Crafty.support.version < 9) {
-            //for IE version 8, use ImageTransform filter
-            if (Crafty.support.version === 8) {
-                this._filters.alpha = "progid:DXImageTransform.Microsoft.Alpha(Opacity=" + (this._alpha * 100) + ")"; // first!
-                //all other versions use filter
-            } else {
-                this._filters.alpha = "alpha(opacity=" + (this._alpha * 100) + ")";
-            }
-        }
-
         if (this._mbr) {
             var origin = this._origin.x + "px " + this._origin.y + "px";
             style.transformOrigin = origin;
@@ -193,21 +180,10 @@ Crafty.c("DOM", {
 
         if (this._flipX) {
             trans.push("scaleX(-1)");
-            if (prefix === "ms" && Crafty.support.version < 9) {
-                this._filters.flipX = "fliph";
-            }
         }
 
         if (this._flipY) {
             trans.push("scaleY(-1)");
-            if (prefix === "ms" && Crafty.support.version < 9) {
-                this._filters.flipY = "flipv";
-            }
-        }
-
-        //apply the filters if IE
-        if (prefix === "ms" && Crafty.support.version < 9) {
-            this.applyFilters();
         }
 
         if (this._cssStyles.transform != trans.join(" ")) {
@@ -223,18 +199,6 @@ Crafty.c("DOM", {
         });
 
         return this;
-    },
-
-    applyFilters: function () {
-        this._element.style.filter = "";
-        var str = "";
-
-        for (var filter in this._filters) {
-            if (!this._filters.hasOwnProperty(filter)) continue;
-            str += this._filters[filter] + " ";
-        }
-
-        this._element.style.filter = str;
     },
 
     /**@
@@ -254,10 +218,11 @@ Crafty.c("DOM", {
     /**@
      * #.css
      * @comp DOM
-     * @sign public * css(String property, String value)
+     * @sign public css(String property, String value)
      * @param property - CSS property to modify
      * @param value - Value to give the CSS property
-     * @sign public * css(Object map)
+     *
+     * @sign public  css(Object map)
      * @param map - Object where the key is the CSS property and the value is CSS value
      *
      * Apply CSS styles to the element.
@@ -305,18 +270,12 @@ Crafty.c("DOM", {
             }
         }
 
-        this.trigger("Change");
+        this.trigger("Invalidate");
 
         return this;
     }
 });
 
-/**
- * Fix IE6 background flickering
- */
-try {
-    document.execCommand("BackgroundImageCache", false, true);
-} catch (e) {}
 
 Crafty.extend({
     /**@
@@ -339,8 +298,15 @@ Crafty.extend({
                 this.height = window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
 
                 // Bind scene rendering (see drawing.js)
-                Crafty.unbind("RenderScene", Crafty.DrawManager.renderDOM);
-                Crafty.bind("RenderScene", Crafty.DrawManager.renderDOM);
+                Crafty.uniqueBind("RenderScene", Crafty.DrawManager.renderDOM);
+                // Resize the viewport
+                Crafty.uniqueBind("ViewportResize", this._resize);
+
+            },
+
+            _resize: function(){
+                Crafty.stage.elem.style.width = Crafty.viewport.width + "px";
+                Crafty.stage.elem.style.height = Crafty.viewport.height + "px";
             },
 
             width: 0,

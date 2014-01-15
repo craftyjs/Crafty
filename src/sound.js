@@ -436,6 +436,7 @@ Crafty.extend({
          * #Crafty.audio.pause
          * @comp Crafty.audio
          * @sign public this Crafty.audio.pause(string ID)
+         * @param {string} id - The id of the audio object to pause
          *
          * Pause the Audio instance specified by id param.
          *
@@ -444,7 +445,6 @@ Crafty.extend({
          * Crafty.audio.pause('music');
          * ~~~
          *
-         * @param {string} id The id of the audio object to pause
          */
         pause: function (id) {
             if (!Crafty.support.audio || !id || !this.sounds[id])
@@ -462,6 +462,7 @@ Crafty.extend({
          * #Crafty.audio.unpause
          * @comp Crafty.audio
          * @sign public this Crafty.audio.unpause(string ID)
+         * @param {string} id - The id of the audio object to unpause
          *
          * Resume playing the Audio instance specified by id param.
          *
@@ -470,7 +471,6 @@ Crafty.extend({
          * Crafty.audio.unpause('music');
          * ~~~
          *
-         * @param {string} id The id of the audio object to unpause
          */
         unpause: function (id) {
             if (!Crafty.support.audio || !id || !this.sounds[id])
@@ -487,6 +487,7 @@ Crafty.extend({
          * #Crafty.audio.togglePause
          * @comp Crafty.audio
          * @sign public this Crafty.audio.togglePause(string ID)
+         * @param {string} id - The id of the audio object to pause/
          *
          * Toggle the pause status of the Audio instance specified by id param.
          *
@@ -495,7 +496,6 @@ Crafty.extend({
          * Crafty.audio.togglePause('music');
          * ~~~
          *
-         * @param {string} id The id of the audio object to pause/unpause
          */
         togglePause: function (id) {
             if (!Crafty.support.audio || !id || !this.sounds[id])

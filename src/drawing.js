@@ -25,25 +25,25 @@ Crafty.c("Color", {
     /**@
      * #.color
      * @comp Color
-     * @trigger Change - when the color changes
+     * @trigger Invalidate - when the color changes
      * @sign public this .color(String color)
      * @sign public String .color()
      * @param color - Color of the rectangle
      * Will create a rectangle of solid color for the entity, or return the color if no argument is given.
      *
      * The argument must be a color readable depending on which browser you
-     * choose to support. IE 8 and below doesn't support the rgb() syntax.
+     * choose to support.
      *
      * @example
-     * ~~~
+     * ```
      * Crafty.e("2D, DOM, Color")
      *    .color("#969696");
-     * ~~~
+     * ```
      */
     color: function (color) {
         if (!color) return this._color;
         this._color = color;
-        this.trigger("Change");
+        this.trigger("Invalidate");
         return this;
     }
 });
@@ -75,7 +75,7 @@ Crafty.c("Tint", {
     /**@
      * #.tint
      * @comp Tint
-     * @trigger Change - when the tint is applied
+     * @trigger Invalidate - when the tint is applied
      * @sign public this .tint(String color, Number strength)
      * @param color - The color in hexadecimal
      * @param strength - Level of opacity
@@ -92,7 +92,7 @@ Crafty.c("Tint", {
         this._strength = strength;
         this._color = Crafty.toRGB(color, this._strength);
 
-        this.trigger("Change");
+        this.trigger("Invalidate");
         return this;
     }
 });
@@ -121,8 +121,10 @@ Crafty.c("Image", {
                 context.fillRect(0, 0, this._w, this._h);
                 context.restore();
             } else if (e.type === "DOM") {
-                if (this.__image)
-                    e.style.background = "url(" + this.__image + ") " + this._repeat;
+                if (this.__image) {
+                  e.style.backgroundImage = "url(" + this.__image + ")";
+                  e.style.backgroundRepeat = this._repeat;
+                }
             }
         };
 
@@ -134,7 +136,7 @@ Crafty.c("Image", {
     /**@
      * #.image
      * @comp Image
-     * @trigger Change - when the image is loaded
+     * @trigger Invalidate - when the image is loaded
      * @sign public this .image(String url[, String repeat])
      * @param url - URL of the image
      * @param repeat - If the image should be repeated to fill the entity.
@@ -181,7 +183,7 @@ Crafty.c("Image", {
                     self.h = self.img.height;
                 }
 
-                self.trigger("Change");
+                self.trigger("Invalidate");
             };
 
             return this;
@@ -195,110 +197,13 @@ Crafty.c("Image", {
         }
 
 
-        this.trigger("Change");
+        this.trigger("Invalidate");
 
         return this;
     }
 });
 
 Crafty.extend({
-    _scenes: {},
-    _current: null,
-
-    /**@
-     * #Crafty.scene
-     * @category Scenes, Stage
-     * @trigger SceneChange - just before a new scene is initialized - { oldScene:String, newScene:String }
-     * @trigger SceneDestroy - just before the current scene is destroyed - { newScene:String  }
-     * @sign public void Crafty.scene(String sceneName, Function init[, Function uninit])
-     * @param sceneName - Name of the scene to add
-     * @param init - Function to execute when scene is played
-     * @param uninit - Function to execute before next scene is played, after entities with `2D` are destroyed
-     * @sign public void Crafty.scene(String sceneName)
-     * @param sceneName - Name of scene to play
-     *
-     * Method to create scenes on the stage. Pass an ID and function to register a scene.
-     *
-     * To play a scene, just pass the ID. When a scene is played, all
-     * previously-created entities with the `2D` component are destroyed. The
-     * viewport is also reset.
-     *
-     * If you want some entities to persist over scenes (as in, not be destroyed)
-     * simply add the component `Persist`.
-     *
-     * @example
-     * ~~~
-     * Crafty.scene("loading", function() {
-     *     Crafty.background("#000");
-     *     Crafty.e("2D, DOM, Text")
-     *           .attr({ w: 100, h: 20, x: 150, y: 120 })
-     *           .text("Loading")
-     *           .css({ "text-align": "center"})
-     *           .textColor("#FFFFFF");
-     * });
-     *
-     * Crafty.scene("UFO_dance",
-     *              function() {Crafty.background("#444"); Crafty.e("UFO");},
-     *              function() {...send message to server...});
-     * ~~~
-     * This defines (but does not play) two scenes as discussed below.
-     * ~~~
-     * Crafty.scene("loading");
-     * ~~~
-     * This command will clear the stage by destroying all `2D` entities (except
-     * those with the `Persist` component). Then it will set the background to
-     * black and display the text "Loading".
-     * ~~~
-     * Crafty.scene("UFO_dance");
-     * ~~~
-     * This command will clear the stage by destroying all `2D` entities (except
-     * those with the `Persist` component). Then it will set the background to
-     * gray and create a UFO entity. Finally, the next time the game encounters
-     * another command of the form `Crafty.scene(scene_name)` (if ever), then the
-     * game will send a message to the server.
-     */
-    scene: function (name, intro, outro) {
-        // ---FYI---
-        // this._current is the name (ID) of the scene in progress.
-        // this._scenes is an object like the following:
-        // {'Opening scene': {'initialize': fnA, 'uninitialize': fnB},
-        //  'Another scene': {'initialize': fnC, 'uninitialize': fnD}}
-
-        // If there's one argument, play the scene
-        if (arguments.length === 1) {
-            Crafty.trigger("SceneDestroy", {
-                newScene: name
-            });
-            Crafty.viewport.reset();
-
-            Crafty("2D").each(function () {
-                if (!this.has("Persist")) this.destroy();
-            });
-            // uninitialize previous scene
-            if (this._current !== null && 'uninitialize' in this._scenes[this._current]) {
-                this._scenes[this._current].uninitialize.call(this);
-            }
-            // initialize next scene
-            var oldScene = this._current;
-            this._current = name;
-            Crafty.trigger("SceneChange", {
-                oldScene: oldScene,
-                newScene: name
-            });
-            this._scenes[name].initialize.call(this);
-
-            return;
-        }
-
-        // If there is more than one argument, add the scene information to _scenes
-        this._scenes[name] = {};
-        this._scenes[name].initialize = intro;
-        if (typeof outro !== 'undefined') {
-            this._scenes[name].uninitialize = outro;
-        }
-        return;
-    },
-
     /**@
      * #Crafty.toRGB
      * @category Graphics
@@ -368,7 +273,7 @@ Crafty.DrawManager = (function () {
                 target._y = Math.min(a._y, b._y);
                 target._w -= target._x;
                 target._h -= target._y;
-                
+
                 return target;
             },
 
@@ -521,10 +426,9 @@ Crafty.DrawManager = (function () {
          * @comp Crafty.DrawManager
          * @sign public Crafty.DrawManager.drawAll([Object rect])
          * @param rect - a rectangular region {_x: x_val, _y: y_val, _w: w_val, _h: h_val}
-         * ~~~
+         *
          * - If rect is omitted, redraw within the viewport
          * - If rect is provided, redraw within the rect
-         * ~~~
          */
         drawAll: function (rect) {
             rect = rect || Crafty.viewport.rect();
@@ -552,10 +456,9 @@ Crafty.DrawManager = (function () {
          * @comp Crafty.DrawManager
          * @sign public Crafty.DrawManager.boundingRect(set)
          * @param set - Undocumented
-         * ~~~
+         *
          * - Calculate the common bounding rect of multiple canvas entities.
          * - Returns coords
-         * ~~~
          */
         boundingRect: function (set) {
             if (!set || !set.length) return;
@@ -591,12 +494,11 @@ Crafty.DrawManager = (function () {
          * #Crafty.DrawManager.renderCanvas
          * @comp Crafty.DrawManager
          * @sign public Crafty.DrawManager.renderCanvas()
-         * ~~~
+         *
          * - Triggered by the "RenderScene" event
          * - If the number of rects is over 60% of the total number of objects
          *	do the naive method redrawing `Crafty.DrawManager.drawAll`
          * - Otherwise, clear the dirty regions, and redraw entities overlapping the dirty regions.
-         * ~~~
          *
          * @see Canvas.draw
          */
@@ -615,7 +517,7 @@ Crafty.DrawManager = (function () {
 
             if (dirtyViewport) {
                 var view = Crafty.viewport;
-                ctx.setTransform(view._scale, 0, 0, view._scale, view.x, view.y);
+                ctx.setTransform(view._scale, 0, 0, view._scale, view._x*view._scale, view._y*view._scale);
 
             }
             //if the amount of changed objects is over 60% of the total objects
@@ -711,9 +613,8 @@ Crafty.DrawManager = (function () {
          * #Crafty.DrawManager.renderDOM
          * @comp Crafty.DrawManager
          * @sign public Crafty.DrawManager.renderDOM()
-         * ~~~
+         *
          * When "RenderScene" is triggered, draws all DOM entities that have been flagged
-         * ~~~
          *
          * @see DOM.draw
          */
@@ -724,8 +625,8 @@ Crafty.DrawManager = (function () {
                     view = Crafty.viewport;
 
                 style.transform = style[Crafty.support.prefix + "Transform"] = "scale(" + view._scale + ", " + view._scale + ")";
-                style.left = view.x + "px";
-                style.top = view.y + "px";
+                style.left = view.x * view._scale + "px";
+                style.top = view.y * view._scale + "px";
                 style.zIndex = 10;
             }
 
@@ -747,3 +648,63 @@ Crafty.DrawManager = (function () {
 
     };
 })();
+
+Crafty.extend({
+    /**@
+     * #Crafty.pixelart
+     * @category Graphics
+     * @sign public void Crafty.pixelart(Boolean enabled)
+     *
+     * Sets the image smoothing for drawing images (for both DOM and Canvas).
+     * Setting this to true disables smoothing for images, which is the preferred
+     * way for drawing pixel art. Defaults to false.
+     *
+     * This feature is experimental and you should be careful with cross-browser compatibility. 
+     * The best way to disable image smoothing is to use the Canvas render method and the Sprite component for drawing your entities.
+     *
+     * This method will have no effect for Canvas image smoothing if the canvas is not initialized yet.
+     *
+     * Note that Firefox_26 currently has a [bug](https://bugzilla.mozilla.org/show_bug.cgi?id=696630) 
+     * which prevents disabling image smoothing for Canvas entities that use the Image component. Use the Sprite
+     * component instead.
+     * Note that Webkit (Chrome & Safari) currently has a bug [link1](http://code.google.com/p/chromium/issues/detail?id=134040) 
+     * [link2](http://code.google.com/p/chromium/issues/detail?id=106662) that prevents disabling image smoothing
+     * for DOM entities.
+     *
+     * @example
+     * This is the preferred way to draw pixel art with the best cross-browser compatibility.
+     * ~~~
+     * Crafty.canvas.init();
+     * Crafty.pixelart(true);
+     * 
+     * Crafty.sprite(imgWidth, imgHeight, "spriteMap.png", {sprite1:[0,0]});
+     * Crafty.e("2D, Canvas, sprite1");
+     * ~~~
+     */
+    pixelart: function(enabled) {
+        var context = Crafty.canvas.context;
+        if (context) {
+            context.imageSmoothingEnabled = !enabled;
+            context.mozImageSmoothingEnabled = !enabled;
+            context.webkitImageSmoothingEnabled = !enabled;
+            context.oImageSmoothingEnabled = !enabled;
+            context.msImageSmoothingEnabled = !enabled;
+        }
+
+        var style = Crafty.stage.inner.style;
+        if (enabled) {
+            style[Crafty.DOM.camelize("image-rendering")] = "optimizeSpeed";   /* legacy */
+            style[Crafty.DOM.camelize("image-rendering")] = "-moz-crisp-edges";    /* Firefox */
+            style[Crafty.DOM.camelize("image-rendering")] = "-o-crisp-edges";  /* Opera */
+            style[Crafty.DOM.camelize("image-rendering")] = "-webkit-optimize-contrast";   /* Webkit (Chrome & Safari) */
+            style[Crafty.DOM.camelize("-ms-interpolation-mode")] = "nearest-neighbor";  /* IE */
+            style[Crafty.DOM.camelize("image-rendering")] = "optimize-contrast";   /* CSS3 proposed */
+            style[Crafty.DOM.camelize("image-rendering")] = "pixelated";   /* CSS4 proposed */
+            style[Crafty.DOM.camelize("image-rendering")] = "crisp-edges"; /* CSS4 proposed */
+        } else {
+            style[Crafty.DOM.camelize("image-rendering")] = "optimizeQuality";   /* legacy */
+            style[Crafty.DOM.camelize("-ms-interpolation-mode")] = "bicubic";   /* IE */
+            style[Crafty.DOM.camelize("image-rendering")] = "auto";   /* CSS3 */
+        }
+    }
+});

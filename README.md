@@ -72,7 +72,7 @@ Crafty.e("RightPoints, DOM, 2D, Text")
 ##Developing
 
 If you want to fix a bug, please submit a pull request against the development branch.  Some guides to help you can be found [on the wiki](https://github.com/craftyjs/Crafty/wiki)
-    
+
 If you would like to make larger contributions please catch us in the [forum](https://groups.google.com/forum/?fromgroups#!forum/craftyjs) and we will help you get started. Much appreciated :-)
 
 

@@ -1,14 +1,14 @@
 var Crafty = require('./core.js'),
     document = window.document,
     HashMap = require('./HashMap.js');
-// Crafty._rectPool 
+// Crafty._rectPool
 //
 // This is a private object used internally by 2D methods
 // Cascade and _attr need to keep track of an entity's old position,
 // but we want to avoid creating temp objects every time an attribute is set.
 // The solution is to have a pool of objects that can be reused.
 //
-// The current implementation makes a BIG ASSUMPTION:  that if multiple rectangles are requested, 
+// The current implementation makes a BIG ASSUMPTION:  that if multiple rectangles are requested,
 // the later one is recycled before any preceding ones.  This matches how they are used in the code.
 // Each rect is created by a triggered event, and will be recycled by the time the event is complete.
 Crafty._rectPool = (function () {
@@ -57,14 +57,22 @@ var M = Math,
     PI = M.PI,
     DEG_TO_RAD = PI / 180;
 
+Crafty.extend({
+    zeroFill: function (number, width) {
+        width -= number.toString().length;
+        if (width > 0)
+            return new Array(width + (/\./.test(number) ? 2 : 1)).join('0') + number;
+        return number.toString();
+    }
+});
 
 /**@
  * #2D
  * @category 2D
  * Component for any entity that has a position on the stage.
  * @trigger Move - when the entity has moved - { _x:Number, _y:Number, _w:Number, _h:Number } - Old position
- * @trigger Change - when the entity has moved - { _x:Number, _y:Number, _w:Number, _h:Number } - Old position
- * @trigger Rotate - when the entity is rotated - { cos:Number, sin:Number, deg:Number, rad:Number, o: {x:Number, y:Number}, matrix: {M11, M12, M21, M22} }
+ * @trigger Invalidate - when the entity needs to be redrawn
+ * @trigger Rotate - when the entity is rotated - { cos:Number, sin:Number, deg:Number, rad:Number, o: {x:Number, y:Number}}
  */
 Crafty.c("2D", {
     /**@
@@ -318,87 +326,19 @@ Crafty.c("2D", {
         });
     },
 
-    _defineGetterSetter_fallback: function () {
-        //set the public properties to the current private properties
-        this.x = this._x;
-        this.y = this._y;
-        this.w = this._w;
-        this.h = this._h;
-        this.z = this._z;
-        this.rotation = this._rotation;
-        this.alpha = this._alpha;
-        this.visible = this._visible;
-
-        //on every frame check for a difference in any property
-        this.bind("EnterFrame", function () {
-            //if there are differences between the public and private properties
-            if (this.x !== this._x || this.y !== this._y ||
-                this.w !== this._w || this.h !== this._h ||
-                this.z !== this._z || this.rotation !== this._rotation ||
-                this.alpha !== this._alpha || this.visible !== this._visible) {
-
-                //save the old positions
-                var old = Crafty._rectPool.copy(this);
-
-                //if rotation has changed, use the private rotate method
-                if (this.rotation !== this._rotation) {
-                    this._rotate(this.rotation);
-                } else {
-                    //update the MBR
-                    var mbr = this._mbr,
-                        moved = false;
-                    // If the browser doesn't have getters or setters,
-                    // {x, y, w, h, z} and {_x, _y, _w, _h, _z} may be out of sync,
-                    // in which case t checks if they are different on tick and executes the Change event.
-                    if (mbr) { //check each value to see which has changed
-                        if (this.x !== this._x) {
-                            mbr._x -= this.x - this._x;
-                            moved = true;
-                        } else if (this.y !== this._y) {
-                            mbr._y -= this.y - this._y;
-                            moved = true;
-                        } else if (this.w !== this._w) {
-                            mbr._w -= this.w - this._w;
-                            moved = true;
-                        } else if (this.h !== this._h) {
-                            mbr._h -= this.h - this._h;
-                            moved = true;
-                        } else if (this.z !== this._z) {
-                            mbr._z -= this.z - this._z;
-                            moved = true;
-                        }
-                    }
-
-                    //if the moved flag is true, trigger a move
-                    if (moved) this.trigger("Move", old);
-                }
-
-                //set the public properties to the private properties
-                this._x = this.x;
-                this._y = this.y;
-                this._w = this.w;
-                this._h = this.h;
-                this._z = this.z;
-                this._rotation = this.rotation;
-                this._alpha = this.alpha;
-                this._visible = this.visible;
-
-                //trigger the changes
-                this.trigger("Change", old);
-                //without this entities weren't added correctly to Crafty.map.map in IE8.
-                //not entirely sure this is the best way to fix it though
-                this.trigger("Move", old);
-                Crafty._rectPool.recycle(old);
-            }
-        });
-    },
-
     init: function () {
         this._globalZ = this[0];
         this._origin = {
             x: 0,
             y: 0
         };
+
+        // offsets for the basic bounding box
+        this._bx1 = 0;
+        this._bx2 = 0;
+        this._by1 = 0;
+        this._by2 = 0;
+
         this._children = [];
 
         if (Crafty.support.setter) {
@@ -406,13 +346,6 @@ Crafty.c("2D", {
         } else if (Crafty.support.defineProperty) {
             //IE9 supports Object.defineProperty
             this._defineGetterSetter_defineProperty();
-        } else {
-            /*
-			If no setters and getters are supported (e.g. IE8) supports,
-			check on every frame for a difference between this._(x|y|w|h|z...)
-			and this.(x|y|w|h|z) and update accordingly.
-			*/
-            this._defineGetterSetter_fallback();
         }
 
         //insert self into the HashMap
@@ -420,7 +353,8 @@ Crafty.c("2D", {
 
         //when object changes, update HashMap
         this.bind("Move", function (e) {
-            var area = this._mbr || this;
+            // Choose the largest bounding region that exists
+            var area = this._cbr || this._mbr || this;
             this._entry.update(area);
             // Move children (if any) by the same amount
             if (this._children.length > 0) {
@@ -429,7 +363,8 @@ Crafty.c("2D", {
         });
 
         this.bind("Rotate", function (e) {
-            var old = this._mbr || this;
+            // Choose the largest bounding region that exists
+            var old = this._cbr || this._mbr || this;
             this._entry.update(old);
             // Rotate children (if any) by the same amount
             if (this._children.length > 0) {
@@ -465,34 +400,69 @@ Crafty.c("2D", {
     },
 
 
+    /**@
+     * #.offsetBoundary
+     * @comp 2D
+     * Extends the MBR of the entity by a specified amount.
+     * 
+     * @trigger BoundaryOffset - when the MBR offset changes
+     * @sign public this .offsetBoundary(Number dx1, Number dy1, Number dx2, Number dy2)
+     * @param dx1 - Extends the MBR to the left by this amount
+     * @param dy1 - Extends the MBR upward by this amount
+     * @param dx2 - Extends the MBR to the right by this amount
+     * @param dy2 - Extends the MBR downward by this amount
+     *
+     * @sign public this .offsetBoundary(Number offset)
+     * @param offset - Extend the MBR in all directions by this amount
+     *
+     * You would most likely use this function to ensure that custom canvas rendering beyond the extent of the entity's normal bounds is not clipped.
+     */
+    offsetBoundary: function(x1, y1, x2, y2){
+        if (arguments.length === 1)
+            y1 = x2 = y2 = x1;
+        this._bx1 = x1;
+        this._bx2 = x2;
+        this._by1 = y1;
+        this._by2 = y2;
+        this.trigger("BoundaryOffset");
+        this._calculateMBR();
+        return this;
+    },
+
     /**
      * Calculates the MBR when rotated some number of radians about an origin point o.
-     * Necessary on a rotation, or a resize (when already rotated)
+     * Necessary on a rotation, or a resize
      */
 
-    _calculateMBR: function (ox, oy, rad) {
-        if (rad === 0) {
-            this._mbr = null;
-            return;
-        }
+    _calculateMBR: function () {
+        var ox = this._origin.x + this._x,
+            oy = this._origin.y + this._y,
+            rad = -this._rotation * DEG_TO_RAD;
+        // axis-aligned (unrotated) coordinates, relative to the origin point
+        var dx1 = this._x - this._bx1 - ox,
+            dx2 = this._x + this._w + this._bx2 - ox,
+            dy1 = this._y - this._by1 - oy,
+            dy2 = this._y + this._h + this._by2 - oy;
 
         var ct = Math.cos(rad),
             st = Math.sin(rad);
         // Special case 90 degree rotations to prevent rounding problems
         ct = (ct < 1e-10 && ct > -1e-10) ? 0 : ct;
         st = (st < 1e-10 && st > -1e-10) ? 0 : st;
-        var x0 = ox + (this._x - ox) * ct + (this._y - oy) * st,
-            y0 = oy - (this._x - ox) * st + (this._y - oy) * ct,
-            x1 = ox + (this._x + this._w - ox) * ct + (this._y - oy) * st,
-            y1 = oy - (this._x + this._w - ox) * st + (this._y - oy) * ct,
-            x2 = ox + (this._x + this._w - ox) * ct + (this._y + this._h - oy) * st,
-            y2 = oy - (this._x + this._w - ox) * st + (this._y + this._h - oy) * ct,
-            x3 = ox + (this._x - ox) * ct + (this._y + this._h - oy) * st,
-            y3 = oy - (this._x - ox) * st + (this._y + this._h - oy) * ct,
-            minx = Math.floor(Math.min(x0, x1, x2, x3)),
-            miny = Math.floor(Math.min(y0, y1, y2, y3)),
-            maxx = Math.ceil(Math.max(x0, x1, x2, x3)),
-            maxy = Math.ceil(Math.max(y0, y1, y2, y3));
+
+        // Calculate the new points relative to the origin, then find the new (absolute) bounding coordinates!
+        var x0 =   dx1 * ct + dy1 * st,
+            y0 = - dx1 * st + dy1 * ct,
+            x1 =   dx2 * ct + dy1 * st,
+            y1 = - dx2 * st + dy1 * ct,
+            x2 =   dx2 * ct + dy2 * st,
+            y2 = - dx2 * st + dy2 * ct,
+            x3 =   dx1 * ct + dy2 * st,
+            y3 = - dx1 * st + dy2 * ct,
+            minx = Math.floor(Math.min(x0, x1, x2, x3) + ox),
+            miny = Math.floor(Math.min(y0, y1, y2, y3) + oy),
+            maxx = Math.ceil(Math.max(x0, x1, x2, x3) + ox),
+            maxy = Math.ceil(Math.max(y0, y1, y2, y3) + oy);
         if (!this._mbr) {
             this._mbr = {
                 _x: minx,
@@ -507,6 +477,23 @@ Crafty.c("2D", {
             this._mbr._h = maxy - miny;
         }
 
+        // If a collision hitbox exists AND sits outside the entity, find a bounding box for both.
+        // `_cbr` contains information about a bounding circle of the hitbox. 
+        // The bounds of `_cbr` will be the union of the `_mbr` and the bounding box of that circle.
+        // This will not be a minimal region, but since it's only used for the broad phase pass it's good enough. 
+        //
+        // cbr is calculated by the `_checkBounds` method of the "Collision" component
+        if (this._cbr) {
+            var cbr = this._cbr;
+            var cx = cbr.cx, cy = cbr.cy, r = cbr.r;
+            var cx2 = ox + (cx + this._x - ox) * ct + (cy + this._y - oy) * st;
+            var cy2 = oy - (cx + this._x - ox) * st + (cy + this._y - oy) * ct;
+            cbr._x = Math.min(cx2 - r, minx);
+            cbr._y = Math.min(cy2 - r, miny);
+            cbr._w = Math.max(cx2 + r, maxx) - cbr._x;
+            cbr._h = Math.max(cy2 + r, maxy) - cbr._y;
+        }
+
     },
 
     /**
@@ -518,6 +505,8 @@ Crafty.c("2D", {
         // skip if there's no rotation!
         if (difference === 0)
             return;
+        else
+            this._rotation = v;
 
         //Calculate the new MBR
         var rad = theta * DEG_TO_RAD,
@@ -526,7 +515,7 @@ Crafty.c("2D", {
                 y: this._origin.y + this._y
             };
 
-        this._calculateMBR(o.x, o.y, rad);
+        this._calculateMBR();
 
 
         //trigger "Rotate" event
@@ -539,13 +528,7 @@ Crafty.c("2D", {
             sin: Math.sin(drad),
             deg: difference,
             rad: drad,
-            o: o,
-            matrix: {
-                M11: ct,
-                M12: st,
-                M21: -st,
-                M22: ct
-            }
+            o: o
         });
     },
 
@@ -888,7 +871,7 @@ Crafty.c("2D", {
     /**@
      * #.flip
      * @comp 2D
-     * @trigger Change - when the entity has flipped
+     * @trigger Invalidate - when the entity has flipped
      * @sign public this .flip(String dir)
      * @param dir - Flip direction
      *
@@ -903,7 +886,7 @@ Crafty.c("2D", {
         dir = dir || "X";
         if (!this["_flip" + dir]) {
             this["_flip" + dir] = true;
-            this.trigger("Change");
+            this.trigger("Invalidate");
         }
         return this;
     },
@@ -911,7 +894,7 @@ Crafty.c("2D", {
     /**@
      * #.unflip
      * @comp 2D
-     * @trigger Change - when the entity has unflipped
+     * @trigger Invalidate - when the entity has unflipped
      * @sign public this .unflip(String dir)
      * @param dir - Unflip direction
      *
@@ -926,7 +909,7 @@ Crafty.c("2D", {
         dir = dir || "X";
         if (this["_flip" + dir]) {
             this["_flip" + dir] = false;
-            this.trigger("Change");
+            this.trigger("Invalidate");
         }
         return this;
     },
@@ -940,7 +923,7 @@ Crafty.c("2D", {
         y2 =  (this._y + this._origin.y - e.o.y) * e.cos - (this._x + this._origin.x - e.o.x) * e.sin + (e.o.y - this._origin.y);
         this._attr('_rotation', this._rotation - e.deg);
         this._attr('_x', x2 );
-        this._attr('_y', y2 );        
+        this._attr('_y', y2 );
     },
 
     /**@
@@ -967,10 +950,15 @@ Crafty.c("2D", {
             this.trigger("reorder");
             //if the rect bounds change, update the MBR and trigger move
         } else if (name === '_x' || name === '_y') {
+            // mbr is the minimal bounding rectangle of the entity
             mbr = this._mbr;
-
             if (mbr) {
                 mbr[name] -= this[name] - value;
+                // cbr is a non-minmal bounding rectangle that contains both hitbox and mbr
+                // It will exist only when the collision hitbox sits outside the entity
+                if (this._cbr){
+                    this._cbr[name] -= this[name] - value;
+                }
             }
             this[name] = value;
 
@@ -982,7 +970,7 @@ Crafty.c("2D", {
             var oldValue = this[name];
             this[name] = value;
             if (mbr) {
-                this._calculateMBR(this._origin.x + this._x, this._origin.y + this._y, -this._rotation * DEG_TO_RAD);
+                this._calculateMBR();
             }
             if (name === '_w') {
                 this.trigger("Resize", {
@@ -1002,8 +990,8 @@ Crafty.c("2D", {
         //everything will assume the value
         this[name] = value;
 
-        //trigger a change
-        this.trigger("Change", old);
+        // flag for redraw
+        this.trigger("Invalidate");
 
         Crafty._rectPool.recycle(old);
     }
@@ -1012,6 +1000,8 @@ Crafty.c("2D", {
 /**@
  * #Gravity
  * @category 2D
+ * @trigger Moved - When entity has moved on y-axis a Moved event is triggered with an object specifying the old position {x: old_x, y: old_y}
+ * 
  * Adds gravitational pull to the entity.
  */
 Crafty.c("Gravity", {
@@ -1079,6 +1069,7 @@ Crafty.c("Gravity", {
             //if falling, move the players Y
             this._gy += this._gravityConst;
             this.y += this._gy;
+            this.trigger('Moved', { x: this._x, y: this._y - this._gy });
         } else {
             this._gy = 0; //reset change in y
         }
@@ -1112,7 +1103,7 @@ Crafty.c("Gravity", {
         if (hit) { //stop falling if found and player is moving down
             if (this._falling && ((this._gy > this._jumpSpeed) || !this._up)){
               this.stopFalling(hit);
-            } 
+            }
         } else {
             this._falling = true; //keep falling otherwise
         }
