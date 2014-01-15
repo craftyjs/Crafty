@@ -467,7 +467,7 @@ Crafty.extend({
          * @param Number height - Height of the viewport
          * @param String or HTMLElement stage_elem - the element to use as the stage (either its id or the actual element).
          *
-         * Initialize the viewport. If the arguments 'width' or 'height' are missing, or Crafty.mobile is true, use Crafty.DOM.window.width and Crafty.DOM.window.height (full screen model).
+         * Initialize the viewport. If the arguments 'width' or 'height' are missing, use Crafty.DOM.window.width and Crafty.DOM.window.height (full screen model).
          *
          * The argument 'stage_elem' is used to specify a stage element other than the default, and can be either a string or an HTMLElement.  If a string is provided, it will look for an element with that id and, if none exists, create a div.  If an HTMLElement is provided, that is used directly.  Omitting this argument is the same as passing an id of 'cr-stage'.
          *
@@ -478,10 +478,10 @@ Crafty.extend({
 
             // setters+getters for the viewport
             this._defineViewportProperties();
+            // If no width or height is defined, the width and height is set to fullscreen
+            this._width = (!w) ? Crafty.DOM.window.width : w;
+            this._height = (!h) ? Crafty.DOM.window.height : h;
 
-            //fullscreen if mobile or not specified
-            this._width = (!w || Crafty.mobile) ? Crafty.DOM.window.width : w;
-            this._height = (!h || Crafty.mobile) ? Crafty.DOM.window.height : h;
 
             //check if stage exists
             if (typeof stage_elem === 'undefined')
@@ -531,7 +531,7 @@ Crafty.extend({
             };
 
             //fullscreen, stop scrollbars
-            if ((!w && !h) || Crafty.mobile) {
+            if (!w && !h) {
                 document.body.style.overflow = "hidden";
                 Crafty.stage.fullscreen = true;
             }
@@ -596,9 +596,6 @@ Crafty.extend({
             Crafty.bind("ViewportResize", function(){Crafty.trigger("InvalidateViewport");});
 
             if (Crafty.mobile) {
-                elem.position = "absolute";
-                elem.left = "0px";
-                elem.top = "0px";
 
                 // remove default gray highlighting after touch
                 if (typeof elem.webkitTapHighlightColor !== undefined) {
@@ -608,26 +605,16 @@ Crafty.extend({
                 var meta = document.createElement("meta"),
                     head = document.getElementsByTagName("HEAD")[0];
 
-                //stop mobile zooming and scrolling
-                meta.setAttribute("name", "viewport");
-                meta.setAttribute("content", "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no");
-                head.appendChild(meta);
-
                 //hide the address bar
                 meta = document.createElement("meta");
                 meta.setAttribute("name", "apple-mobile-web-app-capable");
                 meta.setAttribute("content", "yes");
                 head.appendChild(meta);
-                setTimeout(function () {
-                    window.scrollTo(0, 1);
-                }, 0);
 
-                Crafty.addEvent(this, window, "touchmove", function (e) {
+                Crafty.addEvent(this, Crafty.stage.elem, "touchmove", function (e) {
                     e.preventDefault();
                 });
 
-                Crafty.stage.x = 0;
-                Crafty.stage.y = 0;
 
             } else {
                 elem.position = "relative";
