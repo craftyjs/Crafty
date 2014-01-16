@@ -10,8 +10,8 @@ test("Init Defaults", function() {
   Crafty.c('Animal', {
     defaults: {name: 'Fox'}
   });
-  fox = Crafty.m('Animal');
-  blank = Crafty.m();
+  fox = Crafty.e('Animal, Model');
+  blank = Crafty.e('Model');
 
   deepEqual(fox.attributes, {name: 'Fox'});
   deepEqual(blank.attributes, {});
@@ -31,7 +31,7 @@ test('Get', function() {
       name: 'Fox'
     }
   });
-  fox = Crafty.m('Animal');
+  fox = Crafty.e('Animal, Model');
 
   equal(fox.get('contact.address.city'), 'Portland');
   equal(fox.get('contact.email'), 'test@example.com');
@@ -44,7 +44,7 @@ test('Set', function() {
     defaults: {name: 'Fox'}
   });
 
-  fox = Crafty.m('Animal');
+  fox = Crafty.e('Animal, Model');
 
   fox.set('name', 'Foxxy');
   equal(fox.get('name'), 'Foxxy');
@@ -73,7 +73,7 @@ test('Set with dot notation', function() {
       name: 'Fox'
     }
   });
-  fox = Crafty.m('Animal');
+  fox = Crafty.e('Animal, Model');
 
   fox.set('contact.address.city', 'Salem');
 
@@ -86,7 +86,7 @@ test('Set Silent', function() {
     defaults: {name: 'Fox'}
   });
 
-  fox = Crafty.m('Animal');
+  fox = Crafty.e('Animal, Model');
 
   called = false;
   fox.bind('DataChange', function() {
@@ -112,7 +112,7 @@ test('Set Recursive', function() {
     }
   });
 
-  fox = Crafty.m('Animal');
+  fox = Crafty.e('Animal, Model');
 
   fox.set({contact: {email: 'foxxy@example.com'}}, {recursive: true});
 
@@ -131,7 +131,7 @@ test('Set triggers change events', function() {
     }
   });
 
-  fox = Crafty.m('Animal');
+  fox = Crafty.e('Animal, Model');
 
   fox.bind('DataChange', function() {
     results.push('DataChange');
@@ -165,7 +165,7 @@ test('Dirty', function() {
     }
   });
 
-  fox = Crafty.m('Animal');
+  fox = Crafty.e('Animal, Model');
 
   equal(fox.is_dirty(), false);
   equal(fox.is_dirty('name'), false);
@@ -191,7 +191,7 @@ test('Data', function() {
     }
   });
 
-  fox = Crafty.m('Animal');
+  fox = Crafty.e('Animal, Model');
 
   fox.data({name: 'Foxxy'});
 

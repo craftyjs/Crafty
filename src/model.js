@@ -250,15 +250,3 @@ Crafty.c('Model', {
     }
   }
 });
-
-/**@
- * #Crafty.m
- * @category Core
- * Model entity helper.
- * @see Model
- */
-Crafty.extend({
-  m: function(name) {
-    return this.e(name + ', Model');
-  }
-});
