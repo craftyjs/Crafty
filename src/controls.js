@@ -812,6 +812,19 @@ Crafty.c("Multiway", {
         return this;
     },
 
+    /**@
+     * #.speed
+     * @comp Multiway
+     * @sign public this .speed(Number speed)
+     * @param speed - The speed the entity has.
+     *
+     * Change the speed that the entity moves with.
+     *
+     * @example
+     * ~~~
+     * this.speed(2);
+     * ~~~
+     */
     speed: function (speed) {
         for (var k in this._keyDirection) {
             var keyCode = Crafty.keys[k] || k;
