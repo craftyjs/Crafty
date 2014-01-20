@@ -383,18 +383,20 @@ Crafty.extend({
         /**@
          * #Crafty.DOM.translate
          * @comp Crafty.DOM
-         * @sign public Object Crafty.DOM.translate(Number x, Number y)
-         * @param x - x position to translate
-         * @param y - y position to translate
-         * @return Object with x and y as keys and translated values
-         *
-         * Method will translate x and y positions to positions on the
-         * stage. Useful for mouse events with `e.clientX` and `e.clientY`.
+         * @sign public Object Crafty.DOM.translate(Number clientX, Number clientY)
+         * @param clientX - clientX position in the browser screen
+         * @param clientY - clientY position in the browser screen
+         * @return Object `{x: ..., y: ...}` with Crafty coordinates.
+         * 
+         * The parameters clientX and clientY are pixel coordinates within the visible
+         * browser window. This function translates those to Crafty coordinates (i.e.,
+         * the coordinates that you might apply to an entity), by taking into account
+         * where the stage is within the screen, what the current viewport is, etc.
          */
-        translate: function (x, y) {
+        translate: function (clientX, clientY) {
             return {
-                x: (x - Crafty.stage.x + document.body.scrollLeft + document.documentElement.scrollLeft - Crafty.viewport._x) / Crafty.viewport._scale,
-                y: (y - Crafty.stage.y + document.body.scrollTop + document.documentElement.scrollTop - Crafty.viewport._y) / Crafty.viewport._scale
+                x: (clientX - Crafty.stage.x + document.body.scrollLeft + document.documentElement.scrollLeft) / Crafty.viewport._scale - Crafty.viewport._x,
+                y: (clientY - Crafty.stage.y + document.body.scrollTop + document.documentElement.scrollTop) / Crafty.viewport._scale - Crafty.viewport._y
             };
         }
     }
