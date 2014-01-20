@@ -235,8 +235,16 @@ Crafty.extend({
      * @sign public void Crafty.background(String value)
      * @param style - Modify the background with a color or image
      *
-     * This method is essentially a shortcut for adding a background
-     * style to the stage element.
+     * This method is a shortcut for adding a background
+     * style to the stage element, i.e.
+     * `Crafty.stage.elem.style.background = ...`
+     * 
+     * For example, if you want the background to be white,
+     * with an image in the center, you might use:
+     * ~~~
+     * Crafty.background('#FFFFFF url(landscape.png) no-repeat center center');
+     * ~~~
+     *  
      */
     background: function (style) {
         Crafty.stage.elem.style.background = style;
