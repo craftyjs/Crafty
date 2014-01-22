@@ -243,6 +243,11 @@ test("DOMtranslate", function() {
   craftyxy = Crafty.DOM.translate(clientX, clientY);
   strictEqual(craftyxy.x, -Crafty.viewport._x + (Crafty.viewport._width / Crafty.viewport._scale));
   strictEqual(craftyxy.y, -Crafty.viewport._y + (Crafty.viewport._height / Crafty.viewport._scale));
+  
+  // clean up
+  Crafty.viewport.scale(1);
+  Crafty.viewport.x = 0;
+  Crafty.viewport.y = 0;
 });
 
 
