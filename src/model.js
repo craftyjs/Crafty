@@ -4,16 +4,35 @@ var Crafty = require('./core.js'),
 /**@
  * #Model
  * @category Model
- * Component for data/model behavior.
+ * Model is a component that offers new features for isolating business
+ * logic in your application. It offers default values, dirty values,
+ * and deep events on your data.
+ *
+ * All data should be accessed via the appropriate methods `.get`, `.set`,
+ * and `.data` for the proper events to be triggered. It is not encouraged
+ * to access them directly.
+ *
+ * Dirty values make it simple to inspect a model and see what values have changed.
+ *
+ * Deep events allow you to bind to specific fields, like `name` or even deep fields
+ * like `contact.email` and get notified when those specific fields are updated.
+ *
  * @trigger DataChange - When any data on the model has changed.
  * @trigger DataChange[key] - When the specific key on the model has changed.
  * @trigger DataChange[key.key] - The nested key value has changed.
  * @example
  * ~~~
  * Crafty.c('Person', {
+ *   init: function() { this.requires('Model'); },
  *   defaults: {name: 'Fox'}
  * });
- * person = Crafty.m('Person').setup({name: 'blainesch'});
+ * person = Crafty.e('Person').setup({name: 'blainesch'});
+ * person.bind('ChangeData[name]', function() {
+ *   console.log('name changed!');
+ * });
+ * person.data('name', 'blainesch'); // Triggers event
+ * person.isDirty('name'); // true
+ * person.changed // name
  * ~~~
  */
 Crafty.c('Model', {
@@ -231,7 +250,7 @@ Crafty.c('Model', {
    *
    * @example
    * ~~~
-   * person = Crafty.e('DirtyData').setup({name: 'Fox', age: 24})
+   * person = Crafty.e('Person').setup({name: 'Fox', age: 24})
    * person.is_dirty() // false
    * person.is_dirty('name') // false
    *
