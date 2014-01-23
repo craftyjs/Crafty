@@ -31,7 +31,7 @@ var Crafty = require('./core.js'),
  *   console.log('name changed!');
  * });
  * person.data('name', 'blainesch'); // Triggers event
- * person.isDirty('name'); // true
+ * person.is_dirty('name'); // true
  * person.changed // name
  * ~~~
  */
@@ -139,7 +139,7 @@ Crafty.c('Model', {
       subkey = keys.join('.');
       return this.get(keys.join('.'), context[first]);
     } else {
-      return context[key] || null;
+      return context[key];
     }
   },
 

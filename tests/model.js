@@ -41,10 +41,16 @@ test('Get', function() {
 test('Set', function() {
   var fox;
   Crafty.c('Animal', {
-    defaults: {name: 'Fox'}
+    defaults: {
+      name: 'Fox',
+      age: 24
+    }
   });
 
   fox = Crafty.e('Animal, Model');
+
+  fox.set('age', 0);
+  equal(fox.get('age'), 0);
 
   fox.set('name', 'Foxxy');
   equal(fox.get('name'), 'Foxxy');
