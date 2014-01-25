@@ -12,8 +12,14 @@ Crafty.extend({
      * @trigger StopCamera - when any camera animations should stop, such as at the start of a new animation.
      * @trigger CameraAnimationDone - when a camera animation comes reaches completion
      *
-     * Viewport is essentially a 2D camera looking at the stage. Can be moved which
+     * Viewport is essentially a 2D camera looking at the stage. Can be moved or zoomed, which
      * in turn will react just like a camera moving in that direction.
+     * 
+     * Tip: At any given moment, the stuff that you can see is...
+     * 
+     * `x` between `(-Crafty.viewport._x)` and `(-Crafty.viewport._x + (Crafty.viewport._width / Crafty.viewport._scale))`
+     * 
+     * `y` between `(-Crafty.viewport._y)` and `(-Crafty.viewport._y + (Crafty.viewport._height / Crafty.viewport._scale))` 
      */
     viewport: {
         /**@
@@ -57,7 +63,12 @@ Crafty.extend({
          * #Crafty.viewport._scale
          * @comp Crafty.viewport
          *
-         * What scale to render the viewport at.  This does not alter the size of the stage itself, but the magnification of what it shows.
+         * This value is the current scale (zoom) of the viewport. When the value is bigger than 1, everything
+         * looks bigger (zoomed in). When the value is less than 1, everything looks smaller (zoomed out). This
+         * does not alter the size of the stage itself, just the magnification of what it shows.
+         * 
+         * This is a read-only property: Do not set it directly. Instead, use `Crafty.viewport.scale(...)`
+         * or `Crafty.viewport.zoom(...)`
          */
 
         _scale: 1,
@@ -109,13 +120,14 @@ Crafty.extend({
             Crafty.trigger("InvalidateViewport");
         },
 
+        rect_object: { _x: 0, _y: 0, _w: 0, _h: 0},
+
         rect: function () {
-            return {
-                _x: -this._x,
-                _y: -this._y,
-                _w: this.width / this._scale,
-                _h: this.height / this._scale
-            };
+            this.rect_object._x = -this._x;
+            this.rect_object._y = -this._y;
+            this.rect_object._w = this._width / this._scale;
+            this.rect_object._h = this._height / this._scale;
+            return this.rect_object;
         },
 
         /**@ 
@@ -242,13 +254,6 @@ Crafty.extend({
 
             Crafty.viewport.pan(new_x, new_y, time);
         },
-        /**@
-         * #Crafty.viewport._zoom
-         * @comp Crafty.viewport
-         *
-         * This value keeps an amount of viewport zoom, required for calculating mouse position at entity
-         */
-        _zoom: 1,
 
         /**@
          * #Crafty.viewport.zoom
@@ -322,7 +327,7 @@ Crafty.extend({
                 }
 
                 Crafty.trigger("StopCamera");
-                startingZoom = Crafty.viewport._zoom;
+                startingZoom = Crafty.viewport._scale;
                 finalAmount = amt;
                 finalZoom = startingZoom * finalAmount;
                 
@@ -343,26 +348,27 @@ Crafty.extend({
          * #Crafty.viewport.scale
          * @comp Crafty.viewport
          * @sign public void Crafty.viewport.scale(Number amt)
-         * @param Number amt - amount to zoom/scale in on the element on the viewport by (eg. 2, 4, 0.5)
+         * @param Number amt - amount to zoom/scale in on the elements
          *
-         * Adjusts the. amt > 1 increase all entities on stage
-         * amt < 1 will reduce all entities on stage. amt = 0 will reset the zoom/scale.
-         * To reset the scale amount, pass 0.
+         * Adjusts the scale (zoom). When `amt` is 1, it is set to the normal scale,
+         * e.g. an entity with `this.w == 20` would appear exactly 20 pixels wide.
+         * When `amt` is 10, that same entity would appear 200 pixels wide (i.e., zoomed in
+         * by a factor of 10), and when `amt` is 0.1, that same entity would be 2 pixels wide
+         * (i.e., zoomed out by a factor of `(1 / 0.1)`).
+         * 
+         * If you pass an `amt` of 0, it is treated the same as passing 1, i.e. the scale is reset.
          *
          * This method sets the absolute scale, while `Crafty.viewport.zoom` sets the scale relative to the existing value.
          * @see Crafty.viewport.zoom
          *
          * @example
          * ~~~
-         * Crafty.viewport.scale(2); //to see effect add some entities on stage.
+         * Crafty.viewport.scale(2); // Zoom in -- all entities will appear twice as large.
          * ~~~
          */
         scale: (function () {
             return function (amt) {
-                var final_zoom = amt ? amt : 1;
-
-                this._zoom = final_zoom;
-                this._scale = final_zoom;
+                this._scale = amt ? amt : 1;
                 Crafty.trigger("InvalidateViewport");
                 Crafty.trigger("ViewportScale");
 
@@ -434,10 +440,10 @@ Crafty.extend({
             // under no circumstances should the viewport see something outside the boundary of the 'world'
             if (!this.clampToEntities) return;
             var bound = this.bounds || Crafty.map.boundaries();
-            bound.max.x *= this._zoom;
-            bound.min.x *= this._zoom;
-            bound.max.y *= this._zoom;
-            bound.min.y *= this._zoom;
+            bound.max.x *= this._scale;
+            bound.min.x *= this._scale;
+            bound.max.y *= this._scale;
+            bound.min.y *= this._scale;
             if (bound.max.x - bound.min.x > Crafty.viewport.width) {
                 if (Crafty.viewport.x < -bound.max.x + Crafty.viewport.width) {
                     Crafty.viewport.x = -bound.max.x + Crafty.viewport.width;
