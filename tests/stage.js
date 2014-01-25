@@ -220,6 +220,37 @@ test("centerOn", function() {
   Crafty.viewport.scroll('y', 0);
 });
 
+test("DOMtranslate", function() {
+  var clientX, clientY, craftyxy;
+
+  Crafty.viewport.scale(1.7);
+  Crafty.viewport.x = 38;
+  Crafty.viewport.y = 94;
+  
+  // pretend to click in the top-left corner. This is supposed to be
+  // (x,y) = (-Crafty.viewport._x, -Crafty.viewport._y)
+  clientX = Crafty.stage.x - document.body.scrollLeft - document.documentElement.scrollLeft;
+  clientY = Crafty.stage.y - document.body.scrollTop - document.documentElement.scrollTop;
+  craftyxy = Crafty.DOM.translate(clientX, clientY);
+  strictEqual(craftyxy.x, -Crafty.viewport._x);
+  strictEqual(craftyxy.y, -Crafty.viewport._y);
+  
+  // pretend to click in the bottom-right corner. This is supposed to be
+  // x = -Crafty.viewport._x + Crafty.viewport._width / Crafty.viewport._scale
+  // y = -Crafty.viewport._y + Crafty.viewport._height / Crafty.viewport._scale
+  clientX = Crafty.stage.x + Crafty.stage.elem.clientWidth - document.body.scrollLeft - document.documentElement.scrollLeft;
+  clientY = Crafty.stage.y + Crafty.stage.elem.clientHeight - document.body.scrollTop - document.documentElement.scrollTop;
+  craftyxy = Crafty.DOM.translate(clientX, clientY);
+  strictEqual(craftyxy.x, -Crafty.viewport._x + (Crafty.viewport._width / Crafty.viewport._scale));
+  strictEqual(craftyxy.y, -Crafty.viewport._y + (Crafty.viewport._height / Crafty.viewport._scale));
+  
+  // clean up
+  Crafty.viewport.scale(1);
+  Crafty.viewport.x = 0;
+  Crafty.viewport.y = 0;
+});
+
+
 module("Crafty.timer", {
   setup: function() {
     // prepare something for all following tests
