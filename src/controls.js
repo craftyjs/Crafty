@@ -27,18 +27,34 @@ Crafty.extend({
      * ~~~
      * @see Keyboard, Crafty.keys
      */
-
     detectBlur: function (e) {
         var selected = ((e.clientX > Crafty.stage.x && e.clientX < Crafty.stage.x + Crafty.viewport.width) &&
             (e.clientY > Crafty.stage.y && e.clientY < Crafty.stage.y + Crafty.viewport.height));
 
-        if (!Crafty.selected && selected)
+        if (!Crafty.selected && selected) {
             Crafty.trigger("CraftyFocus");
-        if (Crafty.selected && !selected)
+        }
+        
+        if (Crafty.selected && !selected) {
             Crafty.trigger("CraftyBlur");
-
+        }
+        
         Crafty.selected = selected;
     },
+    
+    resetKeyDown: function() {
+        // Tell all the keys they're no longer held down
+        for (var k in Crafty.keys) {
+             if (Crafty.keydown[Crafty.keys[k]]) {
+                 this.trigger("KeyUp", {
+                     key: Crafty.keys[k]
+                 });
+             }
+        }
+		
+        Crafty.keydown = {};
+    },
+    
     /**@
      * #Crafty.mouseDispatch
      * @category Input
@@ -56,11 +72,11 @@ Crafty.extend({
      * Notable properties of a MouseEvent e:
      * ~~~
      * //(x,y) coordinates of mouse event in web browser screen space
-     * e.clientX, e.clientY	
+     * e.clientX, e.clientY
      * //(x,y) coordinates of mouse event in world/viewport space
-     * e.realX, e.realY		
+     * e.realX, e.realY
      * // Normalized mouse button according to Crafty.mouseButtons
-     * e.mouseButton			
+     * e.mouseButton
      * ~~~
      * @see Crafty.touchDispatch
      */
@@ -336,6 +352,7 @@ Crafty.bind("Load", function () {
     Crafty.addEvent(this, Crafty.stage.elem, "mousedown", Crafty.mouseDispatch);
     Crafty.addEvent(this, Crafty.stage.elem, "mouseup", Crafty.mouseDispatch);
     Crafty.addEvent(this, document.body, "mouseup", Crafty.detectBlur);
+    Crafty.addEvent(this, window, "blur", Crafty.resetKeyDown);
     Crafty.addEvent(this, Crafty.stage.elem, "mousemove", Crafty.mouseDispatch);
     Crafty.addEvent(this, Crafty.stage.elem, "click", Crafty.mouseDispatch);
     Crafty.addEvent(this, Crafty.stage.elem, "dblclick", Crafty.mouseDispatch);
@@ -366,6 +383,7 @@ Crafty.bind("CraftyStop", function () {
     }
 
     Crafty.removeEvent(this, document.body, "mouseup", Crafty.detectBlur);
+    Crafty.removeEvent(this, window, "blur", Crafty.resetKeyDown);
 });
 
 /**@
