@@ -394,9 +394,12 @@ Crafty.extend({
          * where the stage is within the screen, what the current viewport is, etc.
          */
         translate: function (clientX, clientY) {
+            var doc = document.documentElement;
+            var body = document.body;
+
             return {
-                x: (clientX - Crafty.stage.x + document.body.scrollLeft + document.documentElement.scrollLeft) / Crafty.viewport._scale - Crafty.viewport._x,
-                y: (clientY - Crafty.stage.y + document.body.scrollTop + document.documentElement.scrollTop) / Crafty.viewport._scale - Crafty.viewport._y
+                x: (clientX - Crafty.stage.x + ( doc && doc.scrollLeft || body && body.scrollLeft || 0 )) / Crafty.viewport._scale - Crafty.viewport._x,
+                y: (clientY - Crafty.stage.y + ( doc && doc.scrollTop  || body && body.scrollTop  || 0 )) / Crafty.viewport._scale - Crafty.viewport._y
             };
         }
     }
