@@ -13,8 +13,9 @@ var Crafty = require('./core.js'),
  *
  * Create a canvas entity like this
  * ~~~
- * var myEntity = Crafty.e("2D, Canvas, Color").color("green")
- *                                             .attr({x: 13, y: 37, w: 42, h: 42});
+ * var myEntity = Crafty.e("2D, Canvas, Color")
+ *      .color("green")
+ *      .attr({x: 13, y: 37, w: 42, h: 42});
  *~~~
  */
 Crafty.c("Canvas", {
@@ -31,7 +32,7 @@ Crafty.c("Canvas", {
         this._changed = true;
         Crafty.DrawManager.addCanvas(this);
 
-        this.bind("Change", function (e) {
+        this.bind("Invalidate", function (e) {
             //flag if changed
             if (this._changed === false) {
                 this._changed = true;
@@ -102,7 +103,7 @@ Crafty.c("Canvas", {
         co.w = w || coord[2];
         co.h = h || coord[3];
 
-        if (this._mbr) {
+        if (this._rotation !== 0) {
             context.save();
 
             context.translate(this._origin.x + this._x, this._origin.y + this._y);
@@ -134,7 +135,7 @@ Crafty.c("Canvas", {
         this.drawVars.ctx = context;
         this.trigger("Draw", this.drawVars);
 
-        if (this._mbr || (this._flipX || this._flipY)) {
+        if (this._rotation !== 0 || (this._flipX || this._flipY)) {
             context.restore();
         }
         if (globalpha) {
@@ -206,8 +207,17 @@ Crafty.extend({
                 Crafty.canvas.context.scale(zoom, zoom);
 
             //Bind rendering of canvas context (see drawing.js)
-            Crafty.unbind("RenderScene", Crafty.DrawManager.renderCanvas);
-            Crafty.bind("RenderScene", Crafty.DrawManager.renderCanvas);
+            Crafty.uniqueBind("RenderScene", Crafty.DrawManager.renderCanvas);
+
+            Crafty.uniqueBind("ViewportResize", this._resize);
+        },
+
+        // Resize the canvas element to the current viewport
+        _resize: function() {
+            var c = Crafty.canvas._canvas;
+            c.width = Crafty.viewport.width;
+            c.height = Crafty.viewport.height;
+
         }
 
     }

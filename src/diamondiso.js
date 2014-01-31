@@ -99,21 +99,25 @@ Crafty.extend({
         area: function (offset) {
             if (!offset) offset = 0;
             //calculate the corners
-            var vp = Crafty.viewport.rect();
+            var vp = Crafty.viewport.rect(),
+                x = vp._x,
+                y = vp._y,
+                w = vp._w,
+                h = vp._h;
             var ow = offset * this._tile.width;
             var oh = offset * this._tile.height;
-            vp._x -= (this._tile.width / 2 + ow);
-            vp._y -= (this._tile.height / 2 + oh);
-            vp._w += (this._tile.width / 2 + ow);
-            vp._h += (this._tile.height / 2 + oh);
-            /*  Crafty.viewport.x = -vp._x;
-            Crafty.viewport.y = -vp._y;    
-            Crafty.viewport.width = vp._w;
-            Crafty.viewport.height = vp._h;   */
+            x -= (this._tile.width / 2 + ow);
+            y -= (this._tile.height / 2 + oh);
+            w += (this._tile.width / 2 + ow);
+            h += (this._tile.height / 2 + oh);
+            /*  Crafty.viewport.x = -x;
+            Crafty.viewport.y = -y;
+            Crafty.viewport.width = w;
+            Crafty.viewport.height = h;   */
 
             var grid = [];
-            for (var y = vp._y, yl = (vp._y + vp._h); y < yl; y += this._tile.height / 2) {
-                for (var x = vp._x, xl = (vp._x + vp._w); x < xl; x += this._tile.width / 2) {
+            for (yl = (y + h); y < yl; y += this._tile.height / 2) {
+                for (xl = (x + w); x < xl; x += this._tile.width / 2) {
                     var row = this.px2pos(x, y);
                     grid.push([~~row.x, ~~row.y]);
                 }

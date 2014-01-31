@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html class="no-js">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- Note to developers: Run the "grunt check" task to run these tests in the
+        PhantomJS browser. (PhantomJS is based on webkit, so it should behave similar
+        to safari or chrome.) To run in other browsers, run "grunt" (the default task)
+        to compile crafty.js, then open this HTML file to run the tests. However,
+        you may need to change browser security settings:
+           * To run the tests in firefox: First you need to go to about:config in firefox, and
+                 switch "security.fileuri.strict_origin_policy" to false. [This only changes the
+                 security settings when firefox opens an HTML file saved on your computer; it does
+                 not affect your security when you are browsing the internet.]
+           * To run the tests in chrome: You need to pass a flag when opening chrome.
+                 For example, in Linux, you would run this command in a Linux terminal:
+                 chromium-browser /path/to/core.html --allow-file-access-from-files
+    -->
+
+    <!-- DEPENDCIES -->
+    <link rel="stylesheet" href="./lib/qunit.css" type="text/css" media="screen" />
+    <script type="text/javascript" src="./lib/jquery.min.js"></script> 
+    <script type="text/javascript" src="./lib/qunit.js"></script>
+    <script type="text/javascript" src="./lib/modernizr-2.7.1.min.js"></script>
+    <script type="text/javascript" src="./lib/helperFunctions.js"></script>
+
+
+
+  </head>
+  <body>
+    <h1 id="qunit-header">Crafty.js Test Suite</h1>
+    <h2 id="qunit-banner"></h2>
+    <div id="qunit-testrunner-toolbar"></div>
+    <h2 id="qunit-userAgent"></h2>
+    <ol id="qunit-tests"></ol>
+    <div id="qunit-fixture">test markup, will be hidden</div>
+
+    <!-- CRAFTY.JS -->
+    <script type="text/javascript" src="../crafty.js"></script>
+    <script type="text/javascript">
+      Crafty.init(500,500);
+    </script>
+
+    <!-- ALL THE TESTS -->
+    <script type="text/javascript" src="./core.js"></script>
+    <script type="text/javascript" src="./2d.js"></script>
+    <script type="text/javascript" src="./dom.js"></script>
+    <script type="text/javascript" src="./events.js"></script>
+    <script type="text/javascript" src="./isometric.js"></script>
+    <script type="text/javascript" src="./loader.js"></script>
+    <script type="text/javascript" src="./math.js"></script>
+    <script type="text/javascript" src="./sound.js"></script>
+    <script type="text/javascript" src="./stage.js"></script>
+    <script type="text/javascript" src="./text.js"></script>
+    <script type="text/javascript" src="./tween.js"></script>
+    <script type="text/javascript" src="./storage.js"></script>
+    
+  </body>
+</html>

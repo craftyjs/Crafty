@@ -38,7 +38,7 @@ processBlock = (block)->
         if not Table.comps[block.comp]
             Table.comps[block.name] =  {name:block.name, parts:[]}
         Table.comps[block.name].block = block
-            
+
     # Having a component tag means it's part of a component page
     if block.comp
         if not Table.comps[block.comp]
@@ -123,10 +123,10 @@ class DocBlock
         else
             return false
 
-    # Method for returning the documentation for this block    
+    # Method for returning the documentation for this block
     getContent: ()->
         if @isFunctionTag(@prevTag) then @code.push("</dl>")
-        return @code.join("\n") + triggerBlock(@triggers) + seeBlock(@see) 
+        return marked(@code.join("\n")) + triggerBlock(@triggers) + seeBlock(@see)
 
 # parse js file
 parseJS = (path) ->
@@ -140,7 +140,7 @@ parseJS = (path) ->
             block = new DocBlock()
             block.file = path
             block.line = ln
-            open    = true  
+            open    = true
         # process
         if open
             block.processLine(line)
@@ -153,18 +153,18 @@ parseJS = (path) ->
             if block.categories.length is 0 and block.comp is null
                 console.log("No component or category for block at #{block.file}:#{block.line+1} (#{block.name})")
             data.push block
-            
+
 
 cleanName = (name) -> name.replace(".", "-")
 
 triggerBlock = (triggers, noheader)->
-    return '' if triggers?.length is 0 
-    if noheader then block = "<dl>" else block = "\n<h4>Events</h4>\n<dl>" 
+    return '' if triggers?.length is 0
+    if noheader then block = "<dl>" else block = "\n<h4>Events</h4>\n<dl>"
     for t in triggers
         if t.objProp?
-            block+=  "<dt><span class='event-name'>#{t.event}</span> [<span class='event-property-name'>#{t.objName}</span>: <span class='event-property'>#{t.objProp}</span>]</dt><dd>#{t.description}</dd>\n"        
+            block+=  "<dt><span class='event-name'>#{t.event}</span> [<span class='event-property-name'>#{t.objName}</span>: <span class='event-property'>#{t.objProp}</span>]</dt><dd>#{t.description}</dd>\n"
         else
-            block+=  "<dt><span class='event-name'>#{t.event}</span></dt><dd>#{t.description}</dd>\n"        
+            block+=  "<dt><span class='event-name'>#{t.event}</span></dt><dd>#{t.description}</dd>\n"
     block+="</dl>"
     return block
 
@@ -185,9 +185,9 @@ createPage = (page)->
         eventContent = "##{page.name}\n" + triggerBlock(page.block.triggers, true)
 
     partContent = ""
-    if page.parts.length 
+    if page.parts.length
         partList = "<div class='doc-contents'><h4>Properties and Methods</h4><ul>"
-        for part in page.parts            
+        for part in page.parts
             clName = cleanName(part.name)
             partList += """<li><a href='##{clName}'>#{part.name}</a></li>"""
             partContent += "\n\n<div id='#{clName}' class='docblock'>\n\n<a href='#doc-nav' class='doc-top'>Back to top</a><h2>#{part.name}</h2>\n" +  marked(part.getContent()) + "\n\n</div>\n\n"
@@ -219,7 +219,7 @@ saveMd = (data) ->
             nav_html+="<li><a href='#{cleanName(page.name)}.html'>#{page.name}</a></li>"
 
             # Pages can be listed multiple times in the nav, but we should only generate them once
-            continue if page.flagged is true 
+            continue if page.flagged is true
             page.flagged = true
 
             # Make page
@@ -246,7 +246,7 @@ saveMd = (data) ->
     for page in pages
         html = template.replace("CONTENT_DIV", page.content_html).replace("NAV_DIV", nav_html)
         writeOut(page.name, html)
-        
+
     return
 
 
@@ -267,7 +267,7 @@ document = (files, output, template, version, callback)->
     dirOut = output
     versionString = version
     for file in files
-        parseJS file 
+        parseJS file
 
     # Save the data to files
     saveMd data

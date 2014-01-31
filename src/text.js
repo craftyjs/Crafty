@@ -4,7 +4,7 @@ var Crafty = require('./core.js'),
 /**@
  * #Text
  * @category Graphics
- * @trigger Change - when the text is changed
+ * @trigger Invalidate - when the text is changed
  * @requires Canvas or DOM
  * Component to make a text entity.
  *
@@ -28,6 +28,8 @@ Crafty.c("Text", {
     _text: "",
     defaultSize: "10px",
     defaultFamily: "sans-serif",
+    defaultVariant: "normal",
+    defaultLineHeight: "normal",
     ready: true,
 
     init: function () {
@@ -36,7 +38,9 @@ Crafty.c("Text", {
             "type": "",
             "weight": "",
             "size": this.defaultSize,
-            "family": this.defaultFamily
+            "lineHeight":this.defaultLineHeight,
+            "family": this.defaultFamily,
+            "variant": this.defaultVariant
         };
 
         this.bind("Draw", function (e) {
@@ -77,11 +81,11 @@ Crafty.c("Text", {
             "cm": 96/2.54,
             "mm": 96/25.4,
             "in": 96,
-            "em": undefined, 
+            "em": undefined,
             "ex": undefined
         };
         return function (font){
-            var number = parseFloat(font);  
+            var number = parseFloat(font);
             var match = re.exec(font);
             var unit =  match ? match[1] : "px";
             if (multipliers[unit] !== undefined)
@@ -125,7 +129,7 @@ Crafty.c("Text", {
         if (this.has("Canvas") )
             this._resizeForCanvas();
 
-        this.trigger("Change");
+        this.trigger("Invalidate");
         return this;
     },
 
@@ -143,9 +147,8 @@ Crafty.c("Text", {
 
     // Returns the font string to use
     _fontString: function(){
-        return this._textFont.type + ' ' + this._textFont.weight + ' ' + this._textFont.size  + ' ' + this._textFont.family;
+        return this._textFont.type + ' ' + this._textFont.variant  + ' ' + this._textFont.weight + ' ' + this._textFont.size  + ' / ' + this._textFont.lineHeight + ' ' + this._textFont.family;
     },
-
     /**@
      * #.textColor
      * @comp Text
@@ -168,14 +171,14 @@ Crafty.c("Text", {
     textColor: function (color, strength) {
         this._strength = strength;
         this._textColor = Crafty.toRGB(color, this._strength);
-        this.trigger("Change");
+        this.trigger("Invalidate");
         return this;
     },
 
     /**@
      * #.textFont
      * @comp Text
-     * @triggers Change
+     * @triggers Invalidate
      * @sign public this .textFont(String key, * value)
      * @param key - Property of the entity to modify
      * @param value - Value to set the property to
@@ -183,7 +186,9 @@ Crafty.c("Text", {
      * @sign public this .textFont(Object map)
      * @param map - Object where the key is the property to modify and the value as the property value
      *
-     * Use this method to set font property of the text entity.
+     * Use this method to set font property of the text entity.  Possible values are: type, weight, size, family, lineHeight, and variant.
+     *
+     * When rendered by the canvas, lineHeight and variant will be ignored.
      *
      * @example
      * ~~~
@@ -206,7 +211,7 @@ Crafty.c("Text", {
                     if(propertyKey == 'family'){
                         this._textFont[propertyKey] = "'" + key[propertyKey] + "'";
                     } else {
-                        this._textFont[propertyKey] = key[propertyKey]; 
+                        this._textFont[propertyKey] = key[propertyKey];
                     }
                 }
             }
@@ -217,13 +222,13 @@ Crafty.c("Text", {
         if (this.has("Canvas") )
             this._resizeForCanvas();
 
-        this.trigger("Change");
+        this.trigger("Invalidate");
         return this;
     },
     /**@
      * #.unselectable
      * @comp Text
-     * @triggers Change
+     * @triggers Invalidate
      * @sign public this .unselectable()
      *
      * This method sets the text so that it cannot be selected (highlighted) by dragging.
@@ -246,7 +251,7 @@ Crafty.c("Text", {
                 '-ms-user-select': 'none',
                 'user-select': 'none'
             });
-            this.trigger("Change");
+            this.trigger("Invalidate");
         }
         return this;
     }

@@ -27,18 +27,27 @@ var version = require('./version');
  *   Crafty(1)
  * ~~~
  * Passing an integer will select the entity with that `ID`.
+ *
+ * To work directly with an array of entities, use the `get()` method on a selection.
+ * To call a function in the context of each entity, use the `.each()` method.
+ *
+ * The event related methods such as `bind` and `trigger` will work on selections of entities.
+ *
+ * @see .get
+ * @see .each
  */
- 
+
 var Crafty = function (selector) {
     return new Crafty.fn.init(selector);
 },
     // Internal variables
     GUID, frame, components, entities, handlers, onloads,
-    noSetter, slice, rlist, rspace, milliSecPerFrame;
+    slice, rlist, rspace, milliSecPerFrame;
 
 
     initState = function () {
-        GUID = 1; //GUID for entity IDs
+        GUID = 1, //GUID for entity IDs
+        frame = 0;
 
         components = {}; //map of components and their functions
         entities = {}; //map of entities and their data
@@ -452,7 +461,8 @@ Crafty.fn = Crafty.prototype = {
      * @comp Crafty Core
      * @sign public this .toArray(void)
      *
-     * This method will simply return the found entities as an array.
+     * This method will simply return the found entities as an array of ids.  To get an array of the actual entities, use `get()`.
+     * @see .get
      */
     toArray: function () {
         return slice.call(this, 0);
@@ -464,7 +474,7 @@ Crafty.fn = Crafty.prototype = {
     * @sign public this .timeout(Function callback, Number delay)
     * @param callback - Method to execute after given amount of milliseconds
     * @param delay - Amount of milliseconds to execute the method
-    * 
+    *
     * The delay method will execute a function after a given amount of time in milliseconds.
     *
     * Essentially a wrapper for `setTimeout`.
@@ -712,6 +722,53 @@ Crafty.fn = Crafty.prototype = {
     },
 
     /**@
+     * #.get
+     * @comp Crafty Core
+     * @sign public Array .get()
+     * @returns An array of entities corresponding to the active selector
+     * 
+     * @sign public Entity .get(Number index)
+     * @returns an entity belonging to the current selection
+     * @param index - The index of the entity to return.  If negative, counts back from the end of the array.
+     * 
+     *
+     * @example
+     * Get an array containing every "2D" entity
+     * ~~~
+     * var arr = Crafty("2D").get()
+     * ~~~
+     * Get the first entity matching the selector
+     * ~~~
+     * // equivalent to Crafty("2D").get()[0], but doesn't create a new array
+     * var e = Crafty("2D").get(0)
+     * ~~~
+     * Get the last "2D" entity matching the selector
+     * ~~~
+     * var e = Crafty("2D").get(-1)
+     * ~~~
+     * 
+     */
+    get: function(index) {
+        var l = this.length;
+        if (typeof index !== "undefined") {
+            if (index >= l || index+l < 0)
+                return undefined;
+            if (index>=0)
+                return entities[this[index]];
+            else
+                return entities[this[index+l]];
+        } else {
+            var i=0, result = [];
+            for (; i < l; i++) {
+                //skip if not exists
+                if (!entities[this[i]]) continue;
+                result.push( entities[this[i]] );
+            }
+            return result;
+        }
+    },
+
+    /**@
      * #.clone
      * @comp Crafty Core
      * @sign public Entity .clone(void)
@@ -747,8 +804,6 @@ Crafty.fn = Crafty.prototype = {
      * Will watch a property waiting for modification and will then invoke the
      * given callback when attempting to modify.
      *
-     * *Note: Support in IE<9 is slightly different. The method will be executed
-     * after the property has been set*
      */
     setter: function (prop, callback) {
         if (Crafty.support.setter) {
@@ -757,12 +812,6 @@ Crafty.fn = Crafty.prototype = {
             Object.defineProperty(this, prop, {
                 set: callback,
                 configurable: true
-            });
-        } else {
-            noSetter.push({
-                prop: prop,
-                obj: this,
-                fn: callback
             });
         }
         return this;
@@ -795,9 +844,12 @@ Crafty.fn = Crafty.prototype = {
 //give the init instances the Crafty prototype
 Crafty.fn.init.prototype = Crafty.fn;
 
-/**
- * Extension method to extend the namespace and
- * selector instances
+
+/**@
+ * #Crafty.extend
+ * @category Core
+ * Used to extend the Crafty namespace.
+ *
  */
 Crafty.extend = Crafty.fn.extend = function (obj) {
     var target = this,
@@ -814,11 +866,7 @@ Crafty.extend = Crafty.fn.extend = function (obj) {
     return target;
 };
 
-/**@
- * #Crafty.extend
- * @category Core
- * Used to extend the Crafty namespace.
- */
+
 Crafty.extend({
     /**@
      * #Crafty.init
@@ -972,8 +1020,7 @@ Crafty.extend({
         // variables used by the game loop to track state
         var endTime = 0,
             timeSlip = 0,
-            gameTime,
-            frame = 0;
+            gameTime;
 
         // Controls the target rate of fixed mode loop.  Set these with the Crafty.timer.FPS function
         var FPS = 50,
@@ -1029,8 +1076,8 @@ Crafty.extend({
             /**@
              * #Crafty.timer.steptype
              * @comp Crafty.timer
-             * Can be called to set the type of timestep the game loop uses
              * @sign public void Crafty.timer.steptype(mode [, maxTimeStep])
+             * Can be called to set the type of timestep the game loop uses
              * @param mode - the type of time loop.  Allowed values are "fixed", "semifixed", and "variable".  Crafty defaults to "fixed".
              * @param mode - For "fixed", sets the max number of frames per step.   For "variable" and "semifixed", sets the maximum time step allowed.
              *
@@ -1155,8 +1202,8 @@ Crafty.extend({
             /**@
              * #Crafty.timer.simulateFrames
              * @comp Crafty.timer
-             * Advances the game state by a number of frames and draws the resulting stage at the end. Useful for tests and debugging.
              * @sign public this Crafty.timer.simulateFrames(Number frames[, Number timestep])
+             * Advances the game state by a number of frames and draws the resulting stage at the end. Useful for tests and debugging.
              * @param frames - number of frames to simulate
              * @param timestep - the duration to pass each frame.  Defaults to milliSecPerFrame (20 ms) if not specified.
              */
@@ -1222,7 +1269,7 @@ Crafty.extend({
      * @category Core
      * @sign public void Crafty.c(String name, Object component)
      * @param name - Name of the component
-     * @param component - Object with the components properties and methods
+     * @param component - Object with the component's properties and methods
      * Creates a component where the first argument is the ID and the second
      * is the object that will be inherited by entities.
      *
@@ -1319,7 +1366,7 @@ Crafty.extend({
      * @sign public Number bind(String eventName, Function callback)
      * @param eventName - Name of the event to bind to
      * @param callback - Method to execute upon event triggered
-     * @returns ID of the current callback used to unbind
+     * @returns callback function which can be used for unbind
      *
      * Binds to a global event. Method will be executed when `Crafty.trigger` is used
      * with the event name.
@@ -1339,7 +1386,7 @@ Crafty.extend({
         // entity6.trigger('Move')), it causes the execution of fnB() and fnC(). When
         // the Move event is triggered globally (i.e. Crafty.trigger('Move')), it
         // will execute fnA, fnB, fnC, fnD.
-        // 
+        //
         // In this example, "this" is bound to entity #6 whenever fnB() is executed, and
         // "this" is bound to Crafty whenever fnD() is executed.
         //
@@ -1351,7 +1398,8 @@ Crafty.extend({
         var hdl = handlers[event];
 
         if (!hdl.global) hdl.global = [];
-        return hdl.global.push(callback) - 1;
+        hdl.global.push(callback);
+        return callback;
     },
 
 
@@ -1361,7 +1409,7 @@ Crafty.extend({
      * @sign public Number uniqueBind(String eventName, Function callback)
      * @param eventName - Name of the event to bind to
      * @param callback - Method to execute upon event triggered
-     * @returns ID of the current callback used to unbind
+     * @returns callback function which can be used for unbind
      *
      * Works like Crafty.bind, but prevents a callback from being bound multiple times.
      *
@@ -1369,8 +1417,7 @@ Crafty.extend({
      */
     uniqueBind: function (event, callback) {
         this.unbind(event, callback);
-        this.bind(event, callback);
-
+        return this.bind(event, callback);
     },
 
     /**@
@@ -1379,7 +1426,7 @@ Crafty.extend({
      * @sign public Number one(String eventName, Function callback)
      * @param eventName - Name of the event to bind to
      * @param callback - Method to execute upon event triggered
-     * @returns ID of the current callback used to unbind
+     * @returns callback function which can be used for unbind
      *
      * Works like Crafty.bind, but will be unbound once the event triggers.
      *
@@ -1392,7 +1439,6 @@ Crafty.extend({
             self.unbind(event, oneHandler);
         };
         return self.bind(event, oneHandler);
-
     },
 
     /**@
@@ -1573,32 +1619,14 @@ function clone(obj) {
     return temp;
 }
 
-Crafty.bind("Load", function () {
-    if (!Crafty.support.setter && Crafty.support.defineProperty) {
-        noSetter = [];
-        Crafty.bind("EnterFrame", function () {
-            var i = 0,
-                l = noSetter.length,
-                current;
-            for (; i < l; ++i) {
-                current = noSetter[i];
-                if (current.obj[current.prop] !== current.obj['_' + current.prop]) {
-                    current.fn.call(current.obj, current.obj[current.prop]);
-                }
-            }
-        });
-    }
-});
-
-
 // export Crafty
 if (typeof define === 'function') { // AMD
     define('crafty', [], function () {
         return Crafty;
     });
-} else if (typeof exports === 'object') { // CommonJS
-    module.exports = Crafty;
 }
+
+module.exports = Crafty;
 
 window.Crafty = Crafty;
 
