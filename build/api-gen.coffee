@@ -126,7 +126,7 @@ class DocBlock
     # Method for returning the documentation for this block
     getContent: ()->
         if @isFunctionTag(@prevTag) then @code.push("</dl>")
-        return @code.join("\n") + triggerBlock(@triggers) + seeBlock(@see)
+        return marked(@code.join("\n")) + triggerBlock(@triggers) + seeBlock(@see)
 
 # parse js file
 parseJS = (path) ->
