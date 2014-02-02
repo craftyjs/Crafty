@@ -1313,17 +1313,17 @@ Crafty.extend({
      *
      * @see Crafty.e
      */
-    commonComponentFunctions: ['init', 'draw', 'remove', 'matchHitBox'],
-    componentFunctions: [],
+    _commonComponentFunctions: ['init', 'draw', 'remove', 'matchHitBox'],
+    _componentFunctions: [],
     c: function (compName, component) {
 
         for(var key in component){
 
             if(typeof component[key] == "function"){
                 // If the function has not been in a component before, add it
-                if(this.componentFunctions.indexOf(key) === -1){
-                    this.componentFunctions.push(key);
-                } else if(this.commonComponentFunctions.indexOf(key) !== -1){
+                if(this._componentFunctions.indexOf(key) === -1){
+                    this._componentFunctions.push(key);
+                } else if(this._commonComponentFunctions.indexOf(key) !== -1){
                     // If the function name is a common name like init, do not throw an exception
                 } else {
                     throw('Function already defined in another component: ' + key);
