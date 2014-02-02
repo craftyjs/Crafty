@@ -276,6 +276,22 @@ test("requires", function() {
 
 });
 
+test("extend", function() {
+
+  try {
+    Crafty.c('TestComp', {
+      move: function() {
+        // Duplicate move function from 2D component
+      }
+    });
+  } catch(e) {
+    // console.log(e);
+    ok(e, 'Duplicate move function gave an error');
+  }
+
+
+});
+
 test("destroy", function() {
   var first = Crafty.e("test"),
     id = first[0]; //id
