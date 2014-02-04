@@ -46,7 +46,7 @@ var Crafty = function (selector) {
 
 
     initState = function () {
-        GUID = 1, //GUID for entity IDs
+        GUID = 1; //GUID for entity IDs
         frame = 0;
 
         components = {}; //map of components and their functions
