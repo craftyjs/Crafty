@@ -229,7 +229,7 @@ Crafty.c("Collision", {
      * }]
      * ~~~
      * `MBR` is your standard axis aligned rectangle intersection (`.intersect` in the 2D component).
-     * `SAT` is collision between any convex polygon. `SAT` collision can only occur if both colliders have the `Collision` component.
+     * `SAT` is collision between any convex polygon.
      *
      * @see .onHit, 2D
      */
