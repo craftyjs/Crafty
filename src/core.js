@@ -953,7 +953,7 @@ Crafty.extend({
      * @sign public this Crafty.pause(void)
      *
      * Pauses the game by stopping the EnterFrame event from firing. If the game is already paused it is unpaused.
-     * You can pass a boolean parameter if you want to pause or unpause mo matter what the current state is.
+     * You can pass a boolean parameter if you want to pause or unpause no matter what the current state is.
      * Modern browsers pauses the game when the page is not visible to the user. If you want the Pause event
      * to be triggered when that happens you can enable autoPause in `Crafty.settings`.
      *
