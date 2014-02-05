@@ -23,8 +23,8 @@ module.exports = function (grunt) {
             console.log("Documentation created in " + buildDir);
             done();
         };
-        var md = require("./build/api-gen");
-        md.document(getFiles(), buildDir, "build/template.html", version, callback);
+        var createDocs = require("./build/api");
+        createDocs(getFiles());
     };
 
     // Project configuration.
