@@ -87,7 +87,8 @@ module.exports = function (grunt) {
         qunit: {
             all: [
                 'tests/index.html',
-                'tests/animation/animation.html'
+                'tests/animation/animation.html',
+                'tests/2D/collision/collision.html'
             ]
         },
 
