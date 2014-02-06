@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html ng-app="app">
+  <head>
+    <meta charset="utf-8">
+    <title>Crafty Local Docs</title>
+    <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
+    <script src="vendor/angular/angular.js"></script>
+    <script src="main.js"></script>
+  </head>
+  <body ng-controller="DocsCtrl">
+    <nav class="navbar navbar-default navbar-static-top" role="navigation">
+      <div class="container">
+        <a class="navbar-brand" href="#">Crafty.js Docs</a>
+      </div>
+    </nav>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4">
+          <ul>
+            <li ng-repeat="category in categories" >
+              {{category}}
+              <ul>
+                <li ng-repeat="subCategory in subCategories[category]" ng-click="show(subCategory)">
+                  {{subCategory}}
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+        <div class="col-md-8">
+          <h1>{{current}}</h1>
+          <div>{{blocks[current] | json}}</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
