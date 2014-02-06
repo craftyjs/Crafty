@@ -717,6 +717,7 @@ Crafty.extend({
          *
          * Recalculate and reload stage width, height and position.
          * Useful when browser return wrong results on init (like safari on Ipad2).
+         * You should also call this method if you insert custom DOM elements that affect Crafty's stage offset.
          *
          */
         reload: function () {
