@@ -56,3 +56,25 @@ test("removeComponent removes element class", function() {
   strictEqual(element.has("removeMe"), false, "component removed");
   strictEqual(hasClassName(element, "removeMe"), false, "classname removed");
 });
+
+test("DOM component correctly invalidates", function(){
+  var element = Crafty.e("DOM");
+  var node = element._element;
+  strictEqual(element._changed, true, "element starts dirty");
+  element._changed = false;
+  element.trigger("Invalidate");
+  strictEqual(element._changed, true, "element dirty after invalidate");
+});
+
+
+test("removing DOM component cleans up", function(){
+  var element = Crafty.e("DOM");
+  var node = element._element;
+  strictEqual(node.parentNode, Crafty.stage.inner, "child of the stage");
+  element._changed = false;
+  element.removeComponent("DOM");
+  element.trigger("Invalidate");
+  strictEqual(element._changed, false, "no longer gets dirty after removal of 'DOM'");
+  strictEqual(node.parentNode, null, "no parent node after removal of 'DOM'");
+
+});

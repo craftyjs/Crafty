@@ -40,44 +40,19 @@ Crafty.c("DOM", {
         this._element.style.position = "absolute";
         this._element.id = "ent" + this[0];
 
-        this.bind("Invalidate", function () {
-            if (!this._changed) {
-                this._changed = true;
-                Crafty.DrawManager.addDom(this);
-            }
-        });
+        this.bind("Invalidate", this._invalidateDOM);
+        this.bind("NewComponent", this._updateClass);
+        this.bind("RemoveComponent", this._removeClass);
 
-        function updateClass() {
-            var i = 0,
-                c = this.__c,
-                str = "";
-            for (i in c) {
-                str += ' ' + i;
-            }
-            str = str.substr(1);
-            this._element.className = str;
-        }
+        this._invalidateDOM();
 
-        function removeClass(removedComponent) {
-            var i = 0,
-                c = this.__c,
-                str = "";
-            for (i in c) {
-              if(i != removedComponent) {
-                str += ' ' + i;
-              }
-            }
-            str = str.substr(1);
-            this._element.className = str;
-        }
+    },
 
-        this.bind("NewComponent", updateClass).bind("RemoveComponent", removeClass);
-
-        this.bind("Remove", this.undraw);
-        this.bind("RemoveComponent", function (compName) {
-            if (compName === "DOM")
-                this.undraw();
-        });
+    remove: function(){
+        this.undraw();
+        this.unbind("NewComponent", this._updateClass);
+        this.unbind("RemoveComponent", this._removeClass);
+        this.unbind("Invalidate", this._invalidateDOM);
     },
 
     /**@
@@ -89,6 +64,39 @@ Crafty.c("DOM", {
      */
     getDomId: function () {
         return this._element.id;
+    },
+
+    // removes a component on RemoveComponent events
+    _removeClass: function(removedComponent) {
+        var i = 0,
+            c = this.__c,
+            str = "";
+        for (i in c) {
+          if(i != removedComponent) {
+            str += ' ' + i;
+          }
+        }
+        str = str.substr(1);
+        this._element.className = str;
+    },
+
+    // adds a class on NewComponent events
+    _updateClass: function() {
+        var i = 0,
+            c = this.__c,
+            str = "";
+        for (i in c) {
+            str += ' ' + i;
+        }
+        str = str.substr(1);
+        this._element.className = str;
+    },
+
+    _invalidateDOM: function(){
+        if (!this._changed) {
+                this._changed = true;
+                Crafty.DrawManager.addDom(this);
+            }
     },
 
     /**@
@@ -209,8 +217,9 @@ Crafty.c("DOM", {
      * Removes the element from the stage.
      */
     undraw: function () {
-        if (this._element) {
-            Crafty.stage.inner.removeChild(this._element);
+        var el = this._element;
+        if (el && el.parentNode !== null) {
+            el.parentNode.removeChild(el);
         }
         return this;
     },
