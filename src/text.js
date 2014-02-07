@@ -234,6 +234,8 @@ Crafty.c("Text", {
      * This method sets the text so that it cannot be selected (highlighted) by dragging.
      * (Canvas text can never be highlighted, so this only matters for DOM text.)
      * Works by changing the css property "user-select" and its variants.
+     * 
+     * Likewise, this sets the mouseover cursor to be "default" (arrow), not "text" (I-beam)
      *
      * @example
      * ~~~
@@ -249,7 +251,8 @@ Crafty.c("Text", {
                 '-khtml-user-select': 'none',
                 '-moz-user-select': 'none',
                 '-ms-user-select': 'none',
-                'user-select': 'none'
+                'user-select': 'none',
+                'cursor': 'default'
             });
             this.trigger("Invalidate");
         }
