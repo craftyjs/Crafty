@@ -635,78 +635,44 @@ Crafty.extend({
 
         // Create setters/getters for x, y, width, height
         _defineViewportProperties: function(){
-            if (Crafty.support.setter) {
-                //define getters and setters to scroll the viewport
-                this.__defineSetter__('x', function (v) {
+            Object.defineProperty(this, 'x', {
+                set: function (v) {
                     this.scroll('_x', v);
-                });
-                this.__defineSetter__('y', function (v) {
+                },
+                get: function () {
+                    return this._x;
+                },
+                configurable : true
+            });
+            Object.defineProperty(this, 'y', {
+                set: function (v) {
                     this.scroll('_y', v);
-                });
-                this.__defineSetter__('width', function (v) {
+                },
+                get: function () {
+                    return this._y;
+                },
+                configurable : true
+            });
+            Object.defineProperty(this, 'width', {
+                set: function (v) {
                     this._width = v;
                     Crafty.trigger("ViewportResize");
-                });
-                this.__defineSetter__('height', function (v) {
+                },
+                get: function () {
+                    return this._width;
+                },
+                configurable : true
+            });
+            Object.defineProperty(this, 'height', {
+                set: function (v) {
                     this._height = v;
                     Crafty.trigger("ViewportResize");
-                });
-                this.__defineGetter__('x', function () {
-                    return this._x;
-                });
-                this.__defineGetter__('y', function () {
-                    return this._y;
-                });
-                this.__defineGetter__('width', function () {
-                    return this._width;
-                });
-                this.__defineGetter__('height', function () {
+                },
+                get: function () {
                     return this._height;
-                });
-
-
-
-                //IE9
-            } else if (Crafty.support.defineProperty) {
-                Object.defineProperty(this, 'x', {
-                    set: function (v) {
-                        this.scroll('_x', v);
-                    },
-                    get: function () {
-                        return this._x;
-                    },
-                    configurable : true
-                });
-                Object.defineProperty(this, 'y', {
-                    set: function (v) {
-                        this.scroll('_y', v);
-                    },
-                    get: function () {
-                        return this._y;
-                    },
-                    configurable : true
-                });
-                Object.defineProperty(this, 'width', {
-                    set: function (v) {
-                        this._width = v;
-                        Crafty.trigger("ViewportResize");
-                    },
-                    get: function () {
-                        return this._width;
-                    },
-                    configurable : true
-                });
-                Object.defineProperty(this, 'height', {
-                    set: function (v) {
-                        this._height = v;
-                        Crafty.trigger("ViewportResize");
-                    },
-                    get: function () {
-                        return this._height;
-                    },
-                    configurable : true
-                });
-            }
+                },
+                configurable : true
+            });
         },
 
         /**@
