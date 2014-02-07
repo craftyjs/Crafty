@@ -134,9 +134,9 @@ Crafty.extend({
 
          * #Crafty.viewport.pan
          * @comp Crafty.viewport
-         * @sign public void Crafty.viewport.pan(String axis, Number v, Number time)
-         * @param String axis - 'x' or 'y'. The axis to move the camera on
-         * @param Number v - the distance to move the camera by
+         * @sign public void Crafty.viewport.pan(Number dx, Number dy, Number time)
+         * @param Number dx - The distance along the x axis
+         * @param Number dy - The distance along the y axis
          * @param Number time - The duration in ms for the entire camera movement
          *
          * Pans the camera a given number of pixels over the specified time
