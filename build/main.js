@@ -13,6 +13,7 @@ app.controller('DocsCtrl', ['$scope', '$http',
         // Loop through all the comments blocks
         for(var i = 0; i < $scope.data[key].length; i++){
           var comment = $scope.data[key][i];
+          // console.log(comment.category);
 
           // Generate all the categories by taking them from all the comment
           // Only uniques
@@ -27,7 +28,6 @@ app.controller('DocsCtrl', ['$scope', '$http',
             $scope.subCategories[comment.category].push(comment.name);
             // Make ready for the blocks which is essential all the comments
             $scope.blocks[comment.name] = [];
-            
           }
 
           // If it has the property comp, means it is a component of a something
