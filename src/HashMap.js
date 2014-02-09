@@ -7,29 +7,32 @@ var Crafty = require('./core.js'),
  * @author Louis Stowasser
  */
 
-    /**@
-     * #Crafty.HashMap.constructor
-     * @comp Crafty.HashMap
-     * @sign public void Crafty.HashMap([cellsize])
-     * @param cellsize - the cell size. If omitted, `cellsize` is 64.
-     *
-     * Set `cellsize`.
-     * And create `this.map`.
-     */
-    var cellsize,
-
-        HashMap = function (cell) {
-            cellsize = cell || 64;
-            this.map = {};
-        },
-
+    var cellsize;
         SPACE = " ",
         keyHolder = {};
 
+    /**@
+     * #Crafty.HashMap
+     * @category 2D
+     * @param cellsize - the cell size. If omitted, `cellsize` is 64.
+     * Broad-phase collision detection engine. See background information at
+     *
+     * Set `cellsize`.
+     * And create `this.map`.
+     * - [N Tutorial B - Broad-Phase Collision](http://www.metanetsoftware.com/technique/tutorialB.html)
+     * - [Broad-Phase Collision Detection with CUDA](http.developer.nvidia.com/GPUGems3/gpugems3_ch32.html)
+     * @see Crafty.map
+     */
+    var HashMap = function (cell) {
+            cellsize = cell || 64;
+            this.map = {};
+        };
+
+
     HashMap.prototype = {
         /**@
-         * #Crafty.map.insert
-         * @comp Crafty.map
+         * #Crafty.HashMap.insert
+         * @comp Crafty.HashMap
          * @sign public Object Crafty.map.insert(Object obj)
          * @param obj - An entity to be inserted.
          *
@@ -61,9 +64,9 @@ var Crafty = require('./core.js'),
         },
 
         /**@
-         * #Crafty.map.search
-         * @comp Crafty.map
-         * @sign public Object Crafty.map.search(Object rect[, Boolean filter])
+         * #Crafty.HashMap.search
+         * @comp Crafty.HashMap
+         * @sign public Object Crafty.HashMap.search(Object rect[, Boolean filter])
          * @param rect - the rectangular region to search for entities.
          * @param filter - Default value is true. Otherwise, must be false.
          *
@@ -116,8 +119,8 @@ var Crafty = require('./core.js'),
         },
 
         /**@
-         * #Crafty.map.remove
-         * @comp Crafty.map
+         * #Crafty.HashMap.remove
+         * @comp Crafty.HashMap
          * @sign public void Crafty.map.remove([Object keys, ]Object obj)
          * @param keys - key region. If omitted, it will be derived from obj by `Crafty.HashMap.key`.
          * @param obj - need more document.
@@ -158,8 +161,8 @@ var Crafty = require('./core.js'),
         },
 
         /**@
-         * #Crafty.map.refresh
-         * @comp Crafty.map
+         * #Crafty.HashMap.refresh
+         * @comp Crafty.HashMap
          * @sign public void Crafty.map.remove(Entry entry)
          * @param entry - An entry to update
          *
@@ -208,8 +211,8 @@ var Crafty = require('./core.js'),
 
 
         /**@
-         * #Crafty.map.boundaries
-         * @comp Crafty.map
+         * #Crafty.HashMap.boundaries
+         * @comp Crafty.HashMap
          * @sign public Object Crafty.map.boundaries()
          *
          * The return `Object` is of the following format.
@@ -301,16 +304,6 @@ var Crafty = require('./core.js'),
             return coords;
         }
     };
-
-    /**@
-     * #Crafty.HashMap
-     * @category 2D
-     * Broad-phase collision detection engine. See background information at
-     *
-     * - [N Tutorial B - Broad-Phase Collision](http://www.metanetsoftware.com/technique/tutorialB.html)
-     * - [Broad-Phase Collision Detection with CUDA](http.developer.nvidia.com/GPUGems3/gpugems3_ch32.html)
-     * @see Crafty.map
-     */
 
     /**@
      * #Crafty.HashMap.key

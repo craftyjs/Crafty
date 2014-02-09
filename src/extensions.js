@@ -17,7 +17,7 @@ var Crafty = require('./core.js'),
 
     /**@
      * #Crafty.mobile
-     * @comp Crafty.device
+     * @comp Crafty.support
      *
      * Determines if Crafty is running on mobile device.
      *
