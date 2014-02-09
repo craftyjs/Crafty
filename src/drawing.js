@@ -12,11 +12,12 @@ Crafty.c("Color", {
 
     init: function () {
         this.bind("Draw", function (e) {
+            if (!this._color) { return; }
             if (e.type === "DOM") {
                 e.style.backgroundColor = this._color;
                 e.style.lineHeight = 0;
             } else if (e.type === "canvas") {
-                if (this._color) e.ctx.fillStyle = this._color;
+                e.ctx.fillStyle = this._color;
                 e.ctx.fillRect(e.pos._x, e.pos._y, e.pos._w, e.pos._h);
             }
         });
