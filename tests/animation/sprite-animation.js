@@ -556,6 +556,14 @@ test("See if a specific animation is playing", function() {
 	equal(spriteAnimation.isPlaying('short'), true, "The 'short' animation should be playing");
 });
 
+test("Check that it's possible to chain animations", function(){
+	var chain = function(){this.animate('count');}
+	spriteAnimation.one("AnimationEnd", chain);
+	spriteAnimation.animate('short');
+	Crafty.timer.simulateFrames(4);
+	ok(spriteAnimation.isPlaying('count'), "Successfully plays count after short ends");
+
+})
 
 
 

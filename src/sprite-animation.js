@@ -396,8 +396,8 @@ Crafty.c("SpriteAnimation", {
 		this._setFrame(frameNumber);
 
 		if(currentReel.easing.complete === true){
-			this.trigger("AnimationEnd", this._currentReel);
 			this.pauseAnimation();
+			this.trigger("AnimationEnd", this._currentReel);
 		}
 	},
 
