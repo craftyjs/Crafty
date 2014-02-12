@@ -419,6 +419,8 @@ Crafty.fn = Crafty.prototype = {
      * @sign public this .attr(String property, * value)
      * @param property - Property of the entity to modify
      * @param value - Value to set the property to
+     * @param silent - If you would like to supress events
+     * @param recursive - If you would like merge recursively
      * @sign public this .attr(Object map)
      * @param map - Object where the key is the property to modify and the value as the property value
      * @trigger Change - when properties change - {key: value}
@@ -433,27 +435,121 @@ Crafty.fn = Crafty.prototype = {
      *
      * this.attr("key", "newvalue");
      * this.key; //newvalue
+     *
+     * this.attr("parent.child", "newvalue");
+     * this.parent; //{child: "newvalue"};
+     * this.attr('parent.child'); // "newvalue"
      * ~~~
      */
-    attr: function (key, value) {
-        if (arguments.length === 1) {
-            //if just the key, return the value
-            if (typeof key === "string") {
-                return this[key];
-            }
-
-            //extend if object
-            this.extend(key);
-            this.trigger("Change", key); //trigger change event
-            return this;
+    attr: function (key, value, silent, recursive) {
+        if (arguments.length === 1 && typeof arguments[0] === 'string') {
+            return this._attr_get(key);
+        } else {
+            return this._attr_set(key, value, silent, recursive);
         }
-        //if key value pair
-        this[key] = value;
+    },
 
-        var change = {};
-        change[key] = value;
-        this.trigger("Change", change); //trigger change event
+    /**
+     * Getter method for data on the entity.
+     *
+     * @example
+     * ~~~
+     * person._attr_get('name'); // Foxxy
+     * person._attr_get('contact'); // {email: 'fox@example.com'}
+     * person._attr_get('contact.email'); // fox@example.com
+     * ~~~
+     */
+    _attr_get: function(key, context) {
+        var first, keys, subkey;
+        if (typeof context === "undefined" || context === null) {
+            context = this;
+        }
+        if (key.indexOf('.') > -1) {
+            keys = key.split('.');
+            first = keys.shift();
+            subkey = keys.join('.');
+            return this._attr_get(keys.join('.'), context[first]);
+        } else {
+            return context[key];
+        }
+    },
+
+    /**
+     * Setter function for attributes on the component.
+     *
+     * Options:
+     *
+     * `silent`: If you want to prevent it from firing events.
+     *
+     * `recursive`: If you pass in an object you could overwrite
+     * sibling keys, this recursively merges instead of just
+     * merging it. This is `false` by default, unless you are
+     * using dot notation `name.first`.
+     *
+     * @example
+     * ~~~
+     * person._attr_set('name', 'Foxxy', true);
+     * person._attr_set('name', 'Foxxy');
+     * person._attr_set({name: 'Foxxy'}, true);
+     * person._attr_set({name: 'Foxxy'});
+     * person._attr_set('name.first', 'Foxxy');
+     * ~~~
+     */
+    _attr_set: function() {
+        var data, silent, recursive;
+        if (typeof arguments[0] === 'string') {
+            data = this._set_create_object(arguments[0], arguments[1]);
+            silent = !!arguments[2];
+            recursive = arguments[3] || arguments[0].indexOf('.') > -1;
+        } else {
+            data = arguments[0];
+            silent = !!arguments[1];
+            recursive = !!arguments[2];
+        }
+
+        if (!silent) {
+            this.trigger('Change', data);
+        }
+
+        if (recursive) {
+            this._recursive_extend(data, this);
+        } else {
+            this.extend.call(this, data);
+        }
         return this;
+    },
+
+    /**
+     * If you are setting a key of 'foo.bar' or 'bar', this creates
+     * the appropriate object for you to recursively merge with the
+     * current attributes.
+     */
+    _set_create_object: function(key, value) {
+        var data = {}, keys, first, subkey;
+        if (key.indexOf('.') > -1) {
+            keys = key.split('.');
+            first = keys.shift();
+            subkey = keys.join('.');
+            data[first] = this._set_create_object(subkey, value);
+        } else {
+            data[key] = value;
+        }
+        return data;
+    },
+
+    /**
+     * Recursively puts `new_data` into `original_data`.
+     */
+    _recursive_extend: function(new_data, original_data) {
+        var key;
+        for (key in new_data) {
+            if (new_data[key].constructor.name === 'Object') {
+                original_data[key] = this._recursive_extend(new_data[key], original_data[key]);
+            } else {
+                original_data[key] = new_data[key];
+            }
+        }
+        return original_data;
     },
 
     /**@
@@ -726,11 +822,11 @@ Crafty.fn = Crafty.prototype = {
      * @comp Crafty Core
      * @sign public Array .get()
      * @returns An array of entities corresponding to the active selector
-     * 
+     *
      * @sign public Entity .get(Number index)
      * @returns an entity belonging to the current selection
      * @param index - The index of the entity to return.  If negative, counts back from the end of the array.
-     * 
+     *
      *
      * @example
      * Get an array containing every "2D" entity
@@ -746,7 +842,7 @@ Crafty.fn = Crafty.prototype = {
      * ~~~
      * var e = Crafty("2D").get(-1)
      * ~~~
-     * 
+     *
      */
     get: function(index) {
         var l = this.length;

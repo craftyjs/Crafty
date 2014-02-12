@@ -489,3 +489,99 @@ test("Crafty.easing", function() {
   e.tick(20);
   equal(e.value(), 1, "Remains 1 after completion");
 });
+
+test('Get', function() {
+  var fox;
+  Crafty.c('Animal', {
+    contact: {
+      email: 'test@example.com',
+      address: {
+        city: 'Portland',
+        state: 'Oregon'
+      }
+    },
+    name: 'Fox'
+  });
+  fox = Crafty.e('Animal, Model');
+
+  equal(fox.attr('contact.address.city'), 'Portland');
+  equal(fox.attr('contact.email'), 'test@example.com');
+  equal(fox.attr('name'), 'Fox');
+});
+
+test('Set', function() {
+  var fox;
+  Crafty.c('Animal', {
+    name: 'Fox'
+  });
+
+  fox = Crafty.e('Animal, Model');
+
+  fox.attr('name', 'Foxxy');
+  equal(fox.attr('name'), 'Foxxy');
+
+  fox.attr('name', 'Slick', {});
+  equal(fox.attr('name'), 'Slick');
+
+  fox.attr({name: 'Lucky'});
+  equal(fox.attr('name'), 'Lucky');
+
+  fox.attr({name: 'Spot'}, {});
+  equal(fox.attr('name'), 'Spot');
+});
+
+test('Set with dot notation', function() {
+  var fox;
+  Crafty.c('Animal', {
+    contact: {
+      email: 'test@example.com',
+      address: {
+        city: 'Portland',
+        state: 'Oregon'
+      }
+    },
+    name: 'Fox'
+  });
+  fox = Crafty.e('Animal, Model');
+
+  fox.attr('contact.address.city', 'Salem');
+
+  deepEqual(fox.attr('contact.address'), {city: 'Salem', state: 'Oregon'});
+});
+
+test('Set Silent', function() {
+  var fox, called;
+  Crafty.c('Animal', {
+    name: 'Fox'
+  });
+
+  fox = Crafty.e('Animal, Model');
+
+  called = false;
+  fox.bind('Change', function() {
+    called = true;
+  });
+
+  fox.attr({name: 'Lucky'}, true);
+  equal(called, false);
+
+  fox.attr({name: 'Spot'}, false);
+  equal(called, true);
+});
+
+test('Set Recursive', function() {
+  var fox;
+  Crafty.c('Animal', {
+    name: 'Fox',
+    contact: {
+      email: 'fox@example.com',
+      phone: '555-555-4545'
+    }
+  });
+
+  fox = Crafty.e('Animal, Model');
+
+  fox.attr({contact: {email: 'foxxy@example.com'}}, false, true);
+
+  deepEqual(fox.attr('contact'), {email: 'foxxy@example.com', phone: '555-555-4545'});
+});
