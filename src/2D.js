@@ -185,66 +185,9 @@ Crafty.c("2D", {
     _parent: null,
     _changed: false,
 
-    _defineGetterSetter_setter: function () {
-        //create getters and setters using __defineSetter__ and __defineGetter__
-        this.__defineSetter__('x', function (v) {
-            this._attr('_x', v);
-        });
-        this.__defineSetter__('y', function (v) {
-            this._attr('_y', v);
-        });
-        this.__defineSetter__('w', function (v) {
-            this._attr('_w', v);
-        });
-        this.__defineSetter__('h', function (v) {
-            this._attr('_h', v);
-        });
-        this.__defineSetter__('z', function (v) {
-            this._attr('_z', v);
-        });
-        this.__defineSetter__('rotation', function (v) {
-            this._attr('_rotation', v);
-        });
-        this.__defineSetter__('alpha', function (v) {
-            this._attr('_alpha', v);
-        });
-        this.__defineSetter__('visible', function (v) {
-            this._attr('_visible', v);
-        });
+    
 
-        this.__defineGetter__('x', function () {
-            return this._x;
-        });
-        this.__defineGetter__('y', function () {
-            return this._y;
-        });
-        this.__defineGetter__('w', function () {
-            return this._w;
-        });
-        this.__defineGetter__('h', function () {
-            return this._h;
-        });
-        this.__defineGetter__('z', function () {
-            return this._z;
-        });
-        this.__defineGetter__('rotation', function () {
-            return this._rotation;
-        });
-        this.__defineGetter__('alpha', function () {
-            return this._alpha;
-        });
-        this.__defineGetter__('visible', function () {
-            return this._visible;
-        });
-        this.__defineGetter__('parent', function () {
-            return this._parent;
-        });
-        this.__defineGetter__('numChildren', function () {
-            return this._children.length;
-        });
-    },
-
-    _defineGetterSetter_defineProperty: function () {
+    _define2DProperties: function () {
         Object.defineProperty(this, 'x', {
             set: function (v) {
                 this._attr('_x', v);
@@ -252,8 +195,11 @@ Crafty.c("2D", {
             get: function () {
                 return this._x;
             },
-            configurable: true
+            configurable: true,
+            enumerable: true
         });
+
+        Object.defineProperty(this, '_x', {enumerable:false});
 
         Object.defineProperty(this, 'y', {
             set: function (v) {
@@ -262,8 +208,10 @@ Crafty.c("2D", {
             get: function () {
                 return this._y;
             },
-            configurable: true
+            configurable: true,
+            enumerable: true
         });
+        Object.defineProperty(this, '_y', {enumerable:false});
 
         Object.defineProperty(this, 'w', {
             set: function (v) {
@@ -272,8 +220,10 @@ Crafty.c("2D", {
             get: function () {
                 return this._w;
             },
-            configurable: true
+            configurable: true,
+            enumerable: true
         });
+        Object.defineProperty(this, '_w', {enumerable:false});
 
         Object.defineProperty(this, 'h', {
             set: function (v) {
@@ -282,8 +232,10 @@ Crafty.c("2D", {
             get: function () {
                 return this._h;
             },
-            configurable: true
+            configurable: true,
+            enumerable: true
         });
+        Object.defineProperty(this, '_h', {enumerable:false});
 
         Object.defineProperty(this, 'z', {
             set: function (v) {
@@ -292,8 +244,10 @@ Crafty.c("2D", {
             get: function () {
                 return this._z;
             },
-            configurable: true
+            configurable: true,
+            enumerable: true
         });
+        Object.defineProperty(this, '_z', {enumerable:false});
 
         Object.defineProperty(this, 'rotation', {
             set: function (v) {
@@ -302,8 +256,10 @@ Crafty.c("2D", {
             get: function () {
                 return this._rotation;
             },
-            configurable: true
+            configurable: true,
+            enumerable: true
         });
+        Object.defineProperty(this, '_rotation', {enumerable:false});
 
         Object.defineProperty(this, 'alpha', {
             set: function (v) {
@@ -312,8 +268,10 @@ Crafty.c("2D", {
             get: function () {
                 return this._alpha;
             },
-            configurable: true
+            configurable: true,
+            enumerable: true
         });
+        Object.defineProperty(this, '_alpha', {enumerable:false});
 
         Object.defineProperty(this, 'visible', {
             set: function (v) {
@@ -322,8 +280,10 @@ Crafty.c("2D", {
             get: function () {
                 return this._visible;
             },
-            configurable: true
+            configurable: true,
+            enumerable: true
         });
+        Object.defineProperty(this, '_visible', {enumerable:false});
     },
 
     init: function () {
@@ -341,12 +301,10 @@ Crafty.c("2D", {
 
         this._children = [];
 
-        if (Crafty.support.setter) {
-            this._defineGetterSetter_setter();
-        } else if (Crafty.support.defineProperty) {
-            //IE9 supports Object.defineProperty
-            this._defineGetterSetter_defineProperty();
-        }
+        
+   
+        this._define2DProperties();
+        
 
         //insert self into the HashMap
         this._entry = Crafty.map.insert(this);

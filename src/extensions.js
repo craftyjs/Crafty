@@ -33,13 +33,6 @@ var Crafty = require('./core.js'),
     if (mobile) Crafty.mobile = mobile[0];
 
     /**@
-     * #Crafty.support.setter
-     * @comp Crafty.support
-     * Is `__defineSetter__` supported?
-     */
-    support.setter = ('__defineSetter__' in this && '__defineGetter__' in this);
-
-    /**@
      * #Crafty.support.defineProperty
      * @comp Crafty.support
      * Is `Object.defineProperty` supported?
