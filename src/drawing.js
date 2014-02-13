@@ -11,16 +11,28 @@ Crafty.c("Color", {
     ready: true,
 
     init: function () {
-        this.bind("Draw", function (e) {
-            if (!this._color) { return; }
-            if (e.type === "DOM") {
-                e.style.backgroundColor = this._color;
-                e.style.lineHeight = 0;
-            } else if (e.type === "canvas") {
-                e.ctx.fillStyle = this._color;
-                e.ctx.fillRect(e.pos._x, e.pos._y, e.pos._w, e.pos._h);
-            }
-        });
+        this.bind("Draw", this._drawColor);
+        this.trigger("Invalidate");
+    },
+
+    remove: function(){
+        this.unbind("Draw", this._drawColor);
+        if (this.has("DOM")){
+            this._element.style.backgroundColor = "transparent";
+        }
+        this.trigger("Invalidate");
+    },
+
+    // draw function for "Color"
+    _drawColor: function(e){
+        if (!this._color) { return; }
+        if (e.type === "DOM") {
+            e.style.backgroundColor = this._color;
+            e.style.lineHeight = 0;
+        } else if (e.type === "canvas") {
+            e.ctx.fillStyle = this._color;
+            e.ctx.fillRect(e.pos._x, e.pos._y, e.pos._w, e.pos._h);
+        }
     },
 
     /**@
