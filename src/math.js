@@ -644,6 +644,505 @@ Crafty.math.Vector2D = (function () {
     return Vector2D;
 })();
 
+Crafty.math.Vector3D = (function () {
+    /**@
+     * #Crafty.math.Vector3D
+     * @category 2D
+     * @class This is a general purpose 3D vector class
+     *
+     * Vector3D uses the following form:
+     * <x, y, z>
+     *
+     * @public
+     * @sign public {Vector3D} Vector3D();
+     * @sign public {Vector3D} Vector3D(Vector3D);
+     * @sign public {Vector3D} Vector3D(Number, Number, Number);
+     * @param {Vector3D|Number=0} x
+     * @param {Number=0} y
+     * @param {Number=0} z
+     */
+
+    function Vector3D(x, y, z) {
+        if (x instanceof Vector3D) {
+            this.x = x.x;
+            this.y = x.y;
+            this.z = x.z;
+        } else if (arguments.length === 3) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        } else if (arguments.length > 0)
+            throw "Unexpected number of arguments for Vector3D()";
+    } // class Vector3D
+
+    Vector3D.prototype.x = 0;
+    Vector3D.prototype.y = 0;
+    Vector3D.prototype.z = 0;
+
+    /**@
+     * #.add
+     * @comp Crafty.math.Vector3D
+     *
+     * Adds the passed vector to this vector
+     *
+     * @public
+     * @sign public {Vector3D} add(Vector3D);
+     * @param {Vector3D} vecRH
+     * @returns {Vector3D} this after adding
+     */
+    Vector3D.prototype.add = function (vecRH) {
+        this.x += vecRH.x;
+        this.y += vecRH.y;
+        this.z += vecRH.z;
+        return this;
+    }; // add
+
+    /**@
+     * #.angleBetween
+     * @comp Crafty.math.Vector3D
+     *
+     * Calculates the angle between the passed vector and this vector, using <0,0,0> as the point of reference.
+     * Angles returned have the range (−π, π].
+     * Taken from [John Blackburne's Blog](http://johnblackburne.blogspot.co.at/2012/05/angle-between-two-3d-vectors.html)
+     * 
+     *
+     * @public
+     * @sign public {Number} angleBetween(Vector3D);
+     * @param {Vector3D} vecRH
+     * @returns {Number} the angle between the two vectors in radians
+     */
+    Vector3D.prototype.angleBetween = (function() {
+        var tempVec = new Vector3D();
+
+        return function (vecRH) {
+            var fCross = this.crossProduct(vecRH, tempVec).magnitude();
+            var fDot = this.dotProduct(vecRH);
+            
+            return Math.atan2(fCross, fDot);
+        };})(); // angleBetween
+
+    /**@
+     * #.angleTo
+     * @comp Crafty.math.Vector3D
+     *
+     * Calculates the angle to the passed vector from <1,0,0>, using this vector as the point of origin.
+     *
+     * @public
+     * @sign public {Number} angleTo(Vector3D);
+     * @param {Vector3D} vecRH
+     * @returns {Number} the angle to the passed vector in radians
+     */
+    Vector3D.prototype.angleTo = (function() {
+        var tempVec = new Vector3D();
+
+        return function (vecRH) {
+            tempVec.setValues(vecRH).subtract(this); // temp = other - this
+            return Math.atan2(Math.sqrt(tempVec.y*tempVec.y + tempVec.z*tempVec.z), tempVec.x);
+    };})(); // angleTo
+
+    /**@
+     * #.clone
+     * @comp Crafty.math.Vector3D
+     *
+     * Creates and exact, numeric copy of this vector
+     *
+     * @public
+     * @sign public {Vector3D} clone();
+     * @returns {Vector3D} the new vector
+     */
+    Vector3D.prototype.clone = function () {
+        return new Vector3D(this);
+    }; // clone
+
+    /**@
+     * #.distance
+     * @comp Crafty.math.Vector3D
+     *
+     * Calculates the distance from this vector to the passed vector.
+     *
+     * @public
+     * @sign public {Number} distance(Vector3D);
+     * @param {Vector3D} vecRH
+     * @returns {Number} the distance between the two vectors
+     */
+    Vector3D.prototype.distance = function (vecRH) {
+        return Math.sqrt(
+            (vecRH.x - this.x) * (vecRH.x - this.x) +
+            (vecRH.y - this.y) * (vecRH.y - this.y) +
+            (vecRH.z - this.z) * (vecRH.z - this.z)
+        );
+    }; // distance
+
+    /**@
+     * #.distanceSq
+     * @comp Crafty.math.Vector3D
+     *
+     * Calculates the squared distance from this vector to the passed vector.
+     * This function avoids calculating the square root, thus being slightly faster than .distance( ).
+     *
+     * @public
+     * @sign public {Number} distanceSq(Vector3D);
+     * @param {Vector3D} vecRH
+     * @returns {Number} the squared distance between the two vectors
+     * @see .distance
+     */
+    Vector3D.prototype.distanceSq = function (vecRH) {
+        return (
+            (vecRH.x - this.x) * (vecRH.x - this.x) +
+            (vecRH.y - this.y) * (vecRH.y - this.y) +
+            (vecRH.z - this.z) * (vecRH.z - this.z)
+        );
+    }; // distanceSq
+
+    /**@
+     * #.divide
+     * @comp Crafty.math.Vector3D
+     *
+     * Divides this vector by the passed vector.
+     *
+     * @public
+     * @sign public {Vector3D} divide(Vector3D);
+     * @param {Vector3D} vecRH
+     * @returns {Vector3D} this vector after dividing
+     */
+    Vector3D.prototype.divide = function (vecRH) {
+        this.x /= vecRH.x;
+        this.y /= vecRH.y;
+        this.z /= vecRH.z;
+        return this;
+    }; // divide
+
+    /**@
+     * #.dotProduct
+     * @comp Crafty.math.Vector3D
+     *
+     * Calculates the dot product of this and the passed vectors
+     *
+     * @public
+     * @sign public {Number} dotProduct(Vector3D);
+     * @param {Vector3D} vecRH
+     * @returns {Number} the resultant dot product
+     */
+    Vector3D.prototype.dotProduct = function (vecRH) {
+        return this.x * vecRH.x + this.y * vecRH.y + this.z * vecRH.z;
+    }; // dotProduct
+
+    /**@
+     * #.crossProduct
+     * @comp Crafty.math.Vector3D
+     *
+     * Calculates the cross product of this and the passed vectors.
+     *
+     * @public
+     * @sign public {Vector3D} crossProduct(Vector3D[, Vector3D]);
+     * @param {Vector3D} vecRH
+     * @param {Vector3D} [result] optional vector to store the result in
+     * @returns {Vector3D} the resultant cross product
+     */
+    Vector3D.prototype.crossProduct = function (vecRH, result) {
+        result = result || new Vector3D();
+        result.setValues(this.y * vecRH.z - this.z * vecRH.y, this.z * vecRH.x - this.x * vecRH.z, this.x * vecRH.y - this.y * vecRH.x);
+        return result;
+    }; // crossProduct
+
+    /**@
+     * #.equals
+     * @comp Crafty.math.Vector3D
+     *
+     * Determines if this vector is numerically equivalent to the passed vector.
+     *
+     * @public
+     * @sign public {Boolean} equals(Vector3D);
+     * @param {Vector3D} vecRH
+     * @returns {Boolean} true if the vectors are equivalent
+     */
+    Vector3D.prototype.equals = function (vecRH) {
+        return vecRH instanceof Vector3D &&
+            this.x == vecRH.x && this.y == vecRH.y && this.z == vecRH.z;
+    }; // equals
+
+    /**@
+     * #.getNormal
+     * @comp Crafty.math.Vector3D
+     *
+     * Calculates a new right-handed unit vector that is perpendicular to the plane defined by this vector and the other vector.
+     *
+     * @public
+     * @sign public {Vector3D} getNormal(Vector3D);
+     * @param {Vector3D} vecRH
+     * @param {Vector3D} [result] the vector to store the result in
+     * @returns {Vector3D} the new normal vector
+     */
+    Vector3D.prototype.getNormal = function (vecRH, result) {
+        result = result || new Vector3D();
+        result.setValues(this);
+        return result.crossProduct(vecRH).normalize();
+    }; // getNormal
+
+    /**@
+     * #.isZero
+     * @comp Crafty.math.Vector3D
+     *
+     * Determines if this vector is equal to <0,0,0>
+     *
+     * @public
+     * @sign public {Boolean} isZero();
+     * @returns {Boolean} true if this vector is equal to <0,0,0>
+     */
+    Vector3D.prototype.isZero = function () {
+        return this.x === 0 && this.y === 0 && this.z === 0;
+    }; // isZero
+
+    /**@
+     * #.magnitude
+     * @comp Crafty.math.Vector3D
+     *
+     * Calculates the magnitude of this vector.
+     * Note: Function objects in JavaScript already have a 'length' member, hence the use of magnitude instead.
+     *
+     * @public
+     * @sign public {Number} magnitude();
+     * @returns {Number} the magnitude of this vector
+     */
+    Vector3D.prototype.magnitude = function () {
+        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+    }; // magnitude
+
+    /**@
+     * #.magnitudeSq
+     * @comp Crafty.math.Vector3D
+     *
+     * Calculates the square of the magnitude of this vector.
+     * This function avoids calculating the square root, thus being slightly faster than .magnitude( ).
+     *
+     * @public
+     * @sign public {Number} magnitudeSq();
+     * @returns {Number} the square of the magnitude of this vector
+     * @see .magnitude
+     */
+    Vector3D.prototype.magnitudeSq = function () {
+        return this.x * this.x + this.y * this.y + this.z * this.z;
+    }; // magnitudeSq
+
+    /**@
+     * #.multiply
+     * @comp Crafty.math.Vector3D
+     *
+     * Multiplies this vector by the passed vector
+     *
+     * @public
+     * @sign public {Vector3D} multiply(Vector3D);
+     * @param {Vector3D} vecRH
+     * @returns {Vector3D} this vector after multiplying
+     */
+    Vector3D.prototype.multiply = function (vecRH) {
+        this.x *= vecRH.x;
+        this.y *= vecRH.y;
+        this.z *= vecRH.z;
+        return this;
+    }; // multiply
+
+    /**@
+     * #.negate
+     * @comp Crafty.math.Vector3D
+     *
+     * Negates this vector (ie. <-x,-y,-z>)
+     *
+     * @public
+     * @sign public {Vector3D} negate();
+     * @returns {Vector3D} this vector after negation
+     */
+    Vector3D.prototype.negate = function () {
+        this.x = -this.x;
+        this.y = -this.y;
+        this.z = -this.z;
+        return this;
+    }; // negate
+
+    /**@
+     * #.normalize
+     * @comp Crafty.math.Vector3D
+     *
+     * Normalizes this vector (scales the vector so that its new magnitude is 1)
+     * For vectors where magnitude is 0, <1,0,0> is returned.
+     *
+     * @public
+     * @sign public {Vector3D} normalize();
+     * @returns {Vector3D} this vector after normalization
+     */
+    Vector3D.prototype.normalize = function () {
+        var lng = this.magnitude();
+
+        if (lng === 0) {
+            // default due East
+            this.x = 1;
+            this.y = 0;
+            this.z = 0;
+        } else {
+            this.x /= lng;
+            this.y /= lng;
+            this.z /= lng;
+        } // else
+
+        return this;
+    }; // normalize
+
+    /**@
+     * #.scale
+     * @comp Crafty.math.Vector3D
+     *
+     * Scales this vector by the passed amount(s)
+     * If scalarY or scalarZ is omitted, scalarX is used for all axes
+     *
+     * @public
+     * @sign public {Vector3D} scale(Number[, Number, Number]);
+     * @param {Number} scalarX
+     * @param {Number} [scalarY]
+     * @param {Number} [scalarZ]
+     * @returns {Vector3D} this after scaling
+     */
+    Vector3D.prototype.scale = function (scalarX, scalarY, scalarZ) {
+        if (scalarY === undefined || scalarZ === undefined) {
+            scalarZ = scalarY = scalarX;
+        }
+
+        this.x *= scalarX;
+        this.y *= scalarY;
+        this.z *= scalarZ;
+
+        return this;
+    }; // scale
+
+    /**@
+     * #.scaleToMagnitude
+     * @comp Crafty.math.Vector3D
+     *
+     * Scales this vector such that its new magnitude is equal to the passed value.
+     *
+     * @public
+     * @sign public {Vector3D} scaleToMagnitude(Number);
+     * @param {Number} mag
+     * @returns {Vector3D} this vector after scaling
+     */
+    Vector3D.prototype.scaleToMagnitude = function (mag) {
+        var k = mag / this.magnitude();
+        this.x *= k;
+        this.y *= k;
+        this.z *= k;
+        return this;
+    }; // scaleToMagnitude
+
+    /**@
+     * #.setValues
+     * @comp Crafty.math.Vector3D
+     *
+     * Sets the values of this vector using a passed vector or a triplet of numbers.
+     *
+     * @public
+     * @sign public {Vector3D} setValues(Vector3D);
+     * @sign public {Vector3D} setValues(Number, Number, Number);
+     * @param {Number|Vector3D} x
+     * @param {Number} y
+     * @param {Number} z
+     * @returns {Vector3D} this vector after setting of values
+     */
+    Vector3D.prototype.setValues = function (x, y, z) {
+        if (x instanceof Vector3D) {
+            this.x = x.x;
+            this.y = x.y;
+            this.z = x.z;
+        } else {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        } // else
+
+        return this;
+    }; // setValues
+
+    /**@
+     * #.subtract
+     * @comp Crafty.math.Vector3D
+     *
+     * Subtracts the passed vector from this vector.
+     *
+     * @public
+     * @sign public {Vector3D} subtract(Vector3D);
+     * @param {Vector3D} vecRH
+     * @returns {Vector3D} this vector after subtracting
+     */
+    Vector3D.prototype.subtract = function (vecRH) {
+        this.x -= vecRH.x;
+        this.y -= vecRH.y;
+        this.z -= vecRH.z;
+        return this;
+    }; // subtract
+
+    /**@
+     * #.toString
+     * @comp Crafty.math.Vector3D
+     *
+     * Returns a string representation of this vector.
+     *
+     * @public
+     * @sign public {String} toString();
+     * @returns {String}
+     */
+    Vector3D.prototype.toString = function () {
+        return "Vector3D(" + this.x + ", " + this.y + ", " + this.z + ")";
+    }; // toString
+
+    /**@
+     * #.translate
+     * @comp Crafty.math.Vector3D
+     *
+     * Translates (moves) this vector by the passed amounts.
+     * If dy or dz is omitted, dx is used for all axes.
+     *
+     * @public
+     * @sign public {Vector3D} translate(Number[, Number, Number]);
+     * @param {Number} dx
+     * @param {Number} [dy]
+     * @param {Number} [dz]
+     * @returns {Vector3D} this vector after translating
+     */
+    Vector3D.prototype.translate = function (dx, dy, dz) {
+        if (dy === undefined || dz === undefined)
+            dz = dy = dx;
+
+        this.x += dx;
+        this.y += dy;
+        this.z += dz;
+
+        return this;
+    }; // translate
+
+    /**@
+     * #.tripleProduct
+     * @comp Crafty.math.Vector3D
+     *
+     * Calculates the triple product of three vectors.
+     * triple vector product = b(a•c) - a(b•c)
+     *
+     * @public
+     * @static
+     * @sign public {Vector3D} tripleProduct(Vector3D, Vector3D, Vector3D[, Vector3D]);
+     * @param {Vector3D} a
+     * @param {Vector3D} b
+     * @param {Vector3D} c
+     * @param {Vector3D} [result] optional vector to save the result to
+     * @return {Vector3D} the triple product as a new vector
+     */
+    Vector3D.tripleProduct = function (a, b, c, result) {
+        result = result || new Crafty.math.Vector3D();
+        var ac = a.dotProduct(c);
+        var bc = b.dotProduct(c);
+        return result.setValues(b.x * ac - a.x * bc, b.y * ac - a.y * bc, b.z * ac - a.z * bc);
+    };
+
+    return Vector3D;
+})();
+
 Crafty.math.Matrix2D = (function () {
     /**@
      * #Crafty.math.Matrix2D
