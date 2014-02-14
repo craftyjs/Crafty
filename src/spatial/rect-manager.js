@@ -27,12 +27,20 @@ Crafty.extend({
            return target;
        },
 
-
-
-       /** Checks whether two rectangles overlap */
-       overlap: function (a, b) {
-           return (a._x < b._x + b._w && a._y < b._y + b._h && a._x + a._w > b._x && a._y + a._h > b._y);
-       },
+      /**@
+       * #Crafty.rectManager.overlap
+       * @comp Crafty.rectManager
+       * @sign public Boolean Crafty.rectManager.overlap(Object rectA, Object rectA)
+       * @param rectA - An object that must have the `_x, _y, _w, _h` values as properties
+       * @param rectB - An object that must have the `_x, _y, _w, _h` values as properties
+       * @return true if the rectangles overlap; false otherwise
+       *
+       * Checks whether two rectangles overlap.
+       */
+      overlap: function (rectA, rectB) {
+        return (rectA._x < rectB._x + rectB._w && rectA._x + rectA._w > rectB._x &&
+                rectA._y < rectB._y + rectB._h && rectA._h + rectA._y > rectB._y);
+      },
 
       /**@
       * #Crafty.rectManager.mergeSet

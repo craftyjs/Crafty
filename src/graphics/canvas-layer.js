@@ -146,6 +146,7 @@ Crafty.extend({
                 l = changed.length,
                 dirty = this._dirtyRects,
                 rectManager = Crafty.rectManager,
+                overlap = rectManager.overlap,
                 ctx = this.context,
                 dupes = [],
                 objs = [];
@@ -205,7 +206,7 @@ Crafty.extend({
                 for (j = 0, len = objs.length; j < len; ++j) {
                     obj = objs[j];
                     var area = obj._mbr || obj;
-                    if (rectManager.overlap(area, rect))
+                    if (overlap(area, rect))
                         obj.draw();
                     obj._changed = false;
                 }

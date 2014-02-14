@@ -467,7 +467,7 @@ Crafty.c("2D", {
      * @param w - Width of the rect
      * @param h - Height of the rect
      * @sign public Boolean .intersect(Object rect)
-     * @param rect - An object that must have the `x, y, w, h` values as properties
+     * @param rect - An object that must have the `_x, _y, _w, _h` values as properties
      * Determines if this entity intersects a rectangle.  If the entity is rotated, its MBR is used for the test.
      */
     intersect: function (x, y, w, h) {
@@ -476,15 +476,14 @@ Crafty.c("2D", {
             rect = x;
         } else {
             rect = {
-                x: x,
-                y: y,
-                w: w,
-                h: h
+                _x: x,
+                _y: y,
+                _w: w,
+                _h: h
             };
         }
 
-        return mbr._x < rect.x + rect.w && mbr._x + mbr._w > rect.x &&
-            mbr._y < rect.y + rect.h && mbr._h + mbr._y > rect.y;
+        return Crafty.rectManager.overlap(mbr, rect);
     },
 
     /**@
@@ -1004,12 +1003,8 @@ Crafty.c("Gravity", {
 
         //Increase by 1 to make sure map.search() finds the floor
         pos._y++;
-
-        //map.search wants _x and intersect wants x...
-        pos.x = pos._x;
-        pos.y = pos._y;
-        pos.w = pos._w;
-        pos.h = pos._h;
+        //Decrease width by 1px from left and 1px from right, to fall more gracefully
+        // pos._x++; pos._w--;
 
         q = Crafty.map.search(pos);
         l = q.length;
