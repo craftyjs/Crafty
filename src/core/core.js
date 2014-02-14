@@ -878,6 +878,7 @@ Crafty.fn = Crafty.prototype = {
         return clone;
     },
 
+
     /**@
      * #.setter
      * @comp Crafty Core
@@ -887,16 +888,43 @@ Crafty.fn = Crafty.prototype = {
      * Will watch a property waiting for modification and will then invoke the
      * given callback when attempting to modify.
      *
+     * This feature is deprecated; use .defineField() instead.
+     * @see .defineField
      */
     setter: function (prop, callback) {
-        if (Crafty.support.setter) {
-            this.__defineSetter__(prop, callback);
-        } else if (Crafty.support.defineProperty) {
-            Object.defineProperty(this, prop, {
-                set: callback,
-                configurable: true
-            });
-        }
+        return this.defineField(prop, function(){}, callback);
+    },
+
+    /**@
+     * #.defineField
+     * @comp Crafty Core
+     * @sign public this .defineField(String property, Function getCallback, Function setCallback)
+     * @param property - Property name to assign getter & setter to
+     * @param getCallback - Method to execute if the property is accessed
+     * @param setCallback - Method to execute if the property is mutated
+     *
+     * Assigns getters and setters to the property. 
+     * A getter will watch a property waiting for access and will then invoke the
+     * given getCallback when attempting to retrieve.
+     * A setter will watch a property waiting for mutation and will then invoke the
+     * given setCallback when attempting to modify.
+     *
+     * @example
+     * ~~~
+     * var ent = Crafty.e("2D");
+     * ent.defineField("customData", function() { 
+     *    return this._customData; 
+     * }, function(newValue) { 
+     *    this._customData = newValue;
+     * });
+     *
+     * ent.customData = "2" // set customData to 2
+     * console.log(ent.customData) // prints 2
+     * ~~~
+     * @see Crafty.defineField
+     */
+    defineField: function (prop, getCallback, setCallback) {
+        Crafty.defineField(this, prop, getCallback, setCallback);
         return this;
     },
 
@@ -1744,6 +1772,44 @@ Crafty.extend({
             }
         };
     })(),
+
+    /**@
+     * #Crafty.defineField
+     * @category Core
+     * @sign public void Crafty.defineField(Object object, String property, Function getCallback, Function setCallback)
+     * @param object - Object to define property on
+     * @param property - Property name to assign getter & setter to
+     * @param getCallback - Method to execute if the property is accessed
+     * @param setCallback - Method to execute if the property is mutated
+     *
+     * Assigns getters and setters to the property in the given object.
+     * A getter will watch a property waiting for access and will then invoke the
+     * given getCallback when attempting to retrieve.
+     * A setter will watch a property waiting for mutation and will then invoke the
+     * given setCallback when attempting to modify.
+     *
+     * @example
+     * ~~~
+     * var ent = Crafty.e("2D");
+     * Crafty.defineField(ent, "customData", function() { 
+     *    return this._customData; 
+     * }, function(newValue) { 
+     *    this._customData = newValue;
+     * });
+     *
+     * ent.customData = "2" // set customData to 2
+     * console.log(ent.customData) // prints 2
+     * ~~~
+     * @see .defineField
+     */
+    defineField: function(obj, prop, getCallback, setCallback) {
+        Object.defineProperty(obj, prop, {
+            get: getCallback,
+            set: setCallback,
+            configurable: false,
+            enumerable: true,
+        });
+    },
 
     clone: clone
 });

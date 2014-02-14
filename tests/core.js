@@ -88,28 +88,49 @@
 
   });
 
-  test("setter", function() {
+  test("defineField", function() {
     if (!(Crafty.support.setter || Crafty.support.defineProperty)) {
       // IE8 has a setter() function but it behaves differently. No test is currently written for IE8.
       expect(0);
       return;
     }
+
     var first = Crafty.e("test");
-    first.setter('p1', function(v) {
+
+
+    first.setter('p0', function(v) {
+      this._p0 = v * 5;
+    });
+    first.p0 = 2;
+    strictEqual(first._p0, 10, "single property setter");
+    strictEqual(first.p0, undefined, "single property getter");
+
+
+    first.defineField('p1', function() {
+      return this._p1;
+    }, function(v) {
       this._p1 = v * 2;
     });
     first.p1 = 2;
-    strictEqual(first._p1, 4, "single property setter");
+    strictEqual(first.p1, 4, "single property getter & setter");
 
-    first.setter('p2', function(v) {
+    first.defineField('p2', function() {
+      return this._p2;
+    }, function(v) {
       this._p2 = v * 2;
-    }).setter('p3', function(v) {
+    }).defineField('p3', function() {
+      return this._p3;
+    }, function(v) {
       this._p3 = v * 2;
     });
     first.p2 = 2;
     first.p3 = 3;
-    strictEqual(first._p2 + first._p3, 10, "two property setters");
+    strictEqual(first.p2 + first.p3, 10, "two property getters & setters");
 
+    if (Crafty.support.defineProperty) {
+      delete first.p1;
+      strictEqual(first.p1, 4, "property survived deletion");
+    }
   });
 
   test("bind", function() {
@@ -635,7 +656,6 @@
 
     deepEqual(fox.attr('contact'), {email: 'foxxy@example.com', phone: '555-555-4545'});
   });
-
 
   module("Timer");
 
