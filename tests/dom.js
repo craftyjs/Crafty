@@ -78,3 +78,17 @@ test("removing DOM component cleans up", function(){
   strictEqual(node.parentNode, null, "no parent node after removal of 'DOM'");
 
 });
+
+
+test("Removing Color component resets DOM correctly", function(){
+  var element = Crafty.e("DOM, Color");
+  var node = element._element;
+  element.color("red");
+  
+  // Style won't be updated until rendering occurs
+  Crafty.timer.simulateFrames(1);
+  notEqual(node.style.backgroundColor, "transparent", "Element is not initially transparent");
+  
+  element.removeComponent("Color");
+  equal(node.style.backgroundColor, "transparent", "Transparent after removal of Color");
+});
