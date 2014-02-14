@@ -265,6 +265,7 @@ Crafty.c("Collision", {
             l = results.length,
             dupes = {},
             id, obj, oarea, key,
+            overlap = Crafty.rectManager.overlap,
             hasMap = ('map' in this && 'containsPoint' in this.map),
             finalresult = [];
 
@@ -280,9 +281,7 @@ Crafty.c("Collision", {
             id = obj[0];
 
             //check if not added to hash and that actually intersects
-            if (!dupes[id] && this[0] !== id && obj.__c[comp] &&
-                oarea._x < area._x + area._w && oarea._x + oarea._w > area._x &&
-                oarea._y < area._y + area._h && oarea._h + oarea._y > area._y)
+            if (!dupes[id] && this[0] !== id && obj.__c[comp] && overlap(oarea, area))
                 dupes[id] = obj;
         }
 

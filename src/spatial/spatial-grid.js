@@ -75,6 +75,7 @@ var Crafty = require('../core/core.js'),
         search: function (rect, filter) {
             var keys = HashMap.key(rect, keyHolder),
                 i, j, k, l, cell,
+                overlap = Crafty.rectManager.overlap,
                 results = [];
 
             if (filter === undefined) filter = true; //default filter to true
@@ -101,8 +102,7 @@ var Crafty = require('../core/core.js'),
                     id = obj[0]; //unique ID
                     obj = obj._mbr || obj;
                     //check if not added to hash and that actually intersects
-                    if (!found[id] && obj._x < rect._x + rect._w && obj._x + obj._w > rect._x &&
-                        obj._y < rect._y + rect._h && obj._h + obj._y > rect._y)
+                    if (!found[id] && overlap(obj, rect))
                         found[id] = results[i];
                 }
 

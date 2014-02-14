@@ -46,10 +46,10 @@
     strictEqual(player.intersect(0, 0, 100, 50), true, "Intersected");
 
     strictEqual(player.intersect({
-      x: 0,
-      y: 0,
-      w: 100,
-      h: 50
+      _x: 0,
+      _y: 0,
+      _w: 100,
+      _h: 50
     }), true, "Intersected Again");
 
     strictEqual(player.intersect(100, 100, 100, 50), false, "Didn't intersect");
