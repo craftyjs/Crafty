@@ -364,6 +364,21 @@ Crafty.math.Vector2D = (function () {
     }; // dotProduct
 
     /**@
+     * #.crossProduct
+     * @comp Crafty.math.Vector2D
+     *
+     * Calculates the z component of the cross product of the two vectors augmented to 3D.
+     *
+     * @public
+     * @sign public {Number} crossProduct(Vector2D);
+     * @param {Vector2D} vecRH
+     * @returns {Number} the resultant cross product
+     */
+    Vector2D.prototype.crossProduct = function (vecRH) {
+        return this.x * vecRH.y - this.y * vecRH.x;
+    }; // crossProduct
+
+    /**@
      * #.equals
      * @comp Crafty.math.Vector2D
      *
@@ -388,12 +403,14 @@ Crafty.math.Vector2D = (function () {
      * @public
      * @sign public {Vector2D} getNormal([Vector2D]);
      * @param {Vector2D=<0,0>} [vecRH]
+     * @param {Vector2D} [result] store the result in this vector
      * @returns {Vector2D} the new normal vector
      */
-    Vector2D.prototype.getNormal = function (vecRH) {
+    Vector2D.prototype.getNormal = function (vecRH, result) {
+        result = result || new Vector2D();
         if (vecRH === undefined)
-            return new Vector2D(-this.y, this.x); // assume vecRH is <0, 0>
-        return new Vector2D(vecRH.y - this.y, this.x - vecRH.x).normalize();
+            return result.setValues(-this.y, this.x); // assume vecRH is <0, 0>
+        return result.setValues(vecRH.y - this.y, this.x - vecRH.x).normalize();
     }; // getNormal
 
     /**@
@@ -633,12 +650,14 @@ Crafty.math.Vector2D = (function () {
      * @param {Vector2D} a
      * @param {Vector2D} b
      * @param {Vector2D} c
+     * @param {Vector2D} [result]
      * @return {Vector2D} the triple product as a new vector
      */
-    Vector2D.tripleProduct = function (a, b, c) {
+    Vector2D.tripleProduct = function (a, b, c, result) {
+        result = result || new Crafty.math.Vector2D();
         var ac = a.dotProduct(c);
         var bc = b.dotProduct(c);
-        return new Crafty.math.Vector2D(b.x * ac - a.x * bc, b.y * ac - a.y * bc);
+        return result.setValues(b.x * ac - a.x * bc, b.y * ac - a.y * bc);
     };
 
     return Vector2D;

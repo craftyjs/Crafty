@@ -94,6 +94,16 @@ test("dotProduct()", function() {
   equal(v46.dotProduct(v12), 16, "<4,6>.dotProduct(<1,2>) = 16");
 });
 
+test("crossProduct()", function() {
+  var v12 = new Vector2D(1, 2);
+  var v34 = new Vector2D(3, 4);
+  var v46 = new Vector2D(4, 6);
+
+  equal(v12.crossProduct(v34), -2, "<1,2>.crossProduct(<3,4>) = -2");
+  equal(v34.crossProduct(v46), 2, "<3,4>.crossProduct(<4,6>) = 2");
+  equal(v46.crossProduct(v12), 2, "<4,6>.crossProduct(<1,2>) = 2");
+});
+
 test("equals()", function() {
   var v12 = new Vector2D(1, 2);
   var v34 = new Vector2D(3, 4);
@@ -161,7 +171,7 @@ test("normalize()", function() {
   var v_79 = new Vector2D(-7, 9);
 
   equal(v0.normalize().equals(new Vector2D(1, 0)), true, "<0,0>.normalize() = <1,0>");
-  equal(v01.normalize().equals(new Vector2D(0, 1)), true, "<1,0>.normalize() = <0,1>");
+  equal(v01.normalize().equals(new Vector2D(0, 1)), true, "<0,1>.normalize() = <0,1>");
   equal(v_79.normalize().equals(new Vector2D(-0.6139406135149205, 0.7893522173763263)), true, "<-7,9>.normalize() = <-0.6139406135149205,0.7893522173763263>");
 });
 
@@ -172,7 +182,7 @@ test("scale()", function() {
   equal(v11.scale(2, -3).equals(new Vector2D(4, -6)), true, "<2,2>.scale(2, -3) = <4,-6>");
 });
 
-test("magnitudeSq()", function() {
+test("scaleToMagnitude()", function() {
   var v34 = new Vector2D(3, 4);
 
   equal(v34.normalize().scaleToMagnitude(5).equals(new Vector2D(3, 4)), true, "<3,4>.normalize().scaleToMagnitude(5) = <3,4>");
@@ -205,7 +215,7 @@ test("translate()", function() {
   var v11 = new Vector2D(1, 1);
 
   equal(v11.translate(2).equals(new Vector2D(3, 3)), true, "<1,1>.translate(2) = <3,3>");
-  equal(v11.translate(2, -3).equals(new Vector2D(5, 0)), true, "<2,2>.translate(2, -3) = <5,0>");
+  equal(v11.translate(2, -3).equals(new Vector2D(5, 0)), true, "<3,3>.translate(2, -3) = <5,0>");
 });
 
 test("tripleProduct()", function() {
