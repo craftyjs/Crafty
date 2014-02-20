@@ -390,24 +390,34 @@ Crafty.bind("CraftyStop", function () {
  * #Mouse
  * @category Input
  * Provides the entity with mouse related events
- * @trigger MouseOver - when the mouse enters the entity - MouseEvent
- * @trigger MouseOut - when the mouse leaves the entity - MouseEvent
- * @trigger MouseDown - when the mouse button is pressed on the entity - MouseEvent
- * @trigger MouseUp - when the mouse button is released on the entity - MouseEvent
- * @trigger Click - when the user clicks the entity. [See documentation](http://www.quirksmode.org/dom/events/click.html) - MouseEvent
- * @trigger DoubleClick - when the user double clicks the entity - MouseEvent
- * @trigger MouseMove - when the mouse is over the entity and moves - MouseEvent
+ * @trigger MouseOver - when the mouse enters - MouseEvent
+ * @trigger MouseOut - when the mouse leaves - MouseEvent
+ * @trigger MouseDown - when the mouse button is pressed on - MouseEvent
+ * @trigger MouseUp - when the mouse button is released on - MouseEvent
+ * @trigger Click - when the user clicks - MouseEvent
+ * @trigger DoubleClick - when the user double clicks - MouseEvent
+ * @trigger MouseMove - when the mouse is over and moves - MouseEvent
+ *
+ * To be able to use the events on a entity, you have to remember to include the Mouse component, else the events will not get triggered.
+ *
+ * You can read more about the MouseEvent, which are the parameter passed to the callback.
+ * https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent
+ *
  * Crafty adds the mouseButton property to MouseEvents that match one of
  *
  * - Crafty.mouseButtons.LEFT
  * - Crafty.mouseButtons.RIGHT
  * - Crafty.mouseButtons.MIDDLE
  *
+ *
  * @example
  * ~~~
- * myEntity.bind('Click', function() {
- *      console.log("Clicked!!");
- * })
+ * var myEntity = Crafty.e('2D, Canvas, Color, Mouse')
+ * .attr({x: 10, y: 10, w: 40, h: 40})
+ * .color('red')
+ * .bind('Click', function(MouseEvent){
+ *   alert('clicked', MouseEvent);
+ * });
  *
  * myEntity.bind('MouseUp', function(e) {
  *    if( e.mouseButton == Crafty.mouseButtons.RIGHT )
