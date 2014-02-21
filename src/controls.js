@@ -62,6 +62,9 @@ Crafty.extend({
      * Internal method which dispatches mouse events received by Crafty (crafty.stage.elem).
      * The mouse events get dispatched to the closest entity to the source of the event (if available).
      *
+     * You can read more about the MouseEvent, which is the parameter passed to the callback.
+     * https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent
+     *
      * This method also sets a global property Crafty.lastEvent, which holds the most recent event that
      * occured (useful for determining mouse position in every frame).
      * ~~~
@@ -400,7 +403,7 @@ Crafty.bind("CraftyStop", function () {
  *
  * To be able to use the events on a entity, you have to remember to include the Mouse component, else the events will not get triggered.
  *
- * You can read more about the MouseEvent, which are the parameter passed to the callback.
+ * You can read more about the MouseEvent, which is the parameter passed to the callback.
  * https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent
  *
  * Crafty adds the mouseButton property to MouseEvents that match one of
