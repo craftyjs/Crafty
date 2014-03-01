@@ -4,7 +4,7 @@ var Crafty = require('./core.js'),
 /**@
  * #Storage
  * @category Utilities
- * Very simple way to get and set values, which will persist when the browser is closed also.
+ * Very simple way to get and set values, which will persist when the browser is closed also. Storage wraps around HTML5 Web Storage, which is well-supported across browsers and platforms, but limited to 5MB total storage per domain.
  */
 /**@
  * #.storage
