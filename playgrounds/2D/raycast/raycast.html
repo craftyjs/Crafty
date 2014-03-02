@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<script type="text/javascript" src="../../../crafty.js"></script>
+	</head>
+	<body>
+		<h1>Raycast playground:</h1>
+
+		<p>
+		<h3>Input:</h3>
+			<ul>
+			<li>Drag on the background to initiate a raycast (up to the line length).<br/></li>
+			<li>Drag &amp; drop entities to move them.<br/></li>
+			<li>Hold shift while dragging entities up/down to rotate them.<br/></li>
+		</ul>
+		</p>
+
+		<p>
+		<h3>Output:</h3>
+			<ul>
+			<li>First object hit by ray will be given red outline.<br/></li>
+			<li>For all objects hit (up to the line length) the intersection point will be marked with a purple dot.<br/></li>
+		</ul>
+		</p>
+		<div id="cr-stage" style="border: solid black 8px;"></div>
+		<script type="text/javascript" src="raycast.js"></script>
+	</body>
+</html>

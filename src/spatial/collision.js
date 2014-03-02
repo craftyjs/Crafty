@@ -1,5 +1,170 @@
 var Crafty = require('../core/core.js'),
-    DEG_TO_RAD = Math.PI / 180;
+    DEG_TO_RAD = Math.PI / 180,
+    EPSILON = 1e-6;
+
+Crafty.extend({
+    /**@
+     * #Crafty.raycast
+     * @category 2D
+     * @sign public Array .raycast(Object origin, Object direction[, Number maxDistance][, String comp][, Boolean sort])
+     * @param origin - the point of origin from which the ray will be cast. The object must contain the properties `_x` and `_y`.
+     * @param direction - the direction the ray will be cast. It must be normalized. The object must contain the properties `x` and `y`.
+     * @param maxDistance - the maximum distance up to which intersections will be found.
+     *                      This is an optional parameter defaulting to `Infinity`.
+     *                      If it's `Infinity` find all intersections.
+     *                      If it's negative find only first intersection (if there is one).
+     *                      If it's positive find all intersections up to that distance.
+     * @param comp - check for intersection with entities that have this component applied to them.
+     *               This is an optional parameter that is disabled by default.
+     * @param sort - whether to sort the returned array by increasing distance.
+     *               May be disabled to slightly improve performance if sorted results are not needed.
+     *               Defaults to `true`.
+     * @returns an array of raycast-results that may be empty, if no intersection has been found.
+     *          Otherwise, each raycast-result looks like `{obj: Entity, distance: Number, x: Number, y: Number}`,
+     *          describing which `obj` entity has intersected the ray at intersection point `x`,`y`, `distance` px away from `origin`.
+     *
+     * Cast a ray from its `origin` in the `direction` and
+     * report entities that intersect with it, given the parameter constraints.
+     *
+     * Raycasting only reports entities, that have the `Collision` component applied to them.
+     *
+     * @example
+     * ~~~
+     * Crafty.e("2D, Collision")
+     *       .setName('First entity')
+     *       .attr({x: 0, y: 0, w: 10, h: 10});
+     *
+     * Crafty.e("2D, Collision")
+     *       .setName('Second entity')
+     *       .attr({x: 20, y: 20, w: 10, h: 10});
+     *
+     * var origin = {_x: -25, _y: -25};
+     * var direction = new Crafty.math.Vector2D(1, 1).normalize();
+     *
+     * var results = Crafty.raycast(origin, direction, -1); // find only 1st intersection
+     * Crafty.log('Intersections found', results.length); // logs '1'
+     *
+     * var result = results[0];
+     * Crafty.log('1st intersection:');
+     * Crafty.log('Entity name:', result.obj.getName()); // logs 'First entity'
+     * Crafty.log('Distance from origin to intersection point', result.distance); // logs '25 * Math.sqrt(2)'
+     * Crafty.log('Intersection point:', result.x, result.y); // logs '0' '0'
+     * ~~~
+     *
+     * @see Crafty.polygon#.intersectRay
+     * @see Crafty.map#Crafty.map.traverseRay
+     */
+
+    // origin = {_x, _y}
+    // direction = {x, y}, must be normalized
+    //
+    // Add approximate ray intersection with bounding rectangle,
+    // before doing exact ray intersection if needed in future.
+    // https://gist.github.com/mucaho/77846e9fc0cd3c8b600c
+    raycast: function(origin, direction) {
+        // default parameters
+        var comp = 'obj',
+            maxDistance = Infinity,
+            sort = true;
+        // optional arguments
+        var argument, type;
+        for (var i = 2, l = arguments.length; i < l; ++i) {
+            argument = arguments[i];
+            type = typeof argument;
+            if (type === 'number') maxDistance = argument + EPSILON; // make it inclusive
+            else if (type === 'string') comp = argument;
+            else if (type === 'boolean') sort = argument;
+        }
+
+        var ox = origin._x,
+            oy = origin._y,
+            dx = direction.x,
+            dy = direction.y;
+
+
+        var alreadyChecked = {},
+            results = [];
+
+
+        if (maxDistance < 0) { // find first intersection
+
+            var closestObj = null,
+                minDistance = Infinity;
+
+            // traverse map
+            Crafty.map.traverseRay(origin, direction, function(obj, previousCellDistance) {
+                // check if we advanced to next cell
+                //      then report closest object from previous cell
+                //          if intersection point is in previous cell
+                if (closestObj && minDistance < previousCellDistance) {
+                    results.push({
+                        obj: closestObj,
+                        distance: minDistance,
+                        x: ox + minDistance * dx,
+                        y: oy + minDistance * dy
+                    });
+                    closestObj = null;
+                    minDistance = Infinity;
+
+                    return true;
+                }
+
+                // object must contain polygon hitbox, the specified component and must not already be checked
+                if (!obj.map || !obj.__c[comp] || alreadyChecked[obj[0]]) return;
+                alreadyChecked[obj[0]] = true;
+
+                // do exact intersection test
+                var distance = obj.map.intersectRay(origin, direction);
+                if (distance < minDistance) {
+                    closestObj = obj;
+                    minDistance = distance;
+                }
+            });
+
+            // in case traversal ended and we haven't yet pushed nearest intersecting object
+            if (closestObj) {
+                results.push({
+                    obj: closestObj,
+                    distance: minDistance,
+                    x: ox + minDistance * dx,
+                    y: oy + minDistance * dy
+                });
+            }
+
+        } else { // find intersections up to max distance
+
+            // traverse map
+            Crafty.map.traverseRay(origin, direction, function(obj, previousCellDistance) {
+                // check if we advanced to next cell
+                //      then cancel traversal if previousCellDistance > maxDistance
+                if (previousCellDistance > maxDistance) {
+                    return true;
+                }
+
+                // object must contain polygon hitbox, the specified component and must not already be checked
+                if (!obj.map || !obj.__c[comp] || alreadyChecked[obj[0]]) return;
+                alreadyChecked[obj[0]] = true;
+
+                // do exact intersection test
+                var distance = obj.map.intersectRay(origin, direction);
+                if (distance < maxDistance) {
+                    results.push({
+                        obj: obj,
+                        distance: distance,
+                        x: ox + distance * dx,
+                        y: oy + distance * dy
+                    });
+                }
+            });
+        }
+
+
+        if (sort) results.sort(function(a, b) { return a.distance - b.distance; });
+
+
+        return results;
+    }
+});
 
 /**@
  * #Collision
