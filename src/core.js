@@ -416,28 +416,45 @@ Crafty.fn = Crafty.prototype = {
     /**@
      * #.attr
      * @comp Crafty Core
-     * @sign public this .attr(String property, * value)
+     * @trigger Change - when properties change - {key: value}
+     *
+     * @sign public this .attr(String property, Any value[, Boolean silent[, Boolean recursive]])
      * @param property - Property of the entity to modify
      * @param value - Value to set the property to
      * @param silent - If you would like to supress events
      * @param recursive - If you would like merge recursively
-     * @sign public this .attr(Object map)
-     * @param map - Object where the key is the property to modify and the value as the property value
-     * @trigger Change - when properties change - {key: value}
-     *
      * Use this method to set any property of the entity.
+     *
+     * @sign public this .attr(Object map[, Boolean silent[, Boolean recursive]])
+     * @param map - Object where each key is the property to modify and the value as the property value
+     * @param silent - If you would like to supress events
+     * @param recursive - If you would like merge recursively
+     * Use this method to set multiple properties of the entity.
+     *
+     * Setter options:
+     * `silent`: If you want to prevent it from firing events.
+     * `recursive`: If you pass in an object you could overwrite sibling keys, this recursively merges instead of just merging it. This is `false` by default, unless you are using dot notation `name.first`.
+     *
+     * @sign public Any .attr(String property)
+     * @param property - Property of the entity to modify
+     * @returns Value - the value of the property
+     * Use this method to get any property of the entity. You can also retrieve the property using `this.property`.
+     * 
      *
      * @example
      * ~~~
      * this.attr({key: "value", prop: 5});
-     * this.key; //value
-     * this.prop; //5
+     * this.attr("key"); // returns "value"
+     * this.attr("prop"); // returns 5
+     * this.key; // "value"
+     * this.prop; // 5
      *
      * this.attr("key", "newvalue");
-     * this.key; //newvalue
+     * this.attr("key"); // returns "newvalue"
+     * this.key; // "newvalue"
      *
      * this.attr("parent.child", "newvalue");
-     * this.parent; //{child: "newvalue"};
+     * this.parent; // {child: "newvalue"};
      * this.attr('parent.child'); // "newvalue"
      * ~~~
      */
@@ -450,13 +467,13 @@ Crafty.fn = Crafty.prototype = {
     },
 
     /**
-     * Getter method for data on the entity.
+     * Internal getter method for data on the entity. Called by `.attr`.
      *
-     * @example
+     * example
      * ~~~
      * person._attr_get('name'); // Foxxy
-     * person._attr_get('contact'); // {email: 'fox@example.com'}
-     * person._attr_get('contact.email'); // fox@example.com
+     * person._attr_get('contact'); // {email: 'fox_at_example.com'}
+     * person._attr_get('contact.email'); // fox_at_example.com
      * ~~~
      */
     _attr_get: function(key, context) {
@@ -475,7 +492,7 @@ Crafty.fn = Crafty.prototype = {
     },
 
     /**
-     * Setter function for attributes on the component.
+     * Internal setter method for attributes on the component. Called by `.attr`.
      *
      * Options:
      *
@@ -486,7 +503,7 @@ Crafty.fn = Crafty.prototype = {
      * merging it. This is `false` by default, unless you are
      * using dot notation `name.first`.
      *
-     * @example
+     * example
      * ~~~
      * person._attr_set('name', 'Foxxy', true);
      * person._attr_set('name', 'Foxxy');
