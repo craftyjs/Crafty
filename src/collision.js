@@ -20,7 +20,7 @@ var Crafty = require('./core.js'),
  * For a description of collision event data (hitData above), see the documentation for
  * `.hit()`.
  *
- * @see .hit, Crafty.init, .resetHitChecks
+ * @see .hit, .checkHits, .onHit
  */
 Crafty.c("Collision", {
     /**@
@@ -251,7 +251,7 @@ Crafty.c("Collision", {
      * **obj:** The entity with which the collision occured.
      * **type:** Collision detection method used. One of:
      * + *MBR:* Standard axis aligned rectangle intersection (`.intersect` in the 2D component).
-     * + *SAT:* Collision between any two convex polygons. Used when both colliding entities to have the `Collision` component applied to them.
+     * + *SAT:* Collision between any two convex polygons. Used when both colliding entities have the `Collision` component applied to them.
      * **overlap:** If SAT collision was used, this will signify the overlap percentage between the colliding entities.
      *
      * @see 2D
@@ -316,7 +316,10 @@ Crafty.c("Collision", {
      * @param noHit - Callback method executed once as soon as collision stops.
      *
      * Creates an EnterFrame event calling .hit() each frame.  When a collision is detected the callback will be invoked.
+     * Note that the `hit` callback will be invoked every frame the collision is active, not just the first time the collision occurs.
+     * If you want more fine-grained control consider using `.checkHits` or `.hit`.
      *
+     * @see .checkHits
      * @see .hit
      */
     onHit: function (comp, callback, callbackOff) {
