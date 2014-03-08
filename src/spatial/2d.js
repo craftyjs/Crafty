@@ -1047,6 +1047,412 @@ Crafty.c("Gravity", {
     }
 });
 
+var __motionProp = function(self, prefix, prop, setter) {
+    var publicProp = prefix + prop;
+    var privateProp = "_" + publicProp;
+
+    var motionEvent = { key: "", value: 0};
+    // getters & setters for public property
+    if (setter) {
+        Crafty.defineField(self, publicProp, function() { return this[privateProp]; }, function(newValue) {
+            var oldValue = this[privateProp];
+            if (newValue !== oldValue) {
+                this[privateProp] = newValue;
+
+                motionEvent.key = publicProp;
+                motionEvent.value = oldValue;
+                this.trigger("MotionChange", motionEvent);
+            }
+        });
+    } else {
+        Crafty.defineField(self, publicProp, function() { return this[privateProp]; }, function(newValue) {});
+    }
+
+    // hide private property
+    Object.defineProperty(self, privateProp, {
+        value : 0,
+        writable : true,
+        enumerable : false,
+        configurable : false
+    });
+};
+
+var __motionVector = function(self, prefix, setter, vector) {
+    var publicX = prefix + "x",
+        publicY = prefix + "y",
+        privateX = "_" + publicX,
+        privateY = "_" + publicY;
+
+    if (setter) {
+        Crafty.defineField(vector, "x", function() { return self[privateX]; }, function(v) { self[publicX] = v; });
+        Crafty.defineField(vector, "y", function() { return self[privateY]; }, function(v) { self[publicY] = v; });
+    } else {
+        Crafty.defineField(vector, "x", function() { return self[privateX]; }, function(v) {});
+        Crafty.defineField(vector, "y", function() { return self[privateY]; }, function(v) {});
+    }
+    if (Object.seal) { Object.seal(vector); }
+
+    return vector;
+};
+
+/**@
+ * #AngularMotion
+ * @category 2D
+ * @trigger Rotated - When entity has rotated due to angular velocity/acceleration a Rotated event is triggered. - Number - Old rotation
+ * @trigger MotionChange - when a motion property has changed - { key: String propertyName, value: Number oldPropertyValue }
+ *
+ * Component that allows rotating an entity by applying angular velocity and acceleration.
+ */
+Crafty.c("AngularMotion", {
+    /**@
+     * #.vrotation
+     * @comp AngularMotion
+     * 
+     * A number for accessing/modifying the angular(rotational) velocity. 
+     * The velocity remains constant over time, unless the acceleration increases the velocity.
+     *
+     * @example
+     * ~~~
+     * var ent = Crafty.e("2D, AngularMotion");
+     *
+     * var vrotation = ent.vrotation; // retrieve the angular velocity
+     * ent.vrotation += 1; // increase the angular velocity
+     * ent.vrotation = 0; // reset the angular velocity
+     * ~~~
+     */
+    _vrotation: 0,
+
+    /**@
+     * #.arotation
+     * @comp AngularMotion
+     * 
+     * A number for accessing/modifying the angular(rotational) acceleration. 
+     * The acceleration increases the velocity over time, resulting in ever increasing speed.
+     *
+     * @example
+     * ~~~
+     * var ent = Crafty.e("2D, AngularMotion");
+     *
+     * var arotation = ent.arotation; // retrieve the angular acceleration
+     * ent.arotation += 1; // increase the angular acceleration
+     * ent.arotation = 0; // reset the angular acceleration
+     * ~~~
+     */
+    _arotation: 0,
+
+    /**@
+     * #.drotation
+     * @comp AngularMotion
+     * 
+     * A number that reflects the change in rotation (difference between the old & new rotation) that was applied in the last frame.
+     *
+     * @example
+     * ~~~
+     * var ent = Crafty.e("2D, AngularMotion");
+     *
+     * var drotation = ent.drotation; // the change of rotation in the last frame
+     * ~~~
+     */
+    _drotation: 0,
+
+    init: function () {
+        this.requires("2D");
+
+        __motionProp(this, "v", "rotation", true);
+        __motionProp(this, "a", "rotation", true);
+        __motionProp(this, "d", "rotation", false);
+
+        this.bind("EnterFrame", this._angularMotionTick);
+    },
+    remove: function(destroyed) {
+        this.unbind("EnterFrame", this._angularMotionTick);
+    },
+
+    /**@
+     * #.resetAngularMotion
+     * @comp AngularMotion
+     * @sign public this .resetAngularMotion()
+     * @return this
+     * 
+     * Reset all motion (resets velocity, acceleration, motionDelta).
+     */
+    resetAngularMotion: function() {
+        this._drotation = 0;
+        this.vrotation = 0;
+        this.arotation = 0;
+
+        return this;
+    },
+
+    /*
+     * s += v * Δt + (0.5 * a) * Δt * Δt
+     * v += a * Δt
+     */
+    _angularMotionTick: function(frameData) {
+        var dt = frameData.dt/1000;
+
+        var oldRotation = this._rotation;
+        // s += v * Δt + (0.5 * a) * Δt * Δt
+        var newRotation = oldRotation + this._vrotation * dt + 0.5 * this._arotation * dt * dt;
+        // v += a * Δt
+        this.vrotation = this._vrotation + this._arotation * dt;
+        // Δs = s[t] - s[t-1]
+        this._drotation = newRotation - oldRotation;
+
+        if (this._drotation !== 0) {
+            this.rotation = newRotation;
+            this.trigger('Rotated', oldRotation);
+        }
+    }
+});
+
+/**@
+ * #Motion
+ * @category 2D
+ * @trigger Moved - When entity has moved due to velocity/acceleration on either x or y axis a Moved event is triggered. If the entity has moved on both axes for diagonal movement the event is triggered twice. - { x:Number, y:Number } - Old position
+ * @trigger MotionChange - when a motion property has changed - { key: String propertyName, value: Number oldPropertyValue }
+ *
+ * Component that allows moving an entity by applying linear velocity and acceleration.
+ */
+Crafty.c("Motion", {
+    /**@
+     * #.vx
+     * @comp Motion
+     * 
+     * A number for accessing/modifying the linear velocity in the x axis.
+     * The velocity remains constant over time, unless the acceleration increases the velocity.
+     *
+     * @example
+     * ~~~
+     * var ent = Crafty.e("2D, Motion");
+     *
+     * var vx = ent.vx; // retrieve the linear velocity in the x axis
+     * ent.vx += 1; // increase the linear velocity in the x axis
+     * ent.vx = 0; // reset the linear velocity in the x axis
+     * ~~~
+     */
+    _vx: 0,
+
+    /**@
+     * #.vy
+     * @comp Motion
+     * 
+     * A number for accessing/modifying the linear velocity in the y axis.
+     * The velocity remains constant over time, unless the acceleration increases the velocity.
+     *
+     * @example
+     * ~~~
+     * var ent = Crafty.e("2D, Motion");
+     *
+     * var vy = ent.vy; // retrieve the linear velocity in the y axis
+     * ent.vy += 1; // increase the linear velocity in the y axis
+     * ent.vy = 0; // reset the linear velocity in the y axis
+     * ~~~
+     */
+    _vy: 0,
+
+    /**@
+     * #.ax
+     * @comp Motion
+     * 
+     * A number for accessing/modifying the linear acceleration in the x axis.
+     * The acceleration increases the velocity over time, resulting in ever increasing speed.
+     *
+     * @example
+     * ~~~
+     * var ent = Crafty.e("2D, Motion");
+     *
+     * var ax = ent.ax; // retrieve the linear acceleration in the x axis
+     * ent.ax += 1; // increase the linear acceleration in the x axis
+     * ent.ax = 0; // reset the linear acceleration in the x axis
+     * ~~~
+     */
+    _ax: 0,
+
+    /**@
+     * #.ay
+     * @comp Motion
+     * 
+     * A number for accessing/modifying the linear acceleration in the y axis.
+     * The acceleration increases the velocity over time, resulting in ever increasing speed.
+     *
+     * @example
+     * ~~~
+     * var ent = Crafty.e("2D, Motion");
+     *
+     * var ay = ent.ay; // retrieve the linear acceleration in the y axis
+     * ent.ay += 1; // increase the linear acceleration in the y axis
+     * ent.ay = 0; // reset the linear acceleration in the y axis
+     * ~~~
+     */
+    _ay: 0,
+
+    /**@
+     * #.dx
+     * @comp Motion
+     * 
+     * A number that reflects the change in x (difference between the old & new x) that was applied in the last frame.
+     *
+     * @example
+     * ~~~
+     * var ent = Crafty.e("2D, Motion");
+     *
+     * var dx = ent.dx; // the change of x in the last frame
+     * ~~~
+     */
+    _dx: 0,
+
+    /**@
+     * #.dy
+     * @comp Motion
+     * 
+     * A number that reflects the change in y (difference between the old & new y) that was applied in the last frame.
+     *
+     * @example
+     * ~~~
+     * var ent = Crafty.e("2D, Motion");
+     *
+     * var dy = ent.dy; // the change of y in the last frame
+     * ~~~
+     */
+    _dy: 0,
+
+    init: function () {
+        this.requires("2D");
+
+        __motionProp(this, "v", "x", true);
+        __motionProp(this, "v", "y", true);
+        this._velocity = __motionVector(this, "v", true, new Crafty.math.Vector2D());
+        __motionProp(this, "a", "x", true);
+        __motionProp(this, "a", "y", true);
+        this._acceleration = __motionVector(this, "a", true, new Crafty.math.Vector2D());
+        __motionProp(this, "d", "x", false);
+        __motionProp(this, "d", "y", false);
+        this._motionDelta = __motionVector(this, "d", false, new Crafty.math.Vector2D());
+
+        this.bind("EnterFrame", this._linearMotionTick);
+    },
+    remove: function(destroyed) {
+        this.unbind("EnterFrame", this._linearMotionTick);
+    },
+
+    /**@
+     * #.resetMotion
+     * @comp Motion
+     * @sign public this .resetMotion()
+     * @return this
+     * 
+     * Reset all linear motion (resets velocity, acceleration, motionDelta).
+     */
+    resetMotion: function() {
+        this.vx = 0; this.vy = 0;
+        this.ax = 0; this.ay = 0;
+        this._dx = 0; this._dy = 0;
+
+        return this;
+    },
+
+    /**@
+     * #.motionDelta
+     * @comp Motion
+     * @sign public Vector2D .motionDelta()
+     * @return A Vector2D with the properties {x, y} that reflect the change in x & y.
+     * 
+     * Returns the difference between the old & new position that was applied in the last frame.
+     *
+     * @example
+     * ~~~
+     * var ent = Crafty.e("2D, Motion");
+     *
+     * var deltaY = ent.motionDelta().y; // the change of y in the last frame
+     * ~~~
+     * @see Crafty.math.Vector2D
+     */
+    motionDelta: function() {
+        return this._motionDelta;
+    },
+
+    /**@
+     * #.velocity
+     * @comp Motion
+     * Method for accessing/modifying the linear(x,y) velocity. 
+     * The velocity remains constant over time, unless the acceleration increases the velocity.
+     *
+     * @sign public Vector2D .velocity()
+     * @return The velocity Vector2D with the properties {x, y} that reflect the velocities in the <x, y> direction of the entity.
+     * Returns the current velocity. You can access/modify the properties in order to retrieve/change the velocity.
+
+     * @example
+     * ~~~
+     * var ent = Crafty.e("2D, Motion");
+     *
+     * var vel = ent.velocity(); //returns the velocity vector
+     * vel.x;       // retrieve the velocity in the x direction
+     * vel.x = 0;   // set the velocity in the x direction
+     * vel.x += 4   // add to the velocity in the x direction
+     * ~~~
+     * @see Crafty.math.Vector2D
+     */
+    velocity: function() {
+        return this._velocity;
+    },
+
+
+    /**@
+     * #.acceleration
+     * @comp Motion
+     * Method for accessing/modifying the linear(x,y) acceleration. 
+     * The acceleration increases the velocity over time, resulting in ever increasing speed.
+     * 
+     * @sign public Vector2D .acceleration()
+     * @return The acceleration Vector2D with the properties {x, y} that reflects the acceleration in the <x, y> direction of the entity.
+     * Returns the current acceleration. You can access/modify the properties in order to retrieve/change the acceleration.
+     *
+     * @example
+     * ~~~
+     * var ent = Crafty.e("2D, Motion");
+     *
+     * var acc = ent.acceleration(); //returns the acceleration object
+     * acc.x;       // retrieve the acceleration in the x direction
+     * acc.x = 0;   // set the acceleration in the x direction
+     * acc.x += 4   // add to the acceleration in the x direction
+     * ~~~
+     * @see Crafty.math.Vector2D
+     */
+    acceleration: function() {
+        return this._acceleration;
+    },
+
+    /*
+     * s += v * Δt + (0.5 * a) * Δt * Δt
+     * v += a * Δt
+     */
+    _linearMotionTick: function(frameData) {
+        var dt = frameData.dt/1000;
+
+        var oldX = this._x;
+        var oldY = this._y;
+        // s += v * Δt + (0.5 * a) * Δt * Δt
+        var newX = oldX + this._vx * dt + 0.5 * this._ax * dt * dt;
+        var newY = oldY + this._vy * dt + 0.5 * this._ay * dt * dt;
+        // v += a * Δt
+        this.vx = this._vx + this._ax * dt;
+        this.vy = this._vy + this._ay * dt;
+        // Δs = s[t] - s[t-1]
+        this._dx = newX - oldX;
+        this._dy = newY - oldY;
+
+        if (this._dx !== 0) {
+            this.x = newX;
+            this.trigger('Moved', {x: oldX, y: newY});
+        }
+        if (this._dy !== 0) {
+            this.y = newY;
+            this.trigger('Moved', {x: newX, y: oldY});
+        }
+    }
+});
+
 /**@
  * #Crafty.polygon
  * @category 2D
