@@ -317,38 +317,38 @@
     Crafty.trigger('KeyDown', {
       key: Crafty.keys.D
     });
-    Crafty.trigger('EnterFrame');
+    Crafty.trigger('EnterFrame', {dt: 1000});
     equal(e._movement.x, 1);
     equal(e._x, 1);
 
     e.disableControl();
-    Crafty.trigger('EnterFrame');
+    Crafty.trigger('EnterFrame', {dt: 1000});
     equal(e._movement.x, 0);
     equal(e._x, 1);
 
     Crafty.trigger('KeyUp', {
       key: Crafty.keys.D
     });
-    Crafty.trigger('EnterFrame');
+    Crafty.trigger('EnterFrame', {dt: 1000});
     equal(e._movement.x, 0);
     equal(e._x, 1);
 
     e.enableControl();
-    Crafty.trigger('EnterFrame');
+    Crafty.trigger('EnterFrame', {dt: 1000});
     equal(e._movement.x, 0);
     equal(e._x, 1);
 
     Crafty.trigger('KeyDown', {
       key: Crafty.keys.D
     });
-    Crafty.trigger('EnterFrame');
+    Crafty.trigger('EnterFrame', {dt: 1000});
     equal(e._movement.x, 1);
     equal(e._x, 2);
 
     Crafty.trigger('KeyUp', {
       key: Crafty.keys.D
     });
-    Crafty.trigger('EnterFrame');
+    Crafty.trigger('EnterFrame', {dt: 1000});
     equal(e._movement.x, 0);
     equal(e._x, 2);
 
@@ -586,5 +586,170 @@
     ent.destroy();
   });
 
-})();
+  test("Supportable", function() {
+    var ground = Crafty.e("2D, Ground").attr({x: 0, y: 10, w:10, h:10}); // [0,10] to [0,20]
 
+    var landedCount = 0, liftedCount = 0;
+    var ent = Crafty.e("2D, Supportable")
+      .attr({x: 0, y:0, w:5, h:5})
+      .bind("LandedOnGround", function(obj) {
+        ok(ent.ground(), "entity should be on ground");
+        equal(obj, ground, "ground object should be equal");
+        landedCount++;
+      })
+      .bind("LiftedOffGround", function(obj) {
+        ok(!ent.ground(), "entitiy should not be on ground");
+        equal(obj, ground, "ground object should be equal");
+        liftedCount++;
+      })
+      .startGroundDetection("Ground");
+
+
+    ok(!ent.ground(), "entity should not be on ground");
+    Crafty.trigger("EnterFrame");
+    ok(!ent.ground(), "entity should not be on ground");
+
+    ent.y = 5;
+    Crafty.trigger("EnterFrame"); // 1 landed event should have occured
+    equal(ent.y, 5, "ent y should not have changed");
+    ok(ent.ground(), "entity should be on ground");
+
+    ent.y = 0;
+    Crafty.trigger("EnterFrame"); // 1 lifted event should have occured
+    equal(ent.y, 0, "ent y should not have changed");
+    ok(!ent.ground(), "entity should not be on ground");
+
+    ent.y = 7;
+    Crafty.trigger("EnterFrame"); // 1 landed event should have occured
+    equal(ent.y, 5, "ent y should have been snapped to ground");
+    ok(ent.ground(), "entity should be on ground");
+
+    ent.y = 0;
+    Crafty.trigger("EnterFrame"); // 1 lifted event should have occured
+    equal(ent.y, 0, "ent y should not have changed");
+    ok(!ent.ground(), "entity should not be on ground");
+
+    ent.bind("CheckLanding", function(ground) {
+      this.canLand = false;
+    });
+    ent.y = 7;
+    Crafty.trigger("EnterFrame"); // no event should have occured
+    equal(ent.y, 7, "ent y should not have changed");
+    ok(!ent.ground(), "entity should not be on ground");
+
+
+    equal(landedCount, 2, "landed count mismatch");
+    equal(liftedCount, 2, "lifted count mismatch");
+
+    ground.destroy();
+    ent.destroy();
+  });
+
+  test("GroundAttacher", function() {
+    var ground = Crafty.e("2D, Ground");
+    var player = Crafty.e("2D, GroundAttacher");
+
+    player.trigger("LandedOnGround", ground);
+    ground.x = 10;
+    strictEqual(player.x, 10, "player moved with ground");
+
+    player.trigger("LiftedOffGround", ground);
+    ground.x = 20;
+    strictEqual(player.x, 10, "player did not move with ground");
+  });
+
+  test("Gravity", function() {
+    var ground = Crafty.e("2D, platform")
+          .attr({ x: 0, y: 280, w: 600, h: 20 });
+
+    var player = Crafty.e("2D, Gravity")
+          .attr({ x: 0, y: 100, w: 32, h: 16 })
+          .gravity("platform");
+   
+    strictEqual(player.acceleration().y, player._gravityConst, "acceleration should match gravity constant");
+
+    var vel = -1;
+    player.bind("EnterFrame", function() {
+      if (!this.ground()) {
+        ok(this.velocity().y > vel, "velocity should increase");
+        vel = this.velocity().y;
+      } else {
+        vel = -1;
+      }
+    });
+
+    var landCount = 0, liftCount = 0;
+    player.bind("LandedOnGround", function() {
+      landCount++;
+      strictEqual(this.acceleration().y, 0, "acceleration should be zero");
+      strictEqual(this.velocity().y, 0, "velocity should be zero");
+
+      if (landCount === 1) {
+        this.bind("LiftedOffGround", function() {
+          liftCount++;
+
+          Crafty.trigger("EnterFrame", {dt: 50});
+          Crafty.trigger("EnterFrame", {dt: 50});
+          Crafty.trigger("EnterFrame", {dt: 50});
+          vel = -1;
+
+          var oldVel = this.velocity().y;
+          this.gravityConst(5);
+          strictEqual(this._gravityConst, this.__convertPixelsToMeters(5), "gravity constant should have changed");
+          strictEqual(this.acceleration().y, this._gravityConst, "acceleration should match gravity constant");
+          strictEqual(this.velocity().y, oldVel, "velocity shouldn't have been resetted");
+        });
+        this.attr({y: 100});
+      } else {
+        strictEqual(landCount, 2, "two land on ground events should have been registered");
+        strictEqual(liftCount, 1, "one lift off ground event should have been registered");
+
+        ground.destroy();
+        player.destroy();
+
+        start();
+      }
+    });
+
+    stop();
+  });
+
+  test("Twoway", function() {
+    var ground = Crafty.e("2D, platform")
+          .attr({ x: 0, y: 200, w: 10, h: 20 });
+
+    var player = Crafty.e("2D, Gravity, Twoway")
+          .attr({ x: 0, y: 150, w: 32, h: 10 })
+          .gravity("platform")
+          .twoway(2, 4);
+
+    var landCount = 0, liftCount = 0;
+    player.bind("LandedOnGround", function() {
+      landCount++;
+      
+      if (landCount === 1) {
+        this.bind("LiftedOffGround", function() {
+          liftCount++;
+          this.bind("EnterFrame", function() {
+            this.trigger("KeyDown", {key: Crafty.keys.UP_ARROW});
+            if (this.velocity().y < -this._jumpSpeed)
+              ok(false, "Twoway should not modify velocity");
+          });
+        });
+
+        this.trigger("KeyDown", {key: Crafty.keys.UP_ARROW});
+      } else {
+        strictEqual(landCount, 2, "two land on ground events should have been registered");
+        strictEqual(liftCount, 1, "one lift off ground event should have been registered");
+
+        ground.destroy();
+        player.destroy();
+
+        start();
+      }
+    });
+
+    stop();
+  });
+
+})();
