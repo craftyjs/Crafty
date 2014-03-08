@@ -395,21 +395,36 @@ Crafty.math.Vector2D = (function () {
     }; // equals
 
     /**@
+     * #.perpendicular
+     * @comp Crafty.math.Vector2D
+     *
+     * Calculates a new vector that is perpendicular to this vector.
+     * The perpendicular vector has the same magnitude as this vector and is obtained by a counter-clockwise rotation of 90° of this vector.
+     *
+     * @public
+     * @sign public {Vector2D} perpendicular([Vector2D]);
+     * @param {Vector2D} [result] - An optional parameter to save the result in
+     * @returns {Vector2D} the perpendicular vector
+     */
+    Vector2D.prototype.perpendicular = function (result) {
+        result = result || new Vector2D();
+        return result.setValues(-this.y, this.x);
+    }; // perpendicular
+
+    /**@
      * #.getNormal
      * @comp Crafty.math.Vector2D
      *
-     * Calculates a new right-handed normal vector for the line created by this and the passed vectors.
+     * Calculates a new right-handed unit vector that is perpendicular to the line created by this and the passed vector.
      *
      * @public
-     * @sign public {Vector2D} getNormal([Vector2D]);
-     * @param {Vector2D=<0,0>} [vecRH]
-     * @param {Vector2D} [result] store the result in this vector
+     * @sign public {Vector2D} getNormal(Vector2D[, Vector2D]);
+     * @param {Vector2D} vecRH
+     * @param {Vector2D} [result] - An optional parameter to save the result in
      * @returns {Vector2D} the new normal vector
      */
     Vector2D.prototype.getNormal = function (vecRH, result) {
         result = result || new Vector2D();
-        if (vecRH === undefined)
-            return result.setValues(-this.y, this.x); // assume vecRH is <0, 0>
         return result.setValues(vecRH.y - this.y, this.x - vecRH.x).normalize();
     }; // getNormal
 
@@ -646,11 +661,11 @@ Crafty.math.Vector2D = (function () {
      *
      * @public
      * @static
-     * @sign public {Vector2D} tripleProduct(Vector2D, Vector2D, Vector2D);
+     * @sign public {Vector2D} tripleProduct(Vector2D, Vector2D, Vector2D, [Vector2D]);
      * @param {Vector2D} a
      * @param {Vector2D} b
      * @param {Vector2D} c
-     * @param {Vector2D} [result]
+     * @param {Vector2D} [result] - An optional parameter to save the result in
      * @return {Vector2D} the triple product as a new vector
      */
     Vector2D.tripleProduct = function (a, b, c, result) {
