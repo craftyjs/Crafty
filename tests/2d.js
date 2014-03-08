@@ -493,4 +493,98 @@
     ok(e._cbr === null, "_cbr should now be removed along with Collision");
 
   });
+
+  test("Motion", function() {
+    var Vector2D = Crafty.math.Vector2D;
+    var zero = new Vector2D();
+    var ent = Crafty.e("2D, Motion, AngularMotion")
+      .attr({x: 0, y:0});
+
+    ok(ent.velocity().equals(zero), "linear velocity should be zero");
+    strictEqual(ent.vrotation, 0, "angular velocity should be zero");
+    ok(ent.acceleration().equals(zero), "linear acceleration should be zero");
+    strictEqual(ent.arotation, 0, "angular acceleration should be zero");
+    ok(ent.motionDelta().equals(zero), "linear delta should be zero");
+    strictEqual(ent.drotation, 0, "angular delta should be zero");
+
+    ent.motionDelta().x = 20;
+    ok(ent.motionDelta().equals(zero), "linear delta should not have changed");
+    ent.drotation = 10;
+    strictEqual(ent.drotation, 0, "angular delta should not have changed");
+
+
+    var v0 = new Vector2D(2,5); var v0_r = 10;
+    ent.velocity().setValues(v0);
+    ent.vrotation = v0_r;
+    ok(ent.velocity().equals(v0), "linear velocity should be <2,5>");
+    strictEqual(ent.vrotation, v0_r, "angular velocity should be 10");
+
+    var a = new Vector2D(4,2); var a_r = -15;
+    ent.acceleration().setValues(a);
+    ent.arotation = a_r;
+    ok(ent.acceleration().equals(a), "linear acceleration should be <4,2>");
+    strictEqual(ent.arotation, a_r, "angular acceleration should be -15");
+
+    ent.velocity().x += 1;
+    ent.velocity().y *= 2;
+    ent.velocity().y -= 1;
+    ok(ent.velocity().equals(new Vector2D(v0.x+1, v0.y*2-1)), "linear velocity should be <3,9>");
+    ent.arotation += 5;
+    strictEqual(ent.arotation, a_r + 5, "angular acceleration should be -10");
+
+
+    ent.resetMotion();
+    ent.resetAngularMotion();
+    ok(ent.velocity().equals(zero), "linear velocity should be zero");
+    strictEqual(ent.vrotation, 0, "angular velocity should be zero");
+    ok(ent.acceleration().equals(zero), "linear acceleration should be zero");
+    strictEqual(ent.arotation, 0, "angular acceleration should be zero");
+    ok(ent.motionDelta().equals(zero), "linear delta should be zero");
+    strictEqual(ent.drotation, 0, "angular delta should be zero");
+
+
+
+
+    ent.velocity().setValues(v0);
+    ent.vrotation = v0_r;
+    Crafty.trigger('EnterFrame', {dt: 1000});
+    ok(ent.velocity().equals(v0), "velocity should be <2,5>");
+    strictEqual(ent.vrotation, v0_r, "angular velocity should be 10");
+    ok(ent.motionDelta().equals(v0), "delta should be <2,5>");
+    strictEqual(ent.drotation, v0_r, "angular delta should be 10");
+    equal(ent.x, v0.x, "entity x should be 2");
+    equal(ent.y, v0.y, "entity y should be 5");
+    equal(ent.rotation, v0_r, "entity rotation should be 10");
+
+    var dPos = new Vector2D(a).scale(0.5).add(v0), dPos_r = v0_r + 0.5*a_r;
+    ent.acceleration().setValues(a);
+    ent.arotation = a_r;
+    Crafty.trigger('EnterFrame', {dt: 1000});
+    ok(dPos.equals(new Vector2D(4,6)), "should be <4,6>");
+    strictEqual(dPos_r, 2.5, "should be 2.5");
+    ok(ent.motionDelta().equals(dPos), "delta should be <4,6>");
+    strictEqual(ent.drotation, dPos_r, "should be 2.5");
+    equal(ent.x, v0.x + dPos.x, "entity x should be 6");
+    equal(ent.y, v0.y + dPos.y, "entity y should be 11");
+    equal(ent.rotation, v0_r + dPos_r, "entity rotation should be 12.5");
+    var v1 = new Vector2D(v0).add(a), v1_r = v0_r + a_r;
+    ok(ent.velocity().equals(v1), "linear velocity should be <6,7>");
+    strictEqual(ent.vrotation, v1_r, "angular velocity should be -5");
+
+
+
+    ent.attr({x: 0, y: 0})
+       .resetMotion()
+       .resetAngularMotion();
+
+    ent.velocity().x = 10;
+    ent.acceleration().x = 5;
+    Crafty.trigger('EnterFrame', {dt: 500});
+    equal(ent.velocity().x, 10+5*0.5, "velocity x should be 12.5");
+    equal(ent.x, 10*0.5+0.5*5*0.5*0.5, "entity x should be 5.625");
+
+    ent.destroy();
+  });
+
 })();
+
