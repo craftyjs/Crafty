@@ -638,8 +638,8 @@ Crafty.DrawManager = (function () {
                     view = Crafty.viewport;
 
                 style.transform = style[Crafty.support.prefix + "Transform"] = "scale(" + view._scale + ", " + view._scale + ")";
-                style.left = view.x * view._scale + "px";
-                style.top = view.y * view._scale + "px";
+                style.left = Math.round(view._x * view._scale) + "px";
+                style.top = Math.round(view._y * view._scale) + "px";
                 style.zIndex = 10;
             }
 
