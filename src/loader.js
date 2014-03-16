@@ -63,20 +63,21 @@ Crafty.extend({
      *
      * @example
      * ~~~
-     * Crafty.image_whitelist.push("tif")
-     * Crafty.load(["images/sprite.tif", "sounds/jump.mp3"],
-     *     function() {
-     *         //when loaded
+     * Crafty.image_whitelist.push("tif");
+     *
+     * Crafty.load(["images/sprite.png", "sounds/jump.mp3"], // preload the assets
+     *     function() { //when loaded
+     *         Crafty.sprite(64, 32, "images/sprite.png", {sprite_car: [0, 0]}); // define sprite for future use
+     *
      *         Crafty.scene("main"); //go to main scene
      *         Crafty.audio.play("jump.mp3"); //Play the audio file
+     *         Crafty.e('2D, DOM, sprite_car'); // create entity with sprite
      *     },
      *
-     *     function(e) {
-     *       //progress
+     *     function(e) { //progress
      *     },
      *
-     *     function(e) {
-     *       //uh oh, error loading
+     *     function(e) { //uh oh, error loading
      *     }
      * );
      * ~~~
@@ -114,19 +115,19 @@ Crafty.extend({
      *
      * @example
      * ~~~
-     * Crafty.load(["images/sprite.png", "sounds/jump.mp3"],
-     *     function() {
-     *         //when loaded
+     * Crafty.load(["images/sprite.png", "sounds/jump.mp3"], // preload the assets
+     *     function() { //when loaded
+     *         Crafty.sprite(64, 32, "images/sprite.png", {sprite_car: [0, 0]}); // define sprite for future use
+     *
      *         Crafty.scene("main"); //go to main scene
      *         Crafty.audio.play("jump.mp3"); //Play the audio file
+     *         Crafty.e('2D, DOM, sprite_car'); // create entity with sprite
      *     },
      *
-     *     function(e) {
-     *       //progress
+     *     function(e) { //progress
      *     },
      *
-     *     function(e) {
-     *       //uh oh, error loading
+     *     function(e) { //uh oh, error loading
      *     }
      * );
      * ~~~
