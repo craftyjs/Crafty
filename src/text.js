@@ -62,7 +62,7 @@ Crafty.c("Text", {
                 context.fillStyle = this._textColor || "rgb(0,0,0)";
                 context.font = font;
 
-                context.fillText(this._text, this._x, this._y);
+                context.fillText(this._text, e.pos._x, e.pos._y);
 
                 context.restore();
             }
