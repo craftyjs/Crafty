@@ -47,13 +47,13 @@ Crafty.c("Delay", {
     /**@
      * #.delay
      * @comp Delay
-     * @sign public this.delay(Function callback, Number delay, Number repeat[, Function callbackOff])
+     * @sign public this.delay(Function callback, Number delay[, Number repeat[, Function callbackOff]])
      * @param callback - Method to execute after given amount of milliseconds. If reference of a
      * method is passed, there's possibility to cancel the delay.
      * @param delay - Amount of milliseconds to execute the method.
-     * @param repeat - How often to repeat the delayed function. A value of 0 triggers the delayed
+     * @param repeat - (optional) How often to repeat the delayed function. A value of 0 triggers the delayed
      * function exactly once. A value n > 0 triggers the delayed function exactly n+1 times. A
-     * value of -1 triggers the delayed function indefinitely.
+     * value of -1 triggers the delayed function indefinitely. Defaults to one execution.
      * @param callbackOff - (optional) Method to execute after delay ends(after all iterations are executed). 
      * If repeat value equals -1, callbackOff will never be triggered.
      *
@@ -66,7 +66,7 @@ Crafty.c("Delay", {
      * If the entity is destroyed, the delay is also destroyed and will not have effect.
      *
      * @example
-     * ~~~
+     *
      * The simplest delay
      * ~~~
      * console.log("start");
@@ -74,6 +74,7 @@ Crafty.c("Delay", {
      *   console.log("100ms later");
      * }, 100, 0);
      * ~~~
+     *
      * Delay with callbackOff to be executed after all delay iterations
      * ~~~
      * console.log("start");
@@ -120,12 +121,14 @@ Crafty.c("Delay", {
      * ~~~
      */
     cancelDelay: function (callback) {
-        for (var index in this._delays) {
+        var index = this._delays.length;
+        while (--index >= 0) {
             var item = this._delays[index];
             if(item.callback == callback) {
                 this._delays.splice(index, 1);
             }
         }
+
         return this;
     }
 });
