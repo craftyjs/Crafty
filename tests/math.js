@@ -114,11 +114,16 @@ test("equals()", function() {
   equal(v46.equals(new Vector2D(4, 6)), true, "<4,6>.equals(<4,6>) = true");
 });
 
+test("perpendicular()", function() {
+  var v10 = new Vector2D(1, 0);
+
+  equal(v10.perpendicular().equals(new Vector2D(0, 1)), true, "<1,0>.perpendicular() = <0,1>");
+});
+
 test("getNormal()", function() {
   var v10 = new Vector2D(1, 0);
   var v32 = new Vector2D(3, 2);
 
-  equal(v10.getNormal().equals(new Vector2D(0, 1)), true, "<1,0>.getNormal() = <0,1>");
   equal(v10.getNormal(v32).equals((new Vector2D(1, -1)).normalize()), true, "<1,0>.getNormal(<3,2>) = <sqrt(2)/2,-sqrt(2)/2>");
 });
 
