@@ -1386,6 +1386,12 @@ Crafty.extend({
      * Creates a component where the first argument is the ID and the second
      * is the object that will be inherited by entities.
      *
+     * Specifically, each time a component is added to an entity, the component properties are copied over to the entity. 
+     * * In the case of primitive datatypes (booleans, numbers, strings) the property is copied by value.
+     * * In the case of complex datatypes (objects, arrays, functions) the property is copied by reference and will thus reference the components' original property.
+     * * (See the two examples below for further explanation)
+     * Note that when a component method gets called, the `this` keyword will refer to the current entity the component was added to.
+     *
      * A couple of methods are treated specially. They are invoked in partiular contexts, and (in those contexts) cannot be overridden by other components.
      *
      * - `init` will be called when the component is added to an entity
