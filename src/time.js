@@ -13,7 +13,10 @@ Crafty.c("Delay", {
             var index = this._delays.length;
             while (--index >= 0) {
                 var item = this._delays[index];
-                if (item.start + item.delay + item.pause < now) {
+                if (item === false) {
+                    // remove canceled item from array
+                    this._delays.splice(index, 1);
+                } else if (item.start + item.delay + item.pause < now) {
                     item.callback.call(this);
                     if (item.repeat > 0) {
                         // reschedule item
@@ -22,7 +25,7 @@ Crafty.c("Delay", {
                         item.pauseBuffer = 0;
                         item.repeat--;
                     } else if (item.repeat <= 0) {
-                        // remove item from array
+                        // remove finished item from array
                         this._delays.splice(index, 1);
                         if(typeof item.callbackOff === "function")
                             item.callbackOff.call(this);
@@ -84,7 +87,7 @@ Crafty.c("Delay", {
      *   console.log("delay finished");
      * });
      * ~~~
-     * 
+     *
      */
     delay: function (callback, delay, repeat, callbackOff) {
         this._delays.push({
@@ -98,7 +101,6 @@ Crafty.c("Delay", {
         });
         return this;
     },
-    
     /**@
      * #.cancelDelay
      * @comp Delay
@@ -109,13 +111,13 @@ Crafty.c("Delay", {
      *
      * @example
      * ~~~
-     * var doSomething = function(){ 
-     *     console.log("doing something");
+     * var doSomething = function(){
+     *   console.log("doing something");
      * };
-     * 
+     *
      * // execute doSomething each 100 miliseconds indefinetely
      * var ent = Crafty.e("Delay").delay(doSomething, 100, -1);
-     * 
+     *
      * // and some time later, cancel further execution of doSomething
      * ent.cancelDelay(doSomething);
      * ~~~
@@ -124,11 +126,10 @@ Crafty.c("Delay", {
         var index = this._delays.length;
         while (--index >= 0) {
             var item = this._delays[index];
-            if(item.callback == callback) {
-                this._delays.splice(index, 1);
+            if(item && item.callback == callback){
+                this._delays[index] = false;
             }
         }
-
         return this;
     }
 });
