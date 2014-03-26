@@ -311,11 +311,33 @@ Crafty.extend({
                 // Resize the viewport
                 Crafty.uniqueBind("ViewportResize", this._resize);
 
+                // Listen for changes in pixel art settings
+                // Since window is inited before stage, can't set right away, but shouldn't need to!
+                Crafty.uniqueBind("PixelartSet", this._setPixelArt);
             },
 
             _resize: function(){
                 Crafty.stage.elem.style.width = Crafty.viewport.width + "px";
                 Crafty.stage.elem.style.height = Crafty.viewport.height + "px";
+            },
+
+            // Handle whether images should be smoothed or not
+            _setPixelArt: function(enabled) {
+                var style = Crafty.stage.inner.style;
+                if (enabled) {
+                    style[Crafty.DOM.camelize("image-rendering")] = "optimizeSpeed";   /* legacy */
+                    style[Crafty.DOM.camelize("image-rendering")] = "-moz-crisp-edges";    /* Firefox */
+                    style[Crafty.DOM.camelize("image-rendering")] = "-o-crisp-edges";  /* Opera */
+                    style[Crafty.DOM.camelize("image-rendering")] = "-webkit-optimize-contrast";   /* Webkit (Chrome & Safari) */
+                    style[Crafty.DOM.camelize("-ms-interpolation-mode")] = "nearest-neighbor";  /* IE */
+                    style[Crafty.DOM.camelize("image-rendering")] = "optimize-contrast";   /* CSS3 proposed */
+                    style[Crafty.DOM.camelize("image-rendering")] = "pixelated";   /* CSS4 proposed */
+                    style[Crafty.DOM.camelize("image-rendering")] = "crisp-edges"; /* CSS4 proposed */
+                } else {
+                    style[Crafty.DOM.camelize("image-rendering")] = "optimizeQuality";   /* legacy */
+                    style[Crafty.DOM.camelize("-ms-interpolation-mode")] = "bicubic";   /* IE */
+                    style[Crafty.DOM.camelize("image-rendering")] = "auto";   /* CSS3 */
+                }
             },
 
             width: 0,
