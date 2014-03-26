@@ -675,7 +675,9 @@ Crafty.extend({
      * This feature is experimental and you should be careful with cross-browser compatibility. 
      * The best way to disable image smoothing is to use the Canvas render method and the Sprite component for drawing your entities.
      *
-     * This method will have no effect for Canvas image smoothing if the canvas is not initialized yet.
+     * If you want to switch modes in the middle of a scene, 
+     * be aware that canvas entities won't be drawn in the new style until something else invalidates them. 
+     * (You can manually invalidate all canvas entities with `Crafty("Canvas").trigger("Invalidate");`)
      *
      * Note that Firefox_26 currently has a [bug](https://bugzilla.mozilla.org/show_bug.cgi?id=696630) 
      * which prevents disabling image smoothing for Canvas entities that use the Image component. Use the Sprite
@@ -694,30 +696,9 @@ Crafty.extend({
      * Crafty.e("2D, Canvas, sprite1");
      * ~~~
      */
+    _pixelartEnabled: false,
     pixelart: function(enabled) {
-        var context = Crafty.canvas.context;
-        if (context) {
-            context.imageSmoothingEnabled = !enabled;
-            context.mozImageSmoothingEnabled = !enabled;
-            context.webkitImageSmoothingEnabled = !enabled;
-            context.oImageSmoothingEnabled = !enabled;
-            context.msImageSmoothingEnabled = !enabled;
-        }
-
-        var style = Crafty.stage.inner.style;
-        if (enabled) {
-            style[Crafty.DOM.camelize("image-rendering")] = "optimizeSpeed";   /* legacy */
-            style[Crafty.DOM.camelize("image-rendering")] = "-moz-crisp-edges";    /* Firefox */
-            style[Crafty.DOM.camelize("image-rendering")] = "-o-crisp-edges";  /* Opera */
-            style[Crafty.DOM.camelize("image-rendering")] = "-webkit-optimize-contrast";   /* Webkit (Chrome & Safari) */
-            style[Crafty.DOM.camelize("-ms-interpolation-mode")] = "nearest-neighbor";  /* IE */
-            style[Crafty.DOM.camelize("image-rendering")] = "optimize-contrast";   /* CSS3 proposed */
-            style[Crafty.DOM.camelize("image-rendering")] = "pixelated";   /* CSS4 proposed */
-            style[Crafty.DOM.camelize("image-rendering")] = "crisp-edges"; /* CSS4 proposed */
-        } else {
-            style[Crafty.DOM.camelize("image-rendering")] = "optimizeQuality";   /* legacy */
-            style[Crafty.DOM.camelize("-ms-interpolation-mode")] = "bicubic";   /* IE */
-            style[Crafty.DOM.camelize("image-rendering")] = "auto";   /* CSS3 */
-        }
+        Crafty._pixelartEnabled = enabled;
+        Crafty.trigger("PixelartSet", enabled);
     }
 });
