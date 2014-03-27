@@ -301,7 +301,7 @@ Crafty.extend({
                     v = (1/amount - 1 ) / (1/finalAmount - 1);
 
                 // Set new scale and viewport position
-                Crafty.viewport.scale( amount * startingZoom );
+                Crafty.viewport.scale( startingZoom + ( amount - startingZoom ) );
                 Crafty.viewport.scroll("_x", startingX * (1-v) + finalX * v );
                 Crafty.viewport.scroll("_y", startingY * (1-v) + finalY * v );
                 Crafty.viewport._clamp();
@@ -329,7 +329,7 @@ Crafty.extend({
                 Crafty.trigger("StopCamera");
                 startingZoom = Crafty.viewport._scale;
                 finalAmount = amt;
-                finalZoom = startingZoom * finalAmount;
+                finalZoom = startingZoom + ( amt - startingZoom );
                 
 
                 startingX = Crafty.viewport.x;
