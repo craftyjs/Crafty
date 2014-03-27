@@ -297,6 +297,8 @@ Crafty.extend({
                 // And by symmetry they should be parameterized in the same way!  So not much choice here.
                 if (finalAmount === 1)
                     v = easing.value();  // prevent NaN!  If zoom is used this way, it'll just become a pan.
+                else if(amount === 1 && finalAmount === 1)
+                    v = easing.value();
                 else
                     v = (1/amount - 1 ) / (1/finalAmount - 1);
 
