@@ -300,8 +300,14 @@ Crafty.extend({
                 else
                     v = (1/amount - 1 ) / (1/finalAmount - 1);
 
+                var newZoomScale; // prevents rezooming on pan using fractional scale
+                if (finalAmount === startingZoom)
+                    newZoomScale = startingZoom;
+                else
+                    newZoomScale = startingZoom + ( amount - startingZoom );
+
                 // Set new scale and viewport position
-                Crafty.viewport.scale( startingZoom + ( amount - startingZoom ) );
+                Crafty.viewport.scale( newZoomScale );
                 Crafty.viewport.scroll("_x", startingX * (1-v) + finalX * v );
                 Crafty.viewport.scroll("_y", startingY * (1-v) + finalY * v );
                 Crafty.viewport._clamp();
