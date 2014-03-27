@@ -304,7 +304,7 @@ Crafty.extend({
                 if (finalAmount === startingZoom)
                     newZoomScale = startingZoom;
                 else
-                    newZoomScale = startingZoom + ( amount - startingZoom );
+                    newZoomScale = amount;
 
                 // Set new scale and viewport position
                 Crafty.viewport.scale( newZoomScale );
@@ -335,7 +335,7 @@ Crafty.extend({
                 Crafty.trigger("StopCamera");
                 startingZoom = Crafty.viewport._scale;
                 finalAmount = amt;
-                finalZoom = startingZoom + ( amt - startingZoom );
+                finalZoom = amt;
                 
 
                 startingX = Crafty.viewport.x;
