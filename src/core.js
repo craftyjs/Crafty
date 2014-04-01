@@ -221,7 +221,7 @@ Crafty.fn = Crafty.prototype = {
      */
     addComponent: function (id) {
         var comps = [],
-            c = 0;
+            comp, c = 0;
 
         //add multiple arguments
         if (arguments.length > 1) {
@@ -241,10 +241,18 @@ Crafty.fn = Crafty.prototype = {
             if (this.__c[comps[c]] === true)
                 continue;
             this.__c[comps[c]] = true;
-            this.extend(components[comps[c]]);
+            comp = components[comps[c]];
+            this.extend(comp);
             //if constructor, call it
-            if (components[comps[c]] && "init" in components[comps[c]]) {
-                components[comps[c]].init.call(this);
+            if (comp && "init" in comp) {
+                comp.init.call(this);
+            }
+            if (comp && "events" in comp){
+                var auto = comp.events;
+                for (var eventName in auto){
+                    var fn = typeof auto[eventName] === "function" ? auto[eventName] : comp[auto[eventName]];
+                    this.bind(eventName, fn);
+                }
             }
         }
 
@@ -354,6 +362,13 @@ Crafty.fn = Crafty.prototype = {
     removeComponent: function (id, soft) {
         var comp = components[id];
         this.trigger("RemoveComponent", id);
+        if (comp && "events" in comp){
+            var auto = comp.events;
+            for (var eventName in auto){
+                var fn = typeof auto[eventName] === "function" ? auto[eventName] : comp[auto[eventName]];
+                this.unbind(eventName, fn);
+            }
+        }
         if (comp && "remove" in comp) {
             comp.remove.call(this, false);
         }
@@ -1397,10 +1412,11 @@ Crafty.extend({
      * * (See the two examples below for further explanation)
      * Note that when a component method gets called, the `this` keyword will refer to the current entity the component was added to.
      *
-     * A couple of methods are treated specially. They are invoked in partiular contexts, and (in those contexts) cannot be overridden by other components.
+     * A handful of methods or properties are treated specially. They are invoked in partiular contexts, and (in those contexts) cannot be overridden by other components.
      *
      * - `init` will be called when the component is added to an entity
      * - `remove` will be called just before a component is removed, or before an entity is destroyed. It is passed a single boolean parameter that is `true` if the entity is being destroyed.
+     * - `events` will be treated as an object whose properties represent functions bound to events equivalent to the property names.  (See the example below.)  The binding occurs directly after the call to `init`, and will be removed directly before `remove` is called.
      *
      * In addition to these hardcoded special methods, there are some conventions for writing components.
      *
@@ -1420,11 +1436,21 @@ Crafty.extend({
      *
      * Crafty.e("Annoying").annoying("I'm an orange...");
      * ~~~
+     * To attach to the "EnterFrame" event using the `events` property instead:
+     * ~~~
+     * Crafty.c("Annoying", {
+     *     _message: "HiHi",
+     *     events: {
+     *         "EnterFrame": function(){alert(this.message);}
+     *     }
+     *     annoying: function(message) { this.message = message; }
+     * });
+     * ~~~
      *
      *
      * WARNING:
      *
-     * in the example above the field _message is local to the entity. That is, if you create many entities with the Annoying component they can all have different values for _message. That is because it is a simple value, and simple values are copied by value. If however the field had been an object or array, the value would have been shared by all entities with the component because complex types are copied by reference in javascript. This is probably not what you want and the following example demonstrates how to work around it:
+     * in the examples above the field _message is local to the entity. That is, if you create many entities with the Annoying component they can all have different values for _message. That is because it is a simple value, and simple values are copied by value. If however the field had been an object or array, the value would have been shared by all entities with the component because complex types are copied by reference in javascript. This is probably not what you want and the following example demonstrates how to work around it:
      *
      * ~~~
      * Crafty.c("MyComponent", {
