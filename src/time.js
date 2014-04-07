@@ -22,7 +22,6 @@ Crafty.c("Delay", {
                         // reschedule item
                         item.start = now;
                         item.pause = 0;
-                        item.pauseBuffer = 0;
                         item.repeat--;
                     } else if (item.repeat <= 0) {
                         // remove finished item from array
@@ -44,6 +43,7 @@ Crafty.c("Delay", {
             for (var index in this._delays) {
                 var item = this._delays[index];
                 item.pause += now - item.pauseBuffer;
+                item.pauseBuffer = 0;
             }
         });
     },
