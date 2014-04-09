@@ -8,24 +8,23 @@ var Crafty = require('./core.js'),
 Crafty.c("Delay", {
     init: function () {
         this._delays = [];
-        this.bind("EnterFrame", function () {
-            var now = new Date().getTime();
+        this.bind("EnterFrame", function (frameData) {
             var index = this._delays.length;
             while (--index >= 0) {
                 var item = this._delays[index];
                 if (item === false) {
                     // remove canceled item from array
                     this._delays.splice(index, 1);
-                } else if (item.start + item.delay + item.pause < now) {
-                    item.callback.call(this);
-                    if (item.repeat > 0) {
-                        // reschedule item
-                        item.start = now;
-                        item.pause = 0;
-                        item.pauseBuffer = 0;
+                } else {
+                    item.accumulator+=frameData.dt;
+                    // The while loop handles the (pathological) case where dt>delay
+                    while(item.accumulator >= item.delay && item.repeat >= 0){
+                        item.accumulator -= item.delay;
                         item.repeat--;
-                    } else if (item.repeat <= 0) {
-                        // remove finished item from array
+                        item.callback.call(this);
+                    }
+                    // remove finished item from array
+                    if (item.repeat<0){
                         this._delays.splice(index, 1);
                         if(typeof item.callbackOff === "function")
                             item.callbackOff.call(this);
@@ -33,19 +32,7 @@ Crafty.c("Delay", {
                 }
             }
         });
-        this.bind("Pause", function () {
-            var now = new Date().getTime();
-            for (var index in this._delays) {
-                this._delays[index].pauseBuffer = now;
-            }
-        });
-        this.bind("Unpause", function () {
-            var now = new Date().getTime();
-            for (var index in this._delays) {
-                var item = this._delays[index];
-                item.pause += now - item.pauseBuffer;
-            }
-        });
+
     },
     /**@
      * #.delay
@@ -91,13 +78,11 @@ Crafty.c("Delay", {
      */
     delay: function (callback, delay, repeat, callbackOff) {
         this._delays.push({
-            start: new Date().getTime(),
+            accumulator: 0,
             callback: callback,
             callbackOff: callbackOff,
             delay: delay,
             repeat: (repeat < 0 ? Infinity : repeat) || 0,
-            pauseBuffer: 0,
-            pause: 0
         });
         return this;
     },
