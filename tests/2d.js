@@ -224,7 +224,32 @@
     parent.rotation = 100; // Rotation by 90 degrees from initial position
     strictEqual(Round(child.x), -10, "Child moved around parent upon rotation (x).");
     strictEqual(Round(child.y), 10, "Child moved around parent upon rotation (y).");
+  });
 
+  test("child rotate 90deg", function () {
+    var parent = Crafty.e("2D")
+      .attr({
+        x: 0,
+        y: 0,
+        w: 50,
+        h: 50
+      });
+    var child = Crafty.e("2D")
+      .attr({
+        x: 0,
+        y: 0,
+        w: 50,
+        h: 50
+      });
+
+    parent.origin("center");
+    child.origin("center");
+
+    parent.attach(child);
+
+    parent.rotation = 90;
+    strictEqual(parent._rotation, 90, "parent rotates 90deg");
+    strictEqual(child._rotation, 90, "child also rotates 90deg");
   });
 
 
