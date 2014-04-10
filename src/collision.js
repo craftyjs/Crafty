@@ -400,6 +400,18 @@ Crafty.c("Collision", {
      * a case, the hit events will not fire until the next check is performed in
      * the following frame.
      *
+     * @example
+     * ~~~
+     * Crafty.e("2D, Collision")
+     *     .checkHits('Solid') // check for collisions with entities that have the Solid component in each frame
+     *     .bind("HitOn", function(hitData) {
+     *         console.log("Collision with Solid entity occurred for the first time.");
+     *     })
+     *     .bind("HitOff", function(comp) {
+     *         console.log("Collision with Solid entity ended.");
+     *     });
+     * ~~~
+     *
      * @see .hit
      */
     checkHits: function () {
@@ -446,6 +458,14 @@ Crafty.c("Collision", {
      *
      * Calling this method with component names for which there are no collision
      * checks has no effect.
+     *
+     * @example
+     * ~~~
+     * Crafty.e("2D, Collision")
+     *     .checkHits('Solid')
+     *     ...
+     *     .ignoreHits('Solid'); // stop checking for collisions with entities that have the Solid component
+     * ~~~
      */
     ignoreHits: function () {
       var components = arguments;
@@ -499,6 +519,17 @@ Crafty.c("Collision", {
      *
      * Calling this method with component names for which there are no collision
      * checks has no effect.
+     *
+     * @example
+     * ~~~
+     * // this example fires the HitOn event each frame the collision with the Solid entity is active, instead of just the first time the collision occurs.
+     * Crafty.e("2D, Collision")
+     *     .checkHits('Solid')
+     *     .bind("HitOn", function(hitData) {
+     *         console.log("Collision with Solid entity was reported in this frame again!");
+     *         this.resetHitChecks('Solid'); // fire the HitOn event in the next frame also, if the collision is still active.
+     *     })
+     * ~~~
      */
     resetHitChecks: function() {
       var components = arguments;
