@@ -699,7 +699,7 @@ Crafty.c("2D", {
             l = children.length,
             obj;
         //rotation
-        if (e.cos) {
+        if (("cos" in e) || ("sin" in e)) {
             for (; i < l; ++i) {
                 obj = children[i];
                 if ('rotate' in obj) obj.rotate(e);
