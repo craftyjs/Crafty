@@ -511,6 +511,33 @@ Crafty.extend({
                     }
                 }
             }
+        },
+
+        /**@
+         * #Crafty.audio.isPlaying
+         * @comp Crafty.audio
+         * @sign public Boolean Crafty.audio.isPlaying(string ID)
+         * @param {string} id - The id of the audio object
+         * @return a Boolean indicating whether the audio is playing or not
+         *
+         * Check if audio with the given ID is playing or not (on at least one channel).
+         *
+         * @example
+         * ~~~
+         * var isPlaying = Crafty.audio.isPlaying('music');
+         * ~~~
+         *
+         */
+        isPlaying: function(id) {
+            if (!Crafty.support.audio)
+                return false;
+
+            for (var i in this.channels) {
+                if (this.channels[i]._is(id))
+                    return true;
+            }
+
+            return false;
         }
     }
 });
