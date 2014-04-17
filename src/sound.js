@@ -160,29 +160,34 @@ Crafty.extend({
             if (!Crafty.support.audio)
                 return;
 
-            var src;
+            var src,
+                a;
 
             if (arguments.length === 1 && typeof id === "object") {
                 for (var i in id) {
                     for (src in id[i]) {
-                        if (Crafty.audio.create(i, id[i][src]))
+                        a = Crafty.audio.create(i, id[i][src]);
+                        if (a){
                             break;
+                        }
                     }
                 }
             }
             if (typeof id === "string") {
                 if (typeof url === "string") {
-                    Crafty.audio.create(id, url);
+                    a = Crafty.audio.create(id, url);
                 }
 
                 if (typeof url === "object") {
                     for (src in url) {
-                        if (Crafty.audio.create(id, url[src]))
+                        a = Crafty.audio.create(id, url[src]);
+                        if (a)
                             break;
                     }
                 }
 
             }
+            return a;
         },
         /**@
          * #Crafty.audio.play
@@ -307,6 +312,8 @@ Crafty.extend({
          *
          * Will stop the sound and remove all references to the audio object allowing the browser to free the memory.
          * If no id is given, all sounds will be removed.
+         * 
+         * This function uses audio path set in Crafty.path in order to remove sound from the assets object.
          *
          * @example
          * ~~~
@@ -317,12 +324,14 @@ Crafty.extend({
             if (!Crafty.support.audio)
                 return;
 
-            var s;
+            var s, filename, audioFolder = Crafty.paths().audio;
 
             if (!id) {
                 for (var i in this.sounds) {
                     s = this.sounds[i];
+                    filename = s.obj.src.split('/').pop();
                     Crafty.audio.stop(id);
+                    delete Crafty.assets[audioFolder + filename];
                     delete Crafty.assets[s.obj.src];
                     delete Crafty.audio.sounds[id];
                 }
@@ -332,7 +341,9 @@ Crafty.extend({
                 return;
 
             s = this.sounds[id];
+            filename = s.obj.src.split('/').pop();
             Crafty.audio.stop(id);
+            delete Crafty.assets[audioFolder + filename];
             delete Crafty.assets[s.obj.src];
             delete Crafty.audio.sounds[id];
         },
