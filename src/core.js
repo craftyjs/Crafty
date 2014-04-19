@@ -1222,11 +1222,18 @@ Crafty.extend({
              * @comp Crafty.timer
              * @sign public void Crafty.timer.step()
              * @trigger EnterFrame - Triggered on each frame.  Passes the frame number, and the amount of time since the last frame.  If the time is greater than maxTimestep, that will be used instead.  (The default value of maxTimestep is 50 ms.) - { frame: Number, dt:Number }
+             * @trigger ExitFrame - Triggered after each frame.  Passes the frame number, and the amount of time since the last frame.  If the time is greater than maxTimestep, that will be used instead.  (The default value of maxTimestep is 50 ms.) - { frame: Number, dt:Number }
+             * @trigger PreRender - Triggered every time immediately before a scene should be rendered
              * @trigger RenderScene - Triggered every time a scene should be rendered
+             * @trigger PostRender - Triggered every time immediately after a scene should be rendered
              * @trigger MeasureWaitTime - Triggered at the beginning of each step after the first.  Passes the time the game loop waited between steps. - Number
-             * @trigger MeasureFrameTime - Triggered after each step.  Passes the time it took to advance one frame. - Number
+             * @trigger MeasureFrameTime - Triggered after each frame.  Passes the time it took to advance one frame. - Number
              * @trigger MeasureRenderTime - Triggered after each render. Passes the time it took to render the scene - Number
-             * Advances the game by triggering `EnterFrame` and `RenderScene`
+             *
+             * Advances the game by performing a step. A step consists of one/multiple frames followed by a render. The amount of frames depends on the timer's steptype.
+             * Specifically it triggers `EnterFrame` & `ExitFrame` events for each frame and `PreRender`, `RenderScene` & `PostRender` events for each render.
+             *
+             * @see Crafty.timer.steptype
              */
             step: function () {
                 var drawTimeStart, dt, lastFrameTime, loops = 0;
@@ -1270,13 +1277,18 @@ Crafty.extend({
                 // dt is determined by the mode
                 for (var i = 0; i < loops; i++) {
                     lastFrameTime = currentTime;
-                    // Everything that changes over time hooks into this event
-                    Crafty.trigger("EnterFrame", {
+                    
+                    var frameData = {
                         frame: frame++,
                         dt: dt,
                         gameTime: gameTime
-                    });
+                    };
+                    // Everything that changes over time hooks into this event
+                    Crafty.trigger("EnterFrame", frameData);
+                    // Event that happens after "EnterFrame", e.g. for resolivng collisions applied through movement during "EnterFrame" events
+                    Crafty.trigger("ExitFrame", frameData);
                     gameTime += dt;
+
                     currentTime = new Date().getTime();
                     Crafty.trigger("MeasureFrameTime", currentTime - lastFrameTime);
                 }
@@ -1284,9 +1296,9 @@ Crafty.extend({
                 //If any frames were processed, render the results
                 if (loops > 0) {
                     drawTimeStart = currentTime;
+                    Crafty.trigger("PreRender"); // Pre-render setup opportunity
                     Crafty.trigger("RenderScene");
-                    // Post-render cleanup opportunity
-                    Crafty.trigger("PostRender");
+                    Crafty.trigger("PostRender"); // Post-render cleanup opportunity
                     currentTime = new Date().getTime();
                     Crafty.trigger("MeasureRenderTime", currentTime - drawTimeStart);
                 }
@@ -1324,12 +1336,16 @@ Crafty.extend({
                 if (typeof timestep === "undefined")
                     timestep = milliSecPerFrame;
                 while (frames-- > 0) {
-                    Crafty.trigger("EnterFrame", {
+                    var frameData = {
                         frame: frame++,
                         dt: timestep
-                    });
+                    };
+                    Crafty.trigger("EnterFrame", frameData);
+                    Crafty.trigger("ExitFrame", frameData);
                 }
+                Crafty.trigger("PreRender");
                 Crafty.trigger("RenderScene");
+                Crafty.trigger("PostRender");
             }
         };
     })(),

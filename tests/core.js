@@ -554,4 +554,47 @@
 
     deepEqual(fox.attr('contact'), {email: 'foxxy@example.com', phone: '555-555-4545'});
   });
+
+
+  module("Timer");
+
+  test('Timer.simulateFrames', function() {
+    var counter = 0;
+
+    var enterFrameFunc = function() {
+      counter++;
+      ok(counter === 1 || counter === 3 || counter === 5, "different counter value expected");
+    };
+    var exitFrameFunc = function() {
+      counter++;
+      ok(counter === 2 || counter === 4 || counter === 6, "different counter value expected");
+    };
+    var preRenderFunc = function() {
+      counter++;
+      ok(counter === 7, "different counter value expected");
+    };
+    var renderSceneFunc = function() {
+      counter++;
+      ok(counter === 8, "different counter value expected");
+    };
+    var postRenderFunc = function() {
+      counter++;
+      ok(counter === 9, "different counter value expected");
+    };
+
+    Crafty.bind("EnterFrame", enterFrameFunc);
+    Crafty.bind("ExitFrame", exitFrameFunc);
+    Crafty.bind("PreRender", preRenderFunc);
+    Crafty.bind("RenderScene", renderSceneFunc);
+    Crafty.bind("PostRender", postRenderFunc);
+
+    Crafty.timer.simulateFrames(3); // 3*2 frame events + 1*3 render events
+
+    Crafty.unbind("EnterFrame", enterFrameFunc);
+    Crafty.unbind("ExitFrame", exitFrameFunc);
+    Crafty.unbind("PreRender", preRenderFunc);
+    Crafty.unbind("RenderScene", renderSceneFunc);
+    Crafty.unbind("PostRender", postRenderFunc);
+  });
+
 })();
