@@ -249,7 +249,7 @@ Crafty.c("DOM", {
      *
      * @example
      * ~~~
-     * this.css({'text-align', 'center', 'text-decoration': 'line-through'});
+     * this.css({'text-align': 'center', 'text-decoration': 'line-through'});
      * this.css("textAlign", "center");
      * this.css("text-align"); //returns center
      * ~~~
