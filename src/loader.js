@@ -292,38 +292,39 @@ Crafty.extend({
             for(asset in data[type]) {
 
                 current = data[type][asset];
+                obj = null;
 
-                if (type === "audio" && audSupport) {
-                    if (typeof current === "object") {
-                        var files = [];
-                        for (var i in current) {
-                            fileUrl = getFilePath(type, current[i]);
-                            if (!isAsset(fileUrl) && isSupportedAudio(current[i]))
-                                files.push(fileUrl);
+                if (type === "audio") {
+                    if (audSupport && !Crafty.audio.sounds[asset]) {
+                        if (typeof current === "object") {
+                            var files = [];
+                            for (var i in current) {
+                                fileUrl = getFilePath(type, current[i]);
+                                if (!isAsset(fileUrl) && isSupportedAudio(current[i]))
+                                    files.push(fileUrl);
+                            }
+                            if (files.length)
+                                obj = Crafty.audio.add(asset, files).obj;
                         }
-                        obj = Crafty.audio.add(asset, files).obj;
-                    }
-                    else if (typeof current === "string" && isSupportedAudio(current)) {
-                        fileUrl = getFilePath(type, current);
-                        if (!isAsset(fileUrl))
-                            obj = Crafty.audio.add(asset, fileUrl).obj;
-                    }
+                        else if (typeof current === "string" && isSupportedAudio(current)) {
+                            fileUrl = getFilePath(type, current);
+                            if (!isAsset(fileUrl))
+                                obj = Crafty.audio.add(asset, fileUrl).obj;
+                        }
 
-                    //addEventListener is supported on IE9 , Audio as well
-                    if (obj && obj.addEventListener)
-                        obj.addEventListener('canplaythrough', pro, false);
+                        //addEventListener is supported on IE9 , Audio as well
+                        if (obj && obj.addEventListener)
+                            obj.addEventListener('canplaythrough', pro, false);
+                    }
                 } else {
                     asset = type === "sprites"? asset : current;
                     fileUrl = getFilePath(type, asset);
-                    if (isValidImage(asset)) {
-                        obj = isAsset(fileUrl);
-                        if (!obj) {
-                            obj = new Image();
-                            if (type === "sprites")
-                                Crafty.sprite(current.tile, current.tileh, fileUrl, current.map,
-                                  current.paddingX, current.paddingY, current.paddingAroundBorder);
-                            Crafty.asset(fileUrl, obj);
-                        }
+                    if (!isAsset(fileUrl) && isValidImage(asset)) {
+                        obj = new Image();
+                        if (type === "sprites")
+                            Crafty.sprite(current.tile, current.tileh, fileUrl, current.map,
+                             current.paddingX, current.paddingY, current.paddingAroundBorder);
+                        Crafty.asset(fileUrl, obj);
                         onImgLoad(obj, fileUrl);
                     }
                 }
