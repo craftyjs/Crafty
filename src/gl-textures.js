@@ -111,6 +111,7 @@ var TextureWrapper = Crafty.TextureWrapper = function(manager, id){
 	this.id = id;
 	this.active = false;
 	this.unit = null;
+	this.powerOfTwo = false;
 };
 
 TextureWrapper.prototype = {
@@ -159,6 +160,9 @@ TextureWrapper.prototype = {
 	// set image wrapping
 	setRepeat: function(repeat) {
 		if(!this.isActive()) throw("Trying to set repeat property of texture that isn't active");
+		if(repeat && !this.powerOfTwo){
+			throw("Can't create a repeating image whose dimensions aren't a power of 2 in WebGL contexts");
+		}
 		var gl = this.gl;
 		this.repeatMode = repeat ? gl.REPEAT : gl.CLAMP_TO_EDGE;
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, this.repeatMode);

@@ -2,6 +2,18 @@ var Crafty = require('./core.js'),
     document = window.document;
 
 
+// 
+// Define some variables required for webgl
+var fs = require('fs');
+var IMAGE_VERTEX_SHADER = fs.readFileSync(__dirname + '/shaders/sprite.vert', 'utf8');
+var IMAGE_FRAGMENT_SHADER = fs.readFileSync(__dirname + '/shaders/sprite.frag', 'utf8');
+var IMAGE_ATTRIBUTE_LIST = [
+    {name:"aPosition", width: 2},
+    {name:"aOrientation", width: 3},
+    {name:"aLayer", width:2},
+    {name:"aTextureCoord",  width: 2}
+];
+
 /**@
  * #Image
  * @category Graphics
@@ -12,30 +24,15 @@ Crafty.c("Image", {
     ready: false,
 
     init: function () {
-        var draw = function (e) {
-            if (e.type === "canvas") {
-                //skip if no image
-                if (!this.ready || !this._pattern) return;
+        this.bind("Draw", this._drawImage);
+    },
 
-                var context = e.ctx;
-
-                context.fillStyle = this._pattern;
-
-                context.save();
-                context.translate(e.pos._x, e.pos._y);
-                context.fillRect(0, 0, this._w, this._h);
-                context.restore();
-            } else if (e.type === "DOM") {
-                if (this.__image) {
-                  e.style.backgroundImage = "url(" + this.__image + ")";
-                  e.style.backgroundRepeat = this._repeat;
-                }
-            }
-        };
-
-        this.bind("Draw", draw).bind("RemoveComponent", function (id) {
-            if (id === "Image") this.unbind("Draw", draw);
-        });
+    remove: function() {
+        this.unbind("Draw", this._drawImage);
+        // Unregister webgl entities
+        if (this.program) {
+            this.program.unregisterEntity(this);
+        }
     },
 
     /**@
@@ -53,6 +50,8 @@ Crafty.c("Image", {
      * If the width and height are `0` and repeat is set to `no-repeat` the width and
      * height will automatically assume that of the image. This is an
      * easy way to create an image without needing sprites.
+     *
+     * If set to `no-repeat` and given dimensions larger than that of the image, the exact appearance will depend on what renderer (WebGL, DOM, or Canvas) is used.
      *
      * @example
      * Will default to no-repeat. Entity width and height will be set to the images width and height
@@ -80,31 +79,67 @@ Crafty.c("Image", {
             var self = this;
 
             this.img.onload = function () {
-                if (self.has("Canvas")) self._pattern = Crafty.canvas.context.createPattern(self.img, self._repeat);
-                self.ready = true;
-
-                if (self._repeat === "no-repeat") {
-                    self.w = self.img.width;
-                    self.h = self.img.height;
-                }
-
-                self.trigger("Invalidate");
+                self._onImageLoad();
             };
-
-            return this;
         } else {
-            this.ready = true;
-            if (this.has("Canvas")) this._pattern = Crafty.canvas.context.createPattern(this.img, this._repeat);
-            if (this._repeat === "no-repeat") {
-                this.w = this.img.width;
-                this.h = this.img.height;
-            }
+            this._onImageLoad();
         }
 
 
         this.trigger("Invalidate");
 
         return this;
+    },
+
+    _onImageLoad: function(){
+        
+        if (this.has("Canvas")) {
+            this._pattern = Crafty.canvas.context.createPattern(this.img, this._repeat);
+        } else if (this.has("WebGL")) {
+            this._establishShader("image:" + this.__image, IMAGE_FRAGMENT_SHADER, IMAGE_VERTEX_SHADER, IMAGE_ATTRIBUTE_LIST);
+            this.program.setTexture( this.webgl.makeTexture(this.__image, this.img, (this._repeat!=="no-repeat")));
+        }
+
+        if (this._repeat === "no-repeat") {
+            this.w = this.w || this.img.width;
+            this.h = this.h || this.img.height;
+        }
+
+        
+        
+        this.ready = true;
+        this.trigger("Invalidate");
+    },
+
+    _drawImage: function(e){
+        if (e.type === "canvas") {
+            //skip if no image
+            if (!this.ready || !this._pattern) return;
+
+            var context = e.ctx;
+
+            context.fillStyle = this._pattern;
+
+            context.save();
+            context.translate(e.pos._x, e.pos._y);
+            context.fillRect(0, 0, e.pos._w, e.pos._h);
+            context.restore();
+        } else if (e.type === "DOM") {
+            if (this.__image) {
+              e.style.backgroundImage = "url(" + this.__image + ")";
+              e.style.backgroundRepeat = this._repeat;
+            }
+        } else if (e.type === "webgl") {
+            var pos = e.pos;
+            // Write texture coordinates
+            e.program.writeVector("aTextureCoord",
+                0, 0,
+                0, pos._h,
+                pos._w, 0,
+                pos._w, pos._h
+            );
+        }
+
     }
 });
 
