@@ -47,6 +47,7 @@
     "grunt-contrib-uglify": "^0.5.1",
     "grunt-contrib-watch": "^0.6.1",
     "grunt-jsvalidate": "^0.2.2",
-    "marked": "^0.3.2"
+    "marked": "^0.3.2",
+    "brfs": "1.0.1"
   }
 }

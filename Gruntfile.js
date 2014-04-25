@@ -45,6 +45,9 @@ module.exports = function (grunt) {
             dist: {
                 files: {
                     'crafty.js': ['src/crafty.js']
+                },
+                options: {
+                    transform: ['brfs']
                 }
             },
             debug: {
@@ -52,10 +55,12 @@ module.exports = function (grunt) {
                     'crafty.js': ['src/crafty.js']
                 },
                 options: {
-                    debug: true
+                    debug: true,
+                    transform: ['brfs']
                 }
             }
         },
+
 
         watch: {
             files: ['src/*.js'],
@@ -111,6 +116,8 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-jsvalidate');
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-banner');
+
+ 
 
     grunt.registerTask('version', 'Takes the version into src/version.js', function() {
         fs.writeFileSync('src/version.js', 'module.exports = "' + version + '";');
