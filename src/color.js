@@ -133,6 +133,18 @@ Crafty.extend({
 
 
 
+// Define some variables required for webgl
+var fs = require('fs');
+var COLOR_VERTEX_SHADER = fs.readFileSync(__dirname + '/shaders/color.vert', 'utf8');
+var COLOR_FRAGMENT_SHADER = fs.readFileSync(__dirname + '/shaders/color.frag', 'utf8');
+var COLOR_ATTRIBUTE_LIST = [
+    {name:"aPosition", width: 2},
+    {name:"aOrientation", width: 3},
+    {name:"aLayer", width:2},
+    {name:"aColor",  width: 4}
+];
+
+
 
 /**@
  * #Color
@@ -149,6 +161,9 @@ Crafty.c("Color", {
 
     init: function () {
         this.bind("Draw", this._drawColor);
+        if (this.has("WebGL")){
+            this._establishShader("Color", COLOR_FRAGMENT_SHADER, COLOR_VERTEX_SHADER, COLOR_ATTRIBUTE_LIST);
+        }
         this.trigger("Invalidate");
     },
 
@@ -169,6 +184,13 @@ Crafty.c("Color", {
         } else if (e.type === "canvas") {
             e.ctx.fillStyle = this._color;
             e.ctx.fillRect(e.pos._x, e.pos._y, e.pos._w, e.pos._h);
+        } else if (e.type === "webgl"){
+            e.program.writeVector("aColor",
+                this._red/255,
+                this._green/255,
+                this._blue/255,
+                this._strength
+            );
         }
     },
 
