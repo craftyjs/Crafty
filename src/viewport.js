@@ -609,7 +609,7 @@ Crafty.extend({
                 }
 
                 var meta = document.createElement("meta"),
-                    head = document.getElementsByTagName("HEAD")[0];
+                    head = document.getElementsByTagName("head")[0];
 
                 //hide the address bar
                 meta = document.createElement("meta");
