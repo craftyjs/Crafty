@@ -166,7 +166,7 @@ Crafty.extend({
             if (arguments.length === 1 && typeof id === "object") {
                 for (var i in id) {
                     if (typeof id[i] === "string") {
-                        a = Crafty.audio.create(i, id[i])
+                        a = Crafty.audio.create(i, id[i]);
                     }
                     
                     if (typeof id[i] === "object") {
