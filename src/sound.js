@@ -138,11 +138,9 @@ Crafty.extend({
          * ~~~
          * //adding audio from an object
          * Crafty.audio.add({
-         * shoot: ["sounds/shoot.wav",
-         * "sounds/shoot.mp3",
-         * "sounds/shoot.ogg"],
-         *
-         * coin: "sounds/coin.mp3"
+         *   shoot: ["sounds/shoot.wav",
+         *           "sounds/shoot.mp3",
+         *           "sounds/shoot.ogg"]
          * });
          *
          * //adding a single sound
