@@ -9,6 +9,7 @@
   "branches": {
     "develop": true
   },
+  "main": "src/crafty.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/craftyjs/Crafty.git"

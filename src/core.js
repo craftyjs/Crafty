@@ -1762,6 +1762,3 @@ if (typeof define === 'function') { // AMD
 }
 
 module.exports = Crafty;
-
-window.Crafty = Crafty;
-
