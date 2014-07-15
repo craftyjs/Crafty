@@ -1174,7 +1174,8 @@ Crafty.extend({
 
                 if (typeof tick === "number") clearInterval(tick);
 
-                var onFrame = window.cancelRequestAnimationFrame ||
+                var onFrame = window.cancelAnimationFrame ||
+                    window.cancelRequestAnimationFrame ||
                     window.webkitCancelRequestAnimationFrame ||
                     window.mozCancelRequestAnimationFrame ||
                     window.oCancelRequestAnimationFrame ||
