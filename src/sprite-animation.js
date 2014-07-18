@@ -24,7 +24,7 @@ var Crafty = require('./core.js'),
 *
 * Many animation related events pass a reel object as data.  As typical with events, this should be treated as read only data that might be later altered by the entity.  If you wish to preserve the data, make a copy of it.
 *
-* @see crafty.sprite
+* @see Crafty.sprite
 */
 Crafty.c("SpriteAnimation", {
 	/*
