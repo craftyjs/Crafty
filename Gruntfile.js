@@ -47,12 +47,12 @@ module.exports = function (grunt) {
         browserify: {
             dist: {
                 files: {
-                    'crafty.js': ['src/*.js']
+                    'crafty.js': ['src/crafty.js']
                 }
             },
             debug: {
                 files: {
-                    'crafty.js': ['src/*.js']
+                    'crafty.js': ['src/crafty.js']
                 },
                 options: {
                     debug: true
