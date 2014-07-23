@@ -39,4 +39,14 @@
     ok(h2 > h1, "Entity increases in height when font size is increased.");
 
   });
+
+  test("Color should be defined", function() {
+    var e = Crafty.e("2D, DOM, Text");
+    e.text("a");
+    e.textColor('#00FF00');
+    ok(e._textColor === "rgba(0, 255, 0, 1)");
+    e.textColor('rgba(255,0,0,0.5)');
+    ok(e._textColor === "rgba(255, 0, 0, 0.5)");
+    e.destroy();
+  });
 })();
