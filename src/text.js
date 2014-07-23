@@ -4,6 +4,8 @@ var Crafty = require('./core.js'),
 /**@
  * #Text
  * @category Graphics
+ * @memberof! Components
+ * @namespace Text
  * @trigger Invalidate - when the text is changed
  * @requires Canvas or DOM
  * Component to make a text entity.
@@ -98,6 +100,7 @@ Crafty.c("Text", {
     /**@
      * #.text
      * @comp Text
+     * @memberof Components.Text#
      * @sign public this .text(String text)
      * @sign public this .text(Function textgenerator)
      * @param text - String of text that will be inserted into the DOM or Canvas element.
@@ -152,6 +155,7 @@ Crafty.c("Text", {
     /**@
      * #.textColor
      * @comp Text
+     * @memberof Components.Text#
      * @sign public this .textColor(String color, Number strength)
      * @param color - The color in hexadecimal
      * @param strength - Level of opacity
@@ -178,6 +182,7 @@ Crafty.c("Text", {
     /**@
      * #.textFont
      * @comp Text
+     * @memberof Components.Text#
      * @triggers Invalidate
      * @sign public this .textFont(String key, * value)
      * @param key - Property of the entity to modify
@@ -228,6 +233,7 @@ Crafty.c("Text", {
     /**@
      * #.unselectable
      * @comp Text
+     * @memberof Components.Text#
      * @triggers Invalidate
      * @sign public this .unselectable()
      *

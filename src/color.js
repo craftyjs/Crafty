@@ -131,6 +131,10 @@ Crafty.extend({
 
 
 
+/**@
+ * My Components
+ * @namespace Components
+ */
 
 
 
@@ -138,6 +142,8 @@ Crafty.extend({
  * #Color
  * @category Graphics
  * Draw a colored rectangle.
+ * @namespace Color
+ * @memberof! Components
  */
 Crafty.c("Color", {
     _red: 0,
@@ -175,6 +181,8 @@ Crafty.c("Color", {
     /**@
      * #.color
      * @comp Color
+     * @memberof! Components.Color#
+     *
      * @trigger Invalidate - when the color changes
      *
      * Will assign the color and opacity, either through a string shorthand, or through explicit rgb values.
