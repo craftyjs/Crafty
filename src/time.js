@@ -4,6 +4,8 @@ var Crafty = require('./core.js'),
 /**@
  * #Delay
  * @category Utilities
+ * @memberof! Components
+ * @namespace Delay
  */
 Crafty.c("Delay", {
     init: function () {
@@ -37,6 +39,7 @@ Crafty.c("Delay", {
     /**@
      * #.delay
      * @comp Delay
+     * @memberof! Components.Delay#
      * @sign public this.delay(Function callback, Number delay[, Number repeat[, Function callbackOff]])
      * @param callback - Method to execute after given amount of milliseconds. If reference of a
      * method is passed, there's possibility to cancel the delay.
@@ -89,6 +92,7 @@ Crafty.c("Delay", {
     /**@
      * #.cancelDelay
      * @comp Delay
+     * @memberof! Components.Delay#
      * @sign public this.cancelDelay(Function callback)
      * @param callback - Method reference passed to .delay
      *
