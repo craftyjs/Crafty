@@ -13,7 +13,6 @@ require('./drawing');
 require('./extensions');
 require('./HashMap');
 require('./html');
-require('./import');
 require('./isometric');
 require('./keycodes');
 require('./loader');
