@@ -328,10 +328,11 @@ Crafty.extend({
                         onImgLoad(obj, fileUrl);
                     }
                 }
-                if (obj)
+                if (obj) {
                     obj.onerror = err;
-                else
-                    --total;
+                } else {
+                    err.call({ src: fileUrl });
+                }
             }
         }
 
