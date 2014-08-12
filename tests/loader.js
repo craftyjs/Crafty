@@ -36,7 +36,7 @@
     Crafty.paths({images: "assets/"});
     
     var assets_to_load = {
-      "images": ["100x100.png", "100x100.jpeg"],
+      "images": ["100x100.png", "100x100.png", "100x100.jpeg"],
       "sprites": {
         "craftyLogo.png": {
           "tile" : 147,

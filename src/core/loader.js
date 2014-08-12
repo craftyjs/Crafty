@@ -230,14 +230,12 @@ module.exports = {
 
         if (Array.isArray(data)) {
             Crafty.log("Calling Crafty.load with an array of assets no longer works; see the docs for more details.");
+            return;
         }
 
         data = (typeof data === "string" ? JSON.parse(data) : data);
 
-        var j = 0,
-            total = (data.audio ? Object.keys(data.audio).length : 0) +
-              (data.images ? Object.keys(data.images).length : 0) +
-              (data.sprites ? Object.keys(data.sprites).length : 0),
+        var j = 0, total = 0,
             current, fileUrl, obj, type, asset,
             audSupport = Crafty.support.audio,
             paths = Crafty.paths(),
@@ -307,6 +305,7 @@ module.exports = {
                     continue; // maintain compatibility to other frameworks while iterating array
 
                 current = data[type][asset];
+                obj = null;
 
                 if (type === "audio" && audSupport) {
                     if (typeof current === "object") {
@@ -318,9 +317,9 @@ module.exports = {
                         }
                         obj = Crafty.audio.add(asset, files).obj;
                     }
-                    else if (typeof current === "string" && isSupportedAudio(current)) {
+                    else if (typeof current === "string") {
                         fileUrl = getFilePath(type, current);
-                        if (!isAsset(fileUrl))
+                        if (!isAsset(fileUrl) && isSupportedAudio(current))
                             obj = Crafty.audio.add(asset, fileUrl).obj;
                     }
 
@@ -330,28 +329,24 @@ module.exports = {
                 } else {
                     asset = (type === "sprites" ? asset : current);
                     fileUrl = getFilePath(type, asset);
-                    if (isValidImage(asset)) {
-                        obj = isAsset(fileUrl);
-                        if (!obj) {
-                            obj = new Image();
-                            if (type === "sprites")
-                                Crafty.sprite(current.tile, current.tileh, fileUrl, current.map,
-                                  current.paddingX, current.paddingY, current.paddingAroundBorder);
-                            Crafty.asset(fileUrl, obj);
-                        }
+                    if (!isAsset(fileUrl) && isValidImage(asset)) {
+                        obj = new Image();
+                        if (type === "sprites")
+                            Crafty.sprite(current.tile, current.tileh, fileUrl, current.map,
+                              current.paddingX, current.paddingY, current.paddingAroundBorder);
+                        Crafty.asset(fileUrl, obj);
                         onImgLoad(obj, fileUrl);
                     }
                 }
-                if (obj)
+                if (obj) {
+                    ++total;
                     obj.onerror = err;
-                else
-                    --total;
+                }
             }
         }
 
         // If we aren't trying to handle *any* of the files, that's as complete as it gets!
-        if (total === 0)
-            oncomplete();
+        if (total === 0 && oncomplete) oncomplete();
 
     },
     /**@
