@@ -318,11 +318,9 @@ Crafty.extend({
 
         if (e.type === "keydown") {
             if (Crafty.keydown[e.key] !== true) {
-                Crafty.keydown[e.key] = true;
                 Crafty.trigger("KeyDown", e);
             }
         } else if (e.type === "keyup") {
-            delete Crafty.keydown[e.key];
             Crafty.trigger("KeyUp", e);
         }
 
@@ -707,6 +705,7 @@ Crafty.c("Multiway", {
 
     _keydown: function (e) {
         if (this._keys[e.key]) {
+            Crafty.keydown[e.key] = true;
             this._movement.x = Math.round((this._movement.x + this._keys[e.key].x) * 1000) / 1000;
             this._movement.y = Math.round((this._movement.y + this._keys[e.key].y) * 1000) / 1000;
             this.trigger('NewDirection', this._movement);
@@ -715,6 +714,7 @@ Crafty.c("Multiway", {
 
     _keyup: function (e) {
         if (this._keys[e.key]) {
+            delete Crafty.keydown[e.key];
             this._movement.x = Math.round((this._movement.x - this._keys[e.key].x) * 1000) / 1000;
             this._movement.y = Math.round((this._movement.y - this._keys[e.key].y) * 1000) / 1000;
             this.trigger('NewDirection', this._movement);
@@ -926,7 +926,7 @@ Crafty.c("Twoway", {
     _up: false,
 
     init: function () {
-        this.requires("Fourway, Keyboard, Gravity");
+        this.requires("Multiway, Keyboard, Gravity");
     },
 
     /**@
