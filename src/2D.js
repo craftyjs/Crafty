@@ -1186,6 +1186,43 @@ Crafty.polygon.prototype = {
             current[0] = x;
             current[1] = y;
         }
+    },
+
+    /**@
+     * #.overlap
+     * @comp Crafty.polygon
+     * @sign public bool .overlap(Polygon item)
+     * @param item - Polygon you are checking overlap on.
+     *
+     * Determines if two polygons overlap. Do polygon a have points
+     * in polygon b or vise-versa?
+     *
+     * @example
+     * ~~~
+     * var poly1 = new Crafty.polygon([50,0],[100,100],[0,100]);
+     * var poly2 = new Crafty.polygon([0,0],[50,50],[0,50]);
+     * poly1.overlap(poly2); // true
+     *
+     * var poly3 = new Crafty.polygon([10,60],[10,80],[20,60]);
+     * poly1.overlap(poly3); // false
+     * ~~~
+     */
+    overlap: function(item) {
+        return this._overlap(item, this) || this._overlap(this, item);
+    },
+
+    _overlap: function(one, two) {
+        var points = one.points,
+            length = points.length,
+            point;
+        for (var i = 0; i < length; i++) {
+            point = points[i];
+            console.log('point', point, two.containsPoint(point[0], point[1]));
+            if (two.containsPoint(point[0], point[1])) {
+                return true;
+            }
+        }
+        return false;
     }
 };
 
