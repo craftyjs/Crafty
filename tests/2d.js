@@ -138,6 +138,21 @@
 
   });
 
+  test("polygon overlap", function() {
+    // Basic overlap
+    var poly1 = new Crafty.polygon([50,0],[100,100],[0,100]);
+    var poly2 = new Crafty.polygon([0,0],[50,50],[0,50]);
+    strictEqual(poly1.overlap(poly2), true, "Polygon 1 does overlap polygon 2");
+
+    // No overlap
+    var poly3 = new Crafty.polygon([10,40],[10,60],[20,40]);
+    strictEqual(poly1.overlap(poly3), false, "Polygon 1 does not overlap polygon 3");
+
+    // Inside of original
+    var poly4 = new Crafty.polygon([40,60],[40,80],[50,60]);
+    strictEqual(poly1.overlap(poly4), true, "Polygon 1 surrounds polygon 4");
+  });
+
   test("child", function() {
     var parent0 = Crafty.e("2D, DOM, Color").attr({
       x: 0,
