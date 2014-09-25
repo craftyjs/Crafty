@@ -526,7 +526,7 @@ Crafty.c("Draggable", {
 
     _onup: function (e) {
         // While a drag is occurring, this method is bound to mouseup DOM event
-        if (this._dragging === true) {
+        if (e.mouseButton === Crafty.mouseButtons.LEFT && this._dragging === true) {
             Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
             Crafty.removeEvent(this, Crafty.stage.elem, "mouseup", this._onup);
             this._dragging = false;
