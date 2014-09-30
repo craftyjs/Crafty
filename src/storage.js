@@ -46,7 +46,6 @@ var Crafty = require('./core.js'),
  * // Do something with heroname
  * ~~~
  */
-
 Crafty.storage = function(key, value){
   var storage = window.localStorage,
       _value = value;
@@ -56,22 +55,73 @@ Crafty.storage = function(key, value){
   }
 
   if(arguments.length === 1) {
-    try {
+    try {        
       return JSON.parse(storage.getItem(key));
     }
     catch (e) {
       return storage.getItem(key);
     }
   } else {
+      
     if(typeof value === "object") {
       _value = JSON.stringify(value);
-    }
+    } else if (typeof value === "string") {
+      _value = Crafty.storage.helperJsonNumericCheck(value);  
+    }   
 
     storage.setItem(key, _value);
     
   }
 
 };
+
+/**@
+ * 
+ * @param {type} string
+ * @returns {String}#.storage.helperJsonNumericCheck
+ * @comp Storage
+ * @sign .storage.helperJsonNumericCheck(String string|JSON)
+ * @param string - a String of JSON or JSON object
+ *
+ * When inserting a given location in the storage times the numbers may come as a string for convenience and is best saved them as numbers.
+ * 
+ * @example
+ * Saving string JSON object string with numbers
+ * ~~~
+ * Crafty.storage("json", '{"a":"4","b":"8.4", "c": { "ca" : "4", "cb" : "8.4", "cc" : { "a" : "4", "b" : "8.4" } }}');
+ * ~~~
+ *
+ */
+Crafty.storage.helperJsonNumericCheck = function(string) {
+  
+  var value;
+  
+  try {
+    value = JSON.parse(string);
+  } catch (e) {
+    value = string;
+  }
+  
+  if (typeof value === "object") {
+  
+    for (var v in value) {
+
+      if (typeof value[v] === "string") {
+        if (!isNaN(parseFloat(value[v]))) {
+          value[v] = parseFloat(value[v]);    
+        }     
+      } else if (typeof value[v] === "object") {
+        Crafty.storage.helperJsonNumericCheck(value[v]);
+      }
+
+    }
+    
+  }
+  
+  return JSON.stringify(value);
+  
+};
+
 /**@
  * #.storage.remove
  * @comp Storage

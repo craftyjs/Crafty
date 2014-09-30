@@ -14,6 +14,13 @@
     var name = Crafty.storage('notexisting');
     equal(name, null, 'should be null');
   });
+  
+  test('saving string json object', function(){
+    Crafty.storage('json', '{"a":"4","b":"8.4", "c": { "ca" : "4", "cb" : "8.4", "cc" : { "a" : "4", "b" : "8.4" } }}');
+    var object = Crafty.storage('json');
+    equal(object.a, 4, 'the values should be equal');
+    Crafty.storage.remove('json');
+  });
 
   test('remove an value', function(){
     var person = Crafty.storage('person', 'test');
