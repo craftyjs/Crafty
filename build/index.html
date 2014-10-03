@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html ng-app="app">
+  <head>
+    <meta charset="utf-8">
+    <title>Crafty Local Docs</title>
+    <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
+    <script src="vendor/angular/angular.js"></script>
+    <script src="main.js"></script>
+  </head>
+  <body ng-controller="DocsCtrl">
+    <nav class="navbar navbar-default navbar-static-top" role="navigation">
+      <div class="container">
+        <a class="navbar-brand" href="#">Crafty.js Docs</a>
+      </div>
+    </nav>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4">
+          <ul>
+            <li ng-repeat="category in categories" >
+              {{category}}
+              <ul>
+                <li ng-repeat="subCategory in subCategories[category]" ng-click="show(subCategory)">
+                  {{subCategory}}
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+        <div class="col-md-8">
+
+          <div>
+            
+            <h1>{{blocks[current][0].name}}</h1>
+            <div>{{blocks[current][0].doc.join(' ')}}</div>
+            <div class="triggers" ng-show="blocks[current][0].trigger">
+              <h4>Trigger</h4>
+              <ul>
+                <li ng-repeat="trigger in blocks[current][0].trigger">
+                  {{trigger}}
+                </li>
+              </ul>
+            </div>
+            <div ng-repeat="block in blocks[current]">
+              <div ng-if="block.comp">
+                <h2>{{block.name}}</h2>
+                <i ng-if="block.sign.length > 8">{{block.sign}}</i>
+                <div ng-if="block.sign.length < 8" ng-repeat="sign in block.sign track by $index"><i>{{sign}}</i></div>
+                <div class="parameters" ng-show="block.param">
+                  <h4>Parameters</h4>
+                  <div ng-if="block.param.length > 10">{{block.param}}</div>
+                  <div ng-if="block.param.length < 10" ng-repeat="line in block.param track by $index">{{line}}</div>
+                </div>
+                <div ng-show="block.doc" class="docs">
+                  <h4>Documentation</h4>
+                  <div>
+                    {{block.doc.join(' ')}}
+                  </div>
+                </div>
+                <h4>Example</h4>
+                <code>
+                  <div ng-repeat="line in block.example track by $index">
+                    <span ng-if="line !== '~~~'">
+                      {{line}}
+                    </span>
+                  </div>
+                </code>
+                <div class="seealso" ng-show="block.see">
+                  <h4>See also</h4>
+                  <div ng-if="block.see.length > 3">{{block.see}}</div>
+                  <div ng-if="block.see.length < 4" ng-repeat="line in block.see track by $index">{{line}}</div>
+                </div>
+              </div>
+              <hr>
+              <!-- {{block}} -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
