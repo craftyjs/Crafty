@@ -1,9 +1,16 @@
 {
   "name": "crafty",
-  "main": "crafty.js",
   "version": "0.6.2",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/craftyjs/Crafty.git"
-  }
+  "main": "dist/crafty.js",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "build",
+    "playgrounds",
+    "test",
+    "*.md",
+    "changelog.txt",
+    "Gruntfile.js",
+    "package.json"
+  ],
 }
