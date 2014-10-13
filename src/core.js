@@ -220,45 +220,35 @@ Crafty.fn = Crafty.prototype = {
      * ~~~
      */
     addComponent: function (id) {
-        var uninit = [],
-            c = 0,
-            ul, //array of components to init
-            i = 0,
-            l, comps, comp;
+        var comps = [],
+            c = 0;
 
         //add multiple arguments
         if (arguments.length > 1) {
-            l = arguments.length;
-            for (; i < l; i++) {
-                uninit.push(arguments[i]);
+            var i = 0;
+            for (; i < arguments.length; i++) {
+                comps.push(arguments[i]);
             }
             //split components if contains comma
         } else if (id.indexOf(',') !== -1) {
             comps = id.split(rlist);
-            l = comps.length;
-            for (; i < l; i++) {
-                uninit.push(comps[i]);
-            }
-            //single component passed
         } else {
-            uninit.push(id);
+            comps.push(id);
         }
 
         //extend the components
-        ul = uninit.length;
-        for (; c < ul; c++) {
-            if (this.__c[uninit[c]] === true)
+        for (; c < comps.length; c++) {
+            if (this.__c[comps[c]] === true)
                 continue;
-            this.__c[uninit[c]] = true;
-            comp = components[uninit[c]];
-            this.extend(comp);
+            this.__c[comps[c]] = true;
+            this.extend(components[comps[c]]);
             //if constructor, call it
-            if (comp && "init" in comp) {
-                comp.init.call(this);
+            if (components[comps[c]] && "init" in components[comps[c]]) {
+                components[comps[c]].init.call(this);
             }
         }
 
-        this.trigger("NewComponent", uninit);
+        this.trigger("NewComponent", comps);
         return this;
     },
 
@@ -1375,23 +1365,21 @@ Crafty.extend({
      * @see Crafty.c
      */
     e: function () {
-        var id = UID(),
-            craft;
-
-        entities[id] = null; //register the space
-        entities[id] = craft = Crafty(id);
+        var id = UID();
+        entities[id] = null;
+        entities[id] = Crafty(id);
 
         if (arguments.length > 0) {
-            craft.addComponent.apply(craft, arguments);
+            entities[id].addComponent.apply(entities[id], arguments);
         }
-        craft.setName('Entity #' + id); //set default entity human readable name
-        craft.addComponent("obj"); //every entity automatically assumes obj
+        entities[id].setName('Entity #' + id); //set default entity human readable name
+        entities[id].addComponent("obj"); //every entity automatically assumes obj
 
         Crafty.trigger("NewEntity", {
             id: id
         });
 
-        return craft;
+        return entities[id];
     },
 
     /**@
