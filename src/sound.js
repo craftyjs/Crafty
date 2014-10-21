@@ -105,7 +105,6 @@ Crafty.extend({
             Crafty.asset(path, audio);
             this.sounds[id] = {
                 obj: audio,
-                played: 0,
                 volume: Crafty.audio.volume
             };
             return this.sounds[id];
@@ -187,32 +186,45 @@ Crafty.extend({
             }
             return a;
         },
+
         /**@
          * #Crafty.audio.play
          * @comp Crafty.audio
-         * @sign public this Crafty.audio.play(String id)
-         * @sign public this Crafty.audio.play(String id, Number repeatCount)
-         * @sign public this Crafty.audio.play(String id, Number repeatCount, Number volume)
+         * @sign public this Crafty.audio.play(String id[, Number repeatCount [, Number volume [, Number repeatAt]]])
          * @param id - A string to refer to sounds
-         * @param repeatCount - Repeat count for the file, where -1 stands for repeat forever.
-         * @param volume - volume can be a number between 0.0 and 1.0
+         * @param repeatCount - Repeat count for the file, where -1 stands for repeat forever. Defaults to 1.
+         * @param volume - Volume can be a number between 0.0 and 1.0.
+         * @param repeatAt - Reproduction time in seconds at which the sound should be repeated.
          * @returns The audio element used to play the sound.  Null if the call failed due to a lack of open channels.
          *
-         * Will play a sound previously added by using the ID that was used in `Crafty.audio.add`.
-         * Has a default maximum of 5 channels so that the same sound can play simultaneously unless all of the channels are playing.
-
+         * Will play a sound previously added by using the ID that was used in 
+         * `Crafty.audio.add`. Has a default maximum of 5 channels so that the 
+         * same sound can play simultaneously unless all of the channels are 
+         * playing.
+         * 
+         * When using repeat, and if it's important for you to have a gapless 
+         * loop, try passing the 'repeatAt' argument, which makes the sound 
+         * to be restarted at given reproduction time (in seconds), with 
+         * aproximate accuracy - there might be a discrepancy of some 
+         * milisenconds (perhaps 100-200 ms ahead), but the sound will still 
+         * play seemlessly.
+         *
          * *Note that the implementation of HTML5 Audio is buggy at best.*
          *
          * @example
          * ~~~
          * Crafty.audio.play("walk");
          *
-         * //play and repeat forever
-         * Crafty.audio.play("backgroundMusic", -1);
-         * Crafty.audio.play("explosion",1,0.5); //play sound once with volume of 50%
+         * // Play sound once with volume of 50%
+         * Crafty.audio.play("explosion", 1, 0.5);
+         *
+         * // Repeat (forever) when sound reach second 23.2. 
+         * // Should actually repeat somewhere between second 23.2 and 23.4.
+         * Crafty.audio.play("backgroundMusic", -1, 1, 23.2); 
+         *  
          * ~~~
          */
-        play: function (id, repeat, volume) {
+        play: function (id, repeat, volume, repeatAt) {
             if (repeat === 0 || !Crafty.support.audio || !this.sounds[id])
                 return;
             var s = this.sounds[id];
@@ -220,42 +232,51 @@ Crafty.extend({
             if (!c)
                 return null;
             c.id = id;
-            c.repeat = repeat;
-            var a = c.obj;
-
-
+            c.repeat = typeof repeat === 'number'? repeat : 1;
+            c.repeatAt = typeof repeatAt === 'number'? repeatAt : 0;
             c.volume = s.volume = s.obj.volume = volume || Crafty.audio.volume;
 
+            var a = c.obj;
             a.volume = s.volume;
             a.src = s.obj.src;
 
             if (this.muted)
                 a.volume = 0;
             a.play();
-            s.played++;
+            c.played++;
             c.onEnd = function () {
-                if (s.played < c.repeat || repeat == -1) {
+                if (c.played < c.repeat || c.repeat == -1) {
                     if (this.currentTime)
                         this.currentTime = 0;
                     this.play();
-                    s.played++;
+                    c.played++;
                 } else {
-                    c.active = false;
-                    this.pause();
-                    this.removeEventListener("ended", c.onEnd, true);
-                    this.currentTime = 0;
+                    Crafty.audio._removeAudioEventListeners(c);
+                    Crafty.audio._stop(c);
                     Crafty.trigger("SoundComplete", {
                         id: c.id
                     });
                 }
-
             };
             a.addEventListener("ended", c.onEnd, true);
-
+            if (c.repeatAt) {
+                c.atTime = function() {
+                    if (this.currentTime && this.currentTime > c.repeatAt) {
+                        this.currentTime = 0;
+                        c.played++;
+                    }
+                    if (c.repeat != -1 && c.played > c.repeat) {
+                        Crafty.audio._removeAudioEventListeners(c);
+                        Crafty.audio._stop(c);
+                        Crafty.trigger("SoundComplete", {
+                            id: c.id
+                        });
+                    }
+                };
+                a.addEventListener("timeupdate", c.atTime, true);
+            }
             return a;
         },
-
-
 
         /**@
          * #Crafty.audio.setChannels
@@ -280,7 +301,7 @@ Crafty.extend({
                    * but fallen foul of Chromium bug 280417
                    */
                 if (chan.active === false ||
-                      chan.obj.ended && chan.repeat <= this.sounds[chan.id].played) {
+                      chan.obj.ended && chan.repeat <= chan.played) {
                     chan.active = true;
                     return chan;
                 }
@@ -293,7 +314,10 @@ Crafty.extend({
                     // Checks that the channel is being used to play sound id
                     _is: function (id) {
                         return this.id === id && this.active;
-                    }
+                    },
+                    repeat:0,
+                    repeatAt:0,
+                    played:0
                 };
                 this.channels.push(c);
                 return c;
@@ -362,15 +386,33 @@ Crafty.extend({
         stop: function (id) {
             if (!Crafty.support.audio)
                 return;
+            var c;
             for (var i in this.channels) {
                 c = this.channels[i];
                 if ( (!id && c.active) || c._is(id) ) {
-                    c.active = false;
-                    c.obj.pause();
+                    this._removeAudioEventListeners(c);
+                    this._stop(c);
                 }
             }
             return;
         },
+        _removeAudioEventListeners: function(c) {
+            c.obj.removeEventListener("ended", c.onEnd, true);
+            c.obj.removeEventListener("timeupdate", c.atTime, true);
+        },
+        _stop: function(c) {
+            var a = c.obj;
+            a.pause();
+            a.currentTime = 0,
+            a.ended = true,
+            c.active = false,
+            c.repeatAt = 0,
+            c.repeat = 0,
+            c.played = 0;
+            delete c.onEnd;
+            delete c.atTime;
+        },
+
         /**
          * #Crafty.audio._mute
          * @comp Crafty.audio
