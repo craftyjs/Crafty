@@ -596,21 +596,21 @@ Crafty.c("Collision", {
             normal.y /= length;
 
             //default min max
-            min1 = min2 = -1;
-            max1 = max2 = -1;
+            min1 = min2 = Infinity;
+            max1 = max2 = -Infinity;
 
             //project all vertices from poly1 onto axis
             for (j = 0; j < l; ++j) {
                 dot = points1[j][0] * normal.x + points1[j][1] * normal.y;
-                if (dot > max1 || max1 === -1) max1 = dot;
-                if (dot < min1 || min1 === -1) min1 = dot;
+                if (dot > max1) max1 = dot;
+                if (dot < min1) min1 = dot;
             }
 
             //project all vertices from poly2 onto axis
             for (j = 0; j < k; ++j) {
                 dot = points2[j][0] * normal.x + points2[j][1] * normal.y;
-                if (dot > max2 || max2 === -1) max2 = dot;
-                if (dot < min2 || min2 === -1) min2 = dot;
+                if (dot > max2) max2 = dot;
+                if (dot < min2 ) min2 = dot;
             }
 
             //calculate the minimum translation vector should be negative
@@ -652,21 +652,21 @@ Crafty.c("Collision", {
             normal.y /= length;
 
             //default min max
-            min1 = min2 = -1;
-            max1 = max2 = -1;
+            min1 = min2 = Infinity;
+            max1 = max2 = -Infinity;
 
             //project all vertices from poly1 onto axis
             for (j = 0; j < l; ++j) {
                 dot = points1[j][0] * normal.x + points1[j][1] * normal.y;
-                if (dot > max1 || max1 === -1) max1 = dot;
-                if (dot < min1 || min1 === -1) min1 = dot;
+                if (dot > max1) max1 = dot;
+                if (dot < min1) min1 = dot;
             }
 
             //project all vertices from poly2 onto axis
             for (j = 0; j < k; ++j) {
                 dot = points2[j][0] * normal.x + points2[j][1] * normal.y;
-                if (dot > max2 || max2 === -1) max2 = dot;
-                if (dot < min2 || min2 === -1) min2 = dot;
+                if (dot > max2) max2 = dot;
+                if (dot < min2) min2 = dot;
             }
 
             //calculate the minimum translation vector should be negative
