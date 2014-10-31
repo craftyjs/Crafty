@@ -46,7 +46,7 @@ var Crafty = function (selector) {
 
 
     initState = function () {
-        GUID = 1, //GUID for entity IDs
+        GUID = 1; //GUID for entity IDs
         frame = 0;
 
         components = {}; //map of components and their functions
@@ -220,45 +220,35 @@ Crafty.fn = Crafty.prototype = {
      * ~~~
      */
     addComponent: function (id) {
-        var uninit = [],
-            c = 0,
-            ul, //array of components to init
-            i = 0,
-            l, comps, comp;
+        var comps = [],
+            c = 0;
 
         //add multiple arguments
         if (arguments.length > 1) {
-            l = arguments.length;
-            for (; i < l; i++) {
-                uninit.push(arguments[i]);
+            var i = 0;
+            for (; i < arguments.length; i++) {
+                comps.push(arguments[i]);
             }
             //split components if contains comma
         } else if (id.indexOf(',') !== -1) {
             comps = id.split(rlist);
-            l = comps.length;
-            for (; i < l; i++) {
-                uninit.push(comps[i]);
-            }
-            //single component passed
         } else {
-            uninit.push(id);
+            comps.push(id);
         }
 
         //extend the components
-        ul = uninit.length;
-        for (; c < ul; c++) {
-            if (this.__c[uninit[c]] === true)
+        for (; c < comps.length; c++) {
+            if (this.__c[comps[c]] === true)
                 continue;
-            this.__c[uninit[c]] = true;
-            comp = components[uninit[c]];
-            this.extend(comp);
+            this.__c[comps[c]] = true;
+            this.extend(components[comps[c]]);
             //if constructor, call it
-            if (comp && "init" in comp) {
-                comp.init.call(this);
+            if (components[comps[c]] && "init" in components[comps[c]]) {
+                components[comps[c]].init.call(this);
             }
         }
 
-        this.trigger("NewComponent", uninit);
+        this.trigger("NewComponent", comps);
         return this;
     },
 
@@ -416,44 +406,157 @@ Crafty.fn = Crafty.prototype = {
     /**@
      * #.attr
      * @comp Crafty Core
-     * @sign public this .attr(String property, * value)
-     * @param property - Property of the entity to modify
-     * @param value - Value to set the property to
-     * @sign public this .attr(Object map)
-     * @param map - Object where the key is the property to modify and the value as the property value
      * @trigger Change - when properties change - {key: value}
      *
+     * @sign public this .attr(String property, Any value[, Boolean silent[, Boolean recursive]])
+     * @param property - Property of the entity to modify
+     * @param value - Value to set the property to
+     * @param silent - If you would like to supress events
+     * @param recursive - If you would like merge recursively
      * Use this method to set any property of the entity.
+     *
+     * @sign public this .attr(Object map[, Boolean silent[, Boolean recursive]])
+     * @param map - Object where each key is the property to modify and the value as the property value
+     * @param silent - If you would like to supress events
+     * @param recursive - If you would like merge recursively
+     * Use this method to set multiple properties of the entity.
+     *
+     * Setter options:
+     * `silent`: If you want to prevent it from firing events.
+     * `recursive`: If you pass in an object you could overwrite sibling keys, this recursively merges instead of just merging it. This is `false` by default, unless you are using dot notation `name.first`.
+     *
+     * @sign public Any .attr(String property)
+     * @param property - Property of the entity to modify
+     * @returns Value - the value of the property
+     * Use this method to get any property of the entity. You can also retrieve the property using `this.property`.
+     * 
      *
      * @example
      * ~~~
      * this.attr({key: "value", prop: 5});
-     * this.key; //value
-     * this.prop; //5
+     * this.attr("key"); // returns "value"
+     * this.attr("prop"); // returns 5
+     * this.key; // "value"
+     * this.prop; // 5
      *
      * this.attr("key", "newvalue");
-     * this.key; //newvalue
+     * this.attr("key"); // returns "newvalue"
+     * this.key; // "newvalue"
+     *
+     * this.attr("parent.child", "newvalue");
+     * this.parent; // {child: "newvalue"};
+     * this.attr('parent.child'); // "newvalue"
      * ~~~
      */
-    attr: function (key, value) {
-        if (arguments.length === 1) {
-            //if just the key, return the value
-            if (typeof key === "string") {
-                return this[key];
-            }
-
-            //extend if object
-            this.extend(key);
-            this.trigger("Change", key); //trigger change event
-            return this;
+    attr: function (key, value, silent, recursive) {
+        if (arguments.length === 1 && typeof arguments[0] === 'string') {
+            return this._attr_get(key);
+        } else {
+            return this._attr_set(key, value, silent, recursive);
         }
-        //if key value pair
-        this[key] = value;
+    },
 
-        var change = {};
-        change[key] = value;
-        this.trigger("Change", change); //trigger change event
+    /**
+     * Internal getter method for data on the entity. Called by `.attr`.
+     *
+     * example
+     * ~~~
+     * person._attr_get('name'); // Foxxy
+     * person._attr_get('contact'); // {email: 'fox_at_example.com'}
+     * person._attr_get('contact.email'); // fox_at_example.com
+     * ~~~
+     */
+    _attr_get: function(key, context) {
+        var first, keys, subkey;
+        if (typeof context === "undefined" || context === null) {
+            context = this;
+        }
+        if (key.indexOf('.') > -1) {
+            keys = key.split('.');
+            first = keys.shift();
+            subkey = keys.join('.');
+            return this._attr_get(keys.join('.'), context[first]);
+        } else {
+            return context[key];
+        }
+    },
+
+    /**
+     * Internal setter method for attributes on the component. Called by `.attr`.
+     *
+     * Options:
+     *
+     * `silent`: If you want to prevent it from firing events.
+     *
+     * `recursive`: If you pass in an object you could overwrite
+     * sibling keys, this recursively merges instead of just
+     * merging it. This is `false` by default, unless you are
+     * using dot notation `name.first`.
+     *
+     * example
+     * ~~~
+     * person._attr_set('name', 'Foxxy', true);
+     * person._attr_set('name', 'Foxxy');
+     * person._attr_set({name: 'Foxxy'}, true);
+     * person._attr_set({name: 'Foxxy'});
+     * person._attr_set('name.first', 'Foxxy');
+     * ~~~
+     */
+    _attr_set: function() {
+        var data, silent, recursive;
+        if (typeof arguments[0] === 'string') {
+            data = this._set_create_object(arguments[0], arguments[1]);
+            silent = !!arguments[2];
+            recursive = arguments[3] || arguments[0].indexOf('.') > -1;
+        } else {
+            data = arguments[0];
+            silent = !!arguments[1];
+            recursive = !!arguments[2];
+        }
+
+        if (!silent) {
+            this.trigger('Change', data);
+        }
+
+        if (recursive) {
+            this._recursive_extend(data, this);
+        } else {
+            this.extend.call(this, data);
+        }
         return this;
+    },
+
+    /**
+     * If you are setting a key of 'foo.bar' or 'bar', this creates
+     * the appropriate object for you to recursively merge with the
+     * current attributes.
+     */
+    _set_create_object: function(key, value) {
+        var data = {}, keys, first, subkey;
+        if (key.indexOf('.') > -1) {
+            keys = key.split('.');
+            first = keys.shift();
+            subkey = keys.join('.');
+            data[first] = this._set_create_object(subkey, value);
+        } else {
+            data[key] = value;
+        }
+        return data;
+    },
+
+    /**
+     * Recursively puts `new_data` into `original_data`.
+     */
+    _recursive_extend: function(new_data, original_data) {
+        var key;
+        for (key in new_data) {
+            if (new_data[key].constructor.name === 'Object') {
+                original_data[key] = this._recursive_extend(new_data[key], original_data[key]);
+            } else {
+                original_data[key] = new_data[key];
+            }
+        }
+        return original_data;
     },
 
     /**@
@@ -726,11 +829,11 @@ Crafty.fn = Crafty.prototype = {
      * @comp Crafty Core
      * @sign public Array .get()
      * @returns An array of entities corresponding to the active selector
-     * 
+     *
      * @sign public Entity .get(Number index)
      * @returns an entity belonging to the current selection
      * @param index - The index of the entity to return.  If negative, counts back from the end of the array.
-     * 
+     *
      *
      * @example
      * Get an array containing every "2D" entity
@@ -746,7 +849,7 @@ Crafty.fn = Crafty.prototype = {
      * ~~~
      * var e = Crafty("2D").get(-1)
      * ~~~
-     * 
+     *
      */
     get: function(index) {
         var l = this.length;
@@ -953,7 +1056,7 @@ Crafty.extend({
      * @sign public this Crafty.pause(void)
      *
      * Pauses the game by stopping the EnterFrame event from firing. If the game is already paused it is unpaused.
-     * You can pass a boolean parameter if you want to pause or unpause mo matter what the current state is.
+     * You can pass a boolean parameter if you want to pause or unpause no matter what the current state is.
      * Modern browsers pauses the game when the page is not visible to the user. If you want the Pause event
      * to be triggered when that happens you can enable autoPause in `Crafty.settings`.
      *
@@ -1061,7 +1164,8 @@ Crafty.extend({
 
                 if (typeof tick === "number") clearInterval(tick);
 
-                var onFrame = window.cancelRequestAnimationFrame ||
+                var onFrame = window.cancelAnimationFrame ||
+                    window.cancelRequestAnimationFrame ||
                     window.webkitCancelRequestAnimationFrame ||
                     window.mozCancelRequestAnimationFrame ||
                     window.oCancelRequestAnimationFrame ||
@@ -1109,11 +1213,18 @@ Crafty.extend({
              * @comp Crafty.timer
              * @sign public void Crafty.timer.step()
              * @trigger EnterFrame - Triggered on each frame.  Passes the frame number, and the amount of time since the last frame.  If the time is greater than maxTimestep, that will be used instead.  (The default value of maxTimestep is 50 ms.) - { frame: Number, dt:Number }
+             * @trigger ExitFrame - Triggered after each frame.  Passes the frame number, and the amount of time since the last frame.  If the time is greater than maxTimestep, that will be used instead.  (The default value of maxTimestep is 50 ms.) - { frame: Number, dt:Number }
+             * @trigger PreRender - Triggered every time immediately before a scene should be rendered
              * @trigger RenderScene - Triggered every time a scene should be rendered
+             * @trigger PostRender - Triggered every time immediately after a scene should be rendered
              * @trigger MeasureWaitTime - Triggered at the beginning of each step after the first.  Passes the time the game loop waited between steps. - Number
-             * @trigger MeasureFrameTime - Triggered after each step.  Passes the time it took to advance one frame. - Number
+             * @trigger MeasureFrameTime - Triggered after each frame.  Passes the time it took to advance one frame. - Number
              * @trigger MeasureRenderTime - Triggered after each render. Passes the time it took to render the scene - Number
-             * Advances the game by triggering `EnterFrame` and `RenderScene`
+             *
+             * Advances the game by performing a step. A step consists of one/multiple frames followed by a render. The amount of frames depends on the timer's steptype.
+             * Specifically it triggers `EnterFrame` & `ExitFrame` events for each frame and `PreRender`, `RenderScene` & `PostRender` events for each render.
+             *
+             * @see Crafty.timer.steptype
              */
             step: function () {
                 var drawTimeStart, dt, lastFrameTime, loops = 0;
@@ -1157,13 +1268,18 @@ Crafty.extend({
                 // dt is determined by the mode
                 for (var i = 0; i < loops; i++) {
                     lastFrameTime = currentTime;
-                    // Everything that changes over time hooks into this event
-                    Crafty.trigger("EnterFrame", {
+                    
+                    var frameData = {
                         frame: frame++,
                         dt: dt,
                         gameTime: gameTime
-                    });
+                    };
+                    // Everything that changes over time hooks into this event
+                    Crafty.trigger("EnterFrame", frameData);
+                    // Event that happens after "EnterFrame", e.g. for resolivng collisions applied through movement during "EnterFrame" events
+                    Crafty.trigger("ExitFrame", frameData);
                     gameTime += dt;
+
                     currentTime = new Date().getTime();
                     Crafty.trigger("MeasureFrameTime", currentTime - lastFrameTime);
                 }
@@ -1171,9 +1287,9 @@ Crafty.extend({
                 //If any frames were processed, render the results
                 if (loops > 0) {
                     drawTimeStart = currentTime;
+                    Crafty.trigger("PreRender"); // Pre-render setup opportunity
                     Crafty.trigger("RenderScene");
-                    // Post-render cleanup opportunity
-                    Crafty.trigger("PostRender");
+                    Crafty.trigger("PostRender"); // Post-render cleanup opportunity
                     currentTime = new Date().getTime();
                     Crafty.trigger("MeasureRenderTime", currentTime - drawTimeStart);
                 }
@@ -1211,12 +1327,16 @@ Crafty.extend({
                 if (typeof timestep === "undefined")
                     timestep = milliSecPerFrame;
                 while (frames-- > 0) {
-                    Crafty.trigger("EnterFrame", {
+                    var frameData = {
                         frame: frame++,
                         dt: timestep
-                    });
+                    };
+                    Crafty.trigger("EnterFrame", frameData);
+                    Crafty.trigger("ExitFrame", frameData);
                 }
+                Crafty.trigger("PreRender");
                 Crafty.trigger("RenderScene");
+                Crafty.trigger("PostRender");
             }
         };
     })(),
@@ -1245,23 +1365,21 @@ Crafty.extend({
      * @see Crafty.c
      */
     e: function () {
-        var id = UID(),
-            craft;
-
-        entities[id] = null; //register the space
-        entities[id] = craft = Crafty(id);
+        var id = UID();
+        entities[id] = null;
+        entities[id] = Crafty(id);
 
         if (arguments.length > 0) {
-            craft.addComponent.apply(craft, arguments);
+            entities[id].addComponent.apply(entities[id], arguments);
         }
-        craft.setName('Entity #' + id); //set default entity human readable name
-        craft.addComponent("obj"); //every entity automatically assumes obj
+        entities[id].setName('Entity #' + id); //set default entity human readable name
+        entities[id].addComponent("obj"); //every entity automatically assumes obj
 
         Crafty.trigger("NewEntity", {
             id: id
         });
 
-        return craft;
+        return entities[id];
     },
 
     /**@
@@ -1272,6 +1390,12 @@ Crafty.extend({
      * @param component - Object with the component's properties and methods
      * Creates a component where the first argument is the ID and the second
      * is the object that will be inherited by entities.
+     *
+     * Specifically, each time a component is added to an entity, the component properties are copied over to the entity. 
+     * * In the case of primitive datatypes (booleans, numbers, strings) the property is copied by value.
+     * * In the case of complex datatypes (objects, arrays, functions) the property is copied by reference and will thus reference the components' original property.
+     * * (See the two examples below for further explanation)
+     * Note that when a component method gets called, the `this` keyword will refer to the current entity the component was added to.
      *
      * A couple of methods are treated specially. They are invoked in partiular contexts, and (in those contexts) cannot be overridden by other components.
      *
@@ -1627,6 +1751,3 @@ if (typeof define === 'function') { // AMD
 }
 
 module.exports = Crafty;
-
-window.Crafty = Crafty;
-

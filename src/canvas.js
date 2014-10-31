@@ -206,9 +206,13 @@ Crafty.extend({
             if (zoom != 1)
                 Crafty.canvas.context.scale(zoom, zoom);
 
+            // Set pixelart to current status, and listen for changes
+            this._setPixelart(Crafty._pixelartEnabled);
+            Crafty.uniqueBind("PixelartSet", this._setPixelart);
+
             //Bind rendering of canvas context (see drawing.js)
             Crafty.uniqueBind("RenderScene", Crafty.DrawManager.renderCanvas);
-
+            
             Crafty.uniqueBind("ViewportResize", this._resize);
         },
 
@@ -218,6 +222,15 @@ Crafty.extend({
             c.width = Crafty.viewport.width;
             c.height = Crafty.viewport.height;
 
+        },
+
+        _setPixelart: function(enabled){
+            var context = Crafty.canvas.context;
+            context.imageSmoothingEnabled = !enabled;
+            context.mozImageSmoothingEnabled = !enabled;
+            context.webkitImageSmoothingEnabled = !enabled;
+            context.oImageSmoothingEnabled = !enabled;
+            context.msImageSmoothingEnabled = !enabled;
         }
 
     }

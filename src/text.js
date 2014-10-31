@@ -62,7 +62,7 @@ Crafty.c("Text", {
                 context.fillStyle = this._textColor || "rgb(0,0,0)";
                 context.font = font;
 
-                context.fillText(this._text, this._x, this._y);
+                context.fillText(this._text, e.pos._x, e.pos._y);
 
                 context.restore();
             }
@@ -152,11 +152,12 @@ Crafty.c("Text", {
     /**@
      * #.textColor
      * @comp Text
-     * @sign public this .textColor(String color, Number strength)
-     * @param color - The color in hexadecimal
-     * @param strength - Level of opacity
+     * @sign public this .textColor(String color)
+     * @param color - The color in name, hex, rgb or rgba
      *
-     * Modify the text color and level of opacity.
+     * Change the color of the text. You can use HEX, rgb and rgba colors. 
+     *
+     * If you want the text to be transparent, you should use rgba where you can define alphaChannel.
      *
      * @example
      * ~~~
@@ -164,13 +165,16 @@ Crafty.c("Text", {
      *   .textColor('#FF0000');
      *
      * Crafty.e("2D, Canvas, Text").attr({ x: 100, y: 100 }).text('Look at me!!')
-     *   .textColor('#FF0000', 0.6);
+     *   .textColor('rgba(0, 255, 0, 0.5)');
+     *
+     * Crafty.e("2D, Canvas, Text").attr({ x: 100, y: 100 }).text('Look at me!!')
+     *   .textColor('white');
      * ~~~
-     * @see Crafty.toRGB
+     * @see Crafty.assignColor
      */
-    textColor: function (color, strength) {
-        this._strength = strength;
-        this._textColor = Crafty.toRGB(color, this._strength);
+    textColor: function (color) {
+        Crafty.assignColor(color, this);
+        this._textColor = "rgba(" + this._red + ", " + this._green + ", " + this._blue + ", " + this._strength + ")";
         this.trigger("Invalidate");
         return this;
     },
@@ -234,6 +238,8 @@ Crafty.c("Text", {
      * This method sets the text so that it cannot be selected (highlighted) by dragging.
      * (Canvas text can never be highlighted, so this only matters for DOM text.)
      * Works by changing the css property "user-select" and its variants.
+     * 
+     * Likewise, this sets the mouseover cursor to be "default" (arrow), not "text" (I-beam)
      *
      * @example
      * ~~~
@@ -249,7 +255,8 @@ Crafty.c("Text", {
                 '-khtml-user-select': 'none',
                 '-moz-user-select': 'none',
                 '-ms-user-select': 'none',
-                'user-select': 'none'
+                'user-select': 'none',
+                'cursor': 'default'
             });
             this.trigger("Invalidate");
         }

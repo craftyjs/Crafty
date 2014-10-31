@@ -5,18 +5,38 @@ var Crafty = require('./core.js'),
 /**@
  * #Collision
  * @category 2D
+ * @trigger HitOn - Triggered when collisions occur. Will not trigger again until collisions of this type cease, or an event is requested once more (using `resetHitChecks(component)`). - { hitData }
+ * @trigger HitOff - Triggered when collision with a specific component type ceases - { componentName }
+ *
  * Component to detect collision between any two convex polygons.
+ *
+ * If collision checks are registered for multiple component and collisions with
+ * multiple types occur simultaniously, each collision will cause an individual
+ * event to fire.
+ *
+ * **Note:** All data received from events is only valid for the duration of the event's callback.
+ * If you wish to preserve the data, make a copy of it.
+ *
+ * For a description of collision event data (hitData above), see the documentation for
+ * `.hit()`.
+ *
+ * @see .hit, .checkHits, .onHit
  */
 Crafty.c("Collision", {
     /**@
      * #.init
      * @comp Collision
-     * Create a rectangle polygon based on the x, y, w, h dimensions.
+     * Set up collision handling.
      *
      * By default, the collision hitbox will match the dimensions (x, y, w, h) and rotation of the object.
+     *
+     * **Note:** If the entity this component is applied to does not have its
+     * dimensions set the default hit area will not be set properly.
      */
     init: function () {
         this.requires("2D");
+        this._collisionData = {};
+
         this.collision();
     },
 
@@ -35,17 +55,15 @@ Crafty.c("Collision", {
      * @trigger NewHitbox - when a new hitbox is assigned - Crafty.polygon
      *
      * @sign public this .collision([Crafty.polygon polygon])
-     * @param polygon - Crafty.polygon object that will act as the hit area
+     * @param polygon - Crafty.polygon object that will act as the hit area.
      *
      * @sign public this .collision(Array point1, .., Array pointN)
-     * @param point# - Array with an `x` and `y` position to generate a polygon
+     * @param point# - Array of [x, y] coordinate pairs to generate a hit area polygon.
      *
-     * Constructor takes a polygon or array of points to use as the hit area.
+     * Constructor that takes a polygon or array of points to use as the hit area,
+     * with points being relative to the object's position in its unrotated state.
      *
-     * The hit area (polygon) must be a convex shape and not concave
-     * for the collision detection to work.
-     *
-     * Points are relative to the object's position and its unrotated state.
+     * The hit area must be a convex shape and not concave for collision detection to work properly.
      *
      * If no parameter is passed, the x, y, w, h properties of the entity will be used, and the hitbox will be resized when the entity is.
      *
@@ -67,7 +85,7 @@ Crafty.c("Collision", {
         this.unbind("Resize", this._resizeMap);
         this.unbind("Resize", this._checkBounds);
 
-        
+
 
         if (!poly) {
             // If no polygon is specified, then a polygon is created that matches the bounds of the entity
@@ -86,7 +104,6 @@ Crafty.c("Collision", {
             // On resize, the new bounds will be checked if necessary
             this._findBounds(poly.points);
         }
-
 
         // If the entity is currently rotated, the points in the hitbox must also be rotated
         if (this.rotation) {
@@ -153,7 +170,7 @@ Crafty.c("Collision", {
             };
             this.bind("Resize", this._checkBounds);
         }
-        
+
         // If the hitbox is within the entity, _cbr is null
         // Otherwise, set it, and immediately calculate the bounding box.
         if (minX >= 0 && minY >= 0 && maxX <= this._w && maxY <= this._h){
@@ -164,11 +181,11 @@ Crafty.c("Collision", {
             this._calculateMBR();
             return true;
         }
-        
+
     },
 
-    // The default behavior is to match the hitbox to the entity.  
-    // This function will change the hitbox when a "Resize" event triggers. 
+    // The default behavior is to match the hitbox to the entity.
+    // This function will change the hitbox when a "Resize" event triggers.
     _resizeMap: function (e) {
 
         var dx, dy, rot = this.rotation * DEG_TO_RAD,
@@ -176,7 +193,6 @@ Crafty.c("Collision", {
 
         // Depending on the change of axis, move the corners of the rectangle appropriately
         if (e.axis === 'w') {
-
             if (rot) {
                 dx = e.amount * Math.cos(rot);
                 dy = e.amount * Math.sin(rot);
@@ -189,7 +205,6 @@ Crafty.c("Collision", {
             points[1][0] += dx;
             points[1][1] += dy;
         } else {
-
             if (rot) {
                 dy = e.amount * Math.cos(rot);
                 dx = -e.amount * Math.sin(rot);
@@ -206,32 +221,40 @@ Crafty.c("Collision", {
         // "bottom right" point shifts on either change
         points[2][0] += dx;
         points[2][1] += dy;
-
     },
 
     /**@
      * #.hit
      * @comp Collision
      * @sign public Boolean/Array hit(String component)
-     * @param component - Check collision with entities that has this component
-     * @return `false` if no collision. If a collision is detected, returns an Array of objects that are colliding.
+     * @param component - Check collision with entities that have this component
+     * applied to them.
+     * @return `false` if there is no collision. If a collision is detected,
+     * returns an Array of collision data objects (see below).
      *
-     * Takes an argument for a component to test collision for. If a collision is found, an array of
-     * every object in collision along with the amount of overlap is passed.
+     * Tests for collisions with entities that have the specified component
+     * applied to them.
+     * If a collision is detected, data regarding the collision will be present in
+     * the array returned by this method.
+     * If no collisions occur, this method returns false.
      *
-     * If no collision, will return false. The return collision data will be an Array of Objects with the
-     * type of collision used, the object collided and if the type used was SAT (a polygon was used as the hitbox) then an amount of overlap.\
+     * Following is a description of a collision data object that this method may
+     * return: The returned collision data will be an Array of Objects with the
+     * type of collision used, the object collided and if the type used was SAT (a polygon was used as the hitbox) then an amount of overlap.
      * ~~~
      * [{
      *    obj: [entity],
-     *    type: "MBR" or "SAT",
+     *    type: ["MBR" or "SAT"],
      *    overlap: [number]
      * }]
      * ~~~
-     * `MBR` is your standard axis aligned rectangle intersection (`.intersect` in the 2D component).
-     * `SAT` is collision between any convex polygon.
+     * **obj:** The entity with which the collision occured.
+     * **type:** Collision detection method used. One of:
+     * + *MBR:* Standard axis aligned rectangle intersection (`.intersect` in the 2D component).
+     * + *SAT:* Collision between any two convex polygons. Used when both colliding entities have the `Collision` component applied to them.
+     * **overlap:** If SAT collision was used, this will signify the overlap percentage between the colliding entities.
      *
-     * @see .onHit, 2D
+     * @see 2D
      */
     hit: function (comp) {
         var area = this._cbr || this._mbr || this,
@@ -288,12 +311,15 @@ Crafty.c("Collision", {
      * #.onHit
      * @comp Collision
      * @sign public this .onHit(String component, Function hit[, Function noHit])
-     * @param component - Component to check collisions for
-     * @param hit - Callback method to execute upon collision with component.  Will be passed the results of the collision check in the same format documented for hit().
-     * @param noHit - Callback method executed once as soon as collision stops
+     * @param component - Component to check collisions for.
+     * @param hit - Callback method to execute upon collision with component. Will be passed the results of the collision check in the same format documented for hit().
+     * @param noHit - Callback method executed once as soon as collision stops.
      *
      * Creates an EnterFrame event calling .hit() each frame.  When a collision is detected the callback will be invoked.
+     * Note that the `hit` callback will be invoked every frame the collision is active, not just the first time the collision occurs.
+     * If you want more fine-grained control consider using `.checkHits` or `.hit`.
      *
+     * @see .checkHits
      * @see .hit
      */
     onHit: function (comp, callback, callbackOff) {
@@ -311,6 +337,227 @@ Crafty.c("Collision", {
             }
         });
         return this;
+    },
+
+
+    /**@
+     * #._createCollisionHandler
+     * @comp Collision
+     * @sign public void .checkHits(String component, Object collisionData)
+     * @param component - The name of the component for which this handler
+     * checks for collisions.
+     * @param collisionData - Collision data object used to track collisions with
+     * the specified component.
+     *
+     * This is a helper method for creating collisions handlers set up by
+     * `.checkHits(...)`. Do not call this directly.
+     *
+     * @see .checkHits
+     */
+    _createCollisionHandler: function(component, collisionData) {
+      return function() {
+        var hitData = this.hit(component);
+
+        if (collisionData.occurring === true) {
+          if (hitData !== false) {
+            // The collision is still in progress
+            return;
+          }
+
+          collisionData.occurring = false;
+          this.trigger("HitOff", component);
+        }
+        else if (hitData !== false) {
+          collisionData.occurring = true;
+          this.trigger("HitOn", hitData);
+        }
+      };
+    },
+
+    /**@
+     * #.checkHits
+     * @comp Collision
+     * @sign public this .checkHits(String componentList)
+     * @param componentList - A comma seperated list of components to check for collisions with.
+     * @sign public this .checkHits(String component1[, .., String componentN])
+     * @param component# - A component to check for collisions with.
+     *
+     * Performs collision checks against all entities that have at least one of
+     * the components specified when calling this method. If collisions occur,
+     * a "HitOn" event containing the collision information will be fired for the
+     * entity on which this method was invoked. See the documentation for `.hit()`
+     * for a description of collision data contained in the event.
+     * When a collision that was reported ends, a corresponding "HitOff" event
+     * will be fired.
+     *
+     * Calling this method more than once for the same component type will not
+     * cause redundant hit checks.
+     *
+     * **Note:** Hit checks are performed upon entering each new frame (using
+     * the *EnterFrame* event). It is entirely possible for object to move in
+     * said frame after the checks were performed (even if the more is the
+     * result of *EnterFrame*, as handlers run in no particular order). In such
+     * a case, the hit events will not fire until the next check is performed in
+     * the following frame.
+     *
+     * @example
+     * ~~~
+     * Crafty.e("2D, Collision")
+     *     .checkHits('Solid') // check for collisions with entities that have the Solid component in each frame
+     *     .bind("HitOn", function(hitData) {
+     *         console.log("Collision with Solid entity occurred for the first time.");
+     *     })
+     *     .bind("HitOff", function(comp) {
+     *         console.log("Collision with Solid entity ended.");
+     *     });
+     * ~~~
+     *
+     * @see .hit
+     */
+    checkHits: function () {
+      var components = arguments;
+      var i = 0;
+
+      if (components.length === 1) {
+        components = components[0].split(/\s*,\s*/);
+      }
+
+      for (; i < components.length; ++i) {
+        var component = components[i];
+        var collisionData = this._collisionData[component];
+
+        if (collisionData !== undefined) {
+          // There is already a handler for collision with this component
+          continue;
+        }
+
+        this._collisionData[component] = collisionData = { occurring: false, handler: null };
+        collisionData.handler = this._createCollisionHandler(component, collisionData);
+
+        this.bind("EnterFrame", collisionData.handler);
+      }
+
+      return this;
+    },
+
+    /**@
+     * #.ignoreHits
+     * @comp Collision
+     * @sign public this .ignoreHits()
+     * @sign public this .ignoreHits(String componentList)
+     * @param componentList - A comma seperated list of components to stop checking
+     * for collisions with.
+     * @sign public this .ignoreHits(String component1[, .., String componentN])
+     * @param component# - A component to stop checking for collisions with.
+     *
+     * Stops checking for collisions with all, or certain, components. If called
+     * without arguments, this method will cause all collision checks on the
+     * entity to cease. To disable checks for collisions with specific
+     * components, specify the components as a comma separated string or as
+     * a set of arguments.
+     *
+     * Calling this method with component names for which there are no collision
+     * checks has no effect.
+     *
+     * @example
+     * ~~~
+     * Crafty.e("2D, Collision")
+     *     .checkHits('Solid')
+     *     ...
+     *     .ignoreHits('Solid'); // stop checking for collisions with entities that have the Solid component
+     * ~~~
+     */
+    ignoreHits: function () {
+      var components = arguments;
+      var i = 0;
+      var collisionData;
+
+      if (components.length === 0) {
+        for (collisionData in this._collisionData) {
+          this.unbind("EnterFrame", collisionData.handler);
+        }
+
+        this._collisionData = {};
+      }
+
+      if (components.length === 1) {
+        components = components[0].split(/\s*,\s*/);
+      }
+
+      for (; i < components.length; ++i) {
+        var component = components[i];
+        collisionData = this._collisionData[component];
+
+        if (collisionData === undefined) {
+          continue;
+        }
+
+        this.unbind("EnterFrame", collisionData.handler);
+        delete this._collisionData[component];
+      }
+
+      return this;
+    },
+
+    /**@
+     * #.resetHitChecks
+     * @comp Collision
+     * @sign public this .resetHitChecks()
+     * @sign public this .resetHitChecks(String componentList)
+     * @param componentList - A comma seperated list of components to re-check
+     * for collisions with.
+     * @sign public this .resetHitChecks(String component1[, .., String componentN])
+     * @param component# - A component to re-check for collisions with.
+     *
+     * Causes collision events to be received for collisions that are already
+     * taking place (normally, an additional event would not fire before said
+     * collisions cease and happen another time).
+     * If called without arguments, this method will cause all collision checks on the
+     * entity to fire events once more. To re-check for collisions with specific
+     * components, specify the components as a comma separated string or as
+     * a set of arguments.
+     *
+     * Calling this method with component names for which there are no collision
+     * checks has no effect.
+     *
+     * @example
+     * ~~~
+     * // this example fires the HitOn event each frame the collision with the Solid entity is active, instead of just the first time the collision occurs.
+     * Crafty.e("2D, Collision")
+     *     .checkHits('Solid')
+     *     .bind("HitOn", function(hitData) {
+     *         console.log("Collision with Solid entity was reported in this frame again!");
+     *         this.resetHitChecks('Solid'); // fire the HitOn event in the next frame also, if the collision is still active.
+     *     })
+     * ~~~
+     */
+    resetHitChecks: function() {
+      var components = arguments;
+      var i = 0;
+      var collisionData;
+
+      if (components.length === 0) {
+        for (collisionData in this._collisionData) {
+          this._collisionData[collisionData].occurring = false;
+        }
+      }
+
+      if (components.length === 1) {
+        components = components[0].split(/\s*,\s*/);
+      }
+
+      for (; i < components.length; ++i) {
+        var component = components[i];
+        collisionData = this._collisionData[component];
+
+        if (collisionData === undefined) {
+          continue;
+        }
+
+        collisionData.occurring = false;
+      }
+
+      return this;
     },
 
     _SAT: function (poly1, poly2) {
@@ -430,8 +677,6 @@ Crafty.c("Collision", {
                 normal.y = -normal.y;
             } else {
                 interval = min1 - max2;
-
-
             }
 
             //exit early if positive

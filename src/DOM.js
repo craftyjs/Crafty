@@ -40,44 +40,19 @@ Crafty.c("DOM", {
         this._element.style.position = "absolute";
         this._element.id = "ent" + this[0];
 
-        this.bind("Invalidate", function () {
-            if (!this._changed) {
-                this._changed = true;
-                Crafty.DrawManager.addDom(this);
-            }
-        });
+        this.bind("Invalidate", this._invalidateDOM);
+        this.bind("NewComponent", this._updateClass);
+        this.bind("RemoveComponent", this._removeClass);
 
-        function updateClass() {
-            var i = 0,
-                c = this.__c,
-                str = "";
-            for (i in c) {
-                str += ' ' + i;
-            }
-            str = str.substr(1);
-            this._element.className = str;
-        }
+        this._invalidateDOM();
 
-        function removeClass(removedComponent) {
-            var i = 0,
-                c = this.__c,
-                str = "";
-            for (i in c) {
-              if(i != removedComponent) {
-                str += ' ' + i;
-              }
-            }
-            str = str.substr(1);
-            this._element.className = str;
-        }
+    },
 
-        this.bind("NewComponent", updateClass).bind("RemoveComponent", removeClass);
-
-        this.bind("Remove", this.undraw);
-        this.bind("RemoveComponent", function (compName) {
-            if (compName === "DOM")
-                this.undraw();
-        });
+    remove: function(){
+        this.undraw();
+        this.unbind("NewComponent", this._updateClass);
+        this.unbind("RemoveComponent", this._removeClass);
+        this.unbind("Invalidate", this._invalidateDOM);
     },
 
     /**@
@@ -89,6 +64,39 @@ Crafty.c("DOM", {
      */
     getDomId: function () {
         return this._element.id;
+    },
+
+    // removes a component on RemoveComponent events
+    _removeClass: function(removedComponent) {
+        var i = 0,
+            c = this.__c,
+            str = "";
+        for (i in c) {
+          if(i != removedComponent) {
+            str += ' ' + i;
+          }
+        }
+        str = str.substr(1);
+        this._element.className = str;
+    },
+
+    // adds a class on NewComponent events
+    _updateClass: function() {
+        var i = 0,
+            c = this.__c,
+            str = "";
+        for (i in c) {
+            str += ' ' + i;
+        }
+        str = str.substr(1);
+        this._element.className = str;
+    },
+
+    _invalidateDOM: function(){
+        if (!this._changed) {
+                this._changed = true;
+                Crafty.DrawManager.addDom(this);
+            }
     },
 
     /**@
@@ -209,8 +217,9 @@ Crafty.c("DOM", {
      * Removes the element from the stage.
      */
     undraw: function () {
-        if (this._element) {
-            Crafty.stage.inner.removeChild(this._element);
+        var el = this._element;
+        if (el && el.parentNode !== null) {
+            el.parentNode.removeChild(el);
         }
         return this;
     },
@@ -240,7 +249,7 @@ Crafty.c("DOM", {
      *
      * @example
      * ~~~
-     * this.css({'text-align', 'center', 'text-decoration': 'line-through'});
+     * this.css({'text-align': 'center', 'text-decoration': 'line-through'});
      * this.css("textAlign", "center");
      * this.css("text-align"); //returns center
      * ~~~
@@ -302,11 +311,33 @@ Crafty.extend({
                 // Resize the viewport
                 Crafty.uniqueBind("ViewportResize", this._resize);
 
+                // Listen for changes in pixel art settings
+                // Since window is inited before stage, can't set right away, but shouldn't need to!
+                Crafty.uniqueBind("PixelartSet", this._setPixelArt);
             },
 
             _resize: function(){
                 Crafty.stage.elem.style.width = Crafty.viewport.width + "px";
                 Crafty.stage.elem.style.height = Crafty.viewport.height + "px";
+            },
+
+            // Handle whether images should be smoothed or not
+            _setPixelArt: function(enabled) {
+                var style = Crafty.stage.inner.style;
+                if (enabled) {
+                    style[Crafty.DOM.camelize("image-rendering")] = "optimizeSpeed";   /* legacy */
+                    style[Crafty.DOM.camelize("image-rendering")] = "-moz-crisp-edges";    /* Firefox */
+                    style[Crafty.DOM.camelize("image-rendering")] = "-o-crisp-edges";  /* Opera */
+                    style[Crafty.DOM.camelize("image-rendering")] = "-webkit-optimize-contrast";   /* Webkit (Chrome & Safari) */
+                    style[Crafty.DOM.camelize("-ms-interpolation-mode")] = "nearest-neighbor";  /* IE */
+                    style[Crafty.DOM.camelize("image-rendering")] = "optimize-contrast";   /* CSS3 proposed */
+                    style[Crafty.DOM.camelize("image-rendering")] = "pixelated";   /* CSS4 proposed */
+                    style[Crafty.DOM.camelize("image-rendering")] = "crisp-edges"; /* CSS4 proposed */
+                } else {
+                    style[Crafty.DOM.camelize("image-rendering")] = "optimizeQuality";   /* legacy */
+                    style[Crafty.DOM.camelize("-ms-interpolation-mode")] = "bicubic";   /* IE */
+                    style[Crafty.DOM.camelize("image-rendering")] = "auto";   /* CSS3 */
+                }
             },
 
             width: 0,
