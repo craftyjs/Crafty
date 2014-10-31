@@ -17,29 +17,36 @@ Crafty.extend({
      * @see Crafty.loader
      */
     assets: {},
-    __paths: { audio: "assets/audio/", images: "assets/images/" },
+    __paths: { audio: "", images: "" },
     /**@
      * #Crafty.paths
      * @category Assets
      * @sign public void Crafty.paths([Object paths])
      * @param paths - Object containing paths for audio and images folders
-     * This method works as a setter and getter for Crafty.__paths property, which holds values for
-     * audio and images folders, where files are stored. Default audio folder is 'assets/audio/',
-     * default images folder is 'assets/images/'(relative to the main page). 
      *
-     * Returns paths object with values for audio and images folders if no argument is passed. To set
-     * custom folders, pass an object as argument, with audio and images properties.
+     * Function to define custom folder for audio and images. You should use
+     * this function to avoid typing the same paths again and again when
+     * loading assets with the Crafty.load() function.
+     *
+     * If you do not give a object you get the current paths for both audio
+     * and images back.
+     *
+     * You do not have to define paths.
      *
      * @example
      *
-     * Get audio folder:
-     * ~~~
-     * var audioFolder = Crafty.paths().audio;
-     * ~~~
      *
      * Setting folders:
      * ~~~
      * Crafty.paths({ audio: "custom/audio/path/", images: "custom/images/path/" });
+     *
+     * Crafty.load({ 
+     *   "audio": {
+     *     "ray": ['ray.mp3'] // This loads ray.mp3 from custom/audio/path/ray.mp3
+     *   }
+     * }, function() {
+     *   console.log('loaded');
+     * });
      * ~~~
      *
      * @see Crafty.load
