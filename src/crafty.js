@@ -30,3 +30,4 @@ require('./version');
 require('./viewport');
 
 window.Crafty = Crafty;
+module.exports = Crafty;
