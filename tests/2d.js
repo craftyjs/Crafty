@@ -255,11 +255,20 @@
 
 
   // This test assumes that the "circles" are really octagons, as per Crafty.circle.
-  test("SAT", function() {
+  test("SAT overlap with circles", function() {
     var e = Crafty.e("2D, Collision");
     var c1 = new Crafty.circle(100, 100, 10);
     var c2 = new Crafty.circle(100, 105, 10);
     strictEqual((e._SAT(c1, c2).overlap < -13.8 && e._SAT(c1, c2).overlap > -13.9), true, "Expected overlap to be about -13.86 ( or 15 cos[pi/8])");
+
+  });
+
+  // Testcase from issue #828 by VHonzik
+  test("SAT overlap with rectangles", function() {
+    var e = Crafty.e("2D, Collision");
+    var c1 = new Crafty.polygon([[0,1], [50, 1], [50, 51], [0, 51]]);
+    var c2 = new Crafty.polygon([[-10, -10], [-10, 10], [10, 10], [10, -10]]);
+    strictEqual(e._SAT(c1, c2) !== false, true, "Polygons should test as overlapping");
 
   });
 
