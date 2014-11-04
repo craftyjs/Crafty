@@ -637,24 +637,27 @@ Crafty.fn = Crafty.prototype = {
     bind: function (event, callback) {
 
         // (To learn how the handlers object works, see inline comment at Crafty.bind)
+        var h = handlers[event] || (handlers[event] = {}), callbacks;
 
         //optimization for 1 entity
         if (this.length === 1) {
-            if (!handlers[event]) handlers[event] = {};
-            var h = handlers[event];
-
-            if (!h[this[0]]) h[this[0]] = []; //init handler array for entity
-            h[this[0]].push(callback); //add current callback
+            callbacks = h[this[0]];
+            if (!callbacks) {
+                callbacks = h[this[0]] = []; //init handler array for entity
+                callbacks.depth = 0; // metadata indicating call depth
+            }
+            callbacks.push(callback); //add current callback
             return this;
         }
 
         this.each(function () {
             //init event collection
-            if (!handlers[event]) handlers[event] = {};
-            var h = handlers[event];
-
-            if (!h[this[0]]) h[this[0]] = []; //init handler array for entity
-            h[this[0]].push(callback); //add current callback
+            callbacks = h[this[0]];
+            if (!callbacks) {
+                callbacks = h[this[0]] = []; //init handler array for entity
+                callbacks.depth = 0; // metadata indicating call depth
+            }
+            callbacks.push(callback); //add current callback
         });
         return this;
     },
@@ -715,7 +718,7 @@ Crafty.fn = Crafty.prototype = {
     unbind: function (event, callback) {
         // (To learn how the handlers object works, see inline comment at Crafty.bind)
         this.each(function () {
-            var hdl = handlers[event],
+            var hdl = handlers[event] || (handlers[event] = {}),
                 i = 0,
                 l, current;
             //if no events, cancel
@@ -756,20 +759,24 @@ Crafty.fn = Crafty.prototype = {
      * Unlike DOM events, Crafty events are exectued synchronously.
      */
     trigger: function (event, data) {
+        var h = handlers[event] || (handlers[event] = {});
         // (To learn how the handlers object works, see inline comment at Crafty.bind)
         if (this.length === 1) {
-            //find the handlers assigned to the event and entity
-            if (handlers[event] && handlers[event][this[0]]) {
-                var callbacks = handlers[event][this[0]],
-                    i;
-                for (i = 0; i < callbacks.length; i++) {
-                    if (typeof callbacks[i] === "undefined") {
+            //find the handlers assigned to the entity
+            if (h && h[this[0]]) {
+                var callbacks = h[this[0]],
+                    i, l=callbacks.length;
+                callbacks.depth++;
+                for (i = 0; i < l; i++) {
+                    if (typeof callbacks[i] === "undefined" && callbacks.depth<=1) {
                         callbacks.splice(i, 1);
                         i--;
+                        l--;
                     } else {
                         callbacks[i].call(this, data);
                     }
                 }
+                callbacks.depth--;
             }
             return this;
         }
@@ -778,15 +785,18 @@ Crafty.fn = Crafty.prototype = {
             //find the handlers assigned to the event and entity
             if (handlers[event] && handlers[event][this[0]]) {
                 var callbacks = handlers[event][this[0]],
-                    i;
-                for (i = 0; i < callbacks.length; i++) {
-                    if (typeof callbacks[i] === "undefined") {
+                    i, l=callbacks.length;
+                callbacks.depth++;
+                for (i = 0; i < l; i++) {
+                    if (typeof callbacks[i] === "undefined" && callbacks.depth<=1) {
                         callbacks.splice(i, 1);
                         i--;
+                        l--;
                     } else {
                         callbacks[i].call(this, data);
                     }
                 }
+                callbacks.depth--;
             }
         });
         return this;
@@ -1456,7 +1466,7 @@ Crafty.extend({
     trigger: function (event, data) {
 
         // (To learn how the handlers object works, see inline comment at Crafty.bind)
-        var hdl = handlers[event],
+        var hdl = handlers[event] || (handlers[event] = {}),
             h, i, l, callbacks, context;
         //loop over every object bound
         for (h in hdl) {
@@ -1469,18 +1479,24 @@ Crafty.extend({
             //if an entity, call with that context; else the global context
             if (entities[h])
                 context = Crafty(+h);
-            else
+            else if (h === 'global')
                 context = Crafty;
+            else
+                continue;
 
+            callbacks.depth++;
+            l = callbacks.length;
             //loop over every handler within object
-            for (i = 0; i < callbacks.length; i++) {
+            for (i = 0; i < l; i++) {
                 // Remove a callback if it has been deleted
-                if (typeof callbacks[i] === "undefined") {
+                if (typeof callbacks[i] === "undefined" && callbacks.depth <=1) {
                     callbacks.splice(i, 1);
                     i--;
+                    l--;
                 } else
                     callbacks[i].call(context, data);
             }
+            callbacks.depth--;
         }
     },
 
@@ -1518,10 +1534,12 @@ Crafty.extend({
         //
         // handlers[event][entityID or 'global'] === (Array of callback functions)
 
-        if (!handlers[event]) handlers[event] = {};
-        var hdl = handlers[event];
+        var hdl = handlers[event] || (handlers[event] = {});
 
-        if (!hdl.global) hdl.global = [];
+        if (!hdl.global) {
+            hdl.global = [];
+            hdl.global.depth =0;
+        }
         hdl.global.push(callback);
         return callback;
     },
