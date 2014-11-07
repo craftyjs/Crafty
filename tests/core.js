@@ -290,6 +290,18 @@
     Crafty.unbind(frameFunction);
   });
 
+  test("Crafty.stop(true)", function(){
+    var test = Crafty.e('2D');
+    Crafty.stop(true);
+    Crafty.init();
+
+    var newTest = Crafty.e('2D');
+    var components = Crafty.components();
+    
+    ok(Object.keys(components).length, 
+      'There should still be components after doing a hard reset');
+  });
+
   module("Scenes");
 
   test("Scene calling", function() {
