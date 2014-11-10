@@ -39,25 +39,25 @@ var version = require('./version');
 
 var Crafty = function (selector) {
     return new Crafty.fn.init(selector);
-},
+};
     // Internal variables
-    GUID, frame, components, entities, handlers, onloads,
-    slice, rlist, rspace, milliSecPerFrame;
+var GUID, frame, components, entities, handlers, onloads,
+slice, rlist, rspace, milliSecPerFrame;
 
 
-    initState = function () {
-        GUID = 1; //GUID for entity IDs
-        frame = 0;
+components  = {}; // Map of components and their functions
+slice       = Array.prototype.slice;
+rlist       = /\s*,\s*/;
+rspace      = /\s+/;
 
-        components = {}; //map of components and their functions
-        entities = {}; //map of entities and their data
-        handlers = {}; //global event handlers
-        onloads = []; //temporary storage of onload handlers
+var initState = function () {
+    GUID        = 1; // GUID for entity IDs
+    frame       = 0;
 
-        slice = Array.prototype.slice;
-        rlist = /\s*,\s*/;
-        rspace = /\s+/;
-    };
+    entities    = {}; // Map of entities and their data
+    handlers    = {}; // Global event handlers
+    onloads     = []; // Temporary storage of onload handlers
+};
 
 initState();
 
