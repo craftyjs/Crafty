@@ -155,8 +155,8 @@ Crafty.extend({
      * "images" and "sprites" properties, only those you'll need. For example, if you don't need to preload
      * sprites, you can omit that property.
      * 
-     * Default folders for storing and locating assets are 'assets/audio' and 'assets/images'. For changing these,
-     * use the function Crafty.paths.
+     * By default, Crafty will assume all files are in the current path.  For changing these,
+     * use the function `Crafty.paths`.
      * 
      * Files with suffixes in `image_whitelist` (case insensitive) will be loaded.
      * 
@@ -226,12 +226,12 @@ Crafty.extend({
      */
     load: function (data, oncomplete, onprogress, onerror) {
       
-        data = typeof data === "string"?JSON.parse(data):data;
+        data = (typeof data === "string" ? JSON.parse(data) : data);
       
         var j = 0,
-            total = (data.audio? Object.keys(data.audio).length : 0) +
-              (data.images? Object.keys(data.images).length : 0) +
-              (data.sprites? Object.keys(data.sprites).length : 0),
+            total = (data.audio ? Object.keys(data.audio).length : 0) +
+              (data.images ? Object.keys(data.images).length : 0) +
+              (data.sprites ? Object.keys(data.sprites).length : 0),
             current, fileUrl, obj, type, asset,
             audSupport = Crafty.support.audio,
             paths = Crafty.paths(),
@@ -239,7 +239,7 @@ Crafty.extend({
                 return f.substr(f.lastIndexOf('.') + 1, 3).toLowerCase();
             },
             getFilePath = function(type,f) {
-                return f.search("://") === -1? (type=="audio"? paths.audio + f : paths.images + f) : f;
+                return (f.search("://") === -1 ? (type == "audio" ? paths.audio + f : paths.images + f) : f);
             },
             // returns null if 'a' is not already a loaded asset, obj otherwise
             isAsset = function(a) {
@@ -267,7 +267,7 @@ Crafty.extend({
             if (this.removeEventListener)
                 this.removeEventListener('canplaythrough', pro, false);
 
-            ++j;
+            j++;
             //if progress callback, give information of assets loaded, total and percent
             if (onprogress)
                 onprogress({
@@ -320,7 +320,7 @@ Crafty.extend({
                     if (obj && obj.addEventListener)
                         obj.addEventListener('canplaythrough', pro, false);
                 } else {
-                    asset = type === "sprites"? asset : current;
+                    asset = (type === "sprites" ? asset : current);
                     fileUrl = getFilePath(type, asset);
                     if (isValidImage(asset)) {
                         obj = isAsset(fileUrl);
@@ -395,12 +395,12 @@ Crafty.extend({
      */
     removeAssets: function(data) {
       
-        data = typeof data === "string"?JSON.parse(data):data;
+        data = (typeof data === "string" ? JSON.parse(data) : data);
       
         var current, fileUrl, type, asset,
             paths = Crafty.paths(),
             getFilePath = function(type,f) {
-                return f.search("://") === -1? (type=="audio"? paths.audio + f : paths.images + f) : f;
+                return (f.search("://") === -1 ? (type == "audio" ? paths.audio + f : paths.images + f) : f);
             };
       
         for (type in data) {
@@ -422,7 +422,7 @@ Crafty.extend({
                             Crafty.audio.remove(asset);
                     }
                 } else {
-                    asset = type === "sprites"? asset : current;
+                    asset = (type === "sprites" ? asset : current);
                     fileUrl = getFilePath(type, asset);
                     if (Crafty.asset(fileUrl)) {
                         if (type === "sprites")

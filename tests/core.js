@@ -298,7 +298,7 @@
     var newTest = Crafty.e('2D');
     var components = Crafty.components();
     
-    ok(Object.keys(components).length, 
+    ok(Object.keys(components).length,
       'There should still be components after doing a hard reset');
   });
 
