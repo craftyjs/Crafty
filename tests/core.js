@@ -468,8 +468,8 @@
       h: 20
     }).collision();
     e.matchHitBox(); // only necessary until collision works properly!
-    equal(e.polygon.points[0][0], 10, "WiredHitBox -- correct x coord for upper right corner");
-    equal(e.polygon.points[2][1], 30, "correct y coord for lower right corner");
+    equal(e.polygon.points[0], 10, "WiredHitBox -- correct x coord for upper right corner");
+    equal(e.polygon.points[5], 30, "correct y coord for lower right corner");
     notEqual(typeof e._debug.strokeStyle, "undefined", "stroke style is assigned");
     equal(typeof e._debug.fillStyle, "undefined", "fill style is undefined");
 
@@ -482,14 +482,14 @@
       h: 20
     }).collision();
     e2.matchHitBox(); // only necessary until collision works properly!
-    equal(e2.polygon.points[0][0], 10, "SolidHitBox -- correct x coord for upper right corner");
-    equal(e2.polygon.points[2][1], 30, "correct y coord for lower right corner");
+    equal(e2.polygon.points[0], 10, "SolidHitBox -- correct x coord for upper right corner");
+    equal(e2.polygon.points[5], 30, "correct y coord for lower right corner");
     equal(typeof e2._debug.strokeStyle, "undefined", "stroke style is undefined");
     notEqual(typeof e2._debug.fillStyle, "undefined", "fill style is assigned");
 
-    e2.collision(new Crafty.polygon([0, 0], [15, 0], [0, 15]));
+    e2.collision(new Crafty.polygon([0, 0, 15, 0, 0, 15]));
     e2.matchHitBox();
-    equal(e2.polygon.points[2][1], 25, "After change -- correct y coord for third point");
+    equal(e2.polygon.points[5], 25, "After change -- correct y coord for third point");
 
     e2.destroy();
 

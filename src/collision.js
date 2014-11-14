@@ -57,8 +57,8 @@ Crafty.c("Collision", {
      * @sign public this .collision([Crafty.polygon polygon])
      * @param polygon - Crafty.polygon object that will act as the hit area.
      *
-     * @sign public this .collision(Array point1, .., Array pointN)
-     * @param point# - Array of [x, y] coordinate pairs to generate a hit area polygon.
+     * @sign public this .collision(x1, y1,.., xN, yN)
+     * @param point# - Array of x, y coordinate pairs to generate a hit area polygon.
      *
      * Constructor that takes a polygon or array of points to use as the hit area,
      * with points being relative to the object's position in its unrotated state.
@@ -72,10 +72,10 @@ Crafty.c("Collision", {
      * @example
      * ~~~
      * Crafty.e("2D, Collision").collision(
-     *     new Crafty.polygon([50,0], [100,100], [0,100])
+     *     new Crafty.polygon([50, 0, 100, 100, 0,1 00])
      * );
      *
-     * Crafty.e("2D, Collision").collision([50,0], [100,100], [0,100]);
+     * Crafty.e("2D, Collision").collision([50, 0, 100, 100, 0, 100]);
      * ~~~
      *
      * @see Crafty.polygon
@@ -90,7 +90,7 @@ Crafty.c("Collision", {
         if (!poly) {
             // If no polygon is specified, then a polygon is created that matches the bounds of the entity
             // It will be adjusted on a "Resize" event
-            poly = new Crafty.polygon([0, 0], [this._w, 0], [this._w, this._h], [0, this._h]);
+            poly = new Crafty.polygon([0, 0, this._w, 0, this._w, this._h, 0, this._h]);
             this.bind("Resize", this._resizeMap);
             this._cbr = null;
         } else {
@@ -133,19 +133,18 @@ Crafty.c("Collision", {
     // It uses a pretty naive algorithm to do so, for more complicated options see [wikipedia](http://en.wikipedia.org/wiki/Bounding_sphere).
     _findBounds: function(points) {
         var minX = Infinity, maxX = -Infinity, minY=Infinity, maxY=-Infinity;
-        var p;
+        var p, l = points.length;
 
         // Calculate the MBR of the points by finding the min/max x and y
-        for (var i=0; i<points.length; ++i){
-            p = points[i];
-            if (p[0] < minX)
-                minX = p[0];
-            if (p[0] > maxX)
-                maxX = p[0];
-            if (p[1] < minY)
-                minY = p[1];
-            if (p[1] > maxY)
-                maxY = p[1];
+        for (var i=0; i<l; i+=2){
+            if (points[i] < minX)
+                minX = points[i];
+            if (points[i] > maxX)
+                maxX = points[i];
+            if (points[i+1] < minY)
+                minY = points[i+1];
+            if (points[i+1] > maxY)
+                maxY = points[i+1];
         }
 
         // This describes a circle centered on the MBR of the points, with a diameter equal to its diagonal
@@ -202,8 +201,8 @@ Crafty.c("Collision", {
             }
 
             // "top right" point shifts on change of w
-            points[1][0] += dx;
-            points[1][1] += dy;
+            points[2] += dx;
+            points[3] += dy;
         } else {
             if (rot) {
                 dy = e.amount * Math.cos(rot);
@@ -214,13 +213,13 @@ Crafty.c("Collision", {
             }
 
             // "bottom left" point shifts on change of h
-            points[3][0] += dx;
-            points[3][1] += dy;
+            points[6] += dx;
+            points[7] += dy;
         }
 
         // "bottom right" point shifts on either change
-        points[2][0] += dx;
-        points[2][1] += dy;
+        points[4] += dx;
+        points[5] += dy;
     },
 
     /**@
@@ -561,39 +560,32 @@ Crafty.c("Collision", {
     },
 
     _SAT: function (poly1, poly2) {
-        var points1 = poly1.points,
-            points2 = poly2.points,
-            i = 0,
-            l = points1.length,
-            j, k = points2.length,
-            normal = {
-                x: 0,
-                y: 0
-            },
+        var i = 0,
+            points1 = poly1.points, points2 = poly2.points,
+            l = points1.length/2,
+            j, k = points2.length/2,
+            nx=0, ny=0,
             length,
             min1, min2,
             max1, max2,
             interval,
-            MTV = null,
-            MTV2 = null,
-            MN = null,
+            MTV = -Infinity,
+            MNx = null,
+            MNy = null,
             dot,
-            nextPoint,
-            currentPoint;
-
+            np;
         //loop through the edges of Polygon 1
-        for (; i < l; i++) {
-            nextPoint = points1[(i == l - 1 ? 0 : i + 1)];
-            currentPoint = points1[i];
+        for (i=0; i < l; i++) {
+            np = (i == l - 1 ? 0 : i + 1);
 
             //generate the normal for the current edge
-            normal.x = -(nextPoint[1] - currentPoint[1]);
-            normal.y = (nextPoint[0] - currentPoint[0]);
+            nx = -(points1[2*i+1] - points1[2*np+1]);
+            ny = (points1[2*i] - points1[2*np]);
 
             //normalize the vector
-            length = Math.sqrt(normal.x * normal.x + normal.y * normal.y);
-            normal.x /= length;
-            normal.y /= length;
+            length = Math.sqrt(nx * nx + ny * ny);
+            nx /= length;
+            ny /= length;
 
             //default min max
             min1 = min2 = Infinity;
@@ -601,14 +593,14 @@ Crafty.c("Collision", {
 
             //project all vertices from poly1 onto axis
             for (j = 0; j < l; ++j) {
-                dot = points1[j][0] * normal.x + points1[j][1] * normal.y;
+                dot = points1[2*j] * nx + points1[2*j+1] * ny;
                 if (dot > max1) max1 = dot;
                 if (dot < min1) min1 = dot;
             }
 
             //project all vertices from poly2 onto axis
             for (j = 0; j < k; ++j) {
-                dot = points2[j][0] * normal.x + points2[j][1] * normal.y;
+                dot = points2[2*j] * nx + points2[2*j+1] * ny;
                 if (dot > max2) max2 = dot;
                 if (dot < min2 ) min2 = dot;
             }
@@ -616,9 +608,8 @@ Crafty.c("Collision", {
             //calculate the minimum translation vector should be negative
             if (min1 < min2) {
                 interval = min2 - max1;
-
-                normal.x = -normal.x;
-                normal.y = -normal.y;
+                nx = -nx;
+                ny = -ny;
             } else {
                 interval = min1 - max2;
             }
@@ -628,28 +619,26 @@ Crafty.c("Collision", {
                 return false;
             }
 
-            if (MTV === null || interval > MTV) {
+            if (interval > MTV) {
                 MTV = interval;
-                MN = {
-                    x: normal.x,
-                    y: normal.y
-                };
+                MNx = nx;
+                MNy = ny;
             }
         }
 
         //loop through the edges of Polygon 2
         for (i = 0; i < k; i++) {
-            nextPoint = points2[(i == k - 1 ? 0 : i + 1)];
-            currentPoint = points2[i];
+            np = (i == k - 1 ? 0 : i + 1);
 
             //generate the normal for the current edge
-            normal.x = -(nextPoint[1] - currentPoint[1]);
-            normal.y = (nextPoint[0] - currentPoint[0]);
+            nx = -(points2[2*i+1] - points2[2*np+1]);
+            ny = (points2[2*i] - points2[2*np]);
+
 
             //normalize the vector
-            length = Math.sqrt(normal.x * normal.x + normal.y * normal.y);
-            normal.x /= length;
-            normal.y /= length;
+            length = Math.sqrt(nx * nx + ny * ny);
+            nx /= length;
+            ny /= length;
 
             //default min max
             min1 = min2 = Infinity;
@@ -657,14 +646,14 @@ Crafty.c("Collision", {
 
             //project all vertices from poly1 onto axis
             for (j = 0; j < l; ++j) {
-                dot = points1[j][0] * normal.x + points1[j][1] * normal.y;
+                dot = points1[2*j] * nx + points1[2*j+1] * ny;
                 if (dot > max1) max1 = dot;
                 if (dot < min1) min1 = dot;
             }
 
             //project all vertices from poly2 onto axis
             for (j = 0; j < k; ++j) {
-                dot = points2[j][0] * normal.x + points2[j][1] * normal.y;
+                dot = points2[2*j] * nx + points2[2*j+1] * ny;
                 if (dot > max2) max2 = dot;
                 if (dot < min2) min2 = dot;
             }
@@ -672,9 +661,8 @@ Crafty.c("Collision", {
             //calculate the minimum translation vector should be negative
             if (min1 < min2) {
                 interval = min2 - max1;
-
-                normal.x = -normal.x;
-                normal.y = -normal.y;
+                nx = -nx;
+                ny = -ny;
             } else {
                 interval = min1 - max2;
             }
@@ -684,19 +672,19 @@ Crafty.c("Collision", {
                 return false;
             }
 
-            if (MTV === null || interval > MTV) MTV = interval;
-            if (interval > MTV2 || MTV2 === null) {
-                MTV2 = interval;
-                MN = {
-                    x: normal.x,
-                    y: normal.y
-                };
+            if (interval > MTV) {
+                MTV = interval;
+                MNx = nx;
+                MNy = ny;
             }
         }
 
         return {
-            overlap: MTV2,
-            normal: MN
+            overlap: MTV,
+            normal: {
+                x: MNx,
+                y: MNy
+            }
         };
     }
 });
