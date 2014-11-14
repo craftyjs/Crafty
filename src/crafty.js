@@ -29,4 +29,6 @@ require('./time');
 require('./version');
 require('./viewport');
 
-window.Crafty = Crafty;
+if(window) window.Crafty = Crafty;
+
+module.exports = Crafty;

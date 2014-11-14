@@ -123,6 +123,49 @@
 
   });
 
+  test("bind groups of entities", function() {
+    var e1 = Crafty.e("test"), e2 = Crafty.e("test");
+    var test_callback = function(){
+      this.test_flag = true;
+    };
+    Crafty("test").bind("TestEvent", test_callback);
+    e1.trigger("TestEvent");
+    strictEqual(e1.test_flag, true, "Entity event triggered on first entity");
+    notStrictEqual(e2.test_flag, false, "Not triggered on second ");
+
+    e1.test_flag = false;
+
+    Crafty.trigger("TestEvent");
+    strictEqual(e1.test_flag, true, "Global event triggered on first entity");
+    strictEqual(e2.test_flag, true, "Global event triggered on second entity");
+
+  });
+
+  test("trigger groups of entities", function(){
+    var e1 = Crafty.e("test"), e2 = Crafty.e("test");
+    var test_callback = function(){
+      this.test_flag = true;
+    };
+    e1.bind("TestEvent", test_callback);
+    e2.bind("TestEvent", test_callback);
+    Crafty("test").trigger("TestEvent");
+    strictEqual(e1.test_flag, true, "Triggered on first entity");
+    strictEqual(e2.test_flag, true, "Triggered on second entity");
+  });
+
+  test("bind to an event in response to that same event", function() {
+    var first = Crafty.e("test"),
+      triggered = 0;
+    function increment(){ triggered++; }
+    first.bind("myevent", function() {
+      increment();
+      first.bind("myevent", increment);
+    });
+    first.trigger("myevent");
+    strictEqual(triggered, 1, "event added in response to an event should not be triggered by that same event");
+
+  });
+
   test("unbind", function() {
     var first = Crafty.e("test");
     first.bind("myevent", function() {
@@ -288,6 +331,18 @@
     ok(frameNumber, '.frame function should return a value.');
 
     Crafty.unbind(frameFunction);
+  });
+
+  test("Crafty.stop(true)", function(){
+    var test = Crafty.e('2D');
+    Crafty.stop(true);
+    Crafty.init();
+
+    var newTest = Crafty.e('2D');
+    var components = Crafty.components();
+    
+    ok(Object.keys(components).length,
+      'There should still be components after doing a hard reset');
   });
 
   module("Scenes");
