@@ -141,8 +141,8 @@ Crafty.c("Tween", {
 	* Rotate an object over 2 seconds
 	* ~~~
 	* Crafty.e("2D, Tween")
-	*    .attr({rotate:0})
-	*    .tween({rotate:180}, 2000)
+	*    .attr({rotation:0})
+	*    .tween({rotation:180}, 2000)
 	* ~~~
 	*
 	*/

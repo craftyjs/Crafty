@@ -1,6 +1,6 @@
 {
   "name": "craftyjs",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "title": "Crafty game framework",
   "author": {
     "name": "Louis Stowasser",
@@ -9,6 +9,7 @@
   "branches": {
     "develop": true
   },
+  "main": "src/crafty.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/craftyjs/Crafty.git"
@@ -33,49 +34,19 @@
   },
   "jsfiddle": "disable",
   "homepage": "https://github.com/craftyjs/Crafty",
-  "files": [
-    "src/core.js",
-    "src/HashMap.js",
-    "src/2D.js",
-    "src/scenes.js",
-    "src/collision.js",
-    "src/DOM.js",
-    "src/html.js",
-    "src/storage.js",
-    "src/extensions.js",
-    "src/viewport.js",
-    "src/device.js",
-    "src/sprite.js",
-    "src/canvas.js",
-    "src/controls.js",
-    "src/animation.js",
-    "src/sprite-animation.js",
-    "src/drawing.js",
-    "src/isometric.js",
-    "src/diamondiso.js",
-    "src/particles.js",
-    "src/sound.js",
-    "src/text.js",
-    "src/loader.js",
-    "src/math.js",
-    "src/time.js",
-    "src/DebugLayer.js",
-    "src/keycodes.js"
-  ],
   "dependencies": {
-    "grunt": "~0.4.1",
-    "grunt-contrib-uglify": "0.2.0",
-    "grunt-contrib-concat": "0.3.0",
-    "grunt-contrib-jshint": "0.5.2",
-    "grunt-contrib-qunit": "0.2.1",
-    "grunt-jsvalidate": "0.2.1",
-    "marked": "0.2.9",
-    "coffee-script": "1.6.3",
-    "grunt-browserify": "~1.2.9",
-    "grunt-banner": "~0.2.0",
-    "grunt-contrib-watch": "~0.5.3"
   },
   "devDependencies": {
-    "grunt-contrib-connect": "~0.6.0"
+    "grunt-contrib-connect": "^0.8.0",
+    "coffee-script": "1.7.1",
+    "grunt": "^0.4.5",
+    "grunt-banner": "^0.2.3",
+    "grunt-browserify": "^2.1.4",
+    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-contrib-qunit": "^0.4.0",
+    "grunt-contrib-uglify": "^0.5.1",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-jsvalidate": "^0.2.2",
+    "marked": "^0.3.2"
   }
 }

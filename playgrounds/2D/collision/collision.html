@@ -1,0 +1,71 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<script src="../../../tests/lib/jquery.min.js"></script>
+		<script type="text/javascript" src="../../../crafty.js"></script>
+	</head>
+	<body>
+		<h1>Collision playground:</h1>
+		<div id="cr-stage" style="border: solid black 8px;"></div>
+		<script type="text/javascript" src="collision.js"></script>
+		<div>
+			<h4>Hit checks (these are written to the console):</h4>
+			<style>th,td{border: solid 1px; padding: 4px; text-align: center }</style>
+			<table style="border-spacing: 0">
+				<tr>
+					<th></th>
+					<th>Trapezoid</th>
+					<th>Parallelogram</th>
+					<th>Square (Yellow)</th>
+					<th>Square (Purple)</th>
+					<th>Square (Green)</th>
+				</tr>
+				<tr>
+					<th>Trapezoid</th>
+					<td></td>
+					<td><input type='checkbox' onclick="setHitEvents(this.checked, trapezoid, 'Parallelogram');"></input></td>
+					<td><input type='checkbox' onclick="setHitEvents(this.checked, trapezoid, 'Yellow');"></input></td>
+					<td><input type='checkbox' onclick="setHitEvents(this.checked, trapezoid, 'Purple');"></input></td>
+					<td><input type='checkbox' onclick="setHitEvents(this.checked, trapezoid, 'Green');"></input></td>
+					<td><button onclick="trapezoid.resetHitChecks();">Reset check</button></td>
+				</tr>
+				<tr>
+					<th>Parallelogram</th>
+					<td><input type='checkbox' onclick="setHitEvents(this.checked, parallelogram, 'Trapezoid');"></input></td>
+					<td></td>
+					<td><input type='checkbox' onclick="setHitEvents(this.checked, parallelogram, 'Yellow');"></input></td>
+					<td><input type='checkbox' onclick="setHitEvents(this.checked, parallelogram, 'Purple');"></input></td>
+					<td><input type='checkbox' onclick="setHitEvents(this.checked, parallelogram, 'Green');"></input></td>
+					<td><button onclick="parallelogram.resetHitChecks();">Reset check</button></td>
+				</tr>
+				<tr>
+					<th>Square (Yellow)</th>
+					<td><input type='checkbox' onclick="setHitEvents(this.checked, yellow, 'Trapezoid');"></input></td>
+					<td><input type='checkbox' onclick="setHitEvents(this.checked, yellow, 'Parallelogram');"></input></td>
+					<td></td>
+					<td><input type='checkbox' onclick="setHitEvents(this.checked, yellow, 'Purple');"></input></td>
+					<td><input type='checkbox' onclick="setHitEvents(this.checked, yellow, 'Green');"></input></td>
+					<td><button onclick="yellow.resetHitChecks();">Reset check</button></td>
+				</tr>
+				<tr>
+					<th>Square (Purple)</th>
+					<td><input type='checkbox' onclick="setHitEvents(this.checked, purple, 'Trapezoid');"></input></td>
+					<td><input type='checkbox' onclick="setHitEvents(this.checked, purple, 'Parallelogram');"></input></td>
+					<td><input type='checkbox' onclick="setHitEvents(this.checked, purple, 'Yellow');"></input></td>
+					<td></td>
+					<td><input type='checkbox' onclick="setHitEvents(this.checked, purple, 'Green');"></input></td>
+					<td><button onclick="purple.resetHitChecks();">Reset check</button></td>
+				</tr>
+				<tr>
+					<th>Square (Green)</th>
+					<td><input type='checkbox' onclick="setHitEvents(this.checked, green, 'Trapezoid');"></input></td>
+					<td><input type='checkbox' onclick="setHitEvents(this.checked, green, 'Parallelogram');"></input></td>
+					<td><input type='checkbox' onclick="setHitEvents(this.checked, green, 'Yellow');"></input></td>
+					<td><input type='checkbox' onclick="setHitEvents(this.checked, green, 'Purple');"></input></td>
+					<td></td>
+					<td><button onclick="green.resetHitChecks();">Reset check</button></td>
+				</tr>
+			</table>
+		</div>
+	</body>
+</html>

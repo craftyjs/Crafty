@@ -1,0 +1,34 @@
+var Crafty = require('./core');
+require('./2D');
+require('./animation');
+require('./canvas');
+require('./collision');
+require('./color');
+require('./controls');
+require('./DebugLayer');
+require('./device');
+require('./diamondiso');
+require('./DOM');
+require('./drawing');
+require('./extensions');
+require('./HashMap');
+require('./html');
+require('./isometric');
+require('./keycodes');
+require('./loader');
+require('./math');
+require('./model');
+require('./particles');
+require('./scenes');
+require('./sound');
+require('./sprite-animation');
+require('./sprite');
+require('./storage');
+require('./text');
+require('./time');
+require('./version');
+require('./viewport');
+
+if(window) window.Crafty = Crafty;
+
+module.exports = Crafty;

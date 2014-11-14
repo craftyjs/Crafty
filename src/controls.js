@@ -27,24 +27,43 @@ Crafty.extend({
      * ~~~
      * @see Keyboard, Crafty.keys
      */
-
     detectBlur: function (e) {
         var selected = ((e.clientX > Crafty.stage.x && e.clientX < Crafty.stage.x + Crafty.viewport.width) &&
             (e.clientY > Crafty.stage.y && e.clientY < Crafty.stage.y + Crafty.viewport.height));
 
-        if (!Crafty.selected && selected)
+        if (!Crafty.selected && selected) {
             Crafty.trigger("CraftyFocus");
-        if (Crafty.selected && !selected)
+        }
+        
+        if (Crafty.selected && !selected) {
             Crafty.trigger("CraftyBlur");
-
+        }
+        
         Crafty.selected = selected;
     },
+    
+    resetKeyDown: function() {
+        // Tell all the keys they're no longer held down
+        for (var k in Crafty.keys) {
+             if (Crafty.keydown[Crafty.keys[k]]) {
+                 this.trigger("KeyUp", {
+                     key: Crafty.keys[k]
+                 });
+             }
+        }
+		
+        Crafty.keydown = {};
+    },
+    
     /**@
      * #Crafty.mouseDispatch
      * @category Input
      *
      * Internal method which dispatches mouse events received by Crafty (crafty.stage.elem).
      * The mouse events get dispatched to the closest entity to the source of the event (if available).
+     *
+     * You can read more about the MouseEvent, which is the parameter passed to the callback.
+     * https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent
      *
      * This method also sets a global property Crafty.lastEvent, which holds the most recent event that
      * occured (useful for determining mouse position in every frame).
@@ -56,11 +75,11 @@ Crafty.extend({
      * Notable properties of a MouseEvent e:
      * ~~~
      * //(x,y) coordinates of mouse event in web browser screen space
-     * e.clientX, e.clientY	
+     * e.clientX, e.clientY
      * //(x,y) coordinates of mouse event in world/viewport space
-     * e.realX, e.realY		
+     * e.realX, e.realY
      * // Normalized mouse button according to Crafty.mouseButtons
-     * e.mouseButton			
+     * e.mouseButton
      * ~~~
      * @see Crafty.touchDispatch
      */
@@ -336,6 +355,7 @@ Crafty.bind("Load", function () {
     Crafty.addEvent(this, Crafty.stage.elem, "mousedown", Crafty.mouseDispatch);
     Crafty.addEvent(this, Crafty.stage.elem, "mouseup", Crafty.mouseDispatch);
     Crafty.addEvent(this, document.body, "mouseup", Crafty.detectBlur);
+    Crafty.addEvent(this, window, "blur", Crafty.resetKeyDown);
     Crafty.addEvent(this, Crafty.stage.elem, "mousemove", Crafty.mouseDispatch);
     Crafty.addEvent(this, Crafty.stage.elem, "click", Crafty.mouseDispatch);
     Crafty.addEvent(this, Crafty.stage.elem, "dblclick", Crafty.mouseDispatch);
@@ -366,30 +386,41 @@ Crafty.bind("CraftyStop", function () {
     }
 
     Crafty.removeEvent(this, document.body, "mouseup", Crafty.detectBlur);
+    Crafty.removeEvent(this, window, "blur", Crafty.resetKeyDown);
 });
 
 /**@
  * #Mouse
  * @category Input
  * Provides the entity with mouse related events
- * @trigger MouseOver - when the mouse enters the entity - MouseEvent
- * @trigger MouseOut - when the mouse leaves the entity - MouseEvent
- * @trigger MouseDown - when the mouse button is pressed on the entity - MouseEvent
- * @trigger MouseUp - when the mouse button is released on the entity - MouseEvent
- * @trigger Click - when the user clicks the entity. [See documentation](http://www.quirksmode.org/dom/events/click.html) - MouseEvent
- * @trigger DoubleClick - when the user double clicks the entity - MouseEvent
- * @trigger MouseMove - when the mouse is over the entity and moves - MouseEvent
+ * @trigger MouseOver - when the mouse enters - MouseEvent
+ * @trigger MouseOut - when the mouse leaves - MouseEvent
+ * @trigger MouseDown - when the mouse button is pressed on - MouseEvent
+ * @trigger MouseUp - when the mouse button is released on - MouseEvent
+ * @trigger Click - when the user clicks - MouseEvent
+ * @trigger DoubleClick - when the user double clicks - MouseEvent
+ * @trigger MouseMove - when the mouse is over and moves - MouseEvent
+ *
+ * To be able to use the events on a entity, you have to remember to include the Mouse component, else the events will not get triggered.
+ *
+ * You can read more about the MouseEvent, which is the parameter passed to the callback.
+ * https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent
+ *
  * Crafty adds the mouseButton property to MouseEvents that match one of
  *
  * - Crafty.mouseButtons.LEFT
  * - Crafty.mouseButtons.RIGHT
  * - Crafty.mouseButtons.MIDDLE
  *
+ *
  * @example
  * ~~~
- * myEntity.bind('Click', function() {
- *      console.log("Clicked!!");
- * })
+ * var myEntity = Crafty.e('2D, Canvas, Color, Mouse')
+ * .attr({x: 10, y: 10, w: 40, h: 40})
+ * .color('red')
+ * .bind('Click', function(MouseEvent){
+ *   alert('clicked', MouseEvent);
+ * });
  *
  * myEntity.bind('MouseUp', function(e) {
  *    if( e.mouseButton == Crafty.mouseButtons.RIGHT )
@@ -495,7 +526,7 @@ Crafty.c("Draggable", {
 
     _onup: function (e) {
         // While a drag is occurring, this method is bound to mouseup DOM event
-        if (this._dragging === true) {
+        if (e.mouseButton === Crafty.mouseButtons.LEFT && this._dragging === true) {
             Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
             Crafty.removeEvent(this, Crafty.stage.elem, "mouseup", this._onup);
             this._dragging = false;
