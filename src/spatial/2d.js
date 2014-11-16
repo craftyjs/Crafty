@@ -144,9 +144,9 @@ Crafty.c("2D", {
     _changed: false,
 
     
-
-    _define2DProperties: function () {
-        Object.defineProperty(this, 'x', {
+    // Setup   all the properties that we need to define
+    _2D_property_definitions: {
+        x: {
             set: function (v) {
                 this._attr('_x', v);
             },
@@ -155,11 +155,10 @@ Crafty.c("2D", {
             },
             configurable: true,
             enumerable: true
-        });
+        },
+        _x: {enumerable:false},
 
-        Object.defineProperty(this, '_x', {enumerable:false});
-
-        Object.defineProperty(this, 'y', {
+        y: {
             set: function (v) {
                 this._attr('_y', v);
             },
@@ -168,10 +167,10 @@ Crafty.c("2D", {
             },
             configurable: true,
             enumerable: true
-        });
-        Object.defineProperty(this, '_y', {enumerable:false});
+        },
+        _y: {enumerable:false},
 
-        Object.defineProperty(this, 'w', {
+        w: {
             set: function (v) {
                 this._attr('_w', v);
             },
@@ -180,10 +179,10 @@ Crafty.c("2D", {
             },
             configurable: true,
             enumerable: true
-        });
-        Object.defineProperty(this, '_w', {enumerable:false});
+        },
+        _w: {enumerable:false},
 
-        Object.defineProperty(this, 'h', {
+        h: {
             set: function (v) {
                 this._attr('_h', v);
             },
@@ -192,10 +191,10 @@ Crafty.c("2D", {
             },
             configurable: true,
             enumerable: true
-        });
-        Object.defineProperty(this, '_h', {enumerable:false});
+        },
+        _h: {enumerable:false},
 
-        Object.defineProperty(this, 'z', {
+        z: {
             set: function (v) {
                 this._attr('_z', v);
             },
@@ -204,10 +203,10 @@ Crafty.c("2D", {
             },
             configurable: true,
             enumerable: true
-        });
-        Object.defineProperty(this, '_z', {enumerable:false});
+        },
+        _z: {enumerable:false},
 
-        Object.defineProperty(this, 'rotation', {
+        rotation: {
             set: function (v) {
                 this._attr('_rotation', v);
             },
@@ -216,10 +215,10 @@ Crafty.c("2D", {
             },
             configurable: true,
             enumerable: true
-        });
-        Object.defineProperty(this, '_rotation', {enumerable:false});
+        },
+        _rotation: {enumerable:false},
 
-        Object.defineProperty(this, 'alpha', {
+        alpha: {
             set: function (v) {
                 this._attr('_alpha', v);
             },
@@ -228,10 +227,10 @@ Crafty.c("2D", {
             },
             configurable: true,
             enumerable: true
-        });
-        Object.defineProperty(this, '_alpha', {enumerable:false});
+        },
+        _alpha: {enumerable:false},
 
-        Object.defineProperty(this, 'visible', {
+        visible: {
             set: function (v) {
                 this._attr('_visible', v);
             },
@@ -240,8 +239,15 @@ Crafty.c("2D", {
             },
             configurable: true,
             enumerable: true
-        });
-        Object.defineProperty(this, '_visible', {enumerable:false});
+        },
+        _visible: {enumerable:false}
+
+    },
+
+    _define2DProperties: function () {
+        for (var prop in this._2D_property_definitions){
+            Object.defineProperty(this, prop, this._2D_property_definitions[prop]);
+        }
     },
 
     init: function () {
@@ -260,7 +266,7 @@ Crafty.c("2D", {
         this._children = [];
 
         
-   
+        // create setters and getters that associate properties such as x/_x
         this._define2DProperties();
         
 
