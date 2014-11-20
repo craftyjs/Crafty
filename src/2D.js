@@ -626,29 +626,32 @@ Crafty.c("2D", {
      * on the entity it will return the rect.
      */
     mbr: function (mbr) {
-				if (!this._mbr) {
-					if (arguments.length == 1) {
-				        mbr._x = (this.pos()._x);
-				        mbr._y = (this.pos()._y);
-				        mbr._w = (this.pos()._w);
-				        mbr._h = (this.pos()._h);
-				    		return;
-					} else {
-						return this.pos();
-					}
-				} else {
+			if (!this._mbr) {
 				if (arguments.length == 1) {
-				      mbr._x = (this._mbr._x);
-				      mbr._y = (this._mbr._y);
-				      mbr._w = (this._mbr._w);
-				      mbr._h = (this._mbr._h);
+			        mbr._x = (this.pos()._x);
+			        mbr._y = (this.pos()._y);
+			        mbr._w = (this.pos()._w);
+			        mbr._h = (this.pos()._h);
+			    		return;
+				} 
+				else {
+					return this.pos();
+				}
+			} 
+			else {
+				if (arguments.length == 1) {
+					    mbr._x = (this._mbr._x);
+					    mbr._y = (this._mbr._y);
+					    mbr._w = (this._mbr._w);
+					    mbr._h = (this._mbr._h);
 				 			return;
-				} else {
-  				return {
-				    _x: (this._mbr._x),
-				    _y: (this._mbr._y),
-				    _w: (this._mbr._w),
-				    _h: (this._mbr._h)
+				} 
+				else {
+					return {
+					  _x: (this._mbr._x),
+					  _y: (this._mbr._y),
+					  _w: (this._mbr._w),
+					  _h: (this._mbr._h)
 					};
 				}
 			}
