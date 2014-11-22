@@ -591,19 +591,31 @@ Crafty.c("2D", {
      * #.pos
      * @comp 2D
      * @sign public Object .pos(void)
-     * Returns the x, y, w, h properties as a rect object
+     *
+     * @param {{}=obj} pos
+     * Returns the x, y, w, h properties as a new rect object if
+     * no object is included. If object is inclued adds x, y, w, h 
+     * to included object.
      * (a rect object is just an object with the keys _x, _y, _w, _h).
      *
      * The keys have an underscore prefix. This is due to the x, y, w, h
      * properties being merely setters and getters that wrap the properties with an underscore (_x, _y, _w, _h).
      */
-    pos: function () {
-        return {
-            _x: (this._x),
-            _y: (this._y),
-            _w: (this._w),
-            _h: (this._h)
-        };
+    pos: function (pos) {
+	if( arguments.length == 1 ){
+		pos._x = (this._x);
+		pos._y = (this._y);
+		pos._w = (this._w);
+		pos._h = (this._h);
+		return;
+	}else{
+		return {
+			_x: (this._x),
+			_y: (this._y),
+			_w: (this._w),
+			_h: (this._h)
+		};
+	}
     },
 
     /**@
