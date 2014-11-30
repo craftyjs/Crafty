@@ -602,20 +602,20 @@ Crafty.c("2D", {
      * properties being merely setters and getters that wrap the properties with an underscore (_x, _y, _w, _h).
      */
     pos: function (pos) {
-	if( arguments.length == 1 ){
-		pos._x = (this._x);
-		pos._y = (this._y);
-		pos._w = (this._w);
-		pos._h = (this._h);
-		return;
-	}else{
-		return {
-			_x: (this._x),
-			_y: (this._y),
-			_w: (this._w),
-			_h: (this._h)
-		};
-	}
+	   if( arguments.length == 1 ){
+		  pos._x = (this._x);
+		  pos._y = (this._y);
+		  pos._w = (this._w);
+		  pos._h = (this._h);
+		  return;
+	   }else{
+		  return {
+		      _x: (this._x),
+			  _y: (this._y),
+			  _w: (this._w),
+			  _h: (this._h)
+		  };
+	   }
     },
 
     /**@
