@@ -602,13 +602,13 @@ Crafty.c("2D", {
      * properties being merely setters and getters that wrap the properties with an underscore (_x, _y, _w, _h).
      */
     pos: function (pos) {
-	   if( arguments.length == 1 ){
+	   if ( pos ) {
 		  pos._x = (this._x);
 		  pos._y = (this._y);
 		  pos._w = (this._w);
 		  pos._h = (this._h);
-		  return;
-	   }else{
+		  return pos;
+	   } else {
 		  return {
 		      _x: (this._x),
 			  _y: (this._y),
@@ -626,35 +626,33 @@ Crafty.c("2D", {
      * on the entity it will return the rect.
      */
     mbr: function (mbr) {
-			if (!this._mbr) {
-				if (arguments.length == 1) {
-			        mbr._x = (this.pos()._x);
-			        mbr._y = (this.pos()._y);
-			        mbr._w = (this.pos()._w);
-			        mbr._h = (this.pos()._h);
-			    		return;
-				} 
-				else {
-					return this.pos();
-				}
+		if (!this._mbr) {
+			if (arguments.length == 1) {
+		        mbr._x = (this.pos()._x);
+		        mbr._y = (this.pos()._y);
+		        mbr._w = (this.pos()._w);
+		        mbr._h = (this.pos()._h);
+		    	return;
 			} 
 			else {
-				if (arguments.length == 1) {
-					    mbr._x = (this._mbr._x);
-					    mbr._y = (this._mbr._y);
-					    mbr._w = (this._mbr._w);
-					    mbr._h = (this._mbr._h);
-				 			return;
-				} 
-				else {
-					return {
-					  _x: (this._mbr._x),
-					  _y: (this._mbr._y),
-					  _w: (this._mbr._w),
-					  _h: (this._mbr._h)
-					};
-				}
+				return this.pos();
 			}
+		} else {
+			if (arguments.length == 1) {
+				    mbr._x = (this._mbr._x);
+				    mbr._y = (this._mbr._y);
+				    mbr._w = (this._mbr._w);
+				    mbr._h = (this._mbr._h);
+			 		return;
+			} else {
+				return {
+				  _x: (this._mbr._x),
+				  _y: (this._mbr._y),
+				  _w: (this._mbr._w),
+				  _h: (this._mbr._h)
+				};
+			}
+		}
     },
 
     /**@
