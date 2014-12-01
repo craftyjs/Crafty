@@ -690,19 +690,21 @@ Crafty.math.Matrix2D = (function () {
      * [a, c, e]
      * [b, d, f]
      * [0, 0, 1]
-     *
+     *     
      * @public
      * @sign public {Matrix2D} new Matrix2D();
      * @sign public {Matrix2D} new Matrix2D(Matrix2D);
      * @sign public {Matrix2D} new Matrix2D(Number, Number, Number, Number, Number, Number);
+     * @sign public {Matrix2D} new Matrix2D(Number, Number, Number, Number, Number, Number, Matrix2D...);
      * @param {Matrix2D|Number=1} a
      * @param {Number=0} b
      * @param {Number=0} c
      * @param {Number=1} d
      * @param {Number=0} e
      * @param {Number=0} f
+     * @param {[]=null} Matrix2D... 
      */
-    Matrix2D = function (a, b, c, d, e, f) {
+    Matrix2D = function (a, b, c, d, e, f, matrix) {
         if (a instanceof Matrix2D) {
             this.a = a.a;
             this.b = a.b;
@@ -717,6 +719,21 @@ Crafty.math.Matrix2D = (function () {
             this.d = d;
             this.e = e;
             this.f = f;
+        } else if (arguments.length >= 7) {
+			this.a = a;
+			this.b = b;
+			this.c = c;
+			this.d = d;
+			this.e = e;
+			this.f = f;
+			for (var i = arguments.length - 6; i < arguments.length; ++i) {
+				arguments[i].a = a;
+				arguments[i].b = b;
+				arguments[i].c = c;
+				arguments[i].d = d;
+				arguments[i].e = e;
+				arguments[i].f = f;        	        
+			}
         } else if (arguments.length > 0)
             throw "Unexpected number of arguments for Matrix2D()";
     }; // class Matrix2D

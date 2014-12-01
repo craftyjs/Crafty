@@ -591,19 +591,31 @@ Crafty.c("2D", {
      * #.pos
      * @comp 2D
      * @sign public Object .pos(void)
-     * Returns the x, y, w, h properties as a rect object
+     *
+     * @param {{}=obj} pos
+     * Returns the x, y, w, h properties as a new rect object if
+     * no object is included. If object is inclued adds x, y, w, h 
+     * to included object.
      * (a rect object is just an object with the keys _x, _y, _w, _h).
      *
      * The keys have an underscore prefix. This is due to the x, y, w, h
      * properties being merely setters and getters that wrap the properties with an underscore (_x, _y, _w, _h).
      */
-    pos: function () {
-        return {
-            _x: (this._x),
-            _y: (this._y),
-            _w: (this._w),
-            _h: (this._h)
-        };
+    pos: function (pos) {
+	   if ( pos ) {
+		  pos._x = (this._x);
+		  pos._y = (this._y);
+		  pos._w = (this._w);
+		  pos._h = (this._h);
+		  return pos;
+	   } else {
+		  return {
+		    _x: (this._x),
+			  _y: (this._y),
+			  _w: (this._w),
+			  _h: (this._h)
+		  };
+	   }
     },
 
     /**@
@@ -613,14 +625,33 @@ Crafty.c("2D", {
      * Returns the minimum bounding rectangle. If there is no rotation
      * on the entity it will return the rect.
      */
-    mbr: function () {
-        if (!this._mbr) return this.pos();
-        return {
-            _x: (this._mbr._x),
-            _y: (this._mbr._y),
-            _w: (this._mbr._w),
-            _h: (this._mbr._h)
-        };
+    mbr: function (mbr) {
+		if (!this._mbr) {
+			if (mbr) {
+		        mbr._x = (this.pos()._x);
+		        mbr._y = (this.pos()._y);
+		        mbr._w = (this.pos()._w);
+		        mbr._h = (this.pos()._h);
+		    	return mbr;
+			} else {
+				return this.pos();
+			}
+		} else {
+			if (mbr) {
+				 mbr._x = (this._mbr._x);
+				 mbr._y = (this._mbr._y);
+				 mbr._w = (this._mbr._w);
+				 mbr._h = (this._mbr._h);
+			 	 return mbr;
+			} else {
+				return {
+				  _x: (this._mbr._x),
+				  _y: (this._mbr._y),
+				  _w: (this._mbr._w),
+				  _h: (this._mbr._h)
+				};
+			}
+		}
     },
 
     /**@
