@@ -103,18 +103,21 @@ Crafty.c("Canvas", {
         co.w = w || coord[2];
         co.h = h || coord[3];
 
-        if (this._rotation !== 0) {
+        // If we are going to perform any entity-specific changes to the current context, save the current state
+        if (this._flipX || (this._flipY || this._rotation)) {
             context.save();
+        }
 
+        // rotate the context about this entity's origin
+        if (this._rotation !== 0) {
             context.translate(this._origin.x + this._x, this._origin.y + this._y);
             pos._x = -this._origin.x;
             pos._y = -this._origin.y;
-
             context.rotate((this._rotation % 360) * (Math.PI / 180));
         }
 
+        // We realize a flipped entity by scaling the context in the opposite direction, then adjusting the position coordinates to match
         if (this._flipX || this._flipY) {
-            context.save();
             context.scale((this._flipX ? -1 : 1), (this._flipY ? -1 : 1));
             if (this._flipX) {
                 pos._x = -(pos._x + pos._w);
@@ -135,6 +138,7 @@ Crafty.c("Canvas", {
         this.drawVars.ctx = context;
         this.trigger("Draw", this.drawVars);
 
+        // If necessary, restore context
         if (this._rotation !== 0 || (this._flipX || this._flipY)) {
             context.restore();
         }
