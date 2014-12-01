@@ -610,7 +610,7 @@ Crafty.c("2D", {
 		  return pos;
 	   } else {
 		  return {
-		      _x: (this._x),
+		    _x: (this._x),
 			  _y: (this._y),
 			  _w: (this._w),
 			  _h: (this._h)
@@ -627,23 +627,22 @@ Crafty.c("2D", {
      */
     mbr: function (mbr) {
 		if (!this._mbr) {
-			if (arguments.length == 1) {
+			if (mbr) {
 		        mbr._x = (this.pos()._x);
 		        mbr._y = (this.pos()._y);
 		        mbr._w = (this.pos()._w);
 		        mbr._h = (this.pos()._h);
-		    	return;
-			} 
-			else {
+		    	return mbr;
+			} else {
 				return this.pos();
 			}
 		} else {
-			if (arguments.length == 1) {
-				    mbr._x = (this._mbr._x);
-				    mbr._y = (this._mbr._y);
-				    mbr._w = (this._mbr._w);
-				    mbr._h = (this._mbr._h);
-			 		return;
+			if (mbr) {
+				 mbr._x = (this._mbr._x);
+				 mbr._y = (this._mbr._y);
+				 mbr._w = (this._mbr._w);
+				 mbr._h = (this._mbr._h);
+			 	 return mbr;
 			} else {
 				return {
 				  _x: (this._mbr._x),
