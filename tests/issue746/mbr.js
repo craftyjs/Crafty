@@ -1,3 +1,4 @@
+module("2D");
 test("mbr Pass In Object", function() {
     
     var player = Crafty.e("2D, DOM, Color").attr({

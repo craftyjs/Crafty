@@ -1,3 +1,4 @@
+module("2D");
 test("pos Pass In Object", function() {
     
     var player = Crafty.e("2D, DOM, Color").attr({
