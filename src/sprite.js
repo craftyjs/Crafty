@@ -193,9 +193,12 @@ Crafty.c("Sprite", {
                 // If needed, we will scale up the entire sprite sheet, and then modify the position accordingly
                 var vscale = this._h / co.h,
                     hscale = this._w / co.w,
-                    style = this._element.style;
+                    style = this._element.style,
+                    bgColor = style.backgroundColor;
 
-                style.background = style.backgroundColor + " url('" + this.__image + "') no-repeat";
+                if (bgColor === "initial") bgColor = "";
+
+                style.background = bgColor + " url('" + this.__image + "') no-repeat";
                 style.backgroundPosition = "-" + co.x * hscale + "px -" + co.y * vscale + "px";
                 // style.backgroundSize must be set AFTER style.background!
                 if (vscale != 1 || hscale != 1) {
