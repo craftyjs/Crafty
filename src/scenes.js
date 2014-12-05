@@ -154,7 +154,12 @@ Crafty.extend({
             oldScene: oldScene,
             newScene: name
         });
-        this._scenes[name].initialize.call(this, data);
+           
+        if (this._scenes.hasOwnProperty(name)) {
+            this._scenes[name].initialize.call(this, data);
+        } else {
+            console.error('The scene "' + name + '" does not exist');
+        }
 
         return;
 
