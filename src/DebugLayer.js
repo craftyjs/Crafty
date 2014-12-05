@@ -237,8 +237,9 @@ Crafty.c("DebugPolygon", {
 
         ctx = Crafty.DebugCanvas.context;
         ctx.beginPath();
-        for (var p in this.polygon.points) {
-            ctx.lineTo(this.polygon.points[p][0], this.polygon.points[p][1]);
+        var p = this.polygon.points, l = p.length;
+        for (var i=0; i<l; i+=2){
+            ctx.lineTo(p[i], p[i+1]);
         }
         ctx.closePath();
 

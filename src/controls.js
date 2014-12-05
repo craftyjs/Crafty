@@ -454,7 +454,7 @@ Crafty.c("Mouse", {
      *     .color("red")
      *     .attr({ w: 100, h: 100 })
      *     .bind('MouseOver', function() {console.log("over")})
-     *     .areaMap([0,0], [50,0], [50,50], [0,50])
+     *     .areaMap([0, 0, 50, 0, 50, 50, 0, 50) 
      * ~~~
      *
      * @see Crafty.polygon

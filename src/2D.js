@@ -1098,21 +1098,21 @@ Crafty.c("Gravity", {
  * #Crafty.polygon
  * @category 2D
  *
- * Polygon object used for hitboxes and click maps. Must pass an Array for each point as an
- * argument where index 0 is the x position and index 1 is the y position.
+ * Polygon object used for hitboxes and click maps. Takes a set of points as an
+ * argument, giving alternately the x and y coordinates of the polygon's vertices in order.
  *
- * For example one point of a polygon will look like this: `[0,5]` where the `x` is `0` and the `y` is `5`.
- *
- * Can pass an array of the points or simply put each point as an argument.
+ * The constructor accepts the coordinates as either a single array or as a set of individual arguments.
+ * If passed an array, the current implementation will use that array internally -- do not attempt to reuse it.
  *
  * When creating a polygon for an entity, each point should be offset or relative from the entities `x` and `y`
  * (don't include the absolute values as it will automatically calculate this).
  *
  *
  * @example
+ * Two ways to create a triangle with vertices at `(50, 0)`, `(100, 100)` and `(0, 100)`.
  * ~~~
- * new Crafty.polygon([50,0],[100,100],[0,100]);
- * new Crafty.polygon([[50,0],[100,100],[0,100]]);
+ * new Crafty.polygon([50, 0, 100, 100, 0, 100]);
+ * new Crafty.polygon(50, 0, 100, 100, 0, 100);
  * ~~~
  */
 Crafty.polygon = function (poly) {
@@ -1134,17 +1134,17 @@ Crafty.polygon.prototype = {
      *
      * @example
      * ~~~
-     * var poly = new Crafty.polygon([50,0],[100,100],[0,100]);
+     * var poly = new Crafty.polygon([50, 0, 100, 100, 0, 100]);
      * poly.containsPoint(50, 50); //TRUE
      * poly.containsPoint(0, 0); //FALSE
      * ~~~
      */
     containsPoint: function (x, y) {
-        var p = this.points,
+        var p = this.points, l = p.length/2,
             i, j, c = false;
 
-        for (i = 0, j = p.length - 1; i < p.length; j = i++) {
-            if (((p[i][1] > y) != (p[j][1] > y)) && (x < (p[j][0] - p[i][0]) * (y - p[i][1]) / (p[j][1] - p[i][1]) + p[i][0])) {
+        for (i = 0, j = l - 1; i < l; j = i++) {
+            if (((p[2*i+1] > y) != (p[2*j+1] > y)) && (x < (p[2*j] - p[2*i]) * (y - p[2*i+1]) / (p[2*j+1] - p[2*i+1]) + p[2*i])) {
                 c = !c;
             }
         }
@@ -1163,35 +1163,32 @@ Crafty.polygon.prototype = {
      *
      * @example
      * ~~~
-     * var poly = new Crafty.polygon([50,0],[100,100],[0,100]);
+     * var poly = new Crafty.polygon([50, 0, 100, 100, 0, 100]);
      * poly.shift(5,5);
-     * //[[55,5], [105,5], [5,105]];
+     * //[[55, 5, 105, 5, 5, 105];
      * ~~~
      */
     shift: function (x, y) {
-        var i = 0,
-            l = this.points.length,
-            current;
-        for (; i < l; i++) {
-            current = this.points[i];
-            current[0] += x;
-            current[1] += y;
+        var i = 0, p =this.points,
+            l = p.length;
+        for (; i < l; i+=2) {
+            p[i] += x;
+            p[i+1] += y;
         }
     },
 
     rotate: function (e) {
-        var i = 0,
-            l = this.points.length,
-            current, x, y;
+        var i = 0, p = this.points,
+            l = p.length,
+            x, y;
 
-        for (; i < l; i++) {
-            current = this.points[i];
+        for (; i < l; i+=2) {
 
-            x = e.o.x + (current[0] - e.o.x) * e.cos + (current[1] - e.o.y) * e.sin;
-            y = e.o.y - (current[0] - e.o.x) * e.sin + (current[1] - e.o.y) * e.cos;
+            x = e.o.x + (p[i] - e.o.x) * e.cos + (p[i+1] - e.o.y) * e.sin;
+            y = e.o.y - (p[i] - e.o.x) * e.sin + (p[i+1] - e.o.y) * e.cos;
 
-            current[0] = x;
-            current[1] = y;
+            p[i] = x;
+            p[i+1] = y;
         }
     }
 };
@@ -1222,9 +1219,10 @@ Crafty.circle = function (x, y, radius) {
     this.points = [];
     var theta;
 
-    for (var i = 0; i < 8; i++) {
-        theta = i * Math.PI / 4;
-        this.points[i] = [this.x + (Math.sin(theta) * radius), this.y + (Math.cos(theta) * radius)];
+    for (var i = 0; i < 16; i+=2) {
+        theta = i * Math.PI / 8;
+        this.points[i] = this.x + (Math.sin(theta) * radius);
+        this.points[i+1] = this.y + (Math.cos(theta) * radius);
     }
 };
 
@@ -1274,13 +1272,12 @@ Crafty.circle.prototype = {
         this.x += x;
         this.y += y;
 
-        var i = 0,
-            l = this.points.length,
+        var i = 0, p = this.points,
+            l = p.length,
             current;
-        for (; i < l; i++) {
-            current = this.points[i];
-            current[0] += x;
-            current[1] += y;
+        for (; i < l; i+=2) {
+            p[i] += x;
+            p[i+1] += y;
         }
     },
 
