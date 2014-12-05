@@ -191,8 +191,47 @@
     });
     strictEqual(x, 3, "data passed correctly with Crafty.one");
     Crafty.unbind("Increment");
+  });
 
+  test("Events and autobind with function names", function(){
+    Crafty.c("AutoComp", {
+      counter:0,
+      events: {"Test":"_onTest"},
+      _onTest: function(){
+        this.counter++;
+      }
+    });
+    var e = Crafty.e("AutoComp");
+    e.trigger("Test");
+    equal(e.counter, 1, "Function was triggered");
+
+    e.removeComponent("AutoComp");
+    e.counter = 0;
+    e.trigger("Test");
+    equal(e.counter, 0, "Function was not triggered after removal of component");
 
 
   });
+
+  test("Events and autobind with function declared inside object", function(){
+    Crafty.c("AutoComp2", {
+      counter:0,
+      events: {
+        Test:function(){
+          this.counter++;
+        }
+      }
+    });
+    var e = Crafty.e("AutoComp2");
+    e.trigger("Test");
+    equal(e.counter, 1, "Function was triggered");
+
+    e.removeComponent("AutoComp2");
+    e.counter = 0;
+    e.trigger("Test");
+    equal(e.counter, 0, "Function was not triggered after removal of component");
+
+  });
+
 })();
+
