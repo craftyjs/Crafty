@@ -1,9 +1,41 @@
 var Crafty = require('./core.js'),
 	document = window.document;
 
-Crafty.easing = function(duration) {
+
+/**@
+ * #Crafty.easing
+ * @category Animation
+ * 
+ *
+ * An object for tracking transitions.  Typically used indirectly through "SpriteAnimation", "Tween", or viewport animations.
+ * 
+ * If a method allows you to specify the type of easing, you can do so by providing a custom function or a string corresponding to the name of a built-in method.
+ *
+ * Built-in easing functions are "linear", "smoothStep", "smootherStep", "easeInQuad", "easeOutQuad", and "easeInOutQuad".
+ *
+ * A custom function will be passed a parameter `t` which will vary between 0 and 1, and should return the progress of the animation between 0 and 1.
+ * @example
+ * Here is how you might use easing functions with the "Tween" component.
+ * ~~~~
+ * var e = Crafty.e("2D, Tween");
+ * // Use built-in easing functions
+ * e.tween({x:100}, 1000, "smoothStep");
+ * e.tween({y:100}, 1000, "easeInQuad");
+ * // Define a custom easing function: 2t^2 - t
+ * e.tween({w:0}, 1000, function(t){return 2*t*t - t;});
+ * ~~~
+ * @see Tween, SpriteAnimation
+ */
+Crafty.easing = function(duration, easingFn) {
 	this.timePerFrame = 1000 / Crafty.timer.FPS();
 	this.duration = duration;   //default duration given in ms
+	if (typeof easingFn === "function"){
+		this.easing_function = easingFn;
+	} else if (typeof easingFn === "string" && this.standardEasingFunctions[easingFn]){
+		this.easing_function = this.standardEasingFunctions[easingFn];
+	} else {
+		this.easing_function = this.standardEasingFunctions.linear;
+	}
 	this.reset();
 };
 
@@ -65,11 +97,26 @@ Crafty.easing.prototype = {
 	},
 
 	// Value is where along the tweening curve we are
-	// For now it's simply linear; but we can easily add new types
 	value: function(){
-		return this.time();
-	}
+		return this.easing_function(this.time());
+	},
 
+	// Easing functions, formulas taken from https://gist.github.com/gre/1650294
+	//	and https://en.wikipedia.org/wiki/Smoothstep
+	standardEasingFunctions: {
+		// no easing, no acceleration
+		linear: function (t) { return t; },
+		// smooth step; starts and ends with v=0
+		smoothStep: function(t){ return (3-2*t)*t*t; },
+		// smootherstep; starts and ends with v, a=0
+		smootherStep: function(t){ return (6*t*t-15*t+10)*t*t*t; },
+		// quadratic curve; starts with v=0
+		easeInQuad: function (t) { return t*t; },
+		// quadratic curve; ends with v=0
+		easeOutQuad: function (t) { return t*(2-t); },
+		// quadratic curve; starts and ends with v=0
+		easeInOutQuad: function (t) { return t<0.5 ? 2*t*t : (4-2*t)*t-1; }
+	}
 };
 
 
@@ -120,9 +167,10 @@ Crafty.c("Tween", {
 	/**@
 	* #.tween
 	* @comp Tween
-	* @sign public this .tween(Object properties, Number|String duration)
+	* @sign public this .tween(Object properties, Number duration[, String|function easingFn])
 	* @param properties - Object of numeric properties and what they should animate to
 	* @param duration - Duration to animate the properties over, in milliseconds.
+	* @param easingFn - A string or custom function specifying an easing.  (Defaults to linear behavior.)  See Crafty.easing for more information.
 	*
 	* This method will animate numeric properties over the specified duration.
 	* These include `x`, `y`, `w`, `h`, `alpha` and `rotation`.
@@ -138,19 +186,21 @@ Crafty.c("Tween", {
 	*    .tween({alpha: 0.0, x: 100, y: 100}, 200)
 	* ~~~
 	* @example
-	* Rotate an object over 2 seconds
+	* Rotate an object over 2 seconds, using the "smootherStep" easing function.
 	* ~~~
 	* Crafty.e("2D, Tween")
 	*    .attr({rotation:0})
-	*    .tween({rotation:180}, 2000)
+	*    .tween({rotation:180}, 2000, "smootherStep")
 	* ~~~
 	*
+	* @see Crafty.easing
+	*
 	*/
-	tween: function (props, duration) {
+	tween: function (props, duration, easingFn) {
 
 		var tween = {
 			props: props,
-			easing: new Crafty.easing(duration)
+			easing: new Crafty.easing(duration, easingFn)
 		};
 
 		// Tweens are grouped together by the original function call.

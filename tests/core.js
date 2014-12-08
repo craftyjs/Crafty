@@ -514,6 +514,27 @@
     equal(e.value(), 1, "Remains 1 after completion");
   });
 
+  test("Crafty.easing with custom function", function() {
+    var e = new Crafty.easing(80, function(t){return t*t;}) ; // 4 frames == 80ms by default
+    e.tick(20);
+    e.tick(20);
+    equal(e.value(), 0.25, ".25 after two steps");
+    e.tick(20);
+    e.tick(20);
+    equal(e.value(), 1, "1 after completed");
+  });
+
+  test("Crafty.easing with built-in smoothStep function", function() {
+    var e = new Crafty.easing(80, "smoothStep"); // 4 frames == 80ms by default
+    e.tick(20);
+    equal(e.value(), 0.15625, "0.15625 after one step");
+    e.tick(20);
+    equal(e.value(), 0.5, ".5 after two steps");
+    e.tick(20);
+    e.tick(20);
+    equal(e.value(), 1, "1 after completed");
+  });
+
   test('Get', function() {
     var fox;
     Crafty.c('Animal', {
