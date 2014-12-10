@@ -622,15 +622,13 @@ Crafty.extend({
                 });
 
 
-            } else {
-                elem.position = "relative";
-                //find out the offset position of the stage
-                offset = Crafty.DOM.inner(Crafty.stage.elem);
-                Crafty.stage.x = offset.x;
-                Crafty.stage.y = offset.y;
             }
-
             
+            elem.position = "relative";
+            //find out the offset position of the stage
+            offset = Crafty.DOM.inner(Crafty.stage.elem);
+            Crafty.stage.x = offset.x;
+            Crafty.stage.y = offset.y;
         },
 
         // Create setters/getters for x, y, width, height
