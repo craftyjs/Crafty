@@ -706,18 +706,28 @@ Crafty.c("Multiway", {
     _speed: 3,
 
     _keydown: function (e) {
-        if (this._keys[e.key]) {
-            this._movement.x = Math.round((this._movement.x + this._keys[e.key].x) * 1000) / 1000;
-            this._movement.y = Math.round((this._movement.y + this._keys[e.key].y) * 1000) / 1000;
-            this.trigger('NewDirection', this._movement);
+        if ('' + this._keyDirection[e.key]) {
+            if (!(this._activeDirections[this._keyDirection[e.key]])) { //This is the first keydown for this direction
+                if (this._directionSpeed[this._keyDirection[e.key]]) {
+                    this._movement.x = Math.round((this._movement.x + this._directionSpeed[this._keyDirection[e.key]].x) * 1000) / 1000;
+                    this._movement.y = Math.round((this._movement.y + this._directionSpeed[this._keyDirection[e.key]].y) * 1000) / 1000;
+                    this.trigger('NewDirection', this._movement);
+                }
+            }
+            this._activeDirections[this._keyDirection[e.key]] = (this._activeDirections[this._keyDirection[e.key]] || 0) + 1;
         }
     },
 
     _keyup: function (e) {
-        if (this._keys[e.key]) {
-            this._movement.x = Math.round((this._movement.x - this._keys[e.key].x) * 1000) / 1000;
-            this._movement.y = Math.round((this._movement.y - this._keys[e.key].y) * 1000) / 1000;
-            this.trigger('NewDirection', this._movement);
+        if ('' + this._keyDirection[e.key]) {
+            this._activeDirections[this._keyDirection[e.key]] = (this._activeDirections[this._keyDirection[e.key]] || 1) - 1;
+            if (!(this._activeDirections[this._keyDirection[e.key]])) { //This is the last key to be released
+                if (this._directionSpeed[this._keyDirection[e.key]]) {
+                    this._movement.x = Math.round((this._movement.x - this._directionSpeed[this._keyDirection[e.key]].x) * 1000) / 1000;
+                    this._movement.y = Math.round((this._movement.y - this._directionSpeed[this._keyDirection[e.key]].y) * 1000) / 1000;
+                    this.trigger('NewDirection', this._movement);
+                }
+            }
         }
     },
 
@@ -768,8 +778,11 @@ Crafty.c("Multiway", {
      * ~~~
      */
     multiway: function (speed, keys) {
-        this._keyDirection = {};
-        this._keys = {};
+        this._keyDirection = {}; //A map of keys to directions
+        this._directionSpeed = {}; //A map of directions to speeds
+        //Keep track of the number of keys currently pressed for a given direction. This is to prevent simultaneously key presses (e.g.,
+        //'W' and 'UP_ARROW' from causing movement to be triggered twice
+        this._activeDirections = {};
         this._movement = {
             x: 0,
             y: 0
@@ -859,7 +872,8 @@ Crafty.c("Multiway", {
     speed: function (speed) {
         for (var k in this._keyDirection) {
             var keyCode = Crafty.keys[k] || k;
-            this._keys[keyCode] = {
+            this._keyDirection[keyCode] = this._keyDirection[k];
+            this._directionSpeed[this._keyDirection[k]] = {
                 x: Math.round(Math.cos(this._keyDirection[k] * (Math.PI / 180)) * 1000 * speed.x) / 1000,
                 y: Math.round(Math.sin(this._keyDirection[k] * (Math.PI / 180)) * 1000 * speed.y) / 1000
             };
