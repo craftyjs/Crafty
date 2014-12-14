@@ -774,28 +774,7 @@ Crafty.fn = Crafty.prototype = {
      * Unlike DOM events, Crafty events are exectued synchronously.
      */
     trigger: function (event, data) {
-        var h = handlers[event] || (handlers[event] = {});
         // (To learn how the handlers object works, see inline comment at Crafty.bind)
-        if (this.length === 1) {
-            //find the handlers assigned to the entity
-            if (h && h[this[0]]) {
-                var callbacks = h[this[0]],
-                    i, l=callbacks.length;
-                callbacks.depth++;
-                for (i = 0; i < l; i++) {
-                    if (typeof callbacks[i] === "undefined" && callbacks.depth<=1) {
-                        callbacks.splice(i, 1);
-                        i--;
-                        l--;
-                    } else {
-                        callbacks[i].call(this, data);
-                    }
-                }
-                callbacks.depth--;
-            }
-            return this;
-        }
-
         this.each(function () {
             //find the handlers assigned to the event and entity
             if (handlers[event] && handlers[event][this[0]]) {
