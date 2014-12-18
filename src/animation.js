@@ -204,3 +204,139 @@ Crafty.c("Tween", {
 		this.trigger("TweenEnd", properties);
 	}
 });
+
+
+/*
+* Utility prototype that can be iterated: each iteration calls the function on the specified context with a group of parameters
+*/
+(function() {
+	Crafty._iterate = function(context, shouldLoop, func, paramGroups) {
+		this.context = context;
+		this.func = func;
+		this.paramGroups = paramGroups;
+		this.looping = shouldLoop;
+	};
+	Crafty._iterate.prototype.idx = 0;
+	Crafty._iterate.prototype.iterate = function () {
+		var notAtEnd = true;
+		if (this.idx >= this.paramGroups.length) {
+			notAtEnd = false;
+			if (this.looping)
+				this.idx = 0;
+			else
+				return notAtEnd;
+		}
+		this.func.apply(this.context, this.paramGroups[this.idx]);
+		this.idx++;
+
+		return notAtEnd;
+	};
+	Crafty._iterate.prototype.constructor = Crafty._iterate;
+}) ();
+
+
+/**@
+ * #TweenChain
+ * @category Animation
+ * @trigger TweenChainEnd - when all tweens in the chain finished animating (will also be called when the chain starts looping again)
+ * Component that chains multiple Tween calls together sequentially.
+ *
+ * @see Tween
+ */
+Crafty.c("TweenChain", {
+	init: function(entity) {
+		this.requires("Tween");
+	},
+	/**@
+	* #.tweenChain
+	* @comp TweenChain
+	* @sign public this .tween(Boolean shouldLoop, Boolean isRelative, Array tweens)
+	* @param shouldLoop - Boolean indicating whether the TweenChain should loop or not once it reaches its end
+	* @param isRelative - Boolean indicating whether the properties are given as offsets to the current properties
+	* @param tweens - Array which holds the tweens that are to be chained one after another
+	* @return this
+	*
+	* Method for setting up a tween chain.
+	*
+	* The array passed should consist of sub-arrays, each representing a tween that is to be animated sequentially.
+	* Each sub-array's first element should be an Object of numeric properties and what these should animate to.
+	* Each sub-array's second element should be a Number indicating the duration to animate the properties over, in milliseconds.
+	* The aforementioned first and second element map directly to the first and second argument of the Tween constructor, respectively.
+	* For further details, refer to the Tween constructor.
+	*
+	* @example
+	* Move an object in a quadratic fashion.
+	* ~~~
+	* Crafty.e("2D, DOM, Color, TweenChain")
+    *	.attr({x: 0, y: 0, w: 50, h: 50})
+    *	.color("rgb(0,255,0)")
+	*	.tweenChain(true, true, [ // chain should loop, properties given as offsets
+    *		[{x: 100}, 700], // move entity to top-right corner over 700ms
+    *		[{y: 100}, 700], // move entity to bottom-right corner over 700ms
+    *		[{x: 0}, 700], // move entity to bottom-left corner over 700ms
+    *		[{y: 0}, 700] // move entity to top-left corner over 700ms
+    *	])
+    *	.startTweenChain(); // start the animation
+	* ~~~
+	* @see Tween
+	*/
+	tweenChain: function (shouldLoop, isRelative, array) {
+		if (isRelative) {
+			var props;
+			for (var i=0; i<array.length; ++i) {
+				props = array[i][0];
+
+				if (props.x !== undefined) props.x += this._x;
+				if (props.y !== undefined) props.y += this._y;
+				if (props.w !== undefined) props.w += this._w;
+				if (props.h !== undefined) props.h += this._h;
+				if (props.alpha !== undefined) props.alpha += this._alpha;
+				if (props.rotation !== undefined) props.rotation += this._rotation;
+			}
+		}
+
+
+		if (this.tweenIterator) // already another tween iterator
+			this.pauseTweenChain();
+
+		this.tweenIterator = new Crafty._iterate(this, shouldLoop, function(properties, duration) {
+			this.tweenIterator.tweenEndCallback = function tweenEndCallback (props) {
+				if (props === properties) {
+					this.unbind("TweenEnd", this.tweenIterator.tweenEndCallback);
+					if (!this.tweenIterator.iterate()) // if we are at end of tween chain -> trigger event
+						this.trigger("TweenChainEnd");
+				}
+			};
+			this.bind("TweenEnd", this.tweenIterator.tweenEndCallback); // iterator will be iterated each time the current iteration ends
+			this.tween(properties, duration); // actual tweening happens here
+		}, array);
+		
+		return this;
+	},
+	/**@
+	* #.startTweenChain
+	* @comp TweenChain
+	* @sign public this .startTweenChain()
+	* @return this
+	* 
+	* Start or resume the chained tween animation.
+	*/
+	startTweenChain: function() {
+		this.tweenIterator.iterate();
+		
+		return this;
+	},
+	/**@
+	* #.stopTweenChain
+	* @comp TweenChain
+	* @sign public this .stopTweenChain()
+	* @return this
+	* 
+	* Pause the chained tween animation. Can later be resumed by calling startTweenChain.
+	*/
+	pauseTweenChain: function() {
+		this.unbind("TweenEnd", this.tweenIterator.tweenEndCallback);
+		
+		return this;
+	}
+});
