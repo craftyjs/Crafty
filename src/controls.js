@@ -846,14 +846,14 @@ Crafty.c("Multiway", {
     /**@
      * #.speed
      * @comp Multiway
-     * @sign public this .speed(Number speed)
-     * @param speed - The speed the entity has.
+     * @sign public this .speed(Object speed)
+     * @param speed - New speed the entity has, for x and y axis.
      *
      * Change the speed that the entity moves with.
      *
      * @example
      * ~~~
-     * this.speed(2);
+     * this.speed({ x: 3, y: 1 });
      * ~~~
      */
     speed: function (speed) {
