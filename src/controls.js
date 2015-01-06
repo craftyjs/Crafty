@@ -706,7 +706,7 @@ Crafty.c("Multiway", {
     _speed: 3,
 
     _keydown: function (e) {
-        if (this._keys[e.key]) {
+        if (this._keys[e.key] && !this.disableControls) {
             this._movement.x = Math.round((this._movement.x + this._keys[e.key].x) * 1000) / 1000;
             this._movement.y = Math.round((this._movement.y + this._keys[e.key].y) * 1000) / 1000;
             this.trigger('NewDirection', this._movement);
@@ -714,7 +714,7 @@ Crafty.c("Multiway", {
     },
 
     _keyup: function (e) {
-        if (this._keys[e.key]) {
+        if (this._keys[e.key] && !this.disableControls) {
             this._movement.x = Math.round((this._movement.x - this._keys[e.key].x) * 1000) / 1000;
             this._movement.y = Math.round((this._movement.y - this._keys[e.key].y) * 1000) / 1000;
             this.trigger('NewDirection', this._movement);
@@ -839,6 +839,8 @@ Crafty.c("Multiway", {
      */
 
     disableControl: function () {
+		this._movement.x = 0;
+		this._movement.y = 0;
         this.disableControls = true;
         return this;
     },

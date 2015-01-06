@@ -323,7 +323,7 @@
 
     e.disableControl();
     Crafty.trigger('EnterFrame');
-    equal(e._movement.x, 1);
+    equal(e._movement.x, 0);
     equal(e._x, 1);
 
     Crafty.trigger('KeyUp', {
