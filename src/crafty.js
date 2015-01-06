@@ -28,6 +28,8 @@ require('./text');
 require('./time');
 require('./version');
 require('./viewport');
+require('./webgl');
+require('./gl-textures');
 
 if(window) window.Crafty = Crafty;
 

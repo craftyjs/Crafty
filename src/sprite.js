@@ -1,6 +1,17 @@
 var Crafty = require('./core.js'),
     document = window.document;
 
+// Define some variables required for webgl
+var fs = require('fs');
+var SPRITE_VERTEX_SHADER = fs.readFileSync(__dirname + '/shaders/sprite.vert', 'utf8');
+var SPRITE_FRAGMENT_SHADER = fs.readFileSync(__dirname + '/shaders/sprite.frag', 'utf8');
+var SPRITE_ATTRIBUTE_LIST = [
+    {name:"aPosition", width: 2},
+    {name:"aOrientation", width: 3},
+    {name:"aLayer", width:2},
+    {name:"aTextureCoord",  width: 2}
+];
+
 Crafty.extend({
 
     /**@
@@ -120,6 +131,11 @@ Crafty.extend({
             //set the width and height to the sprite size
             this.w = this.__coord[2];
             this.h = this.__coord[3];
+
+            if (this.has("WebGL")){
+                this._establishShader(this.__image, SPRITE_FRAGMENT_SHADER, SPRITE_VERTEX_SHADER, SPRITE_ATTRIBUTE_LIST);
+                this.program.setTexture( this.webgl.makeTexture(this.__image, this.img, false) );
+            }
         };
 
         for (spriteName in map) {
@@ -170,46 +186,59 @@ Crafty.c("Sprite", {
 
     init: function () {
         this.__trim = [0, 0, 0, 0];
+        this.bind("Draw", this._drawSprite);
+    },
 
-        var draw = function (e) {
-            var co = e.co,
+    remove: function(){
+        this.unbind("Draw", this._drawSprite);
+        // Webgl components need to be removed from their gl program
+        if (this.program) {
+            this.program.unregisterEntity(this);
+        }
+    },
+
+    _drawSprite: function(e){
+        var co = e.co,
                 pos = e.pos,
                 context = e.ctx;
 
-            if (e.type === "canvas") {
-                //draw the image on the canvas element
-                context.drawImage(this.img, //image element
-                    co.x, //x position on sprite
-                    co.y, //y position on sprite
-                    co.w, //width on sprite
-                    co.h, //height on sprite
-                    pos._x, //x position on canvas
-                    pos._y, //y position on canvas
-                    pos._w, //width on canvas
-                    pos._h //height on canvas
-                );
-            } else if (e.type === "DOM") {
-                // Get scale (ratio of entity dimensions to sprite's dimensions)
-                // If needed, we will scale up the entire sprite sheet, and then modify the position accordingly
-                var vscale = this._h / co.h,
-                    hscale = this._w / co.w,
-                    style = this._element.style,
-                    bgColor = style.backgroundColor;
+        if (e.type === "canvas") {
+            //draw the image on the canvas element
+            context.drawImage(this.img, //image element
+                co.x, //x position on sprite
+                co.y, //y position on sprite
+                co.w, //width on sprite
+                co.h, //height on sprite
+                pos._x, //x position on canvas
+                pos._y, //y position on canvas
+                pos._w, //width on canvas
+                pos._h //height on canvas
+            );
+        } else if (e.type === "DOM") {
+            // Get scale (ratio of entity dimensions to sprite's dimensions)
+            // If needed, we will scale up the entire sprite sheet, and then modify the position accordingly
+            var vscale = this._h / co.h,
+                hscale = this._w / co.w,
+                style = this._element.style,
+                bgColor = style.backgroundColor;
 
-                if (bgColor === "initial") bgColor = "";
+            if (bgColor === "initial") bgColor = "";
 
-                style.background = bgColor + " url('" + this.__image + "') no-repeat";
-                style.backgroundPosition = "-" + co.x * hscale + "px -" + co.y * vscale + "px";
-                // style.backgroundSize must be set AFTER style.background!
-                if (vscale != 1 || hscale != 1) {
-                    style.backgroundSize = (this.img.width * hscale) + "px" + " " + (this.img.height * vscale) + "px";
-                }
+            style.background = bgColor + " url('" + this.__image + "') no-repeat";
+            style.backgroundPosition = "-" + co.x * hscale + "px -" + co.y * vscale + "px";
+            // style.backgroundSize must be set AFTER style.background!
+            if (vscale != 1 || hscale != 1) {
+                style.backgroundSize = (this.img.width * hscale) + "px" + " " + (this.img.height * vscale) + "px";
             }
-        };
-
-        this.bind("Draw", draw).bind("RemoveComponent", function (id) {
-            if (id === "Sprite") this.unbind("Draw", draw);
-        });
+        } else if (e.type === "webgl") {
+            // Write texture coordinates
+            e.program.writeVector("aTextureCoord",
+                co.x, co.y,
+                co.x, co.y + co.h,
+                co.x + co.w, co.y,
+                co.x + co.w, co.y + co.h
+            );
+        }
     },
 
     /**@

@@ -96,7 +96,8 @@ var Crafty = require('./core.js'),
     if (support.canvas) {
         var gl;
         try {
-            gl = document.createElement("canvas").getContext("experimental-webgl");
+            var c = document.createElement("canvas");
+            gl = c.getContext("webgl") || c.getContext("experimental-webgl");
             gl.viewportWidth = support.canvas.width;
             gl.viewportHeight = support.canvas.height;
         } catch (e) {}
