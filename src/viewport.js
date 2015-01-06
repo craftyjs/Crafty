@@ -134,10 +134,11 @@ Crafty.extend({
 
          * #Crafty.viewport.pan
          * @comp Crafty.viewport
-         * @sign public void Crafty.viewport.pan(Number dx, Number dy, Number time)
+         * @sign public void Crafty.viewport.pan(Number dx, Number dy, Number time[, String|function easingFn])
          * @param Number dx - The distance along the x axis
          * @param Number dy - The distance along the y axis
          * @param Number time - The duration in ms for the entire camera movement
+         * @param easingFn - A string or custom function specifying an easing.  (Defaults to linear behavior.)  See Crafty.easing for more information.
          *
          * Pans the camera a given number of pixels over the specified time
          */
@@ -164,7 +165,7 @@ Crafty.extend({
 
             Crafty.bind("StopCamera", stopPan);
 
-            return function (dx, dy, time) {
+            return function (dx, dy, time, easingFn) {
                 // Cancel any current camera control
                 Crafty.trigger("StopCamera");
 
@@ -178,7 +179,7 @@ Crafty.extend({
                 targetX = startingX - dx;
                 targetY = startingY - dy;
 
-                easing = new Crafty.easing(time);
+                easing = new Crafty.easing(time, easingFn);
 
                 // bind to event, using uniqueBind prevents multiple copies from being bound
                 Crafty.uniqueBind("EnterFrame", enterFrame);
@@ -258,11 +259,12 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.zoom
          * @comp Crafty.viewport
-         * @sign public void Crafty.viewport.zoom(Number amt, Number cent_x, Number cent_y, Number time)
+         * @sign public void Crafty.viewport.zoom(Number amt, Number cent_x, Number cent_y, Number time[, String|function easingFn])
          * @param Number amt - amount to zoom in on the target by (eg. 2, 4, 0.5)
          * @param Number cent_x - the center to zoom on
          * @param Number cent_y - the center to zoom on
          * @param Number time - the duration in ms of the entire zoom operation
+         * @param easingFn - A string or custom function specifying an easing.  (Defaults to linear behavior.)  See Crafty.easing for more information.
          *
          * Zooms the camera in on a given point. amt > 1 will bring the camera closer to the subject
          * amt < 1 will bring it farther away. amt = 0 will reset to the default zoom level
@@ -314,7 +316,7 @@ Crafty.extend({
 
             }
 
-            return function (amt, cent_x, cent_y, time){
+            return function (amt, cent_x, cent_y, time, easingFn){
                 if (!amt) { // we're resetting to defaults
                     Crafty.viewport.scale(1);
                     return;
@@ -337,7 +339,7 @@ Crafty.extend({
                 finalX = - (cent_x - Crafty.viewport.width  / (2 * finalZoom) );
                 finalY = - (cent_y - Crafty.viewport.height / (2 * finalZoom) );
 
-                easing = new Crafty.easing(time);
+                easing = new Crafty.easing(time, easingFn);
 
                 Crafty.uniqueBind("EnterFrame", enterFrame);
             };

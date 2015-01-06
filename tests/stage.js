@@ -118,6 +118,27 @@
     Crafty.viewport.scroll('y', 0);
   });
 
+  test("pan with easing", function() {
+    Crafty.viewport.clampToEntities = false;
+    Crafty.e("2D, DOM").attr({
+      x: 0,
+      y: 0,
+      w: Crafty.viewport.width * 2,
+      h: Crafty.viewport.height * 2
+    });
+
+  
+
+    Crafty.viewport.pan(100, 0, 10 * 20, "easeInQuad");
+    Crafty.timer.simulateFrames(5);
+    equal(Crafty.viewport._x, -25, "Pan quarter of the way on half the time");
+    Crafty.timer.simulateFrames(5);
+    equal(Crafty.viewport._x, -100, "Pan all the way when all the time is spent");
+
+    Crafty.viewport.scroll('x', 0);
+    Crafty.viewport.scroll('y', 0);
+  });
+
   test("zoom", function() {
 
     Crafty.viewport.clampToEntities = false;
