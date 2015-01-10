@@ -507,9 +507,11 @@ Crafty.c("Draggable", {
         }
 
         if (this._dir) {
-            var len = (pos.x - this._origMouseDOMPos.x) * this._dir.x + (pos.y - this._origMouseDOMPos.y) * this._dir.y;
-            this.x = this._oldX + len * this._dir.x;
-            this.y = this._oldY + len * this._dir.y;
+            if (this._dir.x !== 0 || this._dir.y !== 0) {
+                var len = (pos.x - this._origMouseDOMPos.x) * this._dir.x + (pos.y - this._origMouseDOMPos.y) * this._dir.y;
+                this.x = this._oldX + len * this._dir.x;
+                this.y = this._oldY + len * this._dir.y;
+            }
         } else {
             this.x = this._oldX + (pos.x - this._origMouseDOMPos.x);
             this.y = this._oldY + (pos.y - this._origMouseDOMPos.y);
@@ -567,11 +569,15 @@ Crafty.c("Draggable", {
                 y: Math.sin(dir / 180 * Math.PI)
             };
         } else {
-            var r = Math.sqrt(dir.x * dir.x + dir.y * dir.y);
-            this._dir = {
-                x: dir.x / r,
-                y: dir.y / r
-            };
+            if (dir.x === 0 && dir.y === 0) {
+                this._dir = { x: 0, y: 0 };
+            } else {
+                var r = Math.sqrt(dir.x * dir.x + dir.y * dir.y);
+                this._dir = {
+                    x: dir.x / r,
+                    y: dir.y / r
+                };
+            }
         }
     },
 
