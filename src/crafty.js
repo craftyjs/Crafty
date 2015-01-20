@@ -12,12 +12,12 @@ require('./core/version');
 
 require('./spatial/2D');
 require('./spatial/collision');
-require('./spatial/HashMap');
+require('./spatial/spatial-grid');
 require('./spatial/math');
 
 require('./graphics/canvas');
 require('./graphics/color');
-require('./graphics/DOM');
+require('./graphics/dom');
 require('./graphics/drawing');
 require('./graphics/gl-textures');
 require('./graphics/html');
@@ -29,7 +29,7 @@ require('./graphics/text');
 require('./graphics/viewport');
 require('./graphics/webgl');
 
-require('./isometric/diamondiso');
+require('./isometric/diamond-iso');
 require('./isometric/isometric');
 
 require('./controls/controls');
@@ -38,7 +38,7 @@ require('./controls/keycodes');
 
 require('./sound/sound');
 
-require('./debug/DebugLayer');
+require('./debug/debug-layer');
 
 
 

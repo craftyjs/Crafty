@@ -1,6 +1,6 @@
 var Crafty = require('../core/core.js'),
     document = window.document,
-    HashMap = require('./HashMap.js');
+    HashMap = require('./spatial-grid.js');
 // Crafty._rectPool
 //
 // This is a private object used internally by 2D methods
