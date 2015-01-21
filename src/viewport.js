@@ -299,11 +299,19 @@ Crafty.extend({
                 // And by symmetry they should be parameterized in the same way!  So not much choice here.
                 if (finalAmount === 1)
                     v = easing.value();  // prevent NaN!  If zoom is used this way, it'll just become a pan.
+                else if(amount === 1 && finalAmount === 1)
+                    v = easing.value();
                 else
                     v = (1/amount - 1 ) / (1/finalAmount - 1);
 
+                var newZoomScale; // prevents rezooming on pan using fractional scale
+                if (finalAmount === startingZoom)
+                    newZoomScale = startingZoom;
+                else
+                    newZoomScale = amount;
+
                 // Set new scale and viewport position
-                Crafty.viewport.scale( amount * startingZoom );
+                Crafty.viewport.scale( newZoomScale );
                 Crafty.viewport.scroll("_x", startingX * (1-v) + finalX * v );
                 Crafty.viewport.scroll("_y", startingY * (1-v) + finalY * v );
                 Crafty.viewport._clamp();
@@ -331,7 +339,7 @@ Crafty.extend({
                 Crafty.trigger("StopCamera");
                 startingZoom = Crafty.viewport._scale;
                 finalAmount = amt;
-                finalZoom = startingZoom * finalAmount;
+                finalZoom = amt;
                 
 
                 startingX = Crafty.viewport.x;
