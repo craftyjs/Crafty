@@ -25,35 +25,38 @@ Crafty.c("Particles", {
      * @example
      * ~~~
      * var options = {
-     *	maxParticles: 150,
-     *	size: 18,
-     *	sizeRandom: 4,
-     *	speed: 1,
-     *	speedRandom: 1.2,
-     *	// Lifespan in frames
-     *	lifeSpan: 29,
-     *	lifeSpanRandom: 7,
-     *	// Angle is calculated clockwise: 12pm is 0deg, 3pm is 90deg etc.
-     *	angle: 65,
-     *	angleRandom: 34,
-     *	startColour: [255, 131, 0, 1],
-     *	startColourRandom: [48, 50, 45, 0],
-     *	endColour: [245, 35, 0, 0],
-     *	endColourRandom: [60, 60, 60, 0],
-     *	// Only applies when fastMode is off, specifies how sharp the gradients are drawn
-     *	sharpness: 20,
-     *	sharpnessRandom: 10,
-     *	// Random spread from origin
-     *	spread: 10,
-     *	// How many frames should this last
-     *	duration: -1,
-     *	// Will draw squares instead of circle gradients
-     *	fastMode: false,
-     *	gravity: { x: 0, y: 0.1 },
-     *	// sensible values are 0-3
-     *	jitter: 0
-     * }
-     *
+     * maxParticles: 150,
+     * size: 18,
+     * sizeRandom: 4,
+     * speed: 1,
+     * speedRandom: 1.2,
+     * // Lifespan in frames
+     * lifeSpan: 29,
+     * lifeSpanRandom: 7,
+     * // Angle is calculated clockwise: 12pm is 0deg, 3pm is 90deg etc.
+     * angle: 65,
+     * angleRandom: 34,
+     * startColour: [255, 131, 0, 1],
+     * startColourRandom: [48, 50, 45, 0],
+     * endColour: [245, 35, 0, 0],
+     * endColourRandom: [60, 60, 60, 0],
+     * // Only applies when fastMode is off, specifies how sharp the gradients are drawn
+     * sharpness: 20,
+     * sharpnessRandom: 10,
+     * // Random spread from origin
+     * spread: 10,
+     * // How many frames should this last
+     * duration: -1,
+     * // Will draw squares instead of circle gradients
+     * fastMode: false,
+     * gravity: { x: 0, y: 0.1 },
+     * // sensible values are 0-3
+     * jitter: 0
+     * // X Offset for the origin of the particles
+     * originOffsetX: 0
+     * // Y Offset for the origin of the particles
+     * originOffsetY: 0
+
      * Crafty.e("2D,Canvas,Particles").particles(options);
      * ~~~
      */
@@ -184,6 +187,10 @@ Crafty.c("Particles", {
 
             this.emissionRate = this.maxParticles / this.lifeSpan;
             this.positionRandom = this.vectorHelpers.create(this.spread, this.spread);
+            this.originOffset = {
+                x: options.originOffsetX || 0,
+                y: options.originOffsetY || 0
+            };
         },
 
         addParticle: function () {
@@ -204,15 +211,15 @@ Crafty.c("Particles", {
             return Math.random() * 2 - 1;
         },
         initParticle: function (particle) {
-            particle.position.x = this.position.x + this.positionRandom.x * this.RANDM1TO1();
-            particle.position.y = this.position.y + this.positionRandom.y * this.RANDM1TO1();
+            particle.position.x = Crafty.viewport._scale * (this.position.x + this.originOffset.x + this.positionRandom.x * this.RANDM1TO1());
+            particle.position.y = Crafty.viewport._scale * (this.position.y + this.originOffset.y + this.positionRandom.y * this.RANDM1TO1());
 
             var newAngle = (this.angle + this.angleRandom * this.RANDM1TO1()) * (Math.PI / 180); // convert to radians
             var vector = this.vectorHelpers.create(Math.sin(newAngle), -Math.cos(newAngle)); // Could move to lookup for speed
             var vectorSpeed = this.speed + this.speedRandom * this.RANDM1TO1();
             particle.direction = this.vectorHelpers.multiply(vector, vectorSpeed);
 
-            particle.size = this.size + this.sizeRandom * this.RANDM1TO1();
+            particle.size = Crafty.viewport._scale * (this.size + this.sizeRandom * this.RANDM1TO1());
             particle.size = particle.size < 0 ? 0 : ~~particle.size;
             particle.timeToLive = this.lifeSpan + this.lifeSpanRandom * this.RANDM1TO1();
 
