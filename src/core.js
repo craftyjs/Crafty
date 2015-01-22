@@ -444,7 +444,7 @@ Crafty.fn = Crafty.prototype = {
      * @param property - Property of the entity to modify
      * @returns Value - the value of the property
      * Use this method to get any property of the entity. You can also retrieve the property using `this.property`.
-     * 
+     *
      *
      * @example
      * ~~~
@@ -774,46 +774,15 @@ Crafty.fn = Crafty.prototype = {
      * Unlike DOM events, Crafty events are exectued synchronously.
      */
     trigger: function (event, data) {
-        var h = handlers[event] || (handlers[event] = {});
         // (To learn how the handlers object works, see inline comment at Crafty.bind)
-        if (this.length === 1) {
-            //find the handlers assigned to the entity
-            if (h && h[this[0]]) {
-                var callbacks = h[this[0]],
-                    i, l=callbacks.length;
-                callbacks.depth++;
-                for (i = 0; i < l; i++) {
-                    if (typeof callbacks[i] === "undefined" && callbacks.depth<=1) {
-                        callbacks.splice(i, 1);
-                        i--;
-                        l--;
-                    } else {
-                        callbacks[i].call(this, data);
-                    }
-                }
-                callbacks.depth--;
-            }
-            return this;
+        var h = handlers[event] || (handlers[event] = {}),
+            i = 0,
+            entity;
+        for (; i < this.length; i++) {
+            entity = entities[this[i]];
+            if (!entity) continue;
+            _processTrigger.call(entity, event, data);
         }
-
-        this.each(function () {
-            //find the handlers assigned to the event and entity
-            if (handlers[event] && handlers[event][this[0]]) {
-                var callbacks = handlers[event][this[0]],
-                    i, l=callbacks.length;
-                callbacks.depth++;
-                for (i = 0; i < l; i++) {
-                    if (typeof callbacks[i] === "undefined" && callbacks.depth<=1) {
-                        callbacks.splice(i, 1);
-                        i--;
-                        l--;
-                    } else {
-                        callbacks[i].call(this, data);
-                    }
-                }
-                callbacks.depth--;
-            }
-        });
         return this;
     },
 
@@ -1293,7 +1262,7 @@ Crafty.extend({
                 // dt is determined by the mode
                 for (var i = 0; i < loops; i++) {
                     lastFrameTime = currentTime;
-                    
+
                     var frameData = {
                         frame: frame++,
                         dt: dt,
@@ -1416,7 +1385,7 @@ Crafty.extend({
      * Creates a component where the first argument is the ID and the second
      * is the object that will be inherited by entities.
      *
-     * Specifically, each time a component is added to an entity, the component properties are copied over to the entity. 
+     * Specifically, each time a component is added to an entity, the component properties are copied over to the entity.
      * * In the case of primitive datatypes (booleans, numbers, strings) the property is copied by value.
      * * In the case of complex datatypes (objects, arrays, functions) the property is copied by reference and will thus reference the components' original property.
      * * (See the two examples below for further explanation)
@@ -1753,6 +1722,27 @@ Crafty.extend({
 
     clone: clone
 });
+
+function _processTrigger(event, data) {
+    var h = handlers[event] || (handlers[event] = {});
+
+    //find the handlers assigned to the event and entity
+    if (h && h[this[0]]) {
+        var callbacks = h[this[0]],
+            i, l=callbacks.length;
+        callbacks.depth++;
+        for (i = 0; i < l; i++) {
+            if (typeof callbacks[i] === "undefined" && callbacks.depth<=1) {
+                callbacks.splice(i, 1);
+                i--;
+                l--;
+            } else {
+                callbacks[i].call(this, data);
+            }
+        }
+        callbacks.depth--;
+    }
+}
 
 /**
  * Return a unique ID
