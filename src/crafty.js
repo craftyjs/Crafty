@@ -10,7 +10,7 @@ require('./core/time');
 require('./core/version');
 
 
-require('./spatial/2D');
+require('./spatial/2d');
 require('./spatial/collision');
 require('./spatial/spatial-grid');
 require('./spatial/math');
