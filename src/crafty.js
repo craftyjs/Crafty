@@ -13,9 +13,11 @@ require('./core/version');
 require('./spatial/2d');
 require('./spatial/collision');
 require('./spatial/spatial-grid');
+require('./spatial/rect-manager');
 require('./spatial/math');
 
 require('./graphics/canvas');
+require('./graphics/canvas-layer');
 require('./graphics/color');
 require('./graphics/dom');
 require('./graphics/drawing');

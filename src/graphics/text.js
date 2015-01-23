@@ -137,7 +137,7 @@ Crafty.c("Text", {
     // Width is found by using the canvas measureText function
     // Height is only estimated -- it calculates the font size in pixels, and sets the height to 110% of that.
     _resizeForCanvas: function(){
-        var ctx = Crafty.canvas.context;
+        var ctx = this._drawContext;
         ctx.font = this._fontString();
         this.w = ctx.measureText(this._text).width;
 

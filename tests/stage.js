@@ -46,11 +46,13 @@
   test("Viewport resizing", function(){
     var flag = 0;
     var e = Crafty("2D, Canvas");
-    Crafty.canvas.init();
-
+    
+    var layer = Crafty.canvasLayer;
+    layer.init();
+    
     var w = Crafty.viewport.width;
 
-    equal( Crafty.canvas._canvas.width, Crafty.viewport.width, "Initial canvas size matches viewport");
+    equal( layer._canvas.width, Crafty.viewport.width, "Initial canvas size matches viewport");
     equal(Crafty.stage.elem.style.width, Crafty.viewport.width + "px", "Initial stage size matches viewport");
     Crafty.bind("ViewportResize", function(){flag++;});
 
@@ -58,7 +60,7 @@
 
     equal(flag, 1, "ViewportResize triggered");
     equal(Crafty.viewport.width, w+10, "Viewport increased in width");
-    equal( Crafty.canvas._canvas.width, Crafty.viewport.width , "Canvas size matches viewport after change");
+    equal( layer._canvas.width, Crafty.viewport.width , "Canvas size matches viewport after change");
     equal(Crafty.stage.elem.style.width, Crafty.viewport.width +"px", "Stage size matches viewport after change");
 
     var h = Crafty.viewport.height;
@@ -67,7 +69,7 @@
 
     equal(flag, 2, "ViewportResize triggered");
     equal(Crafty.viewport.height, h+10, "Viewport increased in width");
-    equal( Crafty.canvas._canvas.height, Crafty.viewport.height , "Canvas size matches viewport after change");
+    equal( layer._canvas.height, Crafty.viewport.height , "Canvas size matches viewport after change");
     equal(Crafty.stage.elem.style.height, Crafty.viewport.height +"px", "Stage size matches viewport after change");
 
   });

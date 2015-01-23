@@ -9,7 +9,7 @@ var Crafty = require('../core/core.js'),
  *
  * When this component is added to an entity it will be drawn to the global canvas element. The canvas element (and hence all Canvas entities) is always rendered below any DOM entities.
  *
- * Crafty.canvas.init() will be automatically called if it is not called already to initialize the canvas element.
+ * Crafty.canvasLayer.init() will be automatically called if it is not called already to initialize the canvas element.
  *
  * Create a canvas entity like this
  * ~~~
@@ -21,31 +21,34 @@ var Crafty = require('../core/core.js'),
 Crafty.c("Canvas", {
 
     init: function () {
-        if (!Crafty.canvas.context) {
-            Crafty.canvas.init();
+        var canvasLayer = Crafty.canvasLayer;
+        if (!canvasLayer.context) {
+            canvasLayer.init();
         }
+        this._drawLayer = canvasLayer;
+        this._drawContext = canvasLayer.context;
 
         //increment the amount of canvas objs
-        Crafty.DrawManager.total2D++;
+        canvasLayer.layerCount++;
         //Allocate an object to hold this components current region
         this.currentRect = {};
         this._changed = true;
-        Crafty.DrawManager.addCanvas(this);
+        canvasLayer.add(this);
 
         this.bind("Invalidate", function (e) {
             //flag if changed
             if (this._changed === false) {
                 this._changed = true;
-                Crafty.DrawManager.addCanvas(this);
+                canvasLayer.add(this);
             }
 
         });
 
 
         this.bind("Remove", function () {
-            Crafty.DrawManager.total2D--;
+            this._drawLayer.layerCount--;
             this._changed = true;
-            Crafty.DrawManager.addCanvas(this);
+            this._drawLayer.add(this);
         });
     },
 
@@ -85,7 +88,7 @@ Crafty.c("Canvas", {
             w = y;
             y = x;
             x = ctx;
-            ctx = Crafty.canvas.context;
+            ctx = this._drawContext;
         }
 
         var pos = this.drawVars.pos;
@@ -95,7 +98,7 @@ Crafty.c("Canvas", {
         pos._h = (h || this._h);
 
 
-        context = ctx || Crafty.canvas.context;
+        context = ctx || this._drawContext;
         coord = this.__coord || [0, 0, 0, 0];
         var co = this.drawVars.co;
         co.x = coord[0] + (x || 0);
@@ -146,96 +149,5 @@ Crafty.c("Canvas", {
             context.globalAlpha = globalpha;
         }
         return this;
-    }
-});
-
-/**@
- * #Crafty.canvas
- * @category Graphics
- *
- * Collection of methods to draw on canvas.
- */
-Crafty.extend({
-    canvas: {
-        /**@
-         * #Crafty.canvas.context
-         * @comp Crafty.canvas
-         *
-         * This will return the 2D context of the main canvas element.
-         * The value returned from `Crafty.canvas._canvas.getContext('2d')`.
-         */
-        context: null,
-        /**@
-         * #Crafty.canvas._canvas
-         * @comp Crafty.canvas
-         *
-         * Main Canvas element
-         */
-
-        /**@
-         * #Crafty.canvas.init
-         * @comp Crafty.canvas
-         * @sign public void Crafty.canvas.init(void)
-         * @trigger NoCanvas - triggered if `Crafty.support.canvas` is false
-         *
-         * Creates a `canvas` element inside `Crafty.stage.elem`. Must be called
-         * before any entities with the Canvas component can be drawn.
-         *
-         * This method will automatically be called if no `Crafty.canvas.context` is
-         * found.
-         */
-        init: function () {
-            //check if canvas is supported
-            if (!Crafty.support.canvas) {
-                Crafty.trigger("NoCanvas");
-                Crafty.stop();
-                return;
-            }
-
-            //create an empty canvas element
-            var c;
-            c = document.createElement("canvas");
-            c.width = Crafty.viewport.width;
-            c.height = Crafty.viewport.height;
-            c.style.position = 'absolute';
-            c.style.left = "0px";
-            c.style.top = "0px";
-
-            Crafty.stage.elem.appendChild(c);
-            Crafty.canvas.context = c.getContext('2d');
-            Crafty.canvas._canvas = c;
-
-            //Set any existing transformations
-            var zoom = Crafty.viewport._scale;
-            if (zoom != 1)
-                Crafty.canvas.context.scale(zoom, zoom);
-
-            // Set pixelart to current status, and listen for changes
-            this._setPixelart(Crafty._pixelartEnabled);
-            Crafty.uniqueBind("PixelartSet", this._setPixelart);
-
-            //Bind rendering of canvas context (see drawing.js)
-            Crafty.uniqueBind("RenderScene", Crafty.DrawManager.renderCanvas);
-            
-            Crafty.uniqueBind("ViewportResize", this._resize);
-        },
-
-        // Resize the canvas element to the current viewport
-        _resize: function() {
-            var c = Crafty.canvas._canvas;
-            c.width = Crafty.viewport.width;
-            c.height = Crafty.viewport.height;
-
-        },
-
-        _setPixelart: function(enabled){
-            var context = Crafty.canvas.context;
-            context.imageSmoothingEnabled = !enabled;
-            context.mozImageSmoothingEnabled = !enabled;
-            context.webkitImageSmoothingEnabled = !enabled;
-            context.oImageSmoothingEnabled = !enabled;
-            context.msImageSmoothingEnabled = !enabled;
-        }
-
     }
 });

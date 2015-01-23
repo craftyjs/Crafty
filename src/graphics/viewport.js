@@ -525,7 +525,7 @@ Crafty.extend({
              * ~~~
              * Crafty.stage.elem
              *  - Crafty.stage.inner (a div HTMLElement)
-             *  - Crafty.canvas._canvas (a canvas HTMLElement)
+             *  - Crafty.canvasLayer._canvas (a canvas HTMLElement)
              * ~~~
              */
 
