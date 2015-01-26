@@ -1,47 +1,7 @@
 var Crafty = require('../core/core.js'),
     document = window.document,
     HashMap = require('./spatial-grid.js');
-// Crafty._rectPool
-//
-// This is a private object used internally by 2D methods
-// Cascade and _attr need to keep track of an entity's old position,
-// but we want to avoid creating temp objects every time an attribute is set.
-// The solution is to have a pool of objects that can be reused.
-//
-// The current implementation makes a BIG ASSUMPTION:  that if multiple rectangles are requested,
-// the later one is recycled before any preceding ones.  This matches how they are used in the code.
-// Each rect is created by a triggered event, and will be recycled by the time the event is complete.
-Crafty._rectPool = (function () {
-    var pool = [],
-        pointer = 0;
-    return {
-        get: function (x, y, w, h) {
-            if (pool.length <= pointer)
-                pool.push({});
-            var r = pool[pointer++];
-            r._x = x;
-            r._y = y;
-            r._w = w;
-            r._h = h;
-            return r;
-        },
 
-        copy: function (o) {
-            if (pool.length <= pointer)
-                pool.push({});
-            var r = pool[pointer++];
-            r._x = o._x;
-            r._y = o._y;
-            r._w = o._w;
-            r._h = o._h;
-            return r;
-        },
-
-        recycle: function (o) {
-            pointer--;
-        }
-    };
-})();
 
 
 /**@
@@ -901,7 +861,7 @@ Crafty.c("2D", {
             return;
         }
         //keep a reference of the old positions
-        var old = Crafty._rectPool.copy(this);
+        var old = Crafty.rectManager._pool.copy(this);
 
         var mbr;
         //if rotation, use the rotate method
@@ -956,7 +916,7 @@ Crafty.c("2D", {
         // flag for redraw
         this.trigger("Invalidate");
 
-        Crafty._rectPool.recycle(old);
+        Crafty.rectManager._pool.recycle(old);
     }
 });
 

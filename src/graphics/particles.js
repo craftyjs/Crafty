@@ -1,4 +1,4 @@
-var Crafty = require('../core/core.js'),
+var Crafty = require('../core/core.js'),    
     document = window.document;
 
 /**@
@@ -113,8 +113,8 @@ Crafty.c("Particles", {
             this._Particles.position = this._Particles.vectorHelpers.create(relativeX, relativeY);
 
             //Selective clearing
-            if (typeof Crafty.DrawManager.boundingRect == 'function') {
-                bounding = Crafty.DrawManager.boundingRect(this._Particles.register);
+            if (typeof Crafty.rectManager.boundingRect == 'function') {
+                bounding = Crafty.rectManager.boundingRect(this._Particles.register);
                 if (bounding) ctx.clearRect(bounding._x, bounding._y, bounding._w, bounding._h);
             } else {
                 ctx.clearRect(0, 0, Crafty.viewport.width, Crafty.viewport.height);
