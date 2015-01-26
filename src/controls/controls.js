@@ -331,15 +331,15 @@ Crafty.extend({
         //Among others this prevent the arrow keys from scrolling the parent page
         //of an iframe hosting the game
         if (Crafty.selected && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
-            if (e.stopPropagation) e.stopPropagation();
-            else e.cancelBubble = true;
+            if (original.stopPropagation) original.stopPropagation();
+            else original.cancelBubble = true;
 
             //Don't prevent default actions if target node is input or textarea.
-            if (e.target && e.target.nodeName !== 'INPUT' && e.target.nodeName !== 'TEXTAREA') {
-                if (e.preventDefault) {
-                    e.preventDefault();
+            if (original.target && original.target.nodeName !== 'INPUT' && original.target.nodeName !== 'TEXTAREA') {
+                if (original.preventDefault) {
+                    original.preventDefault();
                 } else {
-                    e.returnValue = false;
+                    original.returnValue = false;
                 }
             }
             return false;
