@@ -144,7 +144,7 @@ Crafty.extend({
                   pointer--;
               }
           };
-      })();
+      })(),
 
    }
 

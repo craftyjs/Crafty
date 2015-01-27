@@ -10,18 +10,18 @@
       x: 50,
       y: 50
     });
-    var before = Crafty.DOM.translate(e.x, e.y);
+    var before = Crafty.domHelper.translate(e.x, e.y);
 
     Crafty.viewport.scroll('_x', 100);
-    equal(before.x - Crafty.DOM.translate(e.x, e.y).x, 100, "Scroll in x direction");
+    equal(before.x - Crafty.domHelper.translate(e.x, e.y).x, 100, "Scroll in x direction");
 
     Crafty.viewport.scroll('_y', 70);
-    equal(before.y - Crafty.DOM.translate(e.x, e.y).y, 70, "Scroll in y direction");
+    equal(before.y - Crafty.domHelper.translate(e.x, e.y).y, 70, "Scroll in y direction");
 
     Crafty.viewport.scroll('_x', 0);
     Crafty.viewport.scroll('_y', 0);
-    equal(before.x - Crafty.DOM.translate(e.x, e.y).x, 0, "Scroll to 0");
-    equal(before.y - Crafty.DOM.translate(e.x, e.y).y, 0, "Scroll to 0");
+    equal(before.x - Crafty.domHelper.translate(e.x, e.y).x, 0, "Scroll to 0");
+    equal(before.y - Crafty.domHelper.translate(e.x, e.y).y, 0, "Scroll to 0");
   });
 
   test("scroll using x, y", function() {
@@ -29,18 +29,18 @@
       x: 50,
       y: 50
     });
-    var before = Crafty.DOM.translate(e.x, e.y);
+    var before = Crafty.domHelper.translate(e.x, e.y);
 
     Crafty.viewport.scroll('x', 100);
-    equal(before.x - Crafty.DOM.translate(e.x, e.y).x, 100, "Scroll in x direction");
+    equal(before.x - Crafty.domHelper.translate(e.x, e.y).x, 100, "Scroll in x direction");
 
     Crafty.viewport.scroll('y', 70);
-    equal(before.y - Crafty.DOM.translate(e.x, e.y).y, 70, "Scroll in y direction");
+    equal(before.y - Crafty.domHelper.translate(e.x, e.y).y, 70, "Scroll in y direction");
 
     Crafty.viewport.scroll('x', 0);
     Crafty.viewport.scroll('y', 0);
-    equal(before.x - Crafty.DOM.translate(e.x, e.y).x, 0, "Scroll to 0");
-    equal(before.y - Crafty.DOM.translate(e.x, e.y).y, 0, "Scroll to 0");
+    equal(before.x - Crafty.domHelper.translate(e.x, e.y).x, 0, "Scroll to 0");
+    equal(before.y - Crafty.domHelper.translate(e.x, e.y).y, 0, "Scroll to 0");
   });
 
   test("Viewport resizing", function(){
@@ -231,7 +231,7 @@
     // (x,y) = (-Crafty.viewport._x, -Crafty.viewport._y)
     clientX = Crafty.stage.x - document.body.scrollLeft - document.documentElement.scrollLeft;
     clientY = Crafty.stage.y - document.body.scrollTop - document.documentElement.scrollTop;
-    craftyxy = Crafty.DOM.translate(clientX, clientY);
+    craftyxy = Crafty.domHelper.translate(clientX, clientY);
     strictEqual(craftyxy.x, -Crafty.viewport._x);
     strictEqual(craftyxy.y, -Crafty.viewport._y);
 
@@ -240,7 +240,7 @@
     // y = -Crafty.viewport._y + Crafty.viewport._height / Crafty.viewport._scale
     clientX = Crafty.stage.x + Crafty.stage.elem.clientWidth - document.body.scrollLeft - document.documentElement.scrollLeft;
     clientY = Crafty.stage.y + Crafty.stage.elem.clientHeight - document.body.scrollTop - document.documentElement.scrollTop;
-    craftyxy = Crafty.DOM.translate(clientX, clientY);
+    craftyxy = Crafty.domHelper.translate(clientX, clientY);
     strictEqual(craftyxy.x, -Crafty.viewport._x + (Crafty.viewport._width / Crafty.viewport._scale));
     strictEqual(craftyxy.y, -Crafty.viewport._y + (Crafty.viewport._height / Crafty.viewport._scale));
 

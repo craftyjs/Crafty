@@ -1010,7 +1010,7 @@ Crafty.extend({
      *
      * Starts the `EnterFrame` interval. This will call the `EnterFrame` event for every frame.
      *
-     * Can pass width and height values for the stage otherwise will default to window size (see `Crafty.DOM.window`).
+     * Can pass width and height values for the stage otherwise will default to window size.
      *
      * All `Load` events will be executed.
      *

@@ -475,20 +475,18 @@ Crafty.extend({
          * @param Number height - Height of the viewport
          * @param String or HTMLElement stage_elem - the element to use as the stage (either its id or the actual element).
          *
-         * Initialize the viewport. If the arguments 'width' or 'height' are missing, use Crafty.DOM.window.width and Crafty.DOM.window.height (full screen model).
+         * Initialize the viewport. If the arguments 'width' or 'height' are missing, use `window.innerWidth` and `window.innerHeight` (full screen model).
          *
          * The argument 'stage_elem' is used to specify a stage element other than the default, and can be either a string or an HTMLElement.  If a string is provided, it will look for an element with that id and, if none exists, create a div.  If an HTMLElement is provided, that is used directly.  Omitting this argument is the same as passing an id of 'cr-stage'.
          *
-         * @see Crafty.device, Crafty.DOM, Crafty.stage
+         * @see Crafty.device, Crafty.domHelper, Crafty.stage
          */
         init: function (w, h, stage_elem) {
-            Crafty.DOM.window.init();
-
             // setters+getters for the viewport
             this._defineViewportProperties();
             // If no width or height is defined, the width and height is set to fullscreen
-            this._width = (!w) ? Crafty.DOM.window.width : w;
-            this._height = (!h) ? Crafty.DOM.window.height : h;
+            this._width = w || window.innerWidth;
+            this._height = h || window.innerHeight;
 
 
             //check if stage exists
@@ -516,15 +514,15 @@ Crafty.extend({
              */
 
             /**@
-             * #Crafty.stage.inner
-             * @comp Crafty.stage
-             * `Crafty.stage.inner` is a div inside the `#cr-stage` div that holds all DOM entities.
+             * #Crafty.domLayer._div
+             * @comp Crafty.stage, Crafty.domLayer
+             * `Crafty.domLayer._div` is a div inside the `#cr-stage` div that holds all DOM entities.
              * If you use canvas, a `canvas` element is created at the same level in the dom
-             * as the the `Crafty.stage.inner` div. So the hierarchy in the DOM is
+             * as the the `Crafty.domLayer._div` div. So the hierarchy in the DOM is
              *  
              * ~~~
              * Crafty.stage.elem
-             *  - Crafty.stage.inner (a div HTMLElement)
+             *  - Crafty.domLayer._div (a div HTMLElement)
              *  - Crafty.canvasLayer._canvas (a canvas HTMLElement)
              * ~~~
              */
@@ -535,7 +533,6 @@ Crafty.extend({
                 y: 0,
                 fullscreen: false,
                 elem: (crstage ? crstage : document.createElement("div")),
-                inner: document.createElement("div")
             };
 
             //fullscreen, stop scrollbars
@@ -589,11 +586,6 @@ Crafty.extend({
             var elem = Crafty.stage.elem.style,
                 offset;
 
-            Crafty.stage.elem.appendChild(Crafty.stage.inner);
-            Crafty.stage.inner.style.position = "absolute";
-            Crafty.stage.inner.style.zIndex = "1";
-            Crafty.stage.inner.style.transformStyle = "preserve-3d"; // Seems necessary for Firefox to preserve zIndexes?
-
             //css style
             elem.width = this.width + "px";
             elem.height = this.height + "px";
@@ -628,9 +620,16 @@ Crafty.extend({
             
             elem.position = "relative";
             //find out the offset position of the stage
-            offset = Crafty.DOM.inner(Crafty.stage.elem);
+            offset = Crafty.domHelper.innerPosition(Crafty.stage.elem);
             Crafty.stage.x = offset.x;
             Crafty.stage.y = offset.y;
+
+            Crafty.uniqueBind("ViewportResize", this._resize);
+        },
+
+        _resize: function(){
+            Crafty.stage.elem.style.width = Crafty.viewport.width + "px";
+            Crafty.stage.elem.style.height = Crafty.viewport.height + "px";
         },
 
         // Create setters/getters for x, y, width, height
@@ -687,9 +686,8 @@ Crafty.extend({
          *
          */
         reload: function () {
-            Crafty.DOM.window.init();
-            var w = Crafty.DOM.window.width,
-                h = Crafty.DOM.window.height,
+            var w = window.innerWidth,
+                h= window.innerHeight,
                 offset;
 
 
@@ -699,7 +697,7 @@ Crafty.extend({
                 Crafty.trigger("ViewportResize");
             }
 
-            offset = Crafty.DOM.inner(Crafty.stage.elem);
+            offset = Crafty.domHelper.innerPosition(Crafty.stage.elem);
             Crafty.stage.x = offset.x;
             Crafty.stage.y = offset.y;
         },
@@ -718,6 +716,19 @@ Crafty.extend({
             Crafty.viewport.mouselook("stop");
             Crafty.trigger("StopCamera");
             Crafty.viewport.scale(1);
-        }
+        },
+
+        /**@
+         * #Crafty.viewport.onScreen
+         * @comp Crafty.viewport
+         * @sign public Crafty.viewport.onScreen(Object rect)
+         * @param rect - A rectangle with field {_x: x_val, _y: y_val, _w: w_val, _h: h_val}
+         *
+         * Test if a rectangle is completely in viewport
+         */
+        onScreen: function (rect) {
+            return Crafty.viewport._x + rect._x + rect._w > 0 && Crafty.viewport._y + rect._y + rect._h > 0 &&
+                Crafty.viewport._x + rect._x < Crafty.viewport.width && Crafty.viewport._y + rect._y < Crafty.viewport.height;
+        },
     }
 });

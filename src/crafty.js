@@ -20,6 +20,8 @@ require('./graphics/canvas');
 require('./graphics/canvas-layer');
 require('./graphics/color');
 require('./graphics/dom');
+require('./graphics/dom-helper');
+require('./graphics/dom-layer');
 require('./graphics/drawing');
 require('./graphics/gl-textures');
 require('./graphics/html');
