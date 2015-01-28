@@ -6,6 +6,7 @@ Crafty.extend({
     mouseObjs: 0,
     mousePos: {},
     lastEvent: null,
+    touchObjs: 0,
     keydown: {},
     selected: false,
 
@@ -41,6 +42,44 @@ Crafty.extend({
         
         Crafty.selected = selected;
     },
+
+    /**@
+     * #Crafty.multitouch
+     * @category Input
+     * @sign public this .multitouch([Boolean bool])
+     * @param bool - Turns multitouch on and off (default is off - false)
+     * @sign public this .multitouch()
+     * Enables/disables support for multitouch feature.
+     * 
+     * If this is set to true, it is expected that your entities have the Touch component instead of Mouse component.
+     * If false (default), then only entities with the Mouse component will respond to touch.
+     * If no boolean is passed to the function call, it will just return whether multitouch is on or not.
+     * 
+     * Notice that the Touch component (and multitouch feature) is incompatible with the Draggable component or other 
+     * mouse dependent stuff.
+     * 
+     * ~~~
+     * @example
+     * ~~~
+     * Crafty.multitouch(true);
+     * 
+     * var myEntity1 = Crafty.e('2D, Canvas, Color, Touch')
+     *    .attr({x: 100, y: 100, w:200, h:200, z:1 })
+     *    .color('black')
+     *    .bind('TouchStart',function(e){ alert('big black box was touched', e); }),
+     *  myEntity2 = Crafty.e('2D, Canvas, Color, Touch')
+     *    .attr({x: 40, y: 150, w:90, h:300, z:2 })
+     *    .color('green')
+     *    .bind('TouchStart',function(e){ alert('big GREEN box was touched', e); });
+     * 
+     * console.log("multitouch is "+Crafty.multitouch());
+     * ~~~
+     * @see Crafty.touchDispatch
+     */
+    multitouch: function (bool) {
+        if (typeof bool !== "boolean") return this._touchHandler.multitouch;
+        this._touchHandler.multitouch = bool;
+    },
     
     resetKeyDown: function() {
         // Tell all the keys they're no longer held down
@@ -67,11 +106,14 @@ Crafty.extend({
      *
      * This method also sets a global property Crafty.lastEvent, which holds the most recent event that
      * occured (useful for determining mouse position in every frame).
+     * 
+     * ~~~
+     * @example
      * ~~~
      * var newestX = Crafty.lastEvent.realX,
      *     newestY = Crafty.lastEvent.realY;
      * ~~~
-     *
+     * 
      * Notable properties of a MouseEvent e:
      * ~~~
      * //(x,y) coordinates of mouse event in web browser screen space
@@ -82,6 +124,7 @@ Crafty.extend({
      * e.mouseButton
      * ~~~
      * @see Crafty.touchDispatch
+     * @see Crafty.multitouch
      */
     mouseDispatch: function (e) {
 
@@ -89,6 +132,7 @@ Crafty.extend({
         Crafty.lastEvent = e;
 
         var maxz = -1,
+            tar = e.target ? e.target : e.srcElement,
             closest,
             q,
             i = 0,
@@ -96,8 +140,7 @@ Crafty.extend({
             pos = Crafty.DOM.translate(e.clientX, e.clientY),
             x, y,
             dupes = {},
-            tar = e.target ? e.target : e.srcElement,
-            type = e.type;
+            type = e.type;     
 
         //Normalize button according to http://unixpapa.com/js/mouse.html
         if (typeof e.which === 'undefined') {
@@ -109,50 +152,7 @@ Crafty.extend({
         e.realX = x = Crafty.mousePos.x = pos.x;
         e.realY = y = Crafty.mousePos.y = pos.y;
 
-        //if it's a DOM element with Mouse component we are done
-        if (tar.nodeName != "CANVAS") {
-            while (typeof (tar.id) != 'string' && tar.id.indexOf('ent') == -1) {
-                tar = tar.parentNode;
-            }
-            ent = Crafty(parseInt(tar.id.replace('ent', ''), 10));
-            if (ent.has('Mouse') && ent.isAt(x, y))
-                closest = ent;
-        }
-        //else we search for an entity with Mouse component
-        if (!closest) {
-            q = Crafty.map.search({
-                _x: x,
-                _y: y,
-                _w: 1,
-                _h: 1
-            }, false);
-
-            for (l = q.length; i < l; ++i) {
-                if (!q[i].__c.Mouse || !q[i]._visible) continue;
-
-                var current = q[i],
-                    flag = false;
-
-                //weed out duplicates
-                if (dupes[current[0]]) continue;
-                else dupes[current[0]] = true;
-
-                if (current.mapArea) {
-                    if (current.mapArea.containsPoint(x, y)) {
-                        flag = true;
-                    }
-                } else if (current.isAt(x, y)) flag = true;
-
-                if (flag && (current._z >= maxz || maxz === -1)) {
-                    //if the Z is the same, select the closest GUID
-                    if (current._z === maxz && current[0] < closest[0]) {
-                        continue;
-                    }
-                    maxz = current._z;
-                    closest = current;
-                }
-            }
-        }
+        closest = Crafty.findClosestEntityByComponent("Mouse", x, y, tar);
 
         //found closest object to mouse
         if (closest) {
@@ -201,63 +201,283 @@ Crafty.extend({
      * #Crafty.touchDispatch
      * @category Input
      *
-     * TouchEvents have a different structure then MouseEvents.
-     * The relevant data lives in e.changedTouches[0].
-     * To normalize TouchEvents we catch them and dispatch a mock MouseEvent instead.
+     * Internal method which dispatches touch events received by Crafty (crafty.stage.elem).
+     * The touch events get dispatched to the closest entity to the source of the event (if available).
+     * 
+     * By default, touch events are treated as mouse events. To change this behaviour (and enable multitouch)
+     * you must use Crafty.multitouch.
+     * 
+     * If using multitouch feature, this method sets the array Crafty.touchHandler.fingers, which holds data 
+     * of the most recent touches that occured (useful for determining positions of fingers in every frame) 
+     * as well as last entity touched by each finger. Data is lost as soon as the finger is raised.
+     * 
+     * You can read about the MouseEvent, which is the parameter passed to the Mouse entity's callback.
+     * https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent
      *
+     * You can also read about the TouchEvent.
+     * https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent
+     * 
+     * And about the touch point interface, which is the parameter passed to the Touch entity's callback.
+     * http://www.w3.org/TR/touch-events/#dfn-active-touch-point
+     * 
+     * @see Crafty.multitouch
      * @see Crafty.mouseDispatch
      */
-
     touchDispatch: function (e) {
-        var type,
-            lastEvent = Crafty.lastEvent;
-
-        if (e.type === "touchstart") type = "mousedown";
-        else if (e.type === "touchmove") type = "mousemove";
-        else if (e.type === "touchend") type = "mouseup";
-        else if (e.type === "touchcancel") type = "mouseup";
-        else if (e.type === "touchleave") type = "mouseup";
-
-        if (e.touches && e.touches.length) {
-            first = e.touches[0];
-        } else if (e.changedTouches && e.changedTouches.length) {
-            first = e.changedTouches[0];
-        }
-
-        var simulatedEvent = document.createEvent("MouseEvent");
-        simulatedEvent.initMouseEvent(type, true, true, window, 1,
-            first.screenX,
-            first.screenY,
-            first.clientX,
-            first.clientY,
-            false, false, false, false, 0, e.relatedTarget
-        );
-
-        first.target.dispatchEvent(simulatedEvent);
-
-        // trigger click when it should be triggered
-        if (lastEvent !== null && lastEvent.type == 'mousedown' && type == 'mouseup') {
-            type = 'click';
-
-            simulatedEvent = document.createEvent("MouseEvent");
-            simulatedEvent.initMouseEvent(type, true, true, window, 1,
-                first.screenX,
-                first.screenY,
-                first.clientX,
-                first.clientY,
-                false, false, false, false, 0, e.relatedTarget
-            );
-            first.target.dispatchEvent(simulatedEvent);
-        }
+        if (!Crafty.touchObjs && !Crafty.mouseObjs) return;
+        
+        if (this._touchHandler.multitouch)
+            switch (e.type) {
+                case "touchstart":
+                    this._touchHandler.handleStart(e);
+                    break;
+                case "touchmove":
+                    this._touchHandler.handleMove(e);
+                    break;
+                case "touchleave": // touchleave is treated as touchend
+                case "touchend":
+                    this._touchHandler.handleEnd(e);
+                    break;
+                case "touchcancel":
+                    this._touchHandler.handleCancel(e);
+                    break;
+            }
+        else
+            this._touchHandler.mimicMouse(e);
 
         //Don't prevent default actions if target node is input or textarea.
-        if (e.target && e.target.nodeName !== 'INPUT' && e.target.nodeName !== 'TEXTAREA') {
+        if (e.target && e.target.nodeName !== 'INPUT' && e.target.nodeName !== 'TEXTAREA')
             if (e.preventDefault) {
                 e.preventDefault();
             } else {
                 e.returnValue = false;
             }
+    },
+    
+    _touchHandler: {
+        fingers: [], // keeps track of touching fingers
+        multitouch: false,
+        
+        handleStart: function (e) {
+            var touches = e.changedTouches;
+            for (var i = 0, l = touches.length; i < l; i++) {
+                var idx = false,
+                  pos = Crafty.DOM.translate(touches[i].clientX, touches[i].clientY),
+                  tar = e.target ? e.target : e.srcElement,
+                  x, y, closest;
+                touches[i].realX = x = pos.x;
+                touches[i].realY = y = pos.y;
+                closest = this.findClosestTouchEntity(x, y, tar);
+                
+                if (closest) {
+                    closest.trigger("TouchStart", touches[i]);
+                    // In case the entity was already being pressed, get the finger index
+                    idx = this.fingerDownIndexByEntity(closest);
+                }
+                var touch = this.setTouch(touches[i], closest);
+                if (idx !== false && idx >= 0) {
+                    // Recycling finger...
+                    this.fingers[idx] = touch;
+                } else {
+                    this.fingers.push(touch);
+                }
+            }
+        },
+            
+        handleMove: function (e) {
+            var touches = e.changedTouches;
+            for (var i = 0, l = touches.length; i < l; i++) {
+                var idx = this.fingerDownIndexById(touches[i].identifier),
+                  pos = Crafty.DOM.translate(touches[i].clientX, touches[i].clientY),
+                  tar = e.target ? e.target : e.srcElement,
+                  x, y, closest;
+                touches[i].realX = x = pos.x;
+                touches[i].realY = y = pos.y;
+                closest = this.findClosestTouchEntity(x, y, tar);
+            
+                if (idx >= 0) {
+                    if(typeof this.fingers[idx].entity !== "undefined")
+                        if (this.fingers[idx].entity == closest) {
+                            this.fingers[idx].entity.trigger("TouchMove", touches[i]);
+                        } else {
+                            if (typeof closest === "object") closest.trigger("TouchStart", touches[i]);
+                            this.fingers[idx].entity.trigger("TouchEnd");
+                        }
+                    this.fingers[idx].entity = closest;
+                    this.fingers[idx].realX = x;
+                    this.fingers[idx].realY = y;
+                }
+            }
+        },
+        
+        handleEnd: function (e) {
+            var touches = e.changedTouches;
+            for (var i = 0, l = touches.length; i < l; i++) {
+                var idx = this.fingerDownIndexById(touches[i].identifier);
+            
+                if (idx >= 0) {
+                        if (this.fingers[idx].entity)
+                            this.fingers[idx].entity.trigger("TouchEnd");
+                        this.fingers.splice(idx, 1);
+                }
+            }
+        },
+            
+        handleCancel: function (e) {
+            var touches = e.changedTouches;
+            for (var i = 0, l = touches.length; i < l; i++) {
+                this.fingers.splice(i, 1);
+            }
+        },
+            
+        setTouch: function (touch, entity) {
+            return { identifier: touch.identifier, realX: touch.realX, realY: touch.realY, entity: entity };
+        },
+            
+        findClosestTouchEntity: function (x, y, tar) {
+            return Crafty.findClosestEntityByComponent("Touch", x, y, tar);
+        },
+           
+        fingerDownIndexById: function(idToFind) {
+            for (var i = 0, l = this.fingers.length; i < l; i++) {
+                var id = this.fingers[i].identifier;
+                
+                   if (id == idToFind) {
+                       return i;
+                   }
+                }
+            return -1;
+        },
+            
+        fingerDownIndexByEntity: function(entityToFind) {
+            for (var i = 0, l = this.fingers.length; i < l; i++) {
+                var ent = this.fingers[i].entity;
+                
+                if (ent == entityToFind) {
+                    return i;
+                }
+            }
+            return -1;
+        },
+
+        mimicMouse: function (e) {
+            var type,
+                lastEvent = Crafty.lastEvent;
+            if (e.type === "touchstart") type = "mousedown";
+            else if (e.type === "touchmove") type = "mousemove";
+            else if (e.type === "touchend") type = "mouseup";
+            else if (e.type === "touchcancel") type = "mouseup";
+            else if (e.type === "touchleave") type = "mouseup";
+            if (e.touches && e.touches.length) {
+                first = e.touches[0];
+            } else if (e.changedTouches && e.changedTouches.length) {
+                first = e.changedTouches[0];
+            }
+            var simulatedEvent = document.createEvent("MouseEvent");
+            simulatedEvent.initMouseEvent(type, true, true, window, 1,
+              first.screenX,
+              first.screenY,
+              first.clientX,
+              first.clientY,
+              false, false, false, false, 0, e.relatedTarget
+            );
+            first.target.dispatchEvent(simulatedEvent);
+            // trigger click when it should be triggered
+            if (lastEvent !== null && lastEvent.type == 'mousedown' && type == 'mouseup') {
+                type = 'click';
+                simulatedEvent = document.createEvent("MouseEvent");
+                simulatedEvent.initMouseEvent(type, true, true, window, 1,
+                  first.screenX,
+                  first.screenY,
+                  first.clientX,
+                  first.clientY,
+                  false, false, false, false, 0, e.relatedTarget
+                );
+                first.target.dispatchEvent(simulatedEvent);
+            }
+        },
+    },
+    
+    /**@
+     * #Crafty.findClosestEntityByComponent
+     * @category Input
+     * 
+     * @sign public this .findClosestEntityByComponent(String comp, Number x, Number y[, Object target])
+     * Defines a reel by starting and ending position on the sprite sheet.
+     * @param comp - Component name
+     * @param x - `x` position where to look for entities
+     * @param y - `y` position where to look for entities
+     * @param target - Target element wherein to look for entities 
+     * 
+     * This method is used internally by the .mouseDispatch and .touchDispatch methods, but can be used otherwise for 
+     * Canvas entities.
+     * 
+     * Finds the top most entity (with the highest z) with a given component at a given point (x, y).
+     * For having a detection area specified for the enity, add the AreaMap component to the entity expected to be found.
+     * 
+     * The 'target' argument is only meant to be used by .mouseDispatch and touchDispatch; defaults to Crafty.stage.elem, 
+     * thus using this function directly is only worth anything for canvas entities.
+     * 
+     * Returns the found entity, or undefined if no entity was found.
+     * 
+     * @example
+     * ~~~
+     * var coords = { x: 455, y: 267 },
+     *     closestText = Crafty.findClosestEntityByComponent("Text", coords.x, coords.y);
+     * ~~~
+     */
+    findClosestEntityByComponent: function (comp, x, y, target) { 
+        var tar = target ? target : Crafty.stage.elem,
+            closest, q, l, i = 0, maxz = -1, dupes = {};
+            
+        //if it's a DOM element with component we are done
+        if (tar.nodeName != "CANVAS") {
+            while (typeof (tar.id) != 'string' && tar.id.indexOf('ent') == -1) {
+                tar = tar.parentNode;
+            }
+            var ent = Crafty(parseInt(tar.id.replace('ent', ''), 10));
+            if (ent.__c[comp] && ent.isAt(x, y)){
+                closest = ent;
+            }
         }
+            //else we search for an entity with component
+        if (!closest) {
+            q = Crafty.map.search({
+                _x: x,
+                _y: y,
+                _w: 1,
+                _h: 1
+            }, false);
+
+            for (l = q.length; i < l; ++i) {
+                
+                if (!q[i].__c[comp] || !q[i]._visible){ continue; }
+
+                    var current = q[i],
+                        flag = false;
+
+                    //weed out duplicates
+                    if (dupes[current[0]]){  continue; }
+                    else dupes[current[0]] = true;
+
+                    if (current.mapArea) {
+                        if (current.mapArea.containsPoint(x, y)) {
+                            flag = true;
+                        }
+                    } else if (current.isAt(x, y)) flag = true;
+
+                    if (flag && (current._z >= maxz || maxz === -1)) {
+                        //if the Z is the same, select the closest GUID
+                        if (current._z === maxz && current[0] < closest[0]) {
+                            continue; 
+                    }
+                    maxz = current._z;
+                    closest = current;
+                }
+            }
+        }
+            
+        return closest;
     },
 
 
@@ -401,7 +621,8 @@ Crafty.bind("CraftyStop", function () {
  * @trigger DoubleClick - when the user double clicks - MouseEvent
  * @trigger MouseMove - when the mouse is over and moves - MouseEvent
  *
- * To be able to use the events on a entity, you have to remember to include the Mouse component, else the events will not get triggered.
+ * To be able to use the events on a entity, you have to remember to include the Mouse component, 
+ * else the events will not get triggered.
  *
  * You can read more about the MouseEvent, which is the parameter passed to the callback.
  * https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent
@@ -412,6 +633,9 @@ Crafty.bind("CraftyStop", function () {
  * - Crafty.mouseButtons.RIGHT
  * - Crafty.mouseButtons.MIDDLE
  *
+ * If you're targeting mobiles, you must know that by default Crafty turns touch events into mouse events, 
+ * making mouse dependent components work with touch. However, in case you need multitouch, you'll have 
+ * to make use of the Touch component instead, thus losing compatibility with Mouse dependent stuff.
  *
  * @example
  * ~~~
@@ -428,24 +652,90 @@ Crafty.bind("CraftyStop", function () {
  * })
  * ~~~
  * @see Crafty.mouseDispatch
+ * @see Crafty.multitouch
+ * @see Crafty.touchDispatch
  */
 Crafty.c("Mouse", {
     init: function () {
         Crafty.mouseObjs++;
-        this.bind("Remove", function () {
-            Crafty.mouseObjs--;
-        });
+        this.requires("AreaMap")
+            .bind("Remove", function () {
+                Crafty.mouseObjs--;
+            });
+    }
+});
+
+/**@
+ * #Touch
+ * @category Input
+ * Provides the entity with touch related events
+ * @trigger TouchStart - when entity is touched - TouchPoint
+ * @trigger TouchMove - when finger is moved over entity - TouchPoint
+ * @trigger TouchCancel - when a touch event has been disrupted in some way - TouchPoint
+ * @trigger TouchEnd - when the finger is raised over the entity, or when finger leaves entity - won't send touch point
+ *
+ * To be able to use multitouch, you must do Crafty.multitouch(true), and also you have to remember to include 
+ * the Touch component in your entity, else the events will not get triggered. 
+ * 
+ * If you don't need multitouch, you can use the Mouse component instead.
+ *
+ * You can read more about the TouchEvent. See TouchEvent.touches and TouchEvent.changedTouches.
+ * https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent
+ * TouchPoint is the parameter passed to the event callback in the related touch.
+ * http://www.w3.org/TR/touch-events/#dfn-active-touch-point
+ *
+ * @example
+ * ~~~
+ * Crafty.multitouch(true);
+ * 
+ * var myEntity = Crafty.e('2D, Canvas, Color, Touch')
+ * .attr({x: 10, y: 10, w: 40, h: 40})
+ * .color('green')
+ * .bind('TouchStart', function(TouchPoint){
+ *   console.log('myEntity has been touched', TouchPoint);
+ * }).bind('TouchMove', function(TouchPoint) {
+ *   console.log('Finger moved over myEntity at the { x: ' + TouchPoint.realX + ', y: ' + TouchPoint.realY + ' } coordinates.');
+ * }).bind('TouchEnd', function() {
+ *   console.log('Touch over myEntity has finished.');
+ * });
+ * ~~~
+ * @see Crafty.multitouch
+ * @see Crafty.touchDispatch
+ * @see Crafty.mouseDispatch
+ */
+Crafty.c("Touch", {
+    init: function () {
+        Crafty.touchObjs++;
+        this.requires("AreaMap")
+            .bind("Remove", function () {
+                Crafty.touchObjs--;
+            });
+    }
+});
+
+/**@
+ * #AreaMap
+ * @category Input
+ * Component used by Mouse and Touch.
+ * Can be added to other entities for use with the Crafty.findClosestEntityByComponent method.
+ * 
+ * @see Crafty.mouseDispatch
+ * @see Crafty.touchDispatch
+ * @see Crafty.polygon
+ */
+Crafty.c("AreaMap", {
+    init: function () {
     },
 
     /**@
      * #.areaMap
-     * @comp Mouse
+     * @comp AreaMap
      * @sign public this .areaMap(Crafty.polygon polygon)
      * @param polygon - Instance of Crafty.polygon used to check if the mouse coordinates are inside this region
      * @sign public this .areaMap(Array point1, .., Array pointN)
      * @param point# - Array with an `x` and `y` position to generate a polygon
      *
-     * Assign a polygon to the entity so that mouse events will only be triggered if
+     * Assign a polygon to the entity so that pointer (mouse or touch) events will only be triggered if
      * the coordinates are inside the given polygon.
      *
      * @example
@@ -473,6 +763,21 @@ Crafty.c("Mouse", {
 
         this.attach(this.mapArea);
         return this;
+    }
+});
+
+/**@
+ * #Button
+ * @category Input
+ * Provides the entity with touch or mouse functionality, depending on whether this is a pc 
+ * or mobile device, and also on multitouch configuration.
+ * 
+ * @see Crafty.multitouch
+ */
+Crafty.c("Button", {
+    init: function () {
+        var req = (!Crafty.mobile || (Crafty.mobile && !Crafty.multitouch())) ? "Mouse" : "Touch";
+        this.requires(req);
     }
 });
 
