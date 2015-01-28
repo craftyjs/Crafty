@@ -118,7 +118,7 @@ Crafty.c("Collision", {
         }
 
         // Finally, assign the hitbox, and attach it to the "Collision" entity
-        this.map = poly;
+        this.map = poly.clone();
         this.attach(this.map);
         this.map.shift(this._x, this._y);
         this.trigger("NewHitbox", poly);
