@@ -8,7 +8,7 @@
       var mockEvent = {
         char:"", charCode:"", keyCode:"", type:"", 
         shiftKey:"", ctrlKey:"", metaKey:"", timestamp:"",
-        target: Crafty.canvas._canvas,
+        target: document,
         stopPropagation: function(){
           stopPropCalled = true;
         },
