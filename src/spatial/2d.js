@@ -1192,7 +1192,8 @@ Crafty.polygon.prototype = {
      * ~~~
      */
     clone: function() {
-        return new Crafty.polygon(this.points);
+        //Shallow clone, but points should be full of Number primitives that are copied
+        return new Crafty.polygon(this.points.slice(0));
     },
 
     rotate: function (e) {

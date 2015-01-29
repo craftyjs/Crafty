@@ -99,6 +99,9 @@ Crafty.c("Collision", {
                 //convert args to array to create polygon
                 var args = Array.prototype.slice.call(arguments, 0);
                 poly = new Crafty.polygon(args);
+            } else {
+                //Clone the poly so we don't modify it for anything else that might be using it
+                poly = poly.clone();
             }
             // Check to see if the polygon sits outside the entity, and set _cbr appropriately
             // On resize, the new bounds will be checked if necessary
@@ -118,7 +121,7 @@ Crafty.c("Collision", {
         }
 
         // Finally, assign the hitbox, and attach it to the "Collision" entity
-        this.map = poly.clone();
+        this.map = poly;
         this.attach(this.map);
         this.map.shift(this._x, this._y);
         this.trigger("NewHitbox", poly);
