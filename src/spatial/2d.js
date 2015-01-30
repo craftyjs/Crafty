@@ -1177,6 +1177,25 @@ Crafty.polygon.prototype = {
         }
     },
 
+    /**@
+     * #.clone
+     * @comp Crafty.polygon
+     * @sign public void .clone()
+     * 
+     * Returns a clone of the polygon.
+     *
+     * @example
+     *
+     * var poly = new Crafty.polygon([50, 0, 100, 100, 0, 100]);
+     * var shiftedpoly = poly.clone().shift(5,5);
+     * //[[55, 5, 105, 5, 5, 105], but the original polygon is unchanged
+     * ~~~
+     */
+    clone: function() {
+        //Shallow clone, but points should be full of Number primitives that are copied
+        return new Crafty.polygon(this.points.slice(0));
+    },
+
     rotate: function (e) {
         var i = 0, p = this.points,
             l = p.length,

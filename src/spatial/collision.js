@@ -99,6 +99,9 @@ Crafty.c("Collision", {
                 //convert args to array to create polygon
                 var args = Array.prototype.slice.call(arguments, 0);
                 poly = new Crafty.polygon(args);
+            } else {
+                //Clone the poly so we don't modify it for anything else that might be using it
+                poly = poly.clone();
             }
             // Check to see if the polygon sits outside the entity, and set _cbr appropriately
             // On resize, the new bounds will be checked if necessary
