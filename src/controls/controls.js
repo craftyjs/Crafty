@@ -235,11 +235,9 @@ Crafty.extend({
                     this._touchHandler.handleMove(e);
                     break;
                 case "touchleave": // touchleave is treated as touchend
+                case "touchcancel": // touchcancel is treated as touchend, but triggers a TouchCancel event
                 case "touchend":
                     this._touchHandler.handleEnd(e);
-                    break;
-                case "touchcancel":
-                    this._touchHandler.handleCancel(e);
                     break;
             }
         else
@@ -311,22 +309,16 @@ Crafty.extend({
         },
         
         handleEnd: function (e) {
-            var touches = e.changedTouches;
+            var touches = e.changedTouches, 
+                eventName = e.type == "touchcancel" ? "TouchCancel" : "TouchEnd";
             for (var i = 0, l = touches.length; i < l; i++) {
                 var idx = this.fingerDownIndexById(touches[i].identifier);
             
                 if (idx >= 0) {
                         if (this.fingers[idx].entity)
-                            this.fingers[idx].entity.trigger("TouchEnd");
+                            this.fingers[idx].entity.trigger(eventName);
                         this.fingers.splice(idx, 1);
                 }
-            }
-        },
-            
-        handleCancel: function (e) {
-            var touches = e.changedTouches;
-            for (var i = 0, l = touches.length; i < l; i++) {
-                this.fingers.splice(i, 1);
             }
         },
             
