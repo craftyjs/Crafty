@@ -93,7 +93,7 @@ Crafty.c("Image", {
     _onImageLoad: function(){
         
         if (this.has("Canvas")) {
-            this._pattern = Crafty.canvas.context.createPattern(this.img, this._repeat);
+            this._pattern = this._drawContext.createPattern(this.img, this._repeat);
         } else if (this.has("WebGL")) {
             this._establishShader("image:" + this.__image, IMAGE_FRAGMENT_SHADER, IMAGE_VERTEX_SHADER, IMAGE_ATTRIBUTE_LIST);
             this.program.setTexture( this.webgl.makeTexture(this.__image, this.img, (this._repeat!=="no-repeat")));

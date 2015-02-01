@@ -137,7 +137,7 @@ Crafty.extend({
             q,
             i = 0,
             l,
-            pos = Crafty.DOM.translate(e.clientX, e.clientY),
+            pos = Crafty.domHelper.translate(e.clientX, e.clientY),
             x, y,
             dupes = {},
             type = e.type;     
@@ -260,7 +260,7 @@ Crafty.extend({
             var touches = e.changedTouches;
             for (var i = 0, l = touches.length; i < l; i++) {
                 var idx = false,
-                  pos = Crafty.DOM.translate(touches[i].clientX, touches[i].clientY),
+                  pos = Crafty.domHelper.translate(touches[i].clientX, touches[i].clientY),
                   tar = e.target ? e.target : e.srcElement,
                   x, y, closest;
                 touches[i].realX = x = pos.x;
@@ -286,7 +286,7 @@ Crafty.extend({
             var touches = e.changedTouches;
             for (var i = 0, l = touches.length; i < l; i++) {
                 var idx = this.fingerDownIndexById(touches[i].identifier),
-                  pos = Crafty.DOM.translate(touches[i].clientX, touches[i].clientY),
+                  pos = Crafty.domHelper.translate(touches[i].clientX, touches[i].clientY),
                   tar = e.target ? e.target : e.srcElement,
                   x, y, closest;
                 touches[i].realX = x = pos.x;
@@ -796,7 +796,7 @@ Crafty.c("Draggable", {
 
     _ondrag: function (e) {
         // While a drag is occurring, this method is bound to the mousemove DOM event
-        var pos = Crafty.DOM.translate(e.clientX, e.clientY);
+        var pos = Crafty.domHelper.translate(e.clientX, e.clientY);
 
         // ignore invalid 0 0 position - strange problem on ipad
         if (pos.x === 0 || pos.y === 0) {
@@ -887,7 +887,7 @@ Crafty.c("Draggable", {
      * @param e - a mouse event
      */
     _startDrag: function (e) {
-        this._origMouseDOMPos = Crafty.DOM.translate(e.clientX, e.clientY);
+        this._origMouseDOMPos = Crafty.domHelper.translate(e.clientX, e.clientY);
         this._oldX = this._x;
         this._oldY = this._y;
         this._dragging = true;
