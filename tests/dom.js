@@ -38,7 +38,7 @@
 
   test("removeComponent removes element class", function() {
     var element = Crafty.e("DOM");
-    hasClassName = function(el, name) {
+    var hasClassName = function(el, name) {
       return el._element.className.indexOf(name) >= 0;
     };
     element.addComponent("removeMe");
