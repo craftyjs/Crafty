@@ -274,7 +274,7 @@
 
 
   test("adjustable boundary", function() {
-    e = Crafty.e("2D").attr({
+    var e = Crafty.e("2D").attr({
       x: 10,
       y: 10,
       w: 10,

@@ -263,7 +263,7 @@ Crafty.extend({
 
         /** cleans up current dirty state, stores stale state for future passes */
         _clean: function () {
-            var rect, obj, i,
+            var rect, obj, i, l,
                 changed = this._changedObjs;
              for (i = 0, l = changed.length; i < l; i++) {
                  obj = changed[i];

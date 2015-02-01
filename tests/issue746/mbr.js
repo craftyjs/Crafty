@@ -8,7 +8,7 @@ test("mbr Pass In Object", function() {
       h: 150
     }).color("red");
     
-    mbrObject = {};
+    var mbrObject = {};
 
     player.mbr(mbrObject);
 

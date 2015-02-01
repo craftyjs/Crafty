@@ -285,7 +285,7 @@
   test("Crafty.get with only one object", function() {
     var e = Crafty.e("test");
     var collection = Crafty("test");
-    result = collection.get(0);
+    var result = collection.get(0);
     equal(result.getId(), e.getId(), "result of get(0) is correct entity");
     result = collection.get();
     equal(result.length, 1, "result of get() is array of length 1");

@@ -8,7 +8,7 @@ test("pos Pass In Object", function() {
       h: 150
     }).color("red");
     
-    posObject = {};
+    var posObject = {};
 
     player.pos(posObject);
 

@@ -138,7 +138,7 @@ Crafty.c("SpriteAnimation", {
 		}
 
 
-		var reel, i;
+		var reel, i, y;
 
 		reel = {
 			id: reelId,
