@@ -150,7 +150,7 @@ Crafty.c("DebugRectangle", {
 
     drawDebugRect: function () {
 
-        ctx = Crafty.DebugCanvas.context;
+        var ctx = Crafty.DebugCanvas.context;
         var rect = this.debugRect;
         if (rect === null || rect === undefined)
             return;
@@ -235,7 +235,7 @@ Crafty.c("DebugPolygon", {
         if (typeof this.polygon === "undefined")
             return;
 
-        ctx = Crafty.DebugCanvas.context;
+        var ctx = Crafty.DebugCanvas.context;
         ctx.beginPath();
         var p = this.polygon.points, l = p.length;
         for (var i=0; i<l; i+=2){

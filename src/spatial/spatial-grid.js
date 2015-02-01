@@ -74,7 +74,7 @@ var Crafty = require('../core/core.js'),
 
         search: function (rect, filter) {
             var keys = HashMap.key(rect, keyHolder),
-                i, j, k,
+                i, j, k, l, cell,
                 results = [];
 
             if (filter === undefined) filter = true; //default filter to true
