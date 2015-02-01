@@ -36,9 +36,6 @@
          touchEnd3 = createTouchEvent(elem, "touchend", [[150 + sx, 150 + sy, 1]]),
          touchEnd4 = createTouchEvent(elem, "touchend", [[100 + sx, 80 + sy, 0]]),
          touchEnd5 = createTouchEvent(elem, "touchend", [[100 + sx, 80 + sy, 4]]);
-    
-      elem.addEventListener("touchstart", function(e){ Crafty.touchDispatch(e); });
-      elem.addEventListener("touchend", function(e){ Crafty.touchDispatch(e); });
 
       touchStart1();
     
