@@ -715,6 +715,9 @@ Crafty.extend({
         reset: function () {
             Crafty.viewport.mouselook("stop");
             Crafty.trigger("StopCamera");
+            // Reset viewport position and scale
+            Crafty.viewport.scroll("_x", 0);
+            Crafty.viewport.scroll("_y", 0);
             Crafty.viewport.scale(1);
         },
 

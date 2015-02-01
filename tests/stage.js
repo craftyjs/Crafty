@@ -2,6 +2,10 @@
   module("Viewport", {
     setup: function() {
       resetStage();
+    },
+
+    teardown: function() {
+      resetStage();
     }
   });
 
@@ -88,12 +92,6 @@
 
   test("pan", function() {
     Crafty.viewport.clampToEntities = false;
-    Crafty.e("2D, DOM").attr({
-      x: 0,
-      y: 0,
-      w: Crafty.viewport.width * 2,
-      h: Crafty.viewport.height * 2
-    });
 
     var done = 0;
     var panDone = function() {
@@ -116,29 +114,16 @@
     equal(Crafty.viewport._y, -100, "Pan all the way and stay there");
     equal(done, 1, "CameraAnimationDone has fired once");
 
-    Crafty.viewport.scroll('x', 0);
-    Crafty.viewport.scroll('y', 0);
   });
 
   test("pan with easing", function() {
     Crafty.viewport.clampToEntities = false;
-    Crafty.e("2D, DOM").attr({
-      x: 0,
-      y: 0,
-      w: Crafty.viewport.width * 2,
-      h: Crafty.viewport.height * 2
-    });
-
-  
 
     Crafty.viewport.pan(100, 0, 10 * 20, "easeInQuad");
     Crafty.timer.simulateFrames(5);
     equal(Crafty.viewport._x, -25, "Pan quarter of the way on half the time");
     Crafty.timer.simulateFrames(5);
     equal(Crafty.viewport._x, -100, "Pan all the way when all the time is spent");
-
-    Crafty.viewport.scroll('x', 0);
-    Crafty.viewport.scroll('y', 0);
   });
 
   test("zoom", function() {
@@ -150,16 +135,6 @@
       done++;
     };
     Crafty.one("CameraAnimationDone", panDone);
-
-    Crafty.e("2D, DOM").attr({
-      x: 0,
-      y: 0,
-      w: Crafty.viewport.width * 2,
-      h: Crafty.viewport.height * 2
-    });
-    Crafty.viewport.scroll('x', 0);
-    Crafty.viewport.scroll('y', 0);
-    Crafty.viewport.scale(1);
 
     Crafty.viewport.zoom(2, 0, 0, 10 * 20);
     Crafty.timer.simulateFrames(5);
@@ -214,10 +189,61 @@
     Crafty.timer.simulateFrames(1);
     equal(Crafty.viewport._x, (-(e2.x + e2.w / 2 - Crafty.viewport.width / 2)), "Entity centered from non-zero origin");
     equal(Crafty.viewport._y, (-(e2.y + e2.h / 2 - Crafty.viewport.height / 2)), "Entity centered from non-zero origin");
+  });
 
+  test("viewport.reset() gives correct values", function() {
+    Crafty.viewport.clampToEntities = false;
+    Crafty.viewport.scroll('_x', 50);
+    Crafty.viewport.scroll('_y', 50);
+    Crafty.viewport.scale(2);
+    equal(Crafty.viewport._x, 50, "Viewport starts scrolled");
+    equal(Crafty.viewport._y, 50, "Viewport starts scrolled");
+    equal(Crafty.viewport._scale, 2, "Viewport starts scaled");
+    Crafty.viewport.reset();
+    equal(Crafty.viewport._x, 0, "Viewport _x is reset");
+    equal(Crafty.viewport._y, 0, "Viewport _y is reset");
+    equal(Crafty.viewport._scale, 1, "Viewport _scale is reset");
     Crafty.viewport.clampToEntities = true;
-    Crafty.viewport.scroll('x', 0);
-    Crafty.viewport.scroll('y', 0);
+  });
+
+  test("viewport.reset() triggers StopCamera", function() {
+    Crafty.viewport.clampToEntities = false;
+    var stopped = false;
+    Crafty.one("StopCamera", function(){
+      stopped = true;
+    });
+    Crafty.viewport.reset();
+    equal(stopped, true, "Viewport.reset triggers StopCamera");
+  });
+
+  test("pan and StopCamera", function() {
+    Crafty.viewport.clampToEntities = false;
+
+    var done = 0;
+    Crafty.one("CameraAnimationDone", function() { done++; });
+
+    Crafty.viewport.pan(100, 0, 10 * 20);
+    Crafty.timer.simulateFrames(5);
+    // Stop at half-way point
+    Crafty.trigger("StopCamera");
+    Crafty.timer.simulateFrames(5);
+    equal(Crafty.viewport._x, -50, "Pan still half way after camera has been stopped");
+    equal(done, 0, "CameraAnimationDone hasn't fired");
+  });
+
+  test("zoom and StopCamera", function() {
+    Crafty.viewport.clampToEntities = false;
+
+    var done = 0;
+    Crafty.one("CameraAnimationDone", function() { done++; });
+
+    Crafty.viewport.zoom(4, 0, 0, 10 * 20);    
+    Crafty.timer.simulateFrames(5);
+    // Stop at half-way point
+    Crafty.trigger("StopCamera");
+    Crafty.timer.simulateFrames(5);
+    equal(Crafty.viewport._scale, 2, "Zoom at half way after camera has been stopped");
+    equal(done, 0, "CameraAnimationDone hasn't fired");
   });
 
   test("DOMtranslate", function() {
@@ -243,11 +269,6 @@
     craftyxy = Crafty.domHelper.translate(clientX, clientY);
     strictEqual(craftyxy.x, -Crafty.viewport._x + (Crafty.viewport._width / Crafty.viewport._scale));
     strictEqual(craftyxy.y, -Crafty.viewport._y + (Crafty.viewport._height / Crafty.viewport._scale));
-
-    // clean up
-    Crafty.viewport.scale(1);
-    Crafty.viewport.x = 0;
-    Crafty.viewport.y = 0;
   });
 
 
