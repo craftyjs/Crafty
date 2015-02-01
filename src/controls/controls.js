@@ -403,7 +403,7 @@ Crafty.extend({
      * @category Input
      * 
      * @sign public this .findClosestEntityByComponent(String comp, Number x, Number y[, Object target])
-     * Defines a reel by starting and ending position on the sprite sheet.
+     * Finds closest entity with certain component at given coordinates.
      * @param comp - Component name
      * @param x - `x` position where to look for entities
      * @param y - `y` position where to look for entities
