@@ -220,20 +220,14 @@ Crafty.fn = Crafty.prototype = {
      * ~~~
      */
     addComponent: function (id) {
-        var comps = [],
+        var comps,
             comp, c = 0;
 
         //add multiple arguments
-        if (arguments.length > 1) {
-            var i = 0;
-            for (; i < arguments.length; i++) {
-                comps.push(arguments[i]);
-            }
-            //split components if contains comma
-        } else if (id.indexOf(',') !== -1) {
+        if (arguments.length === 1 && id.indexOf(',') !== -1) {
             comps = id.split(rlist);
         } else {
-            comps.push(id);
+            comps = arguments;
         }
 
         //extend the components
