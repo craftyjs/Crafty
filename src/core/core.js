@@ -238,15 +238,23 @@ Crafty.fn = Crafty.prototype = {
 
         //extend the components
         for (; c < comps.length; c++) {
-            if (this.__c[comps[c]] === true)
+            // If component already exists, continue
+            if (this.__c[comps[c]] === true) {
                 continue;
+            }
             this.__c[comps[c]] = true;
             comp = components[comps[c]];
+            // Copy all methods of the component
             this.extend(comp);
-            //if constructor, call it
+            // Add any required components
+            if (comp && "required" in comp) {
+                this.requires( comp.required );
+            }
+            // Call constructor function
             if (comp && "init" in comp) {
                 comp.init.call(this);
             }
+            // Bind events
             if (comp && "events" in comp){
                 var auto = comp.events;
                 for (var eventName in auto){
@@ -1424,9 +1432,10 @@ Crafty.extend({
      *
      * A handful of methods or properties are treated specially. They are invoked in partiular contexts, and (in those contexts) cannot be overridden by other components.
      *
-     * - `init` will be called when the component is added to an entity
-     * - `remove` will be called just before a component is removed, or before an entity is destroyed. It is passed a single boolean parameter that is `true` if the entity is being destroyed.
-     * - `events` will be treated as an object whose properties represent functions bound to events equivalent to the property names.  (See the example below.)  The binding occurs directly after the call to `init`, and will be removed directly before `remove` is called.
+     * - `required`: A string listing required components, which will be added to the component before `init()` runs.
+     * - `init`: A function to be called when the component is added to an entity
+     * - `remove`: A function which will be called just before a component is removed, or before an entity is destroyed. It is passed a single boolean parameter that is `true` if the entity is being destroyed.
+     * - `events`: An object whose properties represent functions bound to events equivalent to the property names.  (See the example below.)  The binding occurs directly after the call to `init`, and will be removed directly before `remove` is called.
      *
      * In addition to these hardcoded special methods, there are some conventions for writing components.
      *

@@ -312,6 +312,21 @@
 
   });
 
+  test("required special parameter", function() {
+    var hasComp = false;
+    Crafty.c("Requisitioner", {
+      init: function() { 
+        if (this.has("RequiredComponent")){
+          hasComp = true;
+        }
+      },
+      required: "RequiredComponent"
+    });
+    Crafty.e("Requisitioner");
+
+    ok(hasComp, "Required component added before init was run");
+  });
+
   test("destroy", function() {
     var first = Crafty.e("test"),
       id = first[0]; //id
