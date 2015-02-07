@@ -224,7 +224,12 @@ Crafty.c("Sprite", {
 
             if (bgColor === "initial") bgColor = "";
 
-            style.background = bgColor + " url('" + this.__image + "') no-repeat";
+            // Don't change background if it's not necessary -- this can cause some browsers to reload the image
+            // See [this chrome issue](https://code.google.com/p/chromium/issues/detail?id=102706)
+            var newBackground = bgColor + " url('" + this.__image + "') no-repeat"; 
+            if (newBackground !== style.background) {
+                style.background = newBackground;
+            }
             style.backgroundPosition = "-" + co.x * hscale + "px -" + co.y * vscale + "px";
             // style.backgroundSize must be set AFTER style.background!
             if (vscale != 1 || hscale != 1) {
