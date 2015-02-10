@@ -163,12 +163,14 @@ Crafty.fn = Crafty.prototype = {
 
             //update from the cache
             if (!this.__c) this.__c = {};
+            if (!this._callbacks) addCallbackMethods(this);
 
             //update to the cache if NULL
             if (!entities[selector]) entities[selector] = this;
             return entities[selector]; //return the cached selector
         }
 
+        addCallbackMethods(this);
         return this;
     },
 
@@ -658,30 +660,18 @@ Crafty.fn = Crafty.prototype = {
      * @see .trigger, .unbind
      */
     bind: function (event, callback) {
-
-        // (To learn how the handlers object works, see inline comment at Crafty.bind)
-        var h = handlers[event] || (handlers[event] = {}), callbacks;
-
+        //  To learn how the event system functions, see the comments for Crafty._callbackMethods
         //optimization for 1 entity
         if (this.length === 1) {
-            callbacks = h[this[0]];
-            if (!callbacks) {
-                callbacks = h[this[0]] = []; //init handler array for entity
-                callbacks.depth = 0; // metadata indicating call depth
+            this._bindCallback(event, callback);
+        } else {
+            for (var i = 0; i < this.length; i++) {
+                var e = entities[this[i]];
+                if (e) {
+                    e._bindCallback(event, callback);
+                }
             }
-            callbacks.push(callback); //add current callback
-            return this;
         }
-
-        this.each(function () {
-            //init event collection
-            callbacks = h[this[0]];
-            if (!callbacks) {
-                callbacks = h[this[0]] = []; //init handler array for entity
-                callbacks.depth = 0; // metadata indicating call depth
-            }
-            callbacks.push(callback); //add current callback
-        });
         return this;
     },
 
@@ -739,29 +729,14 @@ Crafty.fn = Crafty.prototype = {
      * @see .bind, .trigger
      */
     unbind: function (event, callback) {
-        // (To learn how the handlers object works, see inline comment at Crafty.bind)
-        this.each(function () {
-            var hdl = handlers[event] || (handlers[event] = {}),
-                i = 0,
-                l, current;
-            //if no events, cancel
-            if (hdl && hdl[this[0]]) l = hdl[this[0]].length;
-            else return this;
-
-            //if no function, delete all
-            if (!callback) {
-                delete hdl[this[0]];
-                return this;
+        //  To learn how the event system functions, see the comments for Crafty._callbackMethods
+        var i, e;
+        for (i = 0; i < this.length; i++) {
+            e = entities[this[i]];
+            if (e) {
+                e._unbindCallbacks(event, callback);
             }
-            //look for a match if the function is passed
-            for (; i < l; i++) {
-                current = hdl[this[0]];
-                if (current[i] == callback) {
-                    delete current[i];
-                }
-            }
-        });
-
+        }
         return this;
     },
 
@@ -782,46 +757,18 @@ Crafty.fn = Crafty.prototype = {
      * Unlike DOM events, Crafty events are exectued synchronously.
      */
     trigger: function (event, data) {
-        var h = handlers[event] || (handlers[event] = {});
-        // (To learn how the handlers object works, see inline comment at Crafty.bind)
+        //  To learn how the event system functions, see the comments for Crafty._callbackMethods
         if (this.length === 1) {
             //find the handlers assigned to the entity
-            if (h && h[this[0]]) {
-                var callbacks = h[this[0]],
-                    i, l=callbacks.length;
-                callbacks.depth++;
-                for (i = 0; i < l; i++) {
-                    if (typeof callbacks[i] === "undefined" && callbacks.depth<=1) {
-                        callbacks.splice(i, 1);
-                        i--;
-                        l--;
-                    } else {
-                        callbacks[i].call(this, data);
-                    }
+            this._runCallbacks(event, data);
+         } else {
+            for (var i = 0; i < this.length; i++) {
+                var e = entities[this[i]];
+                if (e) {
+                    e._runCallbacks(event, data);
                 }
-                callbacks.depth--;
             }
-            return this;
         }
-
-        this.each(function () {
-            //find the handlers assigned to the event and entity
-            if (handlers[event] && handlers[event][this[0]]) {
-                var callbacks = handlers[event][this[0]],
-                    i, l=callbacks.length;
-                callbacks.depth++;
-                for (i = 0; i < l; i++) {
-                    if (typeof callbacks[i] === "undefined" && callbacks.depth<=1) {
-                        callbacks.splice(i, 1);
-                        i--;
-                        l--;
-                    } else {
-                        callbacks[i].call(this, data);
-                    }
-                }
-                callbacks.depth--;
-            }
-        });
         return this;
     },
 
@@ -1003,7 +950,108 @@ Crafty.extend = Crafty.fn.extend = function (obj) {
 };
 
 
+
+
+// How Crafty handles events and callbacks
+// -----------------------------------------
+// Callbacks are stored in the global object `handlers`, which has properties for each event.  
+// These properties point to an object which has a property for each entity listening to the event.
+// These in turn are arrays containing the callbacks to be triggered.
+// 
+// Here is an example of what "handlers" can look like:
+//     handlers ===
+//         { Move:  {5:[fnA], 6:[fnB, fnC], global:[fnD]},
+//         Change: {6:[fnE]}
+//         }
+// In this example, when the 'Move' event is triggered on entity #6 (e.g.
+// entity6.trigger('Move')), it causes the execution of fnB() and fnC(). When
+// the Move event is triggered globally (i.e. Crafty.trigger('Move')), it
+// will execute fnA, fnB, fnC, fnD.
+//
+// In this example, "this" is bound to entity #6 whenever fnB() is executed, and
+// "this" is bound to Crafty whenever fnD() is executed.
+//
+// In other words, the structure of "handlers" is:
+//
+//     handlers[event][objID] === (Array of callback functions)
+//
+// In addition to the global object, each object participating in the event system has a `_callbacks` property 
+// which lists the events that object is listening to.  It allows access to the object's callbacks like this:
+//     obj._callbacks[event] === (Array of callback functions)
+//
+// Objects, which can listen to events (or collections of such objects) have varying logic 
+// on how the events are bound/triggered/unbound.  Since the underlying operations on the callback array are the same,
+// the single-object operations are implemented in the following object.  
+// Calling `addCallbackMethods` on an object will extend that object with these methods.
+
+
+ 
+Crafty._callbackMethods = {
+    // Add a function to the list of callbacks for an event
+    _bindCallback: function(event, fn) {
+        // Get handle to event, creating it if necessary
+        var callbacks = this._callbacks[event];
+        if (!callbacks) {
+            callbacks = this._callbacks[event] = ( handlers[event] || ( handlers[event] = {} ) )[this[0]] = [];
+            callbacks.depth = 0;
+        }
+        // Push to callback array
+        callbacks.push(fn);
+    },
+
+    // Process for running all callbacks for the given event
+    _runCallbacks: function(event, data) {
+        if (!this._callbacks[event]) {
+            return;
+        }
+        var callbacks = this._callbacks[event];
+
+        // Callback loop; deletes dead callbacks, but only when it is safe to do so
+        var i, l = callbacks.length;
+        // callbacks.depth tracks whether this function was invoked in the middle of a previous iteration through the same callback array
+        callbacks.depth++;
+        for (i = 0; i < l; i++) {
+            if (typeof callbacks[i] === "undefined" && callbacks.depth <= 1) {
+                callbacks.splice(i, 1);
+                i--;
+                l--;
+            } else {
+                callbacks[i].call(this, data);
+            }
+        }
+        callbacks.depth--;
+    },
+
+    // Unbind callbacks for the given event
+    // If fn is specified, only it will be removed; otherwise all callbacks will be
+    _unbindCallbacks: function(event, fn) {
+        if (!this._callbacks[event]) {
+            return;
+        }
+        var callbacks = this._callbacks[event];
+        // Iterate through and delete the callback functions that match
+        // They are spliced out when _runCallbacks is invoked, not here
+        // (This function might be called in the middle of a callback, which complicates the logic)
+        for (i = 0; i < callbacks.length; i++) {
+            if (!fn || callbacks[i] == fn) {
+                delete callbacks[i];
+            }
+        }
+    }
+};
+
+// Helper function to add the callback methods above to an object, as well as initializing the callbacks object
+// it provies the "low level" operations; bind, unbind, and trigger will still need to be implemented for that object
+addCallbackMethods = function(context) {
+    context.extend(Crafty._callbackMethods);
+    context._callbacks = {};
+};
+
+addCallbackMethods(Crafty);
+
 Crafty.extend({
+    // Define Crafty's id
+    0: "global",
     /**@
      * #Crafty.init
      * @category Core
@@ -1500,7 +1548,7 @@ Crafty.extend({
      */
     trigger: function (event, data) {
 
-        // (To learn how the handlers object works, see inline comment at Crafty.bind)
+        //  To learn how the event system functions, see the comments for Crafty._callbackMethods
         var hdl = handlers[event] || (handlers[event] = {}),
             h, i, l, callbacks, context;
         //loop over every object bound
@@ -1518,20 +1566,7 @@ Crafty.extend({
                 context = Crafty;
             else
                 continue;
-
-            callbacks.depth++;
-            l = callbacks.length;
-            //loop over every handler within object
-            for (i = 0; i < l; i++) {
-                // Remove a callback if it has been deleted
-                if (typeof callbacks[i] === "undefined" && callbacks.depth <=1) {
-                    callbacks.splice(i, 1);
-                    i--;
-                    l--;
-                } else
-                    callbacks[i].call(context, data);
-            }
-            callbacks.depth--;
+            context._runCallbacks(event, data);
         }
     },
 
@@ -1550,32 +1585,8 @@ Crafty.extend({
      */
     bind: function (event, callback) {
 
-        // Background: The structure of the global object "handlers"
-        // ---------------------------------------------------------
-        // Here is an example of what "handlers" can look like:
-        // handlers ===
-        //    { Move:  {5:[fnA], 6:[fnB, fnC], global:[fnD]},
-        //     Change: {6:[fnE]}
-        //    }
-        // In this example, when the 'Move' event is triggered on entity #6 (e.g.
-        // entity6.trigger('Move')), it causes the execution of fnB() and fnC(). When
-        // the Move event is triggered globally (i.e. Crafty.trigger('Move')), it
-        // will execute fnA, fnB, fnC, fnD.
-        //
-        // In this example, "this" is bound to entity #6 whenever fnB() is executed, and
-        // "this" is bound to Crafty whenever fnD() is executed.
-        //
-        // In other words, the structure of "handlers" is:
-        //
-        // handlers[event][entityID or 'global'] === (Array of callback functions)
-
-        var hdl = handlers[event] || (handlers[event] = {});
-
-        if (!hdl.global) {
-            hdl.global = [];
-            hdl.global.depth =0;
-        }
-        hdl.global.push(callback);
+        // To learn how the event system functions, see the comments for Crafty._callbackMethods
+        this._bindCallback(event, callback);
         return callback;
     },
 
@@ -1624,10 +1635,6 @@ Crafty.extend({
      * @sign public Boolean Crafty.unbind(String eventName, Function callback)
      * @param eventName - Name of the event to unbind
      * @param callback - Function to unbind
-     * @sign public Boolean Crafty.unbind(String eventName, Number callbackID)
-     * @param callbackID - ID of the callback
-     * @returns True or false depending on if a callback was unbound
-     * Unbind any event from any entity or global event.
      * @example
      * ~~~
      *    var play_gameover_sound = function () {...};
@@ -1649,30 +1656,8 @@ Crafty.extend({
      * none of the callbacks attached by `some_entity.bind('GameOver', ...)`.
      */
     unbind: function (event, callback) {
-        // (To learn how the handlers object works, see inline comment at Crafty.bind)
-        var hdl = handlers[event],
-            i, l, global_callbacks, found_match;
-
-        if (hdl === undefined || hdl.global === undefined || hdl.global.length === 0) {
-            return false;
-        }
-
-        // If no callback was supplied, delete everything
-        if (arguments.length === 1) {
-            delete hdl.global;
-            return true;
-        }
-
-        // loop over the globally-attached events
-        global_callbacks = hdl.global;
-        found_match = false;
-        for (i = 0, l = global_callbacks.length; i < l; i++) {
-            if (global_callbacks[i] === callback) {
-                found_match = true;
-                delete global_callbacks[i];
-            }
-        }
-        return found_match;
+        //  To learn how the event system functions, see the comments for Crafty._callbackMethods
+        this._unbindCallbacks(event, callback);
     },
 
     /**@
