@@ -150,6 +150,27 @@
 
   });
 
+  // Catch bugs in unbinding logic when something is unbound at depth > 1
+  test("Unbinding mid-iteration", function() {
+    var e = Crafty.e("Triggerable");
+    var counter = 0;
+    // Each of these functions can be run at most once, because they unbind on triggering
+    var a = function() {
+        counter++;
+        this.unbind("Test", a);
+        this.trigger("Test");
+    };
+    var b = function() {
+        counter++;
+        this.unbind("Test", b);
+        this.trigger("Test");
+    };
+    e.bind("Test", a);
+    e.bind("Test", b);
+    e.trigger("Test");
+    equal(counter, 2, "Total number of triggers should be 2 (regardless of bind/unbind order).");
+  });
+
   test("Data passing", function() {
     var x = 0,
       e;
