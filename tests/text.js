@@ -49,4 +49,45 @@
     ok(e._textColor === "rgba(255, 0, 0, 0.5)");
     e.destroy();
   });
+
+  test("Alignment should be defined", function() {
+    var e;
+    var checkAlignment = function() {
+        ok(e._textAlign === e.defaultTextAlign);
+        e.text("a");
+        e.textAlign('center');
+        ok(e._textAlign === "center");
+    };
+    e = Crafty.e("2D, Canvas, Text");
+    checkAlignment();
+    e = Crafty.e("2D, DOM, Text");
+    checkAlignment();
+  });
+
+  test("MBR after alignment change", function() {
+    var e = Crafty.e("2D, Canvas, Text");
+    e.text("a");
+
+    var left = e.mbr()._x;
+    var width = e.mbr()._w;
+    e.textAlign('center');
+    ok(left > e.mbr()._x, 'Left side of MBR after center aligning is not less than the old one');
+    /* width gets rounded, make sure it's close*/
+    ok(e.mbr()._w - width <= 1, 'Width of MBR is different after center aligning');
+
+    left = e.mbr()._x;
+    e.textAlign('right');
+    ok(left > e.mbr()._x, 'Left side of MBR after right aligning is not less than the old one');
+    ok(e.mbr()._w - width <= 1, 'Width of MBR is different after right aligning');
+
+    left = e.mbr()._x;
+    e.textAlign('right');
+    equal(left, e.mbr()._x, 'Left side of MBR after right aligning again is different');
+    ok(e.mbr()._w - width <= 1, 'Width of MBR is different after right aligning again');
+
+    left = e.mbr()._x;
+    e.textAlign('left');
+    ok(left < e.mbr()._x, 'Left side of MBR after left aligning is not greater than the old one');
+    ok(e.mbr()._w - width <= 1, 'Width of MBR is different after left aligning');
+  });
 })();

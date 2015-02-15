@@ -30,6 +30,7 @@ Crafty.c("Text", {
     defaultFamily: "sans-serif",
     defaultVariant: "normal",
     defaultLineHeight: "normal",
+    defaultTextAlign: "left",
     ready: true,
 
     init: function () {
@@ -42,6 +43,7 @@ Crafty.c("Text", {
             "family": this.defaultFamily,
             "variant": this.defaultVariant
         };
+        this._textAlign = this.defaultTextAlign;
 
         this.bind("Draw", function (e) {
             var font = this._fontString();
@@ -52,6 +54,7 @@ Crafty.c("Text", {
 
                 style.color = this._textColor;
                 style.font = font;
+                style.textAlign = this._textAlign;
                 el.innerHTML = this._text;
             } else if (e.type === "canvas") {
                 var context = e.ctx;
@@ -61,6 +64,7 @@ Crafty.c("Text", {
                 context.textBaseline = "top";
                 context.fillStyle = this._textColor || "rgb(0,0,0)";
                 context.font = font;
+                context.textAlign = this._textAlign;
 
                 context.fillText(this._text, e.pos._x, e.pos._y);
 
@@ -143,6 +147,15 @@ Crafty.c("Text", {
 
         var size = (this._textFont.size || this.defaultSize);
         this.h = 1.1 * this._getFontHeight(size);
+
+        /* Offset the MBR for text alignment*/
+        if (this._textAlign === 'left' || this._textAlign === 'start') {
+            this.offsetBoundary(0, 0, 0, 0);
+        } else if (this._textAlign === 'center') {
+            this.offsetBoundary(this.w/2, 0, -this.w/2, 0);
+        } else if (this._textAlign === 'end' || this._textAlign === 'right') {
+            this.offsetBoundary(this.w, 0, -this.w, 0);
+        }
     },
 
     // Returns the font string to use
@@ -175,6 +188,21 @@ Crafty.c("Text", {
     textColor: function (color) {
         Crafty.assignColor(color, this);
         this._textColor = "rgba(" + this._red + ", " + this._green + ", " + this._blue + ", " + this._strength + ")";
+        this.trigger("Invalidate");
+        return this;
+    },
+
+    /**@
+     * @comp Text
+     * @sign public this .textAlign(String alignment)
+     * @param alignment - The new alignment of the text.
+     *
+     * Change the alignment of the text. Valid values are 'start', 'end, 'left', 'center', or 'right'.
+     */
+    textAlign: function(alignment) {
+        this._textAlign = alignment;
+        if (this.has("Canvas"))
+            this._resizeForCanvas();
         this.trigger("Invalidate");
         return this;
     },
