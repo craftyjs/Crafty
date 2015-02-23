@@ -11,17 +11,18 @@ module.exports = function (grunt) {
                     ' * Dual licensed under the MIT or GPL licenses.\n' +
                     ' */\n\n';
 
-    var docGen = function(){
-        done = this.async();
-        buildDir = "build/api/";
-        grunt.file.mkdir(buildDir);
-        var callback = function(){
-            console.log("Documentation created in " + buildDir);
-            done();
-        };
-        var md = require("./build/api-gen");
-        md.document(grunt.file.expand('src/*.js'),
-            buildDir, "build/template.html", version, callback);
+    var docGen = function() {
+        var outputFile = "./build/api.json";
+        var sourceParser = require("./build/parseSourceDocs");
+        var apiGenerator = require("./build/parseNodes");
+
+        var sourceFiles = grunt.file.expand('src/**/*.js');
+        var blocks = sourceParser.parse(sourceFiles);
+        var jsonObject = apiGenerator.structureBlocks(blocks);
+
+        var apiJSON = JSON.stringify(jsonObject, null, 4);
+        grunt.file.write(outputFile, apiJSON);
+        grunt.log.writeln("Wrote api data to " + outputFile);
     };
 
     // Project configuration.
