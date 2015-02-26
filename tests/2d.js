@@ -304,53 +304,195 @@
 
   });
 
+  test("Multiway", function() {
+    var e = Crafty.e("2D, Fourway")
+                  .attr({ x: 0, y: 0});
 
-  test("disableControl and enableControl", function() {
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.W
+    });
+    Crafty.keydown[Crafty.keys.W] = true;
+    e.multiway(1, { W: -90 });
+    Crafty.trigger('EnterFrame', {dt: 1000});
+    equal(e._vy, e.__convertPixelsToMeters(-1));
+    equal(e._y, e.__convertPixelsToMeters(-1));
+
+    e.multiway(2, { W: 90 });
+    Crafty.trigger('EnterFrame', {dt: 1000});
+    equal(e._vy, e.__convertPixelsToMeters(2));
+    equal(e._y, e.__convertPixelsToMeters(1));
+
+    e.fourway(1);
+    Crafty.trigger('EnterFrame', {dt: 1000});
+    equal(e._vy, e.__convertPixelsToMeters(-1));
+    equal(e._y, e.__convertPixelsToMeters(0));
+
+    Crafty.trigger('EnterFrame', {dt: 1000});
+    equal(e._vy, e.__convertPixelsToMeters(-1));
+    equal(e._y, e.__convertPixelsToMeters(-1));
+
+    
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.UP_ARROW
+    });
+    Crafty.trigger('EnterFrame', {dt: 1000});
+    equal(e._vy, e.__convertPixelsToMeters(-1));
+    equal(e._y, e.__convertPixelsToMeters(-2));
+
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.W
+    });
+    delete Crafty.keydown[Crafty.keys.W];
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.UP_ARROW
+    });
+    Crafty.trigger('EnterFrame', {dt: 1000});
+    equal(e._vy, e.__convertPixelsToMeters(0));
+    equal(e._y, e.__convertPixelsToMeters(-2));
+
+
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.DOWN_ARROW
+    });
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.LEFT_ARROW
+    });
+    Crafty.trigger('EnterFrame', {dt: 1000});
+    equal(e._vy, e.__convertPixelsToMeters(1));
+    equal(e._y, e.__convertPixelsToMeters(-1));
+    equal(e._vx, e.__convertPixelsToMeters(-1));
+    equal(e._x, e.__convertPixelsToMeters(-1));
+
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.DOWN_ARROW
+    });
+    Crafty.trigger('EnterFrame', {dt: 1000});
+    equal(e._vy, e.__convertPixelsToMeters(0));
+    equal(e._y, e.__convertPixelsToMeters(-1));
+    equal(e._vx, e.__convertPixelsToMeters(-1));
+    equal(e._x, e.__convertPixelsToMeters(-2));
+
+    e.removeComponent("Multiway");
+    Crafty.trigger('EnterFrame', {dt: 1000});
+    equal(e._vy, e.__convertPixelsToMeters(0));
+    equal(e._y, e.__convertPixelsToMeters(-1));
+    equal(e._vx, e.__convertPixelsToMeters(0));
+    equal(e._x, e.__convertPixelsToMeters(-2));
+
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.LEFT_ARROW
+    });
+    Crafty.trigger('EnterFrame', {dt: 1000});
+    equal(e._vy, e.__convertPixelsToMeters(0));
+    equal(e._y, e.__convertPixelsToMeters(-1));
+    equal(e._vx, e.__convertPixelsToMeters(0));
+    equal(e._x, e.__convertPixelsToMeters(-2));
+
+
+    e.destroy();
+  });
+
+  test("disableControl and enableControl and speed", function() {
     var e = Crafty.e("2D, Twoway")
       .attr({
         x: 0
       })
-      .twoway(1);
+      .twoway(2);
 
-    equal(e._movement.x, 0);
-    equal(e._x, 0);
+    equal(e._vx, e.__convertPixelsToMeters(0));
+    equal(e._x, e.__convertPixelsToMeters(0));
+
+    e.enableControl();
+    e.speed({ x: 1, y: 1 });
+    Crafty.trigger('EnterFrame', {dt: 1000});
+    equal(e._vx, e.__convertPixelsToMeters(0));
+    equal(e._x, e.__convertPixelsToMeters(0));
+
     Crafty.trigger('KeyDown', {
       key: Crafty.keys.D
     });
     Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._movement.x, 1);
-    equal(e._x, 1);
+    equal(e._vx, e.__convertPixelsToMeters(1));
+    equal(e._x, e.__convertPixelsToMeters(1));
 
     e.disableControl();
     Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._movement.x, 0);
-    equal(e._x, 1);
+    equal(e._vx, e.__convertPixelsToMeters(0));
+    equal(e._x, e.__convertPixelsToMeters(1));
 
     Crafty.trigger('KeyUp', {
       key: Crafty.keys.D
     });
     Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._movement.x, 0);
-    equal(e._x, 1);
+    equal(e._vx, e.__convertPixelsToMeters(0));
+    equal(e._x, e.__convertPixelsToMeters(1));
+
+    e.disableControl();
+    Crafty.trigger('EnterFrame', {dt: 1000});
+    equal(e._vx, e.__convertPixelsToMeters(0));
+    equal(e._x, e.__convertPixelsToMeters(1));
+
 
     e.enableControl();
     Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._movement.x, 0);
-    equal(e._x, 1);
+    equal(e._vx, e.__convertPixelsToMeters(0));
+    equal(e._x, e.__convertPixelsToMeters(1));
 
     Crafty.trigger('KeyDown', {
       key: Crafty.keys.D
     });
     Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._movement.x, 1);
-    equal(e._x, 2);
+    equal(e._vx, e.__convertPixelsToMeters(1));
+    equal(e._x, e.__convertPixelsToMeters(2));
 
     Crafty.trigger('KeyUp', {
       key: Crafty.keys.D
     });
     Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._movement.x, 0);
-    equal(e._x, 2);
+    equal(e._vx, e.__convertPixelsToMeters(0));
+    equal(e._x, e.__convertPixelsToMeters(2));
+
+
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.D
+    });
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.RIGHT_ARROW
+    });
+    Crafty.trigger('EnterFrame', {dt: 1000});
+    equal(e._vx, e.__convertPixelsToMeters(1));
+    equal(e._x, e.__convertPixelsToMeters(3));
+
+    e.disableControl();
+    e.speed({ x: 2, y: 2 });
+    Crafty.trigger('EnterFrame', {dt: 1000});
+    equal(e._vx, e.__convertPixelsToMeters(0));
+    equal(e._x, e.__convertPixelsToMeters(3));
+
+    e.enableControl();
+    Crafty.trigger('EnterFrame', {dt: 1000});
+    equal(e._vx, e.__convertPixelsToMeters(2));
+    equal(e._x, e.__convertPixelsToMeters(5));
+
+    e.speed({ x: 3, y: 3 });
+    Crafty.trigger('EnterFrame', {dt: 1000});
+    equal(e._vx, e.__convertPixelsToMeters(3));
+    equal(e._x, e.__convertPixelsToMeters(8));
+
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.D
+    });
+    Crafty.trigger('EnterFrame', {dt: 1000});
+    equal(e._vx, e.__convertPixelsToMeters(3));
+    equal(e._x, e.__convertPixelsToMeters(11));
+
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.RIGHT_ARROW
+    });
+    Crafty.trigger('EnterFrame', {dt: 1000});
+    equal(e._vx, e.__convertPixelsToMeters(0));
+    equal(e._x, e.__convertPixelsToMeters(11));
+
 
     e.destroy();
   });
@@ -586,6 +728,129 @@
     ent.destroy();
   });
 
+  test("Motion - Events", function() {
+    var Vector2D = Crafty.math.Vector2D;
+    var zero = new Vector2D();
+    var e = Crafty.e("2D, Motion, AngularMotion")
+      .attr({x: 0, y:0});
+
+    var newDirectionEvents = 0,
+        newRevolutionEvents = 0,
+        movedEvents = 0,
+        motionEvents = 0;
+    e.bind("NewDirection", function(evt) {
+      newDirectionEvents++;
+    });
+    e.bind("NewRevolution", function(evt) {
+      newRevolutionEvents++;
+    });
+    e.bind("Moved", function(evt) {
+      movedEvents++;
+    });
+    e.bind("MotionChange", function(evt) {
+      motionEvents++;
+    });
+
+
+    e.one("NewDirection", function(evt) {
+      equal(evt.x, 0);
+      equal(evt.y, 1);
+    });
+    e.one("Moved", function(evt) { strictEqual(evt.axis, "y"); strictEqual(evt.oldValue, 0); });
+    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, 0); });
+    e.vy = 1;
+    Crafty.trigger('EnterFrame', {dt: 1000});
+
+    e.one("NewDirection", function(evt) {
+      equal(evt.x, -1);
+      equal(evt.y, -1);
+    });
+    e.one("Moved", function(evt) { strictEqual(evt.axis, "x"); strictEqual(evt.oldValue, 0); 
+    e.one("Moved", function(evt) { strictEqual(evt.axis, "y"); strictEqual(evt.oldValue, 1); });});
+    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vx"); strictEqual(evt.oldValue, 0); });
+    e.vx = -1;
+    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, 1); });
+    e.vy = 0;
+    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, 0); });
+    e.vy = -1;
+    Crafty.trigger('EnterFrame', {dt: 1000});
+
+    e.one("Moved", function(evt) { strictEqual(evt.axis, "x"); strictEqual(evt.oldValue, -1); 
+    e.one("Moved", function(evt) { strictEqual(evt.axis, "y"); strictEqual(evt.oldValue, 0); });});
+    e.vx = -1;
+    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, -1); });
+    e.vy = 0;
+    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, 0); });
+    e.vy = -1;
+    Crafty.trigger('EnterFrame', {dt: 1000});
+
+    e.one("NewDirection", function(evt) {
+      equal(evt.x, 0);
+      equal(evt.y, -1);
+    });
+    e.one("Moved", function(evt) { strictEqual(evt.axis, "y"); strictEqual(evt.oldValue, -1); });
+    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vx"); strictEqual(evt.oldValue, -1); });
+    e.vx = 0;
+    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, -1); });
+    e.vy = 0;
+    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, 0); });
+    e.vy = -1;
+    Crafty.trigger('EnterFrame', {dt: 1000});
+
+    e.one("NewDirection", function(evt) {
+      equal(evt.x, 0);
+      equal(evt.y, 0);
+      evt.x = 1; // bad boy!
+    });
+    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, -1); });
+    e.vy = 0;
+    Crafty.trigger('EnterFrame', {dt: 1000});
+
+    e.vx = 0;
+    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, 0); });
+    e.vy = 1;
+    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, 1); });
+    e.vy = 0;
+    Crafty.trigger('EnterFrame', {dt: 1000});
+
+
+    e.vrotation = 0;
+    Crafty.trigger('EnterFrame', {dt: 1000});
+
+    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vrotation"); strictEqual(evt.oldValue, 0); });
+    e.vrotation = 1;
+    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vrotation"); strictEqual(evt.oldValue, 1); });
+    e.vrotation = 0;
+    Crafty.trigger('EnterFrame', {dt: 1000});
+
+    e.one("NewRevolution", function(evt) {
+      equal(evt, 1);
+    });
+    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vrotation"); strictEqual(evt.oldValue, 0); });
+    e.vrotation = 1;
+    Crafty.trigger('EnterFrame', {dt: 1000});
+
+    e.one("NewRevolution", function(evt) {
+      equal(evt, -1);
+    });
+    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vrotation"); strictEqual(evt.oldValue, 1); });
+    e.vrotation = -1;
+    Crafty.trigger('EnterFrame', {dt: 1000});
+
+    e.one("NewRevolution", function(evt) {
+      equal(evt, 0);
+    });
+    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vrotation"); strictEqual(evt.oldValue, -1); });
+    e.vrotation = 0;
+    Crafty.trigger('EnterFrame', {dt: 1000});
+
+    equal(newDirectionEvents, 4);
+    equal(newRevolutionEvents, 3);
+    equal(movedEvents, 6);
+    equal(motionEvents, 17);
+    e.destroy();
+  });
+
   test("Supportable", function() {
     var ground = Crafty.e("2D, Ground").attr({x: 0, y: 10, w:10, h:10}); // [0,10] to [0,20]
 
@@ -745,6 +1010,8 @@
         ground.destroy();
         player.destroy();
 
+        this.trigger("KeyUp", {key: Crafty.keys.UP_ARROW});
+        this.trigger("KeyUp", {key: Crafty.keys.UP_ARROW});
         start();
       }
     });

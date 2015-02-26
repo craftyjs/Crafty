@@ -1093,11 +1093,12 @@ Crafty.c("GroundAttacher", {
 /**@
  * #Gravity
  * @category 2D
- * @trigger Moved - triggered on movement on either x or y axis. If the entity has moved on both axes for diagonal movement the event is triggered twice - { x:Number, y:Number } - Old position
+ * @trigger Moved - When entity has moved due to velocity/acceleration on either x or y axis a Moved event is triggered. If the entity has moved on both axes for diagonal movement the event is triggered twice. - { axis: 'x' | 'y', oldValue: Number } - Old position
+ * @trigger NewDirection - When entity has changed direction due to velocity on either x or y axis a NewDirection event is triggered. The event is triggered once, if direction is different from last frame. - { x: -1 | 0 | 1, y: -1 | 0 | 1 } - New direction
  * 
  * Adds gravitational pull to the entity.
  *
- * @see Motion
+ * @see Supportable, Motion
  */
 Crafty.c("Gravity", {
     init: function () {
@@ -1123,7 +1124,7 @@ Crafty.c("Gravity", {
      * @sign public this .gravity([comp])
      * @param comp - The name of a component that will stop this entity from falling
      *
-     * Enable gravity for this entity no matter whether comp parameter is not specified,
+     * Enable gravity for this entity no matter whether comp parameter is specified or not.
      * If comp parameter is specified all entities with that component will stop this entity from falling.
      * For a player entity in a platform game this would be a component that is added to all entities
      * that the player should be able to walk on.
@@ -1136,7 +1137,8 @@ Crafty.c("Gravity", {
      *   .attr({ w: 100, h: 100 })
      *   .gravity("platform");
      * ~~~
-     * @see Supportable
+     *
+     * @see Supportable, Motion
      */
     gravity: function (comp) {
         this.bind("CheckLanding", this._gravityCheckLanding);
@@ -1195,11 +1197,12 @@ Crafty.c("Gravity", {
     }
 });
 
+
 var __motionProp = function(self, prefix, prop, setter) {
     var publicProp = prefix + prop;
     var privateProp = "_" + publicProp;
 
-    var motionEvent = { key: "", value: 0};
+    var motionEvent = { key: "", oldValue: 0};
     // getters & setters for public property
     if (setter) {
         Crafty.defineField(self, publicProp, function() { return this[privateProp]; }, function(newValue) {
@@ -1208,7 +1211,7 @@ var __motionProp = function(self, prefix, prop, setter) {
                 this[privateProp] = newValue;
 
                 motionEvent.key = publicProp;
-                motionEvent.value = oldValue;
+                motionEvent.oldValue = oldValue;
                 this.trigger("MotionChange", motionEvent);
             }
         });
@@ -1247,7 +1250,8 @@ var __motionVector = function(self, prefix, setter, vector) {
  * #AngularMotion
  * @category 2D
  * @trigger Rotated - When entity has rotated due to angular velocity/acceleration a Rotated event is triggered. - Number - Old rotation
- * @trigger MotionChange - when a motion property has changed - { key: String propertyName, value: Number oldPropertyValue }
+ * @trigger NewRevolution - When entity has changed rotational direction due to rotational velocity a NewRevolution event is triggered. The event is triggered once, if direction is different from last frame. - -1 | 0 | 1 - New direction
+ * @trigger MotionChange - When a motion property has changed a MotionChange event is triggered. - { key: String, oldValue: Number } - Motion property name and old value
  *
  * Component that allows rotating an entity by applying angular velocity and acceleration.
  */
@@ -1310,6 +1314,8 @@ Crafty.c("AngularMotion", {
         __motionProp(this, "a", "rotation", true);
         __motionProp(this, "d", "rotation", false);
 
+        this.__oldRevolution = 0;
+
         this.bind("EnterFrame", this._angularMotionTick);
     },
     remove: function(destroyed) {
@@ -1339,17 +1345,27 @@ Crafty.c("AngularMotion", {
     _angularMotionTick: function(frameData) {
         var dt = frameData.dt/1000;
 
-        var oldRotation = this._rotation;
+        var _vr = this._vrotation,
+            dvr = _vr >> 31 | -_vr >>> 31; // Math.sign(this._vrotation)
+        if (this.__oldRevolution !== dvr) {
+            this.__oldRevolution = dvr;
+            this.trigger('NewRevolution', dvr);
+        }
+
+        var oldR = this._rotation,
+            vr = this._vrotation,
+            ar = this._arotation;
+
         // s += v * Δt + (0.5 * a) * Δt * Δt
-        var newRotation = oldRotation + this._vrotation * dt + 0.5 * this._arotation * dt * dt;
+        var newR = oldR + vr * dt + 0.5 * ar * dt * dt;
         // v += a * Δt
-        this.vrotation = this._vrotation + this._arotation * dt;
+        this.vrotation = vr + ar * dt;
         // Δs = s[t] - s[t-1]
-        this._drotation = newRotation - oldRotation;
+        this._drotation = newR - oldR;
 
         if (this._drotation !== 0) {
-            this.rotation = newRotation;
-            this.trigger('Rotated', oldRotation);
+            this.rotation = newR;
+            this.trigger('Rotated', oldR);
         }
     }
 });
@@ -1357,8 +1373,9 @@ Crafty.c("AngularMotion", {
 /**@
  * #Motion
  * @category 2D
- * @trigger Moved - When entity has moved due to velocity/acceleration on either x or y axis a Moved event is triggered. If the entity has moved on both axes for diagonal movement the event is triggered twice. - { x:Number, y:Number } - Old position
- * @trigger MotionChange - when a motion property has changed - { key: String propertyName, value: Number oldPropertyValue }
+ * @trigger Moved - When entity has moved due to velocity/acceleration on either x or y axis a Moved event is triggered. If the entity has moved on both axes for diagonal movement the event is triggered twice. - { axis: 'x' | 'y', oldValue: Number } - Old position
+ * @trigger NewDirection - When entity has changed direction due to velocity on either x or y axis a NewDirection event is triggered. The event is triggered once, if direction is different from last frame. - { x: -1 | 0 | 1, y: -1 | 0 | 1 } - New direction
+ * @trigger MotionChange - When a motion property has changed a MotionChange event is triggered. - { key: String, oldValue: Number } - Motion property name and old value
  *
  * Component that allows moving an entity by applying linear velocity and acceleration.
  */
@@ -1485,6 +1502,10 @@ Crafty.c("Motion", {
         __motionProp(this, "d", "y", false);
         this._motionDelta = __motionVector(this, "d", false, new Crafty.math.Vector2D());
 
+        this.__movedEvent = {axis: '', oldValue: 0};
+        this.__directionEvent = {x: 0, y: 0};
+        this.__oldDirection = {x: 0, y: 0};
+
         this.bind("EnterFrame", this._linearMotionTick);
     },
     remove: function(destroyed) {
@@ -1585,25 +1606,41 @@ Crafty.c("Motion", {
     _linearMotionTick: function(frameData) {
         var dt = frameData.dt/1000;
 
-        var oldX = this._x;
-        var oldY = this._y;
+        var oldDirection = this.__oldDirection;
+        var _vx = this._vx, dvx = _vx >> 31 | -_vx >>> 31, // Math.sign(this._vx)
+            _vy = this._vy, dvy = _vy >> 31 | -_vy >>> 31; // Math.sign(this._vy)
+        if (oldDirection.x !== dvx || oldDirection.y !== dvy) {
+            var directionEvent = this.__directionEvent;
+            directionEvent.x = oldDirection.x = dvx;
+            directionEvent.y = oldDirection.y = dvy;
+            this.trigger('NewDirection', directionEvent);
+        }
+
+        var oldX = this._x, vx = this._vx, ax = this._ax,
+            oldY = this._y, vy = this._vy, ay = this._ay;
+
         // s += v * Δt + (0.5 * a) * Δt * Δt
-        var newX = oldX + this._vx * dt + 0.5 * this._ax * dt * dt;
-        var newY = oldY + this._vy * dt + 0.5 * this._ay * dt * dt;
+        var newX = oldX + vx * dt + 0.5 * ax * dt * dt;
+        var newY = oldY + vy * dt + 0.5 * ay * dt * dt;
         // v += a * Δt
-        this.vx = this._vx + this._ax * dt;
-        this.vy = this._vy + this._ay * dt;
+        this.vx = vx + ax * dt;
+        this.vy = vy + ay * dt;
         // Δs = s[t] - s[t-1]
         this._dx = newX - oldX;
         this._dy = newY - oldY;
 
+        var movedEvent = this.__movedEvent;
         if (this._dx !== 0) {
             this.x = newX;
-            this.trigger('Moved', {x: oldX, y: newY});
+            movedEvent.axis = 'x';
+            movedEvent.oldValue = oldX;
+            this.trigger('Moved', movedEvent);
         }
         if (this._dy !== 0) {
             this.y = newY;
-            this.trigger('Moved', {x: newX, y: oldY});
+            movedEvent.axis = 'y';
+            movedEvent.oldValue = oldY;
+            this.trigger('Moved', movedEvent);
         }
     }
 });
