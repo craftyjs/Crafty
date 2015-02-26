@@ -971,6 +971,14 @@ Crafty.c("Draggable", {
  * #Keyboard
  * @category Input
  * Give entities keyboard events (`keydown` and `keyup`).
+ *
+ * In particular, changes to the key state are broadcasted by `KeyboardEvent`s; interested entities can bind to these events.
+ * The current state (pressed/released) of a key can also be queried using the `.isDown` method.
+ * All available key codes are described in `Crafty.keys`.
+ *
+ * @see KeyboardEvent
+ * @see Keyboard.isDown
+ * @see Crafty.keys
  */
 Crafty.c("Keyboard", {
     /**@
