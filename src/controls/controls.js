@@ -1304,7 +1304,7 @@ Crafty.c("Twoway", {
                 this.canJump = !!ground;
                 this.trigger("CheckJumping", ground);
                 if (this.canJump) {
-                    this.vy -= this._jumpSpeed; // Motion component will trigger Move events
+                    this.vy = -this._jumpSpeed; // Motion component will trigger Move events
                 }
             }
         });
