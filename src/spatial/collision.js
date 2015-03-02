@@ -1,6 +1,6 @@
 var Crafty = require('../core/core.js'),
-    document = window.document,
     DEG_TO_RAD = Math.PI / 180;
+
 
 /**@
  * #Collision
