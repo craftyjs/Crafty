@@ -8,18 +8,16 @@
       
       var touchStartsOverEntities = 0,
           touchEndsOverEntities = 0,
-          entity1 = Crafty.e('2D, Canvas, Color, Touch')
+          entity1 = Crafty.e('2D, Touch')
               .attr({ x: 100, y: 100, w:200, h:200, z:1 })
-              .color('black')
               .bind('TouchStart',function(){ 
                   touchStartsOverEntities++;
               })
               .bind('TouchEnd',function(){ 
                   touchEndsOverEntities++;
               }),
-          entity2 = Crafty.e('2D, Canvas, Color, Touch')
+          entity2 = Crafty.e('2D, Touch')
               .attr({ x: 40, y: 150, w:90, h:300, z:2 })
-              .color('green')
               .bind('TouchStart',function(){ 
                   touchStartsOverEntities++;
               })
