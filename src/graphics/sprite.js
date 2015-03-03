@@ -1,4 +1,4 @@
-var Crafty = require('../core/core.js');
+module.exports = function(Crafty) {
 
 
 // Define some variables required for webgl
@@ -324,3 +324,5 @@ Crafty.c("Sprite", {
         return this;
     }
 });
+
+};

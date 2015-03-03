@@ -1,58 +1,53 @@
-var Crafty = require('./core/core');
+var createInstance = function() {
+    var version = require('./core/version');
+    var Crafty = require('./core/core')(version);
 
-require('./core/animation');
-require('./core/extensions');
-require('./core/loader');
-require('./core/model');
-require('./core/scenes');
-require('./core/storage');
-require('./core/time');
-require('./core/version');
+    require('./core/animation')(Crafty);
+    require('./core/extensions')(Crafty);
+    require('./core/loader')(Crafty);
+    require('./core/model')(Crafty);
+    require('./core/scenes')(Crafty);
+    require('./core/storage')(Crafty);
+    require('./core/time')(Crafty);
 
+    var HashMap = require('./spatial/spatial-grid.js');
+    require('./spatial/2d')(Crafty, HashMap);
+    require('./spatial/collision')(Crafty);
+    require('./spatial/rect-manager')(Crafty);
+    require('./spatial/math')(Crafty);
 
-require('./spatial/2d');
-require('./spatial/collision');
-require('./spatial/spatial-grid');
-require('./spatial/rect-manager');
-require('./spatial/math');
+    require('./graphics/canvas')(Crafty);
+    require('./graphics/canvas-layer')(Crafty);
+    require('./graphics/color')(Crafty);
+    require('./graphics/dom')(Crafty);
+    require('./graphics/dom-helper')(Crafty);
+    require('./graphics/dom-layer')(Crafty);
+    require('./graphics/drawing')(Crafty);
+    require('./graphics/gl-textures')(Crafty);
+    require('./graphics/html')(Crafty);
+    require('./graphics/image')(Crafty);
+    require('./graphics/particles')(Crafty);
+    require('./graphics/sprite-animation')(Crafty);
+    require('./graphics/sprite')(Crafty);
+    require('./graphics/text')(Crafty);
+    require('./graphics/viewport')(Crafty);
+    require('./graphics/webgl')(Crafty);
 
-require('./graphics/canvas');
-require('./graphics/canvas-layer');
-require('./graphics/color');
-require('./graphics/dom');
-require('./graphics/dom-helper');
-require('./graphics/dom-layer');
-require('./graphics/drawing');
-require('./graphics/gl-textures');
-require('./graphics/html');
-require('./graphics/image');
-require('./graphics/particles');
-require('./graphics/sprite-animation');
-require('./graphics/sprite');
-require('./graphics/text');
-require('./graphics/viewport');
-require('./graphics/webgl');
+    require('./isometric/diamond-iso')(Crafty);
+    require('./isometric/isometric')(Crafty);
 
-require('./isometric/diamond-iso');
-require('./isometric/isometric');
+    require('./controls/controls')(Crafty);
+    require('./controls/device')(Crafty);
+    require('./controls/keycodes')(Crafty);
 
-require('./controls/controls');
-require('./controls/device');
-require('./controls/keycodes');
+    require('./sound/sound')(Crafty);
 
-require('./sound/sound');
+    require('./debug/debug-layer')(Crafty);
 
-require('./debug/debug-layer');
+    return Crafty;
+};
 
-
-
-
-
-
-
-
-
-
+var Crafty = createInstance();
 if(window) window.Crafty = Crafty;
 
 module.exports = Crafty;

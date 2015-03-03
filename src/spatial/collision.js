@@ -1,5 +1,5 @@
-var Crafty = require('../core/core.js'),
-    DEG_TO_RAD = Math.PI / 180;
+module.exports = function(Crafty) {
+var DEG_TO_RAD = Math.PI / 180;
 
 
 /**@
@@ -690,3 +690,5 @@ Crafty.c("Collision", {
         };
     }
 });
+
+};

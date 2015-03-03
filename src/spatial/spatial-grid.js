@@ -1,4 +1,4 @@
-var Crafty = require('../core/core.js');
+module.exports = (function() {
 
 
 /**
@@ -102,7 +102,8 @@ var Crafty = require('../core/core.js');
                     id = obj[0]; //unique ID
                     obj = obj._mbr || obj;
                     //check if not added to hash and that actually intersects
-                    if (!found[id] && overlap(obj, rect))
+                    if (!found[id] && obj._x < rect._x + rect._w && obj._x + obj._w > rect._x &&
+                                      obj._y < rect._y + rect._h && obj._h + obj._y > rect._y)
                         found[id] = results[i];
                 }
 
@@ -356,4 +357,5 @@ var Crafty = require('../core/core.js');
         }
     };
 
-    module.exports = HashMap;
+return HashMap;
+})();

@@ -1,4 +1,5 @@
-var Crafty = require('../core/core.js');
+module.exports = function(Crafty) {
+
 
 // An object for wrangling textures
 // An assumption here is that doing anything with textures is fairly expensive, so the code should be expressive rather than performant
@@ -179,4 +180,6 @@ TextureWrapper.prototype = {
         // Set the image dimensions
         gl.uniform2f(gl.getUniformLocation(shader, dimension_name), this.width, this.height);
 	}
+};
+
 };

@@ -1,5 +1,6 @@
-var Crafty = require('../core/core.js'),
-    document = window.document;
+module.exports = function(Crafty) {
+var document = window.document;
+
 
 // Object for abstracting out all the gl calls to handle rendering entities with a particular program
 RenderProgramWrapper = function(context, shader){
@@ -585,3 +586,5 @@ Crafty.extend({
 
     }
 });
+
+};

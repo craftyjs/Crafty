@@ -1,5 +1,4 @@
-var Crafty = require('../core/core.js'),
-	Animation = require('../core/animation.js');
+module.exports = function(Crafty) {
 
 
 /**@
@@ -475,3 +474,5 @@ Crafty.c("SpriteAnimation", {
 		return this._reels[reelId];
 	}
 });
+
+};

@@ -1,4 +1,4 @@
-var version = require('./version');
+module.exports = function(version) {
 
 /**@
  * #Crafty
@@ -1854,4 +1854,5 @@ if (typeof define === 'function') { // AMD
     });
 }
 
-module.exports = Crafty;
+return Crafty;
+};

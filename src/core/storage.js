@@ -1,4 +1,4 @@
-var Crafty = require('../core/core.js');
+module.exports = function(Crafty) {
 
 
 /**@
@@ -91,4 +91,6 @@ Crafty.storage = function(key, value){
  */
 Crafty.storage.remove = function(key){
   window.localStorage.removeItem(key);
+};
+
 };

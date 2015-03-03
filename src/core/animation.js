@@ -1,4 +1,4 @@
-var Crafty = require('../core/core.js');
+module.exports = function(Crafty) {
 
 
 /**@
@@ -253,3 +253,5 @@ Crafty.c("Tween", {
 		this.trigger("TweenEnd", properties);
 	}
 });
+
+};
