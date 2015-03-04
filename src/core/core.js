@@ -1271,7 +1271,7 @@ Crafty.extend({
             stop: function () {
                 Crafty.trigger("CraftyStopTimer");
 
-                if (typeof tick === "number") clearInterval(tick);
+                if (typeof tick !== "function") clearInterval(tick);
 
                 var onFrame = window.cancelAnimationFrame ||
                     window.cancelRequestAnimationFrame ||
