@@ -2,10 +2,10 @@
   module("2D");
 
   test("position", function() {
-    var player = Crafty.e("2D, DOM, Color").attr({
+    var player = Crafty.e("2D").attr({
       w: 50,
       h: 50
-    }).color("red");
+    });
     player.x += 50;
     strictEqual(player._x, 50, "X moved");
 
@@ -34,10 +34,10 @@
   });
 
   test("intersect", function() {
-    var player = Crafty.e("2D, DOM, Color").attr({
+    var player = Crafty.e("2D").attr({
       w: 50,
       h: 50
-    }).color("red");
+    });
     player.x = 0;
     player.y = 0;
     player.w = 50;
@@ -57,7 +57,7 @@
   });
 
   test("within", function() {
-    var player = Crafty.e("2D, DOM, Color").attr({
+    var player = Crafty.e("2D").attr({
       w: 50,
       h: 50
     });
@@ -88,7 +88,7 @@
   });
 
   test("contains", function() {
-    var player = Crafty.e("2D, DOM, Color").attr({
+    var player = Crafty.e("2D").attr({
       w: 50,
       h: 50
     });
@@ -121,10 +121,10 @@
 
 
   test("circle", function() {
-    var player = Crafty.e("2D, DOM, Color").attr({
+    var player = Crafty.e("2D").attr({
       w: 50,
       h: 50
-    }).color("red");
+    });
     var circle = new Crafty.circle(0, 0, 10);
 
     strictEqual(circle.containsPoint(1, 2), true, "Contained the point");
@@ -139,36 +139,36 @@
   });
 
   test("child", function() {
-    var parent0 = Crafty.e("2D, DOM, Color").attr({
+    var parent0 = Crafty.e("2D").attr({
       x: 0,
       y: 0,
       w: 50,
       h: 50
-    }).color("red");
-    var child0 = Crafty.e("2D, DOM, Color").attr({
+    });
+    var child0 = Crafty.e("2D").attr({
       x: 1,
       y: 1,
       w: 50,
       h: 50
-    }).color("red");
-    var child1 = Crafty.e("2D, DOM, Color").attr({
+    });
+    var child1 = Crafty.e("2D").attr({
       x: 2,
       y: 2,
       w: 50,
       h: 50
-    }).color("red");
-    var child2 = Crafty.e("2D, DOM, Color").attr({
+    });
+    var child2 = Crafty.e("2D").attr({
       x: 3,
       y: 3,
       w: 50,
       h: 50
-    }).color("red");
-    var child3 = Crafty.e("2D, DOM, Color").attr({
+    });
+    var child3 = Crafty.e("2D").attr({
       x: 4,
       y: 4,
       w: 50,
       h: 50
-    }).color("red");
+    });
     var child0_ID = child0[0];
     var child1_ID = child1[0];
     var child2_ID = child2[0];
@@ -193,24 +193,22 @@
   });
 
   test("child_rotate", function() {
-    var parent = Crafty.e("2D, DOM, Color")
+    var parent = Crafty.e("2D")
       .attr({
         x: 0,
         y: 0,
         w: 50,
         h: 50,
         rotation: 10
-      })
-      .color("red");
-    var child = Crafty.e("2D, DOM, Color")
+      });
+    var child = Crafty.e("2D")
       .attr({
         x: 10,
         y: 10,
         w: 50,
         h: 50,
         rotation: 15
-      })
-      .color("red");
+      });
     parent.attach(child);
 
     parent.rotation += 20;

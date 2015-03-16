@@ -1,5 +1,4 @@
 var Crafty = require('../core/core.js'),
-    document = window.document,
     HashMap = require('./spatial-grid.js');
 
 

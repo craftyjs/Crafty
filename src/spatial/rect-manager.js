@@ -1,6 +1,4 @@
-var Crafty = require('../core/core.js'),
-    document = window.document;
-
+var Crafty = require('../core/core.js');
 
 
 /**@
