@@ -1009,56 +1009,58 @@ Crafty.c("Keyboard", {
 /**@
  * #Multiway
  * @category Input
- * Used to bind keys to directions and have the entity move accordingly
- * @trigger NewDirection - triggered when direction changes - { x:Number, y:Number } - New direction
- * @trigger Moved - triggered on movement on either x or y axis. If the entity has moved on both axes for diagonal movement the event is triggered twice - { x:Number, y:Number } - Old position
+ * @trigger NewDirection - When entity has changed direction due to velocity on either x or y axis a NewDirection event is triggered. The event is triggered once, if direction is different from last frame. - { x: -1 | 0 | 1, y: -1 | 0 | 1 } - New direction
+ * @trigger Moved - When entity has moved due to velocity/acceleration on either x or y axis a Moved event is triggered. If the entity has moved on both axes for diagonal movement the event is triggered twice. - { axis: 'x' | 'y', oldValue: Number } - Old position
+ *
+ * Used to bind keys to directions and have the entity move accordingly.
+ *
+ * @see Motion
  */
 Crafty.c("Multiway", {
     _speed: 3,
 
+    init: function () {
+        this.requires("Motion");
+
+        this._keyDirection = {}; // keyCode -> direction
+        this._activeDirections = {}; // direction -> # of keys pressed for that direction
+        this._directionSpeed = {}; // direction -> {x: x_speed, y: y_speed}
+        this._speed = { x: 3, y: 3 };
+
+        this.bind("KeyDown", this._keydown)
+            .bind("KeyUp", this._keyup);
+    },
+
+    remove: function() {
+        this.unbind("KeyDown", this._keydown)
+            .unbind("KeyUp", this._keyup);
+
+        // unapply movement of pressed keys
+        this.__unapplyActiveDirections();
+    },
+
     _keydown: function (e) {
-        if (this._keys[e.key] && !this.disableControls) {
-            this._movement.x = Math.round((this._movement.x + this._keys[e.key].x) * 1000) / 1000;
-            this._movement.y = Math.round((this._movement.y + this._keys[e.key].y) * 1000) / 1000;
-            this.trigger('NewDirection', this._movement);
+        var direction = this._keyDirection[e.key];
+        if (direction !== undefined) { // if this is a key we are interested in
+            if (this._activeDirections[direction] === 0 && !this.disableControls) { // if key is first one pressed for this direction
+                this.vx += this._directionSpeed[direction].x;
+                this.vy += this._directionSpeed[direction].y;
+            }
+            this._activeDirections[direction]++;
         }
     },
 
     _keyup: function (e) {
-        if (this._keys[e.key] && !this.disableControls) {
-            this._movement.x = Math.round((this._movement.x - this._keys[e.key].x) * 1000) / 1000;
-            this._movement.y = Math.round((this._movement.y - this._keys[e.key].y) * 1000) / 1000;
-            this.trigger('NewDirection', this._movement);
+        var direction = this._keyDirection[e.key];
+        if (direction !== undefined) { // if this is a key we are interested in
+            this._activeDirections[direction]--;
+            if (this._activeDirections[direction] === 0 && !this.disableControls) { // if key is last one unpressed for this direction
+                this.vx -= this._directionSpeed[direction].x;
+                this.vy -= this._directionSpeed[direction].y;
+            }
         }
     },
 
-    _enterframe: function () {
-        if (this.disableControls) return;
-
-        if (this._movement.x !== 0) {
-            this.x += this._movement.x;
-            this.trigger('Moved', {
-                x: this.x - this._movement.x,
-                y: this.y
-            });
-        }
-        if (this._movement.y !== 0) {
-            this.y += this._movement.y;
-            this.trigger('Moved', {
-                x: this.x,
-                y: this.y - this._movement.y
-            });
-        }
-    },
-
-    _initializeControl: function () {
-        return this.unbind("KeyDown", this._keydown)
-            .unbind("KeyUp", this._keyup)
-            .unbind("EnterFrame", this._enterframe)
-            .bind("KeyDown", this._keydown)
-            .bind("KeyUp", this._keyup)
-            .bind("EnterFrame", this._enterframe);
-    },
 
     /**@
      * #.multiway
@@ -1066,10 +1068,9 @@ Crafty.c("Multiway", {
      * @sign public this .multiway([Number speed,] Object keyBindings )
      * @param speed - Amount of pixels to move the entity whilst a key is down
      * @param keyBindings - What keys should make the entity go in which direction. Direction is specified in degrees
-     * Constructor to initialize the speed and keyBindings. Component will listen to key events and move the entity appropriately.
      *
-     * When direction changes a NewDirection event is triggered with an object detailing the new direction: {x: x_movement, y: y_movement}
-     * When entity has moved on either x- or y-axis a Moved event is triggered with an object specifying the old position {x: old_x, y: old_y}
+     * Constructor to initialize the speed and keyBindings. Component will listen to key events and move the entity appropriately.
+     * Can be called while a key is pressed to change direction & speed on the fly.
      *
      * @example
      * ~~~
@@ -1077,19 +1078,10 @@ Crafty.c("Multiway", {
      * this.multiway({x:3,y:1.5}, {UP_ARROW: -90, DOWN_ARROW: 90, RIGHT_ARROW: 0, LEFT_ARROW: 180});
      * this.multiway({W: -90, S: 90, D: 0, A: 180});
      * ~~~
+     *
+     * @see Motion
      */
     multiway: function (speed, keys) {
-        this._keyDirection = {};
-        this._keys = {};
-        this._movement = {
-            x: 0,
-            y: 0
-        };
-        this._speed = {
-            x: 3,
-            y: 3
-        };
-
         if (keys) {
             if (speed.x !== undefined && speed.y !== undefined) {
                 this._speed.x = speed.x;
@@ -1102,21 +1094,95 @@ Crafty.c("Multiway", {
             keys = speed;
         }
 
-        this._keyDirection = keys;
-        this.speed(this._speed);
 
-        this._initializeControl();
+        if (!this.disableControls) {
+            this.__unapplyActiveDirections();
+        }
 
-        //Apply movement if key is down when created
-        for (var k in keys) {
-            if (Crafty.keydown[Crafty.keys[k]]) {
-                this.trigger("KeyDown", {
-                    key: Crafty.keys[k]
-                });
-            }
+        this._updateKeys(keys);
+        this._updateSpeed(this._speed);
+
+        if (!this.disableControls) {
+            this.__applyActiveDirections();
         }
 
         return this;
+    },
+
+    /**@
+     * #.speed
+     * @comp Multiway
+     * @sign public this .speed(Object speed)
+     * @param speed - New speed the entity has, for x and y axis.
+     *
+     * Change the speed that the entity moves with. 
+     * Can be called while a key is pressed to change speed on the fly.
+     *
+     * @example
+     * ~~~
+     * this.speed({ x: 3, y: 1 });
+     * ~~~
+     */
+    speed: function (speed) {
+        if (!this.disableControls) {
+            this.__unapplyActiveDirections();
+        }
+
+        this._updateSpeed(speed);
+
+        if (!this.disableControls) {
+            this.__applyActiveDirections();
+        }
+
+        return this;
+    },
+
+    _updateKeys: function(keys) {
+        // reset data
+        this._keyDirection = {};
+        this._activeDirections = {};
+
+        for (var k in keys) {
+            var keyCode = Crafty.keys[k] || k;
+            // add new data
+            var direction = this._keyDirection[keyCode] = keys[k];
+            this._activeDirections[direction] = this._activeDirections[direction] || 0;
+            if (Crafty.keydown[keyCode]) // add directions of already pressed keys
+                this._activeDirections[direction]++;
+        }
+    },
+
+    _updateSpeed: function(speed) {
+        // reset data
+        this._directionSpeed = {};
+
+        var direction;
+        for (var keyCode in this._keyDirection) {
+            direction = this._keyDirection[keyCode];
+            // add new data
+            this._directionSpeed[direction] = {
+                x: this.__convertPixelsToMeters(Math.round(Math.cos(direction * (Math.PI / 180)) * 1000 * speed.x) / 1000),
+                y: this.__convertPixelsToMeters(Math.round(Math.sin(direction * (Math.PI / 180)) * 1000 * speed.y) / 1000)
+            };
+        }
+    },
+
+    __applyActiveDirections: function() {
+        for (var direction in this._activeDirections) {
+            if (this._activeDirections[direction] > 0) {
+                this.vx += this._directionSpeed[direction].x;
+                this.vy += this._directionSpeed[direction].y;
+            }
+        }
+    },
+
+    __unapplyActiveDirections: function() {
+        for (var direction in this._activeDirections) {
+            if (this._activeDirections[direction] > 0) {
+                this.vx -= this._directionSpeed[direction].x;
+                this.vy -= this._directionSpeed[direction].y;
+            }
+        }
     },
 
     /**@
@@ -1132,7 +1198,11 @@ Crafty.c("Multiway", {
      * ~~~
      */
     enableControl: function () {
+        if (this.disableControls) {
+            this.__applyActiveDirections();
+        }
         this.disableControls = false;
+
         return this;
     },
 
@@ -1150,33 +1220,11 @@ Crafty.c("Multiway", {
      */
 
     disableControl: function () {
-		this._movement.x = 0;
-		this._movement.y = 0;
-        this.disableControls = true;
-        return this;
-    },
-
-    /**@
-     * #.speed
-     * @comp Multiway
-     * @sign public this .speed(Object speed)
-     * @param speed - New speed the entity has, for x and y axis.
-     *
-     * Change the speed that the entity moves with.
-     *
-     * @example
-     * ~~~
-     * this.speed({ x: 3, y: 1 });
-     * ~~~
-     */
-    speed: function (speed) {
-        for (var k in this._keyDirection) {
-            var keyCode = Crafty.keys[k] || k;
-            this._keys[keyCode] = {
-                x: Math.round(Math.cos(this._keyDirection[k] * (Math.PI / 180)) * 1000 * speed.x) / 1000,
-                y: Math.round(Math.sin(this._keyDirection[k] * (Math.PI / 180)) * 1000 * speed.y) / 1000
-            };
+        if (!this.disableControls) {
+            this.__unapplyActiveDirections();
         }
+        this.disableControls = true;
+
         return this;
     }
 });
@@ -1184,8 +1232,13 @@ Crafty.c("Multiway", {
 /**@
  * #Fourway
  * @category Input
+ * @trigger NewDirection - When entity has changed direction due to velocity on either x or y axis a NewDirection event is triggered. The event is triggered once, if direction is different from last frame. - { x: -1 | 0 | 1, y: -1 | 0 | 1 } - New direction
+ * @trigger Moved - When entity has moved due to velocity/acceleration on either x or y axis a Moved event is triggered. If the entity has moved on both axes for diagonal movement the event is triggered twice. - { axis: 'x' | 'y', oldValue: Number } - Old position
+ *
  * Move an entity in four directions by using the
  * arrow keys or `W`, `A`, `S`, `D`.
+ *
+ * @see Multiway, Motion
  */
 Crafty.c("Fourway", {
 
@@ -1198,15 +1251,13 @@ Crafty.c("Fourway", {
      * @comp Fourway
      * @sign public this .fourway(Number speed)
      * @param speed - Amount of pixels to move the entity whilst a key is down
+     *
      * Constructor to initialize the speed. Component will listen for key events and move the entity appropriately.
      * This includes `Up Arrow`, `Right Arrow`, `Down Arrow`, `Left Arrow` as well as `W`, `A`, `S`, `D`.
      *
-     * When direction changes a NewDirection event is triggered with an object detailing the new direction: {x: x_movement, y: y_movement}
-     * When entity has moved on either x- or y-axis a Moved event is triggered with an object specifying the old position {x: old_x, y: old_y}
-     *
      * The key presses will move the entity in that direction by the speed passed in the argument.
      *
-     * @see Multiway
+     * @see Multiway, Motion
      */
     fourway: function (speed) {
         this.multiway(speed, {
@@ -1229,11 +1280,13 @@ Crafty.c("Fourway", {
 /**@
  * #Twoway
  * @category Input
- * @trigger NewDirection - When direction changes a NewDirection event is triggered with an object detailing the new direction: {x: x_movement, y: y_movement}. This is consistent with Fourway and Multiway components.
- * @trigger Moved - triggered on movement on either x or y axis. If the entity has moved on both axes for diagonal movement the event is triggered twice - { x:Number, y:Number } - Old position
+ * @trigger NewDirection - When entity has changed direction due to velocity on either x or y axis a NewDirection event is triggered. The event is triggered once, if direction is different from last frame. - { x: -1 | 0 | 1, y: -1 | 0 | 1 } - New direction
+ * @trigger Moved - When entity has moved due to velocity/acceleration on either x or y axis a Moved event is triggered. If the entity has moved on both axes for diagonal movement the event is triggered twice. - { axis: 'x' | 'y', oldValue: Number } - Old position
  * @trigger CheckJumping - When entity is about to jump. This event is triggered with the object the entity is about to jump from (if it exists). Third parties can respond to this event and enable the entity to jump.
  *
  * Move an entity left or right using the arrow keys or `D` and `A` and jump using up arrow or `W`.
+ *
+ * @see Gravity, Multiway, Fourway, Motion
  */
 Crafty.c("Twoway", {
     _speed: 3,
@@ -1241,7 +1294,7 @@ Crafty.c("Twoway", {
      * #.canJump
      * @comp Twoway
      *
-     * The canJump function determines if the entity is allowed to jump or not (e.g. perhaps the entity should not jump if it's already falling).
+     * The canJump function determines if the entity is allowed to jump or not (e.g. perhaps the entity should be able to double jump).
      * The Twoway component will trigger a "CheckJumping" event. 
      * Interested parties can listen to this event and enable the entity to jump by setting `canJump` to true.
      *
@@ -1277,7 +1330,7 @@ Crafty.c("Twoway", {
      * The key presses will move the entity in that direction by the speed passed in
      * the argument. Pressing the `Up Arrow` or `W` will cause the entity to jump.
      *
-     * @see Gravity, Fourway, Motion
+     * @see Gravity, Multiway, Fourway, Motion
      */
     twoway: function (speed, jump) {
 
@@ -1304,7 +1357,7 @@ Crafty.c("Twoway", {
                 this.canJump = !!ground;
                 this.trigger("CheckJumping", ground);
                 if (this.canJump) {
-                    this.vy = -this._jumpSpeed; // Motion component will trigger Move events
+                    this.vy = -this._jumpSpeed;
                 }
             }
         });
