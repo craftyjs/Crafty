@@ -6,6 +6,7 @@ require('./core/loader');
 require('./core/model');
 require('./core/scenes');
 require('./core/storage');
+require('./core/systems');
 require('./core/time');
 require('./core/version');
 
