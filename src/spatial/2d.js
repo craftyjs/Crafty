@@ -1,6 +1,4 @@
-var Crafty = require('../core/core.js'),
-    HashMap = require('./spatial-grid.js');
-
+module.exports = function(Crafty, HashMap) {
 
 
 /**@
@@ -1894,4 +1892,6 @@ Crafty.matrix.prototype = {
         if (row < 1 || row > this.mtx.length || col < 1 || col > this.mtx[0].length) return null;
         return this.mtx[row - 1][col - 1];
     }
+};
+
 };

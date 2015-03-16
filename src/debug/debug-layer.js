@@ -1,5 +1,5 @@
-var Crafty = require('../core/core.js'),
-    document = window.document;
+module.exports = function(Crafty) {
+var document = window.document;
 
 /**@
  * #DebugCanvas
@@ -370,5 +370,7 @@ Crafty.DebugCanvas = {
         }
 
     }
+
+};
 
 };

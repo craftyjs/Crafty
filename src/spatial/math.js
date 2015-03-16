@@ -1,4 +1,4 @@
-var Crafty = require('../core/core.js');
+module.exports = function(Crafty) {
 
 
 /**@
@@ -1094,3 +1094,5 @@ Crafty.math.Matrix2D = (function () {
 
     return Matrix2D;
 })();
+
+};

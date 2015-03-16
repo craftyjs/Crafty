@@ -1,4 +1,4 @@
-var Crafty = require('../core/core.js');
+module.exports = function(Crafty) {
 
 
 Crafty.extend({
@@ -160,3 +160,5 @@ Crafty.extend({
 
     }
 });
+
+};
