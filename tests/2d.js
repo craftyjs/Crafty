@@ -735,6 +735,7 @@
     var newDirectionEvents = 0,
         newRevolutionEvents = 0,
         movedEvents = 0,
+        rotatedEvents = 0,
         motionEvents = 0;
     e.bind("NewDirection", function(evt) {
       newDirectionEvents++;
@@ -744,6 +745,9 @@
     });
     e.bind("Moved", function(evt) {
       movedEvents++;
+    });
+    e.bind("Rotated", function(evt) {
+      rotatedEvents++;
     });
     e.bind("MotionChange", function(evt) {
       motionEvents++;
@@ -824,6 +828,7 @@
     e.one("NewRevolution", function(evt) {
       equal(evt, 1);
     });
+    e.one("Rotated", function(oldValue) { strictEqual(oldValue, 0); });
     e.one("MotionChange", function(evt) { strictEqual(evt.key, "vrotation"); strictEqual(evt.oldValue, 0); });
     e.vrotation = 1;
     Crafty.trigger('EnterFrame', {dt: 1000});
@@ -831,6 +836,7 @@
     e.one("NewRevolution", function(evt) {
       equal(evt, -1);
     });
+    e.one("Rotated", function(oldValue) { strictEqual(oldValue, 1); });
     e.one("MotionChange", function(evt) { strictEqual(evt.key, "vrotation"); strictEqual(evt.oldValue, 1); });
     e.vrotation = -1;
     Crafty.trigger('EnterFrame', {dt: 1000});
@@ -845,6 +851,7 @@
     equal(newDirectionEvents, 4);
     equal(newRevolutionEvents, 3);
     equal(movedEvents, 6);
+    equal(rotatedEvents, 2);
     equal(motionEvents, 17);
     e.destroy();
   });
