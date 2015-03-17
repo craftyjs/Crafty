@@ -392,10 +392,8 @@
 
   test("disableControl and enableControl and speed", function() {
     var e = Crafty.e("2D, Twoway")
-      .attr({
-        x: 0
-      })
-      .twoway(2);
+      .attr({ x: 0 })
+      .twoway();
 
     equal(e._vx, 0);
     equal(e._x, 0);
