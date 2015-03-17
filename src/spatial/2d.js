@@ -1100,9 +1100,10 @@ Crafty.c("GroundAttacher", {
  * @see Supportable, Motion
  */
 Crafty.c("Gravity", {
+    _gravityConst: 0.2,
+
     init: function () {
         this.requires("2D, Supportable, Motion");
-        this._gravityConst = this.__convertPixelsToMeters(9.81);
 
         this.bind("LiftedOffGround", this._startGravity); // start gravity if we are off ground
         this.bind("LandedOnGround", this._stopGravity); // stop gravity once landed
@@ -1166,7 +1167,7 @@ Crafty.c("Gravity", {
      * @sign public this .gravityConst(g)
      * @param g - gravitational constant
      *
-     * Set the gravitational constant to g. The default is 9.81 . The greater g, the faster the object falls.
+     * Set the gravitational constant to g. The default is 0.2 . The greater g, the faster the object falls.
      *
      * @example
      * ~~~
@@ -1178,12 +1179,11 @@ Crafty.c("Gravity", {
      * ~~~
      */
     gravityConst: function (g) {
-        var newGravityConst = this.__convertPixelsToMeters(g);
         if (!this.ground()) { // gravity active, change acceleration
             this.ay -= this._gravityConst;
-            this.ay += newGravityConst;
+            this.ay += g;
         }
-        this._gravityConst = newGravityConst;
+        this._gravityConst = g;
 
         return this;
     },
@@ -1253,6 +1253,7 @@ var __motionVector = function(self, prefix, setter, vector) {
  * @trigger MotionChange - When a motion property has changed a MotionChange event is triggered. - { key: String, oldValue: Number } - Motion property name and old value
  *
  * Component that allows rotating an entity by applying angular velocity and acceleration.
+ * All angular motion values are expressed in degrees per frame (e.g. an entity with `vrotation` of 10 will rotate 10 degrees each frame).
  */
 Crafty.c("AngularMotion", {
     /**@
@@ -1316,9 +1317,16 @@ Crafty.c("AngularMotion", {
         this.__oldRevolution = 0;
 
         this.bind("EnterFrame", this._angularMotionTick);
+        this.bind("FPSChange", this._angularChangeFPS);
+        this._angularChangeFPS(Crafty.timer.FPS());
     },
     remove: function(destroyed) {
         this.unbind("EnterFrame", this._angularMotionTick);
+        this.unbind("FPSChange", this._angularChangeFPS);
+    },
+
+    _angularChangeFPS: function(fps) {
+        this._dtFactor = fps / 1000;
     },
 
     /**@
@@ -1342,7 +1350,7 @@ Crafty.c("AngularMotion", {
      * v += a * Δt
      */
     _angularMotionTick: function(frameData) {
-        var dt = frameData.dt/1000;
+        var dt = frameData.dt * this._dtFactor;
 
         var _vr = this._vrotation,
             dvr = _vr >> 31 | -_vr >>> 31; // Math.sign(this._vrotation)
@@ -1377,15 +1385,9 @@ Crafty.c("AngularMotion", {
  * @trigger MotionChange - When a motion property has changed a MotionChange event is triggered. - { key: String, oldValue: Number } - Motion property name and old value
  *
  * Component that allows moving an entity by applying linear velocity and acceleration.
+ * All linear motion values are expressed in pixels per frame (e.g. an entity with `vx` of 1 will move 1px on the x axis each frame).
  */
 Crafty.c("Motion", {
-    /*
-     * Utility function which converts the input argument `pixels` into `meters`.
-     */
-    __convertPixelsToMeters: function(pixels) {
-        return pixels * 100;
-    },
-
     /**@
      * #.vx
      * @comp Motion
@@ -1506,9 +1508,16 @@ Crafty.c("Motion", {
         this.__oldDirection = {x: 0, y: 0};
 
         this.bind("EnterFrame", this._linearMotionTick);
+        this.bind("FPSChange", this._linearChangeFPS);
+        this._linearChangeFPS(Crafty.timer.FPS());
     },
     remove: function(destroyed) {
         this.unbind("EnterFrame", this._linearMotionTick);
+        this.unbind("FPSChange", this._linearChangeFPS);
+    },
+
+    _linearChangeFPS: function(fps) {
+        this._dtFactor = fps / 1000;
     },
 
     /**@
@@ -1603,7 +1612,7 @@ Crafty.c("Motion", {
      * v += a * Δt
      */
     _linearMotionTick: function(frameData) {
-        var dt = frameData.dt/1000;
+        var dt = frameData.dt * this._dtFactor;
 
         var oldDirection = this.__oldDirection;
         var _vx = this._vx, dvx = _vx >> 31 | -_vx >>> 31, // Math.sign(this._vx)

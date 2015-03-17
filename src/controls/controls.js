@@ -1161,8 +1161,8 @@ Crafty.c("Multiway", {
             direction = this._keyDirection[keyCode];
             // add new data
             this._directionSpeed[direction] = {
-                x: this.__convertPixelsToMeters(Math.round(Math.cos(direction * (Math.PI / 180)) * 1000 * speed.x) / 1000),
-                y: this.__convertPixelsToMeters(Math.round(Math.sin(direction * (Math.PI / 180)) * 1000 * speed.y) / 1000)
+                x: Math.round(Math.cos(direction * (Math.PI / 180)) * 1000 * speed.x) / 1000,
+                y: Math.round(Math.sin(direction * (Math.PI / 180)) * 1000 * speed.y) / 1000
             };
         }
     },
@@ -1344,9 +1344,9 @@ Crafty.c("Twoway", {
 
         if (speed) this._speed = speed;
         if (arguments.length < 2) {
-          this._jumpSpeed = this.__convertPixelsToMeters(this._speed * 2);
+          this._jumpSpeed = this._speed * 2;
         } else {
-          this._jumpSpeed = this.__convertPixelsToMeters(jump);
+          this._jumpSpeed = jump;
         }
 
         var ground;

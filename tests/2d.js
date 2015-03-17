@@ -311,31 +311,31 @@
     });
     Crafty.keydown[Crafty.keys.W] = true;
     e.multiway(1, { W: -90 });
-    Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._vy, e.__convertPixelsToMeters(-1));
-    equal(e._y, e.__convertPixelsToMeters(-1));
+    Crafty.timer.simulateFrames(1);
+    equal(e._vy, -1);
+    equal(e._y, -1);
 
     e.multiway(2, { W: 90 });
-    Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._vy, e.__convertPixelsToMeters(2));
-    equal(e._y, e.__convertPixelsToMeters(1));
+    Crafty.timer.simulateFrames(1);
+    equal(e._vy, 2);
+    equal(e._y, 1);
 
     e.fourway(1);
-    Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._vy, e.__convertPixelsToMeters(-1));
-    equal(e._y, e.__convertPixelsToMeters(0));
+    Crafty.timer.simulateFrames(1);
+    equal(e._vy, -1);
+    equal(e._y, 0);
 
-    Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._vy, e.__convertPixelsToMeters(-1));
-    equal(e._y, e.__convertPixelsToMeters(-1));
+    Crafty.timer.simulateFrames(1);
+    equal(e._vy, -1);
+    equal(e._y, -1);
 
     
     Crafty.trigger('KeyDown', {
       key: Crafty.keys.UP_ARROW
     });
-    Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._vy, e.__convertPixelsToMeters(-1));
-    equal(e._y, e.__convertPixelsToMeters(-2));
+    Crafty.timer.simulateFrames(1);
+    equal(e._vy, -1);
+    equal(e._y, -2);
 
     Crafty.trigger('KeyUp', {
       key: Crafty.keys.W
@@ -344,9 +344,9 @@
     Crafty.trigger('KeyUp', {
       key: Crafty.keys.UP_ARROW
     });
-    Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._vy, e.__convertPixelsToMeters(0));
-    equal(e._y, e.__convertPixelsToMeters(-2));
+    Crafty.timer.simulateFrames(1);
+    equal(e._vy, 0);
+    equal(e._y, -2);
 
 
     Crafty.trigger('KeyDown', {
@@ -355,36 +355,36 @@
     Crafty.trigger('KeyDown', {
       key: Crafty.keys.LEFT_ARROW
     });
-    Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._vy, e.__convertPixelsToMeters(1));
-    equal(e._y, e.__convertPixelsToMeters(-1));
-    equal(e._vx, e.__convertPixelsToMeters(-1));
-    equal(e._x, e.__convertPixelsToMeters(-1));
+    Crafty.timer.simulateFrames(1);
+    equal(e._vy, 1);
+    equal(e._y, -1);
+    equal(e._vx, -1);
+    equal(e._x, -1);
 
     Crafty.trigger('KeyUp', {
       key: Crafty.keys.DOWN_ARROW
     });
-    Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._vy, e.__convertPixelsToMeters(0));
-    equal(e._y, e.__convertPixelsToMeters(-1));
-    equal(e._vx, e.__convertPixelsToMeters(-1));
-    equal(e._x, e.__convertPixelsToMeters(-2));
+    Crafty.timer.simulateFrames(1);
+    equal(e._vy, 0);
+    equal(e._y, -1);
+    equal(e._vx, -1);
+    equal(e._x, -2);
 
     e.removeComponent("Multiway");
-    Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._vy, e.__convertPixelsToMeters(0));
-    equal(e._y, e.__convertPixelsToMeters(-1));
-    equal(e._vx, e.__convertPixelsToMeters(0));
-    equal(e._x, e.__convertPixelsToMeters(-2));
+    Crafty.timer.simulateFrames(1);
+    equal(e._vy, 0);
+    equal(e._y, -1);
+    equal(e._vx, 0);
+    equal(e._x, -2);
 
     Crafty.trigger('KeyUp', {
       key: Crafty.keys.LEFT_ARROW
     });
-    Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._vy, e.__convertPixelsToMeters(0));
-    equal(e._y, e.__convertPixelsToMeters(-1));
-    equal(e._vx, e.__convertPixelsToMeters(0));
-    equal(e._x, e.__convertPixelsToMeters(-2));
+    Crafty.timer.simulateFrames(1);
+    equal(e._vy, 0);
+    equal(e._y, -1);
+    equal(e._vx, 0);
+    equal(e._x, -2);
 
 
     e.destroy();
@@ -397,58 +397,58 @@
       })
       .twoway(2);
 
-    equal(e._vx, e.__convertPixelsToMeters(0));
-    equal(e._x, e.__convertPixelsToMeters(0));
+    equal(e._vx, 0);
+    equal(e._x, 0);
 
     e.enableControl();
     e.speed({ x: 1, y: 1 });
-    Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._vx, e.__convertPixelsToMeters(0));
-    equal(e._x, e.__convertPixelsToMeters(0));
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 0);
+    equal(e._x, 0);
 
     Crafty.trigger('KeyDown', {
       key: Crafty.keys.D
     });
-    Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._vx, e.__convertPixelsToMeters(1));
-    equal(e._x, e.__convertPixelsToMeters(1));
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 1);
+    equal(e._x, 1);
 
     e.disableControl();
-    Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._vx, e.__convertPixelsToMeters(0));
-    equal(e._x, e.__convertPixelsToMeters(1));
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 0);
+    equal(e._x, 1);
 
     Crafty.trigger('KeyUp', {
       key: Crafty.keys.D
     });
-    Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._vx, e.__convertPixelsToMeters(0));
-    equal(e._x, e.__convertPixelsToMeters(1));
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 0);
+    equal(e._x, 1);
 
     e.disableControl();
-    Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._vx, e.__convertPixelsToMeters(0));
-    equal(e._x, e.__convertPixelsToMeters(1));
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 0);
+    equal(e._x, 1);
 
 
     e.enableControl();
-    Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._vx, e.__convertPixelsToMeters(0));
-    equal(e._x, e.__convertPixelsToMeters(1));
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 0);
+    equal(e._x, 1);
 
     Crafty.trigger('KeyDown', {
       key: Crafty.keys.D
     });
-    Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._vx, e.__convertPixelsToMeters(1));
-    equal(e._x, e.__convertPixelsToMeters(2));
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 1);
+    equal(e._x, 2);
 
     Crafty.trigger('KeyUp', {
       key: Crafty.keys.D
     });
-    Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._vx, e.__convertPixelsToMeters(0));
-    equal(e._x, e.__convertPixelsToMeters(2));
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 0);
+    equal(e._x, 2);
 
 
     Crafty.trigger('KeyDown', {
@@ -457,39 +457,39 @@
     Crafty.trigger('KeyDown', {
       key: Crafty.keys.RIGHT_ARROW
     });
-    Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._vx, e.__convertPixelsToMeters(1));
-    equal(e._x, e.__convertPixelsToMeters(3));
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 1);
+    equal(e._x, 3);
 
     e.disableControl();
     e.speed({ x: 2, y: 2 });
-    Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._vx, e.__convertPixelsToMeters(0));
-    equal(e._x, e.__convertPixelsToMeters(3));
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 0);
+    equal(e._x, 3);
 
     e.enableControl();
-    Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._vx, e.__convertPixelsToMeters(2));
-    equal(e._x, e.__convertPixelsToMeters(5));
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 2);
+    equal(e._x, 5);
 
     e.speed({ x: 3, y: 3 });
-    Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._vx, e.__convertPixelsToMeters(3));
-    equal(e._x, e.__convertPixelsToMeters(8));
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 3);
+    equal(e._x, 8);
 
     Crafty.trigger('KeyUp', {
       key: Crafty.keys.D
     });
-    Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._vx, e.__convertPixelsToMeters(3));
-    equal(e._x, e.__convertPixelsToMeters(11));
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 3);
+    equal(e._x, 11);
 
     Crafty.trigger('KeyUp', {
       key: Crafty.keys.RIGHT_ARROW
     });
-    Crafty.trigger('EnterFrame', {dt: 1000});
-    equal(e._vx, e.__convertPixelsToMeters(0));
-    equal(e._x, e.__convertPixelsToMeters(11));
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 0);
+    equal(e._x, 11);
 
 
     e.destroy();
@@ -683,11 +683,10 @@
     strictEqual(ent.drotation, 0, "angular delta should be zero");
 
 
-
-
+    Crafty.timer.FPS(25);
     ent.velocity().setValues(v0);
     ent.vrotation = v0_r;
-    Crafty.trigger('EnterFrame', {dt: 1000});
+    Crafty.timer.simulateFrames(1);
     ok(ent.velocity().equals(v0), "velocity should be <2,5>");
     strictEqual(ent.vrotation, v0_r, "angular velocity should be 10");
     ok(ent.motionDelta().equals(v0), "delta should be <2,5>");
@@ -699,7 +698,7 @@
     var dPos = new Vector2D(a).scale(0.5).add(v0), dPos_r = v0_r + 0.5*a_r;
     ent.acceleration().setValues(a);
     ent.arotation = a_r;
-    Crafty.trigger('EnterFrame', {dt: 1000});
+    Crafty.timer.simulateFrames(1);
     ok(dPos.equals(new Vector2D(4,6)), "should be <4,6>");
     strictEqual(dPos_r, 2.5, "should be 2.5");
     ok(ent.motionDelta().equals(dPos), "delta should be <4,6>");
@@ -712,14 +711,14 @@
     strictEqual(ent.vrotation, v1_r, "angular velocity should be -5");
 
 
-
+    Crafty.timer.FPS(50);
     ent.attr({x: 0, y: 0})
        .resetMotion()
        .resetAngularMotion();
 
     ent.velocity().x = 10;
     ent.acceleration().x = 5;
-    Crafty.trigger('EnterFrame', {dt: 500});
+    Crafty.timer.simulateFrames(1, (1000 / Crafty.timer.FPS()) / 2);
     equal(ent.velocity().x, 10+5*0.5, "velocity x should be 12.5");
     equal(ent.x, 10*0.5+0.5*5*0.5*0.5, "entity x should be 5.625");
 
@@ -761,7 +760,7 @@
     e.one("Moved", function(evt) { strictEqual(evt.axis, "y"); strictEqual(evt.oldValue, 0); });
     e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, 0); });
     e.vy = 1;
-    Crafty.trigger('EnterFrame', {dt: 1000});
+    Crafty.timer.simulateFrames(1);
 
     e.one("NewDirection", function(evt) {
       equal(evt.x, -1);
@@ -775,7 +774,7 @@
     e.vy = 0;
     e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, 0); });
     e.vy = -1;
-    Crafty.trigger('EnterFrame', {dt: 1000});
+    Crafty.timer.simulateFrames(1);
 
     e.one("Moved", function(evt) { strictEqual(evt.axis, "x"); strictEqual(evt.oldValue, -1); 
     e.one("Moved", function(evt) { strictEqual(evt.axis, "y"); strictEqual(evt.oldValue, 0); });});
@@ -784,7 +783,7 @@
     e.vy = 0;
     e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, 0); });
     e.vy = -1;
-    Crafty.trigger('EnterFrame', {dt: 1000});
+    Crafty.timer.simulateFrames(1);
 
     e.one("NewDirection", function(evt) {
       equal(evt.x, 0);
@@ -797,7 +796,7 @@
     e.vy = 0;
     e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, 0); });
     e.vy = -1;
-    Crafty.trigger('EnterFrame', {dt: 1000});
+    Crafty.timer.simulateFrames(1);
 
     e.one("NewDirection", function(evt) {
       equal(evt.x, 0);
@@ -806,24 +805,24 @@
     });
     e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, -1); });
     e.vy = 0;
-    Crafty.trigger('EnterFrame', {dt: 1000});
+    Crafty.timer.simulateFrames(1);
 
     e.vx = 0;
     e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, 0); });
     e.vy = 1;
     e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, 1); });
     e.vy = 0;
-    Crafty.trigger('EnterFrame', {dt: 1000});
+    Crafty.timer.simulateFrames(1);
 
 
     e.vrotation = 0;
-    Crafty.trigger('EnterFrame', {dt: 1000});
+    Crafty.timer.simulateFrames(1);
 
     e.one("MotionChange", function(evt) { strictEqual(evt.key, "vrotation"); strictEqual(evt.oldValue, 0); });
     e.vrotation = 1;
     e.one("MotionChange", function(evt) { strictEqual(evt.key, "vrotation"); strictEqual(evt.oldValue, 1); });
     e.vrotation = 0;
-    Crafty.trigger('EnterFrame', {dt: 1000});
+    Crafty.timer.simulateFrames(1);
 
     e.one("NewRevolution", function(evt) {
       equal(evt, 1);
@@ -831,7 +830,7 @@
     e.one("Rotated", function(oldValue) { strictEqual(oldValue, 0); });
     e.one("MotionChange", function(evt) { strictEqual(evt.key, "vrotation"); strictEqual(evt.oldValue, 0); });
     e.vrotation = 1;
-    Crafty.trigger('EnterFrame', {dt: 1000});
+    Crafty.timer.simulateFrames(1);
 
     e.one("NewRevolution", function(evt) {
       equal(evt, -1);
@@ -839,14 +838,14 @@
     e.one("Rotated", function(oldValue) { strictEqual(oldValue, 1); });
     e.one("MotionChange", function(evt) { strictEqual(evt.key, "vrotation"); strictEqual(evt.oldValue, 1); });
     e.vrotation = -1;
-    Crafty.trigger('EnterFrame', {dt: 1000});
+    Crafty.timer.simulateFrames(1);
 
     e.one("NewRevolution", function(evt) {
       equal(evt, 0);
     });
     e.one("MotionChange", function(evt) { strictEqual(evt.key, "vrotation"); strictEqual(evt.oldValue, -1); });
     e.vrotation = 0;
-    Crafty.trigger('EnterFrame', {dt: 1000});
+    Crafty.timer.simulateFrames(1);
 
     equal(newDirectionEvents, 4);
     equal(newRevolutionEvents, 3);
@@ -876,26 +875,26 @@
 
 
     ok(!ent.ground(), "entity should not be on ground");
-    Crafty.trigger("EnterFrame");
+    Crafty.timer.simulateFrames(1);
     ok(!ent.ground(), "entity should not be on ground");
 
     ent.y = 5;
-    Crafty.trigger("EnterFrame"); // 1 landed event should have occured
+    Crafty.timer.simulateFrames(1); // 1 landed event should have occured
     equal(ent.y, 5, "ent y should not have changed");
     ok(ent.ground(), "entity should be on ground");
 
     ent.y = 0;
-    Crafty.trigger("EnterFrame"); // 1 lifted event should have occured
+    Crafty.timer.simulateFrames(1); // 1 lifted event should have occured
     equal(ent.y, 0, "ent y should not have changed");
     ok(!ent.ground(), "entity should not be on ground");
 
     ent.y = 7;
-    Crafty.trigger("EnterFrame"); // 1 landed event should have occured
+    Crafty.timer.simulateFrames(1); // 1 landed event should have occured
     equal(ent.y, 5, "ent y should have been snapped to ground");
     ok(ent.ground(), "entity should be on ground");
 
     ent.y = 0;
-    Crafty.trigger("EnterFrame"); // 1 lifted event should have occured
+    Crafty.timer.simulateFrames(1); // 1 lifted event should have occured
     equal(ent.y, 0, "ent y should not have changed");
     ok(!ent.ground(), "entity should not be on ground");
 
@@ -903,7 +902,7 @@
       this.canLand = false;
     });
     ent.y = 7;
-    Crafty.trigger("EnterFrame"); // no event should have occured
+    Crafty.timer.simulateFrames(1); // no event should have occured
     equal(ent.y, 7, "ent y should not have changed");
     ok(!ent.ground(), "entity should not be on ground");
 
@@ -927,6 +926,7 @@
     ground.x = 20;
     strictEqual(player.x, 10, "player did not move with ground");
   });
+
 
   test("Gravity", function() {
     var ground = Crafty.e("2D, platform")
@@ -958,14 +958,12 @@
         this.bind("LiftedOffGround", function() {
           liftCount++;
 
-          Crafty.trigger("EnterFrame", {dt: 50});
-          Crafty.trigger("EnterFrame", {dt: 50});
-          Crafty.trigger("EnterFrame", {dt: 50});
+          Crafty.timer.simulateFrames(3);
           vel = -1;
 
           var oldVel = this.velocity().y;
-          this.gravityConst(5);
-          strictEqual(this._gravityConst, this.__convertPixelsToMeters(5), "gravity constant should have changed");
+          this.gravityConst(0.1);
+          strictEqual(this._gravityConst, 0.1, "gravity constant should have changed");
           strictEqual(this.acceleration().y, this._gravityConst, "acceleration should match gravity constant");
           strictEqual(this.velocity().y, oldVel, "velocity shouldn't have been resetted");
         });
