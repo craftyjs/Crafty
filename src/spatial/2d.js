@@ -1179,7 +1179,7 @@ Crafty.c("Gravity", {
      * ~~~
      */
     gravityConst: function (g) {
-        if (!this.ground()) { // gravity active, change acceleration
+        if (this._gravityActive) { // gravity active, change acceleration
             this.ay -= this._gravityConst;
             this.ay += g;
         }
@@ -1188,11 +1188,13 @@ Crafty.c("Gravity", {
         return this;
     },
     _startGravity: function() {
+        this._gravityActive = true;
         this.ay += this._gravityConst;
     },
     _stopGravity: function() {
         this.ay = 0;
         this.vy = 0;
+        this._gravityActive = false;
     }
 });
 

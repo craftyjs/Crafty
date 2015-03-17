@@ -932,6 +932,7 @@
 
     var player = Crafty.e("2D, Gravity")
           .attr({ x: 0, y: 100, w: 32, h: 16 })
+          .gravityConst(0.3)
           .gravity("platform");
    
     strictEqual(player.acceleration().y, player._gravityConst, "acceleration should match gravity constant");
@@ -960,8 +961,8 @@
           vel = -1;
 
           var oldVel = this.velocity().y;
-          this.gravityConst(0.1);
-          strictEqual(this._gravityConst, 0.1, "gravity constant should have changed");
+          this.gravityConst(0.2);
+          strictEqual(this._gravityConst, 0.2, "gravity constant should have changed");
           strictEqual(this.acceleration().y, this._gravityConst, "acceleration should match gravity constant");
           strictEqual(this.velocity().y, oldVel, "velocity shouldn't have been resetted");
         });
