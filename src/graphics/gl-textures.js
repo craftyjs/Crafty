@@ -30,7 +30,7 @@ TextureManager.prototype = {
 
 	// creates a texture out of the given image and repeating state
 	// The url is just used to generate a unique id for the texture
-	makeTexture: function(url, image, repeating) {
+	makeTexture: function(url, image, repeating, filter) {
 		// gl is the context, webgl the Crafty object containing prefs/etc
         var gl = this.gl, webgl = this.webgl;
 
@@ -45,8 +45,8 @@ TextureManager.prototype = {
         this.bindTexture(t);
 
         // Set the properties of the texture 
-        t.setImage(image);
-        t.setFilter(webgl.texture_filter);
+        t.setImage(image);        
+        t.setFilter(filter);
         t.setRepeat(repeating);
 
         return t;

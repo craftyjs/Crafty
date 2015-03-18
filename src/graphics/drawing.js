@@ -40,3 +40,26 @@ Crafty.extend({
         Crafty.trigger("PixelartSet", enabled);
     }
 });
+
+Crafty.c("Pixelart", {
+    init: function () {
+        this._pixelartEnabled = Crafty._pixelartEnabled;
+        this.bind("PreDraw", this._setPixelart);
+        this.bind("PostDraw", this._resetPixelart);
+    },
+    
+    pixelart: function(enabled) {
+        this._pixelartEnabled = enabled;
+        this.trigger("PixelartSet", enabled);
+    },
+    
+    _setPixelart: function() {
+        // Trigger global event for engines that need it (Canvas).
+        // Should be ignored by others (WebGL,DOM).
+        Crafty.trigger("PixelartSetDraw", this._pixelartEnabled);
+    },
+    
+    _resetPixelart: function() {
+        Crafty.trigger("PixelartSetDraw", Crafty._pixelartEnabled);
+    }
+});

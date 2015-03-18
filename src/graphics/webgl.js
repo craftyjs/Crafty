@@ -412,9 +412,14 @@ Crafty.extend({
 
         // Make a texture out of the given image element
         // The url is just used as a unique ID
-        makeTexture: function(url, image, repeating){
+        makeTexture: function(url, image, repeating, pixelart){
             var webgl = this;
-            return webgl.texture_manager.makeTexture(url, image, repeating);
+            var filter = webgl.texture_filter;
+            if (typeof pixelart == "boolean") {
+                var gl = webgl.context;
+                filter = pixelart ? gl.NEAREST : gl.LINEAR;
+            }
+            return webgl.texture_manager.makeTexture(url, image, repeating, filter);
         },
 
         /**@

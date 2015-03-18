@@ -89,6 +89,10 @@ Crafty.extend({
             // Set pixelart to current status, and listen for changes
             this._setPixelart(Crafty._pixelartEnabled);
             Crafty.uniqueBind("PixelartSet", this._setPixelart);
+            
+            // Listen for pixelart overrides during drawing
+            // (caused by individual entities)
+            Crafty.uniqueBind("PixelartSetDraw", this._setPixelart);
 
             //Bind rendering of canvas context (see drawing.js)
             Crafty.uniqueBind("RenderScene", this._render);

@@ -138,6 +138,7 @@ Crafty.c("Canvas", {
             context.globalAlpha = this._alpha;
         }
 
+        this.trigger("PreDraw");
         this.drawVars.ctx = context;
         this.trigger("Draw", this.drawVars);
 
@@ -148,6 +149,7 @@ Crafty.c("Canvas", {
         if (globalpha) {
             context.globalAlpha = globalpha;
         }
+        this.trigger("PostDraw");
         return this;
     }
 });

@@ -65,7 +65,7 @@ Crafty.extend({
      *
      * @see Sprite
      */
-    sprite: function (tile, tileh, url, map, paddingX, paddingY, paddingAroundBorder) {
+    sprite: function (tile, tileh, url, map, paddingX, paddingY, paddingAroundBorder, pixelart) {
         var spriteName, temp, x, y, w, h, img;
 
         //if no tile value, default to 1.
@@ -121,6 +121,11 @@ Crafty.extend({
             this.__padBorder = paddingAroundBorder;
             this.sprite(this.__coord[0], this.__coord[1], this.__coord[2], this.__coord[3]);
             
+            if (typeof pixelart == "boolean") {
+                this.requires("Pixelart");
+                this.pixelart(pixelart);
+            }
+            
             this.img = img;
             //draw now
             if (this.img.complete && this.img.width > 0) {
@@ -134,7 +139,7 @@ Crafty.extend({
 
             if (this.has("WebGL")){
                 this._establishShader(this.__image, SPRITE_FRAGMENT_SHADER, SPRITE_VERTEX_SHADER, SPRITE_ATTRIBUTE_LIST);
-                this.program.setTexture( this.webgl.makeTexture(this.__image, this.img, false) );
+                this.program.setTexture( this.webgl.makeTexture(this.__image, this.img, false, pixelart) );
             }
         };
 
