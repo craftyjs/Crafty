@@ -1300,11 +1300,15 @@ Crafty.c("Twoway", {
      * @example
      * ~~~
      * var player = Crafty.e("2D, Twoway");
+     * player.hasDoubleJumpPowerUp = true; // allow player to double jump by granting him a powerup
      * player.bind("CheckJumping", function(ground) {
-     *    if (!ground && player.hasDoubleJumpPowerUp) { // custom behaviour
-     *       player.hasDoubleJumpPowerUp = false;
-     *       player.canJump = true;
-     *    }
+     *     if (!ground && player.hasDoubleJumpPowerUp) { // allow player to double jump by using up his double jump powerup
+     *         player.canJump = true;
+     *         player.hasDoubleJumpPowerUp = false;
+     *     }
+     * });
+     * player.bind("LandedOnGround", function(ground) {
+     *     player.hasDoubleJumpPowerUp = true; // give player new double jump powerup upon landing
      * });
      * ~~~
      */

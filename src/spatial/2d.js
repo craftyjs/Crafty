@@ -944,8 +944,9 @@ Crafty.c("Supportable", {
      * ~~~
      * var player = Crafty.e("2D, Gravity");
      * player.bind("CheckLanding", function(ground) {
-     *     if (player.isAirplane) // custom behaviour
+     *     if (player.y + player.h > ground.y + player.vy) { // forbid landing, if player's feet are not above ground
      *         player.canLand = false;
+     *     }
      * });
      * ~~~
      */
