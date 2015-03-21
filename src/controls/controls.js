@@ -1326,7 +1326,7 @@ Crafty.c("Twoway", {
         if (this.disableControls) return;
 
         if (e.key === Crafty.keys.UP_ARROW || e.key === Crafty.keys.W || e.key === Crafty.keys.Z) {
-            var ground = this.ground();
+            var ground = this.ground;
             this.canJump = !!ground;
             this.trigger("CheckJumping", ground);
             if (this.canJump) {

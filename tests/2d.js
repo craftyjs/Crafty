@@ -854,61 +854,88 @@
   });
 
   test("Supportable", function() {
-    var ground = Crafty.e("2D, Ground").attr({x: 0, y: 10, w:10, h:10}); // [0,10] to [0,20]
+    var ground = Crafty.e("2D, Ground")
+      .attr({x: 0, y: 10, w:10, h:10}); // y: 10 to 20
+    var ground2 = Crafty.e("2D, Ground")
+      .attr({x: 0, y: 15, w:10, h:10}); // y: 15 to 25
 
-    var landedCount = 0, liftedCount = 0;
+    var landedCount = 0,
+        liftedCount = 0,
+        previousGround = null;
     var ent = Crafty.e("2D, Supportable")
-      .attr({x: 0, y:0, w:5, h:5})
+      .attr({x: 0, y:0, w:5, h:5}) // y: y to y+5
       .bind("LandedOnGround", function(obj) {
-        ok(ent.ground(), "entity should be on ground");
-        equal(obj, ground, "ground object should be equal");
+        ok(ent.ground, "entity should be on ground");
+        strictEqual(obj, ent.ground, "ground object should be equal");
+        ok(!previousGround, "previous ground should not exist");
+        previousGround = obj;
         landedCount++;
       })
       .bind("LiftedOffGround", function(obj) {
-        ok(!ent.ground(), "entitiy should not be on ground");
-        equal(obj, ground, "ground object should be equal");
+        ok(!ent.ground, "entitiy should not be on ground");
+        strictEqual(obj, previousGround, "ground object should be equal");
+        ok(previousGround, "previous ground should exist");
+        previousGround = null;
         liftedCount++;
       })
       .startGroundDetection("Ground");
 
 
-    ok(!ent.ground(), "entity should not be on ground");
+    strictEqual(ent.ground, null, "entity should not be on ground");
     Crafty.timer.simulateFrames(1);
-    ok(!ent.ground(), "entity should not be on ground");
+    strictEqual(ent.ground, null, "entity should not be on ground");
 
     ent.y = 5;
     Crafty.timer.simulateFrames(1); // 1 landed event should have occured
     equal(ent.y, 5, "ent y should not have changed");
-    ok(ent.ground(), "entity should be on ground");
+    strictEqual(ent.ground, ground, "entity should be on ground");
 
     ent.y = 0;
     Crafty.timer.simulateFrames(1); // 1 lifted event should have occured
     equal(ent.y, 0, "ent y should not have changed");
-    ok(!ent.ground(), "entity should not be on ground");
+    strictEqual(ent.ground, null, "entity should not be on ground");
 
     ent.y = 7;
     Crafty.timer.simulateFrames(1); // 1 landed event should have occured
-    equal(ent.y, 5, "ent y should have been snapped to ground");
-    ok(ent.ground(), "entity should be on ground");
+    equal(ent.y, ground.y - ent.h, "ent y should have been snapped to ground");
+    strictEqual(ent.ground, ground, "entity should be on ground");
 
-    ent.y = 0;
+    ent.y = 9;
+    Crafty.timer.simulateFrames(1);
+    equal(ent.y, 9, "ent y should not have changed");
+    strictEqual(ent.ground, ground, "entity should be on ground");
+
+    ent.y = 16;
+    Crafty.timer.simulateFrames(1);
+    equal(ent.y, 16, "ent y should not have changed");
+    strictEqual(ent.ground, ground, "entity should be on ground");
+
+    ent.y = 21;
+    Crafty.timer.simulateFrames(1); // 1 lifted event & 1 landed event should have occured
+    equal(ent.y, ground2.y - ent.h, "ent y should have been snapped to ground");
+    strictEqual(ent.ground, ground2, "entity should be on ground2");
+
+    ground.removeComponent("Ground");
+    ground2.removeComponent("Ground");
     Crafty.timer.simulateFrames(1); // 1 lifted event should have occured
-    equal(ent.y, 0, "ent y should not have changed");
-    ok(!ent.ground(), "entity should not be on ground");
+    equal(ent.y, ground2.y - ent.h, "ent y should not have changed");
+    strictEqual(ent.ground, null, "entity should not be on ground");
 
+    ground.addComponent("Ground");
     ent.bind("CheckLanding", function(ground) {
       this.canLand = false;
     });
     ent.y = 7;
     Crafty.timer.simulateFrames(1); // no event should have occured
     equal(ent.y, 7, "ent y should not have changed");
-    ok(!ent.ground(), "entity should not be on ground");
+    strictEqual(ent.ground, null, "entity should not be on ground");
 
 
-    equal(landedCount, 2, "landed count mismatch");
-    equal(liftedCount, 2, "lifted count mismatch");
+    equal(landedCount, 3, "landed count mismatch");
+    equal(liftedCount, 3, "lifted count mismatch");
 
     ground.destroy();
+    ground2.destroy();
     ent.destroy();
   });
 
@@ -939,7 +966,7 @@
 
     var vel = -1;
     player.bind("EnterFrame", function() {
-      if (!this.ground()) {
+      if (!this.ground) {
         ok(this.velocity().y > vel, "velocity should increase");
         vel = this.velocity().y;
       } else {

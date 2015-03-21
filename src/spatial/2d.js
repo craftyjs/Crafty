@@ -926,10 +926,17 @@ Crafty.c("2D", {
  * @trigger CheckLanding - When entity is about to land. This event is triggered with the object the entity is about to land on. Third parties can respond to this event and prevent the entity from being able to land.
  *
  * Component that detects if the entity collides with the ground. This component is automatically added and managed by the Gravity component.
- * The appropriate events are fired when the entity state changes (lands on ground / lifts off ground). The current state can also be accessed with .ground().
+ * The appropriate events are fired when the entity state changes (lands on ground / lifts off ground). The current ground entity can also be accessed with `.ground`.
  */
 Crafty.c("Supportable", {
-    _ground: false,
+    /**@
+     * #.ground
+     * @comp Supportable
+     *
+     * Access the ground entity (which may be the actual ground entity if it exists, or `null` if it doesn't exist) and thus whether this entity is currently on the ground or not. 
+     * The ground entity is also available through the events, when the ground entity changes.
+     */
+    _ground: null,
     _groundComp: null,
 
     /**@
@@ -954,7 +961,8 @@ Crafty.c("Supportable", {
 
     init: function () {
         this.requires("2D");
-        this.__pos = {_x: 0, _y: 0, _w: 0, _h: 0};
+        this.__area = {_x: 0, _y: 0, _w: 0, _h: 0};
+        this.defineField("ground", function() { return this._ground; }, function(newValue) {});
     },
     remove: function(destroyed) {
         this.unbind("EnterFrame", this._detectGroundTick);
@@ -1003,55 +1011,55 @@ Crafty.c("Supportable", {
 
         return this;
     },
-    /**@
-     * #.ground
-     * @comp Supportable
-     * @sign public Object|false .ground()
-     * @return the ground entity if this entity is currently on the ground or false if this entity is not currently on the ground
-     * 
-     * Determine the ground entity and thus whether this entity is currently on the ground or not. 
-     * The information is also available through the events, when the state changes.
-     */
-    ground: function() {
-        return this._ground;
-    },
+
     _detectGroundTick: function() {
-        var obj, hit = false,
-            q, i = 0, l;
+        var groundComp = this._groundComp,
+            ground = this._ground,
+            overlap = Crafty.rectManager.overlap;
 
-        var pos = this.__pos;
-            pos._x = this._x;
-            pos._y = this._y + 1; //Increase by 1 to make sure map.search() finds the floor
-            pos._w = this._w;
-            pos._h = this._h;
+        var pos = this._cbr || this._mbr || this,
+            area = this.__area;
+        area._x = pos._x;
+        area._y = pos._y + 1; // Increase by 1 to make sure map.search() finds the floor
+        area._w = pos._w;
+        area._h = pos._h;
         // Decrease width by 1px from left and 1px from right, to fall more gracefully
-        // pos._x++; pos._w--;
-        
+        // area._x++; area._w--;
 
-        q = Crafty.map.search(pos);
-        l = q.length;
-        for (; i < l; ++i) {
-            obj = q[i];
-            //check for an intersection directly below the player
-            if (obj !== this && obj.has(this._groundComp) && obj.intersect(pos)) {
-                hit = obj;
-                break;
+        if (ground) {
+            var garea = ground._cbr || ground._mbr || ground;
+            if (!(ground.__c[groundComp] && overlap(garea, area))) {
+                this._ground = null;
+                this.trigger("LiftedOffGround", ground); // no collision with ground was detected for first time
+                ground = null;
             }
         }
 
+        if (!ground) {
+            var hit = false, obj, oarea,
+                results = Crafty.map.search(area, false),
+                i = 0,
+                l = results.length;
 
-        if (hit && !this._ground) { // collision with ground was detected for first time
-            this.canLand = true;
-            this.trigger("CheckLanding", hit); // is entity allowed to land?
-            if (this.canLand) {
-                this._ground = hit;
-                this.y = hit._y - this._h; // snap entity to ground object
-                this.trigger("LandedOnGround", this._ground);
+            for (; i < l; ++i) {
+                obj = results[i];
+                oarea = obj._cbr || obj._mbr || obj;
+                // check for an intersection with the player
+                if (obj !== this && obj.__c[groundComp] && overlap(oarea, area)) {
+                    hit = obj;
+                    break;
+                }
             }
-        } else if (!hit && this._ground) { // no collision with ground was detected for first time
-            var ground = this._ground;
-            this._ground = false;
-            this.trigger("LiftedOffGround", ground);
+
+            if (hit) {
+                this.canLand = true;
+                this.trigger("CheckLanding", hit); // is entity allowed to land?
+                if (this.canLand) {
+                    this._ground = ground = hit;
+                    this.y = hit._y - this._h; // snap entity to ground object
+                    this.trigger("LandedOnGround", ground); // collision with ground was detected for first time
+                }
+            }
         }
     }
 });
