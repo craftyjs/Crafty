@@ -1264,7 +1264,9 @@ Crafty.extend({
                 if (onFrame) {
                     tick = function () {
                         Crafty.timer.step();
-                        requestID = onFrame(tick);
+                        if (tick !== null) {
+                            requestID = onFrame(tick);
+                        }
                         //console.log(requestID + ', ' + frame)
                     };
 
