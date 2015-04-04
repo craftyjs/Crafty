@@ -1,8 +1,14 @@
 language: node_js
 node_js:
-  - "0.10"
+  - '0.10'
 before_script:
   - npm install -g grunt-cli
+
+after_success: ./travis-nightly.sh
+
 cache:
   directories:
     - node_modules
+env:
+  global:
+    secure: p6SeAGd+Gohr6XeDkb5JPSQBu88UxAjljSMK0BNLJQgr8GkoA3mSJWy4uX0YjNq93VX4UMFxr0D4MlkcWZpX+cdN8K9PpxOgTq8Ml1Ljs355zbX9U/CdY99okiwzHktY4qKXBPsHLiEuCBeJ6pxs/v7m9z88mkjwDSunJG7F1oo=
