@@ -1,5 +1,4 @@
-var Crafty = require('../core/core.js'),
-	Animation = require('../core/animation.js');
+var Crafty = require('../core/core.js');
 
 
 /**@
