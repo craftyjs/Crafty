@@ -1422,6 +1422,7 @@ Crafty.extend({
              * Returns the target frames per second. This is not an actual frame rate.
              * @sign public void Crafty.timer.FPS(Number value)
              * @param value - the target rate
+             * @trigger FPSChange - Triggered when the target FPS is changed by user - Number - new target FPS
              * Sets the target frames per second. This is not an actual frame rate.
              * The default rate is 50.
              */
@@ -1431,6 +1432,7 @@ Crafty.extend({
                 else {
                     FPS = value;
                     milliSecPerFrame = 1000 / FPS;
+                    Crafty.trigger("FPSChange", value);
                 }
             },
 

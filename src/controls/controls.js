@@ -1017,8 +1017,6 @@ Crafty.c("Keyboard", {
  * @see Motion
  */
 Crafty.c("Multiway", {
-    _speed: 3,
-
     init: function () {
         this.requires("Motion");
 
@@ -1161,8 +1159,8 @@ Crafty.c("Multiway", {
             direction = this._keyDirection[keyCode];
             // add new data
             this._directionSpeed[direction] = {
-                x: this.__convertPixelsToMeters(Math.round(Math.cos(direction * (Math.PI / 180)) * 1000 * speed.x) / 1000),
-                y: this.__convertPixelsToMeters(Math.round(Math.sin(direction * (Math.PI / 180)) * 1000 * speed.y) / 1000)
+                x: Math.round(Math.cos(direction * (Math.PI / 180)) * 1000 * speed.x) / 1000,
+                y: Math.round(Math.sin(direction * (Math.PI / 180)) * 1000 * speed.y) / 1000
             };
         }
     },
@@ -1249,7 +1247,7 @@ Crafty.c("Fourway", {
     /**@
      * #.fourway
      * @comp Fourway
-     * @sign public this .fourway(Number speed)
+     * @sign public this .fourway([Number speed])
      * @param speed - Amount of pixels to move the entity whilst a key is down
      *
      * Constructor to initialize the speed. Component will listen for key events and move the entity appropriately.
@@ -1260,7 +1258,7 @@ Crafty.c("Fourway", {
      * @see Multiway, Motion
      */
     fourway: function (speed) {
-        this.multiway(speed, {
+        this.multiway(speed || this._speed, {
             UP_ARROW: -90,
             DOWN_ARROW: 90,
             RIGHT_ARROW: 0,
@@ -1289,7 +1287,8 @@ Crafty.c("Fourway", {
  * @see Gravity, Multiway, Fourway, Motion
  */
 Crafty.c("Twoway", {
-    _speed: 3,
+    _jumpSpeed: 6,
+
     /**@
      * #.canJump
      * @comp Twoway
@@ -1301,11 +1300,15 @@ Crafty.c("Twoway", {
      * @example
      * ~~~
      * var player = Crafty.e("2D, Twoway");
+     * player.hasDoubleJumpPowerUp = true; // allow player to double jump by granting him a powerup
      * player.bind("CheckJumping", function(ground) {
-     *    if (!ground && player.hasDoubleJumpPowerUp) { // custom behaviour
-     *       player.hasDoubleJumpPowerUp = false;
-     *       player.canJump = true;
-     *    }
+     *     if (!ground && player.hasDoubleJumpPowerUp) { // allow player to double jump by using up his double jump powerup
+     *         player.canJump = true;
+     *         player.hasDoubleJumpPowerUp = false;
+     *     }
+     * });
+     * player.bind("LandedOnGround", function(ground) {
+     *     player.hasDoubleJumpPowerUp = true; // give player new double jump powerup upon landing
      * });
      * ~~~
      */
@@ -1315,10 +1318,27 @@ Crafty.c("Twoway", {
         this.requires("Fourway, Motion, Supportable");
     },
 
+    remove: function() {
+        this.unbind("KeyDown", this._keydown_twoway);
+    },
+
+    _keydown_twoway: function (e) {
+        if (this.disableControls) return;
+
+        if (e.key === Crafty.keys.UP_ARROW || e.key === Crafty.keys.W || e.key === Crafty.keys.Z) {
+            var ground = this.ground;
+            this.canJump = !!ground;
+            this.trigger("CheckJumping", ground);
+            if (this.canJump) {
+                this.vy = -this._jumpSpeed;
+            }
+        }
+    },
+
     /**@
      * #.twoway
      * @comp Twoway
-     * @sign public this .twoway(Number speed[, Number jump])
+     * @sign public this .twoway([Number speed[, Number jump]])
      * @param speed - Amount of pixels to move left or right
      * @param jump - Vertical jump speed
      *
@@ -1334,7 +1354,7 @@ Crafty.c("Twoway", {
      */
     twoway: function (speed, jump) {
 
-        this.multiway(speed, {
+        this.multiway(speed || this._speed, {
             RIGHT_ARROW: 0,
             LEFT_ARROW: 180,
             D: 0,
@@ -1342,25 +1362,12 @@ Crafty.c("Twoway", {
             Q: 180
         });
 
-        if (speed) this._speed = speed;
         if (arguments.length < 2) {
-          this._jumpSpeed = this.__convertPixelsToMeters(this._speed * 2);
+          this._jumpSpeed = this._speed.y * 2;
         } else {
-          this._jumpSpeed = this.__convertPixelsToMeters(jump);
+          this._jumpSpeed = jump;
         }
-
-        var ground;
-        this.bind("KeyDown", function (e) {
-            if (this.disableControls) return;
-            if (e.key === Crafty.keys.UP_ARROW || e.key === Crafty.keys.W || e.key === Crafty.keys.Z) {
-                ground = this.ground();
-                this.canJump = !!ground;
-                this.trigger("CheckJumping", ground);
-                if (this.canJump) {
-                    this.vy = -this._jumpSpeed;
-                }
-            }
-        });
+        this.uniqueBind("KeyDown", this._keydown_twoway);
 
         return this;
     }

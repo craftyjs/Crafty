@@ -698,4 +698,35 @@
     Crafty.unbind("PostRender", postRenderFunc);
   });
 
+  test('Crafty.timer.FPS', function() {
+    var counter = 0;
+    var increment = function() {
+      counter++;
+    };
+    Crafty.bind("FPSChange", increment);
+
+    Crafty.one("FPSChange", function(fps) {
+      strictEqual(fps, 25);
+      strictEqual(Crafty.timer.FPS(), 25);
+    });
+    Crafty.one("EnterFrame", function(frameData) {
+      strictEqual(frameData.dt, 1000/25);
+    });
+    Crafty.timer.FPS(25);
+    Crafty.timer.simulateFrames(1);
+
+    Crafty.one("FPSChange", function(fps) {
+      strictEqual(fps, 50);
+      strictEqual(Crafty.timer.FPS(), 50);
+    });
+    Crafty.one("EnterFrame", function(frameData) {
+      strictEqual(frameData.dt, 1000/50);
+    });
+    Crafty.timer.FPS(50);
+    Crafty.timer.simulateFrames(1);
+
+    Crafty.unbind("FPSChange", increment);
+    strictEqual(counter, 2);
+  });
+
 })();
