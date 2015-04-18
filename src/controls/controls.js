@@ -1028,8 +1028,10 @@ Crafty.c("Keyboard", {
  * @see Motion
  */
 Crafty.c("Multiway", {
+    _speed: null,
+    
     init: function () {
-        this.requires("Motion");
+        this.requires("Keyboard, Motion");
 
         this._keyDirection = {}; // keyCode -> direction
         this._activeDirections = {}; // direction -> # of keys pressed for that direction
@@ -1156,7 +1158,7 @@ Crafty.c("Multiway", {
             // add new data
             var direction = this._keyDirection[keyCode] = keys[k];
             this._activeDirections[direction] = this._activeDirections[direction] || 0;
-            if (Crafty.keydown[keyCode]) // add directions of already pressed keys
+            if (this.isDown(keyCode)) // add directions of already pressed keys
                 this._activeDirections[direction]++;
         }
     },
@@ -1326,7 +1328,7 @@ Crafty.c("Twoway", {
     canJump: true,
 
     init: function () {
-        this.requires("Fourway, Motion, Supportable");
+        this.requires("Keyboard, Fourway, Motion, Supportable");
     },
 
     remove: function() {
