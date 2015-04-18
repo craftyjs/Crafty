@@ -5,7 +5,9 @@ Crafty.extend({
     /**@
      * #Crafty.diamondIso
      * @category 2D
-     * Place entities in a 45deg diamond isometric fashion. It is similar to isometric but has another grid locations
+     * Place entities in a 45deg diamond isometric fashion. It is similar to Crafty.isometric but has another grid locations
+     * In this mode, the x axis and y axis are aligned to the edges of tiles with x increasing being down and to the
+     * right and y being down and to the left.
      */
     diamondIso: {
         _tile: {
