@@ -488,7 +488,8 @@ Crafty.c("2D", {
             };
         }
 
-        return Crafty.rectManager.overlap(mbr, rect);
+        return mbr._x < rect._x + rect._w && mbr._x + mbr._w > rect._x &&
+            mbr._y < rect._y + rect._h && mbr._y + mbr._h > rect._y;
     },
 
     /**@
