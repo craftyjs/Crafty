@@ -958,7 +958,7 @@ Crafty.c("Supportable", {
      * ~~~
      * var player = Crafty.e("2D, Gravity");
      * player.bind("CheckLanding", function(ground) {
-     *     if (player.y + player.h > ground.y + player.vy) { // forbid landing, if player's feet are not above ground
+     *     if (player.y + player.h > ground.y + player.dy) { // forbid landing, if player's feet are not above ground
      *         player.canLand = false;
      *     }
      * });
@@ -1043,7 +1043,7 @@ Crafty.c("Supportable", {
         }
 
         if (!ground) {
-            var hit = false, obj, oarea,
+            var obj, oarea,
                 results = Crafty.map.search(area, false),
                 i = 0,
                 l = results.length;
@@ -1053,18 +1053,15 @@ Crafty.c("Supportable", {
                 oarea = obj._cbr || obj._mbr || obj;
                 // check for an intersection with the player
                 if (obj !== this && obj.__c[groundComp] && overlap(oarea, area)) {
-                    hit = obj;
-                    break;
-                }
-            }
+                    this.canLand = true;
+                    this.trigger("CheckLanding", obj); // is entity allowed to land?
+                    if (this.canLand) {
+                        this._ground = ground = obj;
+                        this.y = obj._y - this._h; // snap entity to ground object
+                        this.trigger("LandedOnGround", ground); // collision with ground was detected for first time
 
-            if (hit) {
-                this.canLand = true;
-                this.trigger("CheckLanding", hit); // is entity allowed to land?
-                if (this.canLand) {
-                    this._ground = ground = hit;
-                    this.y = hit._y - this._h; // snap entity to ground object
-                    this.trigger("LandedOnGround", ground); // collision with ground was detected for first time
+                        break;
+                    }
                 }
             }
         }
