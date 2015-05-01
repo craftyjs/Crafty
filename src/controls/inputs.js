@@ -646,6 +646,7 @@ Crafty.bind("CraftyStop", function () {
  * @see Crafty.mouseDispatch
  * @see Crafty.multitouch
  * @see Crafty.touchDispatch
+ * @see Crafty.mouseButtons
  */
 Crafty.c("Mouse", {
     init: function () {
@@ -694,6 +695,7 @@ Crafty.c("Mouse", {
  * @see Crafty.multitouch
  * @see Crafty.touchDispatch
  * @see Crafty.mouseDispatch
+ * @see Crafty.mouseButtons
  */
 Crafty.c("Touch", {
     init: function () {
@@ -713,6 +715,7 @@ Crafty.c("Touch", {
  * 
  * @see Crafty.mouseDispatch
  * @see Crafty.touchDispatch
+ * @see Crafty.mouseButtons
  * @see Crafty.polygon
  */
 Crafty.c("AreaMap", {
@@ -780,6 +783,8 @@ Crafty.c("Button", {
  * @trigger Dragging - is triggered each frame the entity is being dragged - MouseEvent
  * @trigger StartDrag - is triggered when dragging begins - MouseEvent
  * @trigger StopDrag - is triggered when dragging ends - MouseEvent
+ *
+ * @see Mouse
  */
 Crafty.c("MouseDrag", {
     _dragging: false,
