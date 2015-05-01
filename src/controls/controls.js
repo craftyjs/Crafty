@@ -1342,7 +1342,7 @@ Crafty.c("Twoway", {
      * @sign public this .twoway([Number speed[, Number jump, {Number|Array} jumpKeys]])
      * @param speed - Amount of pixels to move left or right
      * @param jump - Vertical jump speed
-     * @param jumpKeys - Defines one or more additional entity jump keys
+     * @param jumpKeys - Defines one or more entity jump keys
      *
      * Constructor to initialize the speed and power of jump. Component will
      * listen for key events and move the entity appropriately. This includes
@@ -1352,7 +1352,9 @@ Crafty.c("Twoway", {
      * The key presses will move the entity in that direction by the speed passed in
      * the argument. Pressing the `Up Arrow` or `W` will cause the entity to jump.
      *
-     * @see Gravity, Multiway, Fourway, Motion
+     * If jumpKeys is specified  the `Up Arrow` and `W` jump keys will be overridden.
+     *
+     * @see Gravity, Multiway, Fourway, Motion, Crafty.keys
      */
     twoway: function (speed, jump, jumpKeys) {
         this._jumpKeys = [Crafty.keys.UP_ARROW, Crafty.keys.W];
@@ -1366,16 +1368,17 @@ Crafty.c("Twoway", {
         });
 
         if (arguments.length < 2) {
-          this._jumpSpeed = this._speed.y * 2;
+            this._jumpSpeed = this._speed.y * 2;
         } else {
-          this._jumpSpeed = jump;
-          if (typeof jumpKeys === 'number') {
-            this._jumpKeys.push(jumpKeys);
-          } else if (jumpKeys) {
-            // Assume an array, although this could bite us :(
-            // We do, however (probably), save some type check speed
-            this._jumpKeys = this._jumpKeys.concat(jumpKeys);
-          }
+            this._jumpSpeed = jump;
+            if (typeof jumpKeys === 'number') {
+                this._jumpKeys[0] = jumpKeys;
+                this._jumpKeys.length = 1;
+            } else if (jumpKeys) {
+                // Assume an array, although this could bite us :(
+                // We do, however (probably), save some type check speed
+                this._jumpKeys = jumpKeys;
+            }
         }
         this.uniqueBind("KeyDown", this._keydown_twoway);
 
