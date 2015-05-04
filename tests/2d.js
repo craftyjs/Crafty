@@ -922,16 +922,21 @@
     strictEqual(ent.ground, null, "entity should not be on ground");
 
     ground.addComponent("Ground");
-    ent.bind("CheckLanding", function(ground) {
-      this.canLand = false;
+    ground2.addComponent("Ground");
+    ent.bind("CheckLanding", function(candidate) {
+      if (candidate === ground)
+        this.canLand = false;
     });
     ent.y = 7;
     Crafty.timer.simulateFrames(1); // no event should have occured
     equal(ent.y, 7, "ent y should not have changed");
     strictEqual(ent.ground, null, "entity should not be on ground");
+    ent.y = 12;
+    Crafty.timer.simulateFrames(1); // 1 landed event should have occured
+    equal(ent.y, ground2.y - ent.h, "ent y should have been snapped to ground");
+    strictEqual(ent.ground, ground2, "entity should be on ground2");
 
-
-    equal(landedCount, 3, "landed count mismatch");
+    equal(landedCount, 4, "landed count mismatch");
     equal(liftedCount, 3, "lifted count mismatch");
 
     ground.destroy();
