@@ -1,92 +1,195 @@
 (function() {
-  module('Controls');
-  
-  // mock-phantom-touch-events is a PhantomJS plugin, thus the test below is skipped if enviroment is not PhantomJS
-  if (navigator.userAgent.indexOf("PhantomJS") !== -1)
-    test('Multitouch simulation', function() {
-      Crafty.multitouch(true);
-      
-      var touchStartsOverEntities = 0,
-          touchEndsOverEntities = 0,
-          entity1 = Crafty.e('2D, Touch')
-              .attr({ x: 100, y: 100, w:200, h:200, z:1 })
-              .bind('TouchStart',function(){ 
-                  touchStartsOverEntities++;
-              })
-              .bind('TouchEnd',function(){ 
-                  touchEndsOverEntities++;
-              }),
-          entity2 = Crafty.e('2D, Touch')
-              .attr({ x: 40, y: 150, w:90, h:300, z:2 })
-              .bind('TouchStart',function(){ 
-                  touchStartsOverEntities++;
-              })
-              .bind('TouchEnd',function(){ 
-                  touchEndsOverEntities++;
-              }),
-         elem = Crafty.stage.elem,
-         sx = Crafty.stage.x,
-         sy = Crafty.stage.y,
-         touchStart1 = createTouchEvent(elem, "touchstart", [[100 + sx, 80 + sy, 0], [150 + sx, 150 + sy, 1], [200 + sx, 50 + sy, 2], [65 + sx, 275 + sy, 3]]),
-         touchEnd1 = createTouchEvent(elem, "touchend", [[65 + sx, 275 + sy, 3]]),
-         touchEnd2 = createTouchEvent(elem, "touchend", [[200 + sx, 50 + sy, 2]]),
-         touchStart2 = createTouchEvent(elem, "touchstart", [[100 + sx, 80 + sy, 4]]),
-         touchEnd3 = createTouchEvent(elem, "touchend", [[150 + sx, 150 + sy, 1]]),
-         touchEnd4 = createTouchEvent(elem, "touchend", [[100 + sx, 80 + sy, 0]]),
-         touchEnd5 = createTouchEvent(elem, "touchend", [[100 + sx, 80 + sy, 4]]);
+  module("Controls");
 
-      touchStart1();
-    
-      equal(Crafty._touchHandler.fingers.length, 4, "Four fingers currently touching stage");
-    
-      touchEnd1();
+  test("Multiway", function() {
+    var e = Crafty.e("2D, Fourway")
+                  .attr({ x: 0, y: 0});
 
-      equal(Crafty._touchHandler.fingers.length, 3, "Three fingers currently touching stage");
-    
-      touchEnd2();
-      touchStart2();
-      
-      equal(Crafty._touchHandler.fingers.length, 3, "Three fingers currently touching stage");
-    
-      touchEnd3();
-    
-      equal(Crafty._touchHandler.fingers.length, 2, "Two fingers currently touching stage");
-
-      touchEnd4();
-      
-      equal(Crafty._touchHandler.fingers.length, 1, "One finger currently touching stage");
-
-      touchEnd5();
-    
-      equal(Crafty._touchHandler.fingers.length, 0, "No fingers currently touching stage");
-      
-      equal(touchStartsOverEntities, 2, "Two entities recieved TouchStart");
-      equal(touchEndsOverEntities, 2, "Two entities recieved TouchEnd");
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.W
     });
+    Crafty.keydown[Crafty.keys.W] = true;
+    e.multiway(1, { W: -90 });
+    Crafty.timer.simulateFrames(1);
+    equal(e._vy, -1);
+    equal(e._y, -1);
+
+    e.multiway(2, { W: 90 });
+    Crafty.timer.simulateFrames(1);
+    equal(e._vy, 2);
+    equal(e._y, 1);
+
+    e.fourway(1);
+    Crafty.timer.simulateFrames(1);
+    equal(e._vy, -1);
+    equal(e._y, 0);
+
+    Crafty.timer.simulateFrames(1);
+    equal(e._vy, -1);
+    equal(e._y, -1);
+
     
-    test("stopKeyPropagation", function() {
-      var stopPropCalled = false;
-      var preventDefaultCalled = false;
-
-      var mockEvent = {
-        char:"", charCode:"", keyCode:"", type:"", 
-        shiftKey:"", ctrlKey:"", metaKey:"", timestamp:"",
-        target: document,
-        stopPropagation: function(){
-          stopPropCalled = true;
-        },
-        preventDefault: function(){
-          preventDefaultCalled = true;
-        },
-        cancelBubble: false,
-        returnValue: false,
-      };
-
-      Crafty.selected = true;
-      Crafty.keyboardDispatch(mockEvent);
-      Crafty.selected = false;
-      
-      ok(stopPropCalled, "stopPropagation Not Called");
-      ok(preventDefaultCalled, "preventDefault Not Called");
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.UP_ARROW
     });
+    Crafty.timer.simulateFrames(1);
+    equal(e._vy, -1);
+    equal(e._y, -2);
+
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.W
+    });
+    delete Crafty.keydown[Crafty.keys.W];
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.UP_ARROW
+    });
+    Crafty.timer.simulateFrames(1);
+    equal(e._vy, 0);
+    equal(e._y, -2);
+
+
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.DOWN_ARROW
+    });
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.LEFT_ARROW
+    });
+    Crafty.timer.simulateFrames(1);
+    equal(e._vy, 1);
+    equal(e._y, -1);
+    equal(e._vx, -1);
+    equal(e._x, -1);
+
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.DOWN_ARROW
+    });
+    Crafty.timer.simulateFrames(1);
+    equal(e._vy, 0);
+    equal(e._y, -1);
+    equal(e._vx, -1);
+    equal(e._x, -2);
+
+    e.removeComponent("Multiway");
+    Crafty.timer.simulateFrames(1);
+    equal(e._vy, 0);
+    equal(e._y, -1);
+    equal(e._vx, 0);
+    equal(e._x, -2);
+
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.LEFT_ARROW
+    });
+    Crafty.timer.simulateFrames(1);
+    equal(e._vy, 0);
+    equal(e._y, -1);
+    equal(e._vx, 0);
+    equal(e._x, -2);
+
+
+    e.destroy();
+  });
+
+  test("disableControl and enableControl and speed", function() {
+    var e = Crafty.e("2D, Twoway")
+      .attr({ x: 0 })
+      .twoway();
+
+    equal(e._vx, 0);
+    equal(e._x, 0);
+
+    e.enableControl();
+    e.speed({ x: 1, y: 1 });
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 0);
+    equal(e._x, 0);
+
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.D
+    });
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 1);
+    equal(e._x, 1);
+
+    e.disableControl();
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 0);
+    equal(e._x, 1);
+
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.D
+    });
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 0);
+    equal(e._x, 1);
+
+    e.disableControl();
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 0);
+    equal(e._x, 1);
+
+
+    e.enableControl();
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 0);
+    equal(e._x, 1);
+
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.D
+    });
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 1);
+    equal(e._x, 2);
+
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.D
+    });
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 0);
+    equal(e._x, 2);
+
+
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.D
+    });
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.RIGHT_ARROW
+    });
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 1);
+    equal(e._x, 3);
+
+    e.disableControl();
+    e.speed({ x: 2, y: 2 });
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 0);
+    equal(e._x, 3);
+
+    e.enableControl();
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 2);
+    equal(e._x, 5);
+
+    e.speed({ x: 3, y: 3 });
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 3);
+    equal(e._x, 8);
+
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.D
+    });
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 3);
+    equal(e._x, 11);
+
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.RIGHT_ARROW
+    });
+    Crafty.timer.simulateFrames(1);
+    equal(e._vx, 0);
+    equal(e._x, 11);
+
+
+    e.destroy();
+  });
+
 })();
