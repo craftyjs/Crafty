@@ -46,7 +46,8 @@
     "marked": "^0.3.3",
     "node-jsx": "^0.13.3",
     "open": "0.0.5",
-    "react": "^0.13.3"
+    "react": "^0.13.3",
+    "grunt-node-qunit": "^2.0.2"
   },
   "browserify": {
     "transform": [
