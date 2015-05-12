@@ -100,9 +100,7 @@ module.exports = function (grunt) {
         },
 
         qunit: {
-            all: [
-                'tests/index.html'
-            ]
+            all: ['tests/index.html'] // TODO add headless tests here
         },
 
         jsvalidate: {
