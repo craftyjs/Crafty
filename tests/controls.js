@@ -10,7 +10,11 @@
     Crafty.trigger('KeyDown', {
       key: Crafty.keys.W
     });
-    Crafty.keydown[Crafty.keys.W] = true;
+    e.isDown = function(key) {
+        if (key === Crafty.keys.W)
+            return true;
+        return false;
+    };
     e.multiway(1, { W: -90 });
     Crafty.timer.simulateFrames(1);
     equal(e._vy, -1);
@@ -41,7 +45,9 @@
     Crafty.trigger('KeyUp', {
       key: Crafty.keys.W
     });
-    delete Crafty.keydown[Crafty.keys.W];
+    e.isDown = function(key) {
+        return false;
+    };
     Crafty.trigger('KeyUp', {
       key: Crafty.keys.UP_ARROW
     });
