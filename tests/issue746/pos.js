@@ -1,3 +1,5 @@
+var module = QUnit.module;
+
 module("2D");
 test("pos Pass In Object", function() {
     

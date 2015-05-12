@@ -1,4 +1,6 @@
 (function() {
+  var module = QUnit.module;
+
   module("DOM", {
     setup: function() {
       var div = document.createElement('div');

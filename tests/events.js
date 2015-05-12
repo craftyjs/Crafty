@@ -1,4 +1,6 @@
 (function() {
+  var module = QUnit.module;
+
   module("Events");
 
   test("Global binding events", function() {

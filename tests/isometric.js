@@ -1,4 +1,6 @@
 (function() {
+  var module = QUnit.module;
+
   module("Isometric");
 
   test("place tile", function() {

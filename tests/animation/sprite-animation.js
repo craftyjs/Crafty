@@ -1,4 +1,6 @@
 (function() {
+  var module = QUnit.module;
+
   var spriteAnimation = null;
 
   var eventFrames = [];

@@ -1,4 +1,6 @@
 (function() {
+  var module = QUnit.module;
+
   module("2D");
 
   test("position", function() {

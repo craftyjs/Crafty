@@ -1,4 +1,6 @@
 (function() {
+  var module = QUnit.module;
+
   module("Systems");
 
   test("Create a system using Crafty.ss", function() {

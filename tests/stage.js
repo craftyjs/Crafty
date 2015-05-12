@@ -1,4 +1,6 @@
 (function() {
+  var module = QUnit.module;
+
   module("Viewport", {
     setup: function() {
       resetStage();

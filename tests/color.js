@@ -1,3 +1,5 @@
+var module = QUnit.module;
+
 module("Crafty.assignColor");
 
 test("hex codes", function(){

@@ -1,4 +1,6 @@
 (function() {
+  var module = QUnit.module;
+
   // Define variables to host test shapes
   var trapezoid = null;
   var yellow = null;

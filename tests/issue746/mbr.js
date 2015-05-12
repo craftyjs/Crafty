@@ -1,3 +1,5 @@
+var module = QUnit.module;
+
 module("2D");
 test("mbr Pass In Object", function() {
     

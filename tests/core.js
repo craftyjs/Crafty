@@ -1,4 +1,6 @@
 (function() {
+  var module = QUnit.module;
+
   module("Core");
 
   test("getVersion", function() {

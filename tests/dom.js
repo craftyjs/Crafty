@@ -1,4 +1,6 @@
 (function() {
+  var module = QUnit.module;
+
   module("DOM");
 
   test("avoidCss3dTransforms", function() {

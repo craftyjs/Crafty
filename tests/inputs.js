@@ -1,4 +1,6 @@
 (function() {
+  var module = QUnit.module;
+
   module('Inputs');
   
   // mock-phantom-touch-events is a PhantomJS plugin, thus the test below is skipped if enviroment is not PhantomJS

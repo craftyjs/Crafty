@@ -1,4 +1,6 @@
 (function() {
+  var module = QUnit.module;
+
   module("_SAT");
 
   test("simple overlap along x axis", function() {
