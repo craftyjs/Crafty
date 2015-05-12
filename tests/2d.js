@@ -770,7 +770,9 @@
   });
 
 
-  test("Gravity", function() {
+  test("Integrationtest - Gravity", function() {
+    var done = false;
+
     var ground = Crafty.e("2D, platform")
           .attr({ x: 0, y: 280, w: 600, h: 20 });
 
@@ -818,14 +820,17 @@
         ground.destroy();
         player.destroy();
 
-        start();
+        done = true;
       }
     });
 
-    stop();
+    Crafty.timer.simulateFrames(75, 1000/50);
+    ok(done, "Test completed");
   });
 
-  test("Twoway", function() {
+  test("Integrationtest - Twoway", function() {
+    var done = false;
+
     var ground = Crafty.e("2D, platform")
           .attr({ x: 0, y: 200, w: 10, h: 20 });
 
@@ -858,11 +863,12 @@
 
         this.trigger("KeyUp", {key: Crafty.keys.UP_ARROW});
         this.trigger("KeyUp", {key: Crafty.keys.UP_ARROW});
-        start();
+        done = true;
       }
     });
 
-    stop();
+    Crafty.timer.simulateFrames(75, 1000/50);
+    ok(done, "Test completed");
   });
 
 })();
