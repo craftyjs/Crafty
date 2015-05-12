@@ -273,36 +273,4 @@
     strictEqual(craftyxy.y, -Crafty.viewport._y + (Crafty.viewport._height / Crafty.viewport._scale));
   });
 
-
-  module("Crafty.timer");
-
-  test("simulateFrames", function() {
-    var framesPlayed = 0;
-    Crafty.bind("EnterFrame", function() {
-      framesPlayed++;
-    });
-    Crafty.timer.simulateFrames(1);
-    equal(framesPlayed, 1, "A frame should have been simulated");
-
-    Crafty.timer.simulateFrames(100);
-    equal(framesPlayed, 101, "101 frames should have been simulated");
-  });
-
-  test("curTime", 1, function() {
-    var startTime, lastKnownTime;
-    Crafty.e("").bind("EnterFrame", function(params) {
-      if (!startTime) {
-        startTime = params.gameTime;
-      } else {
-        lastKnownTime = params.gameTime;
-      }
-    });
-
-    setTimeout(function() {
-      var endTime = lastKnownTime;
-      ok(endTime > startTime, "EndTime " + endTime + " must be larger than StartTime " + startTime);
-      start();
-    }, 100);
-    stop(); // pause the QUnit so the timeout has time to complete.
-  });
 })();
