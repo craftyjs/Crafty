@@ -150,10 +150,10 @@ Crafty.extend({
                 marginY = obj.__margin[1];
             }
             var points = [
-                [marginX - 0, obj.h - marginY - this._tile.height / 2],
-                [marginX - this._tile.width / 2, obj.h - marginY - 0],
-                [marginX - this._tile.width, obj.h - marginY - this._tile.height / 2],
-                [marginX - this._tile.width / 2, obj.h - marginY - this._tile.height]
+                marginX - 0, obj.h - marginY - this._tile.height / 2,
+                marginX - this._tile.width / 2, obj.h - marginY - 0,
+                marginX - this._tile.width, obj.h - marginY - this._tile.height / 2,
+                marginX - this._tile.width / 2, obj.h - marginY - this._tile.height
             ];
             var poly = new Crafty.polygon(points);
             return poly;
