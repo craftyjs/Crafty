@@ -24,7 +24,8 @@
   },
   "homepage": "https://github.com/craftyjs/Crafty",
   "dependencies": {
-    "brfs": "1.0.1"
+    "brfs": "1.0.1",
+    "node-localstorage": "^0.5.0"
   },
   "devDependencies": {
     "coffee-script": "1.7.1",
