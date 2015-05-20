@@ -1,7 +1,7 @@
 var Crafty = require('../core/core.js');
 
 
-Crafty.extend({
+module.exports = {
     _scenes: {},
     _current: null,
 
@@ -164,4 +164,4 @@ Crafty.extend({
         return;
 
     }
-});
+};

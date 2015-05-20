@@ -1,15 +1,15 @@
 var Crafty = require('./core/core');
 
-require('./core/animation');
-require('./core/extensions');
-require('./core/loader');
-require('./core/model');
-require('./core/scenes');
-require('./core/storage');
-require('./core/systems');
-require('./core/time');
-require('./core/version');
+Crafty.easing = require('./core/animation');
+Crafty.extend(require('./core/extensions'));
+Crafty.extend(require('./core/loader'));
+Crafty.c('Model', require('./core/model'));
+Crafty.extend(require('./core/scenes'));
+Crafty.storage = require('./core/storage');
+Crafty.c('Delay', require('./core/time'));
+Crafty.c('Tween', require('./core/tween'));
 
+require('./core/systems');
 
 require('./spatial/2d');
 require('./spatial/collision');
@@ -45,15 +45,6 @@ require('./controls/keycodes');
 require('./sound/sound');
 
 require('./debug/debug-layer');
-
-
-
-
-
-
-
-
-
 
 if(window) window.Crafty = Crafty;
 

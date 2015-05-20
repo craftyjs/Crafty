@@ -1,6 +1,3 @@
-var Crafty = require('../core/core.js');
-
-
 /**@
  * #Model
  * @category Model
@@ -35,7 +32,7 @@ var Crafty = require('../core/core.js');
  * person.changed // name
  * ~~~
  */
-Crafty.c('Model', {
+module.exports = {
   init: function() {
     this.changed = [];
     this.bind('Change', this._changed_attributes);
@@ -98,4 +95,5 @@ Crafty.c('Model', {
       return this.changed.indexOf(key) > -1;
     }
   }
-});
+};
+
