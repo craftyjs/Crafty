@@ -1,5 +1,6 @@
 require("coffee-script");
 var fs = require('fs');
+var open = require("open");
 
 module.exports = function (grunt) {
     var pkg = grunt.file.readJSON('package.json');
@@ -24,6 +25,16 @@ module.exports = function (grunt) {
         grunt.file.write(outputFile, apiJSON);
         grunt.log.writeln("Wrote api data to " + outputFile);
     };
+
+    var apiServer = require("./build/api-gen/dynamic-server.js");
+    function runApiServer() {
+      var done = this.async();
+      apiServer(grunt, "./build/api.json");
+      setTimeout(function(){
+        open("http://localhost:8080");
+      }, 100);
+    }
+
 
     // Project configuration.
     grunt.initConfig({
@@ -104,6 +115,12 @@ module.exports = function (grunt) {
                     keepalive: true
                 }
             }
+        },
+
+        open: {
+            api : {
+              path: 'http://localhost:8080/',
+            },
         }
 
     });
@@ -144,5 +161,8 @@ module.exports = function (grunt) {
 
     // Run only tests
     grunt.registerTask('validate', ['qunit']);
+
+    grunt.registerTask('api-server', "View dynamically generated docs", runApiServer);
+    grunt.registerTask('view-api', ['api', 'api-server'] );
 
 };
