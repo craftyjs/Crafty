@@ -226,6 +226,10 @@ Crafty.extend({
      */
     load: function (data, oncomplete, onprogress, onerror) {
       
+        if (Array.isArray(data)) {
+            Crafty.log("Calling Crafty.load with an array of assets no longer works; see the docs for more details.");
+        }
+
         data = (typeof data === "string" ? JSON.parse(data) : data);
       
         var j = 0,
