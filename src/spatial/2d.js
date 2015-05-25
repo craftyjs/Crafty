@@ -16,15 +16,6 @@ var M = Math,
     PI = M.PI,
     DEG_TO_RAD = PI / 180;
 
-Crafty.extend({
-    zeroFill: function (number, width) {
-        width -= number.toString().length;
-        if (width > 0)
-            return new Array(width + (/\./.test(number) ? 2 : 1)).join('0') + number;
-        return number.toString();
-    }
-});
-
 /**@
  * #2D
  * @category 2D
@@ -874,7 +865,10 @@ Crafty.c("2D", {
             this._rotate(value); // _rotate triggers "Rotate"
             //set the global Z and trigger reorder just in case
         } else if (name === '_z') {
-            this._globalZ = parseInt(value + Crafty.zeroFill(this[0], 5), 10); //magic number 10^5 is the max num of entities
+            var intValue = value <<0;
+            value = value==intValue ? intValue : intValue+1;
+            this._globalZ = value*100000+this[0]; //magic number 10^5 is the max num of entities
+            this[name] = value;
             this.trigger("reorder");
             //if the rect bounds change, update the MBR and trigger move
         } else if (name === '_x' || name === '_y') {
