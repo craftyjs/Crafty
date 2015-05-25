@@ -1,5 +1,5 @@
-var Crafty = require('../core/core.js'),
-    document = window.document;
+var Crafty = require('./core');
+var document = window.document;
 
 /**@
  * #Crafty.support
@@ -129,7 +129,7 @@ var Crafty = require('../core/core.js'),
 
 })();
 
-Crafty.extend({
+module.exports = {
     _events: {},
 
     /**@
@@ -243,4 +243,4 @@ Crafty.extend({
     background: function (style) {
         Crafty.stage.elem.style.background = style;
     }
-});
+};

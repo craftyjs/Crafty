@@ -1,6 +1,3 @@
-var Crafty = require('../core/core.js');
-
-
 /**@
  * #Storage
  * @category Utilities
@@ -47,7 +44,7 @@ var Crafty = require('../core/core.js');
  * ~~~
  */
 
-Crafty.storage = function(key, value){
+var storage = function(key, value) {
   var storage = window.localStorage,
       _value = value;
 
@@ -89,6 +86,8 @@ Crafty.storage = function(key, value){
  * ~~~
  *
  */
-Crafty.storage.remove = function(key){
+storage.remove = function(key){
   window.localStorage.removeItem(key);
 };
+
+module.exports = storage;

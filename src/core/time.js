@@ -1,11 +1,8 @@
-var Crafty = require('../core/core.js');
-
-
 /**@
  * #Delay
  * @category Utilities
  */
-Crafty.c("Delay", {
+module.exports = {
     init: function () {
         this._delays = [];
         this.bind("EnterFrame", function (frameData) {
@@ -117,4 +114,4 @@ Crafty.c("Delay", {
         }
         return this;
     }
-});
+};
