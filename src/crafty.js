@@ -45,6 +45,7 @@ require('./controls/keycodes');
 require('./sound/sound');
 
 require('./debug/debug-layer');
+require('./debug/logging');
 
 if(window) window.Crafty = Crafty;
 
