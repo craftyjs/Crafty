@@ -1,4 +1,6 @@
 (function() {
+  var module = QUnit.module;
+
   module("Storage");
 
   test('get a value', function(){

@@ -1,4 +1,6 @@
 (function() {
+  var module = QUnit.module;
+
   module("Audio");
 
   //Set up some test fixtures

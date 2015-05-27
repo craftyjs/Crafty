@@ -1,4 +1,6 @@
 (function() {
+  var module = QUnit.module;
+
   // Define variables to host test shapes
   var trapezoid = null;
   var yellow = null;
@@ -56,16 +58,16 @@
 
   module("Collision", {
     setup: function() {
-      trapezoid = Crafty.e('Trapezoid, 2D, DOM, Collision, SolidHitBox, Mouse, Draggable').setName('Trapezoid').
-        attr({w: 200, h: 100}).collision(new Crafty.polygon([50, 0], [0, 100], [200, 100], [150, 0]));
-      yellow = Crafty.e('Yellow, 2D, DOM, Collision, SolidHitBox, Mouse, Draggable').setName('Yellow').
-        attr({w: 100, h: 100}).collision(new Crafty.polygon([0, 0], [0, 100], [100, 100], [100, 0]));
-      parallelogram = Crafty.e('Parallelogram, 2D, DOM, Collision, SolidHitBox, Mouse, Draggable').setName('Parallelogram').
-        attr({w: 100, h: 100}).collision(new Crafty.polygon([0, 0], [25, 100], [100, 100], [75, 0]));
-      green = Crafty.e('Green, 2D, DOM, Collision, Color, Mouse, Draggable').setName('Green').
-        attr({w: 100, h: 100}).color('rgb(47, 233, 87)').origin('center');
-      purple = Crafty.e('Purple, 2D, DOM, Collision, Color, Mouse, Draggable').setName('Purple').
-        attr({w: 100, h: 100}).color('rgb(147, 33, 187)').origin('center');
+      trapezoid = Crafty.e('Trapezoid, 2D, Collision').setName('Trapezoid').
+        attr({w: 200, h: 100}).collision(new Crafty.polygon([50, 0, 0, 100, 200, 100, 150, 0]));
+      yellow = Crafty.e('Yellow, 2D, Collision').setName('Yellow').
+        attr({w: 100, h: 100}).collision(new Crafty.polygon([0, 0, 0, 100, 100, 100, 100, 0]));
+      parallelogram = Crafty.e('Parallelogram, 2D, Collision').setName('Parallelogram').
+        attr({w: 100, h: 100}).collision(new Crafty.polygon([0, 0, 25, 100, 100, 100, 75, 0]));
+      green = Crafty.e('Green, 2D, Collision').setName('Green').
+        attr({w: 100, h: 100}).origin('center');
+      purple = Crafty.e('Purple, 2D, Collision').setName('Purple').
+        attr({w: 100, h: 100}).origin('center');
 
       // Set up hit events
       [trapezoid, yellow, parallelogram, green, purple].forEach(function(e) {
@@ -155,7 +157,6 @@
 
     collision = collisions[0];
     if (!collision) return;
-
     equal(collision[1][0].type, 'SAT', "The collision type should have been SAT");
     equal(Math.abs(collision[1][0].overlap), 100, "The collision overlap should have been 100%");
   });

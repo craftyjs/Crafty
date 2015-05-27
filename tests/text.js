@@ -1,4 +1,6 @@
 (function() {
+  var module = QUnit.module;
+
   module("Text");
 
   test("fontFamily", function() {

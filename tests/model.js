@@ -1,4 +1,6 @@
 (function() {
+  var module = QUnit.module;
+
   module("Model");
 
   test('Set triggers change events', function() {

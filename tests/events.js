@@ -1,4 +1,6 @@
 (function() {
+  var module = QUnit.module;
+
   module("Events");
 
   test("Global binding events", function() {
@@ -150,6 +152,27 @@
 
   });
 
+  // Catch bugs in unbinding logic when something is unbound at depth > 1
+  test("Unbinding mid-iteration", function() {
+    var e = Crafty.e("Triggerable");
+    var counter = 0;
+    // Each of these functions can be run at most once, because they unbind on triggering
+    var a = function() {
+        counter++;
+        this.unbind("Test", a);
+        this.trigger("Test");
+    };
+    var b = function() {
+        counter++;
+        this.unbind("Test", b);
+        this.trigger("Test");
+    };
+    e.bind("Test", a);
+    e.bind("Test", b);
+    e.trigger("Test");
+    equal(counter, 2, "Total number of triggers should be 2 (regardless of bind/unbind order).");
+  });
+
   test("Data passing", function() {
     var x = 0,
       e;
@@ -191,8 +214,47 @@
     });
     strictEqual(x, 3, "data passed correctly with Crafty.one");
     Crafty.unbind("Increment");
+  });
 
+  test("Events and autobind with function names", function(){
+    Crafty.c("AutoComp", {
+      counter:0,
+      events: {"Test":"_onTest"},
+      _onTest: function(){
+        this.counter++;
+      }
+    });
+    var e = Crafty.e("AutoComp");
+    e.trigger("Test");
+    equal(e.counter, 1, "Function was triggered");
+
+    e.removeComponent("AutoComp");
+    e.counter = 0;
+    e.trigger("Test");
+    equal(e.counter, 0, "Function was not triggered after removal of component");
 
 
   });
+
+  test("Events and autobind with function declared inside object", function(){
+    Crafty.c("AutoComp2", {
+      counter:0,
+      events: {
+        Test:function(){
+          this.counter++;
+        }
+      }
+    });
+    var e = Crafty.e("AutoComp2");
+    e.trigger("Test");
+    equal(e.counter, 1, "Function was triggered");
+
+    e.removeComponent("AutoComp2");
+    e.counter = 0;
+    e.trigger("Test");
+    equal(e.counter, 0, "Function was not triggered after removal of component");
+
+  });
+
 })();
+
