@@ -75,6 +75,21 @@ var DocLink = React.createClass({
     } else if (target[0] === ".") {
       linkText = target;
       href = "#" + cleanName(target);
+    } else if (target.indexOf("#") > 0){
+      var i = target.indexOf("#");
+      var page = target.substring(0, i);
+      var anchor = target.substring(i+1);
+
+      // Handle link text based on context
+      if (anchor.indexOf(page) >= 0) {
+        linkText = anchor;
+      } else if (anchor[0] === ".") {
+        linkText = page + anchor;
+      } else {
+        linkText = page + "\u2794" + anchor;
+      }
+
+      href = cleanName(page) + ".html#" + cleanName(anchor);
     } else {
       linkText = target;
       href = cleanName(target) + ".html";
@@ -117,6 +132,10 @@ var Node = React.createClass({
         return <SeeAlso xrefs = {node.xrefs} page={page} />
       case "example":
         return <Example contents={node.contents} page={page} />
+      case "warning":
+        return <Warning page={page} warning ={node.value} />
+      case "note":
+        return <Note page={page} note={node.value} />
       default:
         return <p> Unsupported node type: <b style={{color:"red"}}>{node.type}</b></p>
     }
@@ -168,6 +187,27 @@ var Example = React.createClass({
   }
 })
 
+// Warning
+
+var Warning = React.createClass({
+  render: function() {
+    return <div className = "warning">
+      <div className = "warning-prefix">Warning</div> 
+      <MarkdownBlock value={this.props.warning} page={this.props.page} /> 
+    </div>
+  }
+});
+
+// Note
+
+var Note = React.createClass({
+  render: function() {
+    return <div className = "note">
+      <MarkdownBlock value={"**Note:** " + this.props.note} page={this.props.page}/> 
+    </div>
+  }
+});
+
 // Event & Trigger
 
 var Events = React.createClass({
@@ -196,10 +236,24 @@ var Trigger = React.createClass({
   render: function() {
     var trigger = this.props.trigger;
     var triggerData;
-    if (trigger.objName!=="Data" || trigger.objProp)
-      triggerData = <span className="trigger-data">[ {trigger.objName} {trigger.objProp ? "{ " + trigger.objProp + " }": ""}]</span>
-    else
+    if (trigger.objName !== "Data" || trigger.objProp) {
+      if (trigger.objProp) {
+        var props = trigger.objProp;
+        if (props[0] !== "{")
+          props = "{" + props + "}";
+        props = " = " + props;
+      } else {
+        var props = "";
+      }
+      triggerData = <span>
+        [<span className="trigger-data">
+          <span className="obj-name">{trigger.objName}</span> 
+          <span className = "obj-props">{props}</span>
+        </span>]
+      </span>
+    } else {
       triggerData = "";
+    }
     return (
       <dl className="trigger">
           <dt>{trigger.event} {triggerData}</dt>
@@ -237,11 +291,51 @@ var Parameter = React.createClass({
   }
 })
 
+// Seperator reg ex
+var sepRe = /([()[\],]+)/ ;
 var Signature = React.createClass({
   render: function() {
+
+    var parts = this.props.sign.split(sepRe);
+    var contents = parts.map(function(content, index) {
+      if (sepRe.test(content)) {
+        return <SignatureSeperator key = {index} value = {content} />
+      } else if (content.length === 0) {
+        return "";
+      } else {
+        return <SignaturePhrase key = {index} value = {content} />
+      }
+    })
     return (
-        <code className="signature">{this.props.sign}</code>
-    )
+        <code className="signature">
+          {contents}
+        </code>
+    );
+  }
+});
+
+var SignaturePhrase = React.createClass({
+  render: function() {
+    var phrase = this.props.value.split(" ");
+    var last = phrase.length - 1;
+    var words = phrase.map( function(word, index) {
+        if (index === last) {
+          return <span key = {index} className="sig-noun">{word}</span>
+        } else {
+          return <span key = {index} className = "sig-qualifier">{word} </span>
+        }
+    });
+    return (
+      <span className = "sig-phrase">
+        {words}
+      </span>
+    );
+  }
+})
+
+var SignatureSeperator = React.createClass({
+  render: function() {
+    return <span className = "sig-seperator">{this.props.value}</span>
   }
 })
 
@@ -271,7 +365,7 @@ var Doclet = React.createClass({
       var header = "";
     }
     return (
-      <div id={cleanName(this.props.data.name)}>
+      <div className="doclet" id={cleanName(this.props.data.name)}>
         {link}
         {header}
         <div className="doc-source"><SourceLink data={this.props.data}/></div>
