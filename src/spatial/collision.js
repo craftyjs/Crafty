@@ -444,10 +444,13 @@ Crafty.c("Collision", {
     /**@
      * #.ignoreHits
      * @comp Collision
+     *
      * @sign public this .ignoreHits()
+     *
      * @sign public this .ignoreHits(String componentList)
      * @param componentList - A comma seperated list of components to stop checking
      * for collisions with.
+     *
      * @sign public this .ignoreHits(String component1[, .., String componentN])
      * @param component# - A component to stop checking for collisions with.
      *

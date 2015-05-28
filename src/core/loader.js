@@ -68,10 +68,13 @@ module.exports = {
      * @sign public void Crafty.asset(String key, Object asset)
      * @param key - asset url.
      * @param asset - `Audio` or `Image` object.
+     *
      * Add new asset to assets object.
      *
      * @sign public void Crafty.asset(String key)
      * @param key - asset url.
+     *
+     *
      * Get asset from assets object.
      *
      * @example
@@ -355,6 +358,7 @@ module.exports = {
      *
      * @sign public void Crafty.removeAssets(Object assets)
      * @param data - Object JSON formatted (or JSON string), with assets to remove (accepts sounds, images and sprites)
+     *
      * Removes assets (audio, images, sprites - and related sprite components) in order to allow the browser
      * to free memory.
      * 
