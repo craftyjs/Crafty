@@ -317,6 +317,7 @@ var Crafty = require('../core/core.js');
      * @comp Crafty.HashMap
      * @sign public Object Crafty.HashMap.key(Object obj)
      * @param obj - an Object that has .mbr() or _x, _y, _w and _h.
+     *
      * Get the rectangular region (in terms of the grid, with grid size `cellsize`), where the object may fall in. This region is determined by the object's bounding box.
      * The `cellsize` is 64 by default.
      *

@@ -68,6 +68,7 @@ Crafty.c("Draggable", {
      *
      * @sign public this .dragDirection(degree)
      * @param degree - A number, the degree (clockwise) of the move direction with respect to the x axis.
+     *
      * Specify the dragging direction.
      *
      * @example

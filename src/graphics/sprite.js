@@ -25,6 +25,7 @@ Crafty.extend({
      * @param paddingX - Horizontal space in between tiles. Defaults to 0.
      * @param paddingY - Vertical space in between tiles. Defaults to paddingX.
      * @param paddingAroundBorder - If padding should be applied around the border of the sprite sheet. If enabled the first tile starts at (paddingX,paddingY) instead of (0,0). Defaults to false.
+     *
      * Generates components based on positions in a sprite image to be applied to entities.
      *
      * Accepts a tile size, URL and map for the name of the sprite and its position.

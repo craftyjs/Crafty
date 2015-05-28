@@ -464,6 +464,7 @@ Crafty.c("2D", {
      * @param h - Height of the rect
      * @sign public Boolean .intersect(Object rect)
      * @param rect - An object that must have the `_x, _y, _w, _h` values as properties
+     *
      * Determines if this entity intersects a rectangle.  If the entity is rotated, its MBR is used for the test.
      */
     intersect: function (x, y, w, h) {
@@ -493,6 +494,7 @@ Crafty.c("2D", {
      * @param h - Height of the rect
      * @sign public Boolean .within(Object rect)
      * @param rect - An object that must have the `_x, _y, _w, _h` values as properties
+     *
      * Determines if this current entity is within another rectangle.
      */
     within: function (x, y, w, h) {
@@ -522,6 +524,7 @@ Crafty.c("2D", {
      * @param h - Height of the rect
      * @sign public Boolean .contains(Object rect)
      * @param rect - An object that must have the `_x, _y, _w, _h` values as properties.
+     *
      * Determines if the rectangle is within the current entity.  If the entity is rotated, its MBR is used for the test.
      */
     contains: function (x, y, w, h) {
@@ -547,6 +550,7 @@ Crafty.c("2D", {
      * @sign public Object .pos(void)
      *
      * @param {{}=obj} pos
+     *
      * Returns the x, y, w, h properties as a new rect object if
      * no object is included. If object is inclued adds x, y, w, h 
      * to included object.
@@ -590,6 +594,7 @@ Crafty.c("2D", {
      * @sign public Boolean .isAt(Number x, Number y)
      * @param x - X position of the point
      * @param y - Y position of the point
+     *
      * Determines whether a point is contained by the entity. Unlike other methods,
      * an object can't be passed. The arguments require the x and y value.
      *
@@ -612,6 +617,7 @@ Crafty.c("2D", {
      * @sign public this .move(String dir, Number by)
      * @param dir - Direction to move (n,s,e,w,ne,nw,se,sw)
      * @param by - Amount to move in the specified direction
+     *
      * Quick method to move the entity in a direction (n, s, e, w, ne, nw, se, sw) by an amount of pixels.
      */
     move: function (dir, by) {
@@ -631,6 +637,7 @@ Crafty.c("2D", {
      * @param y - Amount to move Y
      * @param w - Amount to widen
      * @param h - Amount to increase height
+     *
      * Shift or move the entity by an amount. Use negative values
      * for an opposite direction.
      */
@@ -648,6 +655,7 @@ Crafty.c("2D", {
      * @comp 2D
      * @sign public void ._cascade(e)
      * @param e - An object describing the motion
+     *
      * Move or rotate the entity's children according to a certain motion.
      * This method is part of a function bound to "Move": It is used
      * internally for ensuring that when a parent moves, the child also
@@ -684,6 +692,7 @@ Crafty.c("2D", {
      * @comp 2D
      * @sign public this .attach(Entity obj[, .., Entity objN])
      * @param obj - Child entity(s) to attach
+     *
      * Sets one or more entities to be children, with the current entity (`this`)
      * as the parent. When the parent moves or rotates, its children move or
      * rotate by the same amount. (But not vice-versa: If you move a child, it
@@ -718,6 +727,7 @@ Crafty.c("2D", {
      * @comp 2D
      * @sign public this .detach([Entity obj])
      * @param obj - The entity to detach. Left blank will remove all attached entities
+     *
      * Stop an entity from following the current entity. Passing no arguments will stop
      * every entity attached.
      */
@@ -746,11 +756,14 @@ Crafty.c("2D", {
     /**@
      * #.origin
      * @comp 2D
+     *
      * @sign public this .origin(Number x, Number y)
      * @param x - Pixel value of origin offset on the X axis
      * @param y - Pixel value of origin offset on the Y axis
+     *
      * @sign public this .origin(String offset)
      * @param offset - Combination of center, top, bottom, middle, left and right
+     *
      * Set the origin point of an entity for it to rotate around.
      *
      * @example
@@ -1573,6 +1586,7 @@ Crafty.c("Motion", {
      *
      * @sign public Vector2D .velocity()
      * @return The velocity Vector2D with the properties {x, y} that reflect the velocities in the <x, y> direction of the entity.
+     *
      * Returns the current velocity. You can access/modify the properties in order to retrieve/change the velocity.
 
      * @example
@@ -1599,6 +1613,7 @@ Crafty.c("Motion", {
      * 
      * @sign public Vector2D .acceleration()
      * @return The acceleration Vector2D with the properties {x, y} that reflects the acceleration in the <x, y> direction of the entity.
+     *
      * Returns the current acceleration. You can access/modify the properties in order to retrieve/change the acceleration.
      *
      * @example
