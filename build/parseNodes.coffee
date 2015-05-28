@@ -51,6 +51,14 @@ addNode =
 		parent.contents.push(iterator.current())
 		iterator.next()
 
+	note: (parent, iterator)->
+		parent.contents.push(iterator.current())
+		iterator.next()
+
+	warning: (parent, iterator)->
+		parent.contents.push(iterator.current())
+		iterator.next()
+
 	xref: (parent, iterator)->
 		base = iterator.current()
 		while (iterator.next()?.type is "xref")
