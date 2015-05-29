@@ -15,11 +15,13 @@ module.exports = {
      * @param sceneName - Name of the scene to add
      * @param init - Function to execute when scene is played
      * @param uninit - Function to execute before next scene is played, after entities with `2D` are destroyed
+     *
      * This is equivalent to calling `Crafty.defineScene`.
      *
      * @sign public void Crafty.scene(String sceneName[, Data])
      * @param sceneName - Name of scene to play
      * @param Data - The init function of the scene will be called with this data as its parameter.  Can be of any type other than a function.
+     *
      * This is equivalent to calling `Crafty.enterScene`.
      *
      * Method to create scenes on the stage. Pass an ID and function to register a scene.

@@ -201,6 +201,7 @@ Crafty.fn = Crafty.prototype = {
      * @param componentList - A string of components to add separated by a comma `,`
      * @sign public this .addComponent(String Component1[, .., String ComponentN])
      * @param Component# - Component ID to add.
+     *
      * Adds a component to the selected entities or entity.
      *
      * Components are used to extend the functionality of entities.
@@ -271,6 +272,7 @@ Crafty.fn = Crafty.prototype = {
      * @param ComponentList - A string of components to add or remove separated by a comma `,`
      * @sign public this .toggleComponent(String Component1[, .., String componentN])
      * @param Component# - Component ID to add or remove.
+     * 
      * Add or Remove Components from an entity.
      *
      * @example
@@ -432,12 +434,14 @@ Crafty.fn = Crafty.prototype = {
      * @param value - Value to set the property to
      * @param silent - If you would like to supress events
      * @param recursive - If you would like merge recursively
+     *
      * Use this method to set any property of the entity.
      *
      * @sign public this .attr(Object map[, Boolean silent[, Boolean recursive]])
      * @param map - Object where each key is the property to modify and the value as the property value
      * @param silent - If you would like to supress events
      * @param recursive - If you would like merge recursively
+     *
      * Use this method to set multiple properties of the entity.
      *
      * Setter options:
@@ -447,6 +451,7 @@ Crafty.fn = Crafty.prototype = {
      * @sign public Any .attr(String property)
      * @param property - Property of the entity to modify
      * @returns Value - the value of the property
+     *
      * Use this method to get any property of the entity. You can also retrieve the property using `this.property`.
      * 
      *
@@ -625,6 +630,7 @@ Crafty.fn = Crafty.prototype = {
      * @sign public this .bind(String eventName, Function callback)
      * @param eventName - Name of the event to bind to
      * @param callback - Method to execute when the event is triggered
+     *
      * Attach the current entity (or entities) to listen for an event.
      *
      * Callback will be invoked when an event with the event name passed
@@ -715,6 +721,7 @@ Crafty.fn = Crafty.prototype = {
      * @sign public this .unbind(String eventName[, Function callback])
      * @param eventName - Name of the event to unbind
      * @param callback - Function to unbind
+     *
      * Removes binding with an event from current entity.
      *
      * Passing an event name will remove all events bound to
@@ -740,6 +747,7 @@ Crafty.fn = Crafty.prototype = {
      * @sign public this .trigger(String eventName[, Object data])
      * @param eventName - Event to trigger
      * @param data - Arbitrary data that will be passed into every callback as an argument
+     *
      * Trigger an event with arbitrary data. Will invoke all callbacks with
      * the context (value of `this`) of the current entity object.
      *
@@ -771,6 +779,7 @@ Crafty.fn = Crafty.prototype = {
      * @comp Crafty Core
      * @sign public this .each(Function method)
      * @param method - Method to call on each iteration
+     *
      * Iterates over found entities, calling a function for every entity.
      *
      * The function will be called for every entity and will pass the index
@@ -879,6 +888,7 @@ Crafty.fn = Crafty.prototype = {
      * @sign public this .setter(String property, Function callback)
      * @param property - Property to watch for modification
      * @param callback - Method to execute if the property is modified
+     *
      * Will watch a property waiting for modification and will then invoke the
      * given callback when attempting to modify.
      *
@@ -1509,6 +1519,7 @@ Crafty.extend({
      * @sign public void Crafty.c(String name, Object component)
      * @param name - Name of the component
      * @param component - Object with the component's properties and methods
+     *
      * Creates a component where the first argument is the ID and the second
      * is the object that will be inherited by entities.
      *

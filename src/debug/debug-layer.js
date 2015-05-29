@@ -137,6 +137,7 @@ Crafty.c("DebugRectangle", {
      * @comp DebugRectangle
      * @sign public  .debugRectangle(Object rect)
      * @param rect - an object with _x, _y, _w, and _h to draw
+     *
      * Sets the rectangle that this component draws to the debug canvas.
      *
      */
@@ -221,6 +222,7 @@ Crafty.c("DebugPolygon", {
      * @comp DebugPolygon
      * @sign public  .debugPolygon(Polygon poly)
      * @param poly - a polygon to render
+     *
      * Sets the polygon that this component renders to the debug canvas.
      *
      */
