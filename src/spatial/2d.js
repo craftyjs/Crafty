@@ -547,17 +547,14 @@ Crafty.c("2D", {
     /**@
      * #.pos
      * @comp 2D
-     * @sign public Object .pos(void)
+     * @sign public Object .pos([Object pos])
+     * @param pos - an object to use as output
      *
-     * @param {{}=obj} pos
+     * @returns An object with this entity's `_x`, `_y`, `_w`, and `_h` values. 
+     *          If an object is passed in, it will be reused rather than creating a new object.
      *
-     * Returns the x, y, w, h properties as a new rect object if
-     * no object is included. If object is inclued adds x, y, w, h 
-     * to included object.
-     * (a rect object is just an object with the keys _x, _y, _w, _h).
-     *
-     * The keys have an underscore prefix. This is due to the x, y, w, h
-     * properties being merely setters and getters that wrap the properties with an underscore (_x, _y, _w, _h).
+     * @note The keys have an underscore prefix. This is due to the x, y, w, h
+     * properties being setters and getters that wrap the underlying properties with an underscore (_x, _y, _w, _h).
      */
     pos: function (pos) {
         pos = pos || {};
@@ -1355,7 +1352,6 @@ Crafty.c("AngularMotion", {
      * #.resetAngularMotion
      * @comp AngularMotion
      * @sign public this .resetAngularMotion()
-     * @return this
      * 
      * Reset all motion (resets velocity, acceleration, motionDelta).
      */
@@ -1681,7 +1677,7 @@ Crafty.c("Motion", {
  * #Crafty.polygon
  * @category 2D
  *
- * Polygon object used for hitboxes and click maps. Takes a set of points as an
+ * The constructor for a polygon object used for hitboxes and click maps. Takes a set of points as an
  * argument, giving alternately the x and y coordinates of the polygon's vertices in order.
  *
  * The constructor accepts the coordinates as either a single array or as a set of individual arguments.
@@ -1768,10 +1764,10 @@ Crafty.polygon.prototype = {
      * Returns a clone of the polygon.
      *
      * @example
-     *
+     * ~~~
      * var poly = new Crafty.polygon([50, 0, 100, 100, 0, 100]);
      * var shiftedpoly = poly.clone().shift(5,5);
-     * //[[55, 5, 105, 5, 5, 105], but the original polygon is unchanged
+     * //[55, 5, 105, 5, 5, 105], but the original polygon is unchanged
      * ~~~
      */
     clone: function() {

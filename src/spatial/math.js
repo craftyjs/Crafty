@@ -3,8 +3,9 @@ var Crafty = require('../core/core.js');
 
 /**@
  * #Crafty.math
- * @category 2D
- * Static functions.
+ * @category Utilities
+ *
+ * A set of utility functions for common (and not so common) operations.
  */
 Crafty.math = {
     /**@
@@ -25,12 +26,11 @@ Crafty.math = {
      * @comp Crafty.math
      * @sign public Number Crafty.math.amountOf(Number checkValue, Number minValue, Number maxValue)
      * @param checkValue - Value that should checked with minimum and maximum.
-     * @param minValue - Minimum value to check.
-     * @param maxValue - Maximum value to check.
-     * @return Amount of checkValue compared to minValue and maxValue.
+     * @param minValue - Bottom of the range
+     * @param maxValue - Top of the range
+     * @return The position of the checked value in a coordinate system normalized such that `minValue` is 0 and `maxValue` is 1.
      *
-     * Returns the amount of how much a checkValue is more like minValue (=0)
-     * or more like maxValue (=1)
+     * If checkValue is within the range, this will return a number between 0 and 1.
      */
     amountOf: function (checkValue, minValue, maxValue) {
         if (minValue < maxValue)
@@ -64,8 +64,9 @@ Crafty.math = {
      * #Crafty.math.degToRad
      * Converts angle from degree to radian.
      * @comp Crafty.math
-     * @param angleInDeg - The angle in degree.
-     * @return The angle in radian.
+     * @sign public Number degToRad(angleInDeg)
+     * @param angleInDeg - The angle in degrees.
+     * @return The angle in radians.
      */
     degToRad: function (angleInDeg) {
         return angleInDeg * Math.PI / 180;
@@ -108,10 +109,10 @@ Crafty.math = {
      * #Crafty.math.negate
      * @comp Crafty.math
      * @sign public Number Crafty.math.negate(Number percent)
-     * @param percent - If you pass 1 a -1 will be returned. If you pass 0 a 1 will be returned.
+     * @param percent - The probability of returning `-1`
      * @return 1 or -1.
      *
-     * Returnes "randomly" -1.
+     * Returns `1` or `-1` randomly.
      */
     negate: function (percent) {
         if (Math.random() < percent)
@@ -154,7 +155,7 @@ Crafty.math = {
      * @param end - Biggest int value that can be returned.
      * @return A random int.
      *
-     * Returns a random int in within a specific range.
+     * Returns a random int within a specific range.
      */
     randomInt: function (start, end) {
         return start + Math.floor((1 + end - start) * Math.random());

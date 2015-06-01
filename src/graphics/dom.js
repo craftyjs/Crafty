@@ -4,7 +4,8 @@ var Crafty = require('../core/core.js'),
 /**@
  * #DOM
  * @category Graphics
- * Draws entities as DOM nodes, specifically `<DIV>`s.
+ *
+ * A component which renders entities as DOM nodes, specifically `<div>`s.
  */
 Crafty.c("DOM", {
     /**@

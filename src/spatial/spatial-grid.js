@@ -32,12 +32,15 @@ var Crafty = require('../core/core.js');
          * @comp Crafty.map
          * @sign public Object Crafty.map.insert(Object obj)
          * @param obj - An entity to be inserted.
-         *
+         * @returns An object representing this object's entry in the HashMap
+         * 
          * `obj` is inserted in '.map' of the corresponding broad phase cells. An object of the following fields is returned.
          * ~~~
-         * - the object that keep track of cells (keys)
-         * - `obj`
-         * - the HashMap object
+         * {
+         *   keys: the object that keep track of cells
+         *   obj: The inserted object
+         *   map: the HashMap object
+         * }
          * ~~~
          */
         insert: function (obj) {
@@ -65,11 +68,12 @@ var Crafty = require('../core/core.js');
          * @comp Crafty.map
          * @sign public Object Crafty.map.search(Object rect[, Boolean filter])
          * @param rect - the rectangular region to search for entities.
-         * @param filter - Default value is true. Otherwise, must be false.
+         * @param filter - If false, only performs a broad-phase collision check.  The default value is true.
          *
          * - If `filter` is `false`, just search for all the entries in the give `rect` region by broad phase collision. Entity may be returned duplicated.
          * - If `filter` is `true`, filter the above results by checking that they actually overlap `rect`.
-         * The easier usage is with `filter`=`true`. For performance reason, you may use `filter`=`false`, and filter the result yourself. See examples in drawing.js and collision.js
+         *
+         * The easier usage is with `filter == true`. For performance reason, you may use `filter == false`, and filter the result yourself. See examples in drawing.js and collision.js
          */
 
         search: function (rect, filter) {
@@ -120,7 +124,7 @@ var Crafty = require('../core/core.js');
          * @comp Crafty.map
          * @sign public void Crafty.map.remove([Object keys, ]Object obj)
          * @param keys - key region. If omitted, it will be derived from obj by `Crafty.HashMap.key`.
-         * @param obj - need more document.
+         * @param obj - An object to remove from the hashmap
          *
          * Remove an entity in a broad phase map.
          * - The second form is only used in Crafty.HashMap to save time for computing keys again, where keys were computed previously from obj. End users should not call this form directly.
@@ -163,7 +167,7 @@ var Crafty = require('../core/core.js');
          * @sign public void Crafty.map.remove(Entry entry)
          * @param entry - An entry to update
          *
-         * Refresh an entry's keys, and its position in the broad phrase map.
+         * Update an entry's keys, and its position in the broad phrase map.
          *
          * @example
          * ~~~
@@ -211,8 +215,8 @@ var Crafty = require('../core/core.js');
          * #Crafty.map.boundaries
          * @comp Crafty.map
          * @sign public Object Crafty.map.boundaries()
+         * @returns An object with the following structure, which represents an MBR which contains all entities
          *
-         * The return `Object` is of the following format.
          * ~~~
          * {
          *   min: {
@@ -308,7 +312,7 @@ var Crafty = require('../core/core.js');
      * Broad-phase collision detection engine. See background information at
      *
      * - [N Tutorial B - Broad-Phase Collision](http://www.metanetsoftware.com/technique/tutorialB.html)
-     * - [Broad-Phase Collision Detection with CUDA](http.developer.nvidia.com/GPUGems3/gpugems3_ch32.html)
+     * - [Broad-Phase Collision Detection with CUDA](http://http.developer.nvidia.com/GPUGems3/gpugems3_ch32.html)
      * @see Crafty.map
      */
 
