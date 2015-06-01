@@ -13,7 +13,7 @@ module.exports = {
      * ~~~
      * var isLoaded = !!Crafty.assets["images/sprite.png"];
      * ~~~
-     * @see Crafty.loader
+     * @see Crafty.load
      */
     assets: {},
     __paths: { audio: "", images: "" },
@@ -142,7 +142,7 @@ module.exports = {
      */
     image_whitelist: ["jpg", "jpeg", "gif", "png", "svg"],
     /**@
-     * #Crafty.loader
+     * #Crafty.load
      * @category Assets
      * @sign public void Crafty.load(Object assets, Function onLoad[, Function onProgress[, Function onError]])
      * @param assets - Object JSON formatted (or JSON string), with assets to load (accepts sounds, images and sprites)

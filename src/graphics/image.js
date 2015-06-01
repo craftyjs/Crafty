@@ -40,17 +40,18 @@ Crafty.c("Image", {
      * @trigger Invalidate - when the image is loaded
      * @sign public this .image(String url[, String repeat])
      * @param url - URL of the image
-     * @param repeat - If the image should be repeated to fill the entity.
+     * @param repeat - If the image should be repeated to fill the entity.  This follows CSS syntax: (`"no-repeat", "repeat", "repeat-x", "repeat-y"`), but defaults to `no-repeat`.
      *
-     * Draw specified image. Repeat follows CSS syntax (`"no-repeat", "repeat", "repeat-x", "repeat-y"`);
+     * Draw the specified image.
      *
-     * *Note: Default repeat is `no-repeat` which is different to standard DOM (which is `repeat`)*
+     * @note The default value of repeat is `no-repeat`, which is different than the standard CSS default
      *
      * If the width and height are `0` and repeat is set to `no-repeat` the width and
      * height will automatically assume that of the image. This is an
      * easy way to create an image without needing sprites.
      *
-     * If set to `no-repeat` and given dimensions larger than that of the image, the exact appearance will depend on what renderer (WebGL, DOM, or Canvas) is used.
+     * If set to `no-repeat` and given dimensions larger than that of the image, 
+     * the exact appearance will depend on what renderer (WebGL, DOM, or Canvas) is used.
      *
      * @example
      * Will default to no-repeat. Entity width and height will be set to the images width and height

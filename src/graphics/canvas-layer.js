@@ -137,7 +137,7 @@ Crafty.extend({
          *  do the naive method redrawing `Crafty.canvasLayer.drawAll` instead
          * - Otherwise, clear the dirty regions, and redraw entities overlapping the dirty regions.
          *
-         * @see Canvas.draw
+         * @see Canvas#.draw
          */
         _drawDirty: function () {
 

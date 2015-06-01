@@ -161,7 +161,13 @@ Crafty.extend({
  * #Sprite
  * @category Graphics
  * @trigger Invalidate - when the sprites change
- * Component for using tiles in a sprite map.
+ *
+ * A component for using tiles in a sprite map.  
+ *
+ * This is automatically added to entities which use the components created by `Crafty.sprite` or `Crafty.load`.
+ * Since these are also used to define tile size, you'll rarely need to use this components methods directly.
+ *
+ * @see Crafty.sprite, Crafty.load
  */
 Crafty.c("Sprite", {
     __image: '',

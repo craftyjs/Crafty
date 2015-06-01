@@ -182,7 +182,7 @@ RenderProgramWrapper.prototype = {
  *
  * Crafty.webgl.init() will be automatically called if it is not called already to initialize the canvas element.
  *
- * **Note:** For better performance, minimize the number of spritesheets used, and try to arrange it so that entities with different spritesheets are on different z-levels.
+ * @note For better performance, minimize the number of spritesheets used, and try to arrange it so that entities with different spritesheets are on different z-levels.
  *
  * Create a webgl entity like this
  * ~~~
@@ -337,7 +337,7 @@ Crafty.c("WebGL", {
  * #Crafty.webgl
  * @category Graphics
  *
- * Collection of methods to handle webgl contexts.
+ * A collection of methods to handle webgl contexts.
  */
 Crafty.extend({
 
@@ -423,7 +423,7 @@ Crafty.extend({
          * @sign public void Crafty.webgl.init(void)
          * @trigger NoWebGL - triggered if `Crafty.support.webgl` is false
          *
-         * Creates a `canvas` element inside `Crafty.stage.elem`. 
+         * This will create a `canvas` element inside `Crafty.stage.elem`, used for displaying "WebGL" components.
          *
          * This method will automatically be called by any "WebGL" component if no `Crafty.webgl.context` is
          * found, so it is not neccessary to call this manually.
