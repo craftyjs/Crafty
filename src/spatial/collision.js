@@ -6,7 +6,7 @@ var Crafty = require('../core/core.js'),
  * #Collision
  * @category 2D
  * @trigger HitOn - Triggered when collisions occur. Will not trigger again until collisions of this type cease, or an event is requested once more (using `resetHitChecks(component)`). - { hitData }
- * @trigger HitOff - Triggered when collision with a specific component type ceases - { componentName }
+ * @trigger HitOff - Triggered when collision with a specific component type ceases - String - componentName
  *
  * Component to detect collision between any two convex polygons.
  *
@@ -14,25 +14,15 @@ var Crafty = require('../core/core.js'),
  * multiple types occur simultaniously, each collision will cause an individual
  * event to fire.
  *
- * **Note:** All data received from events is only valid for the duration of the event's callback.
+ * @note All data received from events is only valid for the duration of the event's callback.
  * If you wish to preserve the data, make a copy of it.
  *
  * For a description of collision event data (hitData above), see the documentation for
  * `.hit()`.
  *
- * @see .hit, .checkHits, .onHit
  */
 Crafty.c("Collision", {
-    /**@
-     * #.init
-     * @comp Collision
-     * Set up collision handling.
-     *
-     * By default, the collision hitbox will match the dimensions (x, y, w, h) and rotation of the object.
-     *
-     * **Note:** If the entity this component is applied to does not have its
-     * dimensions set the default hit area will not be set properly.
-     */
+
     init: function () {
         this.requires("2D");
         this._collisionData = {};
@@ -250,11 +240,12 @@ Crafty.c("Collision", {
      *    overlap: [number]
      * }]
      * ~~~
-     * **obj:** The entity with which the collision occured.
-     * **type:** Collision detection method used. One of:
-     * + *MBR:* Standard axis aligned rectangle intersection (`.intersect` in the 2D component).
-     * + *SAT:* Collision between any two convex polygons. Used when both colliding entities have the `Collision` component applied to them.
-     * **overlap:** If SAT collision was used, this will signify the overlap percentage between the colliding entities.
+     *
+     * - **obj:** The entity with which the collision occured.
+     * - **type:** Collision detection method used. One of:
+     *   - *MBR:* Standard axis aligned rectangle intersection (`.intersect` in the 2D component).
+     *   - *SAT:* Collision between any two convex polygons. Used when both colliding entities have the `Collision` component applied to them.
+     * - **overlap:** If SAT collision was used, this will signify the overlap percentage between the colliding entities.
      *
      * @see 2D
      */
@@ -394,7 +385,7 @@ Crafty.c("Collision", {
      * Calling this method more than once for the same component type will not
      * cause redundant hit checks.
      *
-     * **Note:** Hit checks are performed upon entering each new frame (using
+     * @note Hit checks are performed upon entering each new frame (using
      * the *EnterFrame* event). It is entirely possible for object to move in
      * said frame after the checks were performed (even if the more is the
      * result of *EnterFrame*, as handlers run in no particular order). In such

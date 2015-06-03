@@ -74,7 +74,7 @@ Crafty.extend({
          *
          * When "RenderScene" is triggered, draws all DOM entities that have been flagged
          *
-         * @see DOM.draw
+         * @see DOM#.draw
          */
         _render: function () {
             var layer = Crafty.domLayer;

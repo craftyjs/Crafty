@@ -4,7 +4,10 @@ var Crafty = require('../core/core.js');
 /**@
  * #HTML
  * @category Graphics
- * Component allow for insertion of arbitrary HTML into an entity
+ *
+ * A component which allows for the insertion of arbitrary HTML into a DOM entity.  
+ *
+ * Adding this to an entity will automatically add the `DOM` component.
  */
 Crafty.c("HTML", {
     inner: '',

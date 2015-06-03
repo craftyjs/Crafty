@@ -8,12 +8,10 @@ Crafty._systems = {};
  * #Crafty.s
  * @category Core
  *
- * Objects which handle entities might want to subscribe to the event system without being entities themselves.  
- * When you declare a system with a template object, all the methods and properties of that template are copied to a new object.
- * This new system will automatically have the following event related methods, which function like those of components: `.bind()`, `unbind()`, `trigger()`, `one()`, `uniqueBind()`, `destroy()`.
- * Much like components, you can also provide `init()` and `remove()` methods, as well as an `events` parameter for automatically binding to events.
+ * Registers a system.
  *
- * *Note*: The `init()` method is for setting up the internal state of the system -- if you create entities in it that then reference the system, that'll create an infinite loop.
+ * @trigger SystemLoaded - When the system has initialized itself - obj - system object
+ * @trigger SystemDestroyed - Right before the system is destroyed - obj - system object
  *
  * @sign void Crafty.s(String name, Obj template[, Boolean lazy])
  * Register a system
@@ -26,8 +24,12 @@ Crafty._systems = {};
  * @param name - The system to return
  * @returns The referenced system.  If the system has not been initialized, it will be before it is returned.
  *
- * @trigger SystemLoaded - When the system has initialized itself - obj - system object
- * @trigger SystemDestroyed - Right before the system is destroyed - obj - system object
+ * Objects which handle entities might want to subscribe to the event system without being entities themselves.  
+ * When you declare a system with a template object, all the methods and properties of that template are copied to a new object.
+ * This new system will automatically have the following event related methods, which function like those of components: `.bind()`, `unbind()`, `trigger()`, `one()`, `uniqueBind()`, `destroy()`.
+ * Much like components, you can also provide `init()` and `remove()` methods, as well as an `events` parameter for automatically binding to events.
+ *
+ * *Note*: The `init()` method is for setting up the internal state of the system -- if you create entities in it that then reference the system, that'll create an infinite loop.
  */
 Crafty.s = function(name, obj, lazy) {
 	if (obj) {

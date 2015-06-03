@@ -7,13 +7,12 @@ Crafty.extend({
     mousePos: {},
     lastEvent: null,
     touchObjs: 0,
-    keydown: {},
     selected: false,
 
     /**@
      * #Crafty.keydown
      * @category Input
-     * Remembering what keys (referred by Unicode) are down.
+     * Check which keys (referred by Unicode values) are currently down.
      *
      * @example
      * ~~~
@@ -28,6 +27,8 @@ Crafty.extend({
      * ~~~
      * @see Keyboard, Crafty.keys
      */
+     keydown: {},
+
     detectBlur: function (e) {
         var selected = ((e.clientX > Crafty.stage.x && e.clientX < Crafty.stage.x + Crafty.viewport.width) &&
             (e.clientY > Crafty.stage.y && e.clientY < Crafty.stage.y + Crafty.viewport.height));
@@ -46,19 +47,21 @@ Crafty.extend({
     /**@
      * #Crafty.multitouch
      * @category Input
-     * @sign public this .multitouch([Boolean bool])
-     * @param bool - Turns multitouch on and off (default is off - false)
-     * @sign public this .multitouch()
+     * @sign public this .multitouch(Boolean bool)
+     * @param bool - Turns multitouch on and off.  The initial state is off (false).
+     *
+     * @sign public Boolean .multitouch()
+     * @returns Whether multitouch is currently enabled;
+     *
      * Enables/disables support for multitouch feature.
      * 
      * If this is set to true, it is expected that your entities have the Touch component instead of Mouse component.
      * If false (default), then only entities with the Mouse component will respond to touch.
+     *
      * If no boolean is passed to the function call, it will just return whether multitouch is on or not.
      * 
-     * Notice that the Touch component (and multitouch feature) is incompatible with the Draggable component or other 
-     * mouse dependent stuff.
+     * @note The Touch component (and thus the multitouch feature) is currently incompatible with the Draggable component.
      * 
-     * ~~~
      * @example
      * ~~~
      * Crafty.multitouch(true);
@@ -604,7 +607,9 @@ Crafty.bind("CraftyStop", function () {
 /**@
  * #Mouse
  * @category Input
+ *
  * Provides the entity with mouse related events
+ *
  * @trigger MouseOver - when the mouse enters - MouseEvent
  * @trigger MouseOut - when the mouse leaves - MouseEvent
  * @trigger MouseDown - when the mouse button is pressed on - MouseEvent
@@ -613,21 +618,20 @@ Crafty.bind("CraftyStop", function () {
  * @trigger DoubleClick - when the user double clicks - MouseEvent
  * @trigger MouseMove - when the mouse is over and moves - MouseEvent
  *
- * To be able to use the events on a entity, you have to remember to include the Mouse component, 
- * else the events will not get triggered.
+ * If you do not add this component, mouse events will not be triggered on an entity.
  *
  * You can read more about the MouseEvent, which is the parameter passed to the callback.
  * https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent
  *
- * Crafty adds the mouseButton property to MouseEvents that match one of
+ * Crafty will add the mouseButton property to MouseEvents that match one of
  *
  * - Crafty.mouseButtons.LEFT
  * - Crafty.mouseButtons.RIGHT
  * - Crafty.mouseButtons.MIDDLE
  *
- * If you're targeting mobiles, you must know that by default Crafty turns touch events into mouse events, 
- * making mouse dependent components work with touch. However, in case you need multitouch, you'll have 
- * to make use of the Touch component instead, thus losing compatibility with Mouse dependent stuff.
+ * @note If you're targeting mobile, you should know that by default Crafty turns touch events into mouse events, 
+ * making mouse dependent components work with touch. However, if you need multitouch, you'll have 
+ * to make use of the Touch component instead, which can break compatibility with things which directly interact with the Mouse component.
  *
  * @example
  * ~~~
@@ -665,17 +669,16 @@ Crafty.c("Mouse", {
  * @trigger TouchStart - when entity is touched - TouchPoint
  * @trigger TouchMove - when finger is moved over entity - TouchPoint
  * @trigger TouchCancel - when a touch event has been disrupted in some way - TouchPoint
- * @trigger TouchEnd - when the finger is raised over the entity, or when finger leaves entity - won't send touch point
+ * @trigger TouchEnd - when the finger is raised over the entity, or when finger leaves entity.  (Passes no data) - null
  *
- * To be able to use multitouch, you must do Crafty.multitouch(true), and also you have to remember to include 
- * the Touch component in your entity, else the events will not get triggered. 
+ * To be able to use multitouch, you must enable it with  `Crafty.multitouch(true)`.
+ *
+ * If you don't need multitouch, you can probably use the Mouse component instead, since by default Crafty will trigger mouse events for touch input.
+ *
+ * You can read more about the TouchEvent.
+ * - [TouchEvent.touches and TouchEvent.changedTouches](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent)
+ * - [TouchPoint](http://www.w3.org/TR/touch-events/#dfn-active-touch-point) is the parameter passed to the event callback in the related touch.
  * 
- * If you don't need multitouch, you can use the Mouse component instead.
- *
- * You can read more about the TouchEvent. See TouchEvent.touches and TouchEvent.changedTouches.
- * https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent
- * TouchPoint is the parameter passed to the event callback in the related touch.
- * http://www.w3.org/TR/touch-events/#dfn-active-touch-point
  *
  * @example
  * ~~~
@@ -864,14 +867,16 @@ Crafty.c("MouseDrag", {
 /**@
  * #Keyboard
  * @category Input
- * Give entities keyboard events (`keydown` and `keyup`).
+ *
+ * Give entities keyboard events (`Keydown` and `Keyup`).
  *
  * In particular, changes to the key state are broadcasted by `KeyboardEvent`s; interested entities can bind to these events.
+ *
  * The current state (pressed/released) of a key can also be queried using the `.isDown` method.
+ *
  * All available key codes are described in `Crafty.keys`.
  *
  * @see KeyboardEvent
- * @see Keyboard.isDown
  * @see Crafty.keys
  */
 Crafty.c("Keyboard", {

@@ -150,9 +150,13 @@ module.exports = {
      *
      * Callbacks are passed with event data.
      *
+     * @note This is related to DOM events only,  not Crafty's own event system.  
+     * Of course, you can trigger Crafty events in the callback function!
+     *
      * @example
-     * Will add a stage-wide MouseDown event listener to the player. Will log which button was pressed
-     * & the (x,y) coordinates in viewport/world/game space.
+     * Normally you'd use Crafty's built-in mouse component, but for the sake of an example let's pretend that doesn't exist.  
+     * The following code will add a stage-wide MouseDown event listener to the player, and log both which button was pressed
+     * and the (x,y) coordinates in viewport/world/game space.
      * ~~~
      * var player = Crafty.e("2D");
      *     player.onMouseDown = function(e) {
@@ -226,7 +230,7 @@ module.exports = {
     /**@
      * #Crafty.background
      * @category Graphics, Stage
-     * @sign public void Crafty.background(String value)
+     * @sign public void Crafty.background(String style)
      * @param style - Modify the background with a color or image
      *
      * This method is a shortcut for adding a background

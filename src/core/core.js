@@ -3,11 +3,24 @@ var version = require('./version');
 /**@
  * #Crafty
  * @category Core
+ *
+ * `Crafty` is both an object, and a function for selecting entities.
+ * Its many methods and properties are discussed individually.
+ * Below is the documentation for use as a selector.
+ *
+ * @sign public EntitySelection Crafty( String selector)
+ * @param selector - A string representing which entities to select
+ *
+ * @sign public Entity Crafty( Number selector )
+ * @param selector - An entity's id
+ *
  * Select a set of or single entities by components or an entity's ID.
  *
  * Crafty uses syntax similar to jQuery by having a selector engine to select entities by their components.
  *
  * If there is more than one match, the return value is an Array-like object listing the ID numbers of each matching entity. If there is exactly one match, the entity itself is returned. If you're not sure how many matches to expect, check the number of matches via Crafty(...).length. Alternatively, use Crafty(...).each(...), which works in all cases.
+ *
+ * @note You can treat an entity as if it was a selection of length 1 -- it implements all the same methods.
  *
  * @example
  * ~~~
@@ -33,8 +46,8 @@ var version = require('./version');
  *
  * The event related methods such as `bind` and `trigger` will work on selections of entities.
  *
- * @see .get
- * @see .each
+ * @see Crafty Core#.get
+ * @see Crafty Core#.each
  */
 
 var Crafty = function (selector) {
@@ -69,7 +82,7 @@ initState();
  * @trigger RemoveComponent - when a component is removed from the entity - String - Component
  * @trigger Remove - when the entity is removed by calling .destroy()
  *
- * Set of methods added to every single entity.
+ * A set of methods added to every single entity.
  */
 Crafty.fn = Crafty.prototype = {
 
@@ -393,7 +406,7 @@ Crafty.fn = Crafty.prototype = {
      * #.getId
      * @comp Crafty Core
      * @sign public Number .getId(void)
-     * Returns the ID of this entity.
+     * @returns the ID of this entity.
      *
      * For better performance, simply use the this[0] property.
      *
@@ -413,7 +426,8 @@ Crafty.fn = Crafty.prototype = {
      * #.has
      * @comp Crafty Core
      * @sign public Boolean .has(String component)
-     * Returns `true` or `false` depending on if the
+     * @param component - The name of the component to check
+     * @returns `true` or `false` depending on if the
      * entity has the given component.
      *
      * For better performance, simply use the `.__c` object
@@ -445,8 +459,8 @@ Crafty.fn = Crafty.prototype = {
      * Use this method to set multiple properties of the entity.
      *
      * Setter options:
-     * `silent`: If you want to prevent it from firing events.
-     * `recursive`: If you pass in an object you could overwrite sibling keys, this recursively merges instead of just merging it. This is `false` by default, unless you are using dot notation `name.first`.
+     * - `silent`: If you want to prevent it from firing events.
+     * - `recursive`: If you pass in an object you could overwrite sibling keys, this recursively merges instead of just merging it. This is `false` by default, unless you are using dot notation `name.first`.
      *
      * @sign public Any .attr(String property)
      * @param property - Property of the entity to modify
@@ -925,7 +939,6 @@ Crafty.fn = Crafty.prototype = {
      * ent.customData = "2" // set customData to 2
      * console.log(ent.customData) // prints 2
      * ~~~
-     * @see Crafty.defineField
      */
     defineField: function (prop, getCallback, setCallback) {
         Crafty.defineField(this, prop, getCallback, setCallback);
@@ -961,7 +974,10 @@ Crafty.fn.init.prototype = Crafty.fn;
 /**@
  * #Crafty.extend
  * @category Core
- * Used to extend the Crafty namespace.
+ * @sign public this Crafty.extend(Object obj)
+ * @param obj - An object whose fields will be copied onto Crafty.  This is a shallow copy.
+ *
+ * Used to extend the Crafty namespace by passing in an object of properties and methods to add.
  *
  */
 Crafty.extend = Crafty.fn.extend = function (obj) {
@@ -1216,9 +1232,8 @@ Crafty.extend({
     /**@
      * #Crafty.isPaused
      * @category Core
-     * @sign public this Crafty.isPaused()
-     *
-     * Check whether the game is already paused or not.
+     * @sign public Boolean Crafty.isPaused()
+     * @returns Whether the game is currently paused.
      *
      * @example
      * ~~~
@@ -1433,6 +1448,7 @@ Crafty.extend({
              * @sign public void Crafty.timer.FPS(Number value)
              * @param value - the target rate
              * @trigger FPSChange - Triggered when the target FPS is changed by user - Number - new target FPS
+             *
              * Sets the target frames per second. This is not an actual frame rate.
              * The default rate is 50.
              */
@@ -1566,9 +1582,13 @@ Crafty.extend({
      * ~~~
      *
      *
-     * WARNING:
-     *
-     * in the examples above the field _message is local to the entity. That is, if you create many entities with the Annoying component they can all have different values for _message. That is because it is a simple value, and simple values are copied by value. If however the field had been an object or array, the value would have been shared by all entities with the component because complex types are copied by reference in javascript. This is probably not what you want and the following example demonstrates how to work around it:
+     * @warning In the examples above the field _message is local to the entity. 
+     * That is, if you create many entities with the Annoying component, they can all have different values for _message.
+     * That is because it is a simple value, and simple values are copied by value. 
+     * If however the field had been an object or array, 
+     * the value would have been shared by all entities with the component,
+     * because complex types are copied by reference in javascript.
+     * This is probably not what you want and the following example demonstrates how to work around it.
      *
      * ~~~
      * Crafty.c("MyComponent", {
@@ -1616,7 +1636,7 @@ Crafty.extend({
     /**@
      * #Crafty.bind
      * @category Core, Events
-     * @sign public Number bind(String eventName, Function callback)
+     * @sign public Function bind(String eventName, Function callback)
      * @param eventName - Name of the event to bind to
      * @param callback - Method to execute upon event triggered
      * @returns callback function which can be used for unbind
@@ -1637,7 +1657,7 @@ Crafty.extend({
     /**@
      * #Crafty.uniqueBind
      * @category Core, Events
-     * @sign public Number uniqueBind(String eventName, Function callback)
+     * @sign public Function uniqueBind(String eventName, Function callback)
      * @param eventName - Name of the event to bind to
      * @param callback - Method to execute upon event triggered
      * @returns callback function which can be used for unbind
@@ -1654,7 +1674,7 @@ Crafty.extend({
     /**@
      * #Crafty.one
      * @category Core, Events
-     * @sign public Number one(String eventName, Function callback)
+     * @sign public Function one(String eventName, Function callback)
      * @param eventName - Name of the event to bind to
      * @param callback - Method to execute upon event triggered
      * @returns callback function which can be used for unbind
@@ -1707,7 +1727,7 @@ Crafty.extend({
      * #Crafty.frame
      * @category Core
      * @sign public Number Crafty.frame(void)
-     * Returns the current frame number
+     * @returns the current frame number
      */
     frame: function () {
         return frame;
@@ -1815,7 +1835,7 @@ Crafty.extend({
      * ent.customData = "2" // set customData to 2
      * console.log(ent.customData) // prints 2
      * ~~~
-     * @see .defineField
+     * @see Crafty Core#.defineField
      */
     defineField: function(obj, prop, getCallback, setCallback) {
         Object.defineProperty(obj, prop, {
@@ -1848,7 +1868,7 @@ function UID() {
  * @sign public Object .clone(Object obj)
  * @param obj - an object
  *
- * Deep copy (a.k.a clone) of an object.
+ * Deep copy (a.k.a clone) of an object 
  */
 
 function clone(obj) {

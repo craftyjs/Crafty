@@ -1,6 +1,10 @@
 /**@
  * #Delay
  * @category Utilities
+ *
+ * A component for triggering functions after a given amount of time.
+ *
+ * This syncs with Crafty's internal clock, and so should generally be preferred to using methods such as `setTimeout`.
  */
 module.exports = {
     init: function () {
