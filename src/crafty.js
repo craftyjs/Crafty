@@ -9,7 +9,7 @@ Crafty.storage = require('./core/storage');
 Crafty.c('Delay', require('./core/time'));
 Crafty.c('Tween', require('./core/tween'));
 
-require('./core/systems');
+Crafty.extend(require('./core/systems'));
 
 require('./spatial/2d');
 require('./spatial/collision');
@@ -17,8 +17,8 @@ require('./spatial/spatial-grid');
 require('./spatial/rect-manager');
 require('./spatial/math');
 
-require('./graphics/canvas');
-require('./graphics/canvas-layer');
+Crafty.c("Canvas", require('./graphics/canvas'));
+Crafty.extend(require('./graphics/canvas-layer'));
 require('./graphics/color');
 require('./graphics/dom');
 require('./graphics/dom-helper');

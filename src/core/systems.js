@@ -1,8 +1,5 @@
-var Crafty = require('../core/core.js');
-
-
 // Dictionary of existing systems
-Crafty._systems = {};
+exports._systems = {};
 
 /**@
  * #Crafty.s
@@ -31,7 +28,7 @@ Crafty._systems = {};
  *
  * *Note*: The `init()` method is for setting up the internal state of the system -- if you create entities in it that then reference the system, that'll create an infinite loop.
  */
-Crafty.s = function(name, obj, lazy) {
+exports.s = function(name, obj, lazy) {
 	if (obj) {
 		if (lazy === false ) {
 			Crafty._systems[name] = new Crafty.CraftySystem(name, obj);
@@ -46,7 +43,7 @@ Crafty.s = function(name, obj, lazy) {
 
 
 
-Crafty._registerLazySystem = function(name, obj) {
+exports._registerLazySystem = function(name, obj) {
 	// This is a bit of magic to only init a system if it's requested at least once.
 	// We define a getter for _systems[name] that will first initialize the system, 
 	// and then redefine _systems[name] to ` that getter.
@@ -67,7 +64,7 @@ Crafty._registerLazySystem = function(name, obj) {
 };
 
 // Each system has its properties and methods copied onto an object of this type
-Crafty.CraftySystem = (function(){
+exports.CraftySystem = (function(){
 	systemID = 1;
 	return function(name, template) {
 		this.name = name;
@@ -97,7 +94,7 @@ Crafty.CraftySystem = (function(){
 
 
 
-Crafty.CraftySystem.prototype = {
+exports.CraftySystem.prototype = {
 	extend: function(obj) {
 		// Copy properties and methods of obj
 		for (var key in obj) {

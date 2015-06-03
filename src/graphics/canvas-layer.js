@@ -1,13 +1,10 @@
-var Crafty = require('../core/core.js');
-
-
 /**@
  * #Crafty.canvasLayer
  * @category Graphics
  *
  * Collection of mostly private methods to draw entities on a canvas element.
  */
-Crafty.extend({
+module.exports = {
     canvasLayer: {
         _dirtyRects: [],
         _changedObjs: [],
@@ -332,4 +329,4 @@ Crafty.extend({
         }
 
     }
-});
+};

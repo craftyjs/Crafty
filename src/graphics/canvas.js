@@ -1,6 +1,3 @@
-var Crafty = require('../core/core.js');
-
-
 /**@
  * #Canvas
  * @category Graphics
@@ -18,7 +15,7 @@ var Crafty = require('../core/core.js');
  *      .attr({x: 13, y: 37, w: 42, h: 42});
  *~~~
  */
-Crafty.c("Canvas", {
+var Canvas = {
 
     init: function () {
         var canvasLayer = Crafty.canvasLayer;
@@ -150,4 +147,6 @@ Crafty.c("Canvas", {
         }
         return this;
     }
-});
+};
+
+module.exports = Canvas;
