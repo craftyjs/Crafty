@@ -7,7 +7,7 @@ var Crafty = require('../core/core.js');
  *
  * @see MouseDrag
  */
-Crafty.c("Draggable", {
+exports.dragableComponent = {
     _origX: null,
     _origY: null,
     _oldX: null,
@@ -123,7 +123,7 @@ Crafty.c("Draggable", {
             this.y = this._oldY + (e.realY - this._origY);
         }
     }
-});
+};
 
 /**@
  * #Multiway
@@ -135,7 +135,7 @@ Crafty.c("Draggable", {
  *
  * @see Motion, Keyboard
  */
-Crafty.c("Multiway", {
+exports.multiWayComponent = {
     _speed: null,
     
     init: function () {
@@ -345,7 +345,7 @@ Crafty.c("Multiway", {
 
         return this;
     }
-});
+};
 
 
 /**@
@@ -359,7 +359,7 @@ Crafty.c("Multiway", {
  *
  * @see Supportable, Motion, Keyboard, Gravity
  */
-Crafty.c("Jumpway", {
+exports.jumpwayComponent = {
     _jumpSpeed: 6,
 
     /**@
@@ -492,7 +492,7 @@ Crafty.c("Jumpway", {
         this._jumpSpeed = jumpSpeed;
         return this;
     }
-});
+};
 
 /**@
  * #Fourway
@@ -505,7 +505,7 @@ Crafty.c("Jumpway", {
  *
  * @see Multiway
  */
-Crafty.c("Fourway", {
+exports.fourwayComponent = {
 
     init: function () {
         this.requires("Multiway");
@@ -540,7 +540,7 @@ Crafty.c("Fourway", {
 
         return this;
     }
-});
+};
 
 /**@
  * #Twoway
@@ -553,7 +553,7 @@ Crafty.c("Fourway", {
  *
  * @see Multiway, Jumpway
  */
-Crafty.c("Twoway", {
+exports.twowayComponent = {
 
     init: function () {
         this.requires("Multiway, Jumpway");
@@ -594,4 +594,4 @@ Crafty.c("Twoway", {
 
         return this;
     }
-});
+};

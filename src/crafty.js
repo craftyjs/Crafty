@@ -58,7 +58,12 @@ Crafty.c("AreaMap", inputs.areaComponent);
 Crafty.c("Button", inputs.buttonComponent);
 Crafty.c("MouseDrag", inputs.mouseDragComponent);
 Crafty.c("Keyboard", inputs.keyboardComponent);
-require('./controls/controls');
+var controls = require('./controls/controls');
+Crafty.c("Draggable", controls.dragableComponent);
+Crafty.c("Multiway", controls.multiWayComponent);
+Crafty.c("Jumpway", controls.jumpwayComponent);
+Crafty.c("Fourway", controls.fourwayComponent);
+Crafty.c("Twoway", controls.twowayComponent);
 require('./controls/device');
 require('./controls/keycodes');
 
