@@ -1,7 +1,4 @@
-var Crafty = require('../core/core.js');
-
-
-Crafty.extend({
+module.exports = {
     /**@
      * #Crafty.isometric
      * @category 2D
@@ -186,4 +183,4 @@ Crafty.extend({
             };
         }
     }
-});
+};

@@ -47,8 +47,8 @@ var webgl = require('./graphics/webgl');
 Crafty.c("WebGL", webgl.WebGLComponent);
 Crafty.webgl = webgl.webgl;
 
-require('./isometric/diamond-iso');
-require('./isometric/isometric');
+Crafty.extend(require('./isometric/diamond-iso'));
+Crafty.extend(require('./isometric/isometric'));
 
 require('./controls/inputs');
 require('./controls/controls');

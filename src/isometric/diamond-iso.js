@@ -1,7 +1,4 @@
-var Crafty = require('../core/core.js');
-
-
-Crafty.extend({
+module.exports = {
     /**@
      * #Crafty.diamondIso
      * @category 2D
@@ -204,4 +201,4 @@ Crafty.extend({
         }
     }
 
-});
+};
