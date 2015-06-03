@@ -1,8 +1,6 @@
-var Crafty = require('../core/core.js');
-
 // An object for wrangling textures
 // An assumption here is that doing anything with textures is fairly expensive, so the code should be expressive rather than performant
-var TextureManager = Crafty.TextureManager = function(gl, webgl) {
+var TextureManager = function(gl, webgl) {
 	this.gl = gl;
 	this.webgl = webgl;
 	// The maximum number of units the environment says it supports 
@@ -104,7 +102,7 @@ TextureManager.prototype = {
 };
 
 // An object for abstracting out the gl calls associated with textures
-var TextureWrapper = Crafty.TextureWrapper = function(manager, id){
+var TextureWrapper = function(manager, id){
 	this.manager = manager;
 	this.gl = manager.gl;
 	this.glTexture = this.gl.createTexture();
@@ -180,3 +178,6 @@ TextureWrapper.prototype = {
         gl.uniform2f(gl.getUniformLocation(shader, dimension_name), this.width, this.height);
 	}
 };
+
+exports.TextureManager = TextureManager;
+exports.TextureWrapper = TextureWrapper;

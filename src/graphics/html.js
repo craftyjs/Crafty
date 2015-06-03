@@ -1,6 +1,3 @@
-var Crafty = require('../core/core.js');
-
-
 /**@
  * #HTML
  * @category Graphics
@@ -9,7 +6,7 @@ var Crafty = require('../core/core.js');
  *
  * Adding this to an entity will automatically add the `DOM` component.
  */
-Crafty.c("HTML", {
+module.exports = {
     inner: '',
 
     init: function () {
@@ -81,4 +78,4 @@ Crafty.c("HTML", {
         this._element.innerHTML = new_html + this.inner;
         return this;
     }
-});
+};

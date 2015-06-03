@@ -28,8 +28,12 @@ Crafty.c("DOM", require('./graphics/dom'));
 Crafty.extend(require('./graphics/dom-helper'));
 Crafty.extend(require('./graphics/dom-layer'));
 Crafty.extend(require('./graphics/drawing'));
-require('./graphics/gl-textures');
-require('./graphics/html');
+var glTextures = require('./graphics/gl-textures');
+Crafty.extend({
+  TextureManager: glTextures.TextureManager,
+  TextureWrapper: glTextures.TextureWrapper
+});
+Crafty.c("HTML", require('./graphics/html'));
 require('./graphics/image');
 require('./graphics/particles');
 require('./graphics/sprite-animation');
