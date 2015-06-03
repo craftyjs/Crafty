@@ -39,11 +39,11 @@ Crafty.c("Image", require('./graphics/image'));
 Crafty.c("Particles", require('./graphics/particles'));
 Crafty.c("SpriteAnimation", require('./graphics/sprite-animation'));
 var sprite = require('./graphics/sprite');
-Crafty.extend(sprite.spriteFunction)
-Crafty.c("Sprite", spriteComponent)
-require('./graphics/text');
-require('./graphics/viewport');
 require('./graphics/webgl');
+Crafty.extend(sprite.spriteFunction);
+Crafty.c("Sprite", sprite.spriteComponent);
+Crafty.c("Text", require('./graphics/text'));
+Crafty.extend(require('./graphics/viewport'));
 
 require('./isometric/diamond-iso');
 require('./isometric/isometric');

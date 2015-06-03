@@ -1,6 +1,3 @@
-var Crafty = require('../core/core.js');
-
-
 /**@
  * #Text
  * @category Graphics
@@ -24,7 +21,7 @@ var Crafty = require('../core/core.js');
  *
  * @note If you use canvas text with glyphs that are taller than standard letters, portions of the glyphs might be cut off.
  */
-Crafty.c("Text", {
+module.exports = {
     _text: "",
     defaultSize: "10px",
     defaultFamily: "sans-serif",
@@ -266,4 +263,4 @@ Crafty.c("Text", {
         return this;
     }
 
-});
+};

@@ -1,7 +1,7 @@
 var Crafty = require('../core/core.js'),
     document = window.document;
 
-Crafty.extend({
+module.exports = {
     /**@
      * #Crafty.viewport
      * @category Stage
@@ -734,4 +734,4 @@ Crafty.extend({
                 Crafty.viewport._x + rect._x < Crafty.viewport.width && Crafty.viewport._y + rect._y < Crafty.viewport.height;
         },
     }
-});
+};
