@@ -14,7 +14,7 @@ var Crafty = require('../core/core.js'),
  * To visualise an object's MBR, use "VisibleMBR".  To visualise a "Collision" object's hitbox, use "WiredHitBox" or "SolidHitBox".
  * @see DebugPolygon,  DebugRectangle
  */
-Crafty.c("DebugCanvas", {
+exports.debugCanvas = {
     init: function () {
         this.requires("2D");
         if (!Crafty.DebugCanvas.context)
@@ -108,7 +108,7 @@ Crafty.c("DebugCanvas", {
     }
 
 
-});
+};
 
 
 
@@ -127,7 +127,7 @@ Crafty.c("DebugCanvas", {
  *~~~
  * @see DebugCanvas
  */
-Crafty.c("DebugRectangle", {
+exports.debugRectangle = {
     init: function () {
         this.requires("2D, DebugCanvas");
     },
@@ -166,7 +166,7 @@ Crafty.c("DebugRectangle", {
 
 
 
-});
+};
 
 
 
@@ -179,7 +179,7 @@ Crafty.c("DebugRectangle", {
  * The methods of DebugCanvas can be used to control this component's appearance.
  * @see 2D, DebugRectangle, DebugCanvas
  */
-Crafty.c("VisibleMBR", {
+exports.visibleMBR = {
     init: function () {
         this.requires("DebugRectangle")
             .debugFill("purple")
@@ -196,7 +196,7 @@ Crafty.c("VisibleMBR", {
     }
 
 
-});
+};
 
 
 /**@
@@ -211,7 +211,7 @@ Crafty.c("VisibleMBR", {
  *
  * @see DebugCanvas
  */
-Crafty.c("DebugPolygon", {
+exports.debugPolygon = {
     init: function () {
         this.requires("2D, DebugCanvas");
     },
@@ -250,7 +250,7 @@ Crafty.c("DebugPolygon", {
         if (this._debug.strokeStyle)
             ctx.stroke();
     }
-});
+};
 
 
 /**@
@@ -262,7 +262,7 @@ Crafty.c("DebugPolygon", {
  * The methods of DebugCanvas can be used to control this component's appearance.
  * @see DebugPolygon, DebugCanvas
  */
-Crafty.c("WiredHitBox", {
+exports.wiredHitBox = {
     init: function () {
         this.requires("DebugPolygon")
             .debugStroke("red")
@@ -272,7 +272,7 @@ Crafty.c("WiredHitBox", {
     matchHitBox: function () {
         this.debugPolygon(this.map);
     }
-});
+};
 
 /**@
  * #SolidHitBox
@@ -283,7 +283,7 @@ Crafty.c("WiredHitBox", {
  * The methods of DebugCanvas can be used to control this component's appearance.
  * @see DebugPolygon, DebugCanvas
  */
-Crafty.c("SolidHitBox", {
+exports.solidHitBox = {
     init: function () {
         this.requires("Collision, DebugPolygon")
             .debugFill("orange").debugAlpha(0.7)
@@ -293,9 +293,9 @@ Crafty.c("SolidHitBox", {
     matchHitBox: function () {
         this.debugPolygon(this.map);
     }
-});
+};
 
-Crafty.DebugCanvas = {
+exports.DebugCanvas = {
     context: null,
     entities: [],
     onetimeEntities: [],

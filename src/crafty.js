@@ -69,7 +69,14 @@ Crafty.extend(require('./controls/keycodes'));
 
 Crafty.extend(require('./sound/sound'));
 
-require('./debug/debug-layer');
+var debug = require('./debug/debug-layer');
+Crafty.c("DebugCanvas", debug.debugCanvas);
+Crafty.c("DebugRectangle", debug.debugRectangle);
+Crafty.c("VisibleMBR", debug.visibleMBR);
+Crafty.c("DebugPolygon", debug.debugPolygon);
+Crafty.c("WiredHitBox", debug.wiredHitBox);
+Crafty.c("SolidHitBox", debug.solidHitBox);
+Crafty.DebugCanvas = debug.DebugCanvas;
 require('./debug/logging');
 
 if(window) window.Crafty = Crafty;
