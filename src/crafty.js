@@ -77,7 +77,7 @@ Crafty.c("DebugPolygon", debug.debugPolygon);
 Crafty.c("WiredHitBox", debug.wiredHitBox);
 Crafty.c("SolidHitBox", debug.solidHitBox);
 Crafty.DebugCanvas = debug.DebugCanvas;
-require('./debug/logging');
+Crafty.extend(require('./debug/logging'));
 
 if(window) window.Crafty = Crafty;
 
