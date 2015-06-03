@@ -1,7 +1,7 @@
 var Crafty = require('../core/core.js'),
     document = window.document;
 
-Crafty.extend({
+exports.inputsObject = {
     over: null, //object mouseover, waiting for out
     mouseObjs: 0,
     mousePos: {},
@@ -560,7 +560,7 @@ Crafty.extend({
             return false;
         }
     }
-});
+};
 
 //initialize the input events onload
 Crafty.bind("Load", function () {
@@ -652,7 +652,7 @@ Crafty.bind("CraftyStop", function () {
  * @see Crafty.touchDispatch
  * @see Crafty.mouseButtons
  */
-Crafty.c("Mouse", {
+exports.mouseComponent = {
     init: function () {
         Crafty.mouseObjs++;
         this.requires("AreaMap")
@@ -660,7 +660,7 @@ Crafty.c("Mouse", {
                 Crafty.mouseObjs--;
             });
     }
-});
+};
 
 /**@
  * #Touch
@@ -700,7 +700,7 @@ Crafty.c("Mouse", {
  * @see Crafty.mouseDispatch
  * @see Crafty.mouseButtons
  */
-Crafty.c("Touch", {
+exports.touchComponent = {
     init: function () {
         Crafty.touchObjs++;
         this.requires("AreaMap")
@@ -708,7 +708,7 @@ Crafty.c("Touch", {
                 Crafty.touchObjs--;
             });
     }
-});
+};
 
 /**@
  * #AreaMap
@@ -721,7 +721,7 @@ Crafty.c("Touch", {
  * @see Crafty.mouseButtons
  * @see Crafty.polygon
  */
-Crafty.c("AreaMap", {
+exports.areaComponent = {
     init: function () {
     },
 
@@ -762,7 +762,7 @@ Crafty.c("AreaMap", {
         this.attach(this.mapArea);
         return this;
     }
-});
+};
 
 /**@
  * #Button
@@ -772,12 +772,12 @@ Crafty.c("AreaMap", {
  * 
  * @see Crafty.multitouch
  */
-Crafty.c("Button", {
+exports.buttonComponent = {
     init: function () {
         var req = (!Crafty.mobile || (Crafty.mobile && !Crafty.multitouch())) ? "Mouse" : "Touch";
         this.requires(req);
     }
-});
+};
 
 /**@
  * #MouseDrag
@@ -789,7 +789,7 @@ Crafty.c("Button", {
  *
  * @see Mouse
  */
-Crafty.c("MouseDrag", {
+exports.mouseDragComponent = {
     _dragging: false,
 
     //Note: the code is not tested with zoom, etc., that may distort the direction between the viewport and the coordinate on the canvas.
@@ -862,7 +862,7 @@ Crafty.c("MouseDrag", {
         this.trigger("StopDrag", e || Crafty.lastEvent);
         return this;
     }
-});
+};
 
 /**@
  * #Keyboard
@@ -879,7 +879,7 @@ Crafty.c("MouseDrag", {
  * @see KeyboardEvent
  * @see Crafty.keys
  */
-Crafty.c("Keyboard", {
+exports.keyboardComponent = {
     /**@
      * #.isDown
      * @comp Keyboard
@@ -903,5 +903,4 @@ Crafty.c("Keyboard", {
         }
         return !!Crafty.keydown[key];
     }
-});
-
+};

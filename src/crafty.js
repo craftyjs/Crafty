@@ -50,7 +50,14 @@ Crafty.webgl = webgl.webgl;
 Crafty.extend(require('./isometric/diamond-iso'));
 Crafty.extend(require('./isometric/isometric'));
 
-require('./controls/inputs');
+var inputs = require('./controls/inputs');
+Crafty.extend(inputs.inputsObject);
+Crafty.c("Mouse", inputs.mouseComponent);
+Crafty.c("Touch", inputs.touchComponent);
+Crafty.c("AreaMap", inputs.areaComponent);
+Crafty.c("Button", inputs.buttonComponent);
+Crafty.c("MouseDrag", inputs.mouseDragComponent);
+Crafty.c("Keyboard", inputs.keyboardComponent);
 require('./controls/controls');
 require('./controls/device');
 require('./controls/keycodes');
