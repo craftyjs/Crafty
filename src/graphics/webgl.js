@@ -192,7 +192,7 @@ RenderProgramWrapper.prototype = {
  *~~~
  */
 
-Crafty.c("WebGL", {
+exports.WebGLComponent = {
     /**@
      * #.context
      * @comp WebGL
@@ -331,7 +331,7 @@ Crafty.c("WebGL", {
         // Shader program means ready
         this.ready = true;
     }
-});
+};
 
 /**@
  * #Crafty.webgl
@@ -339,249 +339,246 @@ Crafty.c("WebGL", {
  *
  * A collection of methods to handle webgl contexts.
  */
-Crafty.extend({
+exports.webgl = {
+    /**@
+     * #Crafty.webgl.context
+     * @comp Crafty.webgl
+     *
+     * This will return the context of the webgl canvas element.
+     */
+    context: null,
+    changed_objects: [],
 
-    webgl: {
-        /**@
-         * #Crafty.webgl.context
-         * @comp Crafty.webgl
-         *
-         * This will return the context of the webgl canvas element.
-         */
-        context: null,
-        changed_objects: [],
-   
-       // Create a vertex or fragment shader, given the source and type
-       _compileShader: function (src, type){
-            var gl = this.context;
-            var shader = gl.createShader(type);
-            gl.shaderSource(shader, src);
-            gl.compileShader(shader);
-            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-              throw(gl.getShaderInfoLog(shader));
-            }
-            return shader;
-        },
+   // Create a vertex or fragment shader, given the source and type
+   _compileShader: function (src, type){
+        var gl = this.context;
+        var shader = gl.createShader(type);
+        gl.shaderSource(shader, src);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+          throw(gl.getShaderInfoLog(shader));
+        }
+        return shader;
+    },
 
-        // Create and return a complete, linked shader program, given the source for the fragment and vertex shaders.
-        // Will compile the two shaders and then link them together
-        _makeProgram: function (fragment_src, vertex_src){
-            var gl = this.context;
-            var fragment_shader = this._compileShader(fragment_src, gl.FRAGMENT_SHADER);
-            var vertex_shader = this._compileShader(vertex_src, gl.VERTEX_SHADER);
+    // Create and return a complete, linked shader program, given the source for the fragment and vertex shaders.
+    // Will compile the two shaders and then link them together
+    _makeProgram: function (fragment_src, vertex_src){
+        var gl = this.context;
+        var fragment_shader = this._compileShader(fragment_src, gl.FRAGMENT_SHADER);
+        var vertex_shader = this._compileShader(vertex_src, gl.VERTEX_SHADER);
 
-            var shaderProgram = gl.createProgram();
-            gl.attachShader(shaderProgram, vertex_shader);
-            gl.attachShader(shaderProgram, fragment_shader);
-            gl.linkProgram(shaderProgram);
+        var shaderProgram = gl.createProgram();
+        gl.attachShader(shaderProgram, vertex_shader);
+        gl.attachShader(shaderProgram, fragment_shader);
+        gl.linkProgram(shaderProgram);
 
-            if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-              throw("Could not initialise shaders");
-            }
-            
-            shaderProgram.viewport = gl.getUniformLocation(shaderProgram, "uViewport");
-            return shaderProgram;
-        },
+        if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+          throw("Could not initialise shaders");
+        }
+        
+        shaderProgram.viewport = gl.getUniformLocation(shaderProgram, "uViewport");
+        return shaderProgram;
+    },
 
-        programs: {},
+    programs: {},
 
-        // Will create and return a RenderProgramWrapper for a shader program.
-        // name is a unique id, attributes an array of attribute names with their metadata.
-        // Each attribute needs at least a `name`  and `width` property:
-        // ~~~
-        //   [
-        //      {name:"aPosition", width: 2},
-        //      {name:"aOrientation", width: 3},
-        //      {name:"aLayer", width:2},
-        //      {name:"aColor",  width: 4}
-        //   ]
-        // ~~~
-        // The "aPositon", "aOrientation", and "aLayer" attributes should be the same for any webgl entity,
-        // since they support the basic 2D properties
-        getProgramWrapper: function(name, fragment_src, vertex_src, attributes){
-            if (this.programs[name] === undefined){
-                var shader = this._makeProgram(fragment_src, vertex_src);
-                var program = new RenderProgramWrapper(this.context, shader);
-                program.name = name;
-                program.initAttributes(attributes);
-                program.setViewportUniforms(Crafty.viewport);
-                this.programs[name] = program;
-            }
-            return this.programs[name];
-        },
+    // Will create and return a RenderProgramWrapper for a shader program.
+    // name is a unique id, attributes an array of attribute names with their metadata.
+    // Each attribute needs at least a `name`  and `width` property:
+    // ~~~
+    //   [
+    //      {name:"aPosition", width: 2},
+    //      {name:"aOrientation", width: 3},
+    //      {name:"aLayer", width:2},
+    //      {name:"aColor",  width: 4}
+    //   ]
+    // ~~~
+    // The "aPositon", "aOrientation", and "aLayer" attributes should be the same for any webgl entity,
+    // since they support the basic 2D properties
+    getProgramWrapper: function(name, fragment_src, vertex_src, attributes){
+        if (this.programs[name] === undefined){
+            var shader = this._makeProgram(fragment_src, vertex_src);
+            var program = new RenderProgramWrapper(this.context, shader);
+            program.name = name;
+            program.initAttributes(attributes);
+            program.setViewportUniforms(Crafty.viewport);
+            this.programs[name] = program;
+        }
+        return this.programs[name];
+    },
 
-        // Make a texture out of the given image element
-        // The url is just used as a unique ID
-        makeTexture: function(url, image, repeating){
-            var webgl = this;
-            return webgl.texture_manager.makeTexture(url, image, repeating);
-        },
+    // Make a texture out of the given image element
+    // The url is just used as a unique ID
+    makeTexture: function(url, image, repeating){
+        var webgl = this;
+        return webgl.texture_manager.makeTexture(url, image, repeating);
+    },
 
-        /**@
-         * #Crafty.webgl.init
-         * @comp Crafty.webgl
-         * @sign public void Crafty.webgl.init(void)
-         * @trigger NoWebGL - triggered if `Crafty.support.webgl` is false
-         *
-         * This will create a `canvas` element inside `Crafty.stage.elem`, used for displaying "WebGL" components.
-         *
-         * This method will automatically be called by any "WebGL" component if no `Crafty.webgl.context` is
-         * found, so it is not neccessary to call this manually.
-         */
-        init: function () {
+    /**@
+     * #Crafty.webgl.init
+     * @comp Crafty.webgl
+     * @sign public void Crafty.webgl.init(void)
+     * @trigger NoWebGL - triggered if `Crafty.support.webgl` is false
+     *
+     * This will create a `canvas` element inside `Crafty.stage.elem`, used for displaying "WebGL" components.
+     *
+     * This method will automatically be called by any "WebGL" component if no `Crafty.webgl.context` is
+     * found, so it is not neccessary to call this manually.
+     */
+    init: function () {
 
-            //check if we support webgl is supported
-            if (!Crafty.support.webgl) {
-                Crafty.trigger("NoWebGL");
-                Crafty.stop();
-                return;
-            }
-
-            //create an empty canvas element
-            var c;
-            c = document.createElement("canvas");
-            c.width = Crafty.viewport.width;
-            c.height = Crafty.viewport.height;
-            c.style.position = 'absolute';
-            c.style.left = "0px";
-            c.style.top = "0px";
-
-            Crafty.stage.elem.appendChild(c);
-
-            // Try to get a webgl context
-            var gl;
-            try {
-                gl = c.getContext("webgl", { premultipliedalpha: true }) || c.getContext("experimental-webgl", { premultipliedalpha: true });
-                gl.viewportWidth = c.width;
-                gl.viewportHeight = c.height;
-            } catch(e) {
-                Crafty.trigger("NoWebGL");
-                Crafty.stop();
-                return;
-            }
-
-            // assign to this renderer
-            this.context = gl;
-            this._canvas = c;
-
-            gl.clearColor(0.0, 0.0, 0.0, 0.0);
-            
-            // These commands allow partial transparency, but require drawing in z-order
-            gl.disable(gl.DEPTH_TEST);
-            // This particular blend function requires the shader programs to output pre-multiplied alpha
-            // This is necessary to match the blending of canvas/dom entities against the background color
-            gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-            gl.enable(gl.BLEND);
-            
-
-            //Bind rendering of canvas context (see drawing.js)
-            var webgl = this;
-            Crafty.uniqueBind("RenderScene", webgl.render);
-            Crafty.uniqueBind("ViewportResize", webgl._resize);
-            Crafty.uniqueBind("InvalidateViewport", function(){webgl.dirtyViewport = true;});
-            Crafty.uniqueBind("PixelartSet", webgl._setPixelart);
-            webgl._setPixelart(Crafty._pixelartEnabled);
-            this.dirtyViewport = true;
-
-            this.texture_manager = new Crafty.TextureManager(gl, this);
-
-
-        },
-
-        // Called when the viewport resizes
-        _resize: function(){
-            var c = Crafty.webgl._canvas;
-            c.width = Crafty.viewport.width;
-            c.height = Crafty.viewport.height;
-
-            var gl = Crafty.webgl.context;
-            gl.viewportWidth = c.width;
-            gl.viewportHeight = c.height;
-        },
-
-        // TODO consider shifting to texturemanager
-        _setPixelart: function(enabled) {
-            var gl = Crafty.webgl.context;
-            if (enabled){
-                Crafty.webgl.texture_filter = gl.NEAREST;
-            } else {
-                Crafty.webgl.texture_filter = gl.LINEAR;
-            }
-        },
-
-        // convenicne to sort array by global Z
-        zsort: function(a, b) {
-                return a._globalZ - b._globalZ;
-        },
-
-        // Hold an array ref to avoid garbage
-        visible_gl: [],
-
-        // Render any entities associated with this context; called in response to a draw event
-        render: function(rect){
-            rect = rect || Crafty.viewport.rect();
-            var webgl = Crafty.webgl,
-                gl = webgl.context;
-
-            // Set viewport and clear it
-            gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
-            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-            //Set the viewport uniform variables used by each registered program
-            var programs = webgl.programs;
-            if (webgl.dirtyViewport){
-              for (var comp in programs) {
-                  programs[comp].setViewportUniforms(Crafty.viewport);
-              }
-              webgl.dirtyViewport = false;
-            }
-
-            // Search for any entities in the given area (viewport unless otherwise specified)
-            var q = Crafty.map.search(rect),
-                i = 0,
-                l = q.length,
-                current;
-            //From all potential candidates, build a list of visible entities, then sort by zorder
-            var visible_gl = webgl.visible_gl;
-            visible_gl.length = 0;
-            for (i=0; i < l; i++) {
-                current = q[i];
-                if (current._visible && current.__c.WebGL && current.program) {
-                    visible_gl.push(current);
-                }
-            }
-            visible_gl.sort(webgl.zsort);
-            l = visible_gl.length;
-
-
-            // Now iterate through the z-sorted entities to be rendered
-            // Each entity writes it's data into a typed array
-            // The entities are rendered in batches, where the entire array is copied to a buffer in one operation
-            // A batch is rendered whenever the next element needs to use a different type of program
-            // Therefore, you get better performance by grouping programs by z-order if possible.
-            // (Each sprite sheet will use a different program, but multiple sprites on the same sheet can be rendered in one batch)
-            var batchCount = 0;
-            var shaderProgram = null;
-            for (i=0; i < l; i++) {
-                current = visible_gl[i];
-                if (shaderProgram !== current.program){
-                  if (shaderProgram !== null){
-                    shaderProgram.renderBatch();
-                  }
-
-                  shaderProgram = current.program;
-                  shaderProgram.index_pointer = 0;
-                  shaderProgram.switchTo();
-                }
-                current.draw();
-                current._changed = false;
-            }
-
-            if (shaderProgram !== null){
-              shaderProgram.renderBatch();
-            }
-            
+        //check if we support webgl is supported
+        if (!Crafty.support.webgl) {
+            Crafty.trigger("NoWebGL");
+            Crafty.stop();
+            return;
         }
 
+        //create an empty canvas element
+        var c;
+        c = document.createElement("canvas");
+        c.width = Crafty.viewport.width;
+        c.height = Crafty.viewport.height;
+        c.style.position = 'absolute';
+        c.style.left = "0px";
+        c.style.top = "0px";
+
+        Crafty.stage.elem.appendChild(c);
+
+        // Try to get a webgl context
+        var gl;
+        try {
+            gl = c.getContext("webgl", { premultipliedalpha: true }) || c.getContext("experimental-webgl", { premultipliedalpha: true });
+            gl.viewportWidth = c.width;
+            gl.viewportHeight = c.height;
+        } catch(e) {
+            Crafty.trigger("NoWebGL");
+            Crafty.stop();
+            return;
+        }
+
+        // assign to this renderer
+        this.context = gl;
+        this._canvas = c;
+
+        gl.clearColor(0.0, 0.0, 0.0, 0.0);
+        
+        // These commands allow partial transparency, but require drawing in z-order
+        gl.disable(gl.DEPTH_TEST);
+        // This particular blend function requires the shader programs to output pre-multiplied alpha
+        // This is necessary to match the blending of canvas/dom entities against the background color
+        gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+        gl.enable(gl.BLEND);
+        
+
+        //Bind rendering of canvas context (see drawing.js)
+        var webgl = this;
+        Crafty.uniqueBind("RenderScene", webgl.render);
+        Crafty.uniqueBind("ViewportResize", webgl._resize);
+        Crafty.uniqueBind("InvalidateViewport", function(){webgl.dirtyViewport = true;});
+        Crafty.uniqueBind("PixelartSet", webgl._setPixelart);
+        webgl._setPixelart(Crafty._pixelartEnabled);
+        this.dirtyViewport = true;
+
+        this.texture_manager = new Crafty.TextureManager(gl, this);
+
+
+    },
+
+    // Called when the viewport resizes
+    _resize: function(){
+        var c = Crafty.webgl._canvas;
+        c.width = Crafty.viewport.width;
+        c.height = Crafty.viewport.height;
+
+        var gl = Crafty.webgl.context;
+        gl.viewportWidth = c.width;
+        gl.viewportHeight = c.height;
+    },
+
+    // TODO consider shifting to texturemanager
+    _setPixelart: function(enabled) {
+        var gl = Crafty.webgl.context;
+        if (enabled){
+            Crafty.webgl.texture_filter = gl.NEAREST;
+        } else {
+            Crafty.webgl.texture_filter = gl.LINEAR;
+        }
+    },
+
+    // convenicne to sort array by global Z
+    zsort: function(a, b) {
+            return a._globalZ - b._globalZ;
+    },
+
+    // Hold an array ref to avoid garbage
+    visible_gl: [],
+
+    // Render any entities associated with this context; called in response to a draw event
+    render: function(rect){
+        rect = rect || Crafty.viewport.rect();
+        var webgl = Crafty.webgl,
+            gl = webgl.context;
+
+        // Set viewport and clear it
+        gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        //Set the viewport uniform variables used by each registered program
+        var programs = webgl.programs;
+        if (webgl.dirtyViewport){
+          for (var comp in programs) {
+              programs[comp].setViewportUniforms(Crafty.viewport);
+          }
+          webgl.dirtyViewport = false;
+        }
+
+        // Search for any entities in the given area (viewport unless otherwise specified)
+        var q = Crafty.map.search(rect),
+            i = 0,
+            l = q.length,
+            current;
+        //From all potential candidates, build a list of visible entities, then sort by zorder
+        var visible_gl = webgl.visible_gl;
+        visible_gl.length = 0;
+        for (i=0; i < l; i++) {
+            current = q[i];
+            if (current._visible && current.__c.WebGL && current.program) {
+                visible_gl.push(current);
+            }
+        }
+        visible_gl.sort(webgl.zsort);
+        l = visible_gl.length;
+
+
+        // Now iterate through the z-sorted entities to be rendered
+        // Each entity writes it's data into a typed array
+        // The entities are rendered in batches, where the entire array is copied to a buffer in one operation
+        // A batch is rendered whenever the next element needs to use a different type of program
+        // Therefore, you get better performance by grouping programs by z-order if possible.
+        // (Each sprite sheet will use a different program, but multiple sprites on the same sheet can be rendered in one batch)
+        var batchCount = 0;
+        var shaderProgram = null;
+        for (i=0; i < l; i++) {
+            current = visible_gl[i];
+            if (shaderProgram !== current.program){
+              if (shaderProgram !== null){
+                shaderProgram.renderBatch();
+              }
+
+              shaderProgram = current.program;
+              shaderProgram.index_pointer = 0;
+              shaderProgram.switchTo();
+            }
+            current.draw();
+            current._changed = false;
+        }
+
+        if (shaderProgram !== null){
+          shaderProgram.renderBatch();
+        }
+        
     }
-});
+
+};
