@@ -1,6 +1,3 @@
-var Crafty = require('../core/core.js');
-
-
 /**@
 * #SpriteAnimation
 * @category Animation
@@ -25,7 +22,7 @@ var Crafty = require('../core/core.js');
 *
 * @see Crafty.sprite
 */
-Crafty.c("SpriteAnimation", {
+module.exports = {
 	/*
 	*
 	* A map in which the keys are the names assigned to animations defined using
@@ -473,4 +470,4 @@ Crafty.c("SpriteAnimation", {
 
 		return this._reels[reelId];
 	}
-});
+};

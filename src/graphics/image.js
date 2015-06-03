@@ -1,6 +1,3 @@
-var Crafty = require('../core/core.js');
-
-
 // 
 // Define some variables required for webgl
 var fs = require('fs');
@@ -18,7 +15,7 @@ var IMAGE_ATTRIBUTE_LIST = [
  * @category Graphics
  * Draw an image with or without repeating (tiling).
  */
-Crafty.c("Image", {
+module.exports = {
     _repeat: "repeat",
     ready: false,
 
@@ -141,4 +138,4 @@ Crafty.c("Image", {
         }
 
     }
-});
+};

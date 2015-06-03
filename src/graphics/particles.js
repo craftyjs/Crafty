@@ -1,5 +1,4 @@
-var Crafty = require('../core/core.js'),    
-    document = window.document;
+var document = window.document;
 
 /**@
  * #Particles
@@ -12,7 +11,7 @@ var Crafty = require('../core/core.js'),
  *
  * For implementation details, check out the source code.
  */
-Crafty.c("Particles", {
+module.exports = {
     init: function () {
         //We need to clone it
         this._Particles = Crafty.clone(this._Particles);
@@ -381,4 +380,4 @@ Crafty.c("Particles", {
             }
         }
     }
-});
+};

@@ -34,10 +34,13 @@ Crafty.extend({
   TextureWrapper: glTextures.TextureWrapper
 });
 Crafty.c("HTML", require('./graphics/html'));
-require('./graphics/image');
-require('./graphics/particles');
-require('./graphics/sprite-animation');
-require('./graphics/sprite');
+Crafty.c("Image", require('./graphics/image'));
+
+Crafty.c("Particles", require('./graphics/particles'));
+Crafty.c("SpriteAnimation", require('./graphics/sprite-animation'));
+var sprite = require('./graphics/sprite');
+Crafty.extend(sprite.spriteFunction)
+Crafty.c("Sprite", spriteComponent)
 require('./graphics/text');
 require('./graphics/viewport');
 require('./graphics/webgl');

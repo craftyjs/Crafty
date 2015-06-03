@@ -1,6 +1,3 @@
-var Crafty = require('../core/core.js');
-
-
 // Define some variables required for webgl
 var fs = require('fs');
 var SPRITE_VERTEX_SHADER = fs.readFileSync(__dirname + '/shaders/sprite.vert', 'utf8');
@@ -12,7 +9,7 @@ var SPRITE_ATTRIBUTE_LIST = [
     {name:"aTextureCoord",  width: 2}
 ];
 
-Crafty.extend({
+exports.spriteFunction = {
 
     /**@
      * #Crafty.sprite
@@ -155,7 +152,7 @@ Crafty.extend({
 
         return this;
     }
-});
+};
 
 /**@
  * #Sprite
@@ -169,7 +166,7 @@ Crafty.extend({
  *
  * @see Crafty.sprite, Crafty.load
  */
-Crafty.c("Sprite", {
+exports.spriteComponent = {
     __image: '',
     /*
      * #.__tile
@@ -330,4 +327,4 @@ Crafty.c("Sprite", {
         this.trigger("Invalidate", old);
         return this;
     }
-});
+};
