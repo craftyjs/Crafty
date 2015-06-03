@@ -64,10 +64,10 @@ Crafty.c("Multiway", controls.multiWayComponent);
 Crafty.c("Jumpway", controls.jumpwayComponent);
 Crafty.c("Fourway", controls.fourwayComponent);
 Crafty.c("Twoway", controls.twowayComponent);
-require('./controls/device');
-require('./controls/keycodes');
+Crafty.extend(require('./controls/device'));
+Crafty.extend(require('./controls/keycodes'));
 
-require('./sound/sound');
+Crafty.extend(require('./sound/sound'));
 
 require('./debug/debug-layer');
 require('./debug/logging');

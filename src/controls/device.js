@@ -1,7 +1,6 @@
 var Crafty = require('../core/core.js');
 
-
-Crafty.extend({
+module.exports = {
     /**@
      * #Crafty.device
      * @category Misc
@@ -156,4 +155,4 @@ Crafty.extend({
             }
         }
     }
-});
+};

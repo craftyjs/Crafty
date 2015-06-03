@@ -1,7 +1,7 @@
 var Crafty = require('../core/core.js'),
     document = window.document;
 
-Crafty.extend({
+module.exports = {
     /**@
      * #Crafty.audio
      * @category Audio
@@ -549,4 +549,4 @@ Crafty.extend({
             return false;
         }
     }
-});
+};

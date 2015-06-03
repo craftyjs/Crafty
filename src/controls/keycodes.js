@@ -1,7 +1,7 @@
 var Crafty = require('../core/core.js');
 
 
-Crafty.extend({
+module.exports = {
     /**@
      * #Crafty.keys
      * @category Input
@@ -213,4 +213,4 @@ Crafty.extend({
         MIDDLE: 1,
         RIGHT: 2
     }
-});
+};
