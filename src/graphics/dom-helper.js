@@ -1,7 +1,6 @@
-var Crafty = require('../core/core.js'),
-    document = window.document;
+var document = window.document;
 
-Crafty.extend({
+module.exports = {
     /**@
      * #Crafty.domHelper
      * @category Graphics
@@ -99,4 +98,4 @@ Crafty.extend({
             };
         }
     }
-});
+};

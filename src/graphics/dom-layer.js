@@ -1,6 +1,4 @@
-var Crafty = require('../core/core.js'),
-    document = window.document;
-
+var document = window.document;
 
 /**@
  * #Crafty.domLayer
@@ -8,7 +6,7 @@ var Crafty = require('../core/core.js'),
  *
  * Collection of mostly private methods to represent entities using the DOM.
  */
-Crafty.extend({
+module.exports = {
     domLayer: {
         _changedObjs: [],
         _dirtyViewport: false,
@@ -127,4 +125,4 @@ Crafty.extend({
         }
 
     }
-});
+};

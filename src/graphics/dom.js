@@ -1,5 +1,4 @@
-var Crafty = require('../core/core.js'),
-    document = window.document;
+var document = window.document;
 
 /**@
  * #DOM
@@ -7,7 +6,7 @@ var Crafty = require('../core/core.js'),
  *
  * A component which renders entities as DOM nodes, specifically `<div>`s.
  */
-Crafty.c("DOM", {
+module.exports = {
     /**@
      * #._element
      * @comp DOM
@@ -290,4 +289,4 @@ Crafty.c("DOM", {
 
         return this;
     }
-});
+};

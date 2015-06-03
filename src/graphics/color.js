@@ -1,8 +1,4 @@
-var Crafty = require('../core/core.js'),
-    document = window.document;
-
-
-
+var document = window.document;
 
 /**@
  * #Crafty.assignColor
@@ -14,120 +10,117 @@ var Crafty = require('../core/core.js'),
  *           Potentially with `_strength` representing the alpha channel.
  *           If the assignee parameter is passed, that object will be assigned those values and returned.
  */
-Crafty.extend({
-    assignColor: (function(){
-        
-        // Create phantom element to assess color
-        var element = document.createElement("div");
-        element.style.display = "none";
-        // Can't attach it til later on, so we need a flag!
-        var element_attached = false;
-        var dictionary = {
-            "aqua":     "#00ffff",
-            "black":    "#000000",
-            "blue":     "#0000ff",
-            "fuchsia":  "#ff00ff",
-            "gray":     "#808080",
-            "green":    "#00ff00",
-            "lime":     "#00ff00",
-            "maroon":   "#800000",
-            "navy":     "#000080",
-            "olive":    "#808000",
-            "orange":   "#ffa500",
-            "purple":   "#800080",
-            "red":      "#ff0000",
-            "silver":   "#c0c0c0",
-            "teal":     "#008080",
-            "white":    "#ffffff",
-            "yellow":   "#ffff00"
-        };
+exports.assignColor = (function(){
 
-        function default_value(c){
-            c._red = c._blue = c._green = 0;
-            return c;
+    // Create phantom element to assess color
+    var element = document.createElement("div");
+    element.style.display = "none";
+    // Can't attach it til later on, so we need a flag!
+    var element_attached = false;
+    var dictionary = {
+        "aqua":     "#00ffff",
+        "black":    "#000000",
+        "blue":     "#0000ff",
+        "fuchsia":  "#ff00ff",
+        "gray":     "#808080",
+        "green":    "#00ff00",
+        "lime":     "#00ff00",
+        "maroon":   "#800000",
+        "navy":     "#000080",
+        "olive":    "#808000",
+        "orange":   "#ffa500",
+        "purple":   "#800080",
+        "red":      "#ff0000",
+        "silver":   "#c0c0c0",
+        "teal":     "#008080",
+        "white":    "#ffffff",
+        "yellow":   "#ffff00"
+    };
+
+    function default_value(c){
+        c._red = c._blue = c._green = 0;
+        return c;
+    }
+
+    function hexComponent(component) {
+        var hex = component.toString(16);
+        if (hex.length==1)
+            hex = "0" + hex;
+        return hex;
+    }
+
+    function rgbToHex(r, g, b){
+        return "#" + hexComponent(r) + hexComponent(g) + hexComponent(b);
+    }
+
+    function parseHexString(hex, c) {
+        var l;
+        if (hex.length === 7){
+            l=2;
+        } else if (hex.length === 4){
+            l=1;
+        } else {
+            return default_value(c);
         }
+        c._red = parseInt(hex.substr(1, l), 16);
+        c._green = parseInt(hex.substr(1+l, l), 16);
+        c._blue = parseInt(hex.substr(1+2*l, l), 16);
+        return c;
+    }
 
-        function hexComponent(component) {
-            var hex = component.toString(16);
-            if (hex.length==1)
-                hex = "0" + hex;
-            return hex;
+    var rgb_regex = /rgba?\s*\(\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,?\s*([0-9.]+)?\)/;
+
+    function parseRgbString(rgb, c) {
+        var values = rgb_regex.exec(rgb);
+        if( values===null || (values.length != 4 && values.length != 5)) {
+            return default_value(c); // return bad result?         
         }
-
-        function rgbToHex(r, g, b){
-            return "#" + hexComponent(r) + hexComponent(g) + hexComponent(b);
+        c._red = Math.round(parseFloat(values[1]));
+        c._green = Math.round(parseFloat(values[2]));
+        c._blue = Math.round(parseFloat(values[3]));
+        if (values[4]) {
+            c._strength = parseFloat(values[4]);
         }
+        return c;
+    }
 
-        function parseHexString(hex, c) {
-            var l;
-            if (hex.length === 7){
-                l=2;
-            } else if (hex.length === 4){
-                l=1;
-            } else {
-                return default_value(c);
+    function parseColorName(key, c){
+        if (typeof dictionary[key] === "undefined"){
+            if (element_attached === false){
+                window.document.body.appendChild(element);
+                element_attached = true;
             }
-            c._red = parseInt(hex.substr(1, l), 16);
-            c._green = parseInt(hex.substr(1+l, l), 16);
-            c._blue = parseInt(hex.substr(1+2*l, l), 16);
-            return c;
+            element.style.color = key;
+            var rgb = window.getComputedStyle(element).color;
+            parseRgbString(rgb, c);
+            dictionary[key] = rgbToHex(c._red, c._green, c._blue);
+            //window.document.body.removeChild(element);
+        } else {
+            parseHexString(dictionary[key], c);
         }
+        return c;
+    }
 
-        var rgb_regex = /rgba?\s*\(\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,?\s*([0-9.]+)?\)/;
+    function rgbaString(c){
+        return "rgba(" + c._red + ", " + c._green + ", " + c._blue + ", " + c._strength + ")";
+    }
 
-        function parseRgbString(rgb, c) {
-            var values = rgb_regex.exec(rgb);
-            if( values===null || (values.length != 4 && values.length != 5)) {
-                return default_value(c); // return bad result?         
-            }
-            c._red = Math.round(parseFloat(values[1]));
-            c._green = Math.round(parseFloat(values[2]));
-            c._blue = Math.round(parseFloat(values[3]));
-            if (values[4]) {
-                c._strength = parseFloat(values[4]);
-            }
-            return c;
+    // The actual assignColor function
+    return function(color, c){
+        c = c || {};
+        color = color.trim().toLowerCase();
+        var ret = null;
+        if (color[0] === '#'){
+            ret = parseHexString(color, c);
+        } else if (color[0] === 'r' && color[1] === 'g' && color[2] === 'b'){
+            ret = parseRgbString(color, c);
+        } else {
+            ret = parseColorName(color, c);
         }
-
-        function parseColorName(key, c){
-            if (typeof dictionary[key] === "undefined"){
-                if (element_attached === false){
-                    window.document.body.appendChild(element);
-                    element_attached = true;
-                }
-                element.style.color = key;
-                var rgb = window.getComputedStyle(element).color;
-                parseRgbString(rgb, c);
-                dictionary[key] = rgbToHex(c._red, c._green, c._blue);
-                //window.document.body.removeChild(element);
-            } else {
-                parseHexString(dictionary[key], c);
-            }
-            return c;
-        }
-
-        function rgbaString(c){
-            return "rgba(" + c._red + ", " + c._green + ", " + c._blue + ", " + c._strength + ")";
-        }
-
-        // The actual assignColor function
-        return function(color, c){
-            c = c || {};
-            color = color.trim().toLowerCase();
-            var ret = null;
-            if (color[0] === '#'){
-                ret = parseHexString(color, c);
-            } else if (color[0] === 'r' && color[1] === 'g' && color[2] === 'b'){
-                ret = parseRgbString(color, c);
-            } else {
-                ret = parseColorName(color, c);
-            }
-            c._strength = c._strength || 1.0;
-            c._color = rgbaString(c);
-        };
-
-    })()
-});
+        c._strength = c._strength || 1.0;
+        c._color = rgbaString(c);
+    };
+})();
 
 
 
@@ -151,7 +144,7 @@ var COLOR_ATTRIBUTE_LIST = [
  * @category Graphics
  * Draw a colored rectangle.
  */
-Crafty.c("Color", {
+exports.colorComponent = {
     _red: 0,
     _green: 0,
     _blue: 0,
@@ -250,5 +243,4 @@ Crafty.c("Color", {
         this.trigger("Invalidate");
         return this;
     }
-});
-
+};

@@ -19,11 +19,15 @@ require('./spatial/math');
 
 Crafty.c("Canvas", require('./graphics/canvas'));
 Crafty.extend(require('./graphics/canvas-layer'));
-require('./graphics/color');
-require('./graphics/dom');
-require('./graphics/dom-helper');
-require('./graphics/dom-layer');
-require('./graphics/drawing');
+
+var colorModule = require('./graphics/color');
+Crafty.assignColor = colorModule.assignColor;
+Crafty.c("Color", colorModule.colorComponent);
+
+Crafty.c("DOM", require('./graphics/dom'));
+Crafty.extend(require('./graphics/dom-helper'));
+Crafty.extend(require('./graphics/dom-layer'));
+Crafty.extend(require('./graphics/drawing'));
 require('./graphics/gl-textures');
 require('./graphics/html');
 require('./graphics/image');

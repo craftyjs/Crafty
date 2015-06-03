@@ -1,6 +1,6 @@
 var Crafty = require('../core/core.js');
 
-Crafty.extend({
+module.exports = {
     /**@
      * #Crafty.pixelart
      * @category Graphics
@@ -42,4 +42,4 @@ Crafty.extend({
         Crafty._pixelartEnabled = enabled;
         Crafty.trigger("PixelartSet", enabled);
     }
-});
+};
