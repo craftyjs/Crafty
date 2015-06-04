@@ -1079,6 +1079,8 @@ Crafty.c("Supportable", {
  * Component that attaches the entity to the ground when it lands. Useful for platformers with moving platforms.
  * Remove the component to disable the functionality.
  *
+ * @see Supportable, Gravity
+ *
  * @example
  * ~~~
  * Crafty.e("2D, Gravity, GroundAttacher")
@@ -1215,7 +1217,11 @@ Crafty.c("Gravity", {
     }
 });
 
-
+// This is used to define getters and setters for Motion properties
+// For instance
+//      __motionProp(entity, "a", "x", true) 
+// will define a getter for `ax` which accesses an underlying private property `_ax`
+// If the `setter` property is false, setting a value will be a null-op
 var __motionProp = function(self, prefix, prop, setter) {
     var publicProp = prefix + prop;
     var privateProp = "_" + publicProp;
@@ -1246,6 +1252,10 @@ var __motionProp = function(self, prefix, prop, setter) {
     });
 };
 
+// This defines an alias for a pair of underlying properties which represent the components of a vector
+// It takes an object with vector methods, and redefines its x/y properties as getters and setters to properties of self
+// This allows you to use the vector's special methods to manipulate the entity's properties, 
+// while still allowing you to manipulate those properties directly if performance matters
 var __motionVector = function(self, prefix, setter, vector) {
     var publicX = prefix + "x",
         publicY = prefix + "y",
@@ -1279,7 +1289,7 @@ Crafty.c("AngularMotion", {
      * #.vrotation
      * @comp AngularMotion
      * 
-     * A number for accessing/modifying the angular(rotational) velocity. 
+     * A property for accessing/modifying the angular(rotational) velocity. 
      * The velocity remains constant over time, unless the acceleration increases the velocity.
      *
      * @example
@@ -1297,7 +1307,7 @@ Crafty.c("AngularMotion", {
      * #.arotation
      * @comp AngularMotion
      * 
-     * A number for accessing/modifying the angular(rotational) acceleration. 
+     * A property for accessing/modifying the angular(rotational) acceleration. 
      * The acceleration increases the velocity over time, resulting in ever increasing speed.
      *
      * @example
@@ -1404,14 +1414,16 @@ Crafty.c("AngularMotion", {
  *
  * Component that allows moving an entity by applying linear velocity and acceleration.
  * All linear motion values are expressed in pixels per frame (e.g. an entity with `vx` of 1 will move 1px on the x axis each frame).
+ *
+ * @note Several methods return Vector2D objects that dynamically reflect the entity's underlying properties.  If you want a static copy instead, use the vector's `clone()` method.
  */
 Crafty.c("Motion", {
     /**@
      * #.vx
      * @comp Motion
      * 
-     * A number for accessing/modifying the linear velocity in the x axis.
-     * The velocity remains constant over time, unless the acceleration increases the velocity.
+     * A property for accessing/modifying the linear velocity in the x axis.
+     * The velocity remains constant over time, unless the acceleration changes the velocity.
      *
      * @example
      * ~~~
@@ -1428,8 +1440,8 @@ Crafty.c("Motion", {
      * #.vy
      * @comp Motion
      * 
-     * A number for accessing/modifying the linear velocity in the y axis.
-     * The velocity remains constant over time, unless the acceleration increases the velocity.
+     * A property for accessing/modifying the linear velocity in the y axis.
+     * The velocity remains constant over time, unless the acceleration changes the velocity.
      *
      * @example
      * ~~~
@@ -1446,8 +1458,8 @@ Crafty.c("Motion", {
      * #.ax
      * @comp Motion
      * 
-     * A number for accessing/modifying the linear acceleration in the x axis.
-     * The acceleration increases the velocity over time, resulting in ever increasing speed.
+     * A property for accessing/modifying the linear acceleration in the x axis.
+     * The acceleration changes the velocity over time.
      *
      * @example
      * ~~~
@@ -1464,8 +1476,8 @@ Crafty.c("Motion", {
      * #.ay
      * @comp Motion
      * 
-     * A number for accessing/modifying the linear acceleration in the y axis.
-     * The acceleration increases the velocity over time, resulting in ever increasing speed.
+     * A property for accessing/modifying the linear acceleration in the y axis.
+     * The acceleration changes the velocity over time.
      *
      * @example
      * ~~~
