@@ -1268,7 +1268,7 @@ var __motionVector = function(self, prefix, setter, vector) {
  * #AngularMotion
  * @category 2D
  * @trigger Rotated - When entity has rotated due to angular velocity/acceleration a Rotated event is triggered. - Number - Old rotation
- * @trigger NewRevolution - When entity has changed rotational direction due to rotational velocity a NewRevolution event is triggered. The event is triggered once, if direction is different from last frame. - -1 | 0 | 1 - New direction
+ * @trigger NewRotationDirection - When entity has changed rotational direction due to rotational velocity a NewRotationDirection event is triggered. The event is triggered once, if direction is different from last frame. - -1 | 0 | 1 - New direction
  * @trigger MotionChange - When a motion property has changed a MotionChange event is triggered. - { key: String, oldValue: Number } - Motion property name and old value
  *
  * Component that allows rotating an entity by applying angular velocity and acceleration.
@@ -1369,14 +1369,6 @@ Crafty.c("AngularMotion", {
      */
     _angularMotionTick: function(frameData) {
         var dt = frameData.dt * this._dtFactor;
-
-        var _vr = this._vrotation,
-            dvr = _vr >> 31 | -_vr >>> 31; // Math.sign(this._vrotation)
-        if (this.__oldRevolution !== dvr) {
-            this.__oldRevolution = dvr;
-            this.trigger('NewRevolution', dvr);
-        }
-
         var oldR = this._rotation,
             vr = this._vrotation,
             ar = this._arotation;
@@ -1385,6 +1377,14 @@ Crafty.c("AngularMotion", {
         var newR = oldR + vr * dt + 0.5 * ar * dt * dt;
         // v += a * Δt
         this.vrotation = vr + ar * dt;
+
+        var _vr = this._vrotation,
+            dvr = _vr ? (vr<0 ? -1:1):0; // Quick implementation of Math.sign
+        if (this.__oldRevolution !== dvr) {
+            this.__oldRevolution = dvr;
+            this.trigger('NewRotationDirection', dvr);
+        }
+
         // Δs = s[t] - s[t-1]
         this._drotation = newR - oldR;
 
@@ -1635,14 +1635,6 @@ Crafty.c("Motion", {
         var dt = frameData.dt * this._dtFactor;
 
         var oldDirection = this.__oldDirection;
-        var _vx = this._vx, dvx = _vx >> 31 | -_vx >>> 31, // Math.sign(this._vx)
-            _vy = this._vy, dvy = _vy >> 31 | -_vy >>> 31; // Math.sign(this._vy)
-        if (oldDirection.x !== dvx || oldDirection.y !== dvy) {
-            var directionEvent = this.__directionEvent;
-            directionEvent.x = oldDirection.x = dvx;
-            directionEvent.y = oldDirection.y = dvy;
-            this.trigger('NewDirection', directionEvent);
-        }
 
         var oldX = this._x, vx = this._vx, ax = this._ax,
             oldY = this._y, vy = this._vy, ay = this._ay;
@@ -1653,6 +1645,19 @@ Crafty.c("Motion", {
         // v += a * Δt
         this.vx = vx + ax * dt;
         this.vy = vy + ay * dt;
+
+
+        // Check to see if the velocity has changed
+        var _vx = this._vx, dvx = _vx ? (_vx<0 ? -1:1):0, // A quick implementation of Math.sign
+            _vy = this._vy, dvy = _vy ? (_vy<0 ? -1:1):0;
+        if (oldDirection.x !== dvx || oldDirection.y !== dvy) {
+            var directionEvent = this.__directionEvent;
+            directionEvent.x = oldDirection.x = dvx;
+            directionEvent.y = oldDirection.y = dvy;
+            this.trigger('NewDirection', directionEvent);
+        }
+
+
         // Δs = s[t] - s[t-1]
         this._dx = newX - oldX;
         this._dy = newY - oldY;
