@@ -535,6 +535,48 @@
     ent.destroy();
   });
 
+  test("Motion - changing vector", function() {
+    var Vector2D = Crafty.math.Vector2D;
+    var zero = new Vector2D();
+    var ent = Crafty.e("2D, Motion")
+      .attr({x: 0, y:0});
+    var vec1 = ent.velocity();
+
+    ent.vx = 5;
+
+    equal(ent.velocity().x, 5, "Velocity component changed");
+
+  });
+
+  test("Motion - NewDirection Event", function(){
+    var e = Crafty.e("2D, Motion")
+      .attr({x: 10, y:10}); 
+    e.vx = 0;
+    e.vy = 0;
+    e.ay = 0;
+    e.ax = -0.3;
+    var newDirectionFlag = false;
+    e.bind("NewDirection", function(){
+      newDirectionFlag = true;
+    });
+    Crafty.timer.simulateFrames(1);
+    equal(newDirectionFlag, true, "NewDirection was triggered");
+  });
+
+  test("AngularMotion - NewRotationDirection Event", function(){
+    var e = Crafty.e("2D, AngularMotion")
+      .attr({x: 10, y:10}); 
+    e.vrotation = 0;
+    e.arotation = -0.3;
+
+    var newDirectionFlag = false;
+    e.bind("NewRotationDirection", function(){
+      newDirectionFlag = true;
+    });
+    Crafty.timer.simulateFrames(1);
+    equal(newDirectionFlag, true, "NewDirection was triggered");
+  });
+
   test("Motion - Events", function() {
     var Vector2D = Crafty.math.Vector2D;
     var zero = new Vector2D();
@@ -542,15 +584,15 @@
       .attr({x: 0, y:0});
 
     var newDirectionEvents = 0,
-        newRevolutionEvents = 0,
+        newRotationDirectionEvents = 0,
         movedEvents = 0,
         rotatedEvents = 0,
         motionEvents = 0;
     e.bind("NewDirection", function(evt) {
       newDirectionEvents++;
     });
-    e.bind("NewRevolution", function(evt) {
-      newRevolutionEvents++;
+    e.bind("NewRotationDirection", function(evt) {
+      newRotationDirectionEvents++;
     });
     e.bind("Moved", function(evt) {
       movedEvents++;
@@ -658,7 +700,7 @@
     Crafty.timer.simulateFrames(1);
 
     equal(newDirectionEvents, 4);
-    equal(newRevolutionEvents, 3);
+    equal(newRotationDirectionEvents, 3);
     equal(movedEvents, 6);
     equal(rotatedEvents, 2);
     equal(motionEvents, 17);
