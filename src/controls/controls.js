@@ -350,7 +350,7 @@ Crafty.c("Multiway", {
 
 
 /**@
- * #Jumpway
+ * #Jumper
  * @category Controls
  * @trigger NewDirection - When entity has changed direction due to velocity on either x or y axis a NewDirection event is triggered. The event is triggered once, if direction is different from last frame. - { x: -1 | 0 | 1, y: -1 | 0 | 1 } - New direction
  * @trigger Moved - When entity has moved due to velocity/acceleration on either x or y axis a Moved event is triggered. If the entity has moved on both axes for diagonal movement the event is triggered twice. - { axis: 'x' | 'y', oldValue: Number } - Old position
@@ -360,20 +360,20 @@ Crafty.c("Multiway", {
  *
  * @see Supportable, Motion, Keyboard, Gravity
  */
-Crafty.c("Jumpway", {
+Crafty.c("Jumper", {
     _jumpSpeed: 300,
 
     /**@
      * #.canJump
-     * @comp Jumpway
+     * @comp Jumper
      *
      * The canJump function determines if the entity is allowed to jump or not (e.g. perhaps the entity should be able to double jump).
-     * The Jumpway component will trigger a "CheckJumping" event.
+     * The Jumper component will trigger a "CheckJumping" event.
      * Interested parties can listen to this event and enable the entity to jump by setting `canJump` to true.
      *
      * @example
      * ~~~
-     * var player = Crafty.e("2D, Jumpway");
+     * var player = Crafty.e("2D, Jumper");
      * player.hasDoubleJumpPowerUp = true; // allow player to double jump by granting him a powerup
      * player.bind("CheckJumping", function(ground) {
      *     if (!ground && player.hasDoubleJumpPowerUp) { // allow player to double jump by using up his double jump powerup
@@ -390,7 +390,7 @@ Crafty.c("Jumpway", {
 
     /**@
      * #.enableControl
-     * @comp Jumpway
+     * @comp Jumper
      * @sign public this .enableControl()
      *
      * Enable the component to listen to key events.
@@ -403,7 +403,7 @@ Crafty.c("Jumpway", {
 
     /**@
      * #.disableControl
-     * @comp Jumpway
+     * @comp Jumper
      * @sign public this .disableControl()
      *
      * Disable the component to listen to key events.
@@ -422,10 +422,10 @@ Crafty.c("Jumpway", {
     },
 
     remove: function() {
-        this.unbind("KeyDown", this._keydown_jumpway);
+        this.unbind("KeyDown", this._keydown_jumper);
     },
 
-    _keydown_jumpway: function (e) {
+    _keydown_jumper: function (e) {
         if (this.disableControls) return;
 
         if (this._jumpKeys[e.key]) {
@@ -439,9 +439,9 @@ Crafty.c("Jumpway", {
     },
 
     /**@
-     * #.jumpway
-     * @comp Jumpway
-     * @sign public this .jumpway([Number jumpSpeed,] Array jumpKeys)
+     * #.jumper
+     * @comp Jumper
+     * @sign public this .jumper([Number jumpSpeed,] Array jumpKeys)
      * @param jumpSpeed - Vertical jump speed in pixels per second
      * @param jumpKeys - Keys to listen for and make entity jump in response
      *
@@ -457,7 +457,7 @@ Crafty.c("Jumpway", {
      *
      * @see Supportable, Motion, Keyboard, Gravity
      */
-    jumpway: function (jumpSpeed, jumpKeys) {
+    jumper: function (jumpSpeed, jumpKeys) {
         if (jumpKeys) {
             this._jumpSpeed = jumpSpeed;
         } else {
@@ -471,14 +471,14 @@ Crafty.c("Jumpway", {
             this._jumpKeys[keyCode] = true;
         }
 
-        this.uniqueBind("KeyDown", this._keydown_jumpway);
+        this.uniqueBind("KeyDown", this._keydown_jumper);
 
         return this;
     },
 
     /**@
      * #.jumpSpeed
-     * @comp Jumpway
+     * @comp Jumper
      * @sign public this .jumpSpeed(Number jumpSpeed)
      * @param jumpSpeed - new vertical jump speed
      *
@@ -552,12 +552,12 @@ Crafty.c("Fourway", {
  *
  * Move an entity left or right using the arrow keys or `D` and `A` and jump using up arrow or `W`.
  *
- * @see Multiway, Jumpway
+ * @see Multiway, Jumper
  */
 Crafty.c("Twoway", {
 
     init: function () {
-        this.requires("Multiway, Jumpway");
+        this.requires("Multiway, Jumper");
     },
 
     /**@
@@ -575,7 +575,7 @@ Crafty.c("Twoway", {
      * The key presses will move the entity in that direction by the speed passed in
      * the argument. Pressing the `Up Arrow` or `W` will cause the entity to jump.
      *
-     * @see Multiway, Jumpway
+     * @see Multiway, Jumper
      */
     twoway: function (speed, jumpSpeed) {
 
@@ -587,7 +587,7 @@ Crafty.c("Twoway", {
             Q: 180
         });
 
-        this.jumpway(jumpSpeed || speed * 2 || this._jumpSpeed, [
+        this.jumper(jumpSpeed || speed * 2 || this._jumpSpeed, [
             Crafty.keys.UP_ARROW,
             Crafty.keys.W,
             Crafty.keys.Z
