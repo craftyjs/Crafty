@@ -1119,7 +1119,7 @@ Crafty.c("GroundAttacher", {
  * @see Supportable, Motion
  */
 Crafty.c("Gravity", {
-    _gravityConst: 0.2,
+    _gravityConst: 500,
 
     init: function () {
         this.requires("2D, Supportable, Motion");
@@ -1133,7 +1133,7 @@ Crafty.c("Gravity", {
     },
 
     _gravityCheckLanding: function(ground) {
-        if (this._dy < 0)
+        if (this._dy < 0) 
             this.canLand = false;
     },
 
@@ -1184,9 +1184,9 @@ Crafty.c("Gravity", {
      * #.gravityConst
      * @comp Gravity
      * @sign public this .gravityConst(g)
-     * @param g - gravitational constant
+     * @param g - gravitational constant in pixels per second squared
      *
-     * Set the gravitational constant to g. The default is 0.2 . The greater g, the faster the object falls.
+     * Set the gravitational constant to g for this entity. The default is 500. The greater g, the stronger the downwards acceleration.
      *
      * @example
      * ~~~
@@ -1282,7 +1282,7 @@ var __motionVector = function(self, prefix, setter, vector) {
  * @trigger MotionChange - When a motion property has changed a MotionChange event is triggered. - { key: String, oldValue: Number } - Motion property name and old value
  *
  * Component that allows rotating an entity by applying angular velocity and acceleration.
- * All angular motion values are expressed in degrees per frame (e.g. an entity with `vrotation` of 10 will rotate 10 degrees each frame).
+ * All angular motion values are expressed in degrees per second (e.g. an entity with `vrotation` of 10 will rotate 10 degrees each second).
  */
 Crafty.c("AngularMotion", {
     /**@
@@ -1346,16 +1346,9 @@ Crafty.c("AngularMotion", {
         this.__oldRevolution = 0;
 
         this.bind("EnterFrame", this._angularMotionTick);
-        this.bind("FPSChange", this._angularChangeFPS);
-        this._angularChangeFPS(Crafty.timer.FPS());
     },
     remove: function(destroyed) {
         this.unbind("EnterFrame", this._angularMotionTick);
-        this.unbind("FPSChange", this._angularChangeFPS);
-    },
-
-    _angularChangeFPS: function(fps) {
-        this._dtFactor = fps / 1000;
     },
 
     /**@
@@ -1378,7 +1371,7 @@ Crafty.c("AngularMotion", {
      * v += a * Δt
      */
     _angularMotionTick: function(frameData) {
-        var dt = frameData.dt * this._dtFactor;
+        var dt = frameData.dt / 1000; // Time in s
         var oldR = this._rotation,
             vr = this._vrotation,
             ar = this._arotation;
@@ -1413,7 +1406,7 @@ Crafty.c("AngularMotion", {
  * @trigger MotionChange - When a motion property has changed a MotionChange event is triggered. - { key: String, oldValue: Number } - Motion property name and old value
  *
  * Component that allows moving an entity by applying linear velocity and acceleration.
- * All linear motion values are expressed in pixels per frame (e.g. an entity with `vx` of 1 will move 1px on the x axis each frame).
+ * All linear motion values are expressed in pixels per second (e.g. an entity with `vx` of 1 will move 1px on the x axis each second).
  *
  * @note Several methods return Vector2D objects that dynamically reflect the entity's underlying properties.  If you want a static copy instead, use the vector's `clone()` method.
  */
@@ -1538,16 +1531,9 @@ Crafty.c("Motion", {
         this.__oldDirection = {x: 0, y: 0};
 
         this.bind("EnterFrame", this._linearMotionTick);
-        this.bind("FPSChange", this._linearChangeFPS);
-        this._linearChangeFPS(Crafty.timer.FPS());
     },
     remove: function(destroyed) {
         this.unbind("EnterFrame", this._linearMotionTick);
-        this.unbind("FPSChange", this._linearChangeFPS);
-    },
-
-    _linearChangeFPS: function(fps) {
-        this._dtFactor = fps / 1000;
     },
 
     /**@
@@ -1644,7 +1630,7 @@ Crafty.c("Motion", {
      * v += a * Δt
      */
     _linearMotionTick: function(frameData) {
-        var dt = frameData.dt * this._dtFactor;
+        var dt = frameData.dt / 1000; // time in s
 
         var oldDirection = this.__oldDirection;
 
