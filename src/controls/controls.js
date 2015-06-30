@@ -144,7 +144,7 @@ Crafty.c("Multiway", {
         this._keyDirection = {}; // keyCode -> direction
         this._activeDirections = {}; // direction -> # of keys pressed for that direction
         this._directionSpeed = {}; // direction -> {x: x_speed, y: y_speed}
-        this._speed = { x: 3, y: 3 };
+        this._speed = { x: 150, y: 150 };
 
         this.bind("KeyDown", this._keydown)
             .bind("KeyUp", this._keyup);
@@ -185,7 +185,7 @@ Crafty.c("Multiway", {
      * #.multiway
      * @comp Multiway
      * @sign public this .multiway([Number speed,] Object keyBindings)
-     * @param speed - Amount of pixels to move the entity whilst a key is down
+     * @param speed - A speed in pixels per second
      * @param keyBindings - What keys should make the entity go in which direction. Direction is specified in degrees
      *
      * Constructor to initialize the speed and keyBindings. Component will listen to key events and move the entity appropriately.
@@ -193,8 +193,8 @@ Crafty.c("Multiway", {
      *
      * @example
      * ~~~
-     * this.multiway(3, {UP_ARROW: -90, DOWN_ARROW: 90, RIGHT_ARROW: 0, LEFT_ARROW: 180});
-     * this.multiway({x:3,y:1.5}, {UP_ARROW: -90, DOWN_ARROW: 90, RIGHT_ARROW: 0, LEFT_ARROW: 180});
+     * this.multiway(150, {UP_ARROW: -90, DOWN_ARROW: 90, RIGHT_ARROW: 0, LEFT_ARROW: 180});
+     * this.multiway({x:150,y:75}, {UP_ARROW: -90, DOWN_ARROW: 90, RIGHT_ARROW: 0, LEFT_ARROW: 180});
      * this.multiway({W: -90, S: 90, D: 0, A: 180});
      * ~~~
      *
@@ -234,12 +234,13 @@ Crafty.c("Multiway", {
      * @sign public this .speed(Object speed)
      * @param speed - New speed the entity has, for x and y axis.
      *
-     * Change the speed that the entity moves with. 
+     * Change the speed that the entity moves with, in units of pixels per second.
+     *
      * Can be called while a key is pressed to change speed on the fly.
      *
      * @example
      * ~~~
-     * this.speed({ x: 3, y: 1 });
+     * this.speed({ x: 150, y: 50 });
      * ~~~
      */
     speed: function (speed) {
@@ -349,7 +350,7 @@ Crafty.c("Multiway", {
 
 
 /**@
- * #Jumpway
+ * #Jumper
  * @category Controls
  * @trigger NewDirection - When entity has changed direction due to velocity on either x or y axis a NewDirection event is triggered. The event is triggered once, if direction is different from last frame. - { x: -1 | 0 | 1, y: -1 | 0 | 1 } - New direction
  * @trigger Moved - When entity has moved due to velocity/acceleration on either x or y axis a Moved event is triggered. If the entity has moved on both axes for diagonal movement the event is triggered twice. - { axis: 'x' | 'y', oldValue: Number } - Old position
@@ -359,20 +360,20 @@ Crafty.c("Multiway", {
  *
  * @see Supportable, Motion, Keyboard, Gravity
  */
-Crafty.c("Jumpway", {
-    _jumpSpeed: 6,
+Crafty.c("Jumper", {
+    _jumpSpeed: 300,
 
     /**@
      * #.canJump
-     * @comp Jumpway
+     * @comp Jumper
      *
      * The canJump function determines if the entity is allowed to jump or not (e.g. perhaps the entity should be able to double jump).
-     * The Jumpway component will trigger a "CheckJumping" event.
+     * The Jumper component will trigger a "CheckJumping" event.
      * Interested parties can listen to this event and enable the entity to jump by setting `canJump` to true.
      *
      * @example
      * ~~~
-     * var player = Crafty.e("2D, Jumpway");
+     * var player = Crafty.e("2D, Jumper");
      * player.hasDoubleJumpPowerUp = true; // allow player to double jump by granting him a powerup
      * player.bind("CheckJumping", function(ground) {
      *     if (!ground && player.hasDoubleJumpPowerUp) { // allow player to double jump by using up his double jump powerup
@@ -389,7 +390,7 @@ Crafty.c("Jumpway", {
 
     /**@
      * #.enableControl
-     * @comp Jumpway
+     * @comp Jumper
      * @sign public this .enableControl()
      *
      * Enable the component to listen to key events.
@@ -402,7 +403,7 @@ Crafty.c("Jumpway", {
 
     /**@
      * #.disableControl
-     * @comp Jumpway
+     * @comp Jumper
      * @sign public this .disableControl()
      *
      * Disable the component to listen to key events.
@@ -421,10 +422,10 @@ Crafty.c("Jumpway", {
     },
 
     remove: function() {
-        this.unbind("KeyDown", this._keydown_jumpway);
+        this.unbind("KeyDown", this._keydown_jumper);
     },
 
-    _keydown_jumpway: function (e) {
+    _keydown_jumper: function (e) {
         if (this.disableControls) return;
 
         if (this._jumpKeys[e.key]) {
@@ -438,10 +439,10 @@ Crafty.c("Jumpway", {
     },
 
     /**@
-     * #.jumpway
-     * @comp Jumpway
-     * @sign public this .jumpway([Number jumpSpeed,] Array jumpKeys)
-     * @param jumpSpeed - Vertical jump speed
+     * #.jumper
+     * @comp Jumper
+     * @sign public this .jumper([Number jumpSpeed,] Array jumpKeys)
+     * @param jumpSpeed - Vertical jump speed in pixels per second
      * @param jumpKeys - Keys to listen for and make entity jump in response
      *
      * Constructor to initialize the power of jump and keys to listen to. Component will
@@ -450,13 +451,13 @@ Crafty.c("Jumpway", {
      *
      * @example
      * ~~~
-     * this.jumpway(6, ['UP_ARROW', 'W']);
-     * this.jumpway(['UP_ARROW', 'W']);
+     * this.jumper(300, ['UP_ARROW', 'W']);
+     * this.jumper(['UP_ARROW', 'W']);
      * ~~~
      *
      * @see Supportable, Motion, Keyboard, Gravity
      */
-    jumpway: function (jumpSpeed, jumpKeys) {
+    jumper: function (jumpSpeed, jumpKeys) {
         if (jumpKeys) {
             this._jumpSpeed = jumpSpeed;
         } else {
@@ -470,14 +471,14 @@ Crafty.c("Jumpway", {
             this._jumpKeys[keyCode] = true;
         }
 
-        this.uniqueBind("KeyDown", this._keydown_jumpway);
+        this.uniqueBind("KeyDown", this._keydown_jumper);
 
         return this;
     },
 
     /**@
      * #.jumpSpeed
-     * @comp Jumpway
+     * @comp Jumper
      * @sign public this .jumpSpeed(Number jumpSpeed)
      * @param jumpSpeed - new vertical jump speed
      *
@@ -485,7 +486,7 @@ Crafty.c("Jumpway", {
      *
      * @example
      * ~~~
-     * this.jumpSpeed(6);
+     * this.jumpSpeed(300);
      * ~~~
      */
     jumpSpeed: function (jumpSpeed) {
@@ -515,7 +516,7 @@ Crafty.c("Fourway", {
      * #.fourway
      * @comp Fourway
      * @sign public this .fourway([Number speed])
-     * @param speed - Amount of pixels to move the entity whilst a key is down
+     * @param speed - The speed of motion in pixels per second.
      *
      * Constructor to initialize the speed. Component will listen for key events and move the entity appropriately.
      * This includes `Up Arrow`, `Right Arrow`, `Down Arrow`, `Left Arrow` as well as `W`, `A`, `S`, `D`.
@@ -551,20 +552,20 @@ Crafty.c("Fourway", {
  *
  * Move an entity left or right using the arrow keys or `D` and `A` and jump using up arrow or `W`.
  *
- * @see Multiway, Jumpway
+ * @see Multiway, Jumper
  */
 Crafty.c("Twoway", {
 
     init: function () {
-        this.requires("Multiway, Jumpway");
+        this.requires("Multiway, Jumper");
     },
 
     /**@
      * #.twoway
      * @comp Twoway
      * @sign public this .twoway([Number speed[, Number jumpSpeed]])
-     * @param speed - Amount of pixels to move left or right
-     * @param jumpSpeed - Vertical jump speed
+     * @param speed - A speed in pixels per second
+     * @param jumpSpeed - Vertical jump speed in pixels per second
      *
      * Constructor to initialize the speed and power of jump. Component will
      * listen for key events and move the entity appropriately. This includes
@@ -574,7 +575,7 @@ Crafty.c("Twoway", {
      * The key presses will move the entity in that direction by the speed passed in
      * the argument. Pressing the `Up Arrow` or `W` will cause the entity to jump.
      *
-     * @see Multiway, Jumpway
+     * @see Multiway, Jumper
      */
     twoway: function (speed, jumpSpeed) {
 
@@ -586,7 +587,7 @@ Crafty.c("Twoway", {
             Q: 180
         });
 
-        this.jumpway(jumpSpeed || speed * 2 || this._jumpSpeed, [
+        this.jumper(jumpSpeed || speed * 2 || this._jumpSpeed, [
             Crafty.keys.UP_ARROW,
             Crafty.keys.W,
             Crafty.keys.Z
