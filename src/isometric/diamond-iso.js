@@ -26,6 +26,8 @@ Crafty.extend({
         //false if there is no collision in this square
         _collisionMap: [],
         _tileLocations: {},
+        //This looks totally random, but it lets the grid subdivide different parts of each tile into different integer Z layers so that entities can move
+        //smoothly across it.
         _tileZSpacing: 6,
         /**@
          * #Crafty.diamondIso.init
@@ -83,13 +85,14 @@ Crafty.extend({
          * @param y - The `y` position to place the tile
          * @param layer - The `z` position to place the tile (only level 0 and 1 are supported)
          * @param keepOldPosition - If true, the code will place the code in the grid but not update its X/Y
+         *  Useful if the entity is walking on top of the grid or sliding around and just needs to have its grid position updated.
          * Use this method to place an entity in an isometric grid.
          *
          * @example
          * ~~~
          * var iso = Crafty.diamondIso.init(64,128,20,20,0,0);
-         * isos.place(Crafty.e('2D, DOM, Color').color('red').attr({w:128, h:128}),1,1,2,false);
-         * This will slot this tile into the grid
+         * iso.place(Crafty.e('2D, DOM, Color').color('red').attr({w:128, h:128}),1,1,2,false);
+         * This will slot this tile into the grid.
          * ~~~
          *
          * @see Crafty.diamondIso.size
@@ -157,7 +160,7 @@ Crafty.extend({
         /**@
          * #Crafty.diamondIso.detachTile
          * @comp Crafty.diamondIso
-         * @sign private this Crafty.diamondIso.detachTile(Entity obj)
+         * @sign private [number x, number y] Crafty.diamondIso.detachTile(Entity obj)
          * @param obj - the object to remove
          * When passed an entity, removes that entity from the grid and returns its previous location.
          * Does not delete the tile.
@@ -181,8 +184,7 @@ Crafty.extend({
         },
         /**@
          * #Crafty.diamondIso.centerAt
-         * @comp Crafty.centerAt
-         * @sign private this Crafty.centerAt(number x, number y)
+         * @comp Crafty.diamondIso
          * @param x - tile X coordinate
          * @param Y - tile Y coordinate
          * Centers the grid on the tile at X,Y (not screen pixes, tile coordinates.)
@@ -195,26 +197,37 @@ Crafty.extend({
         },
         /**@
          * #Crafty.diamondIso.getZAtLoc
-         * @comp Crafty.centerAt
-         * @sign private this Crafty.centerAt.getZAtLoc(number x, number y)
-         * @param x - tile X coordinate
+         * @comp Crafty.diamondIso
+         * @sign public int Crafty.centerAt.getZAtLoc(number x, number y, number layer)
+         * @param X - tile X coordinate
          * @param Y - tile Y coordinate
-         @ @param layer - tile layr
+         * @param layer - tile layer
          * Gets the correct Z coordinate to place this tile on so that it renders
          * properly in front of and behind other grid entities.
          * You might call this method if you are having an entity move across the top of the 
          * grid and need to interpolate between two sides.  This is the motivation behind the
          * tileZSpacing property:  tweens need to interpolate between values but have to round to 
-         * the nearest integer.
+         * the nearest integer.  Usually you call this at the starting and ending coordinates of a straight
+         * line path and interpolate between with tween.
          */
         getZAtLoc: function(x,y,layer){
             return this.layerZLevel * layer + this._tileZSpacing *(x+y);
         },
+        
+        /* 
+         * #Crafty.diamondIso.pos2px
+         * @comp Crafty.diamondIso
+         * @sign [number x, number y] Crafty.diamondIso.pos2px(number x, number y)
+         * @param X - tile coordinate X
+         * @param Y - tile coordinate Y
+         * This returns the correct coordinates to place the 
+         * object's top and left to fit inside the grid, which is
+         * NOT inside of the tile for an isometric grid.  IF you
+         * want the top corner of the diamond add tile width/2,
+         * but it seemed easier to give the same coords which you would
+         * use to set the tile's attributes.
+        */
         pos2px: function (x, y, layer,height) {
-        /* This returns the correct coordinates to place the 
-        object's top and left to fit inside the grid, which is
-        NOT inside of the tile for an isometric grid.  IF you
-        want the top corner of the diamond add tile width/2 */
         layer = layer || 0;
         height= height || 0;
         offset = -1*(this._tile.height * (2*(height-1) + layer));
@@ -223,10 +236,15 @@ Crafty.extend({
                 y: this.y + ((x + y) * this._tile.height / 2) + offset
             };
         },
-        px2pos: function (left, top) {
-        /* This returns the x/y coordinates on z level 0.
-        @TODO add a specifying z level
+        /* 
+         * #Crafty.diamondIso.px2pos
+         * @comp Crafty.diamondIso
+         * @sign [number x, number y] Crafty.diamondIso.px2pos(number x, number y)
+         * @param X - canvas/DOM x coordinate
+         * @param Y - canvas/DOM y coordinate
+         * This returns the tile coordinates that this point on the game board is inside of (on layer 0).
         */
+        px2pos: function (left, top) {
             var v1 = (top - this.y)/this._tile.height;
             var v2 = (left - this.x)/this._tile.width;
             var x = v1+v2;
@@ -244,7 +262,18 @@ Crafty.extend({
         getTileDimensions: function(){
             return {w:this._tile.width,h:this._tile.height};
         },
+        /*
+         * #Crafty.diamondIso.getTiles
+         * @comp Crafty.diamondIso
+         * @sign Tile[] Crafty.diamondIso.getTiles(number x, number y, number z)
+         * @param X - tile X coordinate
+         * @param Y - tile Y coordinate
+         * @param Z - tile layer coordinate
+         * Returns an array containing all entities at the current location on the grid.
+         *
+         */
         getTiles: function(x,y,z){
+
             return this._grid[x][y][z];
         },
         _getTraversableNeighbors: function(p){
@@ -263,6 +292,17 @@ Crafty.extend({
             }
             return points;
         },
+        /*
+         * #Crafty.diamondIso.findPath
+         * @comp Crafty.diamondIso
+         * @sign GridLoc[] Crafty.diamondIso.findPath([x1,y1],[x2,y2])
+         * @param [x1,y1] - Starting point
+         * @param [x2,y2] - Ending point
+         * Finds a path that an entity on layer 1 would use to path from the start to the end.
+         * The following blocks the path:
+         * - Entities on the grid that have the component "Obstacle"
+         * - An empty tile on layer 0 
+        */
         findPath: function(start,end){
             if (this._collisionMap[end[0]][end[1]]){
                 return undefined;
