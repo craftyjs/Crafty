@@ -89,6 +89,10 @@ module.exports = function (grunt) {
             }
         },
 
+        jsvalidate: {
+            files: ['crafty.js', 'tests/**/*.js']
+        },
+
         jshint: {
             files: ['Gruntfile.js', 'src/**/*.js', 'tests/**/*.js'],
             options: {
@@ -143,15 +147,109 @@ module.exports = function (grunt) {
             }
         },
 
-        jsvalidate: {
-            files: ['crafty.js', 'tests/**/*.js']
+        'saucelabs-qunit': {
+            all: {
+                options: {
+                    urls: [ 'http://localhost:8000/tests/index.html' ],
+                    browsers: [
+                        // see http://kangax.github.io/compat-table/es5/
+                        // see https://github.com/mucaho/Mars/blob/master/tools/es5-mobile-compat-table.md
+                        /*
+                         * OLDEST COMPATIBLE BROWSERS
+                         */
+                        // WINDOWS
+                        {
+                            browserName: 'internet explorer',
+                            version: '9.0',
+                            platform: 'Windows 7'
+                        }, {
+                            browserName: 'firefox',
+                            version: '4.0',
+                            platform: 'Windows XP'
+                        }, {
+                            browserName: 'chrome',
+                            version: '26.0', // should be 6
+                            platform: 'Windows XP'
+                        }, {
+                            browserName: 'opera',
+                            version: '12.12',
+                            platform: 'Windows XP'
+                        }, /* { // is not available as target browser currently
+                            browserName: 'safari',
+                            version: '6.0', // should be 5.1
+                            platform: 'Windows 7'
+                        }, */
+
+                        // MAC
+                        {
+                            browserName: 'firefox',
+                            version: '4.0',
+                            platform: 'OS X 10.8'
+                        }, {
+                            browserName: 'chrome',
+                            version: '27.0', // should be 6
+                            platform: 'OS X 10.8'
+                        }, {
+                            browserName: 'safari',
+                            version: '6.0', // should be 5.1
+                            platform: 'OS X 10.8'
+                        },
+
+                        // LINUX
+                        {
+                            browserName: 'firefox',
+                            version: '4.0',
+                            platform: 'Linux'
+                        }, {
+                            browserName: 'chrome',
+                            version: '26.0', // should be 6
+                            platform: 'Linux'
+                        }, {
+                            browserName: 'opera',
+                            version: '12.15',
+                            platform: 'Linux'
+                        },
+
+
+                        // Android
+                        {
+                            browserName: 'android',
+                            version: '4.0', // should be 2.3.3
+                            deviceName: 'Android Emulator',
+                            platform: 'Linux'
+                        },
+                        // PocketMAC
+                        {
+                            browserName: 'iphone',
+                            version: '5.1', // should be 4.3
+                            deviceName: 'iPhone Simulator',
+                            platform: 'OS X 10.10'
+                        }, {
+                            browserName: 'iphone',
+                            version: '5.1', // should be 4.3
+                            deviceName: 'iPad Simulator',
+                            platform: 'OS X 10.10'
+                        }
+                    ],
+                    testname: "Cross-browser compatibility tests for CraftyJS",
+                    build: process.env.TRAVIS_BUILD_NUMBER,
+                    tags: [ process.env.TRAVIS_BRANCH ],
+                    'public': 'public',
+                    sauceConfig: {
+                        "recordVideo": false,
+                        "recordScreenshots": true,
+                        "disablePopupHandler": true,
+                        //"tunnelIdentifier": process.env.TRAVIS_JOB_NUMBER
+                    },
+                    throttled: 5,
+                    'max-duration': 300,
+                    statusCheckAttempts: 150
+                }
+            }
         },
 
         connect: {
             server: {
-                options: {
-                    keepalive: true
-                }
             }
         },
 
@@ -173,8 +271,16 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-banner');
     grunt.loadNpmTasks('grunt-node-qunit');
-
+    grunt.loadNpmTasks('grunt-saucelabs');
  
+    grunt.registerTask('check-saucelabs', function() {
+        // execute this task only in travis and only if open sauce lab credentials are available
+        if (process.env.CI && process.env.SAUCE_USERNAME && process.env.SAUCE_ACCESS_KEY) {
+            grunt.task.run('connect');
+            grunt.task.run('saucelabs-qunit');
+        }
+    });
+
 
     grunt.registerTask('version', 'Takes the version into src/version.js', function() {
         fs.writeFileSync('src/version.js', 'module.exports = "' + version + '";');
@@ -193,13 +299,13 @@ module.exports = function (grunt) {
     grunt.registerTask('default', ['build:dev', 'jsvalidate']);
 
     // Run the test suite
-    grunt.registerTask('check', ['build:dev', 'jsvalidate', 'qunit', 'node-qunit', 'jshint']);
+    grunt.registerTask('check', ['build:dev', 'jsvalidate', 'jshint', 'qunit', 'node-qunit', 'check-saucelabs']);
 
     // Make crafty.js ready for release - minified version
     grunt.registerTask('release', ['version', 'build:release', 'uglify', 'api']);
 
     // Run only tests
-    grunt.registerTask('validate', ['qunit', 'node-qunit']);
+    grunt.registerTask('validate', ['qunit', 'node-qunit', 'check-saucelabs']);
 
     grunt.registerTask('api-server', "View dynamically generated docs", runApiServer);
     grunt.registerTask('view-api', ['api', 'api-server'] );
