@@ -1279,12 +1279,15 @@ Crafty.extend({
                 // When first called, set the  gametime one frame before now!
                 if (typeof gameTime === "undefined")
                     gameTime = (new Date().getTime()) - milliSecPerFrame;
-                var onFrame = window.requestAnimationFrame ||
+
+                var onFrame = (typeof window !== "undefined") && (
+                    window.requestAnimationFrame ||
                     window.webkitRequestAnimationFrame ||
                     window.mozRequestAnimationFrame ||
                     window.oRequestAnimationFrame ||
                     window.msRequestAnimationFrame ||
-                    null;
+                    null
+                );
 
                 if (onFrame) {
                     tick = function () {
@@ -1308,13 +1311,15 @@ Crafty.extend({
 
                 if (typeof tick !== "function") clearInterval(tick);
 
-                var onFrame = window.cancelAnimationFrame ||
+                var onFrame = (typeof window !== "undefined") && (
+                    window.cancelAnimationFrame ||
                     window.cancelRequestAnimationFrame ||
                     window.webkitCancelRequestAnimationFrame ||
                     window.mozCancelRequestAnimationFrame ||
                     window.oCancelRequestAnimationFrame ||
                     window.msCancelRequestAnimationFrame ||
-                    null;
+                    null
+                );
 
                 if (onFrame) onFrame(requestID);
                 tick = null;

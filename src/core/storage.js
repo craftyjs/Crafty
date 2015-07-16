@@ -1,9 +1,12 @@
+
+var storage = (typeof window !== "undefined" && window.localStorage) || (new require('node-localstorage').LocalStorage('./localStorage'));
+
 /**@
  * #Storage
  * @category Utilities
- *
- *
- * Very simple way to get and set values, which will persist when the browser is closed also. Storage wraps around HTML5 Web Storage, which is well-supported across browsers and platforms, but limited to 5MB total storage per domain.
+ * Very simple way to get and set values, which will persist when the browser is closed also.
+ * Storage wraps around HTML5 Web Storage, which is well-supported across browsers and platforms, but limited to 5MB total storage per domain.
+ * Storage is also available for node, which is permanently persisted to the `./localStorage` folder - take care of removing entries. Note that multiple Crafty instances use the same storage, so care has to be taken not to overwrite existing entries.
  */
 /**@
  * #Crafty.storage
@@ -52,9 +55,8 @@
  * ~~~
  */
 
-var storage = function(key, value) {
-  var storage = window.localStorage,
-      _value = value;
+var store = function(key, value){
+  var _value = value;
 
   if(!storage){
     return false;
@@ -94,8 +96,8 @@ var storage = function(key, value) {
  * ~~~
  *
  */
-storage.remove = function(key){
-  window.localStorage.removeItem(key);
+store.remove = function(key){
+  storage.removeItem(key);
 };
 
-module.exports = storage;
+module.exports = store;
