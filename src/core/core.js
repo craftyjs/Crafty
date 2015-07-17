@@ -588,7 +588,7 @@ Crafty.fn = Crafty.prototype = {
     _recursive_extend: function(new_data, original_data) {
         var key;
         for (key in new_data) {
-            if (new_data[key].constructor.name === 'Object') {
+            if (new_data[key].constructor === Object) {
                 original_data[key] = this._recursive_extend(new_data[key], original_data[key]);
             } else {
                 original_data[key] = new_data[key];
