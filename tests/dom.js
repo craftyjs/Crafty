@@ -17,9 +17,9 @@
       strictEqual(useCss3dTransforms._cssStyles.top, "");
       strictEqual(useCss3dTransforms._cssStyles.left, "");
     } else {
-      strictEqual(avoidCss3dTransforms._cssStyles.transform, "");
-      strictEqual(avoidCss3dTransforms._cssStyles.top, 10);
-      strictEqual(avoidCss3dTransforms._cssStyles.left, 10);
+      strictEqual(useCss3dTransforms._cssStyles.transform, "");
+      strictEqual(useCss3dTransforms._cssStyles.top, 10);
+      strictEqual(useCss3dTransforms._cssStyles.left, 10);
     }
 
     var avoidCss3dTransforms = Crafty.e("2D, DOM")
