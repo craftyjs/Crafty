@@ -937,7 +937,7 @@ Crafty.fn = Crafty.prototype = {
      * });
      *
      * ent.customData = "2" // set customData to 2
-     * console.log(ent.customData) // prints 2
+     * Crafty.log(ent.customData) // prints 2
      * ~~~
      */
     defineField: function (prop, getCallback, setCallback) {
@@ -1295,7 +1295,7 @@ Crafty.extend({
                         if (tick !== null) {
                             requestID = onFrame(tick);
                         }
-                        //console.log(requestID + ', ' + frame)
+                        //Crafty.log(requestID + ', ' + frame)
                     };
 
                     tick();
@@ -1838,7 +1838,7 @@ Crafty.extend({
      * });
      *
      * ent.customData = "2" // set customData to 2
-     * console.log(ent.customData) // prints 2
+     * Crafty.log(ent.customData) // prints 2
      * ~~~
      * @see Crafty Core#.defineField
      */

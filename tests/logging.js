@@ -4,9 +4,12 @@
   module("Crafty.log");
 
   test("Logging works when console.log is enabled", function(){
-    var original_log = console.log;
+    // this makes sure we don't crash on IE9; handle with care!
+    var logger = (typeof window !== "undefined") ? (window.console = window.console || {}) : console;
+
+    var original_log = logger.log;
     var logged_message = "";
-    console.log = function(msg) { logged_message = msg; };
+    logger.log = function(msg) { logged_message = msg; };
     var test_message = "test message";
     
     Crafty.log(test_message);
@@ -18,12 +21,12 @@
     equal(logged_message, "", "Crafty.log does nothing when logging is disabled.");
     Crafty.loggingEnabled = true;
 
-    console.log = undefined;
+    logger.log = undefined;
     Crafty.log(test_message);
     equal(logged_message, "", "Crafty.log does not crash when console.log is undefined.");
 
 
-    console.log = original_log;
+    logger.log = original_log;
   });
 
 })();

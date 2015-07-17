@@ -54,7 +54,7 @@
       }, function(data) {
         items.push(data);
       }, function(error) {
-        console.log(error);
+        Crafty.log(error);
       }
     );
   });

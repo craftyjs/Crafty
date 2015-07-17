@@ -44,7 +44,7 @@ module.exports = {
      *     "ray": ['ray.mp3'] // This loads ray.mp3 from custom/audio/path/ray.mp3
      *   }
      * }, function() {
-     *   console.log('loaded');
+     *   Crafty.log('loaded');
      * });
      * ~~~
      *

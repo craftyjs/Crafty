@@ -107,7 +107,7 @@ Crafty.extend({
          * ~~~
          * var iso = Crafty.isometric.size(128,96);
          * var px = iso.pos2px(12800,4800);
-         * console.log(px); //Object { x=100, y=100}
+         * Crafty.log(px); //Object { x=100, y=100}
          * ~~~
          */
         px2pos: function (left, top) {
@@ -133,7 +133,7 @@ Crafty.extend({
          * ~~~
          * var iso = Crafty.isometric.size(128,96).centerAt(10,10); //Viewport is now moved
          * //After moving the viewport by another event you can get the new center point
-         * console.log(iso.centerAt());
+         * Crafty.log(iso.centerAt());
          * ~~~
          */
         centerAt: function (x, y) {

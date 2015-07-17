@@ -25,7 +25,7 @@
  * });
  * person = Crafty.e('Person').attr({name: 'blaine'});
  * person.bind('Change[name]', function() {
- *   console.log('name changed!');
+ *   Crafty.log('name changed!');
  * });
  * person.attr('name', 'blainesch'); // Triggers event
  * person.is_dirty('name'); // true
