@@ -136,14 +136,21 @@ Crafty.c("Draggable", {
  * @see Motion, Keyboard
  */
 Crafty.c("Multiway", {
-    _speed: null,
-    
+    _speed: null, // { x: speedX, y: speedY }
+    _keyDirection: null, // keyCode -> direction
+
+    _activeDirections: null, // direction -> # of keys pressed for that direction
+    _directionMagnitudes_e6: null, // direction -> { x: magnitudeX, y: magnitudeY }
+
+    _activeSpeedX: 0, // currently active velocity of Multiway on x-axis
+    _activeSpeedY: 0, // currently active velocity of Multiway on y-axis
+    _activeMagnitudeX_e6: 0, // currently active denormalized direction of movement on x-axis
+    _activeMagnitudeY_e6: 0, // currently active denormalized direction of movement on y-axis
+
     init: function () {
         this.requires("Motion, Keyboard");
 
-        this._keyDirection = {}; // keyCode -> direction
-        this._activeDirections = {}; // direction -> # of keys pressed for that direction
-        this._directionSpeed = {}; // direction -> {x: x_speed, y: y_speed}
+        this._keyDirection = {};
         this._speed = { x: 150, y: 150 };
 
         this.bind("KeyDown", this._keydown)
@@ -155,15 +162,35 @@ Crafty.c("Multiway", {
             .unbind("KeyUp", this._keyup);
 
         // unapply movement of pressed keys
-        this.__unapplyActiveDirections();
+        this.__unapplyActiveSpeed();
     },
 
     _keydown: function (e) {
         var direction = this._keyDirection[e.key];
         if (direction !== undefined) { // if this is a key we are interested in
-            if (this._activeDirections[direction] === 0 && !this.disableControls) { // if key is first one pressed for this direction
-                this.vx += this._directionSpeed[direction].x;
-                this.vy += this._directionSpeed[direction].y;
+            if (this._activeDirections[direction] === 0) { // if key is first one pressed for this direction
+                /* Following is an optimization of these statements:
+                if (!this.disableControls) this.__unapplyActiveSpeed();
+                this.__addActiveMagnitude(direction);
+                this.__updateActiveSpeed();
+                if (!this.disableControls) this.__applyActiveSpeed();
+                */
+                var oldActiveSpeedX = this._activeSpeedX,
+                    oldActiveSpeedY = this._activeSpeedY;
+
+                var magnitude_e6 = this._directionMagnitudes_e6[direction],
+                    activeMagnitudeX = (this._activeMagnitudeX_e6 += magnitude_e6.x) / 1e6,
+                    activeMagnitudeY = (this._activeMagnitudeY_e6 += magnitude_e6.y) / 1e6;
+
+                var speed = this._speed,
+                    norm = Math.sqrt(activeMagnitudeX * activeMagnitudeX + activeMagnitudeY * activeMagnitudeY),
+                    newActiveSpeedX = (this._activeSpeedX = (activeMagnitudeX * speed.x / norm) >> 0),
+                    newActiveSpeedY = (this._activeSpeedY = (activeMagnitudeY * speed.y / norm) >> 0);
+
+                if (!this.disableControls) {
+                    this.vx += newActiveSpeedX - oldActiveSpeedX;
+                    this.vy += newActiveSpeedY - oldActiveSpeedY;
+                }
             }
             this._activeDirections[direction]++;
         }
@@ -173,11 +200,64 @@ Crafty.c("Multiway", {
         var direction = this._keyDirection[e.key];
         if (direction !== undefined) { // if this is a key we are interested in
             this._activeDirections[direction]--;
-            if (this._activeDirections[direction] === 0 && !this.disableControls) { // if key is last one unpressed for this direction
-                this.vx -= this._directionSpeed[direction].x;
-                this.vy -= this._directionSpeed[direction].y;
+            if (this._activeDirections[direction] === 0) { // if key is last one unpressed for this direction
+                /* Following is an optimization of these statements:
+                if (!this.disableControls) this.__unapplyActiveSpeed();
+                this.__removeActiveMagnitude(direction);
+                this.__updateActiveSpeed();
+                if (!this.disableControls) this.__applyActiveSpeed();
+                */
+                var oldActiveSpeedX = this._activeSpeedX,
+                    oldActiveSpeedY = this._activeSpeedY;
+
+                var magnitude_e6 = this._directionMagnitudes_e6[direction],
+                    activeMagnitudeX = (this._activeMagnitudeX_e6 -= magnitude_e6.x) / 1e6,
+                    activeMagnitudeY = (this._activeMagnitudeY_e6 -= magnitude_e6.y) / 1e6;
+
+                var speed = this._speed,
+                    norm = Math.sqrt(activeMagnitudeX * activeMagnitudeX + activeMagnitudeY * activeMagnitudeY),
+                    newActiveSpeedX = (this._activeSpeedX = (activeMagnitudeX * speed.x / norm) >> 0),
+                    newActiveSpeedY = (this._activeSpeedY = (activeMagnitudeY * speed.y / norm) >> 0);
+
+                if (!this.disableControls) {
+                    this.vx += newActiveSpeedX - oldActiveSpeedX;
+                    this.vy += newActiveSpeedY - oldActiveSpeedY;
+                }
             }
         }
+    },
+
+    __unapplyActiveSpeed: function() {
+        this.vx -= this._activeSpeedX;
+        this.vy -= this._activeSpeedY;
+    },
+
+    __addActiveMagnitude: function(direction) {
+        var magnitude_e6 = this._directionMagnitudes_e6[direction];
+
+        this._activeMagnitudeX_e6 += magnitude_e6.x;
+        this._activeMagnitudeY_e6 += magnitude_e6.y;
+    },
+
+    __removeActiveMagnitude: function(direction) {
+        var magnitude_e6 = this._directionMagnitudes_e6[direction];
+
+        this._activeMagnitudeX_e6 -= magnitude_e6.x;
+        this._activeMagnitudeY_e6 -= magnitude_e6.y;
+    },
+
+    __updateActiveSpeed: function() {
+        var activeMagnitudeX = this._activeMagnitudeX_e6 / 1e6,
+            activeMagnitudeY = this._activeMagnitudeY_e6 / 1e6;
+
+        var norm = Math.sqrt(activeMagnitudeX * activeMagnitudeX + activeMagnitudeY * activeMagnitudeY);
+        this._activeSpeedX = (activeMagnitudeX * this._speed.x / norm) >> 0; // a >> 0  ==  fast Math.floor(a)
+        this._activeSpeedY = (activeMagnitudeY * this._speed.y / norm) >> 0; // a >> 0  ==  fast Math.floor(a)
+    },
+
+    __applyActiveSpeed: function() {
+        this.vx += this._activeSpeedX;
+        this.vy += this._activeSpeedY;
     },
 
 
@@ -186,7 +266,7 @@ Crafty.c("Multiway", {
      * @comp Multiway
      * @sign public this .multiway([Number speed,] Object keyBindings)
      * @param speed - A speed in pixels per second
-     * @param keyBindings - What keys should make the entity go in which direction. Direction is specified in degrees
+     * @param keyBindings - What keys should make the entity go in which direction. Direction is specified in degrees in range (-180°, 180°], where West~180°, North~90°, East~0°, South~-90°.
      *
      * Constructor to initialize the speed and keyBindings. Component will listen to key events and move the entity appropriately.
      * Can be called while a key is pressed to change direction & speed on the fly.
@@ -201,28 +281,21 @@ Crafty.c("Multiway", {
      * @see Motion, Keyboard
      */
     multiway: function (speed, keys) {
-        if (keys) {
-            if (speed.x !== undefined && speed.y !== undefined) {
-                this._speed.x = speed.x;
-                this._speed.y = speed.y;
-            } else {
-                this._speed.x = speed;
-                this._speed.y = speed;
-            }
-        } else {
+        if (!keys) {
             keys = speed;
+            speed = this._speed;
         }
 
 
         if (!this.disableControls) {
-            this.__unapplyActiveDirections();
+            this.__unapplyActiveSpeed();
         }
 
         this._updateKeys(keys);
-        this._updateSpeed(this._speed);
+        this._updateSpeed(speed);
 
         if (!this.disableControls) {
-            this.__applyActiveDirections();
+            this.__applyActiveSpeed();
         }
 
         return this;
@@ -245,65 +318,64 @@ Crafty.c("Multiway", {
      */
     speed: function (speed) {
         if (!this.disableControls) {
-            this.__unapplyActiveDirections();
+            this.__unapplyActiveSpeed();
         }
 
         this._updateSpeed(speed);
 
         if (!this.disableControls) {
-            this.__applyActiveDirections();
+            this.__applyActiveSpeed();
         }
 
         return this;
     },
 
+
     _updateKeys: function(keys) {
         // reset data
         this._keyDirection = {};
         this._activeDirections = {};
+        this._directionMagnitudes_e6 = {};
+        this._activeSpeedX = 0;
+        this._activeSpeedY = 0;
+        this._activeMagnitudeX_e6 = 0;
+        this._activeMagnitudeY_e6 = 0;
 
         for (var k in keys) {
             var keyCode = Crafty.keys[k] || k;
+
             // add new data
             var direction = this._keyDirection[keyCode] = keys[k];
             this._activeDirections[direction] = this._activeDirections[direction] || 0;
-            if (this.isDown(keyCode)) // add directions of already pressed keys
+            this._directionMagnitudes_e6[direction] = {
+                x: Math.round(Math.cos(direction * (Math.PI / 180)) * 1e6),
+                y: Math.round(Math.sin(direction * (Math.PI / 180)) * 1e6)
+            };
+
+            // add directions of already pressed keys
+            if (this.isDown(keyCode)) {
+                if (this._activeDirections[direction] === 0) { // if key is first one pressed for this direction
+                    this.__addActiveMagnitude(direction);
+                }
                 this._activeDirections[direction]++;
+            }
         }
     },
 
     _updateSpeed: function(speed) {
-        // reset data
-        this._directionSpeed = {};
-
-        var direction;
-        for (var keyCode in this._keyDirection) {
-            direction = this._keyDirection[keyCode];
-            // add new data
-            this._directionSpeed[direction] = {
-                x: Math.round(Math.cos(direction * (Math.PI / 180)) * 1000 * speed.x) / 1000,
-                y: Math.round(Math.sin(direction * (Math.PI / 180)) * 1000 * speed.y) / 1000
-            };
+        // reset & add new data
+        if (speed.x !== undefined && speed.y !== undefined) {
+            this._speed.x = speed.x;
+            this._speed.y = speed.y;
+        } else {
+            this._speed.x = speed;
+            this._speed.y = speed;
         }
+
+        // adjust to new speed
+        this.__updateActiveSpeed();
     },
 
-    __applyActiveDirections: function() {
-        for (var direction in this._activeDirections) {
-            if (this._activeDirections[direction] > 0) {
-                this.vx += this._directionSpeed[direction].x;
-                this.vy += this._directionSpeed[direction].y;
-            }
-        }
-    },
-
-    __unapplyActiveDirections: function() {
-        for (var direction in this._activeDirections) {
-            if (this._activeDirections[direction] > 0) {
-                this.vx -= this._directionSpeed[direction].x;
-                this.vy -= this._directionSpeed[direction].y;
-            }
-        }
-    },
 
     /**@
      * #.enableControl
@@ -319,7 +391,7 @@ Crafty.c("Multiway", {
      */
     enableControl: function () {
         if (this.disableControls) {
-            this.__applyActiveDirections();
+            this.__applyActiveSpeed();
         }
         this.disableControls = false;
 
@@ -340,7 +412,7 @@ Crafty.c("Multiway", {
      */
     disableControl: function () {
         if (!this.disableControls) {
-            this.__unapplyActiveDirections();
+            this.__unapplyActiveSpeed();
         }
         this.disableControls = true;
 
