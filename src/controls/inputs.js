@@ -75,7 +75,7 @@ Crafty.extend({
      *    .color('green')
      *    .bind('TouchStart',function(e){ alert('big GREEN box was touched', e); });
      * 
-     * console.log("multitouch is "+Crafty.multitouch());
+     * Crafty.log("multitouch is "+Crafty.multitouch());
      * ~~~
      * @see Crafty.touchDispatch
      */
@@ -644,7 +644,7 @@ Crafty.bind("CraftyStop", function () {
  *
  * myEntity.bind('MouseUp', function(e) {
  *    if( e.mouseButton == Crafty.mouseButtons.RIGHT )
- *        console.log("Clicked right button");
+ *        Crafty.log("Clicked right button");
  * })
  * ~~~
  * @see Crafty.mouseDispatch
@@ -688,11 +688,11 @@ Crafty.c("Mouse", {
  * .attr({x: 10, y: 10, w: 40, h: 40})
  * .color('green')
  * .bind('TouchStart', function(TouchPoint){
- *   console.log('myEntity has been touched', TouchPoint);
+ *   Crafty.log('myEntity has been touched', TouchPoint);
  * }).bind('TouchMove', function(TouchPoint) {
- *   console.log('Finger moved over myEntity at the { x: ' + TouchPoint.realX + ', y: ' + TouchPoint.realY + ' } coordinates.');
+ *   Crafty.log('Finger moved over myEntity at the { x: ' + TouchPoint.realX + ', y: ' + TouchPoint.realY + ' } coordinates.');
  * }).bind('TouchEnd', function() {
- *   console.log('Touch over myEntity has finished.');
+ *   Crafty.log('Touch over myEntity has finished.');
  * });
  * ~~~
  * @see Crafty.multitouch
@@ -741,7 +741,7 @@ Crafty.c("AreaMap", {
      * Crafty.e("2D, DOM, Color, Mouse")
      *     .color("red")
      *     .attr({ w: 100, h: 100 })
-     *     .bind('MouseOver', function() {console.log("over")})
+     *     .bind('MouseOver', function() {Crafty.log("over")})
      *     .areaMap([0, 0, 50, 0, 50, 50, 0, 50) 
      * ~~~
      *

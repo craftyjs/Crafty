@@ -162,7 +162,7 @@ module.exports = {
      * ~~~
      * var player = Crafty.e("2D");
      *     player.onMouseDown = function(e) {
-     *         console.log(e.mouseButton, e.realX, e.realY);
+     *         Crafty.log(e.mouseButton, e.realX, e.realY);
      *     };
      * Crafty.addEvent(player, Crafty.stage.elem, "mousedown", player.onMouseDown);
      * ~~~

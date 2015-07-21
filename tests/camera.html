@@ -67,10 +67,10 @@
 		if (!isFinite(i)) continue;
 		lis[i].addEventListener('click', function(e) {
 			var self = e.target;
-			console.log(self);
+			Crafty.log(self);
 			imageEntities = self.getAttribute('data-image-entities');
 			hotspotEntities = self.getAttribute('data-hotspot-entities');
-			console.log('reloading scene: '+ self.innerHTML);
+			Crafty.log('reloading scene: '+ self.innerHTML);
 			Crafty.scene('main');
 		}, false);
 	}

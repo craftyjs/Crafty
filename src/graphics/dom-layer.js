@@ -63,7 +63,7 @@ Crafty.extend({
          * @sign public Crafty.domLayer.debug()
          */
         debug: function () {
-            console.log(this._changedObjs);
+            Crafty.log(this._changedObjs);
         },
 
 

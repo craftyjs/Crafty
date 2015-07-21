@@ -397,10 +397,10 @@ Crafty.c("Collision", {
      * Crafty.e("2D, Collision")
      *     .checkHits('Solid') // check for collisions with entities that have the Solid component in each frame
      *     .bind("HitOn", function(hitData) {
-     *         console.log("Collision with Solid entity occurred for the first time.");
+     *         Crafty.log("Collision with Solid entity occurred for the first time.");
      *     })
      *     .bind("HitOff", function(comp) {
-     *         console.log("Collision with Solid entity ended.");
+     *         Crafty.log("Collision with Solid entity ended.");
      *     });
      * ~~~
      *
@@ -521,7 +521,7 @@ Crafty.c("Collision", {
      * Crafty.e("2D, Collision")
      *     .checkHits('Solid')
      *     .bind("HitOn", function(hitData) {
-     *         console.log("Collision with Solid entity was reported in this frame again!");
+     *         Crafty.log("Collision with Solid entity was reported in this frame again!");
      *         this.resetHitChecks('Solid'); // fire the HitOn event in the next frame also, if the collision is still active.
      *     })
      * ~~~
