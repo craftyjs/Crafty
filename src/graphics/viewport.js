@@ -249,8 +249,8 @@ Crafty.extend({
                 y = targ.y + Crafty.viewport.y,
                 mid_x = targ.w / 2,
                 mid_y = targ.h / 2,
-                cent_x = Crafty.viewport.width / 2,
-                cent_y = Crafty.viewport.height / 2,
+                cent_x = Crafty.viewport.width / 2 / Crafty.viewport._scale,
+                cent_y = Crafty.viewport.height / 2 / Crafty.viewport._scale,
                 new_x = x + mid_x - cent_x,
                 new_y = y + mid_y - cent_y;
 
