@@ -252,6 +252,8 @@ Crafty.c("Collision", {
      *
      * Keep in mind that both entities need to have the `Collision` component, if you want to check for `SAT` (custom hitbox) collisions between them.
      *
+     * If you want more fine-grained control consider using `Crafty.map.search()`.
+     *
      * @see 2D
      */
     hit: function (comp) {
@@ -314,7 +316,8 @@ Crafty.c("Collision", {
      *
      * Creates an EnterFrame event calling .hit() each frame.  When a collision is detected the callback will be invoked.
      * Note that the `hit` callback will be invoked every frame the collision is active, not just the first time the collision occurs.
-     * If you want more fine-grained control consider using `.checkHits` or `.hit`.
+     *
+     * If you want more fine-grained control consider using `.checkHits()`, `.hit()` or even `Crafty.map.search()`.
      *
      * @see .checkHits
      * @see .hit
@@ -389,6 +392,8 @@ Crafty.c("Collision", {
      *
      * Calling this method more than once for the same component type will not
      * cause redundant hit checks.
+     *
+     * If you want more fine-grained control consider using `.hit()` or even `Crafty.map.search()`.
      *
      * @note Hit checks are performed upon entering each new frame (using
      * the *EnterFrame* event). It is entirely possible for object to move in
