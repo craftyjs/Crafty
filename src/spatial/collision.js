@@ -59,6 +59,9 @@ Crafty.c("Collision", {
      *
      * If a hitbox is set that is outside of the bounds of the entity itself, there will be a small performance penalty as it is tracked separately.
      *
+     * In order for your custom hitbox to have any effect, you have to add the `Collision` component to all other entities this entity needs to collide with using this custom hitbox.
+     * On the contrary the collisions will be resolved using the default hitbox. See `.hit()` - `MBR` represents default hitbox collision, `SAT` represents custom hitbox collision.
+     *
      * @example
      * ~~~
      * Crafty.e("2D, Collision").collision(
@@ -246,6 +249,8 @@ Crafty.c("Collision", {
      *   - *MBR:* Standard axis aligned rectangle intersection (`.intersect` in the 2D component).
      *   - *SAT:* Collision between any two convex polygons. Used when both colliding entities have the `Collision` component applied to them.
      * - **overlap:** If SAT collision was used, this will signify the overlap percentage between the colliding entities.
+     *
+     * Keep in mind that both entities need to have the `Collision` component, if you want to check for `SAT` (custom hitbox) collisions between them.
      *
      * @see 2D
      */
