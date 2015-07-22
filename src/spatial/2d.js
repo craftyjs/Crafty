@@ -432,12 +432,14 @@ Crafty.c("2D", {
 
         //trigger "Rotate" event
         var drad = difference * DEG_TO_RAD,
-            ct = Math.cos(rad),
-            st = Math.sin(rad);
+            // ct = Math.cos(rad),
+            // st = Math.sin(rad),
+            cos = Math.cos(drad),
+            sin = Math.sin(drad);
 
         this.trigger("Rotate", {
-            cos: Math.cos(drad),
-            sin: Math.sin(drad),
+            cos: (-1e-10 < cos && cos < 1e-10) ? 0 : cos, // Special case 90 degree rotations to prevent rounding problems
+            sin: (-1e-10 < sin && sin < 1e-10) ? 0 : sin, // Special case 90 degree rotations to prevent rounding problems
             deg: difference,
             rad: drad,
             o: o
