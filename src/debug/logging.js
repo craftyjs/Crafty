@@ -27,12 +27,12 @@ Crafty.extend({
 	// In some cases console.log doesn't exist, so provide a wrapper for it
 	log: function() {
 		if (Crafty.loggingEnabled && console && console.log) {
-			console.log.apply(this, arguments);
+			console.log.apply(console, arguments);
 		}
 	},
 	error: function() {
 		if (Crafty.loggingEnabled && console && console.error) {
-			console.error.apply(this, arguments);
+			console.error.apply(console, arguments);
 		}
 	}
 });
