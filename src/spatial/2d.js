@@ -1343,7 +1343,7 @@ Crafty.c("AngularMotion", {
         __motionProp(this, "a", "rotation", true);
         __motionProp(this, "d", "rotation", false);
 
-        this.__oldRevolution = 0;
+        this.__oldRotationDirection = 0;
 
         this.bind("EnterFrame", this._angularMotionTick);
     },
@@ -1381,16 +1381,16 @@ Crafty.c("AngularMotion", {
         // v += a * Δt
         this.vrotation = vr + ar * dt;
 
-        var _vr = this._vrotation,
-            dvr = _vr ? (vr<0 ? -1:1):0; // Quick implementation of Math.sign
-        if (this.__oldRevolution !== dvr) {
-            this.__oldRevolution = dvr;
+        // Check if direction of velocity has changed
+        var _vr = this._vrotation, dvr = _vr ? (_vr<0 ? -1:1):0; // Quick implementation of Math.sign
+        if (this.__oldRotationDirection !== dvr) {
+            this.__oldRotationDirection = dvr;
             this.trigger('NewRotationDirection', dvr);
         }
 
+        // Check if velocity has changed
         // Δs = s[t] - s[t-1]
         this._drotation = newR - oldR;
-
         if (this._drotation !== 0) {
             this.rotation = newR;
             this.trigger('Rotated', oldR);
@@ -1527,7 +1527,6 @@ Crafty.c("Motion", {
         this._motionDelta = __motionVector(this, "d", false, new Crafty.math.Vector2D());
 
         this.__movedEvent = {axis: '', oldValue: 0};
-        this.__directionEvent = {x: 0, y: 0};
         this.__oldDirection = {x: 0, y: 0};
 
         this.bind("EnterFrame", this._linearMotionTick);
@@ -1631,9 +1630,6 @@ Crafty.c("Motion", {
      */
     _linearMotionTick: function(frameData) {
         var dt = frameData.dt / 1000; // time in s
-
-        var oldDirection = this.__oldDirection;
-
         var oldX = this._x, vx = this._vx, ax = this._ax,
             oldY = this._y, vy = this._vy, ay = this._ay;
 
@@ -1644,23 +1640,21 @@ Crafty.c("Motion", {
         this.vx = vx + ax * dt;
         this.vy = vy + ay * dt;
 
-
-        // Check to see if the velocity has changed
-        var _vx = this._vx, dvx = _vx ? (_vx<0 ? -1:1):0, // A quick implementation of Math.sign
+        // Check if direction of velocity has changed
+        var oldDirection = this.__oldDirection,
+            _vx = this._vx, dvx = _vx ? (_vx<0 ? -1:1):0, // A quick implementation of Math.sign
             _vy = this._vy, dvy = _vy ? (_vy<0 ? -1:1):0;
         if (oldDirection.x !== dvx || oldDirection.y !== dvy) {
-            var directionEvent = this.__directionEvent;
-            directionEvent.x = oldDirection.x = dvx;
-            directionEvent.y = oldDirection.y = dvy;
-            this.trigger('NewDirection', directionEvent);
+            oldDirection.x = dvx;
+            oldDirection.y = dvy;
+            this.trigger('NewDirection', oldDirection);
         }
 
-
+        // Check if velocity has changed
+        var movedEvent = this.__movedEvent;
         // Δs = s[t] - s[t-1]
         this._dx = newX - oldX;
         this._dy = newY - oldY;
-
-        var movedEvent = this.__movedEvent;
         if (this._dx !== 0) {
             this.x = newX;
             movedEvent.axis = 'x';
