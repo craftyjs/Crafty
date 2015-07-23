@@ -242,7 +242,7 @@ module.exports = {
             audSupport = Crafty.support.audio,
             paths = Crafty.paths(),
             getExt = function(f) {
-                return f.substr(f.lastIndexOf('.') + 1, 3).toLowerCase();
+                return f.substr(f.lastIndexOf('.') + 1).toLowerCase();
             },
             getFilePath = function(type,f) {
                 return (f.search("://") === -1 ? (type == "audio" ? paths.audio + f : paths.images + f) : f);
