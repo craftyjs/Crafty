@@ -301,8 +301,8 @@ module.exports = {
             if (j === total && oncomplete) oncomplete();
         }
 
-        for (type of data) {
-            for(asset of data[type]) {
+        for (type in data) {
+            for(asset in data[type]) {
 
                 current = data[type][asset];
 
