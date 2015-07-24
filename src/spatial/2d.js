@@ -1040,6 +1040,7 @@ Crafty.c("Supportable", {
         // Decrease width by 1px from left and 1px from right, to fall more gracefully
         // area._x++; area._w--;
 
+        // check if we lift-off
         if (ground) {
             var garea = ground._cbr || ground._mbr || ground;
             if (!(ground.__c[groundComp] && overlap(garea, area))) {
@@ -1049,6 +1050,7 @@ Crafty.c("Supportable", {
             }
         }
 
+        // check if we land (also possible to land on other ground object in same frame after lift-off from current ground object)
         if (!ground) {
             var obj, oarea,
                 results = Crafty.map.search(area, false),
@@ -1197,7 +1199,7 @@ Crafty.c("Gravity", {
      * Crafty.e("2D, DOM, Color, Gravity")
      *   .color("red")
      *   .attr({ w: 100, h: 100 })
-     *   .gravityConst(5)
+     *   .gravityConst(750)
      *   .gravity("platform");
      * ~~~
      */
@@ -1210,6 +1212,7 @@ Crafty.c("Gravity", {
 
         return this;
     },
+
     _startGravity: function() {
         if (this._gravityActive) return;
         this._gravityActive = true;
