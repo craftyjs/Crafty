@@ -1123,6 +1123,7 @@ Crafty.c("GroundAttacher", {
  */
 Crafty.c("Gravity", {
     _gravityConst: 500,
+    _gravityActive: false,
 
     init: function () {
         this.requires("2D, Supportable, Motion");
@@ -1163,7 +1164,7 @@ Crafty.c("Gravity", {
      * @see Supportable, Motion
      */
     gravity: function (comp) {
-        this.bind("CheckLanding", this._gravityCheckLanding);
+        this.uniqueBind("CheckLanding", this._gravityCheckLanding);
         this.startGroundDetection(comp);
         this._startGravity();
 
@@ -1210,13 +1211,15 @@ Crafty.c("Gravity", {
         return this;
     },
     _startGravity: function() {
+        if (this._gravityActive) return;
         this._gravityActive = true;
         this.ay += this._gravityConst;
     },
     _stopGravity: function() {
+        if (!this._gravityActive) return;
+        this._gravityActive = false;
         this.ay = 0;
         this.vy = 0;
-        this._gravityActive = false;
     }
 });
 

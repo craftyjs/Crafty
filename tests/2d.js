@@ -878,10 +878,15 @@
 
     var player = Crafty.e("2D, Gravity")
           .attr({ x: 0, y: 100, w: 32, h: 16 })
-          .gravityConst(0.3*50*50)
-          .gravity("platform");
+          .gravityConst(0.3*50*50) // setting gravity constant before activating gravity
+          .gravity("platform2");
    
     strictEqual(player.acceleration().y, player._gravityConst, "acceleration should match gravity constant");
+
+    player.gravity("platform");
+    strictEqual(player.acceleration().y, player._gravityConst, "acceleration should match gravity constant after calling gravity twice");
+    strictEqual(player._groundComp, "platform", "new ground component set");
+
 
     var vel = -1;
     player.bind("EnterFrame", function() {
