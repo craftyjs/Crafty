@@ -254,18 +254,26 @@
   module("Collision");
 
   test("Collision constructors", function() {
+    var newHitboxEvents = 0;
+    var e = Crafty.e("2D, Collision")
+              .bind("NewHitbox", function(newHitbox) {
+                newHitboxEvents++;
+              });
+
     var poly = new Crafty.polygon([50, 0, 100, 100, 0, 100]);
-    var ent1 = Crafty.e("2D, Collision").collision(poly);
-    ok(ent1.map instanceof Crafty.polygon, "Hitbox is a polygon");
-    ok(ent1.map !== poly, "Hitbox is a clone of passed polygon");
+    e.collision(poly);
+    ok(e.map instanceof Crafty.polygon, "Hitbox is a polygon");
+    ok(e.map !== poly, "Hitbox is a clone of passed polygon");
 
     var arr = [50, 0, 100, 100, 0, 100];
-    var ent2 = Crafty.e("2D, Collision").collision(arr);
-    ok(ent2.map instanceof Crafty.polygon, "Hitbox is a polygon");
-    ok(ent2.map.points && ent2.map.points !== arr, "Array used in hitbox is a clone of passed array");
+    e.collision(arr);
+    ok(e.map instanceof Crafty.polygon, "Hitbox is a polygon");
+    ok(e.map.points && e.map.points !== arr, "Array used in hitbox is a clone of passed array");
 
-    var ent3 = Crafty.e("2D, Collision").collision(50, 0, 100, 100, 0, 100);
-    ok(ent3.map instanceof Crafty.polygon, "Hitbox is a polygon");
+    e.collision(50, 0, 100, 100, 0, 100);
+    ok(e.map instanceof Crafty.polygon, "Hitbox is a polygon");
+
+    strictEqual(newHitboxEvents, 3, "NewHitBox event triggered 3 times");
   });
 
   // This test assumes that the "circles" are really octagons, as per Crafty.circle.
