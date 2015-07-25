@@ -192,8 +192,8 @@ Crafty.extend({
          * @comp Crafty.viewport
          * @sign public void Crafty.viewport.follow(Object target, Number offsetx, Number offsety)
          * @param Object target - An entity with the 2D component
-         * @param Number offsetx - Follow target should be offsetx pixels away from center
-         * @param Number offsety - Positive puts target to the right of center
+         * @param Number offsetx - Follow target's center should be offsetx pixels away from viewport's center. Positive values puts target to the right of the screen.
+         * @param Number offsety - Follow target's center should be offsety pixels away from viewport's center. Positive values puts target to the bottom of the screen.
          *
          * Follows a given entity with the 2D component. If following target will take a portion of
          * the viewport out of bounds of the world, following will stop until the target moves away.
@@ -208,8 +208,9 @@ Crafty.extend({
             var oldTarget, offx, offy;
 
             function change() {
-                Crafty.viewport.scroll('_x', -(this.x + (this.w / 2) - (Crafty.viewport.width / 2) - offx));
-                Crafty.viewport.scroll('_y', -(this.y + (this.h / 2) - (Crafty.viewport.height / 2) - offy));
+                var scale = Crafty.viewport._scale;
+                Crafty.viewport.scroll('_x', -(this.x + (this.w / 2) - (Crafty.viewport.width / 2 / scale) - offx * scale));
+                Crafty.viewport.scroll('_y', -(this.y + (this.h / 2) - (Crafty.viewport.height / 2 / scale) - offy * scale));
                 Crafty.viewport._clamp();
             }
 
@@ -248,8 +249,8 @@ Crafty.extend({
                 y = targ.y + Crafty.viewport.y,
                 mid_x = targ.w / 2,
                 mid_y = targ.h / 2,
-                cent_x = Crafty.viewport.width / 2,
-                cent_y = Crafty.viewport.height / 2,
+                cent_x = Crafty.viewport.width / 2 / Crafty.viewport._scale,
+                cent_y = Crafty.viewport.height / 2 / Crafty.viewport._scale,
                 new_x = x + mid_x - cent_x,
                 new_y = y + mid_y - cent_y;
 
