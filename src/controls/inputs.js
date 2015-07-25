@@ -728,10 +728,15 @@ Crafty.c("AreaMap", {
     /**@
      * #.areaMap
      * @comp AreaMap
+     *
      * @sign public this .areaMap(Crafty.polygon polygon)
      * @param polygon - Instance of Crafty.polygon used to check if the mouse coordinates are inside this region
-     * @sign public this .areaMap(Array point1, .., Array pointN)
-     * @param point# - Array with an `x` and `y` position to generate a polygon
+     *
+     * @sign public this .areaMap(Array coordinatePairs)
+     * @param coordinatePairs - Array of `x`, `y` coordinate pairs to generate a polygon
+     *
+     * @sign public this .areaMap(x1, y1,.., xN, yN)
+     * @param point# - List of `x`, `y` coordinate pairs to generate a polygon
      *
      * Assign a polygon to the entity so that pointer (mouse or touch) events will only be triggered if
      * the coordinates are inside the given polygon.
@@ -742,7 +747,14 @@ Crafty.c("AreaMap", {
      *     .color("red")
      *     .attr({ w: 100, h: 100 })
      *     .bind('MouseOver', function() {Crafty.log("over")})
-     *     .areaMap([0, 0, 50, 0, 50, 50, 0, 50) 
+     *     .areaMap(0, 0, 50, 0, 50, 50, 0, 50);
+     *
+     * Crafty.e("2D, Mouse")
+     *     .areaMap([0, 0, 50, 0, 50, 50, 0, 50]);
+     *
+     * Crafty.e("2D, Mouse").areaMap(
+     *     new Crafty.polygon([0, 0, 50, 0, 50, 50, 0, 50])
+     * );
      * ~~~
      *
      * @see Crafty.polygon
@@ -753,6 +765,10 @@ Crafty.c("AreaMap", {
             //convert args to array to create polygon
             var args = Array.prototype.slice.call(arguments, 0);
             poly = new Crafty.polygon(args);
+        } else if (poly.constructor === Array) {
+            poly = new Crafty.polygon(poly.slice());
+        } else {
+            poly = poly.clone();
         }
 
         poly.shift(this._x, this._y);
