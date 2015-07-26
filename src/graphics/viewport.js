@@ -215,8 +215,11 @@ Crafty.extend({
             }
 
             function stopFollow(){
-                if (oldTarget)
+                if (oldTarget) {
                     oldTarget.unbind('Move', change);
+                    oldTarget.unbind('ViewportScale', change);
+                    oldTarget.unbind('ViewportResize', change);
+                }
             }
 
             Crafty.bind("StopCamera", stopFollow);
@@ -231,6 +234,8 @@ Crafty.extend({
                 offy = (typeof offsety != 'undefined') ? offsety : 0;
 
                 target.bind('Move', change);
+                target.bind('ViewportScale', change);
+                target.bind('ViewportResize', change);
                 change.call(target);
             };
         })(),
