@@ -768,6 +768,8 @@ Crafty.c("AreaMap", {
      * #.areaMap
      * @comp AreaMap
      *
+     * @trigger NewAreaMap - when a new areaMap is assigned - Crafty.polygon
+     *
      * @sign public this .areaMap(Crafty.polygon polygon)
      * @param polygon - Instance of Crafty.polygon used to check if the mouse coordinates are inside this region
      *
@@ -811,10 +813,9 @@ Crafty.c("AreaMap", {
         }
 
         poly.shift(this._x, this._y);
-        //this.map = poly;
         this.mapArea = poly;
-
         this.attach(this.mapArea);
+        this.trigger("NewAreaMap", poly);
         return this;
     }
 });

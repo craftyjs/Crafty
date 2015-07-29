@@ -3,19 +3,27 @@
 
   module('Inputs');
 
-  test("AreaMap constructors", function() {
+  test("AreaMap", function() {
+    var areaMapEvents = 0;
+    var e = Crafty.e("2D, AreaMap")
+              .bind("NewAreaMap", function(newAreaMap) {
+                areaMapEvents++;
+              });
+
     var poly = new Crafty.polygon([50, 0, 100, 100, 0, 100]);
-    var ent1 = Crafty.e("2D, AreaMap").areaMap(poly);
-    ok(ent1.mapArea instanceof Crafty.polygon, "Hitbox is a polygon");
-    ok(ent1.mapArea !== poly, "Hitbox is a clone of passed polygon");
+    e.areaMap(poly);
+    ok(e.mapArea instanceof Crafty.polygon, "Hitbox is a polygon");
+    ok(e.mapArea !== poly, "Hitbox is a clone of passed polygon");
 
     var arr = [50, 0, 100, 100, 0, 100];
-    var ent2 = Crafty.e("2D, AreaMap").areaMap(arr);
-    ok(ent2.mapArea instanceof Crafty.polygon, "Hitbox is a polygon");
-    ok(ent2.mapArea.points && ent2.mapArea.points !== arr, "Array used in hitbox is a clone of passed array");
+    e.areaMap(arr);
+    ok(e.mapArea instanceof Crafty.polygon, "Hitbox is a polygon");
+    ok(e.mapArea.points && e.mapArea.points !== arr, "Array used in hitbox is a clone of passed array");
 
-    var ent3 = Crafty.e("2D, AreaMap").areaMap(50, 0, 100, 100, 0, 100);
-    ok(ent3.mapArea instanceof Crafty.polygon, "Hitbox is a polygon");
+    e.areaMap(50, 0, 100, 100, 0, 100);
+    ok(e.mapArea instanceof Crafty.polygon, "Hitbox is a polygon");
+
+    strictEqual(areaMapEvents, 3, "NewAreaMap event triggered 3 times");
   });
 
   // mock-phantom-touch-events is a PhantomJS plugin, thus the test below is skipped if enviroment is not PhantomJS
