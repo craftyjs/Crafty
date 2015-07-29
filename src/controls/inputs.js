@@ -475,6 +475,35 @@ Crafty.extend({
         return closest;
     },
 
+    /**@
+     * #Crafty.mouseWheelDispatch
+     * @category Input
+     * Mouse wheel event triggered by Crafty.
+     *
+     * @trigger MouseWheelScroll - is triggered when mouse is scrolled on stage - { direction: +1 | -1} - Scroll direction (up | down)
+     *
+     * Internal method which dispatches mouse wheel events received by Crafty (crafty.stage.elem).
+     * The mouse wheel events get dispatched to Crafty, as well as all entities.
+     *
+     * The native event parameter is passed to the callback.
+     * You can read more about the native `mousewheel` event (all browsers except Firefox) https://developer.mozilla.org/en-US/docs/Web/Events/mousewheel
+     * or the native `DOMMouseScroll` event (Firefox only) https://developer.mozilla.org/en-US/docs/Web/Events/DOMMouseScroll .
+     *
+     * Note that the wheel delta properties of the event vary in magnitude across browsers, thus it is recommended to check for `.direction` instead.
+     * The `.direction` equals `+1` if wheel was scrolled up, `-1` if wheel was scrolled down.
+     * See http://stackoverflow.com/questions/5527601/normalizing-mousewheel-speed-across-browsers .
+     *
+     * @example
+     * ~~~
+     * Crafty.bind("MouseWheelScroll", function(evt) {
+     *     Crafty.viewport.scale(Crafty.viewport._scale * (1 + evt.direction * 0.1));
+     * });
+     * ~~~
+     */
+     mouseWheelDispatch: function(e) {
+        e.direction = (e.detail < 0 || e.wheelDelta > 0) ? 1 : -1;
+        Crafty.trigger("MouseWheelScroll", e);
+     },
 
     /**@
      * #KeyboardEvent
@@ -580,6 +609,11 @@ Crafty.bind("Load", function () {
     Crafty.addEvent(this, Crafty.stage.elem, "touchend", Crafty.touchDispatch);
     Crafty.addEvent(this, Crafty.stage.elem, "touchcancel", Crafty.touchDispatch);
     Crafty.addEvent(this, Crafty.stage.elem, "touchleave", Crafty.touchDispatch);
+
+    if (Crafty.support.prefix === "Moz") // mouse wheel event for firefox
+        Crafty.addEvent(this, Crafty.stage.elem, "DOMMouseScroll", Crafty.mouseWheelDispatch);
+    else // mouse wheel event for rest of browsers
+        Crafty.addEvent(this, Crafty.stage.elem, "mousewheel", Crafty.mouseWheelDispatch);
 });
 
 Crafty.bind("CraftyStop", function () {
@@ -598,6 +632,11 @@ Crafty.bind("CraftyStop", function () {
         Crafty.removeEvent(this, Crafty.stage.elem, "touchend", Crafty.touchDispatch);
         Crafty.removeEvent(this, Crafty.stage.elem, "touchcancel", Crafty.touchDispatch);
         Crafty.removeEvent(this, Crafty.stage.elem, "touchleave", Crafty.touchDispatch);
+
+        if (Crafty.support.prefix === "Moz") // mouse wheel event for firefox
+            Crafty.removeEvent(this, Crafty.stage.elem, "DOMMouseScroll", Crafty.mouseWheelDispatch);
+        else // mouse wheel event for rest of browsers
+            Crafty.removeEvent(this, Crafty.stage.elem, "mousewheel", Crafty.mouseWheelDispatch);
     }
 
     Crafty.removeEvent(this, document.body, "mouseup", Crafty.detectBlur);
