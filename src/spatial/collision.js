@@ -285,7 +285,7 @@ Crafty.c("Collision", {
                 dupes[id] = obj;
         }
 
-        for (key in dupes) if (dupes.hasOwnProperty(key)) {
+        for (key in dupes) {
             obj = dupes[key];
 
             if (hasMap && 'map' in obj) {
@@ -341,9 +341,14 @@ Crafty.c("Collision", {
         return this;
     },
 
-
-    // This is a helper method for creating collisions handlers set up by checkHits method.
-    // Do not call this directly.
+    /**
+     * This is a helper method for creating collisions handlers set up by checkHits. Do not call this directly.
+     *
+     * @param {String} component - The name of the component for which this handler checks for collisions.
+     * @param {Object} collisionData - Collision data object used to track collisions with the specified component.
+     *
+     * @see .checkHits
+     */
     _createCollisionHandler: function(component, collisionData) {
         return function() {
             var hitData = this.hit(component);
@@ -438,7 +443,7 @@ Crafty.c("Collision", {
      * @sign public this .ignoreHits()
      *
      * @sign public this .ignoreHits(String componentList)
-     * @param componentList - A comma seperated list of components to stop checking
+     * @param componentList - A comma separated list of components to stop checking
      * for collisions with.
      *
      * @sign public this .ignoreHits(String component1[, .., String componentN])
@@ -467,7 +472,7 @@ Crafty.c("Collision", {
         var collisionData;
 
         if (components.length === 0) {
-            for (collisionData in this._collisionData) if (this._collisionData.hasOwnProperty(collisionData)) {
+            for (collisionData in this._collisionData) {
                 this.unbind("EnterFrame", collisionData.handler);
             }
 
@@ -531,7 +536,7 @@ Crafty.c("Collision", {
         var collisionData;
 
         if (components.length === 0) {
-            for (collisionData in this._collisionData) if (this._collisionData.hasOwnProperty(collisionData)) {
+            for (collisionData in this._collisionData) {
                 this._collisionData[collisionData].occurring = false;
             }
         }
