@@ -10,16 +10,36 @@ Crafty.extend({
      * @trigger ViewportResize - when the viewport's dimension's change
      * @trigger InvalidateViewport - when the viewport changes
      * @trigger StopCamera - when any camera animations should stop, such as at the start of a new animation.
-     * @trigger CameraAnimationDone - when a camera animation comes reaches completion
+     * @trigger CameraAnimationDone - when a camera animation reaches completion
      *
      * Viewport is essentially a 2D camera looking at the stage. Can be moved or zoomed, which
      * in turn will react just like a camera moving in that direction.
+     *
+     * There are multiple camera animation methods available - these are the viewport methods with an animation time parameter and the `follow` method.
+     * Only one animation can run at a time. Starting a new animation will cancel the previous one and the appropriate events will be fired.
      * 
      * Tip: At any given moment, the stuff that you can see is...
      * 
      * `x` between `(-Crafty.viewport._x)` and `(-Crafty.viewport._x + (Crafty.viewport._width / Crafty.viewport._scale))`
      * 
-     * `y` between `(-Crafty.viewport._y)` and `(-Crafty.viewport._y + (Crafty.viewport._height / Crafty.viewport._scale))` 
+     * `y` between `(-Crafty.viewport._y)` and `(-Crafty.viewport._y + (Crafty.viewport._height / Crafty.viewport._scale))`
+     *
+     *
+     * @example
+     * Prevent viewport from adjusting itself when outside the game world.
+     * Scale the viewport so that entities appear twice as large.
+     * Then center the viewport on an entity over the duration of 3 seconds.
+     * After that animation finishes, start following the entity.
+     * ~~~
+     * var ent = Crafty.e('2D, DOM').attr({x: 250, y: 250, w: 100, h: 100});
+     *
+     * Crafty.viewport.clampToEntities = false;
+     * Crafty.viewport.scale(2);
+     * Crafty.one("CameraAnimationDone", function() {
+     *     Crafty.viewport.follow(ent, 0, 0);
+     * });
+     * Crafty.viewport.centerOn(ent, 3000);
+     * ~~~
      */
     viewport: {
         /**@
@@ -141,6 +161,12 @@ Crafty.extend({
          * @param easingFn - A string or custom function specifying an easing.  (Defaults to linear behavior.)  See Crafty.easing for more information.
          *
          * Pans the camera a given number of pixels over the specified time
+         *
+         * @example
+         * ~~~
+         * // pan the camera 100 px right and down over the duration of 2 seconds using linear easing behaviour
+         * Crafty.viewport.pan(100, 100, 2000);
+         * ~~~
          */
         pan: (function () {
             var tweens = {}, i, bound = false;
@@ -200,7 +226,7 @@ Crafty.extend({
          *
          * @example
          * ~~~
-         * var ent = Crafty.e('2D, DOM').attr({w: 100, h: 100:});
+         * var ent = Crafty.e('2D, DOM').attr({w: 100, h: 100});
          * Crafty.viewport.follow(ent, 0, 0);
          * ~~~
          */
@@ -248,6 +274,12 @@ Crafty.extend({
          * @param Number time - The duration in ms of the camera motion
          *
          * Centers the viewport on the given entity.
+         *
+         * @example
+         * ~~~
+         * var ent = Crafty.e('2D, DOM').attr({x: 250, y: 250, w: 100, h: 100});
+         * Crafty.viewport.centerOn(ent, 3000);
+         * ~~~
          */
         centerOn: function (targ, time) {
             var x = targ.x + Crafty.viewport.x,
@@ -275,6 +307,12 @@ Crafty.extend({
          * Zooms the camera in on a given point. amt > 1 will bring the camera closer to the subject
          * amt < 1 will bring it farther away. amt = 0 will reset to the default zoom level
          * Zooming is multiplicative. To reset the zoom amount, pass 0.
+         *
+         * @example
+         * ~~~
+         * // Make the entities appear twice as large by zooming in on the specified coordinates over the duration of 3 seconds using linear easing behavior
+         * Crafty.viewport.zoom(2, 100, 100, 3000);
+         * ~~~
          */
         zoom: (function () {
             
