@@ -1081,7 +1081,7 @@ Crafty._callbackMethods = {
         // Iterate through and delete the callback functions that match
         // They are spliced out when _runCallbacks is invoked, not here
         // (This function might be called in the middle of a callback, which complicates the logic)
-        for (i = 0; i < callbacks.length; i++) {
+        for (var i = 0; i < callbacks.length; i++) {
             if (!fn || callbacks[i] == fn) {
                 delete callbacks[i];
             }
