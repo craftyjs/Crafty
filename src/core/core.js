@@ -1063,6 +1063,11 @@ Crafty._callbackMethods = {
                     callbacks.splice(i, 1);
                     i--;
                     l--;
+                    // Delete callbacks object if there are no remaining bound events
+                    if (callbacks.length === 0) {
+                        delete this._callbacks[event];
+                        delete handlers[event][this[0]];
+                    }
                 }
             } else {
                 callbacks[i].call(this, data);
