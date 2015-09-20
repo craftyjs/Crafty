@@ -253,6 +253,29 @@
 
   module("Collision");
 
+  test("Collision constructors", function() {
+    var newHitboxEvents = 0;
+    var e = Crafty.e("2D, Collision")
+              .bind("NewHitbox", function(newHitbox) {
+                newHitboxEvents++;
+              });
+
+    var poly = new Crafty.polygon([50, 0, 100, 100, 0, 100]);
+    e.collision(poly);
+    ok(e.map instanceof Crafty.polygon, "Hitbox is a polygon");
+    ok(e.map !== poly, "Hitbox is a clone of passed polygon");
+
+    var arr = [50, 0, 100, 100, 0, 100];
+    e.collision(arr);
+    ok(e.map instanceof Crafty.polygon, "Hitbox is a polygon");
+    ok(e.map.points && e.map.points !== arr, "Array used in hitbox is a clone of passed array");
+
+    e.collision(50, 0, 100, 100, 0, 100);
+    ok(e.map instanceof Crafty.polygon, "Hitbox is a polygon");
+
+    strictEqual(newHitboxEvents, 3, "NewHitBox event triggered 3 times");
+  });
+
   // This test assumes that the "circles" are really octagons, as per Crafty.circle.
   test("SAT overlap with circles", function() {
     var e = Crafty.e("2D, Collision");
@@ -450,6 +473,7 @@
     var ent = Crafty.e("2D, Motion, AngularMotion")
       .attr({x: 0, y:0});
 
+    // Check the initial zeroing of values
     ok(ent.velocity().equals(zero), "linear velocity should be zero");
     strictEqual(ent.vrotation, 0, "angular velocity should be zero");
     ok(ent.acceleration().equals(zero), "linear acceleration should be zero");
@@ -457,24 +481,30 @@
     ok(ent.motionDelta().equals(zero), "linear delta should be zero");
     strictEqual(ent.drotation, 0, "angular delta should be zero");
 
+    // Check that you can't overwrite the motionDeltas
     ent.motionDelta().x = 20;
     ok(ent.motionDelta().equals(zero), "linear delta should not have changed");
     ent.drotation = 10;
     strictEqual(ent.drotation, 0, "angular delta should not have changed");
 
 
+    // Set the v0 / v0_r values
     var v0 = new Vector2D(2,5); var v0_r = 10;
+
+    // Check setting velocity and vrotation
     ent.velocity().setValues(v0);
     ent.vrotation = v0_r;
     ok(ent.velocity().equals(v0), "linear velocity should be <2,5>");
     strictEqual(ent.vrotation, v0_r, "angular velocity should be 10");
 
+    // Check setting accelerations
     var a = new Vector2D(4,2); var a_r = -15;
     ent.acceleration().setValues(a);
     ent.arotation = a_r;
     ok(ent.acceleration().equals(a), "linear acceleration should be <4,2>");
     strictEqual(ent.arotation, a_r, "angular acceleration should be -15");
 
+    // Check op assignment on various fields
     ent.velocity().x += 1;
     ent.velocity().y *= 2;
     ent.velocity().y -= 1;
@@ -482,7 +512,7 @@
     ent.arotation += 5;
     strictEqual(ent.arotation, a_r + 5, "angular acceleration should be -10");
 
-
+    // Reset the motion values back to 0
     ent.resetMotion();
     ent.resetAngularMotion();
     ok(ent.velocity().equals(zero), "linear velocity should be zero");
@@ -493,46 +523,101 @@
     strictEqual(ent.drotation, 0, "angular delta should be zero");
 
 
-    Crafty.timer.FPS(25);
+    // v = (2, 5)
+    ent.velocity().setValues(v0);
+    // v0_r = 10
+    ent.vrotation = v0_r;
+    Crafty.timer.simulateFrames(1);
+    var dt = 0.020; // 20 ms in 1 frame is the default
+    // Check what happens to velocity over time with 0 a
+    ok(ent.velocity().equals(v0), "velocity should be <2,5>");
+    strictEqual(ent.vrotation, v0_r, "angular velocity should be 10");
+    // Delta in last frame should be 
+    equal(ent.motionDelta().x, v0.x * dt, "delta x should be .04");
+    equal(ent.motionDelta().y, v0.y * dt, "delta y should be .1");
+    // ok(ent.motionDelta().equals(v0), "delta should be <2,5>");
+    strictEqual(ent.drotation, v0_r * dt, "angular delta should be 10");
+    equal(ent.x, v0.x * dt, "entity x should be 2");
+    equal(ent.y, v0.y * dt, "entity y should be 5");
+    equal(ent.rotation, v0_r * dt, "entity rotation should be 10");
+
+
+    // Goal of this test is to check that acceleration processes correctly, so reset everything first!
+    ent.resetMotion();
+    ent.resetAngularMotion();
+
+    ent.attr({x:0, y:0, rotation:0});
+    
+    // Set a, v values
+    a = new Vector2D(4,2);
+    a_r = -15;
+    v0 = new Vector2D(2,5);
+    v0_r = 10;
+    
+    ent.acceleration().setValues(a);
+    ent.arotation = a_r;
     ent.velocity().setValues(v0);
     ent.vrotation = v0_r;
     Crafty.timer.simulateFrames(1);
-    ok(ent.velocity().equals(v0), "velocity should be <2,5>");
-    strictEqual(ent.vrotation, v0_r, "angular velocity should be 10");
-    ok(ent.motionDelta().equals(v0), "delta should be <2,5>");
-    strictEqual(ent.drotation, v0_r, "angular delta should be 10");
-    equal(ent.x, v0.x, "entity x should be 2");
-    equal(ent.y, v0.y, "entity y should be 5");
-    equal(ent.rotation, v0_r, "entity rotation should be 10");
+    
+    // Calculate the new configuration of the object via kinematics
+    dt = 0.020; // 20 ms in one frame
+    var dPos = new Vector2D(a).scale(0.5*dt*dt).add(v0.clone().scale(dt)), dPos_r = v0_r * dt + 0.5*a_r * dt * dt;
 
-    var dPos = new Vector2D(a).scale(0.5).add(v0), dPos_r = v0_r + 0.5*a_r;
-    ent.acceleration().setValues(a);
-    ent.arotation = a_r;
-    Crafty.timer.simulateFrames(1);
-    ok(dPos.equals(new Vector2D(4,6)), "should be <4,6>");
-    strictEqual(dPos_r, 2.5, "should be 2.5");
-    ok(ent.motionDelta().equals(dPos), "delta should be <4,6>");
-    strictEqual(ent.drotation, dPos_r, "should be 2.5");
-    equal(ent.x, v0.x + dPos.x, "entity x should be 6");
-    equal(ent.y, v0.y + dPos.y, "entity y should be 11");
-    equal(ent.rotation, v0_r + dPos_r, "entity rotation should be 12.5");
-    var v1 = new Vector2D(v0).add(a), v1_r = v0_r + a_r;
-    ok(ent.velocity().equals(v1), "linear velocity should be <6,7>");
-    strictEqual(ent.vrotation, v1_r, "angular velocity should be -5");
-
-
-    Crafty.timer.FPS(50);
-    ent.attr({x: 0, y: 0})
-       .resetMotion()
-       .resetAngularMotion();
-
-    ent.velocity().x = 10;
-    ent.acceleration().x = 5;
-    Crafty.timer.simulateFrames(1, (1000 / Crafty.timer.FPS()) / 2);
-    equal(ent.velocity().x, 10+5*0.5, "velocity x should be 12.5");
-    equal(ent.x, 10*0.5+0.5*5*0.5*0.5, "entity x should be 5.625");
+    ok(ent.motionDelta().equals(dPos), "delta should be equal to the new position");
+    strictEqual(ent.drotation, dPos_r, "Rotation should match");
+    equal(ent.x, dPos.x, "entity x should match calculated");
+    equal(ent.y, dPos.y, "entity y should match calculate");
+    equal(ent.rotation, dPos_r, "entity rotation should match calculated");
+    var v1 = new Vector2D(a).scale(dt).add(v0), v1_r = a_r * dt + v0_r;
+    equal(ent.velocity().x, v1.x, "vx should match calculated");
+    equal(ent.velocity().y, v1.y, "vy should match calculated");
+    // ok(ent.velocity().equals(v1), "linear velocity should match calculated");
+    strictEqual(ent.vrotation, v1_r, "angular velocity should match calculated");
 
     ent.destroy();
+  });
+
+  test("Motion - changing vector", function() {
+    var Vector2D = Crafty.math.Vector2D;
+    var zero = new Vector2D();
+    var ent = Crafty.e("2D, Motion")
+      .attr({x: 0, y:0});
+    var vec1 = ent.velocity();
+
+    ent.vx = 5;
+
+    equal(ent.velocity().x, 5, "Velocity component changed");
+
+  });
+
+  test("Motion - NewDirection Event", function(){
+    var e = Crafty.e("2D, Motion")
+      .attr({x: 10, y:10}); 
+    e.vx = 0;
+    e.vy = 0;
+    e.ay = 0;
+    e.ax = -0.3;
+    var newDirectionFlag = false;
+    e.bind("NewDirection", function(){
+      newDirectionFlag = true;
+    });
+    Crafty.timer.simulateFrames(1);
+    equal(newDirectionFlag, true, "NewDirection was triggered");
+  });
+
+  test("AngularMotion - NewRotationDirection Event", function(){
+    var e = Crafty.e("2D, AngularMotion")
+      .attr({x: 10, y:10}); 
+    e.vrotation = 0;
+    e.arotation = -0.3;
+
+    var newDirectionFlag = false;
+    e.bind("NewRotationDirection", function(){
+      newDirectionFlag = true;
+    });
+    Crafty.timer.simulateFrames(1);
+    equal(newDirectionFlag, true, "NewDirection was triggered");
   });
 
   test("Motion - Events", function() {
@@ -542,15 +627,15 @@
       .attr({x: 0, y:0});
 
     var newDirectionEvents = 0,
-        newRevolutionEvents = 0,
+        newRotationDirectionEvents = 0,
         movedEvents = 0,
         rotatedEvents = 0,
         motionEvents = 0;
     e.bind("NewDirection", function(evt) {
       newDirectionEvents++;
     });
-    e.bind("NewRevolution", function(evt) {
-      newRevolutionEvents++;
+    e.bind("NewRotationDirection", function(evt) {
+      newRotationDirectionEvents++;
     });
     e.bind("Moved", function(evt) {
       movedEvents++;
@@ -562,106 +647,121 @@
       motionEvents++;
     });
 
-
+    // group 1; setting vy and moving one frame
     e.one("NewDirection", function(evt) {
-      equal(evt.x, 0);
-      equal(evt.y, 1);
+      equal(evt.x, 0, "[1] - no motion along x axis");
+      equal(evt.y, 1, "[1] - moving along +y axis");
     });
-    e.one("Moved", function(evt) { strictEqual(evt.axis, "y"); strictEqual(evt.oldValue, 0); });
-    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, 0); });
+    e.one("Moved", function(evt) { 
+      strictEqual(evt.axis, "y", "[1] - moved along y axis"); 
+      strictEqual(evt.oldValue, 0, "[1] - old y was 0"); 
+    });
+    e.one("MotionChange", function(evt) { 
+      strictEqual(evt.key, "vy", "[1] - vy was set"); 
+      strictEqual(evt.oldValue, 0, "[1] - old vy was 0");
+    });
     e.vy = 1;
     Crafty.timer.simulateFrames(1);
 
+    // group 2: set both vy and vx to be negative
+    var old_y = e.y;
     e.one("NewDirection", function(evt) {
-      equal(evt.x, -1);
-      equal(evt.y, -1);
+      equal(evt.x, -1, "[2] - Now moving along -x axis" );
+      equal(evt.y, -1, "[2] - Now moving along -y axis");
     });
-    e.one("Moved", function(evt) { strictEqual(evt.axis, "x"); strictEqual(evt.oldValue, 0); 
-    e.one("Moved", function(evt) { strictEqual(evt.axis, "y"); strictEqual(evt.oldValue, 1); });});
-    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vx"); strictEqual(evt.oldValue, 0); });
+    e.one("Moved", function(evt) { 
+      strictEqual(evt.axis, "x", "[2] - Moved along x axis"); 
+      strictEqual(evt.oldValue, 0, "[2] - old x was 0"); 
+      e.one("Moved", function(evt) { 
+        strictEqual(evt.axis, "y", "[2] - Moved along y axis"); 
+        strictEqual(evt.oldValue, old_y, "[2] - old y value matches cached"); 
+      });
+    });
+    e.one("MotionChange", function(evt) { 
+      strictEqual(evt.key, "vx", "[2] - vx was changed"); 
+      strictEqual(evt.oldValue, 0, "[2] - old vx was 0");
+    });
     e.vx = -1;
-    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, 1); });
-    e.vy = 0;
-    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, 0); });
-    e.vy = -1;
-    Crafty.timer.simulateFrames(1);
-
-    e.one("Moved", function(evt) { strictEqual(evt.axis, "x"); strictEqual(evt.oldValue, -1); 
-    e.one("Moved", function(evt) { strictEqual(evt.axis, "y"); strictEqual(evt.oldValue, 0); });});
-    e.vx = -1;
-    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, -1); });
-    e.vy = 0;
-    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, 0); });
-    e.vy = -1;
-    Crafty.timer.simulateFrames(1);
-
-    e.one("NewDirection", function(evt) {
-      equal(evt.x, 0);
-      equal(evt.y, -1);
+    e.one("MotionChange", function(evt) { 
+      strictEqual(evt.key, "vy", "[2] - vy was changed");
+      strictEqual(evt.oldValue, 1, "[2] - old vy value matches cached");
     });
-    e.one("Moved", function(evt) { strictEqual(evt.axis, "y"); strictEqual(evt.oldValue, -1); });
-    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vx"); strictEqual(evt.oldValue, -1); });
-    e.vx = 0;
-    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, -1); });
     e.vy = 0;
-    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, 0); });
-    e.vy = -1;
-    Crafty.timer.simulateFrames(1);
-
-    e.one("NewDirection", function(evt) {
-      equal(evt.x, 0);
-      equal(evt.y, 0);
-      evt.x = 1; // bad boy!
+    e.one("MotionChange", function(evt) { 
+      strictEqual(evt.key, "vy", "[2] - vy was changed again");
+      strictEqual(evt.oldValue, 0, "[2] - old vy value was 0");
     });
-    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, -1); });
-    e.vy = 0;
+    e.vy = -1;
+    e.vy = -1; // no MotionChange event was fired
     Crafty.timer.simulateFrames(1);
 
-    e.vx = 0;
-    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, 0); });
+    // group 3 -- test newdireciton when we were previously moving
     e.vy = 1;
-    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vy"); strictEqual(evt.oldValue, 1); });
+    e.vx = 0;
+    e.one("NewDirection", function(evt) {
+      equal(evt.x, 0, "[3] - not moving along x axis");
+      equal(evt.y, 0, "[3] - not moving along y axis");
+    });
     e.vy = 0;
     Crafty.timer.simulateFrames(1);
 
 
-    e.vrotation = 0;
-    Crafty.timer.simulateFrames(1);
-
-    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vrotation"); strictEqual(evt.oldValue, 0); });
-    e.vrotation = 1;
-    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vrotation"); strictEqual(evt.oldValue, 1); });
-    e.vrotation = 0;
-    Crafty.timer.simulateFrames(1);
-
-    e.one("NewRevolution", function(evt) {
-      equal(evt, 1);
+    
+    // Group 4, rotation tests
+    e.vrotation = 0; // no MotionChange event was fired
+    e.one("MotionChange", function(evt) {
+      strictEqual(evt.key, "vrotation", "[4] - change of angular speed");
+      strictEqual(evt.oldValue, 0, "[4] - old vr value was 0"); 
     });
-    e.one("Rotated", function(oldValue) { strictEqual(oldValue, 0); });
-    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vrotation"); strictEqual(evt.oldValue, 0); });
+    e.vrotation = 1;
+    e.one("MotionChange", function(evt) {
+      strictEqual(evt.key, "vrotation", "[4] - change of angular speed");
+      strictEqual(evt.oldValue, 1, "[4] - old value was 1");
+    });
+    e.vrotation = 0;
+
+    // Group 5
+    e.one("NewRotationDirection", function(evt) {
+      equal(evt, 1, "[5] - Rotating in the positive sense");
+    });
+    e.one("Rotated", function(oldValue) {
+      strictEqual(oldValue, 0, "[5] - Rotated from 0 position");
+    });
     e.vrotation = 1;
     Crafty.timer.simulateFrames(1);
 
-    e.one("NewRevolution", function(evt) {
-      equal(evt, -1);
+    var old_rotation = e.rotation;
+    e.one("NewRotationDirection", function(evt) {
+      equal(evt, -1, "[6] - Rotating in the negative sense");
     });
-    e.one("Rotated", function(oldValue) { strictEqual(oldValue, 1); });
-    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vrotation"); strictEqual(evt.oldValue, 1); });
+    e.one("Rotated", function(oldValue) {
+      strictEqual(oldValue, old_rotation, "[6] - Old rotation matches cached value");
+    });
     e.vrotation = -1;
     Crafty.timer.simulateFrames(1);
 
-    e.one("NewRevolution", function(evt) {
-      equal(evt, 0);
+    old_rotation = e.rotation;
+    e.one("NewRotationDirection", function(evt) {
+      equal(evt, 1, "[7] - Rotating in the positive sense");
     });
-    e.one("MotionChange", function(evt) { strictEqual(evt.key, "vrotation"); strictEqual(evt.oldValue, -1); });
+    e.one("Rotated", function(oldValue) {
+      strictEqual(oldValue, old_rotation, "[7] - Old rotation matches cached value");
+    });
+    e.vrotation = 1;
+    Crafty.timer.simulateFrames(1);
+
+    e.one("NewRotationDirection", function(evt) {
+      equal(evt, 0, "[8] - No longer rotating");
+    });
     e.vrotation = 0;
     Crafty.timer.simulateFrames(1);
 
-    equal(newDirectionEvents, 4);
-    equal(newRevolutionEvents, 3);
-    equal(movedEvents, 6);
-    equal(rotatedEvents, 2);
-    equal(motionEvents, 17);
+    // TODO: break these up into separate checks
+    equal(newDirectionEvents, 3, "NewDirection fired 3 times.");
+    equal(newRotationDirectionEvents, 4, "NewRotationDirection fired 4 times.");
+    equal(motionEvents, 13, "MotionChange fired 13 times.");
+    equal(movedEvents, 3, "Moved fired 3 times.");
+    equal(rotatedEvents, 3, "Rotated fired 3 times.");
     e.destroy();
   });
 
@@ -778,7 +878,7 @@
 
     var player = Crafty.e("2D, Gravity")
           .attr({ x: 0, y: 100, w: 32, h: 16 })
-          .gravityConst(0.3)
+          .gravityConst(0.3*50*50)
           .gravity("platform");
    
     strictEqual(player.acceleration().y, player._gravityConst, "acceleration should match gravity constant");
@@ -807,10 +907,10 @@
           vel = -1;
 
           var oldVel = this.velocity().y;
-          this.gravityConst(0.2);
-          strictEqual(this._gravityConst, 0.2, "gravity constant should have changed");
+          this.gravityConst(0.2*50*50);
+          strictEqual(this._gravityConst, 0.2*50*50, "gravity constant should have changed");
           strictEqual(this.acceleration().y, this._gravityConst, "acceleration should match gravity constant");
-          strictEqual(this.velocity().y, oldVel, "velocity shouldn't have been resetted");
+          strictEqual(this.velocity().y, oldVel, "velocity should not have been reset");
         });
         this.attr({y: 100});
       } else {
@@ -824,9 +924,10 @@
       }
     });
 
-    Crafty.timer.simulateFrames(75, 1000/50);
+    Crafty.timer.simulateFrames(75);
     ok(done, "Test completed");
   });
+
 
   test("Integrationtest - Twoway", function() {
     var done = false;
@@ -837,6 +938,7 @@
     var player = Crafty.e("2D, Gravity, Twoway")
           .attr({ x: 0, y: 150, w: 32, h: 10 })
           .gravity("platform")
+          .gravityConst(0.3*50*50)
           .twoway(2, 4);
 
     var landCount = 0, liftCount = 0;
@@ -867,7 +969,7 @@
       }
     });
 
-    Crafty.timer.simulateFrames(75, 1000/50);
+    Crafty.timer.simulateFrames(75);
     ok(done, "Test completed");
   });
 

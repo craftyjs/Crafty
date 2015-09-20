@@ -5,8 +5,10 @@ Crafty.extend({
      * #Crafty.pixelart
      * @category Graphics
      * @sign public void Crafty.pixelart(Boolean enabled)
+     * @param enabled - whether to preserve sharp edges when rendering images
      *
-     * Sets the image smoothing for drawing images (for both DOM and Canvas).
+     * Sets the image smoothing for drawing images (for all layer types).
+     *
      * Setting this to true disables smoothing for images, which is the preferred
      * way for drawing pixel art. Defaults to false.
      *
@@ -17,10 +19,11 @@ Crafty.extend({
      * be aware that canvas entities won't be drawn in the new style until something else invalidates them. 
      * (You can manually invalidate all canvas entities with `Crafty("Canvas").trigger("Invalidate");`)
      *
-     * Note that Firefox_26 currently has a [bug](https://bugzilla.mozilla.org/show_bug.cgi?id=696630) 
+     * @note Firefox_26 currently has a [bug](https://bugzilla.mozilla.org/show_bug.cgi?id=696630) 
      * which prevents disabling image smoothing for Canvas entities that use the Image component. Use the Sprite
      * component instead.
-     * Note that Webkit (Chrome & Safari) currently has a bug [link1](http://code.google.com/p/chromium/issues/detail?id=134040) 
+     *
+     * @note Webkit (Chrome & Safari) currently has a bug [link1](http://code.google.com/p/chromium/issues/detail?id=134040) 
      * [link2](http://code.google.com/p/chromium/issues/detail?id=106662) that prevents disabling image smoothing
      * for DOM entities.
      *

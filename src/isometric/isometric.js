@@ -74,12 +74,12 @@ Crafty.extend({
         /**@
          * #Crafty.isometric.pos2px
          * @comp Crafty.isometric
-         * @sign public this Crafty.isometric.pos2px(Number x,Number y)
-         * @param x
-         * @param y
-         * @return Object {left Number,top Number}
+         * @sign public Object Crafty.isometric.pos2px(Number x,Number y)
+         * @param x - A position along the x axis
+         * @param y - A position along the y axis
+         * @return An object with `left` and `top` fields {left Number,top Number}
          *
-         * This method calculate the X and Y Coordinates to Pixel Positions
+         * This method converts a position in x and y coordinates to one in pixels
          *
          * @example
          * ~~~
@@ -96,18 +96,18 @@ Crafty.extend({
         /**@
          * #Crafty.isometric.px2pos
          * @comp Crafty.isometric
-         * @sign public this Crafty.isometric.px2pos(Number left,Number top)
-         * @param top
-         * @param left
-         * @return Object {x Number,y Number}
+         * @sign public Object Crafty.isometric.px2pos(Number left,Number top)
+         * @param top - Offset from the top in pixels
+         * @param left - Offset from the left in pixels
+         * @return An object with `x` and `y` fields representing the position
          *
-         * This method calculate pixel top,left positions to x,y coordinates
+         * This method converts a position in pixels to x,y coordinates
          *
          * @example
          * ~~~
          * var iso = Crafty.isometric.size(128,96);
          * var px = iso.pos2px(12800,4800);
-         * console.log(px); //Object { x=100, y=100}
+         * Crafty.log(px); //Object { x=100, y=100}
          * ~~~
          */
         px2pos: function (left, top) {
@@ -119,17 +119,21 @@ Crafty.extend({
         /**@
          * #Crafty.isometric.centerAt
          * @comp Crafty.isometric
-         * @sign public this Crafty.isometric.centerAt(Number x,Number y)
-         * @param top
-         * @param left
          *
-         * This method center the Viewport at x/y location or gives the current centerpoint of the viewport
+         * @sign public Obect Crafty.isometric.centerAt()
+         * @returns An object with `top` and `left` fields represneting the viewport's current center
+         *
+         * @sign public this Crafty.isometric.centerAt(Number x, Number y)
+         * @param x - The x position to center at
+         * @param y - The y position to center at
+         *
+         * This method centers the Viewport at an `x,y` location or gives the current centerpoint of the viewport
          *
          * @example
          * ~~~
          * var iso = Crafty.isometric.size(128,96).centerAt(10,10); //Viewport is now moved
          * //After moving the viewport by another event you can get the new center point
-         * console.log(iso.centerAt());
+         * Crafty.log(iso.centerAt());
          * ~~~
          */
         centerAt: function (x, y) {
@@ -148,10 +152,11 @@ Crafty.extend({
         /**@
          * #Crafty.isometric.area
          * @comp Crafty.isometric
-         * @sign public this Crafty.isometric.area()
-         * @return Object {x:{start Number,end Number},y:{start Number,end Number}}
+         * @sign public Object Crafty.isometric.area()
+         * @return An obect with `x` and `y` fields, each of which have a start and end field.
+         * In other words, the object has this structure: `{x:{start Number,end Number},y:{start Number,end Number}}`
          *
-         * This method get the Area surrounding by the centerpoint depends on viewport height and width
+         * This method returns an object representing the bounds of the viewport
          *
          * @example
          * ~~~

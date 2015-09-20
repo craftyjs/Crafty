@@ -1,6 +1,10 @@
 /**@
  * #Delay
  * @category Utilities
+ *
+ * A component for triggering functions after a given amount of time.
+ *
+ * This syncs with Crafty's internal clock, and so should generally be preferred to using methods such as `setTimeout`.
  */
 module.exports = {
     init: function () {
@@ -56,19 +60,19 @@ module.exports = {
      *
      * The simplest delay
      * ~~~
-     * console.log("start");
+     * Crafty.log("start");
      * Crafty.e("Delay").delay(function() {
-     *   console.log("100ms later");
+     *   Crafty.log("100ms later");
      * }, 100, 0);
      * ~~~
      *
      * Delay with callbackOff to be executed after all delay iterations
      * ~~~
-     * console.log("start");
+     * Crafty.log("start");
      * Crafty.e("Delay").delay(function() {
-     *   console.log("100ms later");
+     *   Crafty.log("100ms later");
      * }, 100, 3, function() {
-     *   console.log("delay finished");
+     *   Crafty.log("delay finished");
      * });
      * ~~~
      *
@@ -94,7 +98,7 @@ module.exports = {
      * @example
      * ~~~
      * var doSomething = function(){
-     *   console.log("doing something");
+     *   Crafty.log("doing something");
      * };
      *
      * // execute doSomething each 100 miliseconds indefinetely

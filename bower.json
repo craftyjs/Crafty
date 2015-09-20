@@ -1,6 +1,5 @@
 {
   "name": "crafty",
-  "version": "0.6.2",
   "main": "dist/crafty.js",
   "license": "MIT",
   "ignore": [

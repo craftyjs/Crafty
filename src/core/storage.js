@@ -1,24 +1,35 @@
+
+var storage = (typeof window !== "undefined" && window.localStorage) || (new require('node-localstorage').LocalStorage('./localStorage'));
+
 /**@
  * #Storage
  * @category Utilities
- * Very simple way to get and set values, which will persist when the browser is closed also. Storage wraps around HTML5 Web Storage, which is well-supported across browsers and platforms, but limited to 5MB total storage per domain.
+ * Very simple way to get and set values, which will persist when the browser is closed also.
+ * Storage wraps around HTML5 Web Storage, which is well-supported across browsers and platforms, but limited to 5MB total storage per domain.
+ * Storage is also available for node, which is permanently persisted to the `./localStorage` folder - take care of removing entries. Note that multiple Crafty instances use the same storage, so care has to be taken not to overwrite existing entries.
  */
 /**@
- * #.storage
+ * #Crafty.storage
  * @comp Storage
- * @sign .storage(String key)
- * @param key - a key you would like to get from the storage. It will return null if the key does not exists.
- * @sign .storage(String key, String value)
+ * @sign Crafty.storage(String key)
+ * @param key - a key you would like to get from the storage. 
+ * @returns The stored value, or `null` if none saved under that key exists
+ *
+ * @sign Crafty.storage(String key, String value)
  * @param key - the key you would like to save the data under.
  * @param value - the value you would like to save.
- * @sign .storage(String key, [Object value, Array value, Boolean value])
+ *
+ * @sign Crafty.storage(String key, [Object value, Array value, Boolean value])
  * @param key - the key you would like to save the data under.
  * @param value - the value you would like to save, can be an Object or an Array.
  *
- * Storage function is very simple and can be used to either get or set values. 
- * You can store both booleans, strings, objects and arrays.
+ * `Crafty.storage` is used synchronously to either get or set values. 
  *
- * Please note: You should not store data, while the game is playing, as it can cause the game to slow down. You should load data when you start the game, or when the user for an example click a "Save gameprocess" button.
+ * You can store booleans, strings, objects and arrays.
+ *
+ * @note Because the underlying method is synchronous, it can cause slowdowns if used frequently during gameplay.
+ * You should aim to load or save data at reasonable times such as on level load,
+ * or in response to specific user actions.
  *
  * @example
  * Get an already stored value
@@ -44,9 +55,8 @@
  * ~~~
  */
 
-var storage = function(key, value) {
-  var storage = window.localStorage,
-      _value = value;
+var store = function(key, value){
+  var _value = value;
 
   if(!storage){
     return false;
@@ -70,9 +80,9 @@ var storage = function(key, value) {
 
 };
 /**@
- * #.storage.remove
+ * #Crafty.storage.remove
  * @comp Storage
- * @sign .storage.remove(String key)
+ * @sign Crafty.storage.remove(String key)
  * @param key - a key where you will like to delete the value of.
  *
  * Generally you do not need to remove values from localStorage, but if you do
@@ -86,8 +96,8 @@ var storage = function(key, value) {
  * ~~~
  *
  */
-storage.remove = function(key){
-  window.localStorage.removeItem(key);
+store.remove = function(key){
+  storage.removeItem(key);
 };
 
-module.exports = storage;
+module.exports = store;

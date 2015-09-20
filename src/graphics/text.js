@@ -10,19 +10,19 @@ var Crafty = require('../core/core.js');
  *
  * By default, text will have the style "10px sans-serif".
  *
- * Note 1: An entity with the text component is just text! If you want to write text
+ * @note An entity with the text component is just text! If you want to write text
  * inside an image, you need one entity for the text and another entity for the image.
  * More tips for writing text inside an image: (1) Use the z-index (from 2D component)
  * to ensure that the text is on top of the image, not the other way around; (2)
  * use .attach() (from 2D component) to glue the text to the image so they move and
  * rotate together.
  *
- * Note 2: For DOM (but not canvas) text entities, various font settings (like
+ * @note For DOM (but not canvas) text entities, various font settings (like
  * text-decoration and text-align) can be set using `.css()` (see DOM component). But
  * you cannot use `.css()` to set the properties which are controlled by `.textFont()`
  * or `.textColor()` -- the settings will be ignored.
  *
- * Note 3: If you use canvas text with glyphs that are taller than standard letters, portions of the glyphs might be cut off.
+ * @note If you use canvas text with glyphs that are taller than standard letters, portions of the glyphs might be cut off.
  */
 Crafty.c("Text", {
     _text: "",
@@ -99,8 +99,11 @@ Crafty.c("Text", {
      * #.text
      * @comp Text
      * @sign public this .text(String text)
-     * @sign public this .text(Function textgenerator)
      * @param text - String of text that will be inserted into the DOM or Canvas element.
+     *
+     * @sign public this .text(Function textGenerator)
+     * @param textGenerator - A function that returns a string.  
+     *        It will be immediately invoked in the context of the entity, with the result used as the text to display.
      *
      * This method will update the text inside the entity.
      *

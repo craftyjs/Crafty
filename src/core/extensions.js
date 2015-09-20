@@ -1,5 +1,5 @@
 var Crafty = require('./core');
-var document = window.document;
+var document = (typeof window !== "undefined") && window.document;
 
 /**@
  * #Crafty.support
@@ -8,11 +8,12 @@ var document = window.document;
  */
 (function testSupport() {
     var support = Crafty.support = {},
-        ua = navigator.userAgent.toLowerCase(),
+        ua = (typeof navigator !== "undefined" && navigator.userAgent.toLowerCase()) || (typeof process !== "undefined" && process.version),
         match = /(webkit)[ \/]([\w.]+)/.exec(ua) ||
             /(o)pera(?:.*version)?[ \/]([\w.]+)/.exec(ua) ||
             /(ms)ie ([\w.]+)/.exec(ua) ||
-            /(moz)illa(?:.*? rv:([\w.]+))?/.exec(ua) || [],
+            /(moz)illa(?:.*? rv:([\w.]+))?/.exec(ua) ||
+            /(v)\d+\.(\d+)/.exec(ua) || [],
         mobile = /iPad|iPod|iPhone|Android|webOS|IEMobile/i.exec(ua);
 
     /**@
@@ -52,18 +53,19 @@ var document = window.document;
      * @comp Crafty.support
      * Is HTML5 `Audio` supported?
      */
-    support.audio = ('canPlayType' in document.createElement('audio'));
+    support.audio = (typeof window !== "undefined") && ('canPlayType' in document.createElement('audio'));
 
     /**@
      * #Crafty.support.prefix
      * @comp Crafty.support
-     * Returns the browser specific prefix (`Moz`, `O`, `ms`, `webkit`).
+     * Returns the browser specific prefix (`Moz`, `O`, `ms`, `webkit`, `node`).
      */
     support.prefix = (match[1] || match[0]);
 
     //browser specific quirks
     if (support.prefix === "moz") support.prefix = "Moz";
     if (support.prefix === "o") support.prefix = "O";
+    if (support.prefix === "v") support.prefix = "node";
 
     if (match[2]) {
         /**@
@@ -86,7 +88,7 @@ var document = window.document;
      * @comp Crafty.support
      * Is the `canvas` element supported?
      */
-    support.canvas = ('getContext' in document.createElement("canvas"));
+    support.canvas = (typeof window !== "undefined") && ('getContext' in document.createElement("canvas"));
 
     /**@
      * #Crafty.support.webgl
@@ -111,21 +113,21 @@ var document = window.document;
      * @comp Crafty.support
      * Is css3Dtransform supported by browser.
      */
-    support.css3dtransform = (typeof document.createElement("div").style.Perspective !== "undefined") || (typeof document.createElement("div").style[support.prefix + "Perspective"] !== "undefined");
+    support.css3dtransform = (typeof window !== "undefined") && ((typeof document.createElement("div").style.Perspective !== "undefined") || (typeof document.createElement("div").style[support.prefix + "Perspective"] !== "undefined"));
 
     /**@
      * #Crafty.support.deviceorientation
      * @comp Crafty.support
      * Is deviceorientation event supported by browser.
      */
-    support.deviceorientation = (typeof window.DeviceOrientationEvent !== "undefined") || (typeof window.OrientationEvent !== "undefined");
+    support.deviceorientation = (typeof window !== "undefined") && ((typeof window.DeviceOrientationEvent !== "undefined") || (typeof window.OrientationEvent !== "undefined"));
 
     /**@
      * #Crafty.support.devicemotion
      * @comp Crafty.support
      * Is devicemotion event supported by browser.
      */
-    support.devicemotion = (typeof window.DeviceMotionEvent !== "undefined");
+    support.devicemotion = (typeof window !== "undefined") && (typeof window.DeviceMotionEvent !== "undefined");
 
 })();
 
@@ -150,13 +152,17 @@ module.exports = {
      *
      * Callbacks are passed with event data.
      *
+     * @note This is related to DOM events only,  not Crafty's own event system.  
+     * Of course, you can trigger Crafty events in the callback function!
+     *
      * @example
-     * Will add a stage-wide MouseDown event listener to the player. Will log which button was pressed
-     * & the (x,y) coordinates in viewport/world/game space.
+     * Normally you'd use Crafty's built-in mouse component, but for the sake of an example let's pretend that doesn't exist.  
+     * The following code will add a stage-wide MouseDown event listener to the player, and log both which button was pressed
+     * and the (x,y) coordinates in viewport/world/game space.
      * ~~~
      * var player = Crafty.e("2D");
      *     player.onMouseDown = function(e) {
-     *         console.log(e.mouseButton, e.realX, e.realY);
+     *         Crafty.log(e.mouseButton, e.realX, e.realY);
      *     };
      * Crafty.addEvent(player, Crafty.stage.elem, "mousedown", player.onMouseDown);
      * ~~~
@@ -226,7 +232,7 @@ module.exports = {
     /**@
      * #Crafty.background
      * @category Graphics, Stage
-     * @sign public void Crafty.background(String value)
+     * @sign public void Crafty.background(String style)
      * @param style - Modify the background with a color or image
      *
      * This method is a shortcut for adding a background

@@ -25,6 +25,7 @@ Crafty.extend({
      * @param paddingX - Horizontal space in between tiles. Defaults to 0.
      * @param paddingY - Vertical space in between tiles. Defaults to paddingX.
      * @param paddingAroundBorder - If padding should be applied around the border of the sprite sheet. If enabled the first tile starts at (paddingX,paddingY) instead of (0,0). Defaults to false.
+     *
      * Generates components based on positions in a sprite image to be applied to entities.
      *
      * Accepts a tile size, URL and map for the name of the sprite and its position.
@@ -160,7 +161,13 @@ Crafty.extend({
  * #Sprite
  * @category Graphics
  * @trigger Invalidate - when the sprites change
- * Component for using tiles in a sprite map.
+ *
+ * A component for using tiles in a sprite map.  
+ *
+ * This is automatically added to entities which use the components created by `Crafty.sprite` or `Crafty.load`.
+ * Since these are also used to define tile size, you'll rarely need to use this components methods directly.
+ *
+ * @see Crafty.sprite, Crafty.load
  */
 Crafty.c("Sprite", {
     __image: '',

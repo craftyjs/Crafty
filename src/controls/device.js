@@ -5,6 +5,8 @@ Crafty.extend({
     /**@
      * #Crafty.device
      * @category Misc
+     *
+     * Methods relating to devices such as tablets or phones
      */
     device: {
         _deviceOrientationCallback: false,
@@ -87,10 +89,10 @@ Crafty.extend({
          * Do something with normalized device orientation data:
          * ~~~
          * {
-         *   'tiltLR'    :   'gamma the angle in degrees the device is tilted left-to-right.',
-         *   'tiltFB'    :   'beta the angle in degrees the device is tilted front-to-back',
-         *   'dir'       :   'alpha the direction the device is facing according to the compass',
-         *   'motUD'     :   'The angles values increase as you tilt the device to the right or towards you.'
+         *   tiltLR    :   'gamma -- the angle in degrees the device is tilted left-to-right.',
+         *   tiltFB    :   'beta -- the angle in degrees the device is tilted front-to-back',
+         *   dir       :   'alpha -- the direction the device is facing according to the compass',
+         *   motUD     :   'The angle's values increase as you tilt the device to the right or towards you.'
          * }
          * ~~~
          *
@@ -98,7 +100,7 @@ Crafty.extend({
          * ~~~
          * // Get DeviceOrientation event normalized data.
          * Crafty.device.deviceOrientation(function(data){
-         *     console.log('data.tiltLR : '+Math.round(data.tiltLR)+', data.tiltFB : '+Math.round(data.tiltFB)+', data.dir : '+Math.round(data.dir)+', data.motUD : '+data.motUD+'');
+         *     Crafty.log('data.tiltLR : '+Math.round(data.tiltLR)+', data.tiltFB : '+Math.round(data.tiltFB)+', data.dir : '+Math.round(data.dir)+', data.motUD : '+data.motUD+'');
          * });
          * ~~~
          *
@@ -126,11 +128,11 @@ Crafty.extend({
          * Do something with normalized device motion data:
          * ~~~
          * {
-         *     'acceleration' : ' Grab the acceleration including gravity from the results',
-         *     'rawAcceleration' : 'Display the raw acceleration data',
-         *     'facingUp' : 'Z is the acceleration in the Z axis, and if the device is facing up or down',
-         *     'tiltLR' : 'Convert the value from acceleration to degrees. acceleration.x is the acceleration according to gravity, we'll assume we're on Earth and divide by 9.81 (earth gravity) to get a percentage value, and then multiply that by 90 to convert to degrees.',
-         *     'tiltFB' : 'Convert the value from acceleration to degrees.'
+         *     acceleration : 'Grab the acceleration including gravity from the results',
+         *     rawAcceleration : 'Display the raw acceleration data',
+         *     facingUp : 'Z is the acceleration in the Z axis, and if the device is facing up or down',
+         *     tiltLR : 'Convert the value from acceleration to degrees. acceleration.x is the acceleration according to gravity, we'll assume we're on Earth and divide by 9.81 (earth gravity) to get a percentage value, and then multiply that by 90 to convert to degrees.',
+         *     tiltFB : 'Convert the value from acceleration to degrees.'
          * }
          * ~~~
          *
@@ -138,7 +140,7 @@ Crafty.extend({
          * ~~~
          * // Get DeviceMotion event normalized data.
          * Crafty.device.deviceMotion(function(data){
-         *     console.log('data.moAccel : '+data.rawAcceleration+', data.moCalcTiltLR : '+Math.round(data.tiltLR)+', data.moCalcTiltFB : '+Math.round(data.tiltFB)+'');
+         *     Crafty.log('data.moAccel : '+data.rawAcceleration+', data.moCalcTiltLR : '+Math.round(data.tiltLR)+', data.moCalcTiltFB : '+Math.round(data.tiltFB)+'');
          * });
          * ~~~
          *

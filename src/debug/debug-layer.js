@@ -137,6 +137,7 @@ Crafty.c("DebugRectangle", {
      * @comp DebugRectangle
      * @sign public  .debugRectangle(Object rect)
      * @param rect - an object with _x, _y, _w, and _h to draw
+     *
      * Sets the rectangle that this component draws to the debug canvas.
      *
      */
@@ -221,6 +222,7 @@ Crafty.c("DebugPolygon", {
      * @comp DebugPolygon
      * @sign public  .debugPolygon(Polygon poly)
      * @param poly - a polygon to render
+     *
      * Sets the polygon that this component renders to the debug canvas.
      *
      */
@@ -290,6 +292,50 @@ Crafty.c("SolidHitBox", {
     },
     matchHitBox: function () {
         this.debugPolygon(this.map);
+    }
+});
+
+/**@
+ * #WiredAreaMap
+ * @category Debug
+ *
+ * Adding this component to an entity with an AreaMap component will cause its click polygon to be drawn to the debug canvas as an outline.
+ * Following click areas exist for an entity (in decreasing order of priority): AreaMap, Hitbox, MBR. Use the appropriate debug components to display them.
+ *
+ * The methods of DebugCanvas can be used to control this component's appearance.
+ * @see DebugPolygon, DebugCanvas
+ */
+Crafty.c("WiredAreaMap", {
+    init: function () {
+        this.requires("DebugPolygon")
+            .debugStroke("green")
+            .matchAreaMap();
+        this.bind("NewAreaMap", this.matchAreaMap);
+    },
+    matchAreaMap: function () {
+        this.debugPolygon(this.mapArea);
+    }
+});
+
+/**@
+ * #SolidAreaMap
+ * @category Debug
+ *
+ * Adding this component to an entity with an AreaMap component will cause its click polygon to be drawn to the debug canvas, with a default alpha level of 0.7.
+ * Following click areas exist for an entity (in decreasing order of priority): AreaMap, Hitbox, MBR. Use the appropriate debug components to display them.
+ *
+ * The methods of DebugCanvas can be used to control this component's appearance.
+ * @see DebugPolygon, DebugCanvas
+ */
+Crafty.c("SolidAreaMap", {
+    init: function () {
+        this.requires("DebugPolygon")
+            .debugFill("lime").debugAlpha(0.7)
+            .matchAreaMap();
+        this.bind("NewAreaMap", this.matchAreaMap);
+    },
+    matchAreaMap: function () {
+        this.debugPolygon(this.mapArea);
     }
 });
 

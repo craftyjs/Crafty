@@ -25,7 +25,7 @@
  * });
  * person = Crafty.e('Person').attr({name: 'blaine'});
  * person.bind('Change[name]', function() {
- *   console.log('name changed!');
+ *   Crafty.log('name changed!');
  * });
  * person.attr('name', 'blainesch'); // Triggers event
  * person.is_dirty('name'); // true
@@ -50,7 +50,7 @@ module.exports = {
     options = Crafty.extend.call({pre: ''}, options);
     for (key in data) {
       this.trigger('Change[' + options.pre + key + ']', data[key]);
-      if (data[key].constructor.name === 'Object') {
+      if (data[key].constructor === Object) {
         this._changed_triggers(data[key], {
           pre: options.pre + key + '.'
         });

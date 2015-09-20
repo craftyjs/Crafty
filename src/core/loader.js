@@ -13,7 +13,7 @@ module.exports = {
      * ~~~
      * var isLoaded = !!Crafty.assets["images/sprite.png"];
      * ~~~
-     * @see Crafty.loader
+     * @see Crafty.load
      */
     assets: {},
     __paths: { audio: "", images: "" },
@@ -39,12 +39,12 @@ module.exports = {
      * ~~~
      * Crafty.paths({ audio: "custom/audio/path/", images: "custom/images/path/" });
      *
-     * Crafty.load({ 
+     * Crafty.load({
      *   "audio": {
      *     "ray": ['ray.mp3'] // This loads ray.mp3 from custom/audio/path/ray.mp3
      *   }
      * }, function() {
-     *   console.log('loaded');
+     *   Crafty.log('loaded');
      * });
      * ~~~
      *
@@ -68,10 +68,13 @@ module.exports = {
      * @sign public void Crafty.asset(String key, Object asset)
      * @param key - asset url.
      * @param asset - `Audio` or `Image` object.
+     *
      * Add new asset to assets object.
      *
      * @sign public void Crafty.asset(String key)
      * @param key - asset url.
+     *
+     *
      * Get asset from assets object.
      *
      * @example
@@ -106,7 +109,7 @@ module.exports = {
      * ~~~
      * // add tif extension to list of supported image files
      * Crafty.image_whitelist.push("tif");
-     * 
+     *
      * var assets = {
      *     "sprites": {
      *         "sprite.tif": {   //set a tif sprite
@@ -139,7 +142,7 @@ module.exports = {
      */
     image_whitelist: ["jpg", "jpeg", "gif", "png", "svg"],
     /**@
-     * #Crafty.loader
+     * #Crafty.load
      * @category Assets
      * @sign public void Crafty.load(Object assets, Function onLoad[, Function onProgress[, Function onError]])
      * @param assets - Object JSON formatted (or JSON string), with assets to load (accepts sounds, images and sprites)
@@ -147,22 +150,22 @@ module.exports = {
      * @param onProgress - Callback when an asset is loaded. Contains information about assets loaded
      * @param onError - Callback when an asset fails to load
      *
-     * Preloader for all assets. Takes a JSON formatted object (or JSON string) of files and adds them to the 
+     * Preloader for all assets. Takes a JSON formatted object (or JSON string) of files and adds them to the
      * `Crafty.assets` object, as well as setting sprites accordingly.
      *
      * Format must follow the pattern shown in the example below, but it's not required to pass all "audio",
      * "images" and "sprites" properties, only those you'll need. For example, if you don't need to preload
      * sprites, you can omit that property.
-     * 
+     *
      * By default, Crafty will assume all files are in the current path.  For changing these,
      * use the function `Crafty.paths`.
-     * 
+     *
      * Files with suffixes in `image_whitelist` (case insensitive) will be loaded.
-     * 
+     *
      * It's possible to pass the full file path(including protocol), instead of just the filename.ext, in case
      * you want some asset to be loaded from another domain.
      *
-     * If `Crafty.support.audio` is `true`, files with the following suffixes `mp3`, `wav`, `ogg` and 
+     * If `Crafty.support.audio` is `true`, files with the following suffixes `mp3`, `wav`, `ogg` and
      * `mp4` (case insensitive) can be loaded.
      *
      * The `onProgress` function will be passed on object with information about
@@ -186,8 +189,8 @@ module.exports = {
      *         "slash": "slash.wav"
      *     },
      *     "images": ["badguy.bmp", "goodguy.png"],
-     *     "sprites": { 
-     *         "animals.png": { 
+     *     "sprites": {
+     *         "animals.png": {
      *             "tile": 50,
      *             "tileh": 40,
      *             "map": { "ladybug": [0,0], "lazycat": [0,1], "ferociousdog": [0,2] }
@@ -202,7 +205,7 @@ module.exports = {
      *         }
      *     },
      * };
-     * 
+     *
      * Crafty.load(assetsObj, // preload assets
      *     function() { //when loaded
      *         Crafty.scene("main"); //go to main scene
@@ -224,13 +227,13 @@ module.exports = {
      * @see Crafty.removeAssets
      */
     load: function (data, oncomplete, onprogress, onerror) {
-      
+
         if (Array.isArray(data)) {
             Crafty.log("Calling Crafty.load with an array of assets no longer works; see the docs for more details.");
         }
 
         data = (typeof data === "string" ? JSON.parse(data) : data);
-      
+
         var j = 0,
             total = (data.audio ? Object.keys(data.audio).length : 0) +
               (data.images ? Object.keys(data.images).length : 0) +
@@ -239,7 +242,7 @@ module.exports = {
             audSupport = Crafty.support.audio,
             paths = Crafty.paths(),
             getExt = function(f) {
-                return f.substr(f.lastIndexOf('.') + 1, 3).toLowerCase();
+                return f.substr(f.lastIndexOf('.') + 1).toLowerCase();
             },
             getFilePath = function(type,f) {
                 return (f.search("://") === -1 ? (type == "audio" ? paths.audio + f : paths.images + f) : f);
@@ -300,6 +303,8 @@ module.exports = {
 
         for (type in data) {
             for(asset in data[type]) {
+                if (!data[type].hasOwnProperty(asset))
+                    continue; // maintain compatibility to other frameworks while iterating array
 
                 current = data[type][asset];
 
@@ -355,15 +360,16 @@ module.exports = {
      *
      * @sign public void Crafty.removeAssets(Object assets)
      * @param data - Object JSON formatted (or JSON string), with assets to remove (accepts sounds, images and sprites)
+     *
      * Removes assets (audio, images, sprites - and related sprite components) in order to allow the browser
      * to free memory.
-     * 
+     *
      * Recieves a JSON fomatted object (or JSON string) containing 'audio', 'images' and/or 'sprites'
      * properties with assets to be deleted. Follows a similar format as Crafty.load 'data' argument. If
      * you pass the exact same object passed to Crafty.load, that will delete everything loaded that way.
      * For sprites, if you want to keep some specific component, just don't pass that component's name in
      * the sprite 'map'.
-     * 
+     *
      * Note that in order to remove the sprite components related to a given sprite, it's required to
      * pass the 'map' property of that sprite, and although its own properties's values (the properties refer
      * to sprite components) are not used in the removing process, omitting them will cause an error (since
@@ -390,25 +396,27 @@ module.exports = {
      *         }
      *     }
      * }
-     * 
+     *
      * Crafty.removeAssets(assetsToRemoveObj);
      * ~~~
      *
      * @see Crafty.load
      */
     removeAssets: function(data) {
-      
+
         data = (typeof data === "string" ? JSON.parse(data) : data);
-      
+
         var current, fileUrl, type, asset,
             paths = Crafty.paths(),
             getFilePath = function(type,f) {
                 return (f.search("://") === -1 ? (type == "audio" ? paths.audio + f : paths.images + f) : f);
             };
-      
+
         for (type in data) {
             for (asset in data[type]) {
-              
+                if (!data[type].hasOwnProperty(asset))
+                    continue; // maintain compatibility to other frameworks while iterating array
+
                 current = data[type][asset];
 
                 if (type === "audio") {
