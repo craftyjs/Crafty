@@ -66,6 +66,11 @@ Crafty.extend({
                 return;
             }
 
+            // set properties to initial values -- necessary on a restart
+            this._dirtyRects = [];
+            this._changedObjs = [];
+            this.layerCount = 0;
+
             //create an empty canvas element
             var c;
             c = document.createElement("canvas");
