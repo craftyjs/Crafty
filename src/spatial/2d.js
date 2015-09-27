@@ -23,6 +23,7 @@ var M = Math,
  * @trigger Move - when the entity has moved - { _x:Number, _y:Number, _w:Number, _h:Number } - Old position
  * @trigger Invalidate - when the entity needs to be redrawn
  * @trigger Rotate - when the entity is rotated - { cos:Number, sin:Number, deg:Number, rad:Number, o: {x:Number, y:Number}}
+ * @trigger Reorder - when the entity's z index has changed
  */
 Crafty.c("2D", {
     /**@
@@ -881,7 +882,7 @@ Crafty.c("2D", {
             value = value==intValue ? intValue : intValue+1;
             this._globalZ = value*100000+this[0]; //magic number 10^5 is the max num of entities
             this[name] = value;
-            this.trigger("reorder");
+            this.trigger("Reorder");
             //if the rect bounds change, update the MBR and trigger move
         } else if (name === '_x' || name === '_y') {
             // mbr is the minimal bounding rectangle of the entity
