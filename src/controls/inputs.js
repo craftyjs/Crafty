@@ -130,7 +130,6 @@ Crafty.extend({
      * @see Crafty.multitouch
      */
     mouseDispatch: function (e) {
-
         if (!Crafty.mouseObjs) return;
         Crafty.lastEvent = e;
 
@@ -592,7 +591,7 @@ Crafty.extend({
 });
 
 //initialize the input events onload
-Crafty.bind("Load", function () {
+Crafty._preBind("Load", function () {
     Crafty.addEvent(this, "keydown", Crafty.keyboardDispatch);
     Crafty.addEvent(this, "keyup", Crafty.keyboardDispatch);
 
@@ -616,7 +615,7 @@ Crafty.bind("Load", function () {
         Crafty.addEvent(this, Crafty.stage.elem, "mousewheel", Crafty.mouseWheelDispatch);
 });
 
-Crafty.bind("CraftyStop", function () {
+Crafty._preBind("CraftyStop", function () {
     Crafty.removeEvent(this, "keydown", Crafty.keyboardDispatch);
     Crafty.removeEvent(this, "keyup", Crafty.keyboardDispatch);
 

@@ -177,22 +177,18 @@ module.exports = {
 
         //save anonymous function to be able to remove
         var afn = function (e) {
-            e = e || window.event;
-
-            if (typeof callback === 'function') {
-                callback.call(ctx, e);
-            }
+            callback.call(ctx, e);
         },
             id = ctx[0] || "";
 
-        if (!this._events[id + obj + type + callback]) this._events[id + obj + type + callback] = afn;
-        else return;
-
-        if (obj.attachEvent) { //IE
-            obj.attachEvent('on' + type, afn);
-        } else { //Everyone else
-            obj.addEventListener(type, afn, false);
+        if (!this._events[id + obj + type + callback]) 
+            this._events[id + obj + type + callback] = afn;
+        else  {
+            return;
         }
+
+        obj.addEventListener(type, afn, false);
+        
     },
 
     /**@
@@ -222,9 +218,7 @@ module.exports = {
             afn = this._events[id + obj + type + callback];
 
         if (afn) {
-            if (obj.detachEvent) {
-                obj.detachEvent('on' + type, afn);
-            } else obj.removeEventListener(type, afn, false);
+            obj.removeEventListener(type, afn, false);
             delete this._events[id + obj + type + callback];
         }
     },
