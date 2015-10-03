@@ -189,7 +189,7 @@ Crafty.extend({
                 Crafty.unbind("EnterFrame", enterFrame);
             }
 
-            Crafty.bind("StopCamera", stopPan);
+            Crafty._preBind("StopCamera", stopPan);
 
             return function (dx, dy, time, easingFn) {
                 // Cancel any current camera control
@@ -248,7 +248,7 @@ Crafty.extend({
                 }
             }
 
-            Crafty.bind("StopCamera", stopFollow);
+            Crafty._preBind("StopCamera", stopFollow);
 
             return function (target, offsetx, offsety) {
                 if (!target || !target.has('2D'))
@@ -320,7 +320,7 @@ Crafty.extend({
             function stopZoom(){
                 Crafty.unbind("EnterFrame", enterFrame);
             }
-            Crafty.bind("StopCamera", stopZoom);
+            Crafty._preBind("StopCamera", stopZoom);
 
             var startingZoom, finalZoom, finalAmount, startingX, finalX, startingY, finalY, easing;
 
@@ -528,10 +528,16 @@ Crafty.extend({
         init: function (w, h, stage_elem) {
             // setters+getters for the viewport
             this._defineViewportProperties();
+
+            // Set initial values -- necessary on restart
+            this._x = 0;
+            this._y = 0;
+            this._scale = 1;
+            this.bounds = null;
+
             // If no width or height is defined, the width and height is set to fullscreen
             this._width = w || window.innerWidth;
             this._height = h || window.innerHeight;
-
 
             //check if stage exists
             if (typeof stage_elem === 'undefined')

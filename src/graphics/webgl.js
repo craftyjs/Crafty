@@ -437,6 +437,9 @@ Crafty.extend({
                 return;
             }
 
+            // necessary on restart
+            this.changed_objects = [];
+
             //create an empty canvas element
             var c;
             c = document.createElement("canvas");

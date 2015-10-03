@@ -80,7 +80,7 @@ Crafty.extend({
          *
          * Use this method to place an entity in an isometric grid.
          *
-         * @exampl
+         * @example
          * ~~~
          * var iso = Crafty.diamondIso.init(64,128,20,20);
          * isos.place(Crafty.e('2D, DOM, Color').color('red').attr({w:128, h:128}),1,1,2);

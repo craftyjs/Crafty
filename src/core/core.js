@@ -1063,6 +1063,11 @@ Crafty._callbackMethods = {
                     callbacks.splice(i, 1);
                     i--;
                     l--;
+                    // Delete callbacks object if there are no remaining bound events
+                    if (callbacks.length === 0) {
+                        delete this._callbacks[event];
+                        delete handlers[event][this[0]];
+                    }
                 }
             } else {
                 callbacks[i].call(this, data);
@@ -1136,6 +1141,16 @@ Crafty.extend({
      * @see Crafty.stop,  Crafty.viewport
      */
     init: function (w, h, stage_elem) {
+        
+        // If necessary, attach any event handlers registered before Crafty started
+        if (!this._preBindDone) {
+            for(var i = 0; i < this._bindOnInit.length; i++) {
+
+                var preBind = this._bindOnInit[i];
+                Crafty.bind(preBind.event, preBind.handler);
+            }
+        }
+
         Crafty.viewport.init(w, h, stage_elem);
 
         //call all arbitrary functions attached to onload
@@ -1143,6 +1158,17 @@ Crafty.extend({
         this.timer.init();
 
         return this;
+    },
+
+    // There are some events that need to be bound to Crafty when it's started/restarted, so store them here
+    // Switching Crafty's internals to use the new system idiom should allow removing this hack
+    _bindOnInit: [],
+    _preBindDone: false,
+    _preBind: function(event, handler) {
+        this._bindOnInit.push({
+            event: event,
+            handler: handler
+        });
     },
 
     /**@
@@ -1165,7 +1191,7 @@ Crafty.extend({
     /**@
      * #Crafty.stop
      * @category Core
-     * @trigger CraftyStop - when the game is stopped
+     * @trigger CraftyStop - when the game is stopped  - {bool clearState}
      * @sign public this Crafty.stop([bool clearState])
      * @param clearState - if true the stage and all game state is cleared.
      *
@@ -1175,19 +1201,32 @@ Crafty.extend({
      * @see Crafty.init
      */
     stop: function (clearState) {
+        Crafty.trigger("CraftyStop", clearState);
+
         this.timer.stop();
         if (clearState) {
+            // Remove audio
             Crafty.audio.remove();
+
+            // Remove the stage element, and re-add a div with the same id
             if (Crafty.stage && Crafty.stage.elem.parentNode) {
                 var newCrStage = document.createElement('div');
                 newCrStage.id = Crafty.stage.elem.id;
                 Crafty.stage.elem.parentNode.replaceChild(newCrStage, Crafty.stage.elem);
             }
+
+            // Reset references to the now destroyed graphics layers
+            delete Crafty.canvasLayer.context;
+            delete Crafty.domLayer._div;
+            delete Crafty.webgl.context;
+
+            // reset callbacks, and indicate that prebound functions need to be bound on init again
+            Crafty._unbindAll();
+            Crafty._addCallbackMethods(Crafty);
+            this._preBindDone = false;
+
             initState();
         }
-
-        Crafty.trigger("CraftyStop");
-
         return this;
     },
 
