@@ -180,14 +180,16 @@ RenderProgramWrapper.prototype = {
  *
  * When this component is added to an entity it will be drawn to the global webgl canvas element. Its canvas element (and hence any WebGL entity) is always rendered below any DOM entities.
  *
- * Crafty.webgl.init() will be automatically called if it is not called already to initialize the canvas element.
+ * Sprite, Image, SpriteAnimation, and Color all support WebGL rendering.  Text entities will need to use DOM or Canvas for now.
+ * 
+ * If a webgl context does not yet exist, a WebGL entity will automatically create one by calling `Crafty.webgl.init()` before rendering.
  *
- * @note For better performance, minimize the number of spritesheets used, and try to arrange it so that entities with different spritesheets are on different z-levels.
+ * @note For better performance, minimize the number of spritesheets used, and try to arrange it so that entities with different spritesheets are on different z-levels.  This is because entities are rendered in z order, and only entities sharing the same texture can be efficiently batched.
  *
  * Create a webgl entity like this
  * ~~~
- * var myEntity = Crafty.e("2D, WebGL, Tint")
- *      .color(1, 1, 0, 0)
+ * var myEntity = Crafty.e("2D, WebGL, Color")
+ *      .color(1, 1, 0, 0.5)
  *      .attr({x: 13, y: 37, w: 42, h: 42});
  *~~~
  */
@@ -247,7 +249,7 @@ Crafty.c("WebGL", {
      * @param w - Width of the segment to draw
      * @param h - Height of the segment to draw
      *
-     * Method to draw the entity on the webgl canvas element. Rather then rendering directly, it writes relevent information into a buffer to allow batch rendering.
+     * An internal method to draw the entity on the webgl canvas element. Rather then rendering directly, it writes relevent information into a buffer to allow batch rendering.
      */
     draw: function (ctx, x, y, w, h) {
 
@@ -436,6 +438,9 @@ Crafty.extend({
                 Crafty.stop();
                 return;
             }
+
+            // necessary on restart
+            this.changed_objects = [];
 
             //create an empty canvas element
             var c;

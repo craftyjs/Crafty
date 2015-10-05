@@ -191,6 +191,10 @@ Crafty.c("Multiway", {
      * Constructor to initialize the speed and keyBindings. Component will listen to key events and move the entity appropriately.
      * Can be called while a key is pressed to change direction & speed on the fly.
      *
+     * Multiway acts by adding a velocity on key press and removing the same velocity when the respective key is released.
+     * This works well in most cases, but can cause undesired behavior if you manipulate velocities by yourself while this component is in effect.
+     * If you need to resolve collisions, it's advised to correct the position directly rather than to manipulate the velocity. If you still need to reset the velocity once a collision happens, make sure to re-add the previous velocity once the collision is resolved.
+     *
      * @example
      * ~~~
      * this.multiway(150, {UP_ARROW: -90, DOWN_ARROW: 90, RIGHT_ARROW: 0, LEFT_ARROW: 180});

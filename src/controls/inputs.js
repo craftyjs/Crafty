@@ -75,7 +75,7 @@ Crafty.extend({
      *    .color('green')
      *    .bind('TouchStart',function(e){ alert('big GREEN box was touched', e); });
      * 
-     * console.log("multitouch is "+Crafty.multitouch());
+     * Crafty.log("multitouch is "+Crafty.multitouch());
      * ~~~
      * @see Crafty.touchDispatch
      */
@@ -130,7 +130,6 @@ Crafty.extend({
      * @see Crafty.multitouch
      */
     mouseDispatch: function (e) {
-
         if (!Crafty.mouseObjs) return;
         Crafty.lastEvent = e;
 
@@ -475,6 +474,35 @@ Crafty.extend({
         return closest;
     },
 
+    /**@
+     * #Crafty.mouseWheelDispatch
+     * @category Input
+     * Mouse wheel event triggered by Crafty.
+     *
+     * @trigger MouseWheelScroll - is triggered when mouse is scrolled on stage - { direction: +1 | -1} - Scroll direction (up | down)
+     *
+     * Internal method which dispatches mouse wheel events received by Crafty (crafty.stage.elem).
+     * The mouse wheel events get dispatched to Crafty, as well as all entities.
+     *
+     * The native event parameter is passed to the callback.
+     * You can read more about the native `mousewheel` event (all browsers except Firefox) https://developer.mozilla.org/en-US/docs/Web/Events/mousewheel
+     * or the native `DOMMouseScroll` event (Firefox only) https://developer.mozilla.org/en-US/docs/Web/Events/DOMMouseScroll .
+     *
+     * Note that the wheel delta properties of the event vary in magnitude across browsers, thus it is recommended to check for `.direction` instead.
+     * The `.direction` equals `+1` if wheel was scrolled up, `-1` if wheel was scrolled down.
+     * See http://stackoverflow.com/questions/5527601/normalizing-mousewheel-speed-across-browsers .
+     *
+     * @example
+     * ~~~
+     * Crafty.bind("MouseWheelScroll", function(evt) {
+     *     Crafty.viewport.scale(Crafty.viewport._scale * (1 + evt.direction * 0.1));
+     * });
+     * ~~~
+     */
+     mouseWheelDispatch: function(e) {
+        e.direction = (e.detail < 0 || e.wheelDelta > 0) ? 1 : -1;
+        Crafty.trigger("MouseWheelScroll", e);
+     },
 
     /**@
      * #KeyboardEvent
@@ -563,7 +591,7 @@ Crafty.extend({
 });
 
 //initialize the input events onload
-Crafty.bind("Load", function () {
+Crafty._preBind("Load", function () {
     Crafty.addEvent(this, "keydown", Crafty.keyboardDispatch);
     Crafty.addEvent(this, "keyup", Crafty.keyboardDispatch);
 
@@ -580,9 +608,14 @@ Crafty.bind("Load", function () {
     Crafty.addEvent(this, Crafty.stage.elem, "touchend", Crafty.touchDispatch);
     Crafty.addEvent(this, Crafty.stage.elem, "touchcancel", Crafty.touchDispatch);
     Crafty.addEvent(this, Crafty.stage.elem, "touchleave", Crafty.touchDispatch);
+
+    if (Crafty.support.prefix === "Moz") // mouse wheel event for firefox
+        Crafty.addEvent(this, Crafty.stage.elem, "DOMMouseScroll", Crafty.mouseWheelDispatch);
+    else // mouse wheel event for rest of browsers
+        Crafty.addEvent(this, Crafty.stage.elem, "mousewheel", Crafty.mouseWheelDispatch);
 });
 
-Crafty.bind("CraftyStop", function () {
+Crafty._preBind("CraftyStop", function () {
     Crafty.removeEvent(this, "keydown", Crafty.keyboardDispatch);
     Crafty.removeEvent(this, "keyup", Crafty.keyboardDispatch);
 
@@ -598,6 +631,11 @@ Crafty.bind("CraftyStop", function () {
         Crafty.removeEvent(this, Crafty.stage.elem, "touchend", Crafty.touchDispatch);
         Crafty.removeEvent(this, Crafty.stage.elem, "touchcancel", Crafty.touchDispatch);
         Crafty.removeEvent(this, Crafty.stage.elem, "touchleave", Crafty.touchDispatch);
+
+        if (Crafty.support.prefix === "Moz") // mouse wheel event for firefox
+            Crafty.removeEvent(this, Crafty.stage.elem, "DOMMouseScroll", Crafty.mouseWheelDispatch);
+        else // mouse wheel event for rest of browsers
+            Crafty.removeEvent(this, Crafty.stage.elem, "mousewheel", Crafty.mouseWheelDispatch);
     }
 
     Crafty.removeEvent(this, document.body, "mouseup", Crafty.detectBlur);
@@ -644,7 +682,7 @@ Crafty.bind("CraftyStop", function () {
  *
  * myEntity.bind('MouseUp', function(e) {
  *    if( e.mouseButton == Crafty.mouseButtons.RIGHT )
- *        console.log("Clicked right button");
+ *        Crafty.log("Clicked right button");
  * })
  * ~~~
  * @see Crafty.mouseDispatch
@@ -688,11 +726,11 @@ Crafty.c("Mouse", {
  * .attr({x: 10, y: 10, w: 40, h: 40})
  * .color('green')
  * .bind('TouchStart', function(TouchPoint){
- *   console.log('myEntity has been touched', TouchPoint);
+ *   Crafty.log('myEntity has been touched', TouchPoint);
  * }).bind('TouchMove', function(TouchPoint) {
- *   console.log('Finger moved over myEntity at the { x: ' + TouchPoint.realX + ', y: ' + TouchPoint.realY + ' } coordinates.');
+ *   Crafty.log('Finger moved over myEntity at the { x: ' + TouchPoint.realX + ', y: ' + TouchPoint.realY + ' } coordinates.');
  * }).bind('TouchEnd', function() {
- *   console.log('Touch over myEntity has finished.');
+ *   Crafty.log('Touch over myEntity has finished.');
  * });
  * ~~~
  * @see Crafty.multitouch
@@ -728,10 +766,17 @@ Crafty.c("AreaMap", {
     /**@
      * #.areaMap
      * @comp AreaMap
+     *
+     * @trigger NewAreaMap - when a new areaMap is assigned - Crafty.polygon
+     *
      * @sign public this .areaMap(Crafty.polygon polygon)
      * @param polygon - Instance of Crafty.polygon used to check if the mouse coordinates are inside this region
-     * @sign public this .areaMap(Array point1, .., Array pointN)
-     * @param point# - Array with an `x` and `y` position to generate a polygon
+     *
+     * @sign public this .areaMap(Array coordinatePairs)
+     * @param coordinatePairs - Array of `x`, `y` coordinate pairs to generate a polygon
+     *
+     * @sign public this .areaMap(x1, y1,.., xN, yN)
+     * @param point# - List of `x`, `y` coordinate pairs to generate a polygon
      *
      * Assign a polygon to the entity so that pointer (mouse or touch) events will only be triggered if
      * the coordinates are inside the given polygon.
@@ -741,8 +786,15 @@ Crafty.c("AreaMap", {
      * Crafty.e("2D, DOM, Color, Mouse")
      *     .color("red")
      *     .attr({ w: 100, h: 100 })
-     *     .bind('MouseOver', function() {console.log("over")})
-     *     .areaMap([0, 0, 50, 0, 50, 50, 0, 50) 
+     *     .bind('MouseOver', function() {Crafty.log("over")})
+     *     .areaMap(0, 0, 50, 0, 50, 50, 0, 50);
+     *
+     * Crafty.e("2D, Mouse")
+     *     .areaMap([0, 0, 50, 0, 50, 50, 0, 50]);
+     *
+     * Crafty.e("2D, Mouse").areaMap(
+     *     new Crafty.polygon([0, 0, 50, 0, 50, 50, 0, 50])
+     * );
      * ~~~
      *
      * @see Crafty.polygon
@@ -753,13 +805,16 @@ Crafty.c("AreaMap", {
             //convert args to array to create polygon
             var args = Array.prototype.slice.call(arguments, 0);
             poly = new Crafty.polygon(args);
+        } else if (poly.constructor === Array) {
+            poly = new Crafty.polygon(poly.slice());
+        } else {
+            poly = poly.clone();
         }
 
         poly.shift(this._x, this._y);
-        //this.map = poly;
         this.mapArea = poly;
-
         this.attach(this.mapArea);
+        this.trigger("NewAreaMap", poly);
         return this;
     }
 });

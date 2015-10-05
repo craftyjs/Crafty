@@ -588,7 +588,7 @@ Crafty.fn = Crafty.prototype = {
     _recursive_extend: function(new_data, original_data) {
         var key;
         for (key in new_data) {
-            if (new_data[key].constructor.name === 'Object') {
+            if (new_data[key].constructor === Object) {
                 original_data[key] = this._recursive_extend(new_data[key], original_data[key]);
             } else {
                 original_data[key] = new_data[key];
@@ -937,7 +937,7 @@ Crafty.fn = Crafty.prototype = {
      * });
      *
      * ent.customData = "2" // set customData to 2
-     * console.log(ent.customData) // prints 2
+     * Crafty.log(ent.customData) // prints 2
      * ~~~
      */
     defineField: function (prop, getCallback, setCallback) {
@@ -1063,6 +1063,11 @@ Crafty._callbackMethods = {
                     callbacks.splice(i, 1);
                     i--;
                     l--;
+                    // Delete callbacks object if there are no remaining bound events
+                    if (callbacks.length === 0) {
+                        delete this._callbacks[event];
+                        delete handlers[event][this[0]];
+                    }
                 }
             } else {
                 callbacks[i].call(this, data);
@@ -1081,7 +1086,7 @@ Crafty._callbackMethods = {
         // Iterate through and delete the callback functions that match
         // They are spliced out when _runCallbacks is invoked, not here
         // (This function might be called in the middle of a callback, which complicates the logic)
-        for (i = 0; i < callbacks.length; i++) {
+        for (var i = 0; i < callbacks.length; i++) {
             if (!fn || callbacks[i] == fn) {
                 delete callbacks[i];
             }
@@ -1136,6 +1141,16 @@ Crafty.extend({
      * @see Crafty.stop,  Crafty.viewport
      */
     init: function (w, h, stage_elem) {
+        
+        // If necessary, attach any event handlers registered before Crafty started
+        if (!this._preBindDone) {
+            for(var i = 0; i < this._bindOnInit.length; i++) {
+
+                var preBind = this._bindOnInit[i];
+                Crafty.bind(preBind.event, preBind.handler);
+            }
+        }
+
         Crafty.viewport.init(w, h, stage_elem);
 
         //call all arbitrary functions attached to onload
@@ -1143,6 +1158,17 @@ Crafty.extend({
         this.timer.init();
 
         return this;
+    },
+
+    // There are some events that need to be bound to Crafty when it's started/restarted, so store them here
+    // Switching Crafty's internals to use the new system idiom should allow removing this hack
+    _bindOnInit: [],
+    _preBindDone: false,
+    _preBind: function(event, handler) {
+        this._bindOnInit.push({
+            event: event,
+            handler: handler
+        });
     },
 
     /**@
@@ -1165,7 +1191,7 @@ Crafty.extend({
     /**@
      * #Crafty.stop
      * @category Core
-     * @trigger CraftyStop - when the game is stopped
+     * @trigger CraftyStop - when the game is stopped  - {bool clearState}
      * @sign public this Crafty.stop([bool clearState])
      * @param clearState - if true the stage and all game state is cleared.
      *
@@ -1175,19 +1201,32 @@ Crafty.extend({
      * @see Crafty.init
      */
     stop: function (clearState) {
+        Crafty.trigger("CraftyStop", clearState);
+
         this.timer.stop();
         if (clearState) {
+            // Remove audio
             Crafty.audio.remove();
+
+            // Remove the stage element, and re-add a div with the same id
             if (Crafty.stage && Crafty.stage.elem.parentNode) {
                 var newCrStage = document.createElement('div');
                 newCrStage.id = Crafty.stage.elem.id;
                 Crafty.stage.elem.parentNode.replaceChild(newCrStage, Crafty.stage.elem);
             }
+
+            // Reset references to the now destroyed graphics layers
+            delete Crafty.canvasLayer.context;
+            delete Crafty.domLayer._div;
+            delete Crafty.webgl.context;
+
+            // reset callbacks, and indicate that prebound functions need to be bound on init again
+            Crafty._unbindAll();
+            Crafty._addCallbackMethods(Crafty);
+            this._preBindDone = false;
+
             initState();
         }
-
-        Crafty.trigger("CraftyStop");
-
         return this;
     },
 
@@ -1279,12 +1318,15 @@ Crafty.extend({
                 // When first called, set the  gametime one frame before now!
                 if (typeof gameTime === "undefined")
                     gameTime = (new Date().getTime()) - milliSecPerFrame;
-                var onFrame = window.requestAnimationFrame ||
+
+                var onFrame = (typeof window !== "undefined") && (
+                    window.requestAnimationFrame ||
                     window.webkitRequestAnimationFrame ||
                     window.mozRequestAnimationFrame ||
                     window.oRequestAnimationFrame ||
                     window.msRequestAnimationFrame ||
-                    null;
+                    null
+                );
 
                 if (onFrame) {
                     tick = function () {
@@ -1292,7 +1334,7 @@ Crafty.extend({
                         if (tick !== null) {
                             requestID = onFrame(tick);
                         }
-                        //console.log(requestID + ', ' + frame)
+                        //Crafty.log(requestID + ', ' + frame)
                     };
 
                     tick();
@@ -1308,13 +1350,15 @@ Crafty.extend({
 
                 if (typeof tick !== "function") clearInterval(tick);
 
-                var onFrame = window.cancelAnimationFrame ||
+                var onFrame = (typeof window !== "undefined") && (
+                    window.cancelAnimationFrame ||
                     window.cancelRequestAnimationFrame ||
                     window.webkitCancelRequestAnimationFrame ||
                     window.mozCancelRequestAnimationFrame ||
                     window.oCancelRequestAnimationFrame ||
                     window.msCancelRequestAnimationFrame ||
-                    null;
+                    null
+                );
 
                 if (onFrame) onFrame(requestID);
                 tick = null;
@@ -1833,7 +1877,7 @@ Crafty.extend({
      * });
      *
      * ent.customData = "2" // set customData to 2
-     * console.log(ent.customData) // prints 2
+     * Crafty.log(ent.customData) // prints 2
      * ~~~
      * @see Crafty Core#.defineField
      */

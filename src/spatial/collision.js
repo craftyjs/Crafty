@@ -1,7 +1,6 @@
 var Crafty = require('../core/core.js'),
     DEG_TO_RAD = Math.PI / 180;
 
-
 /**@
  * #Collision
  * @category 2D
@@ -22,14 +21,12 @@ var Crafty = require('../core/core.js'),
  *
  */
 Crafty.c("Collision", {
-
     init: function () {
         this.requires("2D");
         this._collisionData = {};
 
         this.collision();
     },
-
 
     // Run by Crafty when the component is removed
     remove: function() {
@@ -45,12 +42,15 @@ Crafty.c("Collision", {
      * @trigger NewHitbox - when a new hitbox is assigned - Crafty.polygon
      *
      * @sign public this .collision([Crafty.polygon polygon])
-     * @param polygon - Crafty.polygon object that will act as the hit area.
+     * @param polygon - Optional Crafty.polygon object that will act as the hit area.
      *
-     * @sign public this .collision(x1, y1,.., xN, yN)
-     * @param point# - Array of x, y coordinate pairs to generate a hit area polygon.
+     * @sign public this .collision([Array coordinatePairs])
+     * @param coordinatePairs - Optional array of x, y coordinate pairs to generate a hit area polygon.
      *
-     * Constructor that takes a polygon or array of points to use as the hit area,
+     * @sign public this .collision([x1, y1,.., xN, yN])
+     * @param point# - Optional list of x, y coordinate pairs to generate a hit area polygon.
+     *
+     * Constructor that takes a polygon, an array of points or a list of points to use as the hit area,
      * with points being relative to the object's position in its unrotated state.
      *
      * The hit area must be a convex shape and not concave for collision detection to work properly.
@@ -59,28 +59,31 @@ Crafty.c("Collision", {
      *
      * If a hitbox is set that is outside of the bounds of the entity itself, there will be a small performance penalty as it is tracked separately.
      *
+     * In order for your custom hitbox to have any effect, you have to add the `Collision` component to all other entities this entity needs to collide with using this custom hitbox.
+     * On the contrary the collisions will be resolved using the default hitbox. See `.hit()` - `MBR` represents default hitbox collision, `SAT` represents custom hitbox collision.
+     *
      * @example
      * ~~~
      * Crafty.e("2D, Collision").collision(
-     *     new Crafty.polygon([50, 0, 100, 100, 0,1 00])
+     *     new Crafty.polygon([50, 0,  100, 100,  0, 100])
      * );
      *
-     * Crafty.e("2D, Collision").collision([50, 0, 100, 100, 0, 100]);
+     * Crafty.e("2D, Collision").collision([50, 0,  100, 100,  0, 100]);
+     *
+     * Crafty.e("2D, Collision").collision(50, 0,  100, 100,  0, 100);
      * ~~~
      *
      * @see Crafty.polygon
      */
-    collision: function (poly) {
+    collision: function (polygon) {
         // Unbind anything bound to "Resize"
         this.unbind("Resize", this._resizeMap);
         this.unbind("Resize", this._checkBounds);
 
-
-
-        if (!poly) {
+        if (!polygon) {
             // If no polygon is specified, then a polygon is created that matches the bounds of the entity
             // It will be adjusted on a "Resize" event
-            poly = new Crafty.polygon([0, 0, this._w, 0, this._w, this._h, 0, this._h]);
+            polygon = new Crafty.polygon([0, 0, this._w, 0, this._w, this._h, 0, this._h]);
             this.bind("Resize", this._resizeMap);
             this._cbr = null;
         } else {
@@ -88,19 +91,24 @@ Crafty.c("Collision", {
             if (arguments.length > 1) {
                 //convert args to array to create polygon
                 var args = Array.prototype.slice.call(arguments, 0);
-                poly = new Crafty.polygon(args);
+                polygon = new Crafty.polygon(args);
+            // Otherwise, we set the specified hitbox, converting from an array of points to a polygon if necessary
+            } else if (polygon.constructor === Array) {
+                //Clone the array so we don't modify it for anything else that might be using it
+                polygon = new Crafty.polygon(polygon.slice());
+            // Otherwise, we set the specified hitbox
             } else {
-                //Clone the poly so we don't modify it for anything else that might be using it
-                poly = poly.clone();
+                //Clone the polygon so we don't modify it for anything else that might be using it
+                polygon = polygon.clone();
             }
             // Check to see if the polygon sits outside the entity, and set _cbr appropriately
             // On resize, the new bounds will be checked if necessary
-            this._findBounds(poly.points);
+            this._findBounds(polygon.points);
         }
 
         // If the entity is currently rotated, the points in the hitbox must also be rotated
         if (this.rotation) {
-            poly.rotate({
+            polygon.rotate({
                 cos: Math.cos(-this.rotation * DEG_TO_RAD),
                 sin: Math.sin(-this.rotation * DEG_TO_RAD),
                 o: {
@@ -111,13 +119,12 @@ Crafty.c("Collision", {
         }
 
         // Finally, assign the hitbox, and attach it to the "Collision" entity
-        this.map = poly;
+        this.map = polygon;
         this.attach(this.map);
         this.map.shift(this._x, this._y);
-        this.trigger("NewHitbox", poly);
+        this.trigger("NewHitbox", polygon);
         return this;
     },
-
 
     // If the hitbox is set by hand, it might extend beyond the entity.
     // In such a case, we need to track this separately.
@@ -126,10 +133,10 @@ Crafty.c("Collision", {
     // It uses a pretty naive algorithm to do so, for more complicated options see [wikipedia](http://en.wikipedia.org/wiki/Bounding_sphere).
     _findBounds: function(points) {
         var minX = Infinity, maxX = -Infinity, minY=Infinity, maxY=-Infinity;
-        var p, l = points.length;
+        var l = points.length;
 
         // Calculate the MBR of the points by finding the min/max x and y
-        for (var i=0; i<l; i+=2){
+        for (var i=0; i<l; i+=2) {
             if (points[i] < minX)
                 minX = points[i];
             if (points[i] > maxX)
@@ -143,16 +150,16 @@ Crafty.c("Collision", {
         // This describes a circle centered on the MBR of the points, with a diameter equal to its diagonal
         // It will be used to find a rough bounding box round the points, even if they've been rotated
         var cbr = {
-                cx: (minX + maxX) / 2,
-                cy: (minY + maxY) / 2,
-                r: Math.sqrt( (maxX - minX)*(maxX - minX) + (maxY - minY)*(maxY - minY))/2,
+            cx: (minX + maxX) / 2,
+            cy: (minY + maxY) / 2,
+            r: Math.sqrt((maxX - minX)*(maxX - minX) + (maxY - minY)*(maxY - minY)) / 2
         };
 
         // We need to worry about resizing, but only if resizing could possibly change whether the hitbox is in or out of bounds
         // Thus if the upper-left corner is out of bounds, then there's no need to recheck on resize
         if (minX >= 0 && minY >= 0) {
             this._checkBounds = function() {
-                if (this._cbr === null && this._w < maxX || this._h < maxY ){
+                if (this._cbr === null && this._w < maxX || this._h < maxY) {
                    this._cbr = cbr;
                    this._calculateMBR();
                 } else if (this._cbr) {
@@ -165,7 +172,7 @@ Crafty.c("Collision", {
 
         // If the hitbox is within the entity, _cbr is null
         // Otherwise, set it, and immediately calculate the bounding box.
-        if (minX >= 0 && minY >= 0 && maxX <= this._w && maxY <= this._h){
+        if (minX >= 0 && minY >= 0 && maxX <= this._w && maxY <= this._h) {
             this._cbr = null;
             return false;
         } else {
@@ -173,13 +180,11 @@ Crafty.c("Collision", {
             this._calculateMBR();
             return true;
         }
-
     },
 
     // The default behavior is to match the hitbox to the entity.
     // This function will change the hitbox when a "Resize" event triggers.
     _resizeMap: function (e) {
-
         var dx, dy, rot = this.rotation * DEG_TO_RAD,
             points = this.map.points;
 
@@ -247,9 +252,13 @@ Crafty.c("Collision", {
      *   - *SAT:* Collision between any two convex polygons. Used when both colliding entities have the `Collision` component applied to them.
      * - **overlap:** If SAT collision was used, this will signify the overlap percentage between the colliding entities.
      *
+     * Keep in mind that both entities need to have the `Collision` component, if you want to check for `SAT` (custom hitbox) collisions between them.
+     *
+     * If you want more fine-grained control consider using `Crafty.map.search()`.
+     *
      * @see 2D
      */
-    hit: function (comp) {
+    hit: function (component) {
         var area = this._cbr || this._mbr || this,
             results = Crafty.map.search(area, false),
             i = 0,
@@ -272,7 +281,7 @@ Crafty.c("Collision", {
             id = obj[0];
 
             //check if not added to hash and that actually intersects
-            if (!dupes[id] && this[0] !== id && obj.__c[comp] && overlap(oarea, area))
+            if (!dupes[id] && this[0] !== id && obj.__c[component] && overlap(oarea, area))
                 dupes[id] = obj;
         }
 
@@ -302,25 +311,26 @@ Crafty.c("Collision", {
     /**@
      * #.onHit
      * @comp Collision
-     * @sign public this .onHit(String component, Function hit[, Function noHit])
+     * @sign public this .onHit(String component, Function callbackOn[, Function callbackOff])
      * @param component - Component to check collisions for.
-     * @param hit - Callback method to execute upon collision with component. Will be passed the results of the collision check in the same format documented for hit().
-     * @param noHit - Callback method executed once as soon as collision stops.
+     * @param callbackOn - Callback method to execute upon collision with component. Will be passed the results of the collision check in the same format documented for hit().
+     * @param callbackOff - Callback method executed once as soon as collision stops.
      *
-     * Creates an EnterFrame event calling .hit() each frame.  When a collision is detected the callback will be invoked.
-     * Note that the `hit` callback will be invoked every frame the collision is active, not just the first time the collision occurs.
-     * If you want more fine-grained control consider using `.checkHits` or `.hit`.
+     * Creates an EnterFrame event calling `.hit()` each frame.  When a collision is detected the `callbackOn` will be invoked.
+     * Note that the `callbackOn` will be invoked every frame the collision is active, not just the first time the collision occurs.
+     *
+     * If you want more fine-grained control consider using `.checkHits()`, `.hit()` or even `Crafty.map.search()`.
      *
      * @see .checkHits
      * @see .hit
      */
-    onHit: function (comp, callback, callbackOff) {
+    onHit: function (component, callbackOn, callbackOff) {
         var justHit = false;
         this.bind("EnterFrame", function () {
-            var hitdata = this.hit(comp);
-            if (hitdata) {
+            var hitData = this.hit(component);
+            if (hitData) {
                 justHit = true;
-                callback.call(this, hitdata);
+                callbackOn.call(this, hitData);
             } else if (justHit) {
                 if (typeof callbackOff == 'function') {
                     callbackOff.call(this);
@@ -331,39 +341,31 @@ Crafty.c("Collision", {
         return this;
     },
 
-
-    /**@
-     * #._createCollisionHandler
-     * @comp Collision
-     * @sign public void .checkHits(String component, Object collisionData)
-     * @param component - The name of the component for which this handler
-     * checks for collisions.
-     * @param collisionData - Collision data object used to track collisions with
-     * the specified component.
+    /**
+     * This is a helper method for creating collisions handlers set up by `checkHits`. Do not call this directly.
      *
-     * This is a helper method for creating collisions handlers set up by
-     * `.checkHits(...)`. Do not call this directly.
+     * @param {String} component - The name of the component for which this handler checks for collisions.
+     * @param {Object} collisionData - Collision data object used to track collisions with the specified component.
      *
      * @see .checkHits
      */
     _createCollisionHandler: function(component, collisionData) {
-      return function() {
-        var hitData = this.hit(component);
+        return function() {
+            var hitData = this.hit(component);
 
-        if (collisionData.occurring === true) {
-          if (hitData !== false) {
-            // The collision is still in progress
-            return;
-          }
+            if (collisionData.occurring === true) {
+                if (hitData !== false) {
+                    // The collision is still in progress
+                    return;
+                }
 
-          collisionData.occurring = false;
-          this.trigger("HitOff", component);
-        }
-        else if (hitData !== false) {
-          collisionData.occurring = true;
-          this.trigger("HitOn", hitData);
-        }
-      };
+                collisionData.occurring = false;
+                this.trigger("HitOff", component);
+            } else if (hitData !== false) {
+                collisionData.occurring = true;
+                this.trigger("HitOn", hitData);
+            }
+        };
     },
 
     /**@
@@ -385,6 +387,8 @@ Crafty.c("Collision", {
      * Calling this method more than once for the same component type will not
      * cause redundant hit checks.
      *
+     * If you want more fine-grained control consider using `.hit()` or even `Crafty.map.search()`.
+     *
      * @note Hit checks are performed upon entering each new frame (using
      * the *EnterFrame* event). It is entirely possible for object to move in
      * said frame after the checks were performed (even if the more is the
@@ -397,39 +401,39 @@ Crafty.c("Collision", {
      * Crafty.e("2D, Collision")
      *     .checkHits('Solid') // check for collisions with entities that have the Solid component in each frame
      *     .bind("HitOn", function(hitData) {
-     *         console.log("Collision with Solid entity occurred for the first time.");
+     *         Crafty.log("Collision with Solid entity occurred for the first time.");
      *     })
      *     .bind("HitOff", function(comp) {
-     *         console.log("Collision with Solid entity ended.");
+     *         Crafty.log("Collision with Solid entity ended.");
      *     });
      * ~~~
      *
      * @see .hit
      */
     checkHits: function () {
-      var components = arguments;
-      var i = 0;
+        var components = arguments;
+        var i = 0;
 
-      if (components.length === 1) {
-        components = components[0].split(/\s*,\s*/);
-      }
-
-      for (; i < components.length; ++i) {
-        var component = components[i];
-        var collisionData = this._collisionData[component];
-
-        if (collisionData !== undefined) {
-          // There is already a handler for collision with this component
-          continue;
+        if (components.length === 1) {
+            components = components[0].split(/\s*,\s*/);
         }
 
-        this._collisionData[component] = collisionData = { occurring: false, handler: null };
-        collisionData.handler = this._createCollisionHandler(component, collisionData);
+        for (; i < components.length; ++i) {
+            var component = components[i];
+            var collisionData = this._collisionData[component];
 
-        this.bind("EnterFrame", collisionData.handler);
-      }
+            if (collisionData !== undefined) {
+                // There is already a handler for collision with this component
+                continue;
+            }
 
-      return this;
+            this._collisionData[component] = collisionData = { occurring: false, handler: null };
+            collisionData.handler = this._createCollisionHandler(component, collisionData);
+
+            this.bind("EnterFrame", collisionData.handler);
+        }
+
+        return this;
     },
 
     /**@
@@ -439,7 +443,7 @@ Crafty.c("Collision", {
      * @sign public this .ignoreHits()
      *
      * @sign public this .ignoreHits(String componentList)
-     * @param componentList - A comma seperated list of components to stop checking
+     * @param componentList - A comma separated list of components to stop checking
      * for collisions with.
      *
      * @sign public this .ignoreHits(String component1[, .., String componentN])
@@ -463,35 +467,35 @@ Crafty.c("Collision", {
      * ~~~
      */
     ignoreHits: function () {
-      var components = arguments;
-      var i = 0;
-      var collisionData;
+        var components = arguments;
+        var i = 0;
+        var collisionData;
 
-      if (components.length === 0) {
-        for (collisionData in this._collisionData) {
-          this.unbind("EnterFrame", collisionData.handler);
+        if (components.length === 0) {
+            for (collisionData in this._collisionData) {
+                this.unbind("EnterFrame", collisionData.handler);
+            }
+
+            this._collisionData = {};
         }
 
-        this._collisionData = {};
-      }
-
-      if (components.length === 1) {
-        components = components[0].split(/\s*,\s*/);
-      }
-
-      for (; i < components.length; ++i) {
-        var component = components[i];
-        collisionData = this._collisionData[component];
-
-        if (collisionData === undefined) {
-          continue;
+        if (components.length === 1) {
+            components = components[0].split(/\s*,\s*/);
         }
 
-        this.unbind("EnterFrame", collisionData.handler);
-        delete this._collisionData[component];
-      }
+        for (; i < components.length; ++i) {
+            var component = components[i];
+            collisionData = this._collisionData[component];
 
-      return this;
+            if (collisionData === undefined) {
+                continue;
+            }
+
+            this.unbind("EnterFrame", collisionData.handler);
+            delete this._collisionData[component];
+        }
+
+        return this;
     },
 
     /**@
@@ -521,38 +525,38 @@ Crafty.c("Collision", {
      * Crafty.e("2D, Collision")
      *     .checkHits('Solid')
      *     .bind("HitOn", function(hitData) {
-     *         console.log("Collision with Solid entity was reported in this frame again!");
+     *         Crafty.log("Collision with Solid entity was reported in this frame again!");
      *         this.resetHitChecks('Solid'); // fire the HitOn event in the next frame also, if the collision is still active.
      *     })
      * ~~~
      */
     resetHitChecks: function() {
-      var components = arguments;
-      var i = 0;
-      var collisionData;
+        var components = arguments;
+        var i = 0;
+        var collisionData;
 
-      if (components.length === 0) {
-        for (collisionData in this._collisionData) {
-          this._collisionData[collisionData].occurring = false;
-        }
-      }
-
-      if (components.length === 1) {
-        components = components[0].split(/\s*,\s*/);
-      }
-
-      for (; i < components.length; ++i) {
-        var component = components[i];
-        collisionData = this._collisionData[component];
-
-        if (collisionData === undefined) {
-          continue;
+        if (components.length === 0) {
+            for (collisionData in this._collisionData) {
+                this._collisionData[collisionData].occurring = false;
+            }
         }
 
-        collisionData.occurring = false;
-      }
+        if (components.length === 1) {
+            components = components[0].split(/\s*,\s*/);
+        }
 
-      return this;
+        for (; i < components.length; ++i) {
+            var component = components[i];
+            collisionData = this._collisionData[component];
+
+            if (collisionData === undefined) {
+                continue;
+            }
+
+            collisionData.occurring = false;
+        }
+
+        return this;
     },
 
     _SAT: function (poly1, poly2) {
@@ -570,8 +574,9 @@ Crafty.c("Collision", {
             MNy = null,
             dot,
             np;
+
         //loop through the edges of Polygon 1
-        for (i=0; i < l; i++) {
+        for (; i < l; i++) {
             np = (i == l - 1 ? 0 : i + 1);
 
             //generate the normal for the current edge
@@ -629,7 +634,6 @@ Crafty.c("Collision", {
             //generate the normal for the current edge
             nx = -(points2[2*i+1] - points2[2*np+1]);
             ny = (points2[2*i] - points2[2*np]);
-
 
             //normalize the vector
             length = Math.sqrt(nx * nx + ny * ny);

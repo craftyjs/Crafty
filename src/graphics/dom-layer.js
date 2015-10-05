@@ -15,6 +15,10 @@ Crafty.extend({
         _div: null,
 
         init: function () {
+            // Set properties to initial values -- necessary on a restart
+            this._changedObjs = [];
+            this._dirtyViewport = false;
+
             // Create the div that will contain DOM elements
             var div = this._div = document.createElement("div");
 
@@ -63,7 +67,7 @@ Crafty.extend({
          * @sign public Crafty.domLayer.debug()
          */
         debug: function () {
-            console.log(this._changedObjs);
+            Crafty.log(this._changedObjs);
         },
 
 

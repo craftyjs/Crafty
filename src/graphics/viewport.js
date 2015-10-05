@@ -10,16 +10,36 @@ Crafty.extend({
      * @trigger ViewportResize - when the viewport's dimension's change
      * @trigger InvalidateViewport - when the viewport changes
      * @trigger StopCamera - when any camera animations should stop, such as at the start of a new animation.
-     * @trigger CameraAnimationDone - when a camera animation comes reaches completion
+     * @trigger CameraAnimationDone - when a camera animation reaches completion
      *
      * Viewport is essentially a 2D camera looking at the stage. Can be moved or zoomed, which
      * in turn will react just like a camera moving in that direction.
+     *
+     * There are multiple camera animation methods available - these are the viewport methods with an animation time parameter and the `follow` method.
+     * Only one animation can run at a time. Starting a new animation will cancel the previous one and the appropriate events will be fired.
      * 
      * Tip: At any given moment, the stuff that you can see is...
      * 
      * `x` between `(-Crafty.viewport._x)` and `(-Crafty.viewport._x + (Crafty.viewport._width / Crafty.viewport._scale))`
      * 
-     * `y` between `(-Crafty.viewport._y)` and `(-Crafty.viewport._y + (Crafty.viewport._height / Crafty.viewport._scale))` 
+     * `y` between `(-Crafty.viewport._y)` and `(-Crafty.viewport._y + (Crafty.viewport._height / Crafty.viewport._scale))`
+     *
+     *
+     * @example
+     * Prevent viewport from adjusting itself when outside the game world.
+     * Scale the viewport so that entities appear twice as large.
+     * Then center the viewport on an entity over the duration of 3 seconds.
+     * After that animation finishes, start following the entity.
+     * ~~~
+     * var ent = Crafty.e('2D, DOM').attr({x: 250, y: 250, w: 100, h: 100});
+     *
+     * Crafty.viewport.clampToEntities = false;
+     * Crafty.viewport.scale(2);
+     * Crafty.one("CameraAnimationDone", function() {
+     *     Crafty.viewport.follow(ent, 0, 0);
+     * });
+     * Crafty.viewport.centerOn(ent, 3000);
+     * ~~~
      */
     viewport: {
         /**@
@@ -141,6 +161,12 @@ Crafty.extend({
          * @param easingFn - A string or custom function specifying an easing.  (Defaults to linear behavior.)  See Crafty.easing for more information.
          *
          * Pans the camera a given number of pixels over the specified time
+         *
+         * @example
+         * ~~~
+         * // pan the camera 100 px right and down over the duration of 2 seconds using linear easing behaviour
+         * Crafty.viewport.pan(100, 100, 2000);
+         * ~~~
          */
         pan: (function () {
             var tweens = {}, i, bound = false;
@@ -163,7 +189,7 @@ Crafty.extend({
                 Crafty.unbind("EnterFrame", enterFrame);
             }
 
-            Crafty.bind("StopCamera", stopPan);
+            Crafty._preBind("StopCamera", stopPan);
 
             return function (dx, dy, time, easingFn) {
                 // Cancel any current camera control
@@ -192,15 +218,15 @@ Crafty.extend({
          * @comp Crafty.viewport
          * @sign public void Crafty.viewport.follow(Object target, Number offsetx, Number offsety)
          * @param Object target - An entity with the 2D component
-         * @param Number offsetx - Follow target should be offsetx pixels away from center
-         * @param Number offsety - Positive puts target to the right of center
+         * @param Number offsetx - Follow target's center should be offsetx pixels away from viewport's center. Positive values puts target to the right of the screen.
+         * @param Number offsety - Follow target's center should be offsety pixels away from viewport's center. Positive values puts target to the bottom of the screen.
          *
          * Follows a given entity with the 2D component. If following target will take a portion of
          * the viewport out of bounds of the world, following will stop until the target moves away.
          *
          * @example
          * ~~~
-         * var ent = Crafty.e('2D, DOM').attr({w: 100, h: 100:});
+         * var ent = Crafty.e('2D, DOM').attr({w: 100, h: 100});
          * Crafty.viewport.follow(ent, 0, 0);
          * ~~~
          */
@@ -208,17 +234,21 @@ Crafty.extend({
             var oldTarget, offx, offy;
 
             function change() {
-                Crafty.viewport.scroll('_x', -(this.x + (this.w / 2) - (Crafty.viewport.width / 2) - offx));
-                Crafty.viewport.scroll('_y', -(this.y + (this.h / 2) - (Crafty.viewport.height / 2) - offy));
+                var scale = Crafty.viewport._scale;
+                Crafty.viewport.scroll('_x', -(this.x + (this.w / 2) - (Crafty.viewport.width / 2 / scale) - offx * scale));
+                Crafty.viewport.scroll('_y', -(this.y + (this.h / 2) - (Crafty.viewport.height / 2 / scale) - offy * scale));
                 Crafty.viewport._clamp();
             }
 
             function stopFollow(){
-                if (oldTarget)
+                if (oldTarget) {
                     oldTarget.unbind('Move', change);
+                    oldTarget.unbind('ViewportScale', change);
+                    oldTarget.unbind('ViewportResize', change);
+                }
             }
 
-            Crafty.bind("StopCamera", stopFollow);
+            Crafty._preBind("StopCamera", stopFollow);
 
             return function (target, offsetx, offsety) {
                 if (!target || !target.has('2D'))
@@ -230,6 +260,8 @@ Crafty.extend({
                 offy = (typeof offsety != 'undefined') ? offsety : 0;
 
                 target.bind('Move', change);
+                target.bind('ViewportScale', change);
+                target.bind('ViewportResize', change);
                 change.call(target);
             };
         })(),
@@ -242,14 +274,20 @@ Crafty.extend({
          * @param Number time - The duration in ms of the camera motion
          *
          * Centers the viewport on the given entity.
+         *
+         * @example
+         * ~~~
+         * var ent = Crafty.e('2D, DOM').attr({x: 250, y: 250, w: 100, h: 100});
+         * Crafty.viewport.centerOn(ent, 3000);
+         * ~~~
          */
         centerOn: function (targ, time) {
             var x = targ.x + Crafty.viewport.x,
                 y = targ.y + Crafty.viewport.y,
                 mid_x = targ.w / 2,
                 mid_y = targ.h / 2,
-                cent_x = Crafty.viewport.width / 2,
-                cent_y = Crafty.viewport.height / 2,
+                cent_x = Crafty.viewport.width / 2 / Crafty.viewport._scale,
+                cent_y = Crafty.viewport.height / 2 / Crafty.viewport._scale,
                 new_x = x + mid_x - cent_x,
                 new_y = y + mid_y - cent_y;
 
@@ -269,6 +307,12 @@ Crafty.extend({
          * Zooms the camera in on a given point. amt > 1 will bring the camera closer to the subject
          * amt < 1 will bring it farther away. amt = 0 will reset to the default zoom level
          * Zooming is multiplicative. To reset the zoom amount, pass 0.
+         *
+         * @example
+         * ~~~
+         * // Make the entities appear twice as large by zooming in on the specified coordinates over the duration of 3 seconds using linear easing behavior
+         * Crafty.viewport.zoom(2, 100, 100, 3000);
+         * ~~~
          */
         zoom: (function () {
             
@@ -276,7 +320,7 @@ Crafty.extend({
             function stopZoom(){
                 Crafty.unbind("EnterFrame", enterFrame);
             }
-            Crafty.bind("StopCamera", stopZoom);
+            Crafty._preBind("StopCamera", stopZoom);
 
             var startingZoom, finalZoom, finalAmount, startingX, finalX, startingY, finalY, easing;
 
@@ -441,14 +485,14 @@ Crafty.extend({
             // clamps the viewport to the viewable area
             // under no circumstances should the viewport see something outside the boundary of the 'world'
             if (!this.clampToEntities) return;
-            var bound = this.bounds || Crafty.map.boundaries();
+            var bound = Crafty.clone(this.bounds) || Crafty.map.boundaries();
             bound.max.x *= this._scale;
             bound.min.x *= this._scale;
             bound.max.y *= this._scale;
             bound.min.y *= this._scale;
             if (bound.max.x - bound.min.x > Crafty.viewport.width) {
-                if (Crafty.viewport.x < -bound.max.x + Crafty.viewport.width) {
-                    Crafty.viewport.x = -bound.max.x + Crafty.viewport.width;
+                if (Crafty.viewport.x < (-bound.max.x + Crafty.viewport.width) / this._scale) {
+                    Crafty.viewport.x = (-bound.max.x + Crafty.viewport.width) / this._scale;
                 } else if (Crafty.viewport.x > -bound.min.x) {
                     Crafty.viewport.x = -bound.min.x;
                 }
@@ -456,8 +500,8 @@ Crafty.extend({
                 Crafty.viewport.x = -1 * (bound.min.x + (bound.max.x - bound.min.x) / 2 - Crafty.viewport.width / 2);
             }
             if (bound.max.y - bound.min.y > Crafty.viewport.height) {
-                if (Crafty.viewport.y < -bound.max.y + Crafty.viewport.height) {
-                    Crafty.viewport.y = -bound.max.y + Crafty.viewport.height;
+                if (Crafty.viewport.y < (-bound.max.y + Crafty.viewport.height) / this._scale) {
+                    Crafty.viewport.y = (-bound.max.y + Crafty.viewport.height) / this._scale;
                 } else if (Crafty.viewport.y > -bound.min.y) {
                     Crafty.viewport.y = -bound.min.y;
                 }
@@ -484,10 +528,16 @@ Crafty.extend({
         init: function (w, h, stage_elem) {
             // setters+getters for the viewport
             this._defineViewportProperties();
+
+            // Set initial values -- necessary on restart
+            this._x = 0;
+            this._y = 0;
+            this._scale = 1;
+            this.bounds = null;
+
             // If no width or height is defined, the width and height is set to fullscreen
             this._width = w || window.innerWidth;
             this._height = h || window.innerHeight;
-
 
             //check if stage exists
             if (typeof stage_elem === 'undefined')

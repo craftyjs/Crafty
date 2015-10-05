@@ -253,6 +253,29 @@
 
   module("Collision");
 
+  test("Collision constructors", function() {
+    var newHitboxEvents = 0;
+    var e = Crafty.e("2D, Collision")
+              .bind("NewHitbox", function(newHitbox) {
+                newHitboxEvents++;
+              });
+
+    var poly = new Crafty.polygon([50, 0, 100, 100, 0, 100]);
+    e.collision(poly);
+    ok(e.map instanceof Crafty.polygon, "Hitbox is a polygon");
+    ok(e.map !== poly, "Hitbox is a clone of passed polygon");
+
+    var arr = [50, 0, 100, 100, 0, 100];
+    e.collision(arr);
+    ok(e.map instanceof Crafty.polygon, "Hitbox is a polygon");
+    ok(e.map.points && e.map.points !== arr, "Array used in hitbox is a clone of passed array");
+
+    e.collision(50, 0, 100, 100, 0, 100);
+    ok(e.map instanceof Crafty.polygon, "Hitbox is a polygon");
+
+    strictEqual(newHitboxEvents, 3, "NewHitBox event triggered 3 times");
+  });
+
   // This test assumes that the "circles" are really octagons, as per Crafty.circle.
   test("SAT overlap with circles", function() {
     var e = Crafty.e("2D, Collision");
@@ -669,6 +692,7 @@
       strictEqual(evt.oldValue, 0, "[2] - old vy value was 0");
     });
     e.vy = -1;
+    e.vy = -1; // no MotionChange event was fired
     Crafty.timer.simulateFrames(1);
 
     // group 3 -- test newdireciton when we were previously moving
@@ -677,7 +701,6 @@
     e.one("NewDirection", function(evt) {
       equal(evt.x, 0, "[3] - not moving along x axis");
       equal(evt.y, 0, "[3] - not moving along y axis");
-      evt.x = 1; // bad boy!
     });
     e.vy = 0;
     Crafty.timer.simulateFrames(1);
@@ -685,7 +708,7 @@
 
     
     // Group 4, rotation tests
-    e.vrotation = 0;
+    e.vrotation = 0; // no MotionChange event was fired
     e.one("MotionChange", function(evt) {
       strictEqual(evt.key, "vrotation", "[4] - change of angular speed");
       strictEqual(evt.oldValue, 0, "[4] - old vr value was 0"); 
@@ -701,7 +724,7 @@
     e.one("NewRotationDirection", function(evt) {
       equal(evt, 1, "[5] - Rotating in the positive sense");
     });
-    e.one("Rotated", function(oldValue) { 
+    e.one("Rotated", function(oldValue) {
       strictEqual(oldValue, 0, "[5] - Rotated from 0 position");
     });
     e.vrotation = 1;
@@ -711,23 +734,34 @@
     e.one("NewRotationDirection", function(evt) {
       equal(evt, -1, "[6] - Rotating in the negative sense");
     });
-    e.one("Rotated", function(oldValue) { 
+    e.one("Rotated", function(oldValue) {
       strictEqual(oldValue, old_rotation, "[6] - Old rotation matches cached value");
     });
     e.vrotation = -1;
     Crafty.timer.simulateFrames(1);
 
+    old_rotation = e.rotation;
     e.one("NewRotationDirection", function(evt) {
-      equal(evt, 0, "[7] - No longer rotating");
+      equal(evt, 1, "[7] - Rotating in the positive sense");
+    });
+    e.one("Rotated", function(oldValue) {
+      strictEqual(oldValue, old_rotation, "[7] - Old rotation matches cached value");
+    });
+    e.vrotation = 1;
+    Crafty.timer.simulateFrames(1);
+
+    e.one("NewRotationDirection", function(evt) {
+      equal(evt, 0, "[8] - No longer rotating");
     });
     e.vrotation = 0;
     Crafty.timer.simulateFrames(1);
 
     // TODO: break these up into separate checks
-    equal(newDirectionEvents, 3, "NewDirection fired 4 times.");
-    equal(newRotationDirectionEvents, 3, "NewRotation fired 3 times.");
-    equal(motionEvents, 12, "Motion fired 12 times.");
-    equal(rotatedEvents, 2, "Rotated fired 2 times.");
+    equal(newDirectionEvents, 3, "NewDirection fired 3 times.");
+    equal(newRotationDirectionEvents, 4, "NewRotationDirection fired 4 times.");
+    equal(motionEvents, 13, "MotionChange fired 13 times.");
+    equal(movedEvents, 3, "Moved fired 3 times.");
+    equal(rotatedEvents, 3, "Rotated fired 3 times.");
     e.destroy();
   });
 

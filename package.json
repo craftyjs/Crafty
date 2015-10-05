@@ -8,7 +8,8 @@
   "branches": {
     "develop": true
   },
-  "main": "src/crafty.js",
+  "main": "src/crafty_headless.js",
+  "browser": "src/crafty.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/craftyjs/Crafty.git"
@@ -24,7 +25,9 @@
   },
   "homepage": "https://github.com/craftyjs/Crafty",
   "dependencies": {
-    "brfs": "1.0.1"
+    "brfs": "1.0.1",
+    "node-localstorage": "^0.5.0",
+    "require-nocache": "1.0.0"
   },
   "devDependencies": {
     "coffee-script": "1.7.1",
@@ -43,7 +46,8 @@
     "marked": "^0.3.3",
     "node-jsx": "^0.13.3",
     "open": "0.0.5",
-    "react": "^0.13.3"
+    "react": "^0.13.3",
+    "grunt-node-qunit": "^2.0.2"
   },
   "browserify": {
     "transform": [

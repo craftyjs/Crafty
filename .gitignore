@@ -10,3 +10,4 @@ build/api-gen.js
 .project
 .idea
 node_modules/
+localStorage/
