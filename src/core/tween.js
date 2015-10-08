@@ -116,7 +116,15 @@ module.exports = {
     return this;
 
   },
-
+  /*
+   * Pauses and unpauses the tweens applied to the object.
+   */
+  pauseTweens: function(){
+      this.tweens.map(function(e){e.easing.pause();});
+  },
+  resumeTweens: function(){
+      this.tweens.map(function(e){e.easing.resume();});
+  },
   /*
   * Stops tweening the specified group of properties, and fires the "TweenEnd" event.
   */
