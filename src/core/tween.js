@@ -117,6 +117,28 @@ module.exports = {
 
   },
 
+  /**@
+  * #.pauseTweens
+  * @comp Tween
+  * @sign public this .pauseTweens()
+  *
+  * Pauses all tweens associated with the entity
+  */
+  pauseTweens: function(){
+      this.tweens.map(function(e){e.easing.pause();});
+  },
+
+  /**@
+  * #.resumeTWeens
+  * @comp Tween
+  * @sign public this .resumeTweens()
+  *
+  * Resumes all paused tweens associated with the entity
+  */
+  resumeTweens: function(){
+      this.tweens.map(function(e){e.easing.resume();});
+  },
+
   /*
   * Stops tweening the specified group of properties, and fires the "TweenEnd" event.
   */
