@@ -979,6 +979,17 @@ Crafty.fn.init.prototype = Crafty.fn;
  *
  * Used to extend the Crafty namespace by passing in an object of properties and methods to add.
  *
+ * @example
+ * ~~~ * 
+ * Crafty.extend({
+ *   isArray: function(arg){
+ *     return Object.prototype.toString.call(arg) === '[object Array]'
+ *   }
+ * });
+ * 
+ * Crafty.isArray([4, 5, 6]);  // returns true
+ * Crafty.isArray('hi');       // returns false
+ * ~~~
  */
 Crafty.extend = Crafty.fn.extend = function (obj) {
     var target = this,
@@ -1912,7 +1923,37 @@ function UID() {
  * @sign public Object .clone(Object obj)
  * @param obj - an object
  *
- * Deep copy (a.k.a clone) of an object 
+ * Deep copy (a.k.a clone) of an object.
+ * 
+ * @example
+ * ~~~
+ * // Null or Primitive types
+ * Crafty.clone(null); // returns null
+ * Crafty.clone(4);    // returns 4
+ * 
+ * // Objects
+ * var globalCount = 0;
+ * var obj1 = {
+ *   count: 0,
+ *   inc: function(){
+ *      this.count++;
+ *      globalCount++;
+ *   },
+ *   log: function(){
+ *     console.log(this.count + '/' + globalCount);
+ *   }
+ * };
+ * 
+ * obj1.inc();
+ * obj1.log(); // prints "1/1" to the log
+ * 
+ * var obj2 = Crafty.clone(obj1);
+ * obj2.log(); // prints "1/1" to the log
+ * 
+ * obj1.inc();
+ * obj1.log(); // prints "2/2" to the log
+ * obj2.log(); // prints "1/2" to the log
+ * ~~~
  */
 
 function clone(obj) {
