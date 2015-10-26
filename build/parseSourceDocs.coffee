@@ -106,7 +106,7 @@ nextNode = (buffer)->
             (buffer.isOpen() and buffer.current().indexOf('*/') == -1) and 
             ( (clean = cleanLine(buffer.current()) ).length > 0 or node.tag is "raw") and 
             (not tagRe.test(clean) and not nameRe.test(clean))
-        )
+    )
 
         if (node.tag is "raw")
             node.value += "\n" + clean
