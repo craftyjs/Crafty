@@ -658,7 +658,7 @@ Crafty.fn = Crafty.prototype = {
      * Events are arbitrary and provide communication between components.
      * You can trigger or bind an event even if it doesn't exist yet.
      *
-     * Unlike DOM events, Crafty events are exectued synchronously.
+     * Unlike DOM events, Crafty events are executed synchronously.
      *
      * @example
      * ~~~
