@@ -1,4 +1,6 @@
 (function() {
+  var module = QUnit.module;
+
   module("Tween");
 
   test("Tween", function() {
@@ -17,6 +19,19 @@
     equal(e.x, 10, "Fully tweened x");
     equal(e.y, 16, "Fully tweened y");
   });
+
+  test("Tween with quadratic easing function", function() {
+    var e = Crafty.e("2D, Tween");
+    e.x = 0;
+    var ret = e.tween({
+      x: 16
+    }, 200, function(t){return (t*t);}); // 10 frames == 200 ms by efault
+    Crafty.timer.simulateFrames(5);
+    equal(Round(e.x), 4, "At halfway point, x is a quarter of original value");
+    Crafty.timer.simulateFrames(10);
+    equal(e.x, 16, "Fully tweened x");
+  });
+
   asyncTest('correct tweening', function() {
     expect(1);
 

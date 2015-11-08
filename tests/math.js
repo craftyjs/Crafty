@@ -1,4 +1,6 @@
 (function() {
+  var module = QUnit.module;
+
   var Matrix2D = Crafty.math.Matrix2D;
   var Vector2D = Crafty.math.Vector2D;
 

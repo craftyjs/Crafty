@@ -1,5 +1,4 @@
-# Crafty JS [![Build Status](https://travis-ci.org/craftyjs/Crafty.png?branch=develop)](https://travis-ci.org/craftyjs/Crafty)
-
+# Crafty JS [![Build Status](https://travis-ci.org/craftyjs/Crafty.svg?branch=develop)](https://travis-ci.org/craftyjs/Crafty)
 
 Crafty is a JavaScript game library that can help you create games in a structured way…
 
@@ -68,7 +67,7 @@ Crafty.e("RightPoints, DOM, 2D, Text")
 	.attr({ x: 515, y: 20, w: 100, h: 20, points: 0 })
 	.text("0 Points");
 ```
-
+[Check it out online and try to modify it yourself here](http://requirebin.com/?gist=4f76e88be389f2fe8f7f).
 
 ##Developing
 

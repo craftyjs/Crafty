@@ -1,4 +1,6 @@
 (function() {
+  var module = QUnit.module;
+
   module("Core");
 
   test("getVersion", function() {
@@ -88,28 +90,49 @@
 
   });
 
-  test("setter", function() {
+  test("defineField", function() {
     if (!(Crafty.support.setter || Crafty.support.defineProperty)) {
       // IE8 has a setter() function but it behaves differently. No test is currently written for IE8.
       expect(0);
       return;
     }
+
     var first = Crafty.e("test");
-    first.setter('p1', function(v) {
+
+
+    first.setter('p0', function(v) {
+      this._p0 = v * 5;
+    });
+    first.p0 = 2;
+    strictEqual(first._p0, 10, "single property setter");
+    strictEqual(first.p0, undefined, "single property getter");
+
+
+    first.defineField('p1', function() {
+      return this._p1;
+    }, function(v) {
       this._p1 = v * 2;
     });
     first.p1 = 2;
-    strictEqual(first._p1, 4, "single property setter");
+    strictEqual(first.p1, 4, "single property getter & setter");
 
-    first.setter('p2', function(v) {
+    first.defineField('p2', function() {
+      return this._p2;
+    }, function(v) {
       this._p2 = v * 2;
-    }).setter('p3', function(v) {
+    }).defineField('p3', function() {
+      return this._p3;
+    }, function(v) {
       this._p3 = v * 2;
     });
     first.p2 = 2;
     first.p3 = 3;
-    strictEqual(first._p2 + first._p3, 10, "two property setters");
+    strictEqual(first.p2 + first.p3, 10, "two property getters & setters");
 
+    if (Crafty.support.defineProperty) {
+      delete first.p1;
+      strictEqual(first.p1, 4, "property survived deletion");
+    }
   });
 
   test("bind", function() {
@@ -285,7 +308,7 @@
   test("Crafty.get with only one object", function() {
     var e = Crafty.e("test");
     var collection = Crafty("test");
-    result = collection.get(0);
+    var result = collection.get(0);
     equal(result.getId(), e.getId(), "result of get(0) is correct entity");
     result = collection.get();
     equal(result.length, 1, "result of get() is array of length 1");
@@ -312,6 +335,21 @@
 
   });
 
+  test("required special parameter", function() {
+    var hasComp = false;
+    Crafty.c("Requisitioner", {
+      init: function() { 
+        if (this.has("RequiredComponent")){
+          hasComp = true;
+        }
+      },
+      required: "RequiredComponent"
+    });
+    Crafty.e("Requisitioner");
+
+    ok(hasComp, "Required component added before init was run");
+  });
+
   test("destroy", function() {
     var first = Crafty.e("test"),
       id = first[0]; //id
@@ -333,17 +371,7 @@
     Crafty.unbind(frameFunction);
   });
 
-  test("Crafty.stop(true)", function(){
-    var test = Crafty.e('2D');
-    Crafty.stop(true);
-    Crafty.init();
-
-    var newTest = Crafty.e('2D');
-    var components = Crafty.components();
-    
-    ok(Object.keys(components).length,
-      'There should still be components after doing a hard reset');
-  });
+  // TODO: add test for Crafty.stop() once problematic side effects are fixed!
 
   module("Scenes");
 
@@ -410,91 +438,6 @@
   });
 
 
-  module("DebugLayer");
-
-  test("DebugCanvas", function() {
-    if (!(Crafty.support.canvas)) {
-      expect(0);
-      return;
-    }
-    var e = Crafty.e("2D, DebugCanvas");
-    var ctx = Crafty.DebugCanvas.context;
-
-    e.debugFill("purple");
-    equal(e._debug.fillStyle, "purple", "fill style set correctly on entity");
-
-    e.debugStroke("green");
-    equal(e._debug.strokeStyle, "green", "stroke style set correctly on entity");
-
-    e.debugDraw(ctx);
-    equal(ctx.fillStyle, "#800080", "context.fillStyle set correctly on draw"); // fillStyle will report the hex code
-    equal(ctx.strokeStyle, "#008000", "context.strokeStyle set correctly on draw");
-
-    e.debugFill();
-    equal(e._debug.fillStyle, "red", "default fill style set correctly");
-
-    e.debugStroke();
-    equal(e._debug.strokeStyle, "red", "default stroke style set correctly");
-
-
-    e.destroy();
-
-  });
-
-  test("VisibleMBR and DebugRect", function() {
-    var e = Crafty.e("2D, VisibleMBR").attr({
-      x: 10,
-      y: 10,
-      w: 10,
-      h: 20
-    });
-    e._assignRect();
-    equal(e.debugRect._x, 10, "debugRect has correct x coord");
-    equal(e.debugRect._h, 20, "debugRect has correct height");
-
-    e.rotation = 90;
-    e._assignRect();
-    equal(e.debugRect._h, 10, "debugRect has correct height of MBR after rotation");
-
-    e.destroy();
-
-  });
-
-  test("Hitbox debugging", function() {
-    var e = Crafty.e("2D, Collision, WiredHitBox").attr({
-      x: 10,
-      y: 10,
-      w: 10,
-      h: 20
-    }).collision();
-    e.matchHitBox(); // only necessary until collision works properly!
-    equal(e.polygon.points[0][0], 10, "WiredHitBox -- correct x coord for upper right corner");
-    equal(e.polygon.points[2][1], 30, "correct y coord for lower right corner");
-    notEqual(typeof e._debug.strokeStyle, "undefined", "stroke style is assigned");
-    equal(typeof e._debug.fillStyle, "undefined", "fill style is undefined");
-
-    e.destroy();
-
-    var e2 = Crafty.e("2D, Collision, SolidHitBox").attr({
-      x: 10,
-      y: 10,
-      w: 10,
-      h: 20
-    }).collision();
-    e2.matchHitBox(); // only necessary until collision works properly!
-    equal(e2.polygon.points[0][0], 10, "SolidHitBox -- correct x coord for upper right corner");
-    equal(e2.polygon.points[2][1], 30, "correct y coord for lower right corner");
-    equal(typeof e2._debug.strokeStyle, "undefined", "stroke style is undefined");
-    notEqual(typeof e2._debug.fillStyle, "undefined", "fill style is assigned");
-
-    e2.collision(new Crafty.polygon([0, 0], [15, 0], [0, 15]));
-    e2.matchHitBox();
-    equal(e2.polygon.points[2][1], 25, "After change -- correct y coord for third point");
-
-    e2.destroy();
-
-  });
-
   module("Easing");
 
   test("Crafty.easing duration", function() {
@@ -512,6 +455,27 @@
     equal(e.value(), 1, "1 after completed");
     e.tick(20);
     equal(e.value(), 1, "Remains 1 after completion");
+  });
+
+  test("Crafty.easing with custom function", function() {
+    var e = new Crafty.easing(80, function(t){return t*t;}) ; // 4 frames == 80ms by default
+    e.tick(20);
+    e.tick(20);
+    equal(e.value(), 0.25, ".25 after two steps");
+    e.tick(20);
+    e.tick(20);
+    equal(e.value(), 1, "1 after completed");
+  });
+
+  test("Crafty.easing with built-in smoothStep function", function() {
+    var e = new Crafty.easing(80, "smoothStep"); // 4 frames == 80ms by default
+    e.tick(20);
+    equal(e.value(), 0.15625, "0.15625 after one step");
+    e.tick(20);
+    equal(e.value(), 0.5, ".5 after two steps");
+    e.tick(20);
+    e.tick(20);
+    equal(e.value(), 1, "1 after completed");
   });
 
   test('Get', function() {
@@ -610,7 +574,6 @@
     deepEqual(fox.attr('contact'), {email: 'foxxy@example.com', phone: '555-555-4545'});
   });
 
-
   module("Timer");
 
   test('Timer.simulateFrames', function() {
@@ -650,6 +613,37 @@
     Crafty.unbind("PreRender", preRenderFunc);
     Crafty.unbind("RenderScene", renderSceneFunc);
     Crafty.unbind("PostRender", postRenderFunc);
+  });
+
+  test('Crafty.timer.FPS', function() {
+    var counter = 0;
+    var increment = function() {
+      counter++;
+    };
+    Crafty.bind("FPSChange", increment);
+
+    Crafty.one("FPSChange", function(fps) {
+      strictEqual(fps, 25);
+      strictEqual(Crafty.timer.FPS(), 25);
+    });
+    Crafty.one("EnterFrame", function(frameData) {
+      strictEqual(frameData.dt, 1000/25);
+    });
+    Crafty.timer.FPS(25);
+    Crafty.timer.simulateFrames(1);
+
+    Crafty.one("FPSChange", function(fps) {
+      strictEqual(fps, 50);
+      strictEqual(Crafty.timer.FPS(), 50);
+    });
+    Crafty.one("EnterFrame", function(frameData) {
+      strictEqual(frameData.dt, 1000/50);
+    });
+    Crafty.timer.FPS(50);
+    Crafty.timer.simulateFrames(1);
+
+    Crafty.unbind("FPSChange", increment);
+    strictEqual(counter, 2);
   });
 
 })();

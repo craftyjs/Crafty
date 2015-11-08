@@ -1,8 +1,13 @@
 /crafty.js
 /crafty-min.js
 build/api/*
+build/api.json
+build/parseNodes.js
+build/parseSourceDocs.js
+build/api-gen.js
 .*.sw?
 .DS_store
 .project
 .idea
 node_modules/
+localStorage/

@@ -1,22 +1,24 @@
 (function() {
+  var module = QUnit.module;
+
   module("Isometric");
 
   test("place tile", function() {
     var iso = Crafty.isometric.size(64, 16);
 
-    var tile1 = Crafty.e("2D, DOM, Color").attr({
+    var tile1 = Crafty.e("2D").attr({
       x: 0,
       y: 0,
       w: 64,
       h: 16
-    }).color("red");
-    var tile2 = Crafty.e("2D, DOM, Color").attr({
+    });
+    var tile2 = Crafty.e("2D").attr({
       x: 100,
       y: 100,
       z: 3,
       w: 64,
       h: 16
-    }).color("blue");
+    });
 
     iso.place(0, 0, 0, tile1);
     iso.place(1, 2, 5, tile2);

@@ -1,5 +1,6 @@
 require("coffee-script");
 var fs = require('fs');
+var open = require("open");
 
 module.exports = function (grunt) {
     var pkg = grunt.file.readJSON('package.json');
@@ -11,18 +12,29 @@ module.exports = function (grunt) {
                     ' * Dual licensed under the MIT or GPL licenses.\n' +
                     ' */\n\n';
 
-    var docGen = function(){
-        done = this.async();
-        buildDir = "build/api/";
-        grunt.file.mkdir(buildDir);
-        var callback = function(){
-            console.log("Documentation created in " + buildDir);
-            done();
-        };
-        var md = require("./build/api-gen");
-        md.document(grunt.file.expand('src/*.js'),
-            buildDir, "build/template.html", version, callback);
+    var docGen = function() {
+        var outputFile = "./build/api.json";
+        var sourceParser = require("./build/parseSourceDocs");
+        var apiGenerator = require("./build/parseNodes");
+
+        var sourceFiles = grunt.file.expand('src/**/*.js');
+        var blocks = sourceParser.parse(sourceFiles);
+        var jsonObject = apiGenerator.structureBlocks(blocks);
+
+        var apiJSON = JSON.stringify(jsonObject, null, 4);
+        grunt.file.write(outputFile, apiJSON);
+        grunt.log.writeln("Wrote api data to " + outputFile);
     };
+
+    var apiServer = require("./build/api-gen/dynamic-server.js");
+    function runApiServer() {
+      var done = this.async();
+      apiServer(grunt, "./build/api.json");
+      setTimeout(function(){
+        open("http://localhost:8080");
+      }, 100);
+    }
+
 
     // Project configuration.
     grunt.initConfig({
@@ -45,6 +57,9 @@ module.exports = function (grunt) {
             dist: {
                 files: {
                     'crafty.js': ['src/crafty.js']
+                },
+                options: {
+                    transform: ['brfs']
                 }
             },
             debug: {
@@ -52,10 +67,12 @@ module.exports = function (grunt) {
                     'crafty.js': ['src/crafty.js']
                 },
                 options: {
-                    debug: true
+                    debug: true,
+                    transform: ['brfs']
                 }
             }
         },
+
 
         watch: {
             files: ['src/*.js'],
@@ -83,9 +100,47 @@ module.exports = function (grunt) {
         },
 
         qunit: {
-            all: [
-                'tests/index.html'
-            ]
+            all: ['tests/index.html']
+        },
+
+        'node-qunit': {
+            all: {
+                deps: 'tests/lib/helperFunctions.js',
+                code: 'tests/index_headless.js',
+                tests: [
+                    'tests/common.js',
+                    'tests/core.js',
+                    'tests/2d.js',
+                    'tests/logging.js',
+                    'tests/controls.js',
+                    'tests/events.js',
+                    //TODO add these once isometric adapted:
+                    //'tests/isometric.js',
+                    'tests/math.js',
+                    'tests/model.js',
+                    'tests/storage.js',
+                    'tests/systems.js',
+                    'tests/time.js',
+                    'tests/tween.js',
+                    'tests/issue746/mbr.js',
+                    'tests/issue746/pos.js',
+                    'tests/2D/collision/collision.js',
+                    'tests/2D/collision/sat.js'
+                ],
+                setup: {
+                    log: {
+                        errors: true,
+                        //tests: true,
+                        globalSummary: true
+                    }
+                },
+                done: function(err, res) {
+                    if (!err)
+                        grunt.log.ok("NODE TESTS SUCCESSFUL");
+                    else
+                        grunt.log.error("NODE TESTS FAILED");
+                }
+            }
         },
 
         jsvalidate: {
@@ -98,6 +153,12 @@ module.exports = function (grunt) {
                     keepalive: true
                 }
             }
+        },
+
+        open: {
+            api : {
+              path: 'http://localhost:8080/',
+            },
         }
 
     });
@@ -111,6 +172,9 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-jsvalidate');
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-banner');
+    grunt.loadNpmTasks('grunt-node-qunit');
+
+ 
 
     grunt.registerTask('version', 'Takes the version into src/version.js', function() {
         fs.writeFileSync('src/version.js', 'module.exports = "' + version + '";');
@@ -129,12 +193,15 @@ module.exports = function (grunt) {
     grunt.registerTask('default', ['build:dev', 'jsvalidate']);
 
     // Run the test suite
-    grunt.registerTask('check', ['build:dev', 'jsvalidate', 'qunit', 'jshint']);
+    grunt.registerTask('check', ['build:dev', 'jsvalidate', 'qunit', 'node-qunit', 'jshint']);
 
     // Make crafty.js ready for release - minified version
     grunt.registerTask('release', ['version', 'build:release', 'uglify', 'api']);
 
     // Run only tests
-    grunt.registerTask('validate', ['qunit']);
+    grunt.registerTask('validate', ['qunit', 'node-qunit']);
+
+    grunt.registerTask('api-server', "View dynamically generated docs", runApiServer);
+    grunt.registerTask('view-api', ['api', 'api-server'] );
 
 };
