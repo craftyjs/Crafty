@@ -235,9 +235,11 @@ module.exports = {
 
         data = (typeof data === "string" ? JSON.parse(data) : data);
 
-        var j = 0, total = 0,
+        var j = 0,
+            total = (data.audio ? Object.keys(data.audio).length : 0) +
+                (data.images ? Object.keys(data.images).length : 0) +
+                (data.sprites ? Object.keys(data.sprites).length : 0),
             current, fileUrl, obj, type, asset,
-            audSupport = Crafty.support.audio,
             paths = Crafty.paths(),
             getExt = function(f) {
                 return f.substr(f.lastIndexOf('.') + 1).toLowerCase();
@@ -250,7 +252,7 @@ module.exports = {
                 return Crafty.asset(a) || null;
             },
             isSupportedAudio = function(f) {
-                return Crafty.audio.supports(getExt(f));
+                return Crafty.support.audio && Crafty.audio.supports(getExt(f));
             },
             isValidImage = function(f) {
                 return Crafty.image_whitelist.indexOf(getExt(f)) != -1;
@@ -307,21 +309,24 @@ module.exports = {
                 current = data[type][asset];
                 obj = null;
 
-                if (type === "audio" && audSupport) {
+                if (type === "audio") {
                     if (typeof current === "object") {
                         var files = [];
                         for (var i in current) {
                             fileUrl = getFilePath(type, current[i]);
-                            if (!isAsset(fileUrl) && isSupportedAudio(current[i]))
+                            if (!isAsset(fileUrl) && isSupportedAudio(current[i]) && !Crafty.audio.sounds[asset])
                                 files.push(fileUrl);
                         }
-                        obj = Crafty.audio.add(asset, files).obj;
-                    }
-                    else if (typeof current === "string") {
+                        if (files.length > 0)
+                            obj = Crafty.audio.add(asset, files);
+                    } else if (typeof current === "string") {
                         fileUrl = getFilePath(type, current);
-                        if (!isAsset(fileUrl) && isSupportedAudio(current))
-                            obj = Crafty.audio.add(asset, fileUrl).obj;
+                        if (!isAsset(fileUrl) && isSupportedAudio(current) && !Crafty.audio.sounds[asset])
+                            obj = Crafty.audio.add(asset, fileUrl);
                     }
+                    //extract actual audio obj if audio creation was successfull
+                    if (obj)
+                        obj = obj.obj;
 
                     //addEventListener is supported on IE9 , Audio as well
                     if (obj && obj.addEventListener)
@@ -338,9 +343,11 @@ module.exports = {
                         onImgLoad(obj, fileUrl);
                     }
                 }
+
                 if (obj) {
-                    ++total;
                     obj.onerror = err;
+                } else {
+                    err.call({src: fileUrl});
                 }
             }
         }

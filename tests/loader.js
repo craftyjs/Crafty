@@ -14,7 +14,7 @@
 
 
   asyncTest('assets loading', function() {
-    expect(1);
+    expect(2);
 
     var items = [],
         checkItems = function() {
@@ -55,7 +55,7 @@
       }, function(data) {
         items.push(data);
       }, function(error) {
-        Crafty.log(error);
+        strictEqual(error.src, 'assets/100x100.png', 'duplicate asset reported as error of load operation');
       }
     );
   });
