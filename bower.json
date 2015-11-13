@@ -1,15 +1,20 @@
 {
   "name": "crafty",
+  "description": "Crafty is a modern component and event based framework for developing games in JavaScript that targets DOM, Canvas and WebGL.",
+  "keywords": [
+    "framework",
+    "javascript",
+    "game",
+    "engine"
+  ],
+  "license": ["GPL", "MIT"],
   "main": "dist/crafty.js",
-  "license": "MIT",
   "ignore": [
-    "**/.*",
-    "build",
-    "playgrounds",
-    "test",
-    "*.md",
-    "changelog.txt",
-    "Gruntfile.js",
-    "package.json"
+    "**",
+    "!bower.json",
+    "!README.md",
+    "!dist",
+    "!dist/crafty.js",
+    "!dist/crafty-min.js"
   ]
 }
