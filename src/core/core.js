@@ -1379,32 +1379,45 @@ Crafty.extend({
             /**@
              * #Crafty.timer.steptype
              * @comp Crafty.timer
+             *
+             * @trigger NewSteptype - when the current steptype changes - { mode, maxTimeStep } - New steptype
+             *
+             * Can be called to set the type of timestep the game loop uses.
              * @sign public void Crafty.timer.steptype(mode [, maxTimeStep])
-             * Can be called to set the type of timestep the game loop uses
              * @param mode - the type of time loop.  Allowed values are "fixed", "semifixed", and "variable".  Crafty defaults to "fixed".
              * @param maxTimeStep - For "fixed", sets the max number of frames per step.   For "variable" and "semifixed", sets the maximum time step allowed.
+             *
+             * Can be called to get the type of timestep the game loop uses.
+             * @sign public Object Crafty.timer.steptype(void)
+             * @returns Object containing the current timestep's properties { mode, maxTimeStep }
              *
              * * In "fixed" mode, each frame is sent the same value of `dt`, and to achieve the target game speed, mulitiple frame events are triggered before each render.
              * * In "variable" mode, there is only one frame triggered per render.  This recieves a value of `dt` equal to the actual elapsed time since the last frame.
              * * In "semifixed" mode, multiple frames per render are processed, and the total time since the last frame is divided evenly between them.
              *
+             * @see Crafty.timer.FPS
              */
-
             steptype: function (newmode, option) {
+                // setters
                 if (newmode === "variable" || newmode === "semifixed") {
                     mode = newmode;
                     if (option)
                         maxTimestep = option;
-
+                    Crafty.trigger("NewSteptype", {mode: mode, maxTimeStep: maxTimestep});
                 } else if (newmode === "fixed") {
                     mode = "fixed";
                     if (option)
                         maxFramesPerStep = option;
-                } else {
+                    Crafty.trigger("NewSteptype", {mode: mode, maxTimeStep: maxFramesPerStep});
+                } else if (newmode !== undefined) {
                     throw "Invalid step type specified";
+                // getter
+                } else {
+                    return {
+                        mode: mode,
+                        maxTimeStep: (mode === "variable" || mode === "semifixed") ? maxTimestep : maxFramesPerStep
+                    };
                 }
-
-
             },
 
             /**@
@@ -1424,6 +1437,7 @@ Crafty.extend({
              * Specifically it triggers `EnterFrame` & `ExitFrame` events for each frame and `PreRender`, `RenderScene` & `PostRender` events for each render.
              *
              * @see Crafty.timer.steptype
+             * @see Crafty.timer.FPS
              */
             step: function () {
                 var drawTimeStart, dt, lastFrameTime, loops = 0;
@@ -1506,6 +1520,8 @@ Crafty.extend({
              *
              * Sets the target frames per second. This is not an actual frame rate.
              * The default rate is 50.
+             *
+             * @see Crafty.timer.steptype
              */
             FPS: function (value) {
                 if (typeof value == "undefined")

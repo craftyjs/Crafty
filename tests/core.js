@@ -615,6 +615,41 @@
     Crafty.unbind("PostRender", postRenderFunc);
   });
 
+  test('Crafty.timer.steptype', function() {
+    var originalSteptype = Crafty.timer.steptype(),
+        steptype,
+        counter = 0;
+    var increment = function() {
+      counter++;
+    };
+    Crafty.bind("NewSteptype", increment);
+
+
+    Crafty.one("NewSteptype", function(evt) {
+      strictEqual(evt.mode, "fixed");
+      strictEqual(evt.maxTimeStep, 100);
+    });
+    Crafty.timer.steptype("fixed", 100);
+    steptype = Crafty.timer.steptype();
+    strictEqual(steptype.mode, "fixed");
+    strictEqual(steptype.maxTimeStep, 100);
+
+
+    Crafty.one("NewSteptype", function(evt) {
+      strictEqual(evt.mode, "variable");
+      strictEqual(evt.maxTimeStep, 1000);
+    });
+    Crafty.timer.steptype("variable", 1000);
+    steptype = Crafty.timer.steptype();
+    strictEqual(steptype.mode, "variable");
+    strictEqual(steptype.maxTimeStep, 1000);
+
+
+    strictEqual(counter, 2);
+    Crafty.unbind("NewSteptype", increment);
+    Crafty.timer.steptype(originalSteptype.mode, originalSteptype.maxTimeStep);
+  });
+
   test('Crafty.timer.FPS', function() {
     var counter = 0;
     var increment = function() {

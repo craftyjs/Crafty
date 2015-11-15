@@ -869,6 +869,55 @@
     strictEqual(player.x, 10, "player did not move with ground");
   });
 
+  test("Gravity", function() {
+    var player = Crafty.e("2D, Gravity")
+        .attr({ x: 0, y: 100, w: 32, h: 10 });
+
+    strictEqual(player.velocity().y, 0, "velocity should be 0 before activating gravity");
+    strictEqual(player.acceleration().y, 0, "acceleration should be 0 before activating gravity");
+    strictEqual(player._gravityConst, 500, "gravityConst should match default value");
+    strictEqual(player._gravityActive, false, "gravity should not be active");
+
+    player.gravityConst(0.3*50*50);
+    strictEqual(player.velocity().y, 0, "velocity should be 0 before activating gravity");
+    strictEqual(player.acceleration().y, 0, "acceleration should be 0 before activating gravity");
+    strictEqual(player._gravityConst, 0.3*50*50, "gravityConst should match new value");
+    strictEqual(player._gravityActive, false, "gravity should not be active");
+
+    strictEqual(player._groundComp, null, "no ground component set before activating gravity");
+    player.gravity("platform2");
+    strictEqual(player._gravityActive, true, "gravity should be active");
+    strictEqual(player._groundComp, "platform2", "new ground component set after activating gravity");
+    strictEqual(player.velocity().y, 0, "velocity should be 0 before stepping a frame");
+    strictEqual(player.acceleration().y, player._gravityConst, "acceleration should match gravity constant after activating gravity");
+
+    player.gravity("platform");
+    strictEqual(player._gravityActive, true, "gravity should be active");
+    strictEqual(player._groundComp, "platform", "ground component changed after reactivating gravity");
+    strictEqual(player.velocity().y, 0, "velocity should be 0 before stepping a frame");
+    strictEqual(player.acceleration().y, player._gravityConst, "acceleration should match gravity constant after activating gravity twice");
+
+    player.gravityConst(100);
+    strictEqual(player.velocity().y, 0, "velocity should be 0 before stepping a frame");
+    strictEqual(player.acceleration().y, player._gravityConst, "acceleration should match gravity constant after changing gravity constant while gravity is active");
+    strictEqual(player._gravityActive, true, "gravity should still be active");
+
+    player.vy = 1000;
+    player.gravityConst(0.2*50*50);
+    strictEqual(player.velocity().y, 1000, "velocity should not have been reset after changing gravityConst");
+
+    player.antigravity();
+    strictEqual(player._gravityActive, false, "gravity should be inactive");
+    strictEqual(player.acceleration().y, 0, "acceleration should be zero after deactivating gravity");
+    strictEqual(player.velocity().y, 0, "velocity should be zero after deactivating gravity");
+
+    player.gravity();
+    strictEqual(player._gravityActive, true, "gravity should be active");
+    strictEqual(player._groundComp, "platform", "ground component didn't change after reactivating");
+    strictEqual(player.acceleration().y, player._gravityConst, "acceleration should match gravity constant after activating gravity");
+    strictEqual(player.velocity().y, 0, "velocity should be still be zero immediately after deactivating gravity");
+  });
+
 
   test("Integrationtest - Gravity", function() {
     var done = false;
@@ -880,8 +929,7 @@
           .attr({ x: 0, y: 100, w: 32, h: 16 })
           .gravityConst(0.3*50*50)
           .gravity("platform");
-   
-    strictEqual(player.acceleration().y, player._gravityConst, "acceleration should match gravity constant");
+
 
     var vel = -1;
     player.bind("EnterFrame", function() {
@@ -905,12 +953,6 @@
 
           Crafty.timer.simulateFrames(3);
           vel = -1;
-
-          var oldVel = this.velocity().y;
-          this.gravityConst(0.2*50*50);
-          strictEqual(this._gravityConst, 0.2*50*50, "gravity constant should have changed");
-          strictEqual(this.acceleration().y, this._gravityConst, "acceleration should match gravity constant");
-          strictEqual(this.velocity().y, oldVel, "velocity should not have been reset");
         });
         this.attr({y: 100});
       } else {
@@ -925,7 +967,7 @@
     });
 
     Crafty.timer.simulateFrames(75);
-    ok(done, "Test completed");
+    ok(done, "Integrationtest completed");
   });
 
 
@@ -970,7 +1012,7 @@
     });
 
     Crafty.timer.simulateFrames(75);
-    ok(done, "Test completed");
+    ok(done, "Integrationtest completed");
   });
 
 })();
