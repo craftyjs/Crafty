@@ -1164,6 +1164,7 @@ Crafty.extend({
 
         // Define default graphics layers
         Crafty.s("CanvasLayer", Crafty.canvasLayerObject);
+        Crafty.s("DomLayer", Crafty.domLayerObject);
 
         Crafty.viewport.init(w, h, stage_elem);
 
@@ -1237,7 +1238,6 @@ Crafty.extend({
 
 
             // Reset references to the now destroyed graphics layers
-            delete Crafty.domLayer._div;
             delete Crafty.webgl.context;
 
             // reset callbacks, and indicate that prebound functions need to be bound on init again

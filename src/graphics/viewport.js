@@ -563,20 +563,6 @@ Crafty.extend({
              * The `#cr-stage` div element.
              */
 
-            /**@
-             * #Crafty.domLayer._div
-             * @comp Crafty.domLayer
-             * `Crafty.domLayer._div` is a div inside the `#cr-stage` div that holds all DOM entities.
-             * If you use canvas, a `canvas` element is created at the same level in the dom
-             * as the the `Crafty.domLayer._div` div. So the hierarchy in the DOM is
-             *  
-             * ~~~
-             * Crafty.stage.elem
-             *  - Crafty.domLayer._div (a div HTMLElement)
-             *  - Crafty.canvasLayer._canvas (a canvas HTMLElement)
-             * ~~~
-             */
-
             //create stage div to contain everything
             Crafty.stage = {
                 x: 0,
