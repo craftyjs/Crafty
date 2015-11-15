@@ -961,6 +961,7 @@ Crafty.c("Supportable", {
      */
     _ground: null,
     _groundComp: null,
+    _preventGroundTunneling: false,
 
     /**@
      * #.canLand
@@ -1035,19 +1036,48 @@ Crafty.c("Supportable", {
         return this;
     },
 
+    /*@
+     * #.preventGroundTunneling
+     * @comp Supportable
+     * @sign this .preventGroundTunneling([Boolean enable])
+     * @param enable - Boolean indicating whether to enable continous collision detection or not; if omitted defaults to true
+     *
+     * Prevent entity from falling through thin ground entities at high speeds. This setting is disabled by default.
+     * This is performed by approximating continous collision detection, which may impact performance negatively.
+     * For further details, refer to [FAQ#Tunneling](https://github.com/craftyjs/Crafty/wiki/Crafty-FAQ-%28draft%29#why-are-my-bullets-passing-through-other-entities-without-registering-hits).
+     *
+     * @see Motion.ccdbr
+     */
+    preventGroundTunneling: function(enable) {
+        if (typeof enable === 'undefined')
+            enable = true;
+        if (enable)
+            this.requires("Motion");
+        this._preventGroundTunneling = enable;
+
+        return this;
+    },
+
     _detectGroundTick: function() {
         var groundComp = this._groundComp,
             ground = this._ground,
-            overlap = Crafty.rectManager.overlap;
+            overlap = Crafty.rectManager.overlap,
+            area;
 
-        var pos = this._cbr || this._mbr || this,
+        if (!this._preventGroundTunneling) {
+            var pos = this._cbr || this._mbr || this;
             area = this.__area;
-        area._x = pos._x;
-        area._y = pos._y + 1; // Increase by 1 to make sure map.search() finds the floor
-        area._w = pos._w;
-        area._h = pos._h;
+            area._x = pos._x;
+            area._y = pos._y;
+            area._w = pos._w;
+            area._h = pos._h;
+        } else {
+            area = this.ccdbr(this.__area);
+        }
+        area._h++; // Increase by 1 to make sure map.search() finds the floor
         // Decrease width by 1px from left and 1px from right, to fall more gracefully
         // area._x++; area._w--;
+
 
         // check if we lift-off
         if (ground) {
@@ -1075,9 +1105,15 @@ Crafty.c("Supportable", {
                     this.trigger("CheckLanding", obj); // is entity allowed to land?
                     if (this.canLand) {
                         this._ground = ground = obj;
-                        this.y = obj._y - this._h; // snap entity to ground object
-                        this.trigger("LandedOnGround", ground); // collision with ground was detected for first time
 
+                        // snap entity to ground object
+                        this.y = ground._y - this._h;
+                        if (this._x > ground._x + ground._w)
+                            this.x = ground._x + ground._w - 1;
+                        else if (this._x + this._w < ground._x)
+                            this.x = ground._x - this._w + 1;
+
+                        this.trigger("LandedOnGround", ground); // collision with ground was detected for first time
                         break;
                     }
                 }
