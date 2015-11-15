@@ -10,7 +10,7 @@ var Crafty = require('../core/core.js');
  *
  * Sprite, Image, SpriteAnimation, and Color all support WebGL rendering.  Text entities will need to use DOM or Canvas for now.
  * 
- * If a webgl context does not yet exist, a WebGL entity will automatically create one by calling `Crafty.webgl.init()` before rendering.
+ * If a webgl context does not yet exist, a WebGL entity will automatically create one.
  *
  * @note For better performance, minimize the number of spritesheets used, and try to arrange it so that entities with different spritesheets are on different z-levels.  This is because entities are rendered in z order, and only entities sharing the same texture can be efficiently batched.
  *
@@ -30,10 +30,7 @@ Crafty.c("WebGL", {
      * The webgl context this entity will be rendered to.
      */
     init: function () {
-        if (!Crafty.webgl.context) {
-            Crafty.webgl.init();
-        }
-        var webgl = this.webgl = Crafty.webgl;
+        var webgl = this.webgl = Crafty.s("WebGLLayer");
         var gl = webgl.context;
 
         //increment the amount of canvas objs
