@@ -9,7 +9,7 @@ var Crafty = require('../core/core.js');
  *
  * When this component is added to an entity it will be drawn to the global canvas element. The canvas element (and hence all Canvas entities) is always rendered below any DOM entities.
  *
- * Crafty.canvasLayer.init() will be automatically called if it is not called already to initialize the canvas element.
+ * The canvas layer will be automatically initialized if it has not been created yet.
  *
  * Create a canvas entity like this
  * ~~~
@@ -21,10 +21,8 @@ var Crafty = require('../core/core.js');
 Crafty.c("Canvas", {
 
     init: function () {
-        var canvasLayer = Crafty.canvasLayer;
-        if (!canvasLayer.context) {
-            canvasLayer.init();
-        }
+        var canvasLayer = Crafty.s("CanvasLayer");
+
         this._drawLayer = canvasLayer;
         this._drawContext = canvasLayer.context;
 

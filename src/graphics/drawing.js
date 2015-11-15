@@ -30,7 +30,6 @@ Crafty.extend({
      * @example
      * This is the preferred way to draw pixel art with the best cross-browser compatibility.
      * ~~~
-     * Crafty.canvasLayer.init();
      * Crafty.pixelart(true);
      * 
      * Crafty.sprite(imgWidth, imgHeight, "spriteMap.png", {sprite1:[0,0]});

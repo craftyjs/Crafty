@@ -1162,6 +1162,9 @@ Crafty.extend({
             }
         }
 
+        // Define default graphics layers
+        Crafty.s("CanvasLayer", Crafty.canvasLayerObject);
+
         Crafty.viewport.init(w, h, stage_elem);
 
         //call all arbitrary functions attached to onload
@@ -1227,7 +1230,6 @@ Crafty.extend({
             }
 
             // Reset references to the now destroyed graphics layers
-            delete Crafty.canvasLayer.context;
             delete Crafty.domLayer._div;
             delete Crafty.webgl.context;
 

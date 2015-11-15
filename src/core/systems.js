@@ -49,7 +49,7 @@ Crafty.s = function(name, obj, lazy) {
 Crafty._registerLazySystem = function(name, obj) {
 	// This is a bit of magic to only init a system if it's requested at least once.
 	// We define a getter for _systems[name] that will first initialize the system, 
-	// and then redefine _systems[name] to ` that getter.
+	// and then redefine _systems[name] to remove that getter.
 	Object.defineProperty(Crafty._systems, name, {
 		get: function() {
 			Object.defineProperty(Crafty._systems, name, { 
