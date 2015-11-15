@@ -58,10 +58,9 @@ Crafty.canvasLayerObject = {
             return;
         }
 
-        // set properties to initial values -- necessary on a restart
+        // set referenced objects to initial values -- necessary to avoid shared state between systems
         this._dirtyRects = [];
         this._changedObjs = [];
-        this.layerCount = 0;
 
         //create an empty canvas element
         var c;

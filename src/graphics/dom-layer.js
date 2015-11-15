@@ -20,9 +20,8 @@ Crafty.domLayerObject = {
     _div: null,
 
     init: function () {
-        // Set properties to initial values -- necessary on a restart
+        // Avoid shared state between systems
         this._changedObjs = [];
-        this._dirtyViewport = false;
 
         // Create the div that will contain DOM elements
         var div = this._div = document.createElement("div");

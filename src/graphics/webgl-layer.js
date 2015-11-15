@@ -262,7 +262,7 @@ Crafty.webglLayerObject = {
             return;
         }
 
-        // necessary on restart
+        // Avoid shared state between systems
         this.changed_objects = [];
 
         //create an empty canvas element
