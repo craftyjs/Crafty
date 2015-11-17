@@ -122,8 +122,6 @@ module.exports = function (grunt) {
                     'tests/systems.js',
                     'tests/time.js',
                     'tests/tween.js',
-                    'tests/issue746/mbr.js',
-                    'tests/issue746/pos.js',
                     'tests/2D/collision/collision.js',
                     'tests/2D/collision/sat.js'
                 ],

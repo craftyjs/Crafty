@@ -120,6 +120,56 @@
 
   });
 
+  test("pos", function() {
+    var player = Crafty.e("2D").attr({
+      x: 0,
+      y: 50,
+      w: 100,
+      h: 150
+    });
+
+    var posObject = {};
+
+    player.pos(posObject);
+
+    strictEqual(player.pos()._x, 0, "X value");
+    strictEqual(posObject._x, 0, "X value");
+
+    strictEqual(player.pos()._y, 50, "Y value");
+    strictEqual(posObject._y, 50, "Y value");
+
+    strictEqual(player.pos()._w, 100, "W value");
+    strictEqual(posObject._w, 100, "W value");
+
+    strictEqual(player.pos()._h, 150, "H value");
+    strictEqual(posObject._h, 150, "H value");
+  });
+
+  test("mbr", function() {
+    var player = Crafty.e("2D").attr({
+      x: 0,
+      y: 50,
+      w: 100,
+      h: 150
+    });
+
+    var mbrObject = {};
+
+    player.mbr(mbrObject);
+
+    strictEqual(player.mbr()._x, 0, "X value");
+    strictEqual(mbrObject._x, 0, "X value");
+
+    strictEqual(player.mbr()._y, 50, "Y value");
+    strictEqual(mbrObject._y, 50, "Y value");
+
+    strictEqual(player.mbr()._w, 100, "W value");
+    strictEqual(mbrObject._w, 100, "W value");
+
+    strictEqual(player.mbr()._h, 150, "H value");
+    strictEqual(mbrObject._h, 150, "H value");
+  });
+
   test("circle", function() {
     var player = Crafty.e("2D").attr({
       w: 50,
@@ -377,6 +427,31 @@
     equal(Math.round(e._mbr._y), 0, "_mbr._y is 0");
 
     e.destroy();
+  });
+
+  test("cbr", function() {
+    var player = Crafty.e("2D, Collision").attr({
+      x: 0,
+      y: 50,
+      w: 100,
+      h: 150
+    });
+
+    var cbrObject = {};
+
+    player.cbr(cbrObject);
+
+    strictEqual(player.cbr()._x, 0, "X value");
+    strictEqual(cbrObject._x, 0, "X value");
+
+    strictEqual(player.cbr()._y, 50, "Y value");
+    strictEqual(cbrObject._y, 50, "Y value");
+
+    strictEqual(player.cbr()._w, 100, "W value");
+    strictEqual(cbrObject._w, 100, "W value");
+
+    strictEqual(player.cbr()._h, 150, "H value");
+    strictEqual(cbrObject._h, 150, "H value");
   });
 
   test("Hitboxes outside of entities (CBR)", function() {

@@ -552,12 +552,12 @@ Crafty.c("2D", {
      * @comp 2D
      * @sign public Object .pos([Object pos])
      * @param pos - an object to use as output
+     * @returns an object with `_x`, `_y`, `_w`, and `_h` properties; if an object is passed in, it will be reused rather than creating a new object.
      *
-     * @returns An object with this entity's `_x`, `_y`, `_w`, and `_h` values. 
-     *          If an object is passed in, it will be reused rather than creating a new object.
+     * Return an object containing a copy of this entity's bounds (`_x`, `_y`, `_w`, and `_h` values).
      *
-     * @note The keys have an underscore prefix. This is due to the x, y, w, h
-     * properties being setters and getters that wrap the underlying properties with an underscore (_x, _y, _w, _h).
+     * @note The keys have an underscore prefix. This is due to the x, y, w, h properties
+     * being setters and getters that wrap the underlying properties with an underscore (_x, _y, _w, _h).
      */
     pos: function (pos) {
         pos = pos || {};
@@ -571,15 +571,24 @@ Crafty.c("2D", {
     /**@
      * #.mbr
      * @comp 2D
-     * @sign public Object .mbr()
-     * Returns the minimum bounding rectangle. If there is no rotation
-     * on the entity it will return the rect.
+     * @sign public Object .mbr([Object mbr])
+     * @param mbr - an object to use as output
+     * @returns an object with `_x`, `_y`, `_w`, and `_h` properties; if an object is passed in, it will be reused rather than creating a new object.
+     *
+     * Return an object containing a copy of this entity's minimum bounding rectangle.
+     * The MBR encompasses a rotated entity's bounds.
+     * If there is no rotation on the entity it will return its bounds (`.pos()`) instead.
+     *
+     * @note The keys have an underscore prefix. This is due to the x, y, w, h properties
+     * being setters and getters that wrap the underlying properties with an underscore (_x, _y, _w, _h).
+     *
+     * @see 2D.pos
      */
     mbr: function (mbr) {
         mbr = mbr || {};
-		if (!this._mbr) {
-			return this.pos(mbr);
-		} else {
+        if (!this._mbr) {
+            return this.pos(mbr);
+        } else {
             mbr._x = (this._mbr._x);
             mbr._y = (this._mbr._y);
             mbr._w = (this._mbr._w);
@@ -1282,6 +1291,7 @@ var __motionVector = function(self, prefix, setter, vector) {
 
     return vector;
 };
+
 
 /**@
  * #AngularMotion
