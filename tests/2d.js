@@ -653,6 +653,35 @@
     ent.destroy();
   });
 
+  test("Motion - CCDBR", function() {
+    var ent = Crafty.e("2D, Motion")
+      .attr({x: 0, y:0, w: 10, h: 10});
+    var ccdbr, ccdbr2;
+
+    ent._dx = 10; ent.x = 10;
+    ent._dy = -5; ent.y = -5;
+    ccdbr = ent.ccdbr();
+    strictEqual(ccdbr._x, 0, "tunneling rectangle property matches expected value");
+    strictEqual(ccdbr._w, 20, "tunneling rectangle property matches expected value");
+    strictEqual(ccdbr._y, -5, "tunneling rectangle property matches expected value");
+    strictEqual(ccdbr._h, 15, "tunneling rectangle property matches expected value");
+
+    ent._dx = -25; ent.x = -15;
+    ent._dy = 50; ent.y = 45;
+    ccdbr2 = ent.ccdbr(ccdbr);
+    strictEqual(ccdbr._x, -15, "tunneling rectangle property matches expected value");
+    strictEqual(ccdbr._w, 35, "tunneling rectangle property matches expected value");
+    strictEqual(ccdbr._y, -5, "tunneling rectangle property matches expected value");
+    strictEqual(ccdbr._h, 60, "tunneling rectangle property matches expected value");
+
+    strictEqual(ccdbr2._x, ccdbr._x, "object was reused");
+    strictEqual(ccdbr2._y, ccdbr._y, "object was reused");
+    strictEqual(ccdbr2._w, ccdbr._w, "object was reused");
+    strictEqual(ccdbr2._h, ccdbr._h, "object was reused");
+
+    ent.destroy();
+  });
+
   test("Motion - changing vector", function() {
     var Vector2D = Crafty.math.Vector2D;
     var zero = new Vector2D();

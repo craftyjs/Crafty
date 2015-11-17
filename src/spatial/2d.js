@@ -1643,6 +1643,40 @@ Crafty.c("Motion", {
         return this._acceleration;
     },
 
+    /**@
+     * #.ccdbr
+     * @comp Motion
+     * @sign public Object .ccdbr([Object ccdbr])
+     * @param ccdbr - an object to use as output
+     * @returns an object with `_x`, `_y`, `_w`, and `_h` properties; if an object is passed in, it will be reused rather than creating a new object.
+     *
+     * Return an object containing the entity's continuous collision detection bounding rectangle.
+     * The CCDBR encompasses the motion delta of the entity's bounding rectangle since last frame.
+     * The CCDBR is minimal if the entity moved on only one axis since last frame, however it encompasses a non-minimal region if it moved on both axis.
+     * For further details, refer to [FAQ#Tunneling](https://github.com/craftyjs/Crafty/wiki/Crafty-FAQ-%28draft%29#why-are-my-bullets-passing-through-other-entities-without-registering-hits).
+     *
+     * @note The keys have an underscore prefix. This is due to the x, y, w, h properties
+     * being setters and getters that wrap the underlying properties with an underscore (_x, _y, _w, _h).
+     *
+     * @see Collision.cbr, Motion.motionDelta
+     */
+    ccdbr: function (ccdbr) {
+        var pos = this._cbr || this._mbr || this,
+            dx = this._dx,
+            dy = this._dy,
+            ccdX = 0, ccdY = 0,
+            ccdW = dx > 0 ? (ccdX = dx) : -dx,
+            ccdH = dy > 0 ? (ccdY = dy) : -dy;
+
+        ccdbr = ccdbr || {};
+        ccdbr._x = pos._x - ccdX;
+        ccdbr._y = pos._y - ccdY;
+        ccdbr._w = pos._w + ccdW;
+        ccdbr._h = pos._h + ccdH;
+
+        return ccdbr;
+    },
+
     /*
      * s += v * Δt + (0.5 * a) * Δt * Δt
      * v += a * Δt
