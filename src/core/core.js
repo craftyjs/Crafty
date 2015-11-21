@@ -193,18 +193,40 @@ Crafty.fn = Crafty.prototype = {
      * @sign public this .setName(String name)
      * @param name - A human readable name for debugging purposes.
      *
+     * Set a human readable name for debugging purposes.
+     *
      * @example
      * ~~~
-     * this.setName("Player");
+     * var ent = Crafty.e().setName("Player");
      * ~~~
+     *
+     * @see Crafty Core#.getName
      */
     setName: function (name) {
         var entityName = String(name);
-
         this._entityName = entityName;
-
         this.trigger("NewEntityName", entityName);
         return this;
+    },
+
+    /**@
+     * #.getName
+     * @comp Crafty Core
+     * @sign public this .getName(String name)
+     * @returns A human readable name for debugging purposes.
+     *
+     * Get the human readable name for debugging purposes.
+     *
+     * @example
+     * ~~~
+     * var ent = Crafty.e().setName("Player");
+     * var name = ent.getName();
+     * ~~~
+     *
+     * @see Crafty Core#.setName
+     */
+    getName: function (name) {
+        return this._entityName;
     },
 
     /**@
