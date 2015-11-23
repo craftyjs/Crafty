@@ -76,6 +76,37 @@
     strictEqual(destroyFlag, true, "Destroy flag true on destruction");
   });
 
+  test("name", function() {
+    var counter = 0;
+    var player = Crafty.e().bind("NewEntityName", function() {
+      counter++;
+    });
+
+    player.one("NewEntityName", function(name) {
+      strictEqual(name, "Player");
+    });
+    player.setName("Player");
+    strictEqual(player.getName(), "Player");
+
+    player.one("NewEntityName", function(name) {
+      strictEqual(name, "Player2");
+    });
+    player.setName("Player2");
+    strictEqual(player.getName(), "Player2");
+
+
+    var player3 = Crafty.e().one("NewEntityName", function(name) {
+      counter++;
+      strictEqual(name, "Player3");
+    });
+    player3.setName("Player3");
+    strictEqual(player3.getName(), "Player3");
+
+
+    strictEqual(player.getName(), "Player2", "other entity's name didn't change after changing another entity's name");
+    strictEqual(counter, 3, "correct number of events fired");
+  });
+
   test("attr", function() {
     var first = Crafty.e("test");
     first.attr("single", true);
