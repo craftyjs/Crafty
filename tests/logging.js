@@ -4,8 +4,8 @@
   module("Crafty.log");
 
   test("Logging works when console.log is enabled", function(){
-    // console not always available on IE9
-    var logger = console || {};
+    // this makes sure we don't crash on IE9; handle with care as console not always available on IE9
+    var logger = (typeof window !== "undefined") ? (window.console = window.console || {}) : console;
 
     var original_log = logger.log;
     var logged_message = "";
