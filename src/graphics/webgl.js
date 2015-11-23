@@ -216,6 +216,10 @@ Crafty.c("WebGL", {
     remove: function(){
         this._changed = true;
         this.unbind(this._glChange);
+        // Webgl components need to be removed from their gl program
+        if (this.program) {
+            this.program.unregisterEntity(this);
+        }
     },
 
     _glChange: function(){
