@@ -1,16 +1,13 @@
 require("coffee-script");
-var fs = require('fs');
 var open = require("open");
 
 module.exports = function (grunt) {
-    var pkg = grunt.file.readJSON('package.json');
-    var version = pkg.version;
-    var banner =    '/**\n' +
-                    ' * <%= pkg.name %> <%= pkg.version %>\n' +
-                    ' * <%= pkg.author.url %>\n *\n' +
-                    ' * Copyright <%= grunt.template.today("yyyy") %>, <%= pkg.author.name %>\n' +
-                    ' * Dual licensed under the MIT or GPL licenses.\n' +
-                    ' */\n\n';
+    var banner = '/**\n' +
+                ' * <%= pkg.name %> <%= pkg.version %>\n' +
+                ' * <%= pkg.author.url %>\n *\n' +
+                ' * Copyright <%= grunt.template.today("yyyy") %>, <%= pkg.author.name %>\n' +
+                ' * Dual licensed under the MIT or GPL licenses.\n' +
+                ' */\n\n';
 
     var docGen = function() {
         var outputFile = "./build/api.json";
@@ -48,6 +45,15 @@ module.exports = function (grunt) {
                     banner: banner
                 },
                 files: {
+                    src: ['dist/crafty.js']
+                }
+            },
+            debug: {
+                options: {
+                    position: 'top',
+                    banner: banner
+                },
+                files: {
                     src: ['crafty.js']
                 }
             }
@@ -56,7 +62,7 @@ module.exports = function (grunt) {
         browserify: {
             dist: {
                 files: {
-                    'crafty.js': ['src/crafty.js']
+                    'dist/crafty.js': ['src/crafty.js']
                 },
                 options: {
                     transform: ['brfs']
@@ -75,7 +81,7 @@ module.exports = function (grunt) {
 
 
         watch: {
-            files: ['src/*.js'],
+            files: ['src/*.js', 'src/**/*.js'],
             tasks: ['build:dev']
         },
 
@@ -84,8 +90,8 @@ module.exports = function (grunt) {
                 banner: banner
             },
             build: {
-                src: 'crafty.js',
-                dest: 'crafty-min.js'
+                src: 'dist/crafty.js',
+                dest: 'dist/crafty-min.js'
             }
         },
 
@@ -282,15 +288,28 @@ module.exports = function (grunt) {
     });
 
 
-    grunt.registerTask('version', 'Takes the version into src/version.js', function() {
-        fs.writeFileSync('src/version.js', 'module.exports = "' + version + '";');
+    grunt.registerTask('version', 'Propagates version changes', function() {
+        var pkg = grunt.config.get('pkg');
+        var version = grunt.option('crafty_version');
+        if (!version) {
+            grunt.warn("No command-line argument 'crafty_version' specified. Rerun the task with '--crafty_version=X.X.X'.");
+            version = pkg.version;
+        }
+        if (version === pkg.version) {
+            grunt.warn("Command-line argument 'crafty_version' is same as previous release version.");
+        }
+        pkg.version = version;
+        grunt.config.set('pkg', pkg);
+
+        grunt.file.write('package.json', JSON.stringify(pkg, null, 2));
+        grunt.file.write('src/core/version.js', 'module.exports = "' + version + '";');
     });
 
     // Build development
-    grunt.registerTask('build:dev', ['browserify:debug', 'usebanner']);
+    grunt.registerTask('build:dev', ['browserify:debug', 'usebanner:debug']);
 
     // Build release
-    grunt.registerTask('build:release', ['browserify:dist', 'usebanner']);
+    grunt.registerTask('build:release', ['browserify:dist', 'usebanner:dist']);
 
     // Building the documentation
     grunt.registerTask('api', "Generate api documentation", docGen);
