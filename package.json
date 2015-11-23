@@ -47,7 +47,8 @@
     "node-jsx": "^0.13.3",
     "open": "0.0.5",
     "react": "^0.13.3",
-    "grunt-node-qunit": "^2.0.2"
+    "grunt-node-qunit": "^2.0.2",
+    "grunt-saucelabs": "~8.6.1"
   },
   "browserify": {
     "transform": [
