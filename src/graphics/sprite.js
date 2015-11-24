@@ -198,10 +198,6 @@ Crafty.c("Sprite", {
 
     remove: function(){
         this.unbind("Draw", this._drawSprite);
-        // Webgl components need to be removed from their gl program
-        if (this.program) {
-            this.program.unregisterEntity(this);
-        }
     },
 
     _drawSprite: function(e){
