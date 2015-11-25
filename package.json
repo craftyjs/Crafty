@@ -44,13 +44,14 @@
     "grunt-contrib-uglify": "^0.5.1",
     "grunt-contrib-watch": "^0.6.1",
     "grunt-jsvalidate": "^0.2.2",
+    "grunt-node-qunit": "^2.0.2",
+    "grunt-saucelabs": "~8.6.1",
     "highlight.js": "^8.6.0",
     "marked": "^0.3.3",
     "node-jsx": "^0.13.3",
     "open": "0.0.5",
     "react": "^0.13.3",
-    "grunt-node-qunit": "^2.0.2",
-    "grunt-saucelabs": "~8.6.1"
+    "semver": "^5.1.0"
   },
   "browserify": {
     "transform": [
