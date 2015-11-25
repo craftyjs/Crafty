@@ -792,7 +792,7 @@ Crafty.fn = Crafty.prototype = {
      * The first argument is the event name to trigger and the optional
      * second argument is the arbitrary event data. This can be absolutely anything.
      *
-     * Unlike DOM events, Crafty events are exectued synchronously.
+     * Unlike DOM events, Crafty events are executed synchronously.
      */
     trigger: function (event, data) {
         //  To learn how the event system functions, see the comments for Crafty._callbackMethods
