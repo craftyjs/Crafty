@@ -115,26 +115,7 @@ module.exports = function (grunt) {
 
         'node-qunit': {
             all: {
-                deps: 'tests/lib/helperFunctions.js',
                 code: 'tests/index_headless.js',
-                tests: [
-                    'tests/common.js',
-                    'tests/core.js',
-                    'tests/2d.js',
-                    'tests/logging.js',
-                    'tests/controls.js',
-                    'tests/events.js',
-                    //TODO add these once isometric adapted:
-                    //'tests/isometric.js',
-                    'tests/math.js',
-                    'tests/model.js',
-                    'tests/storage.js',
-                    'tests/systems.js',
-                    'tests/time.js',
-                    'tests/tween.js',
-                    'tests/2D/collision/collision.js',
-                    'tests/2D/collision/sat.js'
-                ],
                 setup: {
                     log: {
                         errors: true,
@@ -142,11 +123,11 @@ module.exports = function (grunt) {
                         globalSummary: true
                     }
                 },
-                done: function(err, res) {
+                callback: function(err, res) {
                     if (!err)
-                        grunt.log.ok("NODE TESTS SUCCESSFUL");
+                        grunt.log.ok("Node tests successful!");
                     else
-                        grunt.log.error("NODE TESTS FAILED");
+                        grunt.log.error("Node tests failed!");
                 }
             }
         },
@@ -254,6 +235,10 @@ module.exports = function (grunt) {
 
         connect: {
             server: {
+                options: {
+                    port: 8000,
+                    base: '.'
+                }
             }
         },
 
@@ -326,5 +311,4 @@ module.exports = function (grunt) {
 
     grunt.registerTask('api-server', "View dynamically generated docs", runApiServer);
     grunt.registerTask('view-api', ['api', 'api-server'] );
-
 };
