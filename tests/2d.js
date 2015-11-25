@@ -120,6 +120,56 @@
 
   });
 
+  test("pos", function() {
+    var player = Crafty.e("2D").attr({
+      x: 0,
+      y: 50,
+      w: 100,
+      h: 150
+    });
+
+    var posObject = {};
+
+    player.pos(posObject);
+
+    strictEqual(player.pos()._x, 0, "X value");
+    strictEqual(posObject._x, 0, "X value");
+
+    strictEqual(player.pos()._y, 50, "Y value");
+    strictEqual(posObject._y, 50, "Y value");
+
+    strictEqual(player.pos()._w, 100, "W value");
+    strictEqual(posObject._w, 100, "W value");
+
+    strictEqual(player.pos()._h, 150, "H value");
+    strictEqual(posObject._h, 150, "H value");
+  });
+
+  test("mbr", function() {
+    var player = Crafty.e("2D").attr({
+      x: 0,
+      y: 50,
+      w: 100,
+      h: 150
+    });
+
+    var mbrObject = {};
+
+    player.mbr(mbrObject);
+
+    strictEqual(player.mbr()._x, 0, "X value");
+    strictEqual(mbrObject._x, 0, "X value");
+
+    strictEqual(player.mbr()._y, 50, "Y value");
+    strictEqual(mbrObject._y, 50, "Y value");
+
+    strictEqual(player.mbr()._w, 100, "W value");
+    strictEqual(mbrObject._w, 100, "W value");
+
+    strictEqual(player.mbr()._h, 150, "H value");
+    strictEqual(mbrObject._h, 150, "H value");
+  });
+
   test("circle", function() {
     var player = Crafty.e("2D").attr({
       w: 50,
@@ -379,6 +429,31 @@
     e.destroy();
   });
 
+  test("cbr", function() {
+    var player = Crafty.e("2D, Collision").attr({
+      x: 0,
+      y: 50,
+      w: 100,
+      h: 150
+    });
+
+    var cbrObject = {};
+
+    player.cbr(cbrObject);
+
+    strictEqual(player.cbr()._x, 0, "X value");
+    strictEqual(cbrObject._x, 0, "X value");
+
+    strictEqual(player.cbr()._y, 50, "Y value");
+    strictEqual(cbrObject._y, 50, "Y value");
+
+    strictEqual(player.cbr()._w, 100, "W value");
+    strictEqual(cbrObject._w, 100, "W value");
+
+    strictEqual(player.cbr()._h, 150, "H value");
+    strictEqual(cbrObject._h, 150, "H value");
+  });
+
   test("Hitboxes outside of entities (CBR)", function() {
     var poly = new Crafty.polygon([
       -8, 6,
@@ -574,6 +649,35 @@
     equal(ent.velocity().y, v1.y, "vy should match calculated");
     // ok(ent.velocity().equals(v1), "linear velocity should match calculated");
     strictEqual(ent.vrotation, v1_r, "angular velocity should match calculated");
+
+    ent.destroy();
+  });
+
+  test("Motion - CCDBR", function() {
+    var ent = Crafty.e("2D, Motion")
+      .attr({x: 0, y:0, w: 10, h: 10});
+    var ccdbr, ccdbr2;
+
+    ent._dx = 10; ent.x = 10;
+    ent._dy = -5; ent.y = -5;
+    ccdbr = ent.ccdbr();
+    strictEqual(ccdbr._x, 0, "tunneling rectangle property matches expected value");
+    strictEqual(ccdbr._w, 20, "tunneling rectangle property matches expected value");
+    strictEqual(ccdbr._y, -5, "tunneling rectangle property matches expected value");
+    strictEqual(ccdbr._h, 15, "tunneling rectangle property matches expected value");
+
+    ent._dx = -25; ent.x = -15;
+    ent._dy = 50; ent.y = 45;
+    ccdbr2 = ent.ccdbr(ccdbr);
+    strictEqual(ccdbr._x, -15, "tunneling rectangle property matches expected value");
+    strictEqual(ccdbr._w, 35, "tunneling rectangle property matches expected value");
+    strictEqual(ccdbr._y, -5, "tunneling rectangle property matches expected value");
+    strictEqual(ccdbr._h, 60, "tunneling rectangle property matches expected value");
+
+    strictEqual(ccdbr2._x, ccdbr._x, "object was reused");
+    strictEqual(ccdbr2._y, ccdbr._y, "object was reused");
+    strictEqual(ccdbr2._w, ccdbr._w, "object was reused");
+    strictEqual(ccdbr2._h, ccdbr._h, "object was reused");
 
     ent.destroy();
   });
@@ -916,6 +1020,183 @@
     strictEqual(player._groundComp, "platform", "ground component didn't change after reactivating");
     strictEqual(player.acceleration().y, player._gravityConst, "acceleration should match gravity constant after activating gravity");
     strictEqual(player.velocity().y, 0, "velocity should be still be zero immediately after deactivating gravity");
+  });
+
+
+  test("Supportable - Tunneling", function() {
+    var landedCount = 0,
+        liftedCount = 0,
+        fps = Crafty.timer.FPS(),
+        ground;
+
+    var player = Crafty.e("2D, Supportable, Motion")
+        .attr({ x: 10, y: 0, w: 10, h: 10 }) // x-extent [x, x+10] y-extent [y, y+10]
+        .bind("LiftedOffGround", function() {
+          liftedCount++;
+        })
+        .bind("LandedOnGround", function() {
+          landedCount++;
+        })
+        .startGroundDetection("Floor")
+        .preventGroundTunneling();
+
+
+    /*****************************************
+     * VERTICAL TUNNELING TESTS
+     *****************************************/
+    ground = Crafty.e("2D, Floor")
+                  .attr({ x: 0, y: 100, w: 30, h: 1 }); // x-extent [0, 30] y-extent [100, 101]
+
+    // slow fall velocity does not land player on far away ground
+    player.y = 0;
+    player.vy = 5 * fps;
+    Crafty.timer.simulateFrames(1); // player did not land
+    strictEqual(player.dy, 5, "player should have moved for an expected amount");
+    strictEqual(player.y + player.h, 5+10, "player should be at expected position");
+    ok(player.y + player.h < ground.y, "player should not have landed on ground");
+    player.y = 0;
+    player.resetMotion();
+    Crafty.timer.simulateFrames(1); // player did not lift
+
+    // fast fall velocity lands player on far away ground, does not tunnel player through ground
+    player.y = 0;
+    player.vy = 1e6 * fps;
+    Crafty.timer.simulateFrames(1); // landedCount++
+    strictEqual(player.dy, 1e6, "player should have moved for an expected amount");
+    strictEqual(player.y + player.h, ground.y, "player should have landed on ground");
+    player.y = 0;
+    player.resetMotion();
+    Crafty.timer.simulateFrames(1); // liftedCount++
+
+
+    // slow fall velocity lands player directly above ground
+    player.y = 90;
+    player.vy = 5 * fps;
+    Crafty.timer.simulateFrames(1); // landedCount++
+    strictEqual(player.dy, 5, "player should have moved for an expected amount");
+    strictEqual(player.y + player.h, ground.y, "player should have landed on ground");
+    player.y = 0;
+    player.resetMotion();
+    Crafty.timer.simulateFrames(1); // liftedCount++
+
+    // fast fall velocity lands player directly above ground, does not tunnel player through ground
+    player.y = 90;
+    player.vy = 1e6 * fps;
+    Crafty.timer.simulateFrames(1); // landedCount++
+    strictEqual(player.dy, 1e6, "player should have moved for an expected amount");
+    strictEqual(player.y + player.h, ground.y, "player should have landed on ground");
+    player.y = 0;
+    player.resetMotion();
+    Crafty.timer.simulateFrames(1); // liftedCount++
+
+
+    // slow fall velocity lands player while intersecting ground
+    player.y = 91;
+    player.vy = 5 * fps;
+    Crafty.timer.simulateFrames(1); // landedCount++
+    strictEqual(player.dy, 5, "player should have moved for an expected amount");
+    strictEqual(player.y + player.h, ground.y, "player should have landed on ground");
+    player.y = 0;
+    player.resetMotion();
+    Crafty.timer.simulateFrames(1); // liftedCount++
+
+    // fast fall velocity lands player while intersecting ground, does not tunnel player through ground
+    player.y = 91;
+    player.vy = 1e6 * fps;
+    Crafty.timer.simulateFrames(1); // landedCount++
+    strictEqual(player.dy, 1e6, "player should have moved for an expected amount");
+    strictEqual(player.y + player.h, ground.y, "player should have landed on ground");
+    player.y = 0;
+    player.resetMotion();
+    Crafty.timer.simulateFrames(1); // liftedCount++
+
+
+    // slow fall velocity lands player while intersecting ground
+    player.y = 101;
+    player.vy = 5 * fps;
+    Crafty.timer.simulateFrames(1); // player did not land
+    strictEqual(player.dy, 5, "player should have moved for an expected amount");
+    strictEqual(player.y + player.h, 101+5+10, "player should be at expected position");
+    ok(player.y > ground.y + ground.h, "player should not have landed on ground");
+    player.y = 0;
+    player.resetMotion();
+    Crafty.timer.simulateFrames(1); // player did not lift
+
+    // fast fall velocity lands player while intersecting ground, does not tunnel player through ground
+    player.y = 101;
+    player.vy = 1e6 * fps;
+    Crafty.timer.simulateFrames(1); // player did not land
+    strictEqual(player.dy, 1e6, "player should have moved for an expected amount");
+    strictEqual(player.y + player.h, 101+1e6+10, "player should be at expected position");
+    ok(player.y > ground.y + ground.h, "player should not have landed on ground");
+    player.y = 0;
+    player.resetMotion();
+    Crafty.timer.simulateFrames(1);// player did not lift
+
+    /*****************************************
+     * HORIZONTAL TUNNELING TESTS
+     *****************************************/
+    ground = Crafty.e("2D, Floor")
+                  .attr({ x: 100, y: 0, w: 1, h: 30 }); // x-extent [100, 101] y-extent [0, 30]
+
+    // slow horizontal velocity does not land player on far away ground
+    player.x = 0;
+    player.vx = 5 * fps;
+    Crafty.timer.simulateFrames(1); // player did not land
+    strictEqual(player.dx, 5, "player should have moved for an expected amount");
+    strictEqual(player.x + player.w, 5+10, "player should be at expected position");
+    ok(player.x + player.w < ground.x, "player should not have landed on ground");
+    player.x = 0;
+    player.resetMotion();
+    Crafty.timer.simulateFrames(1); // player did not lift
+
+    // fast horizontal velocity lands player on far away ground, does not tunnel player through ground
+    player.x = 0;
+    player.vx = 1e6 * fps;
+    Crafty.timer.simulateFrames(1); // landedCount++
+    strictEqual(player.dx, 1e6, "player should have moved for an expected amount");
+    strictEqual(player.x, ground.x + ground.w - 1, "player should have landed on ground");
+    player.x = 0;
+    player.resetMotion();
+    Crafty.timer.simulateFrames(1); // liftedCount++
+
+    /*****************************************
+     * DIAGONAL TUNNELING TESTS
+     *****************************************/
+    ground = Crafty.e("2D, Floor")
+                  .attr({ x: 99, y: 99, w: 2, h: 2 }); // x-extent [99, 101] y-extent [99, 101]
+
+    // slow diagonal velocity does not land player on far away ground
+    player.x = 150; player.vx = -5 * fps;
+    player.y = 150; player.vy = -5 * fps;
+    Crafty.timer.simulateFrames(1); // player did not land
+    strictEqual(player.dx, -5, "player should have moved for an expected amount");
+    strictEqual(player.dy, -5, "player should have moved for an expected amount");
+    strictEqual(player.x, 150-5, "player should be at expected position");
+    strictEqual(player.y, 150-5, "player should be at expected position");
+    ok(ground.x + ground.w < player.x, "player should not have landed on ground");
+    ok(ground.y + ground.h < player.y, "player should not have landed on ground");
+    player.x = 0;
+    player.y = 0;
+    player.resetMotion();
+    Crafty.timer.simulateFrames(1); // player did not lift
+
+    // fast diagonal velocity lands player on far away ground, does not tunnel player through ground
+    player.x = 150; player.vx = -100 * fps;
+    player.y = 150; player.vy = -100 * fps;
+    Crafty.timer.simulateFrames(1); // landedCount++
+    strictEqual(player.dx, -100, "player should have moved for an expected amount");
+    strictEqual(player.dy, -100, "player should have moved for an expected amount");
+    strictEqual(player.x + player.w, ground.x + 1, "player should have landed on ground");
+    strictEqual(player.y + player.h, ground.y, "player should have landed on ground");
+    player.x = 0;
+    player.y = 0;
+    player.resetMotion();
+    Crafty.timer.simulateFrames(1); // liftedCount++
+
+
+    strictEqual(landedCount, 7, "player should have landed correct number of times");
+    strictEqual(liftedCount, 7, "player should have lifted correct number of times");
   });
 
 

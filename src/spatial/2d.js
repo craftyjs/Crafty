@@ -552,12 +552,12 @@ Crafty.c("2D", {
      * @comp 2D
      * @sign public Object .pos([Object pos])
      * @param pos - an object to use as output
+     * @returns an object with `_x`, `_y`, `_w`, and `_h` properties; if an object is passed in, it will be reused rather than creating a new object.
      *
-     * @returns An object with this entity's `_x`, `_y`, `_w`, and `_h` values. 
-     *          If an object is passed in, it will be reused rather than creating a new object.
+     * Return an object containing a copy of this entity's bounds (`_x`, `_y`, `_w`, and `_h` values).
      *
-     * @note The keys have an underscore prefix. This is due to the x, y, w, h
-     * properties being setters and getters that wrap the underlying properties with an underscore (_x, _y, _w, _h).
+     * @note The keys have an underscore prefix. This is due to the x, y, w, h properties
+     * being setters and getters that wrap the underlying properties with an underscore (_x, _y, _w, _h).
      */
     pos: function (pos) {
         pos = pos || {};
@@ -571,15 +571,24 @@ Crafty.c("2D", {
     /**@
      * #.mbr
      * @comp 2D
-     * @sign public Object .mbr()
-     * Returns the minimum bounding rectangle. If there is no rotation
-     * on the entity it will return the rect.
+     * @sign public Object .mbr([Object mbr])
+     * @param mbr - an object to use as output
+     * @returns an object with `_x`, `_y`, `_w`, and `_h` properties; if an object is passed in, it will be reused rather than creating a new object.
+     *
+     * Return an object containing a copy of this entity's minimum bounding rectangle.
+     * The MBR encompasses a rotated entity's bounds.
+     * If there is no rotation on the entity it will return its bounds (`.pos()`) instead.
+     *
+     * @note The keys have an underscore prefix. This is due to the x, y, w, h properties
+     * being setters and getters that wrap the underlying properties with an underscore (_x, _y, _w, _h).
+     *
+     * @see 2D.pos
      */
     mbr: function (mbr) {
         mbr = mbr || {};
-		if (!this._mbr) {
-			return this.pos(mbr);
-		} else {
+        if (!this._mbr) {
+            return this.pos(mbr);
+        } else {
             mbr._x = (this._mbr._x);
             mbr._y = (this._mbr._y);
             mbr._w = (this._mbr._w);
@@ -952,6 +961,7 @@ Crafty.c("Supportable", {
      */
     _ground: null,
     _groundComp: null,
+    _preventGroundTunneling: false,
 
     /**@
      * #.canLand
@@ -1026,19 +1036,48 @@ Crafty.c("Supportable", {
         return this;
     },
 
+    /*@
+     * #.preventGroundTunneling
+     * @comp Supportable
+     * @sign this .preventGroundTunneling([Boolean enable])
+     * @param enable - Boolean indicating whether to enable continous collision detection or not; if omitted defaults to true
+     *
+     * Prevent entity from falling through thin ground entities at high speeds. This setting is disabled by default.
+     * This is performed by approximating continous collision detection, which may impact performance negatively.
+     * For further details, refer to [FAQ#Tunneling](https://github.com/craftyjs/Crafty/wiki/Crafty-FAQ-%28draft%29#why-are-my-bullets-passing-through-other-entities-without-registering-hits).
+     *
+     * @see Motion.ccdbr
+     */
+    preventGroundTunneling: function(enable) {
+        if (typeof enable === 'undefined')
+            enable = true;
+        if (enable)
+            this.requires("Motion");
+        this._preventGroundTunneling = enable;
+
+        return this;
+    },
+
     _detectGroundTick: function() {
         var groundComp = this._groundComp,
             ground = this._ground,
-            overlap = Crafty.rectManager.overlap;
+            overlap = Crafty.rectManager.overlap,
+            area;
 
-        var pos = this._cbr || this._mbr || this,
+        if (!this._preventGroundTunneling) {
+            var pos = this._cbr || this._mbr || this;
             area = this.__area;
-        area._x = pos._x;
-        area._y = pos._y + 1; // Increase by 1 to make sure map.search() finds the floor
-        area._w = pos._w;
-        area._h = pos._h;
+            area._x = pos._x;
+            area._y = pos._y;
+            area._w = pos._w;
+            area._h = pos._h;
+        } else {
+            area = this.ccdbr(this.__area);
+        }
+        area._h++; // Increase by 1 to make sure map.search() finds the floor
         // Decrease width by 1px from left and 1px from right, to fall more gracefully
         // area._x++; area._w--;
+
 
         // check if we lift-off
         if (ground) {
@@ -1066,9 +1105,15 @@ Crafty.c("Supportable", {
                     this.trigger("CheckLanding", obj); // is entity allowed to land?
                     if (this.canLand) {
                         this._ground = ground = obj;
-                        this.y = obj._y - this._h; // snap entity to ground object
-                        this.trigger("LandedOnGround", ground); // collision with ground was detected for first time
 
+                        // snap entity to ground object
+                        this.y = ground._y - this._h;
+                        if (this._x > ground._x + ground._w)
+                            this.x = ground._x + ground._w - 1;
+                        else if (this._x + this._w < ground._x)
+                            this.x = ground._x - this._w + 1;
+
+                        this.trigger("LandedOnGround", ground); // collision with ground was detected for first time
                         break;
                     }
                 }
@@ -1282,6 +1327,7 @@ var __motionVector = function(self, prefix, setter, vector) {
 
     return vector;
 };
+
 
 /**@
  * #AngularMotion
@@ -1631,6 +1677,40 @@ Crafty.c("Motion", {
      */
     acceleration: function() {
         return this._acceleration;
+    },
+
+    /**@
+     * #.ccdbr
+     * @comp Motion
+     * @sign public Object .ccdbr([Object ccdbr])
+     * @param ccdbr - an object to use as output
+     * @returns an object with `_x`, `_y`, `_w`, and `_h` properties; if an object is passed in, it will be reused rather than creating a new object.
+     *
+     * Return an object containing the entity's continuous collision detection bounding rectangle.
+     * The CCDBR encompasses the motion delta of the entity's bounding rectangle since last frame.
+     * The CCDBR is minimal if the entity moved on only one axis since last frame, however it encompasses a non-minimal region if it moved on both axis.
+     * For further details, refer to [FAQ#Tunneling](https://github.com/craftyjs/Crafty/wiki/Crafty-FAQ-%28draft%29#why-are-my-bullets-passing-through-other-entities-without-registering-hits).
+     *
+     * @note The keys have an underscore prefix. This is due to the x, y, w, h properties
+     * being setters and getters that wrap the underlying properties with an underscore (_x, _y, _w, _h).
+     *
+     * @see Collision.cbr, Motion.motionDelta
+     */
+    ccdbr: function (ccdbr) {
+        var pos = this._cbr || this._mbr || this,
+            dx = this._dx,
+            dy = this._dy,
+            ccdX = 0, ccdY = 0,
+            ccdW = dx > 0 ? (ccdX = dx) : -dx,
+            ccdH = dy > 0 ? (ccdY = dy) : -dy;
+
+        ccdbr = ccdbr || {};
+        ccdbr._x = pos._x - ccdX;
+        ccdbr._y = pos._y - ccdY;
+        ccdbr._w = pos._w + ccdW;
+        ccdbr._h = pos._h + ccdH;
+
+        return ccdbr;
     },
 
     /*

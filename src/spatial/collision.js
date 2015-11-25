@@ -126,6 +126,35 @@ Crafty.c("Collision", {
         return this;
     },
 
+    /**@
+     * #.cbr
+     * @comp Collision
+     * @sign public Object .cbr([Object cbr])
+     * @param cbr - an object to use as output
+     * @returns an object with `_x`, `_y`, `_w`, and `_h` properties; if an object is passed in, it will be reused rather than creating a new object.
+     *
+     * Return an object containing a copy of this entity's collision bounding rectangle.
+     * The CBR encompasses both the entity's custom collision hitbox and its MBR.
+     * If the custom collision hitbox does not sit outside the entity it will return the entity's minimum bounding rectangle (`.mbr()`) instead.
+     *
+     * @note The keys have an underscore prefix. This is due to the x, y, w, h properties
+     * being setters and getters that wrap the underlying properties with an underscore (_x, _y, _w, _h).
+     *
+     * @see 2D.mbr
+     */
+    cbr: function (cbr) {
+        cbr = cbr || {};
+        if (!this._cbr) {
+            return this.mbr(cbr);
+        } else {
+            cbr._x = (this._cbr._x);
+            cbr._y = (this._cbr._y);
+            cbr._w = (this._cbr._w);
+            cbr._h = (this._cbr._h);
+            return cbr;
+        }
+    },
+
     // If the hitbox is set by hand, it might extend beyond the entity.
     // In such a case, we need to track this separately.
     // This function finds a (non-minimal) bounding circle around the hitbox.
