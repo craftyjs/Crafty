@@ -2,6 +2,7 @@ require("coffee-script");
 var open = require("open"),
     semver = require("semver");
 
+
 module.exports = function (grunt) {
     var banner = '/**\n' +
                 ' * <%= pkg.name %> <%= pkg.version %>\n' +
@@ -38,6 +39,8 @@ module.exports = function (grunt) {
     grunt.initConfig({
 
         pkg: grunt.file.readJSON('package.json'),
+
+        supportedBrowsers: grunt.file.readJSON('supported-browsers.json'),
 
         usebanner: {
             release: {
@@ -115,12 +118,13 @@ module.exports = function (grunt) {
             }
         },
 
+
         qunit: {
-            all: ['tests/index.html']
+            browser: ['tests/index.html']
         },
 
         'node-qunit': {
-            all: {
+            node: {
                 code: 'tests/index_headless.js',
                 setup: {
                     log: {
@@ -130,8 +134,8 @@ module.exports = function (grunt) {
                     }
                 },
                 callback: function(err, res) {
-                    if (!err)
-                        grunt.log.ok("Node tests successful!");
+                    if (!err && res.failed === 0)
+                        grunt.log.ok("Node tests successful.");
                     else
                         grunt.log.error("Node tests failed!");
                 }
@@ -139,103 +143,38 @@ module.exports = function (grunt) {
         },
 
         'saucelabs-qunit': {
-            all: {
+            browser: {
                 options: {
                     urls: [ 'http://localhost:8000/tests/index.html' ],
-                    browsers: [
-                        // see http://kangax.github.io/compat-table/es5/
-                        // see https://github.com/mucaho/Mars/blob/master/tools/es5-mobile-compat-table.md
-                        /*
-                         * OLDEST COMPATIBLE BROWSERS
-                         */
-                        // WINDOWS
-                        {
-                            browserName: 'internet explorer',
-                            version: '9.0',
-                            platform: 'Windows 7'
-                        }, {
-                            browserName: 'firefox',
-                            version: '4.0',
-                            platform: 'Windows XP'
-                        }, {
-                            browserName: 'chrome',
-                            version: '26.0', // should be 6
-                            platform: 'Windows XP'
-                        }, {
-                            browserName: 'opera',
-                            version: '12.12',
-                            platform: 'Windows XP'
-                        }, /* { // is not available as target browser currently
-                            browserName: 'safari',
-                            version: '6.0', // should be 5.1
-                            platform: 'Windows 7'
-                        }, */
-
-                        // MAC
-                        {
-                            browserName: 'firefox',
-                            version: '4.0',
-                            platform: 'OS X 10.8'
-                        }, {
-                            browserName: 'chrome',
-                            version: '27.0', // should be 6
-                            platform: 'OS X 10.8'
-                        }, {
-                            browserName: 'safari',
-                            version: '6.0', // should be 5.1
-                            platform: 'OS X 10.8'
-                        },
-
-                        // LINUX
-                        {
-                            browserName: 'firefox',
-                            version: '4.0',
-                            platform: 'Linux'
-                        }, {
-                            browserName: 'chrome',
-                            version: '26.0', // should be 6
-                            platform: 'Linux'
-                        }, {
-                            browserName: 'opera',
-                            version: '12.15',
-                            platform: 'Linux'
-                        },
-
-
-                        // Android
-                        {
-                            browserName: 'android',
-                            version: '4.0', // should be 2.3.3
-                            deviceName: 'Android Emulator',
-                            platform: 'Linux'
-                        },
-                        // PocketMAC
-                        {
-                            browserName: 'iphone',
-                            version: '5.1', // should be 4.3
-                            deviceName: 'iPhone Simulator',
-                            platform: 'OS X 10.10'
-                        }, {
-                            browserName: 'iphone',
-                            version: '5.1', // should be 4.3
-                            deviceName: 'iPad Simulator',
-                            platform: 'OS X 10.10'
-                        }
-                    ],
+                    browsers: '<%= supportedBrowsers %>',
                     testname: "Cross-browser compatibility tests for CraftyJS",
                     build: process.env.TRAVIS_BUILD_NUMBER,
                     tags: [ process.env.TRAVIS_BRANCH ],
+                    identifier: process.env.TRAVIS_JOB_NUMBER,
+                    tunneled: false,
                     'public': 'public',
                     sauceConfig: {
                         "recordVideo": false,
                         "recordScreenshots": true,
                         "disablePopupHandler": true,
-                        //"tunnelIdentifier": process.env.TRAVIS_JOB_NUMBER
+                        "tunnel-identifier": process.env.TRAVIS_JOB_NUMBER,
+                        "tunnelIdentifier": process.env.TRAVIS_JOB_NUMBER
                     },
                     throttled: 5,
-                    'max-duration': 300,
+                    'max-duration': 480,
                     statusCheckAttempts: 150
                 }
+            }
+        },
+
+        webdriver: {
+            options: {
+            },
+            local: {
+                configFile: './tests/webdriver/index-webdriver-local.js'
+            },
+            cloud: {
+                configFile: './tests/webdriver/index-webdriver-cloud.js'
             }
         },
 
@@ -252,11 +191,44 @@ module.exports = function (grunt) {
             api : {
               path: 'http://localhost:8080/',
             },
+        },
+
+        run: {
+            phantomjs: {
+                cmd: require('phantomjs').path,
+                args: [ '--webdriver=4444' ],
+                options: {
+                    quiet: true,
+                    wait: false,
+                    ready: /.*GhostDriver.*running.*/i
+                }
+            }
+        },
+
+        'gh-pages': {
+            options: {
+                silent: true,
+            },
+            'crafty-distro-regression-tests': {
+              options: {
+                repo: 'https://' + process.env.GH_TOKEN + '@github.com/craftyjs/Crafty-Distro.git',
+                branch: 'regression-tests',
+                message: 'Auto-generated commit of Travis build ' + process.env.TRAVIS_BUILD_NUMBER,
+                user: {
+                    name: 'Travis',
+                    email: 'travis@travis-ci.org'
+                },
+                base: 'build/webdriver/failed'
+                //add: false,
+                //only: ['**/*', '!README.md']
+              },
+              src: ['**/*.png']
+            }
         }
 
     });
 
-    // Load the plugin that provides the "uglify" task.
+    // Load grunt tasks
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-qunit');
@@ -267,14 +239,9 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-banner');
     grunt.loadNpmTasks('grunt-node-qunit');
     grunt.loadNpmTasks('grunt-saucelabs');
- 
-    grunt.registerTask('check-saucelabs', function() {
-        // execute this task only in travis and only if open sauce lab credentials are available
-        if (process.env.CI && process.env.SAUCE_USERNAME && process.env.SAUCE_ACCESS_KEY) {
-            grunt.task.run('connect');
-            grunt.task.run('saucelabs-qunit');
-        }
-    });
+    grunt.loadNpmTasks('grunt-gh-pages');
+    grunt.loadNpmTasks('grunt-run');
+    grunt.loadNpmTasks('grunt-webdriver');
 
 
     grunt.registerTask('version', 'Propagates version changes', function() {
@@ -294,6 +261,28 @@ module.exports = function (grunt) {
         grunt.file.write('src/core/version.js', 'module.exports = "' + version + '";');
     });
 
+
+    // Run local tests
+    grunt.registerTask('test-local-browser', ['qunit:browser']);
+    grunt.registerTask('test-local-node', ['node-qunit:node']);
+    grunt.registerTask('test-local-webdriver', ['run:phantomjs', 'webdriver:local']);
+    grunt.registerTask('test-local', [
+        'test-local-browser', 'test-local-node', 'test-local-webdriver'
+    ]);
+
+
+    // Run tests in the cloud
+    grunt.registerTask('test-cloud-browser', ['saucelabs-qunit:browser']);
+    grunt.registerTask('test-cloud-webdriver', ['webdriver:cloud']);
+    grunt.registerTask('test-cloud', function() {
+        // execute cloud tests only in travis, while on testing branch, with open sauce lab credentials
+        if (process.env.TRAVIS && process.env.TRAVIS_BRANCH === "testing" &&
+            process.env.SAUCE_USERNAME && process.env.SAUCE_ACCESS_KEY)
+            grunt.task.run('connect', 'test-cloud-browser', 'test-cloud-webdriver');
+    });
+
+
+
     // Build development
     grunt.registerTask('build:dev', ['browserify:dev', 'usebanner:dev']);
     // Build release
@@ -306,7 +295,7 @@ module.exports = function (grunt) {
     // Run only validation and lint
     grunt.registerTask('validate', ['jsvalidate', 'jshint']);
     // Run only test suite
-    grunt.registerTask('test', ['qunit', 'node-qunit', 'check-saucelabs']);
+    grunt.registerTask('test', ['test-local', 'test-cloud']);
 
     // Rebuild, validate and run the test suite
     grunt.registerTask('check', ['build:dev', 'validate', 'test']);
