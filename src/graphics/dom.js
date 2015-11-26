@@ -25,7 +25,7 @@ Crafty.c("DOM", {
     avoidCss3dTransforms: false,
 
     init: function () {
-        var domLayer = Crafty.domLayer;
+        var domLayer = Crafty.s("DomLayer");
         if (!domLayer._div) {
             domLayer.init();
         }

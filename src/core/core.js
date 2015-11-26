@@ -1184,6 +1184,11 @@ Crafty.extend({
             }
         }
 
+        // Define default graphics layers
+        Crafty.s("CanvasLayer", Crafty.canvasLayerObject);
+        Crafty.s("DomLayer", Crafty.domLayerObject);
+        Crafty.s("WebGLLayer", Crafty.webglLayerObject);
+
         Crafty.viewport.init(w, h, stage_elem);
 
         //call all arbitrary functions attached to onload
@@ -1232,7 +1237,7 @@ Crafty.extend({
      *
      * To restart, use `Crafty.init()`.
      * @see Crafty.init
-     */
+     */ 
     stop: function (clearState) {
         Crafty.trigger("CraftyStop", clearState);
 
@@ -1241,17 +1246,17 @@ Crafty.extend({
             // Remove audio
             Crafty.audio.remove();
 
+            //Destroy all systems
+            for (var s in Crafty._systems) {
+                Crafty._systems[s].destroy();
+            }
+
             // Remove the stage element, and re-add a div with the same id
             if (Crafty.stage && Crafty.stage.elem.parentNode) {
                 var newCrStage = document.createElement('div');
                 newCrStage.id = Crafty.stage.elem.id;
                 Crafty.stage.elem.parentNode.replaceChild(newCrStage, Crafty.stage.elem);
             }
-
-            // Reset references to the now destroyed graphics layers
-            delete Crafty.canvasLayer.context;
-            delete Crafty.domLayer._div;
-            delete Crafty.webgl.context;
 
             // reset callbacks, and indicate that prebound functions need to be bound on init again
             Crafty._unbindAll();
