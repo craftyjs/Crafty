@@ -1,5 +1,6 @@
 require("coffee-script");
-var open = require("open");
+var open = require("open"),
+    semver = require("semver");
 
 module.exports = function (grunt) {
     var banner = '/**\n' +
@@ -39,7 +40,7 @@ module.exports = function (grunt) {
         pkg: grunt.file.readJSON('package.json'),
 
         usebanner: {
-            dist: {
+            release: {
                 options: {
                     position: 'top',
                     banner: banner
@@ -48,7 +49,7 @@ module.exports = function (grunt) {
                     src: ['dist/crafty.js']
                 }
             },
-            debug: {
+            dev: {
                 options: {
                     position: 'top',
                     banner: banner
@@ -60,7 +61,7 @@ module.exports = function (grunt) {
         },
 
         browserify: {
-            dist: {
+            release: {
                 files: {
                     'dist/crafty.js': ['src/crafty.js']
                 },
@@ -68,7 +69,7 @@ module.exports = function (grunt) {
                     transform: ['brfs']
                 }
             },
-            debug: {
+            dev: {
                 files: {
                     'crafty.js': ['src/crafty.js']
                 },
@@ -79,9 +80,8 @@ module.exports = function (grunt) {
             }
         },
 
-
         watch: {
-            files: ['src/*.js', 'src/**/*.js'],
+            files: ['src/**/*.js'],
             tasks: ['build:dev']
         },
 
@@ -96,11 +96,17 @@ module.exports = function (grunt) {
         },
 
         jsvalidate: {
-            files: ['crafty.js', 'tests/**/*.js']
+            misc: ['Gruntfile.js'],
+            src: ['src/**/*.js'],
+            tests: ['tests/**/*.js'],
+            dev: ['crafty.js'],
+            release: ['dist/crafty.js', 'dist/crafty-min.js']
         },
 
         jshint: {
-            files: ['Gruntfile.js', 'src/**/*.js', 'tests/**/*.js'],
+            misc: ['Gruntfile.js'],
+            src: ['src/**/*.js'],
+            tests: ['tests/**/*.js'],
             options: {
                 trailing: true,
                 ignores: ['tests/lib/*.js'],
@@ -115,26 +121,7 @@ module.exports = function (grunt) {
 
         'node-qunit': {
             all: {
-                deps: 'tests/lib/helperFunctions.js',
                 code: 'tests/index_headless.js',
-                tests: [
-                    'tests/common.js',
-                    'tests/core.js',
-                    'tests/2d.js',
-                    'tests/logging.js',
-                    'tests/controls.js',
-                    'tests/events.js',
-                    //TODO add these once isometric adapted:
-                    //'tests/isometric.js',
-                    'tests/math.js',
-                    'tests/model.js',
-                    'tests/storage.js',
-                    'tests/systems.js',
-                    'tests/time.js',
-                    'tests/tween.js',
-                    'tests/2D/collision/collision.js',
-                    'tests/2D/collision/sat.js'
-                ],
                 setup: {
                     log: {
                         errors: true,
@@ -142,11 +129,11 @@ module.exports = function (grunt) {
                         globalSummary: true
                     }
                 },
-                done: function(err, res) {
+                callback: function(err, res) {
                     if (!err)
-                        grunt.log.ok("NODE TESTS SUCCESSFUL");
+                        grunt.log.ok("Node tests successful!");
                     else
-                        grunt.log.error("NODE TESTS FAILED");
+                        grunt.log.error("Node tests failed!");
                 }
             }
         },
@@ -254,6 +241,10 @@ module.exports = function (grunt) {
 
         connect: {
             server: {
+                options: {
+                    port: 8000,
+                    base: '.'
+                }
             }
         },
 
@@ -288,13 +279,13 @@ module.exports = function (grunt) {
 
     grunt.registerTask('version', 'Propagates version changes', function() {
         var pkg = grunt.config.get('pkg');
-        var version = grunt.option('crafty_version');
+        var version = grunt.option('crafty-version');
         if (!version) {
-            grunt.warn("No command-line argument 'crafty_version' specified. Rerun the task with '--crafty_version=X.X.X'.");
+            grunt.warn("No command-line argument '--crafty-version' specified. Rerun the task with '--crafty-version=X.X.X'. You can force a release with the previous version.");
             version = pkg.version;
         }
-        if (version === pkg.version) {
-            grunt.warn("Command-line argument 'crafty_version' is same as previous release version.");
+        if (!semver.gt(version, pkg.version)) {
+            grunt.warn("Command-line argument '--crafty-version' is not greater than previous version.");
         }
         pkg.version = version;
         grunt.config.set('pkg', pkg);
@@ -304,27 +295,26 @@ module.exports = function (grunt) {
     });
 
     // Build development
-    grunt.registerTask('build:dev', ['browserify:debug', 'usebanner:debug']);
-
+    grunt.registerTask('build:dev', ['browserify:dev', 'usebanner:dev']);
     // Build release
-    grunt.registerTask('build:release', ['browserify:dist', 'usebanner:dist']);
-
+    grunt.registerTask('build:release', ['browserify:release', 'usebanner:release']);
     // Building the documentation
     grunt.registerTask('api', "Generate api documentation", docGen);
-
-    // Default task.
-    grunt.registerTask('default', ['build:dev', 'jsvalidate']);
-
-    // Run the test suite
-    grunt.registerTask('check', ['build:dev', 'jsvalidate', 'jshint', 'qunit', 'node-qunit', 'check-saucelabs']);
-
-    // Make crafty.js ready for release - minified version
-    grunt.registerTask('release', ['version', 'build:release', 'uglify', 'api']);
-
-    // Run only tests
-    grunt.registerTask('validate', ['qunit', 'node-qunit', 'check-saucelabs']);
-
     grunt.registerTask('api-server', "View dynamically generated docs", runApiServer);
     grunt.registerTask('view-api', ['api', 'api-server'] );
+
+    // Run only validation and lint
+    grunt.registerTask('validate', ['jsvalidate', 'jshint']);
+    // Run only test suite
+    grunt.registerTask('test', ['qunit', 'node-qunit', 'check-saucelabs']);
+
+    // Rebuild, validate and run the test suite
+    grunt.registerTask('check', ['build:dev', 'validate', 'test']);
+
+    // Default task - debug version
+    grunt.registerTask('default', ['jsvalidate:src', 'build:dev', 'jsvalidate:dev']);
+
+    // Make crafty.js ready for release - minified version
+    grunt.registerTask('release', ['version', 'build:release', 'uglify', 'jsvalidate:release', 'api']);
 
 };
