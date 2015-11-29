@@ -32,7 +32,7 @@ Crafty.c("2D", {
      * The `x` position on the stage. When modified, will automatically be redrawn.
      * Is actually a getter/setter so when using this value for calculations and not modifying it,
      * use the `._x` property.
-     * @see ._attr
+     * @see ._setter2d
      */
     _x: 0,
     /**@
@@ -41,7 +41,7 @@ Crafty.c("2D", {
      * The `y` position on the stage. When modified, will automatically be redrawn.
      * Is actually a getter/setter so when using this value for calculations and not modifying it,
      * use the `._y` property.
-     * @see ._attr
+     * @see ._setter2d
      */
     _y: 0,
     /**@
@@ -52,7 +52,7 @@ Crafty.c("2D", {
      * use the `._w` property.
      *
      * Changing this value is not recommended as canvas has terrible resize quality and DOM will just clip the image.
-     * @see ._attr
+     * @see ._setter2d
      */
     _w: 0,
     /**@
@@ -63,9 +63,10 @@ Crafty.c("2D", {
      * use the `._h` property.
      *
      * Changing this value is not recommended as canvas has terrible resize quality and DOM will just clip the image.
-     * @see ._attr
+     * @see ._setter2d
      */
     _h: 0,
+
     /**@
      * #.z
      * @comp 2D
@@ -81,6 +82,14 @@ Crafty.c("2D", {
      * @see ._attr
      */
     _z: 0,
+
+    /**@
+     * #._globalZ
+     * @comp 2D
+     * When two entities overlap, the one with the larger `_globalZ` will be on top of the other.
+     */
+    _globalZ: null,
+
     /**@
      * #.rotation
      * @comp 2D
@@ -101,31 +110,9 @@ Crafty.c("2D", {
      * The default is to rotate the entity around its (initial) top-left corner; use
      * `.origin()` to change that.
      *
-     * @see ._attr, .origin
+     * @see ._setter2d, .origin
      */
     _rotation: 0,
-    /**@
-     * #.alpha
-     * @comp 2D
-     * Transparency of an entity. Must be a decimal value between 0.0 being fully transparent to 1.0 being fully opaque.
-     */
-    _alpha: 1.0,
-    /**@
-     * #.visible
-     * @comp 2D
-     * If the entity is visible or not. Accepts a true or false value.
-     * Can be used for optimization by setting an entities visibility to false when not needed to be drawn.
-     *
-     * The entity will still exist and can be collided with but just won't be drawn.
-     */
-    _visible: true,
-
-    /**@
-     * #._globalZ
-     * @comp 2D
-     * When two entities overlap, the one with the larger `_globalZ` will be on top of the other.
-     */
-    _globalZ: null,
 
     _origin: null,
     _mbr: null,
@@ -139,7 +126,7 @@ Crafty.c("2D", {
     _2D_property_definitions: {
         x: {
             set: function (v) {
-                this._attr('_x', v);
+                this._setter2d('_x', v);
             },
             get: function () {
                 return this._x;
@@ -151,7 +138,7 @@ Crafty.c("2D", {
 
         y: {
             set: function (v) {
-                this._attr('_y', v);
+                this._setter2d('_y', v);
             },
             get: function () {
                 return this._y;
@@ -163,7 +150,7 @@ Crafty.c("2D", {
 
         w: {
             set: function (v) {
-                this._attr('_w', v);
+                this._setter2d('_w', v);
             },
             get: function () {
                 return this._w;
@@ -175,7 +162,7 @@ Crafty.c("2D", {
 
         h: {
             set: function (v) {
-                this._attr('_h', v);
+                this._setter2d('_h', v);
             },
             get: function () {
                 return this._h;
@@ -187,7 +174,7 @@ Crafty.c("2D", {
 
         z: {
             set: function (v) {
-                this._attr('_z', v);
+                this._setter2d('_z', v);
             },
             get: function () {
                 return this._z;
@@ -199,7 +186,7 @@ Crafty.c("2D", {
 
         rotation: {
             set: function (v) {
-                this._attr('_rotation', v);
+                this._setter2d('_rotation', v);
             },
             get: function () {
                 return this._rotation;
@@ -207,32 +194,7 @@ Crafty.c("2D", {
             configurable: true,
             enumerable: true
         },
-        _rotation: {enumerable:false},
-
-        alpha: {
-            set: function (v) {
-                this._attr('_alpha', v);
-            },
-            get: function () {
-                return this._alpha;
-            },
-            configurable: true,
-            enumerable: true
-        },
-        _alpha: {enumerable:false},
-
-        visible: {
-            set: function (v) {
-                this._attr('_visible', v);
-            },
-            get: function () {
-                return this._visible;
-            },
-            configurable: true,
-            enumerable: true
-        },
-        _visible: {enumerable:false}
-
+        _rotation: {enumerable:false}
     },
 
     _define2DProperties: function () {
@@ -809,52 +771,6 @@ Crafty.c("2D", {
         return this;
     },
 
-    /**@
-     * #.flip
-     * @comp 2D
-     * @trigger Invalidate - when the entity has flipped
-     * @sign public this .flip(String dir)
-     * @param dir - Flip direction
-     *
-     * Flip entity on passed direction
-     *
-     * @example
-     * ~~~
-     * this.flip("X")
-     * ~~~
-     */
-    flip: function (dir) {
-        dir = dir || "X";
-        if (!this["_flip" + dir]) {
-            this["_flip" + dir] = true;
-            this.trigger("Invalidate");
-        }
-        return this;
-    },
-
-    /**@
-     * #.unflip
-     * @comp 2D
-     * @trigger Invalidate - when the entity has unflipped
-     * @sign public this .unflip(String dir)
-     * @param dir - Unflip direction
-     *
-     * Unflip entity on passed direction (if it's flipped)
-     *
-     * @example
-     * ~~~
-     * this.unflip("X")
-     * ~~~
-     */
-    unflip: function (dir) {
-        dir = dir || "X";
-        if (this["_flip" + dir]) {
-            this["_flip" + dir] = false;
-            this.trigger("Invalidate");
-        }
-        return this;
-    },
-
     /**
      * Method for rotation rather than through a setter
      */
@@ -862,18 +778,14 @@ Crafty.c("2D", {
         var x2, y2;
         x2 =  (this._x + this._origin.x - e.o.x) * e.cos + (this._y + this._origin.y - e.o.y) * e.sin + (e.o.x - this._origin.x);
         y2 =  (this._y + this._origin.y - e.o.y) * e.cos - (this._x + this._origin.x - e.o.x) * e.sin + (e.o.y - this._origin.y);
-        this._attr('_rotation', this._rotation - e.deg);
-        this._attr('_x', x2 );
-        this._attr('_y', y2 );
+        this._setter2d('_rotation', this._rotation - e.deg);
+        this._setter2d('_x', x2 );
+        this._setter2d('_y', y2 );
     },
 
-    /**@
-     * #._attr
-     * @comp 2D
-     * Setter method for all 2D properties including
-     * x, y, w, h, alpha, rotation and visible.
-     */
-    _attr: function (name, value) {
+    // This is a setter method for all 2D properties including
+    // x, y, w, h, and rotation.
+    _setter2d: function (name, value) {
         // Return if there is no change
         if (this[name] === value) {
             return;
@@ -886,13 +798,6 @@ Crafty.c("2D", {
         if (name === '_rotation') {
             this._rotate(value); // _rotate triggers "Rotate"
             //set the global Z and trigger reorder just in case
-        } else if (name === '_z') {
-            var intValue = value <<0;
-            value = value==intValue ? intValue : intValue+1;
-            this._globalZ = value*100000+this[0]; //magic number 10^5 is the max num of entities
-            this[name] = value;
-            this.trigger("Reorder");
-            //if the rect bounds change, update the MBR and trigger move
         } else if (name === '_x' || name === '_y') {
             // mbr is the minimal bounding rectangle of the entity
             mbr = this._mbr;
@@ -929,6 +834,12 @@ Crafty.c("2D", {
             }
             this.trigger("Move", old);
 
+        } else if (name === '_z') {
+            var intValue = value <<0;
+            value = value==intValue ? intValue : intValue+1;
+            this._globalZ = value*100000+this[0]; //magic number 10^5 is the max num of entities
+            this[name] = value;
+            this.trigger("Reorder");
         }
 
         //everything will assume the value
