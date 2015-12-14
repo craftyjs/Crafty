@@ -4,6 +4,11 @@ build/api.json
 build/parseNodes.js
 build/parseSourceDocs.js
 build/api-gen.js
+build/webdriver/*
+!build/webdriver/README.md
+!build/webdriver/failed
+build/webdriver/failed/*
+!build/webdriver/failed/README.md
 .*.sw?
 .DS_store
 .project
