@@ -1,5 +1,5 @@
 /**
- * craftyjs 0.7.1-rc
+ * craftyjs 0.7.1-rc2
  * http://craftyjs.com/
  *
  * Copyright 2015, Louis Stowasser
@@ -7,52 +7,78 @@
  */
 
 
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-
-},{}],2:[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
 
-process.nextTick = (function () {
-    var canSetImmediate = typeof window !== 'undefined'
-    && window.setImmediate;
-    var canPost = typeof window !== 'undefined'
-    && window.postMessage && window.addEventListener
-    ;
-
-    if (canSetImmediate) {
-        return function (f) { return window.setImmediate(f) };
+function cleanUpNextTick() {
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
     }
+    if (queue.length) {
+        drainQueue();
+    }
+}
 
-    if (canPost) {
-        var queue = [];
-        window.addEventListener('message', function (ev) {
-            var source = ev.source;
-            if ((source === window || source === null) && ev.data === 'process-tick') {
-                ev.stopPropagation();
-                if (queue.length > 0) {
-                    var fn = queue.shift();
-                    fn();
-                }
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = setTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
             }
-        }, true);
-
-        return function nextTick(fn) {
-            queue.push(fn);
-            window.postMessage('process-tick', '*');
-        };
+        }
+        queueIndex = -1;
+        len = queue.length;
     }
+    currentQueue = null;
+    draining = false;
+    clearTimeout(timeout);
+}
 
-    return function nextTick(fn) {
-        setTimeout(fn, 0);
-    };
-})();
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        setTimeout(drainQueue, 0);
+    }
+};
 
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
 process.title = 'browser';
 process.browser = true;
 process.env = {};
 process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
 
 function noop() {}
 
@@ -66,15 +92,15 @@ process.emit = noop;
 
 process.binding = function (name) {
     throw new Error('process.binding is not supported');
-}
+};
 
-// TODO(shtylman)
 process.cwd = function () { return '/' };
 process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
+process.umask = function() { return 0; };
 
-},{}],3:[function(require,module,exports){
+},{}],2:[function(require,module,exports){
 var Crafty = require('../core/core.js');
 
 /**@
@@ -678,7 +704,7 @@ Crafty.c("Twoway", {
     }
 });
 
-},{"../core/core.js":8}],4:[function(require,module,exports){
+},{"../core/core.js":7}],3:[function(require,module,exports){
 var Crafty = require('../core/core.js');
 
 
@@ -839,7 +865,7 @@ Crafty.extend({
     }
 });
 
-},{"../core/core.js":8}],5:[function(require,module,exports){
+},{"../core/core.js":7}],4:[function(require,module,exports){
 var Crafty = require('../core/core.js'),
     document = window.document;
 
@@ -1803,7 +1829,7 @@ Crafty.c("Keyboard", {
 });
 
 
-},{"../core/core.js":8}],6:[function(require,module,exports){
+},{"../core/core.js":7}],5:[function(require,module,exports){
 var Crafty = require('../core/core.js');
 
 
@@ -2020,7 +2046,7 @@ Crafty.extend({
         RIGHT: 2
     }
 });
-},{"../core/core.js":8}],7:[function(require,module,exports){
+},{"../core/core.js":7}],6:[function(require,module,exports){
 /**@
  * #Crafty.easing
  * @category Animation
@@ -2139,7 +2165,7 @@ easing.prototype = {
 };
 
 module.exports = easing;
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 var version = require('./version');
 
 /**@
@@ -4118,7 +4144,7 @@ if (typeof define === 'function') { // AMD
 
 module.exports = Crafty;
 
-},{"./version":17}],9:[function(require,module,exports){
+},{"./version":16}],8:[function(require,module,exports){
 (function (process){
 var Crafty = require('./core');
 var document = (typeof window !== "undefined") && window.document;
@@ -4367,8 +4393,8 @@ module.exports = {
     }
 };
 
-}).call(this,require("JkpR2F"))
-},{"./core":8,"JkpR2F":2}],10:[function(require,module,exports){
+}).call(this,require('_process'))
+},{"./core":7,"_process":1}],9:[function(require,module,exports){
 var Crafty = require('../core/core.js');
 
 module.exports = {
@@ -4818,7 +4844,7 @@ module.exports = {
     }
 };
 
-},{"../core/core.js":8}],11:[function(require,module,exports){
+},{"../core/core.js":7}],10:[function(require,module,exports){
 /**@
  * #Model
  * @category Model
@@ -4919,7 +4945,7 @@ module.exports = {
 };
 
 
-},{}],12:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 var Crafty = require('../core/core.js');
 
 
@@ -5090,9 +5116,15 @@ module.exports = {
     }
 };
 
-},{"../core/core.js":8}],13:[function(require,module,exports){
+},{"../core/core.js":7}],12:[function(require,module,exports){
+var Crafty = require('../core/core.js');
 
-var storage = (typeof window !== "undefined" && window.localStorage) || (new require('node-localstorage').LocalStorage('./localStorage'));
+try {
+  var storage = (typeof window !== "undefined" && window.localStorage) || (new require('node-localstorage').LocalStorage('./localStorage'));
+} catch(e) {
+  var storage = null;
+}
+
 
 /**@
  * #Storage
@@ -5124,6 +5156,8 @@ var storage = (typeof window !== "undefined" && window.localStorage) || (new req
  * You should aim to load or save data at reasonable times such as on level load,
  * or in response to specific user actions.
  *
+ * @note If used in a cross-domain context, the localStorage might not be accessible.
+ *
  * @example
  * Get an already stored value
  * ~~~
@@ -5148,10 +5182,11 @@ var storage = (typeof window !== "undefined" && window.localStorage) || (new req
  * ~~~
  */
 
-var store = function(key, value){
+var store = function(key, value) {
   var _value = value;
 
-  if(!storage){
+  if(!storage) {
+    Crafty.error("Local storage is not accessible.  (Perhaps you are including crafty.js cross-domain?)");
     return false;
   }
 
@@ -5189,13 +5224,17 @@ var store = function(key, value){
  * ~~~
  *
  */
-store.remove = function(key){
+store.remove = function(key) {
+  if(!storage){
+    Crafty.error("Local storage is not accessible.  (Perhaps you are including crafty.js cross-domain?)");
+    return;
+  }
   storage.removeItem(key);
 };
 
 module.exports = store;
 
-},{}],14:[function(require,module,exports){
+},{"../core/core.js":7}],13:[function(require,module,exports){
 var Crafty = require('../core/core.js');
 
 
@@ -5346,7 +5385,7 @@ Crafty.CraftySystem.prototype = {
 	}
 
 };
-},{"../core/core.js":8}],15:[function(require,module,exports){
+},{"../core/core.js":7}],14:[function(require,module,exports){
 /**@
  * #Delay
  * @category Utilities
@@ -5469,7 +5508,7 @@ module.exports = {
     }
 };
 
-},{}],16:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /**@
  * #Tween
  * @category Animation
@@ -5622,9 +5661,9 @@ module.exports = {
   }
 };
 
+},{}],16:[function(require,module,exports){
+module.exports = "0.7.1-rc2";
 },{}],17:[function(require,module,exports){
-module.exports = "0.7.1-rc";
-},{}],18:[function(require,module,exports){
 var Crafty = require('./core/core');
 
 Crafty.easing = require('./core/animation');
@@ -5678,7 +5717,7 @@ if(window) window.Crafty = Crafty;
 
 module.exports = Crafty;
 
-},{"./controls/controls":3,"./controls/device":4,"./controls/inputs":5,"./controls/keycodes":6,"./core/animation":7,"./core/core":8,"./core/extensions":9,"./core/loader":10,"./core/model":11,"./core/scenes":12,"./core/storage":13,"./core/systems":14,"./core/time":15,"./core/tween":16,"./debug/debug-layer":19,"./debug/logging":20,"./graphics/canvas":22,"./graphics/canvas-layer":21,"./graphics/color":23,"./graphics/dom":26,"./graphics/dom-helper":24,"./graphics/dom-layer":25,"./graphics/drawing":27,"./graphics/gl-textures":28,"./graphics/html":29,"./graphics/image":30,"./graphics/particles":31,"./graphics/sprite":33,"./graphics/sprite-animation":32,"./graphics/text":34,"./graphics/viewport":35,"./graphics/webgl":36,"./isometric/diamond-iso":37,"./isometric/isometric":38,"./sound/sound":39,"./spatial/2d":40,"./spatial/collision":41,"./spatial/math":42,"./spatial/rect-manager":43,"./spatial/spatial-grid":44}],19:[function(require,module,exports){
+},{"./controls/controls":2,"./controls/device":3,"./controls/inputs":4,"./controls/keycodes":5,"./core/animation":6,"./core/core":7,"./core/extensions":8,"./core/loader":9,"./core/model":10,"./core/scenes":11,"./core/storage":12,"./core/systems":13,"./core/time":14,"./core/tween":15,"./debug/debug-layer":18,"./debug/logging":19,"./graphics/canvas":21,"./graphics/canvas-layer":20,"./graphics/color":22,"./graphics/dom":25,"./graphics/dom-helper":23,"./graphics/dom-layer":24,"./graphics/drawing":26,"./graphics/gl-textures":27,"./graphics/html":28,"./graphics/image":29,"./graphics/particles":30,"./graphics/sprite":32,"./graphics/sprite-animation":31,"./graphics/text":33,"./graphics/viewport":34,"./graphics/webgl":35,"./isometric/diamond-iso":36,"./isometric/isometric":37,"./sound/sound":38,"./spatial/2d":39,"./spatial/collision":40,"./spatial/math":41,"./spatial/rect-manager":42,"./spatial/spatial-grid":43}],18:[function(require,module,exports){
 var Crafty = require('../core/core.js'),
     document = window.document;
 
@@ -6100,7 +6139,7 @@ Crafty.DebugCanvas = {
 
 };
 
-},{"../core/core.js":8}],20:[function(require,module,exports){
+},{"../core/core.js":7}],19:[function(require,module,exports){
 var Crafty = require('../core/core.js');
 
 
@@ -6139,7 +6178,7 @@ Crafty.extend({
 		}
 	}
 });
-},{"../core/core.js":8}],21:[function(require,module,exports){
+},{"../core/core.js":7}],20:[function(require,module,exports){
 var Crafty = require('../core/core.js');
 
 
@@ -6480,7 +6519,7 @@ Crafty.extend({
 
     }
 });
-},{"../core/core.js":8}],22:[function(require,module,exports){
+},{"../core/core.js":7}],21:[function(require,module,exports){
 var Crafty = require('../core/core.js');
 
 
@@ -6635,7 +6674,7 @@ Crafty.c("Canvas", {
     }
 });
 
-},{"../core/core.js":8}],23:[function(require,module,exports){
+},{"../core/core.js":7}],22:[function(require,module,exports){
 var Crafty = require('../core/core.js'),
     document = window.document;
 
@@ -6772,7 +6811,7 @@ Crafty.extend({
 
 
 // Define some variables required for webgl
-var fs = require('fs');
+
 var COLOR_VERTEX_SHADER = "attribute vec2 aPosition;\nattribute vec3 aOrientation;\nattribute vec2 aLayer;\nattribute vec4 aColor;\n\nvarying lowp vec4 vColor;\n\nuniform  vec4 uViewport;\n\nmat4 viewportScale = mat4(2.0 / uViewport.z, 0, 0, 0,    0, -2.0 / uViewport.w, 0,0,    0, 0,1,0,    -1,+1,0,1);\nvec4 viewportTranslation = vec4(uViewport.xy, 0, 0);\n\nvoid main() {\n  vec2 pos = aPosition;\n  vec2 entityOrigin = aOrientation.xy;\n  mat2 entityRotationMatrix = mat2(cos(aOrientation.z), sin(aOrientation.z), -sin(aOrientation.z), cos(aOrientation.z));\n\n  pos = entityRotationMatrix * (pos - entityOrigin) + entityOrigin;\n  gl_Position = viewportScale * (viewportTranslation + vec4(pos, 1.0/(1.0+exp(aLayer.x) ), 1) );\n  vColor = vec4(aColor.rgb*aColor.a*aLayer.y, aColor.a*aLayer.y);\n}";
 var COLOR_FRAGMENT_SHADER = "precision mediump float;\nvarying lowp vec4 vColor;\nvoid main(void) {\n\tgl_FragColor = vColor;\n}";
 var COLOR_ATTRIBUTE_LIST = [
@@ -6891,7 +6930,7 @@ Crafty.c("Color", {
 });
 
 
-},{"../core/core.js":8,"fs":1}],24:[function(require,module,exports){
+},{"../core/core.js":7}],23:[function(require,module,exports){
 var Crafty = require('../core/core.js'),
     document = window.document;
 
@@ -6994,7 +7033,7 @@ Crafty.extend({
         }
     }
 });
-},{"../core/core.js":8}],25:[function(require,module,exports){
+},{"../core/core.js":7}],24:[function(require,module,exports){
 var Crafty = require('../core/core.js'),
     document = window.document;
 
@@ -7129,7 +7168,7 @@ Crafty.extend({
 
     }
 });
-},{"../core/core.js":8}],26:[function(require,module,exports){
+},{"../core/core.js":7}],25:[function(require,module,exports){
 var Crafty = require('../core/core.js'),
     document = window.document;
 
@@ -7424,7 +7463,7 @@ Crafty.c("DOM", {
     }
 });
 
-},{"../core/core.js":8}],27:[function(require,module,exports){
+},{"../core/core.js":7}],26:[function(require,module,exports){
 var Crafty = require('../core/core.js');
 
 Crafty.extend({
@@ -7471,7 +7510,7 @@ Crafty.extend({
     }
 });
 
-},{"../core/core.js":8}],28:[function(require,module,exports){
+},{"../core/core.js":7}],27:[function(require,module,exports){
 var Crafty = require('../core/core.js');
 
 // An object for wrangling textures
@@ -7654,7 +7693,7 @@ TextureWrapper.prototype = {
         gl.uniform2f(gl.getUniformLocation(shader, dimension_name), this.width, this.height);
 	}
 };
-},{"../core/core.js":8}],29:[function(require,module,exports){
+},{"../core/core.js":7}],28:[function(require,module,exports){
 var Crafty = require('../core/core.js');
 
 
@@ -7739,13 +7778,13 @@ Crafty.c("HTML", {
         return this;
     }
 });
-},{"../core/core.js":8}],30:[function(require,module,exports){
+},{"../core/core.js":7}],29:[function(require,module,exports){
 var Crafty = require('../core/core.js');
 
 
 //
 // Define some variables required for webgl
-var fs = require('fs');
+
 var IMAGE_VERTEX_SHADER = "attribute vec2 aPosition;\nattribute vec3 aOrientation;\nattribute vec2 aLayer;\nattribute vec2 aTextureCoord;\n\nvarying mediump vec3 vTextureCoord;\n\nuniform vec4 uViewport;\nuniform mediump vec2 uTextureDimensions;\n\nmat4 viewportScale = mat4(2.0 / uViewport.z, 0, 0, 0,    0, -2.0 / uViewport.w, 0,0,    0, 0,1,0,    -1,+1,0,1);\nvec4 viewportTranslation = vec4(uViewport.xy, 0, 0);\n\nvoid main() {\n  vec2 pos = aPosition;\n  vec2 entityOrigin = aOrientation.xy;\n  mat2 entityRotationMatrix = mat2(cos(aOrientation.z), sin(aOrientation.z), -sin(aOrientation.z), cos(aOrientation.z));\n  \n  pos = entityRotationMatrix * (pos - entityOrigin) + entityOrigin ;\n  gl_Position = viewportScale * (viewportTranslation + vec4(pos, 1.0/(1.0+exp(aLayer.x) ), 1) );\n  vTextureCoord = vec3(aTextureCoord, aLayer.y);\n}";
 var IMAGE_FRAGMENT_SHADER = "varying mediump vec3 vTextureCoord;\n  \nuniform sampler2D uSampler;\nuniform mediump vec2 uTextureDimensions;\n\nvoid main(void) {\n  highp vec2 coord =   vTextureCoord.xy / uTextureDimensions;\n  mediump vec4 base_color = texture2D(uSampler, coord);\n  gl_FragColor = vec4(base_color.rgb*base_color.a*vTextureCoord.z, base_color.a*vTextureCoord.z);\n}";
 var IMAGE_ATTRIBUTE_LIST = [
@@ -7881,7 +7920,7 @@ Crafty.c("Image", {
     }
 });
 
-},{"../core/core.js":8,"fs":1}],31:[function(require,module,exports){
+},{"../core/core.js":7}],30:[function(require,module,exports){
 var Crafty = require('../core/core.js'),    
     document = window.document;
 
@@ -8267,7 +8306,7 @@ Crafty.c("Particles", {
     }
 });
 
-},{"../core/core.js":8}],32:[function(require,module,exports){
+},{"../core/core.js":7}],31:[function(require,module,exports){
 var Crafty = require('../core/core.js');
 
 
@@ -8745,12 +8784,12 @@ Crafty.c("SpriteAnimation", {
 	}
 });
 
-},{"../core/core.js":8}],33:[function(require,module,exports){
+},{"../core/core.js":7}],32:[function(require,module,exports){
 var Crafty = require('../core/core.js');
 
 
 // Define some variables required for webgl
-var fs = require('fs');
+
 var SPRITE_VERTEX_SHADER = "attribute vec2 aPosition;\nattribute vec3 aOrientation;\nattribute vec2 aLayer;\nattribute vec2 aTextureCoord;\n\nvarying mediump vec3 vTextureCoord;\n\nuniform vec4 uViewport;\nuniform mediump vec2 uTextureDimensions;\n\nmat4 viewportScale = mat4(2.0 / uViewport.z, 0, 0, 0,    0, -2.0 / uViewport.w, 0,0,    0, 0,1,0,    -1,+1,0,1);\nvec4 viewportTranslation = vec4(uViewport.xy, 0, 0);\n\nvoid main() {\n  vec2 pos = aPosition;\n  vec2 entityOrigin = aOrientation.xy;\n  mat2 entityRotationMatrix = mat2(cos(aOrientation.z), sin(aOrientation.z), -sin(aOrientation.z), cos(aOrientation.z));\n  \n  pos = entityRotationMatrix * (pos - entityOrigin) + entityOrigin ;\n  gl_Position = viewportScale * (viewportTranslation + vec4(pos, 1.0/(1.0+exp(aLayer.x) ), 1) );\n  vTextureCoord = vec3(aTextureCoord, aLayer.y);\n}";
 var SPRITE_FRAGMENT_SHADER = "varying mediump vec3 vTextureCoord;\n  \nuniform sampler2D uSampler;\nuniform mediump vec2 uTextureDimensions;\n\nvoid main(void) {\n  highp vec2 coord =   vTextureCoord.xy / uTextureDimensions;\n  mediump vec4 base_color = texture2D(uSampler, coord);\n  gl_FragColor = vec4(base_color.rgb*base_color.a*vTextureCoord.z, base_color.a*vTextureCoord.z);\n}";
 var SPRITE_ATTRIBUTE_LIST = [
@@ -9076,7 +9115,7 @@ Crafty.c("Sprite", {
     }
 });
 
-},{"../core/core.js":8,"fs":1}],34:[function(require,module,exports){
+},{"../core/core.js":7}],33:[function(require,module,exports){
 var Crafty = require('../core/core.js');
 
 
@@ -9346,7 +9385,7 @@ Crafty.c("Text", {
     }
 
 });
-},{"../core/core.js":8}],35:[function(require,module,exports){
+},{"../core/core.js":7}],34:[function(require,module,exports){
 var Crafty = require('../core/core.js'),
     document = window.document;
 
@@ -10135,7 +10174,7 @@ Crafty.extend({
     }
 });
 
-},{"../core/core.js":8}],36:[function(require,module,exports){
+},{"../core/core.js":7}],35:[function(require,module,exports){
 var Crafty = require('../core/core.js'),
     document = window.document;
 
@@ -10732,7 +10771,7 @@ Crafty.extend({
 
     }
 });
-},{"../core/core.js":8}],37:[function(require,module,exports){
+},{"../core/core.js":7}],36:[function(require,module,exports){
 var Crafty = require('../core/core.js');
 
 
@@ -10941,7 +10980,7 @@ Crafty.extend({
 
 });
 
-},{"../core/core.js":8}],38:[function(require,module,exports){
+},{"../core/core.js":7}],37:[function(require,module,exports){
 var Crafty = require('../core/core.js');
 
 
@@ -11132,7 +11171,7 @@ Crafty.extend({
     }
 });
 
-},{"../core/core.js":8}],39:[function(require,module,exports){
+},{"../core/core.js":7}],38:[function(require,module,exports){
 var Crafty = require('../core/core.js'),
     document = window.document;
 
@@ -11686,7 +11725,7 @@ Crafty.extend({
     }
 });
 
-},{"../core/core.js":8}],40:[function(require,module,exports){
+},{"../core/core.js":7}],39:[function(require,module,exports){
 var Crafty = require('../core/core.js'),
     HashMap = require('./spatial-grid.js');
 
@@ -13608,7 +13647,7 @@ Crafty.matrix.prototype = {
     }
 };
 
-},{"../core/core.js":8,"./spatial-grid.js":44}],41:[function(require,module,exports){
+},{"../core/core.js":7,"./spatial-grid.js":43}],40:[function(require,module,exports){
 var Crafty = require('../core/core.js'),
     DEG_TO_RAD = Math.PI / 180;
 
@@ -14300,7 +14339,7 @@ Crafty.c("Collision", {
     }
 });
 
-},{"../core/core.js":8}],42:[function(require,module,exports){
+},{"../core/core.js":7}],41:[function(require,module,exports){
 var Crafty = require('../core/core.js');
 
 
@@ -15398,7 +15437,7 @@ Crafty.math.Matrix2D = (function () {
 
     return Matrix2D;
 })();
-},{"../core/core.js":8}],43:[function(require,module,exports){
+},{"../core/core.js":7}],42:[function(require,module,exports){
 var Crafty = require('../core/core.js');
 
 
@@ -15558,7 +15597,7 @@ Crafty.extend({
 
 });
 
-},{"../core/core.js":8}],44:[function(require,module,exports){
+},{"../core/core.js":7}],43:[function(require,module,exports){
 var Crafty = require('../core/core.js');
 
 
@@ -15924,4 +15963,4 @@ var Crafty = require('../core/core.js');
 
     module.exports = HashMap;
 
-},{"../core/core.js":8}]},{},[18]);
+},{"../core/core.js":7}]},{},[17]);
