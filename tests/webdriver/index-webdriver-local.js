@@ -1,10 +1,11 @@
 exports.config = {
-    specs: (function() { return require('./index-webdriver.js').specs(); })(),
+    specs: require('./index-webdriver.js').specs(),
     framework: 'qunit',
     baseUrl: './',
 
     capabilities: [{
-        browserName: 'phantomjs'
+        browserName: 'phantomjs',
+        exclude: require('./index-webdriver.js').exclude('phantomjs')
     }],
     updateJob: false,
     waitforTimeout: 1000,

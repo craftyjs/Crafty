@@ -1,5 +1,5 @@
 exports.config = {
-    specs: (function() { return require('./index-webdriver.js').specs(); })(),
+    specs: require('./index-webdriver.js').specs(),
     framework: 'qunit',
     baseUrl: 'http://localhost:8000',
 
@@ -26,8 +26,9 @@ exports.config = {
             for (var k in baseCapabilities)
                 capabilities[k] = baseCapabilities[k];
 
-            capabilities.exclude = require('./index-webdriver.js')
-                                    .exclude(capabilities.browserName, capabilities.version, capabilities.platform);
+            capabilities.exclude = require('./index-webdriver.js').exclude(
+                capabilities.browserName, capabilities.version, capabilities.platform
+            );
         });
 
         return browsers;

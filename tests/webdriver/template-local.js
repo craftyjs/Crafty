@@ -1,4 +1,4 @@
-QUnit.module(require('path').basename(module.filename, '.js'));
+QUnit.module(module);
 
 QUnit.test("Local webdriver test template", function(assert) {
   return browser
