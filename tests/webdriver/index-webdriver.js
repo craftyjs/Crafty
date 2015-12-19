@@ -13,7 +13,10 @@ var tests = {
     'template-generic': true,
     'template-local': true,
     'template-crafty': true,
-    'template-multi': true
+    'template-multi': true,
+    'color/color-dom': true,
+    'color/color-canvas': true,
+    'color/color-webgl': function(browserName) { return browserName !== 'phantomjs'; }
 };
 exports.specs = function() {
     return Object.keys(tests).map(function(t) {
