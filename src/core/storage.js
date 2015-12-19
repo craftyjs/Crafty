@@ -1,5 +1,11 @@
+var Crafty = require('../core/core.js');
 
-var storage = (typeof window !== "undefined" && window.localStorage) || (new require('node-localstorage').LocalStorage('./localStorage'));
+try {
+  var storage = (typeof window !== "undefined" && window.localStorage) || (new require('node-localstorage').LocalStorage('./localStorage'));
+} catch(e) {
+  var storage = null;
+}
+
 
 /**@
  * #Storage
@@ -31,6 +37,8 @@ var storage = (typeof window !== "undefined" && window.localStorage) || (new req
  * You should aim to load or save data at reasonable times such as on level load,
  * or in response to specific user actions.
  *
+ * @note If used in a cross-domain context, the localStorage might not be accessible.
+ *
  * @example
  * Get an already stored value
  * ~~~
@@ -55,10 +63,11 @@ var storage = (typeof window !== "undefined" && window.localStorage) || (new req
  * ~~~
  */
 
-var store = function(key, value){
+var store = function(key, value) {
   var _value = value;
 
-  if(!storage){
+  if(!storage) {
+    Crafty.error("Local storage is not accessible.  (Perhaps you are including crafty.js cross-domain?)");
     return false;
   }
 
@@ -96,7 +105,11 @@ var store = function(key, value){
  * ~~~
  *
  */
-store.remove = function(key){
+store.remove = function(key) {
+  if(!storage){
+    Crafty.error("Local storage is not accessible.  (Perhaps you are including crafty.js cross-domain?)");
+    return;
+  }
   storage.removeItem(key);
 };
 
