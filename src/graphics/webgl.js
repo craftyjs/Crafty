@@ -30,6 +30,7 @@ Crafty.c("WebGL", {
      * The webgl context this entity will be rendered to.
      */
     init: function () {
+        this.requires("Renderable");
         var webgl = this.webgl = Crafty.s("WebGLLayer");
         var gl = webgl.context;
 

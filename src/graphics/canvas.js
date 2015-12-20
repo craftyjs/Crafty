@@ -21,6 +21,7 @@ var Crafty = require('../core/core.js');
 Crafty.c("Canvas", {
 
     init: function () {
+        this.requires("Renderable");
         var canvasLayer = Crafty.s("CanvasLayer");
 
         this._drawLayer = canvasLayer;

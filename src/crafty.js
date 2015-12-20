@@ -25,6 +25,7 @@ require('./graphics/dom-helper');
 require('./graphics/dom-layer');
 require('./graphics/drawing');
 require('./graphics/gl-textures');
+require('./graphics/renderable');
 require('./graphics/html');
 require('./graphics/image');
 require('./graphics/particles');
