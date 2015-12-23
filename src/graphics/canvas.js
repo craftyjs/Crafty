@@ -22,39 +22,21 @@ Crafty.c("Canvas", {
 
     init: function () {
         this.requires("Renderable");
-        var canvasLayer = Crafty.s("CanvasLayer");
-
-        this._drawLayer = canvasLayer;
-        this._drawContext = canvasLayer.context;
-
-        //increment the amount of canvas objs
-        canvasLayer.layerCount++;
+        
         //Allocate an object to hold this components current region
         this.currentRect = {};
-        this._changed = true;
-        canvasLayer.add(this);
+        
+        this._attachToLayer( Crafty.s("CanvasLayer"));
+    },
 
-        this.bind("Invalidate", function (e) {
-            //flag if changed
-            if (this._changed === false) {
-                this._changed = true;
-                canvasLayer.add(this);
-            }
-
-        });
-
-
-        this.bind("Remove", function () {
-            this._drawLayer.layerCount--;
-            this._changed = true;
-            this._drawLayer.add(this);
-        });
+    remove: function() {
+        this._detachFromLayer();
     },
 
     /**@
      * #.draw
      * @comp Canvas
-     * @sign public this .draw([[Context ctx, ]Number x, Number y, Number w, Number h])
+     * @sign public this .draw([[Context ctx, ]Number x, Nwumber y, Number w, Number h])
      * @param ctx - Canvas 2D context if drawing on another canvas is required
      * @param x - X offset for drawing a segment
      * @param y - Y offset for drawing a segment
@@ -76,8 +58,6 @@ Crafty.c("Canvas", {
             w: 0,
             h: 0
         }
-
-
     },
 
     draw: function (ctx, x, y, w, h) {
@@ -97,8 +77,8 @@ Crafty.c("Canvas", {
         pos._h = (h || this._h);
 
 
-        context = ctx || this._drawContext;
-        coord = this.__coord || [0, 0, 0, 0];
+        var context = ctx || this._drawContext;
+        var coord = this.__coord || [0, 0, 0, 0];
         var co = this.drawVars.co;
         co.x = coord[0] + (x || 0);
         co.y = coord[1] + (y || 0);
