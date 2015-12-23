@@ -119,9 +119,7 @@ Crafty.c("2D", {
     _entry: null,
     _children: null,
     _parent: null,
-    _changed: false,
 
-    
     // Setup   all the properties that we need to define
     _2D_property_definitions: {
         x: {

@@ -10,6 +10,7 @@ var Crafty = require('../core/core.js');
  * Mostly contains private methods to draw entities on a canvas element.
  */
 Crafty.canvasLayerObject = {
+    type: "Canvas",
     _dirtyRects: [],
     _changedObjs: [],
     layerCount: 0,
@@ -21,16 +22,46 @@ Crafty.canvasLayerObject = {
     },
 
     /**@
-     * #.add
+     * #.dirty
      * @comp CanvasLayer
-     * @sign public .add(ent)
+     * @sign public .dirty(ent)
      * @param ent - The entity to add
      *
-     * Add an entity to the list of Canvas objects to draw
+     * Add an entity to the list of Canvas objects that need redrawing
      */
-    add: function add(ent) {
+    dirty: function dirty(ent) {
         this._changedObjs.push(ent);
     },
+    
+    /**@
+     * #.attach
+     * @comp CanvasLayer
+     * @sign public .attach(ent)
+     * @param ent - The entity to add
+     *
+     * Sets the entity's draw context to this layer
+     */
+    attach: function attach(ent) {
+        ent._drawContext = this.context;
+        //increment the number of canvas objs
+        this.layerCount++;
+    },
+    
+    /**@
+     * #.detach
+     * @comp CanvasLayer
+     * @sign public .detach(ent)
+     * @param ent - The entity to add
+     *
+     * Removes an entity to the list of Canvas objects to draw
+     */
+    detach: function detach(ent) {
+        this.dirty(ent);
+        ent._drawContext = null;
+        //decrement the number of canvas objs
+        this.layerCount--;
+    },
+    
 
     /**@
      * #.context
@@ -70,8 +101,6 @@ Crafty.canvasLayerObject = {
         c.style.position = 'absolute';
         c.style.left = "0px";
         c.style.top = "0px";
-
-        var canvas = Crafty.s("Canvas");
 
         Crafty.stage.elem.appendChild(c);
         this.context = c.getContext('2d');
@@ -141,7 +170,7 @@ Crafty.canvasLayerObject = {
      */
     _drawDirty: function () {
 
-        var i, j, q, rect,len, obj, ent,
+        var i, j, q, rect,len, obj,
             changed = this._changedObjs,
             l = changed.length,
             dirty = this._dirtyRects,
@@ -193,7 +222,7 @@ Crafty.canvasLayerObject = {
             for (j = 0, len = q.length; j < len; ++j) {
                 obj = q[j];
 
-                if (dupes[obj[0]] || !obj._visible || !obj.__c.Canvas)
+                if (dupes[obj[0]] || !obj._visible || (obj._drawLayer !== this) )
                     continue;
                 dupes[obj[0]] = true;
                 objs.push(obj);
@@ -249,10 +278,12 @@ Crafty.canvasLayerObject = {
 
         //sort the objects by the global Z
         q.sort(this._sort);
+        //console.log("\n--\n" + q.length + " to draw for layer " + this.name);
         for (; i < l; i++) {
             current = q[i];
-            if (current._visible && current.__c.Canvas) {
-                current.draw();
+            if (current._visible && current._drawContext === this.context) {
+                //console.log(i + " drawn");
+                current.draw(this.context);
                 current._changed = false;
             }
         }

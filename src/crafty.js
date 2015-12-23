@@ -31,6 +31,7 @@ require('./graphics/gl-textures');
 require('./graphics/renderable');
 require('./graphics/html');
 require('./graphics/image');
+require('./graphics/layers');
 require('./graphics/particles');
 require('./graphics/sprite-animation');
 require('./graphics/sprite');
