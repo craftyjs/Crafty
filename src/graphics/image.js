@@ -24,6 +24,7 @@ Crafty.c("Image", {
 
     init: function () {
         this.bind("Draw", this._drawImage);
+        this.bind("LayerAttached", this._setupImage);
     },
 
     remove: function() {
@@ -75,33 +76,32 @@ Crafty.c("Image", {
             var self = this;
 
             this.img.onload = function () {
-                self._onImageLoad();
+                self._setupImage(self._drawLayer);
             };
         } else {
-            this._onImageLoad();
+            this._setupImage(this._drawLayer);
         }
-
 
         this.trigger("Invalidate");
 
         return this;
     },
 
-    _onImageLoad: function(){
-
-        if (this.has("Canvas")) {
+    // called on image change or layer attachment
+    _setupImage: function(layer){
+        if (!this.img || !layer) return;
+        
+        if (layer.type === "Canvas") {
             this._pattern = this._drawContext.createPattern(this.img, this._repeat);
-        } else if (this.has("WebGL")) {
+        } else if (layer.type === "WebGL") {
             this._establishShader("image:" + this.__image, IMAGE_FRAGMENT_SHADER, IMAGE_VERTEX_SHADER, IMAGE_ATTRIBUTE_LIST);
-            this.program.setTexture( this.webgl.makeTexture(this.__image, this.img, (this._repeat!=="no-repeat")));
+            this.program.setTexture( layer.makeTexture(this.__image, this.img, (this._repeat!=="no-repeat")));
         }
 
         if (this._repeat === "no-repeat") {
             this.w = this.w || this.img.width;
             this.h = this.h || this.img.height;
         }
-
-
 
         this.ready = true;
         this.trigger("Invalidate");

@@ -9,6 +9,7 @@ var Crafty = require('../core/core.js'),
  * Collection of mostly private methods to represent entities using the DOM.
  */
 Crafty.domLayerObject = {
+    type: "DOM",
     _changedObjs: [],
     _dirtyViewport: false,
 
@@ -113,15 +114,44 @@ Crafty.domLayerObject = {
     },
 
     /**@
-     * #.add
+     * #.dirty
      * @comp DomLayer
-     * @sign public .add(ent)
-     * @param ent - The entity to add
+     * @sign public .dirty(ent)
+     * @param ent - The entity to mark as dirty
      *
      * Add an entity to the list of DOM object to draw
      */
-    add: function add(ent) {
+    dirty: function add(ent) {
         this._changedObjs.push(ent);
+    },
+
+    /**@
+     * #.attach
+     * @comp DomLayer
+     * @sign public .attach(ent)
+     * @param ent - The entity to add
+     *
+     * Add an entity to the layer
+     */
+    attach: function attach(ent) {
+        ent._drawContext = this.context;
+        // attach the entity's div element to the dom layer
+        this._div.appendChild(ent._element);
+        // set position style and entity id
+        ent._element.style.position = "absolute";
+        ent._element.id = "ent" + this[0];
+    },
+    
+    /**@
+     * #.detach
+     * @comp DomLayer
+     * @sign public .detach(ent)
+     * @param ent - The entity to remove
+     *
+     * Removes an entity from the layer
+     */
+    detach: function detach(ent) {
+        this._div.removeChild(ent._element);
     },
 
     // Sets the viewport position and scale

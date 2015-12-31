@@ -9,7 +9,9 @@ var Crafty = require('../core/core.js');
  */
 Crafty.c("Renderable", {
 
-
+    // Flag for tracking whether the entity is dirty or not
+    _changed: false,
+    
     /**@
      * #.alpha
      * @comp Renderable
@@ -27,8 +29,6 @@ Crafty.c("Renderable", {
      */
     _visible: true,
 
-
-    
     _setterRenderable: function(name, value) {
         if (this[name] === value) {
             return;
@@ -66,7 +66,6 @@ Crafty.c("Renderable", {
             enumerable: true
         },
         _visible: {enumerable:false}
-
     },
 
     _defineRenderableProperites: function () {
@@ -78,6 +77,40 @@ Crafty.c("Renderable", {
     init: function () {
         // create setters and getters that associate properties such as alpha/_alpha
         this._defineRenderableProperites();
+    },
+
+    // Renderable assumes that a draw layer has 3 important methods: attach, detach, and dirty
+
+    // Dirty the entity when it's invalidated
+    _invalidateRenderable: function() {
+        //flag if changed
+        if (this._changed === false) {
+                this._changed = true;
+            this._drawLayer.dirty(this);
+        }
+    },
+
+    // Attach the entity to a layer to be rendered
+    _attachToLayer: function(layer) {
+        if (this._drawLayer) {
+            this._detachFromLayer();
+        }
+        this._drawLayer = layer;
+        layer.attach(this);
+        this.bind("Invalidate", this._invalidateRenderable);
+        this.trigger("LayerAttached", layer);
+        this.trigger("Invalidate");
+    },
+
+    // Detach the entity from a layer
+    _detachFromLayer: function() {
+        if (!this._drawLayer) {
+            return;
+        }
+        this._drawLayer.detach(this);
+        this.unbind("Invalidate", this._invalidateRenderable);
+        this.trigger("LayerDetached", this._drawLayer);
+        delete this._drawLayer;
     },
 
     /**@

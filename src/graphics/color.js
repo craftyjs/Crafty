@@ -161,10 +161,14 @@ Crafty.c("Color", {
 
     init: function () {
         this.bind("Draw", this._drawColor);
-        if (this.has("WebGL")){
-            this._establishShader("Color", COLOR_FRAGMENT_SHADER, COLOR_VERTEX_SHADER, COLOR_ATTRIBUTE_LIST);
+        if (this._drawLayer) {
+            this._setupColor(this._drawLayer);
         }
         this.trigger("Invalidate");
+    },
+    
+    events: {
+        "LayerAttached": "_setupColor"
     },
 
     remove: function(){
@@ -173,6 +177,12 @@ Crafty.c("Color", {
             this._element.style.backgroundColor = "transparent";
         }
         this.trigger("Invalidate");
+    },
+
+    _setupColor: function(layer) {
+        if (layer.type === "WebGL") {
+            this._establishShader("Color", COLOR_FRAGMENT_SHADER, COLOR_VERTEX_SHADER, COLOR_ATTRIBUTE_LIST);
+        }
     },
 
     // draw function for "Color"

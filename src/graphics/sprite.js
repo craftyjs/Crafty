@@ -132,11 +132,8 @@ Crafty.extend({
             //set the width and height to the sprite size
             this.w = this.__coord[2];
             this.h = this.__coord[3];
-
-            if (this.has("WebGL")){
-                this._establishShader(this.__image, SPRITE_FRAGMENT_SHADER, SPRITE_VERTEX_SHADER, SPRITE_ATTRIBUTE_LIST);
-                this.program.setTexture( this.webgl.makeTexture(this.__image, this.img, false) );
-            }
+            
+            this._setupSpriteImage(this._drawLayer);
         };
 
         for (spriteName in map) {
@@ -194,10 +191,20 @@ Crafty.c("Sprite", {
     init: function () {
         this.__trim = [0, 0, 0, 0];
         this.bind("Draw", this._drawSprite);
+        this.bind("LayerAttached", this._setupSpriteImage);
     },
 
     remove: function(){
         this.unbind("Draw", this._drawSprite);
+        this.unbind("LayerAttached", this._setupSpriteImage);
+    },
+    
+    _setupSpriteImage: function(layer) {
+        if (!this.__image || !this.img || !layer) return;
+        if (layer.type === "WebGL"){
+            this._establishShader(this.__image, SPRITE_FRAGMENT_SHADER, SPRITE_VERTEX_SHADER, SPRITE_ATTRIBUTE_LIST);
+            this.program.setTexture( layer.makeTexture(this.__image, this.img, false) );
+        }
     },
 
     _drawSprite: function(e){

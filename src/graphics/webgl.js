@@ -31,28 +31,12 @@ Crafty.c("WebGL", {
      */
     init: function () {
         this.requires("Renderable");
-        var webgl = this.webgl = Crafty.s("WebGLLayer");
-        var gl = webgl.context;
-
-        //increment the amount of canvas objs
-        this._changed = true;
-        this.bind("Change", this._glChange);
+        // Attach to webgl layer
+        this._attachToLayer( Crafty.s("WebGLLayer") );
     },
 
     remove: function(){
-        this._changed = true;
-        this.unbind(this._glChange);
-        // Webgl components need to be removed from their gl program
-        if (this.program) {
-            this.program.unregisterEntity(this);
-        }
-    },
-
-    _glChange: function(){
-        //flag if changed
-        if (this._changed === false) {
-            this._changed = true;
-        }
+        this._detachFromLayer();
     },
 
     // Cache the various objects and arrays used in draw
@@ -90,7 +74,7 @@ Crafty.c("WebGL", {
             w = y;
             y = x;
             x = ctx;
-            ctx = this.webgl.context;
+            ctx = this._drawLayer.context;
         }
 
         var pos = this.drawVars.pos;
@@ -118,12 +102,13 @@ Crafty.c("WebGL", {
         }
 
         //Draw entity
-        var gl = this.webgl.context;
+        var gl = this._drawContext;
         this.drawVars.gl = gl;
         var prog = this.drawVars.program = this.program;
 
         // The program might need to refer to the current element's index
         prog.setCurrentEntity(this);
+
         // Write position; x, y, w, h
         prog.writeVector("aPosition",
             this._x, this._y,
@@ -150,13 +135,13 @@ Crafty.c("WebGL", {
 
         // Register the vertex groups to be drawn, referring to this entities position in the big buffer
         prog.addIndices(prog.ent_offset);
-        
+
         return this;
     },
 
     // v_src is optional, there's a default vertex shader that works for regular rectangular entities
     _establishShader: function(compName, f_src, v_src, attributes){
-        this.program = this.webgl.getProgramWrapper(compName, f_src, v_src, attributes);
+        this.program = this._drawLayer.getProgramWrapper(compName, f_src, v_src, attributes);
         
         // Needs to know where in the big array we are!
         this.program.registerEntity(this);
