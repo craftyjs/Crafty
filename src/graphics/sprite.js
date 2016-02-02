@@ -1,19 +1,30 @@
 var Crafty = require('../core/core.js');
 
-
 // Define some variables required for webgl
 var fs = require('fs');
-var SPRITE_VERTEX_SHADER = fs.readFileSync(__dirname + '/shaders/sprite.vert', 'utf8');
-var SPRITE_FRAGMENT_SHADER = fs.readFileSync(__dirname + '/shaders/sprite.frag', 'utf8');
-var SPRITE_ATTRIBUTE_LIST = [
-    {name:"aPosition", width: 2},
-    {name:"aOrientation", width: 3},
-    {name:"aLayer", width:2},
-    {name:"aTextureCoord",  width: 2}
-];
+
+Crafty.defaultShader("Sprite", new Crafty.WebGLShader(
+    fs.readFileSync(__dirname + '/shaders/sprite.vert', 'utf8'),
+    fs.readFileSync(__dirname + '/shaders/sprite.frag', 'utf8'),
+    [
+        { name: "aPosition",     width: 2 },
+        { name: "aOrientation",  width: 3 },
+        { name: "aLayer",        width: 2 },
+        { name: "aTextureCoord", width: 2 }
+    ],
+    function(e, _entity) {
+        var co = e.co;
+        // Write texture coordinates
+        e.program.writeVector("aTextureCoord",
+            co.x, co.y,
+            co.x, co.y + co.h,
+            co.x + co.w, co.y,
+            co.x + co.w, co.y + co.h
+        );
+    }
+));
 
 Crafty.extend({
-
     /**@
      * #Crafty.sprite
      * @category Graphics
@@ -121,7 +132,7 @@ Crafty.extend({
             this.__padding = [paddingX, paddingY];
             this.__padBorder = paddingAroundBorder;
             this.sprite(this.__coord[0], this.__coord[1], this.__coord[2], this.__coord[3]);
-            
+
             this.img = img;
             //draw now
             if (this.img.complete && this.img.width > 0) {
@@ -134,7 +145,7 @@ Crafty.extend({
             this.h = this.__coord[3];
 
             if (this.has("WebGL")){
-                this._establishShader(this.__image, SPRITE_FRAGMENT_SHADER, SPRITE_VERTEX_SHADER, SPRITE_ATTRIBUTE_LIST);
+                this._establishShader(this.__image, Crafty.defaultShader("Sprite"));
                 this.program.setTexture( this.webgl.makeTexture(this.__image, this.img, false) );
             }
         };
@@ -162,7 +173,7 @@ Crafty.extend({
  * @category Graphics
  * @trigger Invalidate - when the sprites change
  *
- * A component for using tiles in a sprite map.  
+ * A component for using tiles in a sprite map.
  *
  * This is automatically added to entities which use the components created by `Crafty.sprite` or `Crafty.load`.
  * Since these are also used to define tile size, you'll rarely need to use this components methods directly.
@@ -229,7 +240,7 @@ Crafty.c("Sprite", {
 
             // Don't change background if it's not necessary -- this can cause some browsers to reload the image
             // See [this chrome issue](https://code.google.com/p/chromium/issues/detail?id=102706)
-            var newBackground = bgColor + " url('" + this.__image + "') no-repeat"; 
+            var newBackground = bgColor + " url('" + this.__image + "') no-repeat";
             if (newBackground !== style.background) {
                 style.background = newBackground;
             }
@@ -240,12 +251,7 @@ Crafty.c("Sprite", {
             }
         } else if (e.type === "webgl") {
             // Write texture coordinates
-            e.program.writeVector("aTextureCoord",
-                co.x, co.y,
-                co.x, co.y + co.h,
-                co.x + co.w, co.y,
-                co.x + co.w, co.y + co.h
-            );
+            e.program.draw(e, this);
         }
     },
 

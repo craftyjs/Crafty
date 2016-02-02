@@ -6,6 +6,7 @@ RenderProgramWrapper = function(layer, shader){
     this.shader = shader;
     this.layer = layer;
     this.context = layer.context;
+    this.draw = function() {};
 
     this.array_size = 16;
     this.max_size = 1024;
@@ -202,20 +203,20 @@ Crafty.webglLayerObject = {
 
     // Create and return a complete, linked shader program, given the source for the fragment and vertex shaders.
     // Will compile the two shaders and then link them together
-    _makeProgram: function (fragment_src, vertex_src){
+    _makeProgram: function (shader){
         var gl = this.context;
-        var fragment_shader = this._compileShader(fragment_src, gl.FRAGMENT_SHADER);
-        var vertex_shader = this._compileShader(vertex_src, gl.VERTEX_SHADER);
+        var fragmentShader = this._compileShader(shader.fragmentCode, gl.FRAGMENT_SHADER);
+        var vertexShader = this._compileShader(shader.vertexCode, gl.VERTEX_SHADER);
 
         var shaderProgram = gl.createProgram();
-        gl.attachShader(shaderProgram, vertex_shader);
-        gl.attachShader(shaderProgram, fragment_shader);
+        gl.attachShader(shaderProgram, vertexShader);
+        gl.attachShader(shaderProgram, fragmentShader);
         gl.linkProgram(shaderProgram);
 
         if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
           throw("Could not initialise shaders");
         }
-        
+
         shaderProgram.viewport = gl.getUniformLocation(shaderProgram, "uViewport");
         return shaderProgram;
     },
@@ -235,12 +236,13 @@ Crafty.webglLayerObject = {
     // ~~~
     // The "aPositon", "aOrientation", and "aLayer" attributes should be the same for any webgl entity,
     // since they support the basic 2D properties
-    getProgramWrapper: function(name, fragment_src, vertex_src, attributes){
+    getProgramWrapper: function(name, shader){
         if (this.programs[name] === undefined){
-            var shader = this._makeProgram(fragment_src, vertex_src);
-            var program = new RenderProgramWrapper(this, shader);
+            var compiledShader = this._makeProgram(shader);
+            var program = new RenderProgramWrapper(this, compiledShader);
             program.name = name;
-            program.initAttributes(attributes);
+            program.initAttributes(shader.attributeList);
+            program.draw = shader.drawCallback;
             program.setViewportUniforms(Crafty.viewport);
             this.programs[name] = program;
         }

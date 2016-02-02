@@ -16,7 +16,7 @@ var Crafty = require('../core/core.js'),
  */
 Crafty.extend({
     assignColor: (function(){
-        
+
         // Create phantom element to assess color
         var element = document.createElement("div");
         element.style.display = "none";
@@ -78,7 +78,7 @@ Crafty.extend({
         function parseRgbString(rgb, c) {
             var values = rgb_regex.exec(rgb);
             if( values===null || (values.length != 4 && values.length != 5)) {
-                return default_value(c); // return bad result?         
+                return default_value(c); // return bad result?
             }
             c._red = Math.round(parseFloat(values[1]));
             c._green = Math.round(parseFloat(values[2]));
@@ -135,16 +135,25 @@ Crafty.extend({
 
 // Define some variables required for webgl
 var fs = require('fs');
-var COLOR_VERTEX_SHADER = fs.readFileSync(__dirname + '/shaders/color.vert', 'utf8');
-var COLOR_FRAGMENT_SHADER = fs.readFileSync(__dirname + '/shaders/color.frag', 'utf8');
-var COLOR_ATTRIBUTE_LIST = [
-    {name:"aPosition", width: 2},
-    {name:"aOrientation", width: 3},
-    {name:"aLayer", width:2},
-    {name:"aColor",  width: 4}
-];
 
-
+Crafty.defaultShader("Color", new Crafty.WebGLShader(
+    fs.readFileSync(__dirname + '/shaders/color.vert', 'utf8'),
+    fs.readFileSync(__dirname + '/shaders/color.frag', 'utf8'),
+    [
+        { name: "aPosition",    width: 2 },
+        { name: "aOrientation", width: 3 },
+        { name: "aLayer",       width: 2 },
+        { name: "aColor",       width: 4 }
+    ],
+    function(e, entity) {
+        e.program.writeVector("aColor",
+            entity._red/255,
+            entity._green/255,
+            entity._blue/255,
+            entity._strength
+        );
+    }
+));
 
 /**@
  * #Color
@@ -162,7 +171,7 @@ Crafty.c("Color", {
     init: function () {
         this.bind("Draw", this._drawColor);
         if (this.has("WebGL")){
-            this._establishShader("Color", COLOR_FRAGMENT_SHADER, COLOR_VERTEX_SHADER, COLOR_ATTRIBUTE_LIST);
+            this._establishShader("Color", Crafty.defaultShader("Color"));
         }
         this.trigger("Invalidate");
     },
@@ -185,12 +194,7 @@ Crafty.c("Color", {
             e.ctx.fillStyle = this._color;
             e.ctx.fillRect(e.pos._x, e.pos._y, e.pos._w, e.pos._h);
         } else if (e.type === "webgl"){
-            e.program.writeVector("aColor",
-                this._red/255,
-                this._green/255,
-                this._blue/255,
-                this._strength
-            );
+            e.program.draw(e, this);
         }
     },
 
@@ -208,7 +212,7 @@ Crafty.c("Color", {
      * @param r - value for the red channel
      * @param g - value for the green channel
      * @param b - value for the blue channel
-     * @param strength - the opacity of the rectangle 
+     * @param strength - the opacity of the rectangle
      *
      * @sign public String .color()
      * @return A string representing the current color as a CSS property.
