@@ -19,6 +19,9 @@ require('./spatial/math');
 
 require('./graphics/canvas');
 require('./graphics/canvas-layer');
+require('./graphics/webgl');
+require('./graphics/webgl-layer');
+
 require('./graphics/color');
 require('./graphics/dom');
 require('./graphics/dom-helper');
@@ -33,8 +36,6 @@ require('./graphics/sprite-animation');
 require('./graphics/sprite');
 require('./graphics/text');
 require('./graphics/viewport');
-require('./graphics/webgl');
-require('./graphics/webgl-layer');
 
 require('./isometric/diamond-iso');
 require('./isometric/isometric');

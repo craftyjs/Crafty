@@ -4,14 +4,27 @@ var Crafty = require('../core/core.js');
 //
 // Define some variables required for webgl
 var fs = require('fs');
-var IMAGE_VERTEX_SHADER = fs.readFileSync(__dirname + '/shaders/sprite.vert', 'utf8');
-var IMAGE_FRAGMENT_SHADER = fs.readFileSync(__dirname + '/shaders/sprite.frag', 'utf8');
-var IMAGE_ATTRIBUTE_LIST = [
-    {name:"aPosition", width: 2},
-    {name:"aOrientation", width: 3},
-    {name:"aLayer", width:2},
-    {name:"aTextureCoord",  width: 2}
-];
+
+Crafty.defaultShader("Image", new Crafty.WebGLShader(
+    fs.readFileSync(__dirname + '/shaders/sprite.vert', 'utf8'),
+    fs.readFileSync(__dirname + '/shaders/sprite.frag', 'utf8'),
+    [
+        { name: "aPosition",     width: 2 },
+        { name: "aOrientation",  width: 3 },
+        { name: "aLayer",        width: 2 },
+        { name: "aTextureCoord", width: 2 }
+    ],
+    function(e, _entity) {
+        var pos = e.pos;
+        // Write texture coordinates
+        e.program.writeVector("aTextureCoord",
+            0, 0,
+            0, pos._h,
+            pos._w, 0,
+            pos._w, pos._h
+        );
+    }
+));
 
 /**@
  * #Image
@@ -92,7 +105,7 @@ Crafty.c("Image", {
         if (this.has("Canvas")) {
             this._pattern = this._drawContext.createPattern(this.img, this._repeat);
         } else if (this.has("WebGL")) {
-            this._establishShader("image:" + this.__image, IMAGE_FRAGMENT_SHADER, IMAGE_VERTEX_SHADER, IMAGE_ATTRIBUTE_LIST);
+            this._establishShader("image:" + this.__image, Crafty.defaultShader("Image"));
             this.program.setTexture( this.webgl.makeTexture(this.__image, this.img, (this._repeat!=="no-repeat")));
         }
 
@@ -126,14 +139,7 @@ Crafty.c("Image", {
               e.style.backgroundRepeat = this._repeat;
             }
         } else if (e.type === "webgl") {
-            var pos = e.pos;
-            // Write texture coordinates
-            e.program.writeVector("aTextureCoord",
-                0, 0,
-                0, pos._h,
-                pos._w, 0,
-                pos._w, pos._h
-            );
+          e.program.draw(e, this);
         }
 
     }
