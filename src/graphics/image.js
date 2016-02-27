@@ -1,7 +1,7 @@
 var Crafty = require('../core/core.js');
 
 
-// 
+//
 // Define some variables required for webgl
 var fs = require('fs');
 var IMAGE_VERTEX_SHADER = fs.readFileSync(__dirname + '/shaders/sprite.vert', 'utf8');
@@ -28,10 +28,6 @@ Crafty.c("Image", {
 
     remove: function() {
         this.unbind("Draw", this._drawImage);
-        // Unregister webgl entities
-        if (this.program) {
-            this.program.unregisterEntity(this);
-        }
     },
 
     /**@
@@ -50,7 +46,7 @@ Crafty.c("Image", {
      * height will automatically assume that of the image. This is an
      * easy way to create an image without needing sprites.
      *
-     * If set to `no-repeat` and given dimensions larger than that of the image, 
+     * If set to `no-repeat` and given dimensions larger than that of the image,
      * the exact appearance will depend on what renderer (WebGL, DOM, or Canvas) is used.
      *
      * @example
@@ -92,7 +88,7 @@ Crafty.c("Image", {
     },
 
     _onImageLoad: function(){
-        
+
         if (this.has("Canvas")) {
             this._pattern = this._drawContext.createPattern(this.img, this._repeat);
         } else if (this.has("WebGL")) {
@@ -105,8 +101,8 @@ Crafty.c("Image", {
             this.h = this.h || this.img.height;
         }
 
-        
-        
+
+
         this.ready = true;
         this.trigger("Invalidate");
     },

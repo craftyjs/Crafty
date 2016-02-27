@@ -1,6 +1,6 @@
 {
   "name": "craftyjs",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "author": {
     "name": "Louis Stowasser",
     "url": "http://craftyjs.com/"
@@ -15,10 +15,12 @@
     "url": "https://github.com/craftyjs/Crafty.git"
   },
   "licenses": "(GPL OR MIT)",
-  "description": "Crafty is a modern component and event based framework for javascript games that targets DOM and canvas. Check out the DEV version if you want to play with the latest and greatest.",
+  "description": "Crafty is a modern component and event based framework for developing games in JavaScript that targets DOM, Canvas and WebGL.",
   "keywords": [
     "framework",
-    "javascript"
+    "javascript",
+    "game",
+    "engine"
   ],
   "scripts": {
     "test": "grunt check"
