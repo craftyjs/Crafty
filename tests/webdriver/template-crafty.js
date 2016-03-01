@@ -1,4 +1,4 @@
-QUnit.module(require('path').basename(module.filename, '.js'));
+QUnit.module(module);
 
 QUnit.test("Crafty webdriver test template", function(assert) {
   return browser
