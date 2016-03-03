@@ -80,7 +80,7 @@ Crafty.canvasLayerObject = {
         //Set any existing transformations
         var zoom = Crafty.viewport._scale;
         if (zoom != 1)
-            c.scale(zoom, zoom);
+            this.context.scale(zoom, zoom);
 
         // Set pixelart to current status, and listen for changes
         this._setPixelart(Crafty._pixelartEnabled);
