@@ -993,7 +993,7 @@ Crafty.c("Supportable", {
         // check if we lift-off
         if (ground) {
             var garea = ground._cbr || ground._mbr || ground;
-            if (!(ground.__c[groundComp] && overlap(garea, area))) {
+            if (!(ground.__c[groundComp] && Crafty(ground[0]) === ground && overlap(garea, area))) {
                 this._ground = null;
                 this.trigger("LiftedOffGround", ground); // no collision with ground was detected for first time
                 ground = null;
