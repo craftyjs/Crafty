@@ -223,7 +223,7 @@ Crafty.c("Color", {
      * c.color("#FF0000");
      * c.color("red");
      * c.color(255, 0, 0);
-     * c.color("rgb(255, 0, 0")
+     * c.color("rgb(255, 0, 0)");
      * ```
      * Three different ways of assign the color red.
      * ```
