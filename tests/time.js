@@ -18,7 +18,7 @@
 
     // test two executions
     counter = 0;
-     ent.delay(incr, 49, 1);
+    ent.delay(incr, 49, 1);
     Crafty.timer.simulateFrames(5);
     strictEqual(counter, 2, "delayed function should have executed twice");
     strictEqual(ent._delays.length, 0, "no more scheduled delays");
@@ -74,6 +74,53 @@
     strictEqual(ent._delays.length, 0, "no more scheduled delays");
 
 
+    //test resume delays without pausing before
+    counter = 0;
+    ent.resumeDelays();
+    ent.delay(incr, 49);
+    ent.resumeDelays();
+    Crafty.timer.simulateFrames(5);
+    strictEqual(counter, 1, "delayed function should have executed once");
+    strictEqual(ent._delays.length, 0, "no more scheduled delays");
+
+    //test resume delay after pausing before frame event
+    counter = 0;
+    ent.pauseDelays();
+    ent.delay(incr, 49);
+    ent.resumeDelays();
+    Crafty.timer.simulateFrames(5);
+    strictEqual(counter, 1, "delayed function should have executed once");
+    strictEqual(ent._delays.length, 0, "no more scheduled delays");
+
+    //test pausing delays before specifying delays
+    counter = 0;
+    ent.pauseDelays();
+    ent.delay(incr, 49);
+    Crafty.timer.simulateFrames(5);
+    strictEqual(counter, 0, "delayed function should not have executed");
+    strictEqual(ent._delays.length, 1, "one pending delay");
+    //test resuming delay after pausing
+    counter = 0;
+    ent.resumeDelays();
+    Crafty.timer.simulateFrames(5);
+    strictEqual(counter, 1, "delayed function should have executed once");
+    strictEqual(ent._delays.length, 0, "no more scheduled delays");
+
+    //test (double) pausing delays after specifying delays
+    counter = 0;
+    ent.delay(incr, 49);
+    ent.pauseDelays();
+    ent.pauseDelays();
+    Crafty.timer.simulateFrames(5);
+    strictEqual(counter, 0, "delayed function should not have executed");
+    strictEqual(ent._delays.length, 1, "one pending delay");
+    //test (double) resuming delay after pausing
+    counter = 0;
+    ent.resumeDelays();
+    ent.resumeDelays();
+    Crafty.timer.simulateFrames(5);
+    strictEqual(counter, 1, "delayed function should have executed once");
+    strictEqual(ent._delays.length, 0, "no more scheduled delays");
   });
 
   module("Crafty.timer");
