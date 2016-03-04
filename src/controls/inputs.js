@@ -141,7 +141,6 @@ Crafty.extend({
             l,
             pos = Crafty.domHelper.translate(e.clientX, e.clientY),
             x, y,
-            dupes = {},
             type = e.type;     
 
         //Normalize button according to http://unixpapa.com/js/mouse.html
@@ -422,8 +421,8 @@ Crafty.extend({
      */
     findClosestEntityByComponent: function (comp, x, y, target) { 
         var tar = target ? target : Crafty.stage.elem,
-            closest, q, l, i = 0, maxz = -1, dupes = {};
-            
+            closest, current, q, l, i, maxz = -Infinity;
+
         //if it's a DOM element with component we are done
         if (tar.nodeName != "CANVAS") {
             while (typeof (tar.id) != 'string' && tar.id.indexOf('ent') == -1) {
@@ -434,7 +433,8 @@ Crafty.extend({
                 closest = ent;
             }
         }
-            //else we search for an entity with component
+
+        //else we search for an entity with component
         if (!closest) {
             q = Crafty.map.search({
                 _x: x,
@@ -443,34 +443,18 @@ Crafty.extend({
                 _h: 1
             }, false);
 
-            for (l = q.length; i < l; ++i) {
-                
-                if (!q[i].__c[comp] || !q[i]._visible){ continue; }
+            for (i = 0, l = q.length; i < l; ++i) {
+                current = q[i];
 
-                    var current = q[i],
-                        flag = false;
+                if (current._visible && current._globalZ > maxz &&
+                    current.__c[comp] && current.isAt(x, y)) {
 
-                    //weed out duplicates
-                    if (dupes[current[0]]){  continue; }
-                    else dupes[current[0]] = true;
-
-                    if (current.mapArea) {
-                        if (current.mapArea.containsPoint(x, y)) {
-                            flag = true;
-                        }
-                    } else if (current.isAt(x, y)) flag = true;
-
-                    if (flag && (current._z >= maxz || maxz === -1)) {
-                        //if the Z is the same, select the closest GUID
-                        if (current._z === maxz && current[0] < closest[0]) {
-                            continue; 
-                    }
-                    maxz = current._z;
+                    maxz = current._globalZ;
                     closest = current;
                 }
             }
         }
-            
+
         return closest;
     },
 
