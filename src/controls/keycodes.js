@@ -5,7 +5,7 @@ Crafty.extend({
     /**@
      * #Crafty.keys
      * @category Input
-     * Object of key names and the corresponding key code.
+     * Object of key names and the corresponding Unicode key code.
      *
      * ~~~
      * BACKSPACE: 8,

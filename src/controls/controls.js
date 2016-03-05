@@ -111,6 +111,7 @@ Crafty.c("Draggable", {
         this._oldY = this._y;
     },
 
+    //Note: the code is not tested with zoom, etc., that may distort the direction between the viewport and the coordinate on the canvas.
     _drag: function(e) {
         if (this._dir) {
             if (this._dir.x !== 0 || this._dir.y !== 0) {
