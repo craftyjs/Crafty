@@ -355,7 +355,7 @@ Crafty.extend({
         },
 
         mimicMouse: function (e) {
-            var type,
+            var type, first,
                 lastEvent = Crafty.lastEvent;
             if (e.type === "touchstart") type = "mousedown";
             else if (e.type === "touchmove") type = "mousemove";
