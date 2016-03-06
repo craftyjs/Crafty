@@ -788,6 +788,6 @@ Crafty.extend({
         onScreen: function (rect) {
             return Crafty.viewport._x + rect._x + rect._w > 0 && Crafty.viewport._y + rect._y + rect._h > 0 &&
                 Crafty.viewport._x + rect._x < Crafty.viewport.width && Crafty.viewport._y + rect._y < Crafty.viewport.height;
-        },
+        }
     }
 });

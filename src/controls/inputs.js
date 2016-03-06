@@ -484,9 +484,59 @@ Crafty.extend({
      * (see [details](http://stackoverflow.com/questions/5527601/normalizing-mousewheel-speed-across-browsers)).
      *
      * @example
+     * Zoom the viewport (camera) in response to mouse scroll events.
      * ~~~
      * Crafty.bind("MouseWheelScroll", function(evt) {
      *     Crafty.viewport.scale(Crafty.viewport._scale * (1 + evt.direction * 0.1));
+     * });
+     * ~~~
+     *
+     * @example
+     * Interactive, map-like zooming of the viewport (camera) in response to mouse scroll events.
+     * ~~~
+     * // sign public void zoomTowards(Number amt, Number posX, Number posY, Number time[, String|function easingFn])
+     * // param Number amt - amount to zoom in on the target by (eg. `2`, `4`, `0.5`)
+     * // param Number posX - the x coordinate to zoom towards
+     * // param Number posY - the y coordinate to zoom towards
+     * // param Number time - the duration in ms of the entire zoom operation
+     * // param easingFn - A string or custom function specifying an easing.
+     * //                   (Defaults to linear behavior.)
+     * //                   See `Crafty.easing` for more information.
+     * //
+     * // Zooms the camera towards a given point, preserving the current center.
+     * // `amt > 1` will bring the camera closer to the subject,
+     * // `amt < 1` will bring it farther away,
+     * // `amt = 0` will reset to the default zoom level.
+     * // Zooming is multiplicative. To reset the zoom amount, pass `0`.
+     * //
+     * // <example>
+     * // // Make the entities appear twice as large by zooming in towards (100,100) over the duration of 3 seconds using linear easing behavior
+     * // zoomTowards(2, 100, 100, 3000);
+     * // </example>
+     * //
+     * function zoomTowards (amt, posX, posY, time, easingFn) {
+     *     var scale = Crafty.viewport._scale,
+     *         // current viewport center
+     *         centX = -Crafty.viewport._x + Crafty.viewport._width / 2 / scale,
+     *         centY = -Crafty.viewport._y + Crafty.viewport._height / 2 / scale,
+     *         // direction vector from viewport center to position
+     *         deltaX = posX - centX,
+     *         deltaY = posY - centY;
+     *     var f = amt - 1;
+     *
+     *     Crafty.viewport.zoom(amt, centX + deltaX * f, centY + deltaY * f, time, easingFn);
+     * }
+     *
+     * // don't restrict panning of viewport in any way
+     * Crafty.viewport.clampToEntities = false;
+     *
+     * // enable panning of viewport by dragging the mouse
+     * Crafty.viewport.mouselook(true);
+     *
+     * // enable interactive map-like zooming by scrolling the mouse
+     * Crafty.bind("MouseWheelScroll", function (evt) {
+     *     var pos = Crafty.domHelper.translate(evt.clientX, evt.clientY);
+     *     zoomTowards(1 + evt.direction/10, pos.x, pos.y, 5);
      * });
      * ~~~
      */
