@@ -2,8 +2,6 @@ var Crafty = require('../core/core.js'),
     document = window.document;
 
 Crafty.extend({
-    selected: false,
-
     over: null, //object mouseover, waiting for out
     mouseObjs: 0,
     mousePos: {},
@@ -45,7 +43,22 @@ Crafty.extend({
      * ~~~
      * @see Keyboard, Crafty.keys, Crafty.keyboardDispatch
      */
-     keydown: {},
+    keydown: {},
+
+    /**@
+     * #Crafty.selected
+     * @category Input
+     * @trigger CraftyFocus - is triggered when Crafty's stage gets selected
+     * @trigger CraftyBlur - is triggered when Crafty's stage is no longer selected
+     *
+     * Check whether Crafty's stage (`Crafty.stage.elem`) is currently selected.
+     *
+     * After a click occurs inside Crafty's stage, this property is set to `true`.
+     * After a click occurs outside Crafty's stage, this property is set to `false`.
+     *
+     * @see Crafty.stage#Crafty.stage.elem
+     */
+    selected: false,
 
     detectBlur: function (e) {
         var selected = ((e.clientX > Crafty.stage.x && e.clientX < Crafty.stage.x + Crafty.viewport.width) &&
