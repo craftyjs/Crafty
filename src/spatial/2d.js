@@ -544,7 +544,7 @@ Crafty.c("2D", {
      * @note The keys have an underscore prefix. This is due to the x, y, w, h properties
      * being setters and getters that wrap the underlying properties with an underscore (_x, _y, _w, _h).
      *
-     * @see 2D.pos
+     * @see .pos
      */
     mbr: function (mbr) {
         mbr = mbr || {};
@@ -957,7 +957,7 @@ Crafty.c("Supportable", {
      * This is performed by approximating continous collision detection, which may impact performance negatively.
      * For further details, refer to [FAQ#Tunneling](https://github.com/craftyjs/Crafty/wiki/Crafty-FAQ-%28draft%29#why-are-my-bullets-passing-through-other-entities-without-registering-hits).
      *
-     * @see Motion.ccdbr
+     * @see Motion#.ccdbr
      */
     preventGroundTunneling: function(enable) {
         if (typeof enable === 'undefined')
@@ -1604,7 +1604,7 @@ Crafty.c("Motion", {
      * @note The keys have an underscore prefix. This is due to the x, y, w, h properties
      * being setters and getters that wrap the underlying properties with an underscore (_x, _y, _w, _h).
      *
-     * @see Collision.cbr, Motion.motionDelta
+     * @see .motionDelta, Collision#.cbr
      */
     ccdbr: function (ccdbr) {
         var pos = this._cbr || this._mbr || this,
