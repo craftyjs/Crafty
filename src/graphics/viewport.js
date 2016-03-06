@@ -390,6 +390,46 @@ Crafty.extend({
 
             
         })(),
+
+        /**@
+         * #Crafty.viewport.zoomTowards
+         * @comp Crafty.viewport
+         * @sign public void Crafty.viewport.zoom(Number amt, Number pos_x, Number pos_y, Number time[, String|function easingFn])
+         * @param Number amt - amount to zoom in on the target by (eg. 2, 4, 0.5)
+         * @param Number pos_x - the x coordinate to zoom towards
+         * @param Number pos_y - the y coordinate to zoom towards
+         * @param Number time - the duration in ms of the entire zoom operation
+         * @param easingFn - A string or custom function specifying an easing.  (Defaults to linear behavior.)  See Crafty.easing for more information.
+         *
+         * Zooms the camera towards a given point, preserving the current center. amt > 1 will bring the camera closer to the subject
+         * amt < 1 will bring it farther away. amt = 0 will reset to the default zoom level
+         * Zooming is multiplicative. To reset the zoom amount, pass 0.
+         *
+         * @example
+         * ~~~
+         * // Make the entities appear twice as large by zooming in towards (100,100) over the duration of 3 seconds using linear easing behavior
+         * Crafty.viewport.zoomTowards(2, 100, 100, 3000);
+         * ~~~
+         */
+        zoomTowards: function (amt, pos_x, pos_y, time, easingFn) {
+            var scale = Crafty.viewport._scale;
+            // bounds of current viewport
+            var xorig = -Crafty.viewport.x;
+            var yorig = -Crafty.viewport.y;
+            var xbound = xorig + (Crafty.viewport.width / scale);
+            var ybound = yorig + (Crafty.viewport.height / scale);
+            // target in scaled coords
+            pos_x = xorig + (pos_x || xorig) / scale;
+            pos_y = yorig + (pos_y || yorig) / scale;
+            // current center
+            var xcenter = (xbound + xorig) / 2;
+            var ycenter = (ybound + yorig) / 2;
+            // new center = old center + f * (target - old center)
+            var f = amt - 1;
+            var cx = xcenter + f * (pos_x - xcenter);
+            var cy = ycenter + f * (pos_y - ycenter);
+            Crafty.viewport.zoom(amt, cx, cy, time, easingFn);
+        },
         /**@
          * #Crafty.viewport.scale
          * @comp Crafty.viewport
