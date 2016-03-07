@@ -111,6 +111,7 @@ Crafty.c("Draggable", {
         this._oldY = this._y;
     },
 
+    //Note: the code is not tested with zoom, etc., that may distort the direction between the viewport and the coordinate on the canvas.
     _drag: function(e) {
         if (this._dir) {
             if (this._dir.x !== 0 || this._dir.y !== 0) {
@@ -128,10 +129,15 @@ Crafty.c("Draggable", {
 /**@
  * #Multiway
  * @category Controls
- * @trigger NewDirection - When entity has changed direction due to velocity on either x or y axis a NewDirection event is triggered. The event is triggered once, if direction is different from last frame. - { x: -1 | 0 | 1, y: -1 | 0 | 1 } - New direction
- * @trigger Moved - When entity has moved due to velocity/acceleration on either x or y axis a Moved event is triggered. If the entity has moved on both axes for diagonal movement the event is triggered twice. - { axis: 'x' | 'y', oldValue: Number } - Old position
  *
  * Used to bind keys to directions and have the entity move accordingly.
+ *
+ * Multiway acts by adding a velocity on key press and removing the same velocity when the respective key is released.
+ * This works well in most cases, but can cause undesired behavior if you manipulate velocities by yourself while this component is in effect.
+ * If you need to resolve collisions, it's advised to correct the position directly rather than to manipulate the velocity.
+ * If you still need to reset the velocity once a collision happens, make sure to re-add the previous velocity once the collision is resolved.
+ *
+ * Additionally, this component provides the entity with `Motion` and `Keyboard` methods & events.
  *
  * @see Motion, Keyboard
  */
@@ -188,12 +194,9 @@ Crafty.c("Multiway", {
      * @param speed - A speed in pixels per second
      * @param keyBindings - What keys should make the entity go in which direction. Direction is specified in degrees
      *
-     * Constructor to initialize the speed and keyBindings. Component will listen to key events and move the entity appropriately.
+     * Constructor to initialize the speed and keyBindings.
+     * Component will listen to key events and move the entity appropriately.
      * Can be called while a key is pressed to change direction & speed on the fly.
-     *
-     * Multiway acts by adding a velocity on key press and removing the same velocity when the respective key is released.
-     * This works well in most cases, but can cause undesired behavior if you manipulate velocities by yourself while this component is in effect.
-     * If you need to resolve collisions, it's advised to correct the position directly rather than to manipulate the velocity. If you still need to reset the velocity once a collision happens, make sure to re-add the previous velocity once the collision is resolved.
      *
      * @example
      * ~~~
@@ -202,7 +205,7 @@ Crafty.c("Multiway", {
      * this.multiway({W: -90, S: 90, D: 0, A: 180});
      * ~~~
      *
-     * @see Motion, Keyboard
+     * @see Crafty.keys
      */
     multiway: function (speed, keys) {
         if (keys) {
@@ -239,7 +242,6 @@ Crafty.c("Multiway", {
      * @param speed - New speed the entity has, for x and y axis.
      *
      * Change the speed that the entity moves with, in units of pixels per second.
-     *
      * Can be called while a key is pressed to change speed on the fly.
      *
      * @example
@@ -356,11 +358,12 @@ Crafty.c("Multiway", {
 /**@
  * #Jumper
  * @category Controls
- * @trigger NewDirection - When entity has changed direction due to velocity on either x or y axis a NewDirection event is triggered. The event is triggered once, if direction is different from last frame. - { x: -1 | 0 | 1, y: -1 | 0 | 1 } - New direction
- * @trigger Moved - When entity has moved due to velocity/acceleration on either x or y axis a Moved event is triggered. If the entity has moved on both axes for diagonal movement the event is triggered twice. - { axis: 'x' | 'y', oldValue: Number } - Old position
  * @trigger CheckJumping - When entity is about to jump. This event is triggered with the object the entity is about to jump from (if it exists). Third parties can respond to this event and enable the entity to jump.
  *
- * Make an entity jump in response to key events.
+ * Make the entity jump in response to key events.
+ * Simulates jumping and falling when used with the `Gravity` component.
+ *
+ * Additionally, this component provides the entity with `Supportable`, `Motion` and `Keyboard` methods & events.
  *
  * @see Supportable, Motion, Keyboard, Gravity
  */
@@ -449,9 +452,8 @@ Crafty.c("Jumper", {
      * @param jumpSpeed - Vertical jump speed in pixels per second
      * @param jumpKeys - Keys to listen for and make entity jump in response
      *
-     * Constructor to initialize the power of jump and keys to listen to. Component will
-     * listen for key events and move the entity appropriately. Used with the
-     * `gravity` component will simulate jumping.
+     * Constructor to initialize the power of jump and keys to listen to.
+     * Component will listen for key events and make the entity jump appropriately.
      *
      * @example
      * ~~~
@@ -459,7 +461,7 @@ Crafty.c("Jumper", {
      * this.jumper(['UP_ARROW', 'W']);
      * ~~~
      *
-     * @see Supportable, Motion, Keyboard, Gravity
+     * @see Crafty.keys
      */
     jumper: function (jumpSpeed, jumpKeys) {
         if (jumpKeys) {
@@ -502,11 +504,12 @@ Crafty.c("Jumper", {
 /**@
  * #Fourway
  * @category Controls
- * @trigger NewDirection - When entity has changed direction due to velocity on either x or y axis a NewDirection event is triggered. The event is triggered once, if direction is different from last frame. - { x: -1 | 0 | 1, y: -1 | 0 | 1 } - New direction
- * @trigger Moved - When entity has moved due to velocity/acceleration on either x or y axis a Moved event is triggered. If the entity has moved on both axes for diagonal movement the event is triggered twice. - { axis: 'x' | 'y', oldValue: Number } - Old position
  *
  * Move an entity in four directions by using the
- * arrow keys or `W`, `A`, `S`, `D`.
+ * `Up Arrow`, `Left Arrow`, `Down Arrow`, `Right Arrow` keys or `W`, `A`, `S`, `D`.
+ *
+ * This component is a thin wrapper around the `Multiway` component and sets the appropriate key bindings.
+ * It is a well suited for games with a top-down (birds-eye) perspective.
  *
  * @see Multiway
  */
@@ -522,12 +525,9 @@ Crafty.c("Fourway", {
      * @sign public this .fourway([Number speed])
      * @param speed - The speed of motion in pixels per second.
      *
-     * Constructor to initialize the speed. Component will listen for key events and move the entity appropriately.
-     * This includes `Up Arrow`, `Right Arrow`, `Down Arrow`, `Left Arrow` as well as `W`, `A`, `S`, `D`.
-     *
-     * The key presses will move the entity in that direction by the speed passed in the argument.
-     *
-     * @see Multiway
+     * Constructor to initialize the speed.
+     * Component will listen for key events and move the entity
+     * in the respective direction by the speed passed in the argument.
      */
     fourway: function (speed) {
         this.multiway(speed || this._speed, {
@@ -550,11 +550,13 @@ Crafty.c("Fourway", {
 /**@
  * #Twoway
  * @category Controls
- * @trigger NewDirection - When entity has changed direction due to velocity on either x or y axis a NewDirection event is triggered. The event is triggered once, if direction is different from last frame. - { x: -1 | 0 | 1, y: -1 | 0 | 1 } - New direction
- * @trigger Moved - When entity has moved due to velocity/acceleration on either x or y axis a Moved event is triggered. If the entity has moved on both axes for diagonal movement the event is triggered twice. - { axis: 'x' | 'y', oldValue: Number } - Old position
- * @trigger CheckJumping - When entity is about to jump. This event is triggered with the object the entity is about to jump from (if it exists). Third parties can respond to this event and enable the entity to jump.
  *
- * Move an entity left or right using the arrow keys or `D` and `A` and jump using up arrow or `W`.
+ * Move an entity left or right using the `Left Arrow`, `Right Arrow` keys or `D` and `A`
+ * and make it jump using `Up Arrow` or `W`.
+ * Simulates jumping and falling when used with the `Gravity` component.
+ *
+ * This component is a thin wrapper around the `Multiway` and `Jumper` components and sets the appropriate key bindings.
+ * It is a well suited for side-scrolling platformer type games.
  *
  * @see Multiway, Jumper
  */
@@ -571,15 +573,10 @@ Crafty.c("Twoway", {
      * @param speed - A speed in pixels per second
      * @param jumpSpeed - Vertical jump speed in pixels per second
      *
-     * Constructor to initialize the speed and power of jump. Component will
-     * listen for key events and move the entity appropriately. This includes
-     * `Up Arrow`, `Right Arrow`, `Left Arrow` as well as `W`, `A`, `D`. Used with the
-     * `gravity` component to simulate jumping.
-     *
-     * The key presses will move the entity in that direction by the speed passed in
-     * the argument. Pressing the `Up Arrow` or `W` will cause the entity to jump.
-     *
-     * @see Multiway, Jumper
+     * Constructor to initialize the speed and power of jump.
+     * Component will listen for key events and move the entity
+     * in the respective direction by the speed passed in the argument.
+     * Pressing the jump key will cause the entity to jump with the supplied power.
      */
     twoway: function (speed, jumpSpeed) {
 

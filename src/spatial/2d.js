@@ -544,7 +544,7 @@ Crafty.c("2D", {
      * @note The keys have an underscore prefix. This is due to the x, y, w, h properties
      * being setters and getters that wrap the underlying properties with an underscore (_x, _y, _w, _h).
      *
-     * @see 2D.pos
+     * @see .pos
      */
     mbr: function (mbr) {
         mbr = mbr || {};
@@ -947,7 +947,7 @@ Crafty.c("Supportable", {
         return this;
     },
 
-    /*@
+    /**@
      * #.preventGroundTunneling
      * @comp Supportable
      * @sign this .preventGroundTunneling([Boolean enable])
@@ -957,7 +957,7 @@ Crafty.c("Supportable", {
      * This is performed by approximating continous collision detection, which may impact performance negatively.
      * For further details, refer to [FAQ#Tunneling](https://github.com/craftyjs/Crafty/wiki/Crafty-FAQ-%28draft%29#why-are-my-bullets-passing-through-other-entities-without-registering-hits).
      *
-     * @see Motion.ccdbr
+     * @see Motion#.ccdbr
      */
     preventGroundTunneling: function(enable) {
         if (typeof enable === 'undefined')
@@ -993,7 +993,7 @@ Crafty.c("Supportable", {
         // check if we lift-off
         if (ground) {
             var garea = ground._cbr || ground._mbr || ground;
-            if (!(ground.__c[groundComp] && overlap(garea, area))) {
+            if (!(ground.__c[groundComp] && Crafty(ground[0]) === ground && overlap(garea, area))) {
                 this._ground = null;
                 this.trigger("LiftedOffGround", ground); // no collision with ground was detected for first time
                 ground = null;
@@ -1037,16 +1037,18 @@ Crafty.c("Supportable", {
  * #GroundAttacher
  * @category 2D
  *
- * Component that attaches the entity to the ground when it lands. Useful for platformers with moving platforms.
+ * Attach the entity to the ground when it lands. Useful for platformers with moving platforms.
  * Remove the component to disable the functionality.
  *
- * @see Supportable, Gravity
+ * Additionally, this component provides the entity with `Supportable` methods & events.
  *
  * @example
  * ~~~
  * Crafty.e("2D, Gravity, GroundAttacher")
  *     .gravity("Platform"); // entity will land on and move with entites that have the "Platform" component
  * ~~~
+ *
+ * @see Supportable, Gravity
  */
 Crafty.c("GroundAttacher", {
     _groundAttach: function(ground) {
@@ -1072,10 +1074,10 @@ Crafty.c("GroundAttacher", {
 /**@
  * #Gravity
  * @category 2D
- * @trigger Moved - When entity has moved due to velocity/acceleration on either x or y axis a Moved event is triggered. If the entity has moved on both axes for diagonal movement the event is triggered twice. - { axis: 'x' | 'y', oldValue: Number } - Old position
- * @trigger NewDirection - When entity has changed direction due to velocity on either x or y axis a NewDirection event is triggered. The event is triggered once, if direction is different from last frame. - { x: -1 | 0 | 1, y: -1 | 0 | 1 } - New direction
- * 
+ *
  * Adds gravitational pull to the entity.
+ *
+ * Additionally, this component provides the entity with `Supportable` and `Motion` methods & events.
  *
  * @see Supportable, Motion
  */
@@ -1109,7 +1111,6 @@ Crafty.c("Gravity", {
      * If comp parameter is specified all entities with that component will stop this entity from falling.
      * For a player entity in a platform game this would be a component that is added to all entities
      * that the player should be able to walk on.
-     * See the Supportable component documentation for additional methods & events that are available.
      *
      * @example
      * ~~~
@@ -1118,8 +1119,6 @@ Crafty.c("Gravity", {
      *   .attr({ w: 100, h: 100 })
      *   .gravity("platform");
      * ~~~
-     *
-     * @see Supportable, Motion
      */
     gravity: function (comp) {
         this.uniqueBind("CheckLanding", this._gravityCheckLanding);
@@ -1605,7 +1604,7 @@ Crafty.c("Motion", {
      * @note The keys have an underscore prefix. This is due to the x, y, w, h properties
      * being setters and getters that wrap the underlying properties with an underscore (_x, _y, _w, _h).
      *
-     * @see Collision.cbr, Motion.motionDelta
+     * @see .motionDelta, Collision#.cbr
      */
     ccdbr: function (ccdbr) {
         var pos = this._cbr || this._mbr || this,

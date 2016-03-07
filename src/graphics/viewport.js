@@ -512,18 +512,20 @@ Crafty.extend({
 
         /**@
          * #Crafty.viewport.init
-         * @comp Crafty.viewport
+         * @comp Crafty.stage
          * @sign public void Crafty.viewport.init([Number width, Number height, String stage_elem])
          * @sign public void Crafty.viewport.init([Number width, Number height, HTMLElement stage_elem])
          * @param Number width - Width of the viewport
          * @param Number height - Height of the viewport
          * @param String or HTMLElement stage_elem - the element to use as the stage (either its id or the actual element).
          *
-         * Initialize the viewport. If the arguments 'width' or 'height' are missing, use `window.innerWidth` and `window.innerHeight` (full screen model).
-         *
+         * Initialize the viewport.
+         * If the arguments 'width' or 'height' are missing, use `window.innerWidth` and `window.innerHeight` (full screen model).
          * The argument 'stage_elem' is used to specify a stage element other than the default, and can be either a string or an HTMLElement.  If a string is provided, it will look for an element with that id and, if none exists, create a div.  If an HTMLElement is provided, that is used directly.  Omitting this argument is the same as passing an id of 'cr-stage'.
          *
-         * @see Crafty.device, Crafty.domHelper, Crafty.stage
+         * Usually you don't have to initialize the viewport by yourself, it's automatically initialized by calling `Crafty.init()`. Multiple `init`s will create redundant stage elements. Use `Crafty.viewport.width`, `Crafty.viewport.height` or `Crafty.viewport.reload` to adjust the current viewport's dimensions.
+         *
+         * @see Crafty.device, Crafty.domHelper, Crafty.stage, Crafty.viewport.reload
          */
         init: function (w, h, stage_elem) {
             // setters+getters for the viewport

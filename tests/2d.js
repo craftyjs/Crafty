@@ -896,49 +896,58 @@
       })
       .startGroundDetection("Ground");
 
-
+    // entity shouldn't land in initial position
     strictEqual(ent.ground, null, "entity should not be on ground");
     Crafty.timer.simulateFrames(1);
     strictEqual(ent.ground, null, "entity should not be on ground");
 
+    // entity should land when immediately above ground
     ent.y = 5;
     Crafty.timer.simulateFrames(1); // 1 landed event should have occured
     equal(ent.y, 5, "ent y should not have changed");
     strictEqual(ent.ground, ground, "entity should be on ground");
 
+    // entity should lift when no longer near ground
     ent.y = 0;
     Crafty.timer.simulateFrames(1); // 1 lifted event should have occured
     equal(ent.y, 0, "ent y should not have changed");
     strictEqual(ent.ground, null, "entity should not be on ground");
 
+    // entity should land when intersecting ground, and should snap to ground
     ent.y = 7;
     Crafty.timer.simulateFrames(1); // 1 landed event should have occured
     equal(ent.y, ground.y - ent.h, "ent y should have been snapped to ground");
     strictEqual(ent.ground, ground, "entity should be on ground");
 
+    // no snapping should happen if entity moves while still intersecting ground
     ent.y = 9;
     Crafty.timer.simulateFrames(1);
     equal(ent.y, 9, "ent y should not have changed");
     strictEqual(ent.ground, ground, "entity should be on ground");
 
+    // entity still interesects ground, nothing should change
     ent.y = 16;
     Crafty.timer.simulateFrames(1);
     equal(ent.y, 16, "ent y should not have changed");
     strictEqual(ent.ground, ground, "entity should be on ground");
 
+    // entity should change ground (lift from old & land on new) in a single frame
     ent.y = 21;
     Crafty.timer.simulateFrames(1); // 1 lifted event & 1 landed event should have occured
     equal(ent.y, ground2.y - ent.h, "ent y should have been snapped to ground");
     strictEqual(ent.ground, ground2, "entity should be on ground2");
 
+    // entity should lift from ground, if it looses the required component
     ground.removeComponent("Ground");
     ground2.removeComponent("Ground");
     Crafty.timer.simulateFrames(1); // 1 lifted event should have occured
     equal(ent.y, ground2.y - ent.h, "ent y should not have changed");
     strictEqual(ent.ground, null, "entity should not be on ground");
-
     ground.addComponent("Ground");
     ground2.addComponent("Ground");
+
+    // entity should not be able to land on ground if user forbids it
+    // but should be able to land on other ground2 since it's not forbidden
     ent.bind("CheckLanding", function(candidate) {
       if (candidate === ground)
         this.canLand = false;
@@ -952,8 +961,15 @@
     equal(ent.y, ground2.y - ent.h, "ent y should have been snapped to ground");
     strictEqual(ent.ground, ground2, "entity should be on ground2");
 
+    // entity should lift from ground, if it gets destroyed
+    ground2.destroy();
+    Crafty.timer.simulateFrames(1); // 1 lifted event should have occured
+    equal(ent.y, ground2.y - ent.h, "ent y should not have changed");
+    strictEqual(ent.ground, null, "entity should not be on ground");
+
+
     equal(landedCount, 4, "landed count mismatch");
-    equal(liftedCount, 3, "lifted count mismatch");
+    equal(liftedCount, 4, "lifted count mismatch");
 
     ground.destroy();
     ground2.destroy();

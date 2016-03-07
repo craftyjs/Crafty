@@ -140,7 +140,7 @@ Crafty.c("Collision", {
      * @note The keys have an underscore prefix. This is due to the x, y, w, h properties
      * being setters and getters that wrap the underlying properties with an underscore (_x, _y, _w, _h).
      *
-     * @see 2D.mbr
+     * @see 2D#.mbr
      */
     cbr: function (cbr) {
         cbr = cbr || {};
