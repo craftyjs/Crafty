@@ -126,6 +126,7 @@ Crafty.extend({
             this.requires("2D, Sprite");
             this.__trim = [0, 0, 0, 0];
             this.__image = url;
+            this.__map = map;
             this.__coord = [this.__coord[0], this.__coord[1], this.__coord[2], this.__coord[3]];
             this.__tile = tile;
             this.__tileh = tileh;
@@ -258,20 +259,31 @@ Crafty.c("Sprite", {
     /**@
      * #.sprite
      * @comp Sprite
+     *
      * @sign public this .sprite(Number x, Number y[, Number w, Number h])
      * @param x - X cell position
      * @param y - Y cell position
      * @param w - Width in cells. Optional.
      * @param h - Height in cells. Optional.
      *
-     * Uses a new location on the sprite map as its sprite. If w or h are ommitted, the width and height are not changed.
-     *
+     * Uses a new location on the sprite map as its sprite.
+     * If w or h are ommitted, the width and height are not changed.
      * Values should be in tiles or cells (not pixels).
+     *
+     * @sign public this .sprite(String tileName)
+     * @param tileName - the name of a tile specified in the sprite map
+     *
+     * Uses a new location on the sprite map as its sprite.
+     * The location is retrieved by name from the previously supplied sprite map.
+     * An invalid name will be silently ignored.
      *
      * @example
      * ~~~
      * Crafty.e("2D, DOM, Sprite")
      *   .sprite(0, 0, 2, 2);
+     *
+     * Crafty.e("2D, DOM, flower")
+     *   .sprite('grass');
      * ~~~
      */
 
@@ -282,6 +294,16 @@ Crafty.c("Sprite", {
      * The coordinate of the slide within the sprite in the format of [x, y, w, h].
      */
     sprite: function (x, y, w, h) {
+        if (typeof x === 'string') { // retrieve location from sprite map by name
+            var temp = this.__map[x];
+            if (!temp) return this;
+
+            x = temp[0];
+            y = temp[1];
+            w = temp[2] || 1;
+            h = temp[3] || 1;
+        }
+
         this.__coord = this.__coord || [0, 0, 0, 0];
 
         this.__coord[0] = x * (this.__tile + this.__padding[0]) + (this.__padBorder ? this.__padding[0] : 0) + this.__trim[0];
