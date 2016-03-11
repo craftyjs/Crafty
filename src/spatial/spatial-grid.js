@@ -141,7 +141,7 @@
                     obj = results[i];
                     if (!obj) continue; //skip if deleted
                     id = obj[0]; //unique ID
-                    obj = obj._mbr || obj;
+                    obj = obj._cbr || obj._mbr || obj;
                     //check if not added to hash and that actually intersects
                     if (!found[id] && obj._x < rect._x + rect._w && obj._x + obj._w > rect._x &&
                                       obj._y < rect._y + rect._h && obj._y + obj._h > rect._y)
@@ -395,12 +395,8 @@
      * @see Crafty.HashMap.constructor
      */
     HashMap.key = function (obj, keys) {
-        if (obj._mbr) {
-            obj = obj._mbr;
-        }
-        if (!keys) {
-            keys = {};
-        }
+        obj = obj._cbr || obj._mbr || obj;
+        keys = keys || {};
 
         keys.x1 = Math.floor(obj._x / cellsize);
         keys.y1 = Math.floor(obj._y / cellsize);
