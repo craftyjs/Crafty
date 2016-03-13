@@ -135,26 +135,21 @@
         /**@
          * #Crafty.map.remove
          * @comp Crafty.map
-         * @sign public void Crafty.map.remove([Object keys, ]Object obj)
-         * @param keys - key region. If omitted, it will be derived from obj by `Crafty.HashMap.key`.
-         * @param obj - An object to remove from the hashmap
+         * @sign public void Crafty.map.remove(Entry entry)
+         * @param entry - An entry to remove from the hashmap
          *
-         * Remove an entity in a broad phase map.
-         * - The second form is only used in Crafty.HashMap to save time for computing keys again, where keys were computed previously from obj. End users should not call this form directly.
+         * Remove an entry from the broad phase map.
          *
          * @example
          * ~~~
          * Crafty.map.remove(e);
          * ~~~
          */
-        remove: function (keys, obj) {
+        remove: function (entry) {
+            var keys = entry.keys;
+            var obj = entry.obj;
             var i = 0,
                 j, hash;
-
-            if (arguments.length === 1) {
-                obj = keys;
-                keys = HashMap.key(obj, keyHolder);
-            }
 
             //search in all x buckets
             for (i = keys.x1; i <= keys.x2; i++) {
@@ -177,7 +172,7 @@
         /**@
          * #Crafty.map.refresh
          * @comp Crafty.map
-         * @sign public void Crafty.map.remove(Entry entry)
+         * @sign public void Crafty.map.refresh(Entry entry)
          * @param entry - An entry to update
          *
          * Update an entry's keys, and its position in the broad phrase map.

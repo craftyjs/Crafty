@@ -266,7 +266,7 @@ Crafty.c("2D", {
                 this._parent.detach(this);
             }
 
-            Crafty.map.remove(this);
+            Crafty.map.remove(this._entry);
 
             this.detach();
         });
