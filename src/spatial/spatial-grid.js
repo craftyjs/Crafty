@@ -18,6 +18,28 @@
         HashMap = function (cell) {
             cellsize = cell || 64;
             this.map = {};
+
+            this.boundsDirty = false;
+            this.boundsHash = {
+                max: {
+                    x: -Infinity,
+                    y: -Infinity
+                },
+                min: {
+                    x: Infinity,
+                    y: Infinity
+                }
+            };
+            this.boundsCoords = {
+                max: {
+                    x: -Infinity,
+                    y: -Infinity
+                },
+                min: {
+                    x: Infinity,
+                    y: Infinity
+                }
+            };
         },
 
         SPACE = " ",
@@ -56,6 +78,9 @@
                     this.map[hash].push(obj);
                 }
             }
+
+            //mark map boundaries as dirty
+            this.boundsDirty = true;
 
             return entry;
         },
@@ -167,6 +192,9 @@
                     }
                 }
             }
+
+            //mark map boundaries as dirty
+            this.boundsDirty = true;
         },
 
         /**@
@@ -213,10 +241,11 @@
                 }
             }
 
+            //mark map boundaries as dirty
+            this.boundsDirty = true;
+
             return entry;
         },
-
-
 
 
         /**@
@@ -224,6 +253,9 @@
          * @comp Crafty.map
          * @sign public Object Crafty.map.boundaries()
          * @returns An object with the following structure, which represents an MBR which contains all entities
+         *
+         * Note that the returned object is a reference to the internally used object.
+         * Use `Crafty.clone` to get a copy instead.
          *
          * ~~~
          * {
@@ -238,29 +270,54 @@
          * }
          * ~~~
          */
-        boundaries: function () {
-            var k, ent,
-                hash = {
-                    max: {
-                        x: -Infinity,
-                        y: -Infinity
-                    },
-                    min: {
-                        x: Infinity,
-                        y: Infinity
-                    }
-                },
-                coords = {
-                    max: {
-                        x: -Infinity,
-                        y: -Infinity
-                    },
-                    min: {
-                        x: Infinity,
-                        y: Infinity
-                    }
-                };
+        boundaries: function() {
+            this._updateBoundaries();
+            return this.boundsCoords;
+        },
 
+        /**
+         * #Crafty.map._keyBoundaries
+         * @comp Crafty.map
+         * @sign private Object Crafty.map._keyBoundaries()
+         * @returns An object with the following structure, which represents an MBR which contains all hash keys
+         *
+         * Find boundaries of row/col cell grid keys instead of actual x/y pixel coordinates.
+         *
+         * ~~~
+         * {
+         *   min: {
+         *     x: val_x,
+         *     y: val_y
+         *   },
+         *   max: {
+         *     x: val_x,
+         *     y: val_y
+         *   }
+         * }
+         * ~~~
+         */
+        _keyBoundaries: function() {
+            this._updateBoundaries();
+            return this.boundsHash;
+        },
+
+        _updateBoundaries: function() {
+            // update map boundaries if they were changed
+            if (!this.boundsDirty) return;
+
+            var hash = this.boundsHash;
+            hash.max.x = -Infinity;
+            hash.max.y = -Infinity;
+            hash.min.x = Infinity;
+            hash.min.y = Infinity;
+
+            var coords = this.boundsCoords;
+            coords.max.x = -Infinity;
+            coords.max.y = -Infinity;
+            coords.min.x = Infinity;
+            coords.min.y = Infinity;
+
+            var k, ent;
             //Using broad phase hash to speed up the computation of boundaries.
             for (var h in this.map) {
                 if (!this.map[h].length) continue;
@@ -310,8 +367,10 @@
                 }
             }
 
-            return coords;
+            // mark map boundaries as clean
+            this.boundsDirty = false;
         }
+
     };
 
     /**@
