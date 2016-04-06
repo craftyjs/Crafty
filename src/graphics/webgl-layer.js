@@ -180,6 +180,7 @@ RenderProgramWrapper.prototype = {
  * A collection of methods to handle webgl contexts.
  */
 Crafty.webglLayerObject = {
+    type: "WebGL",
     /**@
      * #.context
      * @comp WebGLLayer
@@ -302,7 +303,6 @@ Crafty.webglLayerObject = {
         // This is necessary to match the blending of canvas/dom entities against the background color
         gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
         gl.enable(gl.BLEND);
-        
 
         //Bind rendering of canvas context (see drawing.js)
         this.uniqueBind("RenderScene", this.render);
@@ -313,8 +313,6 @@ Crafty.webglLayerObject = {
         this.dirtyViewport = true;
 
         this.texture_manager = new Crafty.TextureManager(gl, this);
-
-
     },
 
     // Cleanup the DOM when the system is destroyed
@@ -345,7 +343,7 @@ Crafty.webglLayerObject = {
 
     // convenicne to sort array by global Z
     zsort: function(a, b) {
-            return a._globalZ - b._globalZ;
+        return a._globalZ - b._globalZ;
     },
 
     // Hold an array ref to avoid garbage
@@ -379,7 +377,7 @@ Crafty.webglLayerObject = {
         visible_gl.length = 0;
         for (i=0; i < l; i++) {
             current = q[i];
-            if (current._visible && current.__c.WebGL && current.program) {
+            if (current._visible && current.program && (current._drawLayer === this)) {
                 visible_gl.push(current);
             }
         }
@@ -393,7 +391,6 @@ Crafty.webglLayerObject = {
         // A batch is rendered whenever the next element needs to use a different type of program
         // Therefore, you get better performance by grouping programs by z-order if possible.
         // (Each sprite sheet will use a different program, but multiple sprites on the same sheet can be rendered in one batch)
-        var batchCount = 0;
         var shaderProgram = null;
         for (i=0; i < l; i++) {
             current = visible_gl[i];
@@ -414,6 +411,47 @@ Crafty.webglLayerObject = {
           shaderProgram.renderBatch();
         }
         
-    }
+    },
+    
+    /**@
+     * #.dirty
+     * @comp WebGLLayer
+     * @sign public .dirty(ent)
+     * @param ent - The entity to mark as dirty
+     *
+     * Add an entity to the list of DOM object to draw
+     */
+    dirty: function add(ent) {
+        // WebGL doens't need to do any special tracking of changed objects
+    },
+
+    /**@
+     * #.attach
+     * @comp WebGLLayer
+     * @sign public .attach(ent)
+     * @param ent - The entity to add
+     *
+     * Add an entity to the layer
+     */
+    attach: function attach(ent) {
+        // WebGL entities really need to be added to a specific program, which is handled in the LayerAttached event by components
+        ent._drawContext = this.context;
+    },
+
+    /**@
+     * #.detach
+     * @comp WebGLLayer
+     * @sign public .detach(ent)
+     * @param ent - The entity to remove
+     *
+     * Removes an entity from the layer
+     */
+    detach: function detach(ent) {
+        // This could, like attach, be handled by components
+        // We instead handle it in a central place for now
+        if (ent.program) {
+            ent.program.unregisterEntity(this);
+        }
+    },
 
 };

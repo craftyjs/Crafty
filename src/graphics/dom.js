@@ -26,12 +26,7 @@ Crafty.c("DOM", {
 
     init: function () {
         this.requires("Renderable");
-        var domLayer = Crafty.s("DomLayer");
-        if (!domLayer._div) {
-            domLayer.init();
-        }
-        this._drawLayer = domLayer;
-
+        
         this._cssStyles = {
             visibility: '',
             left: '',
@@ -44,23 +39,20 @@ Crafty.c("DOM", {
             transform: ''
         };
         this._element = document.createElement("div");
-        domLayer._div.appendChild(this._element);
-        this._element.style.position = "absolute";
-        this._element.id = "ent" + this[0];
 
-        this.bind("Invalidate", this._invalidateDOM);
+        // Attach the entity to the dom layer
+        if (!this._customLayer){
+            this._attachToLayer( Crafty.s("DomLayer") );
+        }
+
         this.bind("NewComponent", this._updateClass);
         this.bind("RemoveComponent", this._removeClass);
-
-        this._invalidateDOM();
-
     },
 
     remove: function(){
-        this.undraw();
+        this._detachFromLayer();
         this.unbind("NewComponent", this._updateClass);
         this.unbind("RemoveComponent", this._removeClass);
-        this.unbind("Invalidate", this._invalidateDOM);
     },
 
     /**@
@@ -76,12 +68,12 @@ Crafty.c("DOM", {
 
     // removes a component on RemoveComponent events
     _removeClass: function(removedComponent) {
-        var i = 0,
+        var comp,
             c = this.__c,
             str = "";
-        for (i in c) {
-          if(i != removedComponent) {
-            str += ' ' + i;
+        for (comp in c) {
+          if(comp != removedComponent) {
+            str += ' ' + comp;
           }
         }
         str = str.substr(1);
@@ -90,21 +82,14 @@ Crafty.c("DOM", {
 
     // adds a class on NewComponent events
     _updateClass: function() {
-        var i = 0,
+        var comp,
             c = this.__c,
             str = "";
-        for (i in c) {
-            str += ' ' + i;
+        for (comp in c) {
+            str += ' ' + comp;
         }
         str = str.substr(1);
         this._element.className = str;
-    },
-
-    _invalidateDOM: function(){
-        if (!this._changed) {
-                this._changed = true;
-                this._drawLayer.add(this);
-            }
     },
 
     /**@
@@ -115,12 +100,15 @@ Crafty.c("DOM", {
      * @param elem - HTML element that will replace the dynamically created one
      *
      * Pass a DOM element to use rather than one created. Will set `._element` to this value. Removes the old element.
+     * 
+     * Will reattach the entity to the current draw layer
      */
     DOM: function (elem) {
         if (elem && elem.nodeType) {
-            this.undraw();
+            var layer = this._drawLayer;
+            this._detachFromLayer();
             this._element = elem;
-            this._element.style.position = 'absolute';
+            this._attachToLayer(layer);
         }
         return this;
     },
@@ -214,21 +202,6 @@ Crafty.c("DOM", {
             co: co
         });
 
-        return this;
-    },
-
-    /**@
-     * #.undraw
-     * @comp DOM
-     * @sign public this .undraw(void)
-     *
-     * Removes the element from the stage.
-     */
-    undraw: function () {
-        var el = this._element;
-        if (el && el.parentNode !== null) {
-            el.parentNode.removeChild(el);
-        }
         return this;
     },
 
