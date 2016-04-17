@@ -9,8 +9,16 @@ var Crafty = require('../core/core.js');
  *
  * Mostly contains private methods to draw entities on a canvas element.
  */
-Crafty.canvasLayerObject = {
+Crafty._registerLayerTemplate("Canvas", {
     type: "Canvas",
+    
+    options: {
+        xResponse: 1,
+        yResponse: 1,
+        scaleResponse: 1,
+        z: 0
+    },
+    
     _dirtyRects: [],
     _changedObjs: [],
     layerCount: 0,
@@ -101,6 +109,7 @@ Crafty.canvasLayerObject = {
         c.style.position = 'absolute';
         c.style.left = "0px";
         c.style.top = "0px";
+        c.style.zIndex = this.options.z;
 
         Crafty.stage.elem.appendChild(c);
         this.context = c.getContext('2d');
@@ -123,12 +132,15 @@ Crafty.canvasLayerObject = {
         this.bind("InvalidateViewport", function () {
             this._dirtyViewport = true;
         });
+        
+        Crafty._addDrawLayerInstance(this);
     },
 
     // When the system is destroyed, remove related resources
     remove: function() {
 
         this._canvas.parentNode.removeChild(this._canvas);
+        Crafty._removeDrawLayerInstance(this);
     },
 
     _render: function() {
@@ -138,10 +150,15 @@ Crafty.canvasLayerObject = {
         if (!l && !dirtyViewport) {
             return;
         }
-
-        if (dirtyViewport) {
+        
+        // Set the camera transforms from the combination of the current viewport parameters and this layers 
+        var cameraOptions = this.options;
+        if (dirtyViewport && cameraOptions) {
             var view = Crafty.viewport;
-            ctx.setTransform(view._scale, 0, 0, view._scale, Math.round(view._x*view._scale), Math.round(view._y*view._scale) );
+            var scale = Math.pow(Crafty.viewport._scale, cameraOptions.scaleResponse); 
+            var dx = view._x * scale * cameraOptions.xResponse;
+            var dy = view._y * scale * cameraOptions.yResponse;
+            ctx.setTransform(scale, 0, 0, scale, Math.round(dx), Math.round(dy) );
         }
 
         //if the amount of changed objects is over 60% of the total objects
@@ -168,8 +185,8 @@ Crafty.canvasLayerObject = {
      *
      * @see Canvas#.draw
      */
-    _drawDirty: function () {
-
+    _drawDirty: function (view) {
+        view = view || this._viewportRect();
         var i, j, q, rect,len, obj,
             changed = this._changedObjs,
             l = changed.length,
@@ -179,7 +196,10 @@ Crafty.canvasLayerObject = {
             ctx = this.context,
             dupes = [],
             objs = [];
-
+        
+        // Canvas works better with integral coordinates where possible
+        view = rectManager.integerBounds(view);
+        
         // Calculate _dirtyRects from all changed objects, then merge some overlapping regions together
         for (i = 0; i < l; i++) {
             this._createDirty(changed[i]);
@@ -197,14 +217,10 @@ Crafty.canvasLayerObject = {
             if (!rect) continue;
 
             // Find the smallest rectangle with integer coordinates that encloses rect
-            rect._w = rect._x + rect._w;
-            rect._h = rect._y + rect._h;
-            rect._x = (rect._x > 0) ? (rect._x|0) : (rect._x|0) - 1;
-            rect._y = (rect._y > 0) ? (rect._y|0) : (rect._y|0) - 1;
-            rect._w -= rect._x;
-            rect._h -= rect._y;
-            rect._w = (rect._w === (rect._w|0)) ? rect._w : (rect._w|0) + 1;
-            rect._h = (rect._h === (rect._h|0)) ? rect._h : (rect._h|0) + 1;
+            rect = rectManager.integerBounds(rect);
+
+            // If a dirty rect doesn't overlap with the viewport, skip to the next one
+            if (!overlap(rect, view)) continue;
 
             //search for ents under dirty rect
             q = Crafty.map.search(rect, false);
@@ -267,7 +283,8 @@ Crafty.canvasLayerObject = {
      * - If rect is provided, redraw within the rect
      */
     _drawAll: function (rect) {
-        rect = rect || Crafty.viewport.rect();
+        rect = rect || this._viewportRect();
+        rect = Crafty.rectManager.integerBounds(rect);
         var q = Crafty.map.search(rect),
             i = 0,
             l = q.length,
@@ -278,11 +295,9 @@ Crafty.canvasLayerObject = {
 
         //sort the objects by the global Z
         q.sort(this._sort);
-        //console.log("\n--\n" + q.length + " to draw for layer " + this.name);
         for (; i < l; i++) {
             current = q[i];
             if (current._visible && current._drawContext === this.context) {
-                //console.log(i + " drawn");
                 current.draw(this.context);
                 current._changed = false;
             }
@@ -362,4 +377,4 @@ Crafty.canvasLayerObject = {
         context.msImageSmoothingEnabled = !enabled;
     }
 
-};
+});

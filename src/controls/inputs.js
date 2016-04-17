@@ -29,8 +29,8 @@ Crafty.extend({
      * ~~~
      * @see Mouse, Crafty.mouseButtons, Crafty.mouseDispatch
      */
-    lastEvent: null,
 
+    lastEvent: null,
     /**@
      * #Crafty.keydown
      * @category Input
@@ -67,11 +67,11 @@ Crafty.extend({
         if (!Crafty.selected && selected) {
             Crafty.trigger("CraftyFocus");
         }
-        
+
         if (Crafty.selected && !selected) {
             Crafty.trigger("CraftyBlur");
         }
-        
+
         Crafty.selected = selected;
     },
 
@@ -115,20 +115,20 @@ Crafty.extend({
         if (typeof bool !== "boolean") return this._touchHandler.multitouch;
         this._touchHandler.multitouch = bool;
     },
-    
-    resetKeyDown: function() {
+
+    resetKeyDown: function () {
         // Tell all the keys they're no longer held down
         for (var k in Crafty.keys) {
-             if (Crafty.keydown[Crafty.keys[k]]) {
-                 this.trigger("KeyUp", {
-                     key: Crafty.keys[k]
-                 });
-             }
+            if (Crafty.keydown[Crafty.keys[k]]) {
+                this.trigger("KeyUp", {
+                    key: Crafty.keys[k]
+                });
+            }
         }
-		
+
         Crafty.keydown = {};
     },
-    
+
     /**@
      * #Crafty.mouseDispatch
      * @category Input
@@ -150,8 +150,7 @@ Crafty.extend({
         var tar = e.target ? e.target : e.srcElement,
             closest,
             pos = Crafty.domHelper.translate(e.clientX, e.clientY),
-            x, y,
-            type = e.type;     
+            type = e.type;
 
         //Normalize button according to http://unixpapa.com/js/mouse.html
         if (typeof e.which === 'undefined') {
@@ -160,11 +159,10 @@ Crafty.extend({
             e.mouseButton = (e.which < 2) ? Crafty.mouseButtons.LEFT : ((e.which === 2) ? Crafty.mouseButtons.MIDDLE : Crafty.mouseButtons.RIGHT);
         }
 
-        e.realX = x = Crafty.mousePos.x = pos.x;
-        e.realY = y = Crafty.mousePos.y = pos.y;
+        Crafty.mousePos.x = pos.x;
+        Crafty.mousePos.y = pos.y;
 
-        closest = Crafty.findClosestEntityByComponent("Mouse", x, y, tar);
-
+        closest = Crafty.findPointerEventTargetByComponent("Mouse", e, tar);
         //found closest object to mouse
         if (closest) {
             //click must mousedown and out on tile
@@ -236,7 +234,7 @@ Crafty.extend({
      */
     touchDispatch: function (e) {
         if (!Crafty.touchObjs && !Crafty.mouseObjs) return;
-        
+
         if (this._touchHandler.multitouch)
             switch (e.type) {
                 case "touchstart":
@@ -262,22 +260,19 @@ Crafty.extend({
                 e.returnValue = false;
             }
     },
-    
+
     _touchHandler: {
         fingers: [], // keeps track of touching fingers
         multitouch: false,
-        
+
         handleStart: function (e) {
             var touches = e.changedTouches;
             for (var i = 0, l = touches.length; i < l; i++) {
                 var idx = false,
-                  pos = Crafty.domHelper.translate(touches[i].clientX, touches[i].clientY),
-                  tar = e.target ? e.target : e.srcElement,
-                  x, y, closest;
-                touches[i].realX = x = pos.x;
-                touches[i].realY = y = pos.y;
-                closest = this.findClosestTouchEntity(x, y, tar);
-                
+                    tar = e.target ? e.target : e.srcElement,
+                    closest;
+                closest = this.findClosestTouchEntity(touches[i], tar);
+
                 if (closest) {
                     closest.trigger("TouchStart", touches[i]);
                     // In case the entity was already being pressed, get the finger index
@@ -292,39 +287,36 @@ Crafty.extend({
                 }
             }
         },
-            
+
         handleMove: function (e) {
             var touches = e.changedTouches;
             for (var i = 0, l = touches.length; i < l; i++) {
                 var idx = this.fingerDownIndexById(touches[i].identifier),
-                  pos = Crafty.domHelper.translate(touches[i].clientX, touches[i].clientY),
-                  tar = e.target ? e.target : e.srcElement,
-                  x, y, closest;
-                touches[i].realX = x = pos.x;
-                touches[i].realY = y = pos.y;
-                closest = this.findClosestTouchEntity(x, y, tar);
-            
+                    tar = e.target ? e.target : e.srcElement;
+                var closest = this.findClosestTouchEntity(touches[i], tar);
+
                 if (idx >= 0) {
-                    if(typeof this.fingers[idx].entity !== "undefined")
-                        if (this.fingers[idx].entity === closest) {
-                            this.fingers[idx].entity.trigger("TouchMove", touches[i]);
+                    var finger = this.fingers[idx];
+                    if(typeof finger.entity !== "undefined")
+                        if (finger.entity === closest) {
+                            finger.entity.trigger("TouchMove", touches[i]);
                         } else {
                             if (typeof closest === "object") closest.trigger("TouchStart", touches[i]);
-                            this.fingers[idx].entity.trigger("TouchEnd");
+                            finger.entity.trigger("TouchEnd");
                         }
-                    this.fingers[idx].entity = closest;
-                    this.fingers[idx].realX = x;
-                    this.fingers[idx].realY = y;
+                    finger.entity = closest;
+                    finger.realX = touches[i].realX;
+                    finger.realY = touches[i].realY;
                 }
             }
         },
-        
+
         handleEnd: function (e) {
             var touches = e.changedTouches, 
                 eventName = e.type === "touchcancel" ? "TouchCancel" : "TouchEnd";
             for (var i = 0, l = touches.length; i < l; i++) {
                 var idx = this.fingerDownIndexById(touches[i].identifier);
-            
+
                 if (idx >= 0) {
                     if (this.fingers[idx].entity)
                         this.fingers[idx].entity.trigger(eventName);
@@ -332,30 +324,29 @@ Crafty.extend({
                 }
             }
         },
-            
+
         setTouch: function (touch, entity) {
             return { identifier: touch.identifier, realX: touch.realX, realY: touch.realY, entity: entity };
         },
-            
-        findClosestTouchEntity: function (x, y, tar) {
-            return Crafty.findClosestEntityByComponent("Touch", x, y, tar);
+
+        findClosestTouchEntity: function (touchEvent, tar) {
+            return Crafty.findPointerEventTargetByComponent("Touch", touchEvent, tar);
         },
-           
-        fingerDownIndexById: function(idToFind) {
+
+        fingerDownIndexById: function (idToFind) {
             for (var i = 0, l = this.fingers.length; i < l; i++) {
                 var id = this.fingers[i].identifier;
-                
                 if (id === idToFind) {
                     return i;
                 }
             }
             return -1;
         },
-            
-        fingerDownIndexByEntity: function(entityToFind) {
+
+        fingerDownIndexByEntity: function (entityToFind) {
             for (var i = 0, l = this.fingers.length; i < l; i++) {
                 var ent = this.fingers[i].entity;
-                
+
                 if (ent === entityToFind) {
                     return i;
                 }
@@ -378,11 +369,11 @@ Crafty.extend({
             }
             var simulatedEvent = document.createEvent("MouseEvent");
             simulatedEvent.initMouseEvent(type, true, true, window, 1,
-              first.screenX,
-              first.screenY,
-              first.clientX,
-              first.clientY,
-              false, false, false, false, 0, e.relatedTarget
+                first.screenX,
+                first.screenY,
+                first.clientX,
+                first.clientY,
+                false, false, false, false, 0, e.relatedTarget
             );
             first.target.dispatchEvent(simulatedEvent);
             // trigger click when it should be triggered
@@ -390,48 +381,45 @@ Crafty.extend({
                 type = 'click';
                 simulatedEvent = document.createEvent("MouseEvent");
                 simulatedEvent.initMouseEvent(type, true, true, window, 1,
-                  first.screenX,
-                  first.screenY,
-                  first.clientX,
-                  first.clientY,
-                  false, false, false, false, 0, e.relatedTarget
+                    first.screenX,
+                    first.screenY,
+                    first.clientX,
+                    first.clientY,
+                    false, false, false, false, 0, e.relatedTarget
                 );
                 first.target.dispatchEvent(simulatedEvent);
             }
         },
     },
-    
+
     /**@
-     * #Crafty.findClosestEntityByComponent
+     * #Crafty.findPointerEventTargetByComponent
      * @category Input
      * 
-     * @sign public this .findClosestEntityByComponent(String comp, Number x, Number y[, Object target])
-     * Finds closest entity with certain component at given coordinates.
+     * @sign public this .findPointerEventTargetByComponent(String comp, Event e[, Object target])
+     * Finds closest entity with certain component at a given event.
      * @param comp - Component name
-     * @param x - `x` position where to look for entities
-     * @param y - `y` position where to look for entities
+     * @param e - The pointer event, which will be modifed to add `realX` and `realY` properties 
      * @param target - Target element wherein to look for entities 
      * 
      * This method is used internally by the .mouseDispatch and .touchDispatch methods, but can be used otherwise for 
      * Canvas entities.
      * 
-     * Finds the top most entity (with the highest z) with a given component at a given point (x, y).
+     * Finds the top most entity (with the highest z) with a given component at a given point (x, y) associated with the event.
      * For having a detection area specified for the enity, add the AreaMap component to the entity expected to be found.
      * 
      * The 'target' argument is only meant to be used by .mouseDispatch and touchDispatch; defaults to Crafty.stage.elem, 
      * thus using this function directly is only worth anything for canvas entities.
      * 
-     * Returns the found entity, or undefined if no entity was found.
+     * Returns the found entity, or undefined if no entity was found.  
+     * Updates the event object to have two additional properties, `realX` and `realY`, which correspond to the point in the Crafty layer that the event targeted.
      * 
-     * @example
-     * ~~~
-     * var coords = { x: 455, y: 267 },
-     *     closestText = Crafty.findClosestEntityByComponent("Text", coords.x, coords.y);
-     * ~~~
      */
-    findClosestEntityByComponent: function (comp, x, y, target) { 
+    findPointerEventTargetByComponent: function (comp, e, target) {
         var tar = target ? target : Crafty.stage.elem,
-            closest, current, q, l, i, maxz = -Infinity;
+            closest, current, q, l, i, pos, layerPos, maxz = -Infinity;
+        var x = e.clientX;
+        var y = e.clientY;
 
         //if it's a DOM element with component we are done
         if (tar.nodeName !== "CANVAS") {
@@ -439,32 +427,54 @@ Crafty.extend({
                 tar = tar.parentNode;
             }
             var ent = Crafty(parseInt(tar.id.replace('ent', ''), 10));
-            if (ent.__c[comp] && ent.isAt(x, y)){
+            pos = Crafty.domHelper.translate(x, y, ent._drawLayer);
+            if (ent.__c[comp] && ent.isAt(pos.x, pos.y)) {
                 closest = ent;
+                layerPos = pos;
             }
         }
 
         //else we search for an entity with component
         if (!closest) {
-            q = Crafty.map.search({
-                _x: x,
-                _y: y,
-                _w: 1,
-                _h: 1
-            }, false);
 
-            for (i = 0, l = q.length; i < l; ++i) {
-                current = q[i];
+            // Loop through each layer
+            for (var layerIndex in Crafty._drawLayers) {
+                var layer = Crafty._drawLayers[layerIndex];
 
-                if (current._visible && current._globalZ > maxz &&
-                    current.__c[comp] && current.isAt(x, y)) {
+                // Skip a layer if it has no entities listening for pointer events
+                if (layer._pointerEntities <= 0) continue;
 
-                    maxz = current._globalZ;
-                    closest = current;
+                // Get the position in this layer
+                pos = Crafty.domHelper.translate(x, y, layer);
+                q = Crafty.map.search({
+                    _x: pos.x,
+                    _y: pos.y,
+                    _w: 1,
+                    _h: 1
+                }, false);
+
+                for (i = 0, l = q.length; i < l; ++i) {
+                    current = q[i];
+                    if (current._visible && current._drawLayer === layer && current._globalZ > maxz &&
+                        current.__c[comp] && current.isAt(pos.x, pos.y)) {
+                        maxz = current._globalZ;
+                        closest = current;
+                        layerPos = pos;
+                    }
                 }
             }
         }
+        
+        // If the pointer event isn't related to a specific layer, 
+        // find the Crafty position in the default coordinate set
+        if (!layerPos) {
+            layerPos = Crafty.domHelper.translate(x, y);
+        }
 
+        // Update the event coordinates and return the event target
+        e.realX = layerPos.x;
+        e.realY = layerPos.y;
+            
         return closest;
     },
 
@@ -540,10 +550,10 @@ Crafty.extend({
      * });
      * ~~~
      */
-     mouseWheelDispatch: function(e) {
+    mouseWheelDispatch: function (e) {
         e.direction = (e.detail < 0 || e.wheelDelta > 0) ? 1 : -1;
         Crafty.trigger("MouseWheelScroll", e);
-     },
+    },
 
     /**@
      * #Crafty.keyboardDispatch
@@ -794,6 +804,24 @@ Crafty.c("Touch", {
  */
 Crafty.c("AreaMap", {
     init: function () {
+        if (this.has("Renderable") && this._drawLayer) {
+            this._drawLayer._pointerEntities++;
+        }
+    },
+
+    remove: function () {
+        if (this.has("Renderable") && this._drawLayer) {
+            this._drawLayer._pointerEntities--;
+        }
+    },
+
+    events: {
+        "LayerAttached": function (layer) {
+            layer._pointerEntities++;
+        },
+        "LayerDetached": function (layer) {
+            layer._pointerEntities--;
+        }
     },
 
     /**@
@@ -887,7 +915,7 @@ Crafty.c("MouseDrag", {
         this.bind("MouseDown", this._ondown);
     },
 
-    remove: function() {
+    remove: function () {
         this.unbind("MouseDown", this._ondown);
     },
 
@@ -1014,4 +1042,3 @@ Crafty.c("Keyboard", {
         return !!Crafty.keydown[key];
     }
 });
-

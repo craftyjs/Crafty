@@ -17,6 +17,9 @@ require('./spatial/spatial-grid');
 require('./spatial/rect-manager');
 require('./spatial/math');
 
+// Needs to be required before any specific layers are
+require('./graphics/layers');
+
 require('./graphics/canvas');
 require('./graphics/canvas-layer');
 require('./graphics/webgl');
@@ -31,7 +34,6 @@ require('./graphics/gl-textures');
 require('./graphics/renderable');
 require('./graphics/html');
 require('./graphics/image');
-require('./graphics/layers');
 require('./graphics/particles');
 require('./graphics/sprite-animation');
 require('./graphics/sprite');
