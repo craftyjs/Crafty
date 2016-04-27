@@ -70,13 +70,16 @@ Crafty.c("SpriteAnimation", {
 	* @comp SpriteAnimation
 	* Used to define reels, to change the active reel, and to fetch the id of the active reel.
 	*
-	* @sign public this .reel(String reelId, Duration duration, Number fromX, Number fromY, Number frameCount)
+	* @sign public this .reel(String reelId, Duration duration, Number fromX, Number fromY, Number frameCount[, Number rowLength])
 	* Defines a reel by starting and ending position on the sprite sheet.
 	* @param reelId - ID of the animation reel being created
 	* @param duration - The length of the animation in milliseconds.
 	* @param fromX - Starting `x` position on the sprite map (x's unit is the horizontal size of the sprite in the sprite map).
 	* @param fromY - `y` position on the sprite map (y's unit is the horizontal size of the sprite in the sprite map). Remains constant through the animation.
 	* @param frameCount - The number of sequential frames in the animation.  If negative, the animation will play backwards.
+	* @param rowLength - The number of frames in a sprite sheet row.
+	*					 The sequential frames will auto-wrap to a new row when they reach the end of the current row.
+	*					 This is an optional argument that defaults to `Infinity`.
 	*
 	* @sign public this .reel(String reelId, Duration duration, Array frames)
 	* Defines a reel by an explicit list of frames
@@ -115,7 +118,7 @@ Crafty.c("SpriteAnimation", {
 	* Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite").reel('PlayerRunning', 1000, [[0, 1], [1, 1], [2, 1], [3, 1]]);
 	* ~~~
 	*/
-	reel: function (reelId, duration, fromX, fromY, frameCount) {
+	reel: function (reelId, duration, fromX, fromY, frameCount, rowLength) {
 		// @sign public this .reel()
 		if (arguments.length === 0)
 			return this._currentReelId;
@@ -137,7 +140,7 @@ Crafty.c("SpriteAnimation", {
 		}
 
 
-		var reel, i, y;
+		var reel, i;
 
 		reel = {
 			id: reelId,
@@ -151,16 +154,25 @@ Crafty.c("SpriteAnimation", {
 
 		// @sign public this .reel(String reelId, Number duration, Number fromX, Number fromY, Number frameDuration)
 		if (typeof fromX === "number") {
-			i = fromX;
-			y = fromY;
-			if (frameCount >= 0) {
-				for (; i < fromX + frameCount ; i++) {
-					reel.frames.push([i, y]);
+			rowLength = rowLength || Infinity;
+
+			if (frameCount >= 0) { // forward animation
+				for (i = 0; i < frameCount; ++i) {
+					reel.frames.push([fromX, fromY]);
+
+					if (++fromX >= rowLength) {
+						fromX = 0;
+						fromY++;
+					}
 				}
-			}
-			else {
-				for (; i > fromX + frameCount; i--) {
-					reel.frames.push([i, y]);
+			} else { // backward animation
+				for (i = 0; i > frameCount; --i) {
+					reel.frames.push([fromX, fromY]);
+
+					if (--fromX < 0) {
+						fromX = rowLength - 1;
+						fromY--;
+					}
 				}
 			}
 		}
