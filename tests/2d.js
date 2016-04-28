@@ -326,6 +326,230 @@
     strictEqual(newHitboxEvents, 3, "NewHitBox event triggered 3 times");
   });
 
+  test("hit", function() {
+    var e = Crafty.e("2D, Collision, solid")
+                  .attr({x: 0, y: 0, w: 25, h: 25});
+    var f = Crafty.e("2D, Collision, solid")
+                  .attr({x: 255, y: 255, w: 25, h: 25});
+    var g = Crafty.e("2D, Collision, solid")
+                  .attr({x: 255, y: 255, w: 25, h: 25});
+    var h = Crafty.e("2D, Collision, plasma")
+                  .attr({x: 255, y: 255, w: 25, h: 25});
+
+    var results;
+
+    // check entity itself is not reported
+    results = e.hit('solid');
+    strictEqual(results, null, "empty collision results");
+
+    // check no reported hits given no intersections
+    results = e.hit('obj');
+    strictEqual(results, null, "empty collision results");
+
+    // check for hits given any-entity intersections
+    h.x = h.y = 0;
+    results = e.hit('obj');
+    strictEqual(results.length, 1, "exactly one collision result");
+    strictEqual(results[0].obj, h, "expected collision with entity h");
+
+    // check no reported hits with solid component
+    results = e.hit('solid');
+    strictEqual(results, null, "empty collision results");
+
+    // check for hits with solid entity
+    f.x = f.y = 0;
+    results = e.hit('solid');
+    strictEqual(results.length, 1, "exactly one collision result");
+    strictEqual(results[0].obj, f, "expected collision with entity f");
+
+    // check for hits with solid entities
+    g.x = g.y = 0;
+    results = e.hit('solid');
+    strictEqual(results.length, 2, "exactly two collision results");
+    var counter = 0;
+    for (var i = 0; i < 2; ++i) {
+      if (results[i].obj === f) counter++;
+      else if (results[i].obj === g) counter++;
+    }
+    strictEqual(counter, 2, "expected collisions with entity f and g");
+
+    // check no reported hits with solid component
+    f.x = f.y = g.x = g.y = 255;
+    results = e.hit('solid');
+    strictEqual(results, null, "empty collision results");
+  });
+
+  test("hit - collision type", function() {
+    var e = Crafty.e("2D, Collision, solid")
+                  .attr({x: 0, y: 0, w: 25, h: 25});
+    var f = Crafty.e("2D, solid")
+                  .attr({x: 0, y: 0, w: 25, h: 25});
+
+    var results;
+
+    // check for MBR type collision with other entity
+    results = e.hit('solid');
+    strictEqual(results.length, 1, "exactly one collision result");
+    strictEqual(results[0].obj, f, "expected collision with entity f");
+    strictEqual(results[0].type, 'MBR', "expected collision type");
+
+    // check for SAT type collision with other entity
+    f.addComponent('Collision');
+    results = e.hit('solid');
+    strictEqual(results.length, 1, "exactly one collision result");
+    strictEqual(results[0].obj, f, "expected collision with entity f");
+    strictEqual(results[0].type, 'SAT', "expected collision type");
+    ok('overlap' in results[0], "expected overlap value");
+  });
+
+  test("onHit", function() {
+    var e = Crafty.e("2D, Collision")
+                  .attr({x: 0, y: 0, w: 25, h: 25});
+    var f = Crafty.e("2D, Collision")
+                  .attr({x: 255, y: 255, w: 25, h: 25});
+    var g = Crafty.e("2D, Collision, solid")
+                  .attr({x: 255, y: 255, w: 25, h: 25});
+
+    var expectedHitDatas = {},
+        onCallbacks = 0,
+        firstOnCallbacks = 0,
+        offCallbacks = 0;
+
+    e.onHit('solid', function(hitDatas, isFirstCallback) { // callbackOn
+      onCallbacks++;
+      if (isFirstCallback) firstOnCallbacks++;
+
+      strictEqual(hitDatas.length, Object.keys(expectedHitDatas).length, "collision with exactly expected amount of entities");
+      for (var i = 0; i < hitDatas.length; ++i)
+        ok(hitDatas[i].obj[0] in expectedHitDatas, "collision with expected entity occurred");
+
+    }, function() { // callbackOff
+      offCallbacks++;
+    });
+
+    // check initial state
+    // default state with no intersections, before update frame
+    strictEqual(onCallbacks, 0, "no collision callbacks yet before update frame");
+    strictEqual(firstOnCallbacks, 0, "no collision callbacks yet before update frame");
+    strictEqual(offCallbacks, 0, "no collision callbacks yet before update frame");
+
+    // check initial state
+    // default state with no intersections, after update frame
+    Crafty.timer.simulateFrames(1);
+
+    strictEqual(onCallbacks, 0, "no collision callbacks if no intersection");
+    strictEqual(firstOnCallbacks, 0, "no collision callbacks if no intersection");
+    strictEqual(offCallbacks, 0, "no collision callbacks if no intersection");
+
+    // check no callbacks
+    // intersection with f, but without required component
+    f.x = f.y = 0;
+    Crafty.timer.simulateFrames(1);
+
+    strictEqual(onCallbacks, 0, "no collision callbacks yet before update frame");
+    strictEqual(firstOnCallbacks, 0, "no collision callbacks yet before update frame");
+    strictEqual(offCallbacks, 0, "no collision callbacks yet before update frame");
+
+    // check no callbacks done before frame update
+    // intersection with f, with required component, before update frame
+    f.addComponent('solid');
+
+    strictEqual(onCallbacks, 0, "no collision callbacks yet before update frame");
+    strictEqual(firstOnCallbacks, 0, "no collision callbacks yet before update frame");
+    strictEqual(offCallbacks, 0, "no collision callbacks yet before update frame");
+
+    // check callbacks done after frame update
+    // intersection with f, with required component, after update frame
+    expectedHitDatas = {};
+    expectedHitDatas[f[0]] = true;
+    Crafty.timer.simulateFrames(1);
+
+    strictEqual(onCallbacks, 1, "one collision callbackOn occurred");
+    strictEqual(firstOnCallbacks, 1, "first collision callbackOn occurred");
+    strictEqual(offCallbacks, 0, "no collision callbackOff occurred yet");
+
+    // check that first callbackOn no longer triggered
+    // another frame while intersected with f
+    Crafty.timer.simulateFrames(1);
+
+    strictEqual(onCallbacks, 2, "another collision callbackOn occurred");
+    strictEqual(firstOnCallbacks, 1, "not another first collision callbackOn occurred");
+    strictEqual(offCallbacks, 0, "no collision callbackOff occurred yet");
+
+    // check no callbacks before frame update
+    // no more intersection with f, before update frame
+    f.x = f.y = 255;
+
+    strictEqual(onCallbacks, 2, "no collision callbacks yet before update frame");
+    strictEqual(firstOnCallbacks, 1, "no collision callbacks yet before update frame");
+    strictEqual(offCallbacks, 0, "no collision callbacks yet before update frame");
+
+    // check callbacks done after frame update
+    // no more intersection with f, after update frame
+    expectedHitDatas = {};
+    Crafty.timer.simulateFrames(1);
+
+    strictEqual(onCallbacks, 2, "no more on-collision callbacks occurred");
+    strictEqual(firstOnCallbacks, 1, "no more on-collision callbacks occurred");
+    strictEqual(offCallbacks, 1, "one off-collision callback occurred");
+
+    // check that no callbacks while ide
+    // no intersections, after another update frame
+    Crafty.timer.simulateFrames(1);
+
+    strictEqual(onCallbacks, 2, "no collision callbacks occurred while idle");
+    strictEqual(firstOnCallbacks, 1, "no collision callbacks occurred while idle");
+    strictEqual(offCallbacks, 1, "no collision callbacks occurred while idle");
+
+    // check callbacks properly called with new collision event
+    f.x = f.y = 0;
+    expectedHitDatas = {};
+    expectedHitDatas[f[0]] = true;
+    Crafty.timer.simulateFrames(1);
+
+    strictEqual(onCallbacks, 3, "again collision callbackOn occurred");
+    strictEqual(firstOnCallbacks, 2, "again first collision callbackOn occurred");
+    strictEqual(offCallbacks, 1, "no collision callbackOff occurred yet");
+
+    // check that another intersecting entity does not change semantics of callbacks
+    g.x = g.y = 0;
+    expectedHitDatas[g[0]] = true;
+    Crafty.timer.simulateFrames(1);
+
+    strictEqual(onCallbacks, 4, "again collision callbackOn occurred");
+    strictEqual(firstOnCallbacks, 2, "first collision callbackOn did not occur");
+    strictEqual(offCallbacks, 1, "no collision callbackOff occurred yet");
+
+    // check semantics of all intersecting entities leaving collision at same time
+    f.x = f.y = g.x = g.y = 255;
+    expectedHitDatas = {};
+    Crafty.timer.simulateFrames(1);
+
+    strictEqual(onCallbacks, 4, "no more on-collision callbacks occurred");
+    strictEqual(firstOnCallbacks, 2, "no more on-collision callbacks occurred");
+    strictEqual(offCallbacks, 2, "one off-collision callback occurred");
+
+    // check semantics of all entities entering collision at same time
+    f.x = f.y = g.x = g.y = 0;
+    expectedHitDatas = {};
+    expectedHitDatas[f[0]] = true;
+    expectedHitDatas[g[0]] = true;
+    Crafty.timer.simulateFrames(1);
+
+    strictEqual(onCallbacks, 5, "again collision callbackOn occurred");
+    strictEqual(firstOnCallbacks, 3, "again first collision callbackOn occurred");
+    strictEqual(offCallbacks, 2, "no collision callbackOff occurred yet");
+
+    // check that an intersecting entity leaving collision does not change semantics of callbacks
+    g.x = g.y = 255;
+    delete expectedHitDatas[g[0]];
+    Crafty.timer.simulateFrames(1);
+
+    strictEqual(onCallbacks, 6, "again collision callbackOn occurred");
+    strictEqual(firstOnCallbacks, 3, "first collision callbackOn did not occur");
+    strictEqual(offCallbacks, 2, "no collision callbackOff occurred yet");
+  });
+
   // This test assumes that the "circles" are really octagons, as per Crafty.circle.
   test("SAT overlap with circles", function() {
     var e = Crafty.e("2D, Collision");
