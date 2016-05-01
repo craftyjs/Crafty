@@ -1688,6 +1688,9 @@ Crafty.c("Motion", {
  * The constructor for a polygon object used for hitboxes and click maps. Takes a set of points as an
  * argument, giving alternately the x and y coordinates of the polygon's vertices in order.
  *
+ * For a polygon of `n` edges exactly `n` vertex coordinate pairs should be passed to the constructor.
+ * It is advised to pass the vertices in a clockwise order.
+ *
  * The constructor accepts the coordinates as either a single array or as a set of individual arguments.
  * If passed an array, the current implementation will use that array internally -- do not attempt to reuse it.
  *
