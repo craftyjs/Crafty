@@ -2,7 +2,7 @@
 require('./lib/helperFunctions.js');
 
 /** CRAFTY-JS **/
-Crafty = require('../src/crafty_headless.js')();
+Crafty = require('../src/crafty-headless.js')();
 Crafty.init();
 
 /** COMMON TEST CODE **/

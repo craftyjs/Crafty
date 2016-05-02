@@ -125,7 +125,7 @@ module.exports = function (grunt) {
 
         'node-qunit': {
             node: {
-                code: 'tests/index_headless.js',
+                code: 'tests/index-headless.js',
                 setup: {
                     log: {
                         errors: true,
