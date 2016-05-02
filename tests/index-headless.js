@@ -1,6 +1,3 @@
-/** DEPENDENCIES **/
-require('./lib/helperFunctions.js');
-
 /** CRAFTY-JS **/
 Crafty = require('../src/crafty-headless.js')();
 Crafty.init();
