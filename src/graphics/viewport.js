@@ -142,12 +142,36 @@ Crafty.extend({
 
         rect_object: { _x: 0, _y: 0, _w: 0, _h: 0},
 
-        rect: function () {
-            this.rect_object._x = -this._x;
-            this.rect_object._y = -this._y;
-            this.rect_object._w = this._width / this._scale;
-            this.rect_object._h = this._height / this._scale;
-            return this.rect_object;
+        /**@
+         * #Crafty.viewport.rect
+         * @comp Crafty.viewport
+         * @sign public Object Crafty.viewport.rect([Object out])
+         * @param Object out - an optional Object to write the `rect` to
+         * @return a rectangle encompassing the currently visible viewport region.
+         *         Contains the `_x`,`_y`,`_w`,`_h` properties.
+         *
+         * Convenience method which returns a `rect` of the currently visible viewport region.
+         * With no supplied `out` parameter, this method returns an internally reused object across invocations.
+         * If you want to save the viewport region for later use, pass an `out` argument instead, where the region will be written to.
+         *
+         * @example
+         * The `rect` is equivalent to the following properties:
+         * ~~~
+         * var rect = Crafty.viewport.rect();
+         *
+         * rect._x === -Crafty.viewport._x
+         * rect._y === -Crafty.viewport._y
+         * rect._w === Crafty.viewport._width / Crafty.viewport._scale
+         * rect._h === Crafty.viewport._height / Crafty.viewport._scale
+         * ~~~
+         */
+        rect: function (out) {
+            out = out || this.rect_object;
+            out._x = -this._x;
+            out._y = -this._y;
+            out._w = this._width / this._scale;
+            out._h = this._height / this._scale;
+            return out;
         },
 
         /**@ 

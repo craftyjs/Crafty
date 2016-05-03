@@ -1,18 +1,23 @@
 <html>
 <head>
-	<script type="text/javascript" src="../crafty-local.js"></script>
+	<script type="text/javascript" src="../crafty.js"></script>
 	<style>
 		#cr-stage {
-			background-color: grey;
+			background-color: gray;
 		}
 	</style>
 </head>
 <body>
 <div id="cr-stage"></div>
+<p>
+    Click on a specific bullet item to load that respective scene. <br/>
+    Additionally, the viewport can be dragged around. <br />
+    Enable developer tools to view logs.
+</p>
 <ul>
     <li data-image-entities='2D, DOM, Image'
         data-hotspot-entities='2D, DOM, Color, Mouse'
-    > (DD) Click is not working, Zoom is working, Hotspot visible</li>
+    > (DD) Click is not working(?), Zoom is working, Hotspot visible</li>
 
     <li data-image-entities='2D, Canvas, Image'
         data-hotspot-entities='2D, Canvas, Color, Mouse'
@@ -20,13 +25,13 @@
 
     <li data-image-entities='2D, Canvas, Image'
         data-hotspot-entities='2D, DOM, Color, Mouse'
-    > (CD) Click is not working, Zoom is not working, Hotspot is visible and zooming.</li>
+    > (CD) Click is not working(?), Zoom is not working, Hotspot is visible and zooming.</li>
 
     <li data-image-entities='2D, DOM, Image'
         data-hotspot-entities='2D, Canvas, Color, Mouse'
     > (DC) Click is not working (wrong hotspot), Zoom is working, Hotspot invisible</li>
 </ul>
-<p> and in every working zoom example i can move out of bounds </p>?
+<p> and in every working zoom example i can move out of bounds(?)</p>
 </body>
 	<script type="text/javascript">
 (function() {
@@ -76,7 +81,7 @@
 	}
 
     Crafty.init(config.viewportWidth, config.viewportHeight);
-    Crafty.canvas.init();
+    Crafty.s("CanvasLayer");
     Crafty.viewport.init(config.viewportWidth, config.viewportHeight);
     // Crafty.scene('main');
 }).call(this);

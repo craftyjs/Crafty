@@ -11,6 +11,39 @@
     }
   });
 
+  test("rect", function() {
+    var rect1, rect2, rect3;
+
+    // check initial rectangular region
+    rect1 = Crafty.viewport.rect({}); // external rect object
+    strictEqual(rect1._x, -Crafty.viewport._x, "rect property matches expected value");
+    strictEqual(rect1._y, -Crafty.viewport._y, "rect property matches expected value");
+    strictEqual(rect1._w, Crafty.viewport._width / Crafty.viewport._scale, "rect property matches expected value");
+    strictEqual(rect1._h, Crafty.viewport._height / Crafty.viewport._scale, "rect property matches expected value");
+
+    // check modified rectangular region
+    Crafty.viewport.x = -25;
+    Crafty.viewport.y = -50;
+    Crafty.viewport.width = 125;
+    Crafty.viewport.height = 150;
+    Crafty.viewport.scale(1.25);
+    rect2 = Crafty.viewport.rect(); // internal rect object
+    strictEqual(rect2._x, 25, "rect property matches expected value");
+    strictEqual(rect2._y, 50, "rect property matches expected value");
+    strictEqual(rect2._w, 125 / 1.25, "rect property matches expected value");
+    strictEqual(rect2._h, 150 / 1.25, "rect property matches expected value");
+
+    // check that rect1 and rect2 are different objects
+    notStrictEqual(rect1, rect2, "rect objects are not (referentially) identical");
+    notDeepEqual(rect1, rect2, "rect objects are not equal");
+
+    // check that the returned object is reused across invocations
+    resetStage();
+    rect3 = Crafty.viewport.rect(); // internal rect object
+    strictEqual(rect2, rect3, "rect objects are (referentially) identical");
+    deepEqual(rect2, rect3, "rect objects are equal");
+  });
+
   test("scroll using _x, _y", function() {
     var e = Crafty.e("2D, DOM").attr({
       x: 50,

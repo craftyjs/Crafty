@@ -1,0 +1,8 @@
+**
+!package.json
+!README.md
+!dist
+!dist/crafty.js
+!dist/crafty-min.js
+!src
+!src/**

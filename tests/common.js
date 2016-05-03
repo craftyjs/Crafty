@@ -1,3 +1,22 @@
+////////////////////////
+/// Helper functions ///
+////////////////////////
+
+resetStage = function() {
+  Crafty.viewport.reset();
+  Crafty.viewport.scroll('_x', 0);
+  Crafty.viewport.scroll('_y', 0);
+  Crafty.viewport.clampToEntities = true;
+};
+
+Round = function(x){
+  return Math.round(x*100)/100;
+};
+
+//////////////////
+// QUnit config //
+//////////////////
+
 QUnit.testDone(function() {
   // Clean all entities at the end of each test
   Crafty("*").destroy();
@@ -5,8 +24,10 @@ QUnit.testDone(function() {
 
 QUnit.config.hidepassed = true;
 
+///////////////////////
+// OpenSauce logging //
+///////////////////////
 
-// OpenSauce logging
 var log = [];
 QUnit.testStart(function(testDetails){
   QUnit.log(function(details){

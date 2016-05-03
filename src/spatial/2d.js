@@ -731,7 +731,7 @@ Crafty.c("2D", {
      * @param y - Pixel value of origin offset on the Y axis
      *
      * @sign public this .origin(String offset)
-     * @param offset - Combination of center, top, bottom, middle, left and right
+     * @param offset - Alignment identifier, which is a combination of center, top, bottom, middle, left and right
      *
      * Set the origin point of an entity for it to rotate around.
      *
@@ -741,6 +741,20 @@ Crafty.c("2D", {
      * this.origin("center")
      * this.origin("bottom right")
      * this.origin("middle right")
+     * ~~~
+     *
+     * The origin should be set before changing the `rotation`,
+     * since it does not apply retroactively.
+     * Additionally, setting the origin via an alignment identifier works only
+     * after the entity's dimensions have been set.
+     * These points are shown in the following example:
+     *
+     * @example
+     * ~~~
+     * Crafty.e("2D")
+     *       .attr({w: 100, h: 100})
+     *       .origin('center')
+     *       .attr({x: 25, y: 25, rotation: 180});
      * ~~~
      *
      * @see .rotation
@@ -1673,6 +1687,9 @@ Crafty.c("Motion", {
  *
  * The constructor for a polygon object used for hitboxes and click maps. Takes a set of points as an
  * argument, giving alternately the x and y coordinates of the polygon's vertices in order.
+ *
+ * For a polygon of `n` edges exactly `n` vertex coordinate pairs should be passed to the constructor.
+ * It is advised to pass the vertices in a clockwise order.
  *
  * The constructor accepts the coordinates as either a single array or as a set of individual arguments.
  * If passed an array, the current implementation will use that array internally -- do not attempt to reuse it.

@@ -4,7 +4,7 @@ var Crafty = require('../core/core.js'),
 /**@
  * #DebugCanvas
  * @category Debug
- * @trigger Draw - when the entity is ready to be drawn to the stage
+ * @trigger DebugDraw - when the entity is ready to be drawn to the stage
  * @trigger NoCanvas - if the browser does not support canvas
  *
  * When this component is added to an entity it will be drawn by the DebugCanvas layer.
@@ -101,7 +101,7 @@ Crafty.c("DebugCanvas", {
         if (props.fillStyle)
             ctx.fillStyle = props.fillStyle;
 
-        this.trigger("DebugDraw");
+        this.trigger("DebugDraw", ctx);
 
         ctx.globalAlpha = ga;
 
@@ -149,9 +149,8 @@ Crafty.c("DebugRectangle", {
 
     },
 
-    drawDebugRect: function () {
+    drawDebugRect: function (ctx) {
 
-        var ctx = Crafty.DebugCanvas.context;
         var rect = this.debugRect;
         if (rect === null || rect === undefined)
             return;
@@ -233,11 +232,10 @@ Crafty.c("DebugPolygon", {
         return this;
     },
 
-    drawDebugPolygon: function () {
+    drawDebugPolygon: function (ctx) {
         if (typeof this.polygon === "undefined")
             return;
 
-        var ctx = Crafty.DebugCanvas.context;
         ctx.beginPath();
         var p = this.polygon.points, l = p.length;
         for (var i=0; i<l; i+=2){

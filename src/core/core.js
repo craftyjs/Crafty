@@ -1967,6 +1967,7 @@ function UID() {
  * @param obj - an object
  *
  * Deep copy (a.k.a clone) of an object.
+ * @note This function should be used for plain objects with no cyclic references. To clone an entity use its `.clone` method instead.
  * 
  * @example
  * ~~~
@@ -1997,6 +1998,8 @@ function UID() {
  * obj1.log(); // prints "2/2" to the log
  * obj2.log(); // prints "1/2" to the log
  * ~~~
+ *
+ * @see Crafty Core#.clone
  */
 
 function clone(obj) {

@@ -19,6 +19,7 @@ var Crafty = require('../core/core.js'),
  * For a description of collision event data (hitData above), see the documentation for
  * `.hit()`.
  *
+ * @see 2D
  */
 Crafty.c("Collision", {
     init: function () {
@@ -252,17 +253,17 @@ Crafty.c("Collision", {
     /**@
      * #.hit
      * @comp Collision
-     * @sign public Boolean/Array hit(String component)
+     * @sign public Array .hit(String component)
      * @param component - Check collision with entities that have this component
      * applied to them.
-     * @return `false` if there is no collision. If a collision is detected,
+     * @return `null` if there is no collision. If a collision is detected,
      * returns an Array of collision data objects (see below).
      *
      * Tests for collisions with entities that have the specified component
      * applied to them.
      * If a collision is detected, data regarding the collision will be present in
      * the array returned by this method.
-     * If no collisions occur, this method returns false.
+     * If no collisions occur, this method returns `null`.
      *
      * Following is a description of a collision data object that this method may
      * return: The returned collision data will be an Array of Objects with the
@@ -285,7 +286,30 @@ Crafty.c("Collision", {
      *
      * If you want more fine-grained control consider using `Crafty.map.search()`.
      *
-     * @see 2D
+     * @example
+     * Resolving collisions with static colliders (walls) for moving entity (player).
+     * ~~~
+     * Crafty.e("2D, Fourway, Collision, player")
+     *       .attr({x: 32, y: 32, w: 32, h: 32})
+     *       .collision([0, 16, 16, 0, 32, 16, 16, 32])
+     *       .fourway()
+     *       .bind('Moved', function(evt) { // after player moved
+     *         var hitDatas, hitData;
+     *         if ((hitDatas = this.hit('wall'))) { // check for collision with walls
+     *           hitData = hitDatas[0]; // resolving collision for just one collider
+     *           if (hitData.type === 'SAT') { // SAT, advanced collision resolution
+     *             // move player back by amount of overlap
+     *             this.x -= hitData.overlap * hitData.normal.x;
+     *             this.y -= hitData.overlap * hitData.normal.y;
+     *           } else { // MBR, simple collision resolution
+     *             // move player to position before he moved (on respective axis)
+     *             this[evt.axis] = evt.oldValue;
+     *           }
+     *         }
+     *       });
+     * ~~~
+     *
+     * @see Crafty.map#Crafty.map.search
      */
     hit: function (component) {
         var area = this._cbr || this._mbr || this,
@@ -299,7 +323,7 @@ Crafty.c("Collision", {
             finalresult = [];
 
         if (!l) {
-            return false;
+            return null;
         }
 
         for (; i < l; ++i) {
@@ -331,7 +355,7 @@ Crafty.c("Collision", {
         }
 
         if (!finalresult.length) {
-            return false;
+            return null;
         }
 
         return finalresult;
@@ -342,26 +366,46 @@ Crafty.c("Collision", {
      * @comp Collision
      * @sign public this .onHit(String component, Function callbackOn[, Function callbackOff])
      * @param component - Component to check collisions for.
-     * @param callbackOn - Callback method to execute upon collision with component. Will be passed the results of the collision check in the same format documented for hit().
+     * @param callbackOn - Callback method to execute upon collision with the component.
+     *                     The first argument passed  will be the results of the collision check in the same format documented for `hit()`.
+     *                     The second argument passed will be a Boolean indicating whether the collision with a component occurs for the first time.
      * @param callbackOff - Callback method executed once as soon as collision stops.
      *
      * Creates an EnterFrame event calling `.hit()` each frame.  When a collision is detected the `callbackOn` will be invoked.
+     *
      * Note that the `callbackOn` will be invoked every frame the collision is active, not just the first time the collision occurs.
+     * Use the second argument passed to `callbackOn` to differentiate that, which will be `true` if it's the first time the collision occurs.
      *
      * If you want more fine-grained control consider using `.checkHits()`, `.hit()` or even `Crafty.map.search()`.
      *
+     * @example
+     * Respond to collisions between player and bullets.
+     * ~~~
+     * Crafty.e("2D, Collision, player")
+     *       .attr({ health: 100 })
+     *       .onHit('bullet', function(hitDatas) { // on collision with bullets
+     *         for (var i = 0, l = hitDatas.length; i < l; ++i) { // for each bullet hit
+     *           hitDatas[i].obj.destroy(); // destroy the bullet
+     *           this.health -= 25; // player looses health
+     *           if (this.health <= 0) // once player's health depletes
+     *             this.destroy(); // player dies
+     *         }
+     *       });
+     * ~~~
+     *
      * @see .checkHits
      * @see .hit
+     * @see Crafty.map#Crafty.map.search
      */
     onHit: function (component, callbackOn, callbackOff) {
         var justHit = false;
         this.bind("EnterFrame", function () {
             var hitData = this.hit(component);
             if (hitData) {
+                callbackOn.call(this, hitData, !justHit);
                 justHit = true;
-                callbackOn.call(this, hitData);
             } else if (justHit) {
-                if (typeof callbackOff == 'function') {
+                if (typeof callbackOff === 'function') {
                     callbackOff.call(this);
                 }
                 justHit = false;
@@ -383,14 +427,14 @@ Crafty.c("Collision", {
             var hitData = this.hit(component);
 
             if (collisionData.occurring === true) {
-                if (hitData !== false) {
+                if (hitData !== null) {
                     // The collision is still in progress
                     return;
                 }
 
                 collisionData.occurring = false;
                 this.trigger("HitOff", component);
-            } else if (hitData !== false) {
+            } else if (hitData !== null) {
                 collisionData.occurring = true;
                 this.trigger("HitOn", hitData);
             }
@@ -438,6 +482,7 @@ Crafty.c("Collision", {
      * ~~~
      *
      * @see .hit
+     * @see Crafty.map#Crafty.map.search
      */
     checkHits: function () {
         var components = arguments;

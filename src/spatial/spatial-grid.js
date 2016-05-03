@@ -68,12 +68,29 @@ var Crafty = require('../core/core.js');
          * @comp Crafty.map
          * @sign public Object Crafty.map.search(Object rect[, Boolean filter])
          * @param rect - the rectangular region to search for entities.
-         * @param filter - If false, only performs a broad-phase collision check.  The default value is true.
+         *               This object must contain the properties `_x`,`_y`,`_w`,`_h`.
+         * @param filter - If `false`, only performs a broad-phase collision check.  The default value is `true`.
+         * @return an (possibly empty) array of entities that have been found in the given region
+         *
+         * Search for entities in the given region, using their broadphase bounding rectangles.
          *
          * - If `filter` is `false`, just search for all the entries in the give `rect` region by broad phase collision. Entity may be returned duplicated.
          * - If `filter` is `true`, filter the above results by checking that they actually overlap `rect`.
          *
-         * The easier usage is with `filter == true`. For performance reason, you may use `filter == false`, and filter the result yourself. See examples in drawing.js and collision.js
+         * The easier usage is with `filter == true`. For performance reason, you may use `filter == false`, and filter the result yourself. See examples in drawing.js and collision.js.
+         *
+         * @example
+         * ~~~
+         * // search for entities located in the current visible region of the viewport
+         * var results = Crafty.map.search(Crafty.viewport.rect());
+         * // iterate over all those entities
+         * var ent;
+         * for (var i = 0, l = results.length; i < l; ++i) {
+         *     // do something with an entity
+         *     ent = results[i];
+         *     Crafty.log('Found entity with id', ent.getId());
+         * }
+         * ~~~
          */
 
         search: function (rect, filter) {
@@ -87,8 +104,7 @@ var Crafty = require('../core/core.js');
             for (i = keys.x1; i <= keys.x2; i++) {
                 //insert into all y buckets
                 for (j = keys.y1; j <= keys.y2; j++) {
-                    cell = this.map[(i << 16) ^ j];
-                    if (cell) {
+                    if ((cell = this.map[(i << 16) ^ j])) {
                         for (k = 0; k < cell.length; k++)
                             results.push(cell[k]);
                     }

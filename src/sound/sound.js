@@ -234,7 +234,7 @@ Crafty.extend({
             a.play();
             s.played++;
             c.onEnd = function () {
-                if (s.played < c.repeat || repeat == -1) {
+                if (s.played < c.repeat || c.repeat === -1) {
                     if (this.currentTime)
                         this.currentTime = 0;
                     this.play();
