@@ -1,3 +1,6 @@
+var Crafty = require('../core/core.js');
+
+
 /**@
  * #Tween
  * @category Animation
@@ -106,7 +109,7 @@ module.exports = {
   */
   cancelTween: function(target){
     if (typeof target === "string"){
-      if (typeof this.tweenGroup[target] == "object" )
+      if (typeof this.tweenGroup[target] === "object" )
         delete this.tweenGroup[target][target];
     } else if (typeof target === "object") {
       for (var propname in target)

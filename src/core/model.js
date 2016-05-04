@@ -1,3 +1,6 @@
+var Crafty = require('../core/core.js');
+
+
 /**@
  * #Model
  * @category Model
@@ -46,7 +49,7 @@ module.exports = {
    * update the name data attribute on the model.
    */
   _changed_triggers: function(data, options) {
-    var key, trigger_data;
+    var key;
     options = Crafty.extend.call({pre: ''}, options);
     for (key in data) {
       this.trigger('Change[' + options.pre + key + ']', data[key]);

@@ -2,7 +2,7 @@ var Crafty = require('../core/core.js'),
     document = window.document;
 
 // Object for abstracting out all the gl calls to handle rendering entities with a particular program
-RenderProgramWrapper = function(layer, shader){
+function RenderProgramWrapper(layer, shader){
     this.shader = shader;
     this.layer = layer;
     this.context = layer.context;
@@ -12,7 +12,7 @@ RenderProgramWrapper = function(layer, shader){
     this.max_size = 1024;
     this._indexArray = new Uint16Array(6 * this.array_size);
     this._indexBuffer = layer.context.createBuffer();
-};
+}
 
 RenderProgramWrapper.prototype = {
     // Takes an array of attributes; see WebGLLayer's getProgramWrapper method

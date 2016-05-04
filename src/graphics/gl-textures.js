@@ -2,7 +2,9 @@ var Crafty = require('../core/core.js');
 
 // An object for wrangling textures
 // An assumption here is that doing anything with textures is fairly expensive, so the code should be expressive rather than performant
-var TextureManager = Crafty.TextureManager = function(gl, webgl) {
+Crafty.TextureManager = TextureManager;
+
+function TextureManager (gl, webgl) {
 	this.gl = gl;
 	this.webgl = webgl;
 	// The maximum number of units the environment says it supports 
@@ -13,7 +15,7 @@ var TextureManager = Crafty.TextureManager = function(gl, webgl) {
 	this.registered_textures = {};
 	// Try to track which texture is active
 	this.active = null;
-};
+}
 
 TextureManager.prototype = {
 
@@ -31,8 +33,9 @@ TextureManager.prototype = {
 	// creates a texture out of the given image and repeating state
 	// The url is just used to generate a unique id for the texture
 	makeTexture: function(url, image, repeating) {
-		// gl is the context, webgl the Crafty object containing prefs/etc
-        var gl = this.gl, webgl = this.webgl;
+        // gl is the context, webgl is the Crafty object containing prefs/etc
+        // var gl = this.gl;
+        var webgl = this.webgl;
 
         // Check whether a texture that matches the one requested already exists
         var id =  "texture-(r:" + repeating + ")-" + url;
@@ -104,7 +107,9 @@ TextureManager.prototype = {
 };
 
 // An object for abstracting out the gl calls associated with textures
-var TextureWrapper = Crafty.TextureWrapper = function(manager, id){
+Crafty.TextureWrapper = TextureWrapper;
+
+function TextureWrapper (manager, id){
 	this.manager = manager;
 	this.gl = manager.gl;
 	this.glTexture = this.gl.createTexture();
@@ -112,7 +117,7 @@ var TextureWrapper = Crafty.TextureWrapper = function(manager, id){
 	this.active = false;
 	this.unit = null;
 	this.powerOfTwo = false;
-};
+}
 
 TextureWrapper.prototype = {
 
@@ -144,7 +149,7 @@ TextureWrapper.prototype = {
 		this.width = image.width;
 		this.height = image.height;
 		this.size = image.width * image.height;
-		this.powerOfTwo = !((Math.log(image.width)/Math.LN2 != Math.floor(Math.log(image.width)/Math.LN2)) || (Math.log(image.height)/Math.LN2 != Math.floor(Math.log(image.height)/Math.LN2)));
+		this.powerOfTwo = !((Math.log(image.width)/Math.LN2 !== Math.floor(Math.log(image.width)/Math.LN2)) || (Math.log(image.height)/Math.LN2 !== Math.floor(Math.log(image.height)/Math.LN2)));
 		var gl = this.gl;
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 	},

@@ -392,7 +392,7 @@ Crafty.math.Vector2D = (function () {
      */
     Vector2D.prototype.equals = function (vecRH) {
         return vecRH instanceof Vector2D &&
-            this.x == vecRH.x && this.y == vecRH.y;
+            this.x === vecRH.x && this.y === vecRH.y;
     }; // equals
 
     /**@
@@ -703,7 +703,7 @@ Crafty.math.Matrix2D = (function () {
      * @param {Number=0} e
      * @param {Number=0} f
      */
-    Matrix2D = function (a, b, c, d, e, f) {
+    function Matrix2D (a, b, c, d, e, f) {
         if (a instanceof Matrix2D) {
             this.a = a.a;
             this.b = a.b;
@@ -720,7 +720,7 @@ Crafty.math.Matrix2D = (function () {
             this.f = f;
         } else if (arguments.length > 0)
             throw "Unexpected number of arguments for Matrix2D()";
-    }; // class Matrix2D
+    } // class Matrix2D
 
     Matrix2D.prototype.a = 1;
     Matrix2D.prototype.b = 0;
@@ -806,8 +806,8 @@ Crafty.math.Matrix2D = (function () {
      */
     Matrix2D.prototype.equals = function (mtrxRH) {
         return mtrxRH instanceof Matrix2D &&
-            this.a == mtrxRH.a && this.b == mtrxRH.b && this.c == mtrxRH.c &&
-            this.d == mtrxRH.d && this.e == mtrxRH.e && this.f == mtrxRH.f;
+            this.a === mtrxRH.a && this.b === mtrxRH.b && this.c === mtrxRH.c &&
+            this.d === mtrxRH.d && this.e === mtrxRH.e && this.f === mtrxRH.f;
     }; // equals
 
     /**@

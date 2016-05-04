@@ -54,7 +54,6 @@
 
   test("DOM component correctly invalidates", function(){
     var element = Crafty.e("DOM");
-    var node = element._element;
     strictEqual(element._changed, true, "element starts dirty");
     element._changed = false;
     element.trigger("Invalidate");

@@ -1,0 +1,16 @@
+{
+  "eqeqeq": true,
+  "esversion": 5,
+  "freeze": true,
+  "futurehostile": true,
+  "latedef": "nofunc",
+  "noarg": true,
+  "nonbsp": true,
+  "nonew": true,
+  "strict": "implied",
+  "undef": true,
+  "unused": "vars",
+  "validthis": true,
+  "browser": true,
+  "node": true
+}

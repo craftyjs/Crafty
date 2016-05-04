@@ -172,7 +172,6 @@
   });
 
   test("Test .resetAnimation() with no active reel", function() {
-    var ret;
     var newAnimation = Crafty.e("SpriteAnimation");
 
     throws(function() {newAnimation.resetAnimation();}, /No active reel/, "Throws when calling .resetAnimation().");
@@ -200,7 +199,6 @@
     equal(ret, spriteAnimation, "Correctly returned self");
     equal(spriteAnimation._currentReelId, "short", "Correct _currentReelId after switching");
     equal(spriteAnimation._currentReel.id, "short", "Correct _currentReel.id after switching");
-    var e = "";
 
     throws( function() {spriteAnimation.reel("wrong");}, /The specified reel wrong is undefined/,  "Function should throw on bad reel");
 
@@ -460,7 +458,6 @@
 
   test("Play an animation and then switch to another reel", function() {
     var countReel = spriteAnimation.getReel("count");
-    var shortReel = spriteAnimation.getReel("short");
     spriteAnimation.animate('count');
     equal(spriteAnimation._isPlaying, true, "playing after call to animate.");
     equal(countReel.easing.paused, false, "easing not paused after call to animate.");

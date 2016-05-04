@@ -193,7 +193,6 @@ Crafty.extend({
          * ~~~
          */
         pan: (function () {
-            var tweens = {}, i, bound = false;
             var targetX, targetY, startingX, startingY, easing;
 
             function enterFrame(e) {
@@ -220,7 +219,7 @@ Crafty.extend({
                 Crafty.trigger("StopCamera");
 
                 // Handle request to reset
-                if (dx == 'reset') {
+                if (dx === 'reset') {
                    return;
                 }
 
@@ -280,8 +279,8 @@ Crafty.extend({
                 Crafty.trigger("StopCamera");
 
                 oldTarget = target;
-                offx = (typeof offsetx != 'undefined') ? offsetx : 0;
-                offy = (typeof offsety != 'undefined') ? offsety : 0;
+                offx = (typeof offsetx !== 'undefined') ? offsetx : 0;
+                offy = (typeof offsety !== 'undefined') ? offsety : 0;
 
                 target.bind('Move', change);
                 target.bind('ViewportScale', change);
@@ -460,14 +459,9 @@ Crafty.extend({
             var active = false,
                 dragging = false,
                 lastMouse = {};
-            old = {};
-            function stopLook(){
-                dragging = false;
-            }
-
 
             return function (op, arg) {
-                if (typeof op == 'boolean') {
+                if (typeof op === 'boolean') {
                     active = op;
                     if (active) {
                         Crafty.mouseObjs++;
@@ -481,7 +475,7 @@ Crafty.extend({
                 case 'move':
                 case 'drag':
                     if (!dragging) return;
-                    diff = {
+                    var diff = {
                         x: arg.clientX - lastMouse.x,
                         y: arg.clientY - lastMouse.y
                     };

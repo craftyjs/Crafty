@@ -1,5 +1,4 @@
 var fs = require('fs'),
-    stream = require('stream'),
     path = require('path'),
     q = require('q'),
     qfs = require('q-io/fs'),

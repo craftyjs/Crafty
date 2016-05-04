@@ -55,7 +55,7 @@ var Crafty = function (selector) {
 };
     // Internal variables
 var GUID, frame, components, entities, handlers, onloads,
-slice, rlist, rspace, milliSecPerFrame;
+slice, rlist, rspace;
 
 
 components  = {}; // Map of components and their functions
@@ -909,7 +909,7 @@ Crafty.fn = Crafty.prototype = {
             clone.addComponent(comp);
         }
         for (prop in this) {
-            if (prop != "0" && prop != "_global" && prop != "_changed" && typeof this[prop] != "function" && typeof this[prop] != "object") {
+            if (prop !== "0" && prop !== "_global" && prop !== "_changed" && typeof this[prop] !== "function" && typeof this[prop] !== "object") {
                 clone[prop] = this[prop];
             }
         }
@@ -1120,7 +1120,7 @@ Crafty._callbackMethods = {
         // They are spliced out when _runCallbacks is invoked, not here
         // (This function might be called in the middle of a callback, which complicates the logic)
         for (var i = 0; i < callbacks.length; i++) {
-            if (!fn || callbacks[i] == fn) {
+            if (!fn || callbacks[i] === fn) {
                 delete callbacks[i];
             }
         }
@@ -1469,7 +1469,7 @@ Crafty.extend({
             step: function () {
                 var drawTimeStart, dt, lastFrameTime, loops = 0;
 
-                currentTime = new Date().getTime();
+                var currentTime = new Date().getTime();
                 if (endTime > 0)
                     Crafty.trigger("MeasureWaitTime", currentTime - endTime);
 
@@ -1551,7 +1551,7 @@ Crafty.extend({
              * @see Crafty.timer.steptype
              */
             FPS: function (value) {
-                if (typeof value == "undefined")
+                if (typeof value === "undefined")
                     return FPS;
                 else {
                     FPS = value;
@@ -2003,7 +2003,7 @@ function UID() {
  */
 
 function clone(obj) {
-    if (obj === null || typeof (obj) != 'object')
+    if (obj === null || typeof (obj) !== 'object')
         return obj;
 
     var temp = obj.constructor(); // changed
@@ -2015,7 +2015,7 @@ function clone(obj) {
 
 // export Crafty
 if (typeof define === 'function') { // AMD
-    define('crafty', [], function () {
+    define('crafty', [], function () { // jshint ignore:line
         return Crafty;
     });
 }

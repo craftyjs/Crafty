@@ -11,8 +11,8 @@ var Crafty = require('../core/core.js'),
  */
 Crafty.map = new HashMap();
 var M = Math,
-    Mc = M.cos,
-    Ms = M.sin,
+    //Mc = M.cos,
+    //Ms = M.sin,
     PI = M.PI,
     DEG_TO_RAD = PI / 180;
 
@@ -373,7 +373,7 @@ Crafty.c("2D", {
      * Handle changes that need to happen on a rotation
      */
     _rotate: function (v) {
-        var theta = -1 * (v % 360); //angle always between 0 and 359
+        //var theta = -1 * (v % 360); //angle always between 0 and 359
         var difference = this._rotation - v;
         // skip if there's no rotation!
         if (difference === 0)
@@ -382,7 +382,7 @@ Crafty.c("2D", {
             this._rotation = v;
 
         //Calculate the new MBR
-        var rad = theta * DEG_TO_RAD,
+        var //rad = theta * DEG_TO_RAD,
             o = {
                 x: this._origin.x + this._x,
                 y: this._origin.y + this._y
@@ -713,7 +713,7 @@ Crafty.c("2D", {
 
         //if obj passed, find the handler and unbind
         for (i = 0; i < this._children.length; i++) {
-            if (this._children[i] == obj) {
+            if (this._children[i] === obj) {
                 this._children.splice(i, 1);
             }
         }
@@ -847,9 +847,9 @@ Crafty.c("2D", {
             this.trigger("Move", old);
 
         } else if (name === '_z') {
-            var intValue = value <<0;
-            value = value==intValue ? intValue : intValue+1;
-            this._globalZ = value*100000+this[0]; //magic number 10^5 is the max num of entities
+            var intValue = value << 0;
+            value = value === intValue ? intValue : intValue+1;
+            this._globalZ = value * 100000 + this[0]; //magic number 10^5 is the max num of entities
             this[name] = value;
             this.trigger("Reorder");
         }
@@ -1103,7 +1103,7 @@ Crafty.c("Gravity", {
         this.bind("LiftedOffGround", this._startGravity); // start gravity if we are off ground
         this.bind("LandedOnGround", this._stopGravity); // stop gravity once landed
     },
-    remove: function(removed) {
+    remove: function(destroyed) {
         this.unbind("LiftedOffGround", this._startGravity);
         this.unbind("LandedOnGround", this._stopGravity);
     },
@@ -1734,7 +1734,7 @@ Crafty.polygon.prototype = {
             i, j, c = false;
 
         for (i = 0, j = l - 1; i < l; j = i++) {
-            if (((p[2*i+1] > y) != (p[2*j+1] > y)) && (x < (p[2*j] - p[2*i]) * (y - p[2*i+1]) / (p[2*j+1] - p[2*i+1]) + p[2*i])) {
+            if (((p[2*i+1] > y) !== (p[2*j+1] > y)) && (x < (p[2*j] - p[2*i]) * (y - p[2*i+1]) / (p[2*j+1] - p[2*i+1]) + p[2*i])) {
                 c = !c;
             }
         }
@@ -1854,7 +1854,6 @@ Crafty.circle.prototype = {
      */
     containsPoint: function (x, y) {
         var radius = this.radius,
-            sqrt = Math.sqrt,
             deltaX = this.x - x,
             deltaY = this.y - y;
 
@@ -1882,8 +1881,7 @@ Crafty.circle.prototype = {
         this.y += y;
 
         var i = 0, p = this.points,
-            l = p.length,
-            current;
+            l = p.length;
         for (; i < l; i+=2) {
             p[i] += x;
             p[i+1] += y;
@@ -1904,7 +1902,7 @@ Crafty.matrix = function (m) {
 
 Crafty.matrix.prototype = {
     x: function (other) {
-        if (this.width != other.height) {
+        if (this.width !== other.height) {
             return;
         }
 

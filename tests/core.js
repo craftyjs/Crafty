@@ -428,7 +428,7 @@
   });
 
   test("Calling a scene destroys 2D entities", function() {
-    var e = Crafty.e("2D");
+    Crafty.e("2D");
     var sceneInit = function() {};
     Crafty.scene("test-destroy", sceneInit);
     Crafty.scene("test-destroy");
@@ -438,7 +438,7 @@
   });
 
   test("Calling a scene doesn't destroy 2D entities with Persist", function() {
-    var e = Crafty.e("2D, Persist");
+    Crafty.e("2D, Persist");
     var sceneInit = function() {};
     Crafty.scene("test-persist", sceneInit);
     Crafty.scene("test-persist");

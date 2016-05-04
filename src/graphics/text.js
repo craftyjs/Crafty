@@ -124,7 +124,7 @@ Crafty.c("Text", {
      */
     text: function (text) {
         if (!(typeof text !== "undefined" && text !== null)) return this._text;
-        if (typeof (text) == "function")
+        if (typeof (text) === "function")
             this._text = text.call(this);
         else
             this._text = text;
@@ -215,7 +215,7 @@ Crafty.c("Text", {
 
             if (typeof key === "object") {
                 for (var propertyKey in key) {
-                    if(propertyKey == 'family'){
+                    if(propertyKey === 'family'){
                         this._textFont[propertyKey] = "'" + key[propertyKey] + "'";
                     } else {
                         this._textFont[propertyKey] = key[propertyKey];

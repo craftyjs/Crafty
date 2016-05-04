@@ -136,7 +136,7 @@ Crafty.extend({
          * ~~~
          */
         centerAt: function (x, y) {
-            if (typeof x == "number" && typeof y == "number") {
+            if (typeof x === "number" && typeof y === "number") {
                 var center = this.pos2px(x, y);
                 Crafty.viewport._x = -center.left + Crafty.viewport.width / 2 - this._tile.width / 2;
                 Crafty.viewport._y = -center.top + Crafty.viewport.height / 2 - this._tile.height / 2;

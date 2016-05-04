@@ -220,8 +220,6 @@ Crafty.c("SpriteAnimation", {
      * ~~~
      */
     animate: function(reelId, loopCount) {
-        var pos;
-
         // switch to the specified reel if necessary
         if (typeof reelId === "string")
             this.reel(reelId);

@@ -85,7 +85,7 @@ Crafty.c("Draggable", {
     dragDirection: function (dir) {
         if (typeof dir === 'undefined') {
             this._dir = null;
-        } else if (("" + parseInt(dir, 10)) == dir) { //dir is a number
+        } else if (+dir === dir) { //dir is a number
             this._dir = {
                 x: Math.cos(dir / 180 * Math.PI),
                 y: Math.sin(dir / 180 * Math.PI)

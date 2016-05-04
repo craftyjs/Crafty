@@ -120,7 +120,7 @@ Crafty.c("Particles", {
             this._Particles.position = this._Particles.vectorHelpers.create(relativeX, relativeY);
 
             //Selective clearing
-            if (typeof Crafty.rectManager.boundingRect == 'function') {
+            if (typeof Crafty.rectManager.boundingRect === 'function') {
                 bounding = Crafty.rectManager.boundingRect(this._Particles.register);
                 if (bounding) ctx.clearRect(bounding._x, bounding._y, bounding._w, bounding._h);
             } else {
@@ -183,11 +183,11 @@ Crafty.c("Particles", {
 
         init: function (options) {
             this.position = this.vectorHelpers.create(0, 0);
-            if (typeof options == 'undefined') options = {};
+            if (typeof options === 'undefined') options = {};
 
             //Create current config by merging given options and presets.
             for (var key in this.presets) {
-                if (typeof options[key] != 'undefined') this[key] = options[key];
+                if (typeof options[key] !== 'undefined') this[key] = options[key];
                 else this[key] = this.presets[key];
             }
 
@@ -196,7 +196,7 @@ Crafty.c("Particles", {
         },
 
         addParticle: function () {
-            if (this.particleCount == this.maxParticles) {
+            if (this.particleCount === this.maxParticles) {
                 return false;
             }
 
@@ -258,7 +258,7 @@ Crafty.c("Particles", {
                     this.emitCounter -= rate;
                 }
                 this.elapsedFrames++;
-                if (this.duration != -1 && this.duration < this.elapsedFrames) {
+                if (this.duration !== -1 && this.duration < this.elapsedFrames) {
                     this.stop();
                 }
             }
@@ -305,7 +305,7 @@ Crafty.c("Particles", {
                     this.particleIndex++;
                 } else {
                     // Replace particle with the last active
-                    if (this.particleIndex != this.particleCount - 1) {
+                    if (this.particleIndex !== this.particleCount - 1) {
                         this.particles[this.particleIndex] = this.particles[this.particleCount - 1];
                     }
                     this.particleCount--;

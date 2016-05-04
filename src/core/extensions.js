@@ -1,4 +1,4 @@
-var Crafty = require('./core');
+var Crafty = require('../core/core.js');
 var document = (typeof window !== "undefined") && window.document;
 
 /**@
