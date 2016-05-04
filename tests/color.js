@@ -15,9 +15,9 @@
   test("short hex codes", function(){
     var c = {};
     Crafty.assignColor("#123", c);
-    equal(c._red, 1, "red is 1");
-    equal(c._green, 2, "green is 2");
-    equal(c._blue, 3, "blue is 3");
+    equal(c._red, 17, "red is #11");
+    equal(c._green, 34, "green is #22");
+    equal(c._blue, 51, "blue is #33");
     equal(c._strength, 1, "strength is 1.0");
   });
 
@@ -37,7 +37,7 @@
     equal(c._green, 160, "green is 160");
     equal(c._blue, 122, "blue is 122");
     equal(c._strength, 1, "strength is 1.0");
-    
+
     Crafty.assignColor("cadetblue", c);
     equal(c._red, 95, "red is 255");
     equal(c._green, 158, "green is 160");
