@@ -59,17 +59,24 @@ Crafty.extend({
         }
 
         function parseHexString(hex, c) {
-            var l;
-            if (hex.length === 7){
-                l=2;
-            } else if (hex.length === 4){
-                l=1;
+            var r, g, b,
+                l = hex.length;
+
+            if (l === 7) {
+                r = hex.substr(1, 2);
+                g = hex.substr(3, 2);
+                b = hex.substr(5, 2);
+            } else if (l === 4) {
+                r = hex.substr(1, 1); r += r;
+                g = hex.substr(2, 1); g += g;
+                b = hex.substr(3, 1); b += b;
             } else {
                 return default_value(c);
             }
-            c._red = parseInt(hex.substr(1, l), 16);
-            c._green = parseInt(hex.substr(1+l, l), 16);
-            c._blue = parseInt(hex.substr(1+2*l, l), 16);
+            c._red = parseInt(r, 16);
+            c._green = parseInt(g, 16);
+            c._blue = parseInt(b, 16);
+
             return c;
         }
 
@@ -175,7 +182,7 @@ Crafty.c("Color", {
         }
         this.trigger("Invalidate");
     },
-    
+
     events: {
         "LayerAttached": "_setupColor"
     },
