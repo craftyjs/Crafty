@@ -1,0 +1,7 @@
+{
+  "extends": "../.jshintrc",
+  "jquery": true,
+  "globals": {
+    "Crafty": false
+  }
+}

@@ -19,30 +19,34 @@ spriteAnimation.reel("countSlow").resetAnimation().pauseAnimation();
 spriteAnimation.reel("short").resetAnimation().pauseAnimation();
 
 // Some extra functions for the animation playground
-playgroundPlay = function() {
-  reelId = $('#playReelId').val();
+/* exported playgroundPlay */
+function playgroundPlay() {
+  var reelId = $('#playReelId').val();
 
-  loopCount = parseInt($('#playRepeatCount').val());
+  var loopCount = parseInt($('#playRepeatCount').val());
   if (isNaN(loopCount)) loopCount = 1;
 
   spriteAnimation.animate(reelId, loopCount);
 }
 
-playgroundPosition = function() {
+/* exported playgroundPosition */
+function playgroundPosition() {
   var pos  = parseInt($('#reelPosition').val());
   if (isNaN(pos)) pos = 0;
   spriteAnimation.reelPosition(pos);
 }
 
-playgroundPause = function() {
+/* exported playgroundPause */
+function playgroundPause() {
   spriteAnimation.pauseAnimation();
 }
 
-playgroundResume = function() {
-
+/* exported playgroundResume */
+function playgroundResume() {
   spriteAnimation.resumeAnimation();
 }
 
-playgroundReset = function() {
+/* exported playgroundReset */
+function playgroundReset() {
   spriteAnimation.resetAnimation();
 }
