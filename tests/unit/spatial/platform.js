@@ -364,7 +364,7 @@
 
 
     var vel = -1;
-    player.bind("EnterFrame", function() {
+    player.bind("UpdateFrame", function() {
       if (!this.ground) {
         _.ok(this.velocity().y > vel, "velocity should increase");
         vel = this.velocity().y;

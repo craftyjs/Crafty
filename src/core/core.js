@@ -748,7 +748,7 @@ Crafty.fn = Crafty.prototype = {
      * this.bind("myevent", function() {
      *     this.triggers++; //whenever myevent is triggered, increment
      * });
-     * this.bind("EnterFrame", function() {
+     * this.bind("UpdateFrame", function() {
      *     this.trigger("myevent"); //trigger myevent on every frame
      * });
      * ~~~
@@ -1354,7 +1354,7 @@ Crafty.extend({
      * @category Core
      * @kind Method
      * 
-     * @trigger Load - Just after the viewport is initialised. Before the EnterFrame loops is started
+     * @trigger Load - Just after the viewport is initialised. Before the UpdateFrame loops is started
      * @sign public this Crafty.init([Number width, Number height, String stage_elem])
      * @sign public this Crafty.init([Number width, Number height, HTMLElement stage_elem])
      * @param Number width - Width of the stage
@@ -1363,7 +1363,7 @@ Crafty.extend({
      *
      * Sets the element to use as the stage, creating it if necessary.  By default a div with id 'cr-stage' is used, but if the 'stage_elem' argument is provided that will be used instead.  (see `Crafty.viewport.init`)
      *
-     * Starts the `EnterFrame` interval. This will call the `EnterFrame` event for every frame.
+     * Starts the `UpdateFrame` interval. This will call the `UpdateFrame` event for every frame.
      *
      * Can pass width and height values for the stage otherwise will default to window size.
      *
@@ -1432,7 +1432,7 @@ Crafty.extend({
      * @sign public this Crafty.stop([bool clearState])
      * @param clearState - if true the stage and all game state is cleared.
      *
-     * Stops the EnterFrame interval and removes the stage element.
+     * Stops the `UpdateFrame` interval and removes the stage element.
      *
      * To restart, use `Crafty.init()`.
      * @see Crafty.init
@@ -1476,7 +1476,7 @@ Crafty.extend({
      * @trigger Unpause - when the game is unpaused
      * @sign public this Crafty.pause(void)
      *
-     * Pauses the game by stopping the EnterFrame event from firing. If the game is already paused it is unpaused.
+     * Pauses the game by stopping the `UpdateFrame` event from firing. If the game is already paused it is unpaused.
      * You can pass a boolean parameter if you want to pause or unpause no matter what the current state is.
      * Modern browsers pauses the game when the page is not visible to the user. If you want the Pause event
      * to be triggered when that happens you can enable autoPause in `Crafty.settings`.
@@ -1659,7 +1659,8 @@ Crafty.extend({
              * @kind Method
              * 
              * @sign public void Crafty.timer.step()
-             * @trigger EnterFrame - Triggered on each frame.  Passes the frame number, and the amount of time since the last frame.  If the time is greater than maxTimestep, that will be used instead.  (The default value of maxTimestep is 50 ms.) - { frame: Number, dt:Number }
+             * @trigger EnterFrame - Triggered before each frame.  Passes the frame number, and the amount of time since the last frame.  If the time is greater than maxTimestep, that will be used instead.  (The default value of maxTimestep is 50 ms.) - { frame: Number, dt:Number }
+             * @trigger UpdateFrame - Triggered on each frame.  Passes the frame number, and the amount of time since the last frame.  If the time is greater than maxTimestep, that will be used instead.  (The default value of maxTimestep is 50 ms.) - { frame: Number, dt:Number }
              * @trigger ExitFrame - Triggered after each frame.  Passes the frame number, and the amount of time since the last frame.  If the time is greater than maxTimestep, that will be used instead.  (The default value of maxTimestep is 50 ms.) - { frame: Number, dt:Number }
              * @trigger PreRender - Triggered every time immediately before a scene should be rendered
              * @trigger RenderScene - Triggered every time a scene should be rendered
@@ -1669,7 +1670,7 @@ Crafty.extend({
              * @trigger MeasureRenderTime - Triggered after each render. Passes the time it took to render the scene - Number
              *
              * Advances the game by performing a step. A step consists of one/multiple frames followed by a render. The amount of frames depends on the timer's steptype.
-             * Specifically it triggers `EnterFrame` & `ExitFrame` events for each frame and `PreRender`, `RenderScene` & `PostRender` events for each render.
+             * Specifically it triggers `EnterFrame`, `UpdateFrame` & `ExitFrame` events for each frame and `PreRender`, `RenderScene` & `PostRender` events for each render.
              *
              * @see Crafty.timer.steptype
              * @see Crafty.timer.FPS
@@ -1722,11 +1723,14 @@ Crafty.extend({
                         dt: dt,
                         gameTime: gameTime
                     };
-                    // Handle any changes due to user input
-                    Crafty.trigger("EnterFrameInput", frameData);
-                    // Everything that changes over time hooks into this event
+
+                    // Event that happens before "UpdateFrame",
+                    // e.g. for setting-up movement in response to user input for the next "UpdateFrame" event
                     Crafty.trigger("EnterFrame", frameData);
-                    // Event that happens after "EnterFrame", e.g. for resolivng collisions applied through movement during "EnterFrame" events
+                    // Everything that changes over time hooks into this event
+                    Crafty.trigger("UpdateFrame", frameData);
+                    // Event that happens after "UpdateFrame",
+                    // e.g. for resolivng collisions applied through movement during "UpdateFrame" events
                     Crafty.trigger("ExitFrame", frameData);
                     gameTime += dt;
 
@@ -1789,8 +1793,8 @@ Crafty.extend({
                         frame: frame++,
                         dt: timestep
                     };
-                    Crafty.trigger("EnterFrameInput", frameData);
                     Crafty.trigger("EnterFrame", frameData);
+                    Crafty.trigger("UpdateFrame", frameData);
                     Crafty.trigger("ExitFrame", frameData);
                 }
                 Crafty.trigger("PreRender");
@@ -1880,19 +1884,19 @@ Crafty.extend({
      * Crafty.c("Annoying", {
      *     _message: "HiHi",
      *     init: function() {
-     *         this.bind("EnterFrame", function() { alert(this.message); });
+     *         this.bind("UpdateFrame", function() { alert(this.message); });
      *     },
      *     annoying: function(message) { this.message = message; }
      * });
      *
      * Crafty.e("Annoying").annoying("I'm an orange...");
      * ~~~
-     * To attach to the "EnterFrame" event using the `events` property instead:
+     * To attach to the "UpdateFrame" event using the `events` property instead:
      * ~~~
      * Crafty.c("Annoying", {
      *     _message: "HiHi",
      *     events: {
-     *         "EnterFrame": function(){alert(this.message);}
+     *         "UpdateFrame": function(){alert(this.message);}
      *     }
      *     annoying: function(message) { this.message = message; }
      * });

@@ -140,7 +140,7 @@
     var framesFunc = function() {
       framesPlayed++;
     };
-    Crafty.bind("EnterFrame", framesFunc);
+    Crafty.bind("UpdateFrame", framesFunc);
 
     Crafty.timer.simulateFrames(1);
     _.strictEqual(framesPlayed, 1, "A frame should have been simulated");
@@ -148,17 +148,16 @@
     Crafty.timer.simulateFrames(100);
     _.strictEqual(framesPlayed, 101, "101 frames should have been simulated");
 
-    Crafty.unbind("EnterFrame", framesFunc);
+    Crafty.unbind("UpdateFrame", framesFunc);
   });
 
   test("curTime", function(_) {
     _.expect(1);
     var done = _.async(); // pause the QUnit so the timeout has time to complete.
     var startTime, lastKnownTime;
-
     var framesTriggered = 0;
 
-    Crafty.e("").bind("EnterFrame", function(params) {
+    Crafty.e("").bind("UpdateFrame", function(params) {
       framesTriggered++;
       if (!startTime) {
         startTime = params.gameTime;

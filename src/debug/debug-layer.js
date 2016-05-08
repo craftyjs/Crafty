@@ -194,7 +194,7 @@ Crafty.c("VisibleMBR", {
     init: function () {
         this.requires("DebugRectangle")
             .debugFill("purple")
-            .bind("EnterFrame", this._assignRect);
+            .bind("PreRender", this._assignRect);
     },
 
     // Internal method for updating the MBR drawn.

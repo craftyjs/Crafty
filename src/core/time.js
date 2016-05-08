@@ -11,7 +11,7 @@ module.exports = {
     init: function () {
         this._delays = [];
         this._delaysPaused = false;
-        this.bind("EnterFrame", function (frameData) {
+        this.bind("UpdateFrame", function (frameData) {
             if (this._delaysPaused) return;
             var index = this._delays.length;
             while (--index >= 0) {

@@ -16,7 +16,7 @@ module.exports = {
     this.tweenGroup = {};
     this.tweenStart = {};
     this.tweens = [];
-    this.uniqueBind("EnterFrame", this._tweenTick);
+    this.uniqueBind("UpdateFrame", this._tweenTick);
 
   },
 

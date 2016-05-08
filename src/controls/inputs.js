@@ -1089,7 +1089,7 @@ Crafty.c("Keyboard", {
      * @example
      * ~~~
      * ent.requires('Keyboard')
-     *    .bind('EnterFrame', function() {
+     *    .bind('UpdateFrame', function() {
      *       if (this.isDown('SPACE'))
      *          this.y--;
      *    });

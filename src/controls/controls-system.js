@@ -92,7 +92,7 @@ Crafty.s("Controls", {
     },
 
     events: {
-        "EnterFrameInput": function () {
+        "EnterFrame": function () {
             this.runEvents();
         },
         "KeyDown": function () {

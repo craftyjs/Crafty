@@ -547,7 +547,7 @@ Crafty.c("Collision", {
      *                     The second argument passed will be a Boolean indicating whether the collision with a component occurs for the first time.
      * @param callbackOff - Callback method executed once as soon as collision stops.
      *
-     * Creates an EnterFrame event calling `.hit()` each frame.  When a collision is detected the `callbackOn` will be invoked.
+     * Creates an `UpdateFrame` event calling `.hit()` each frame.  When a collision is detected the `callbackOn` will be invoked.
      *
      * Note that the `callbackOn` will be invoked every frame the collision is active, not just the first time the collision occurs.
      * Use the second argument passed to `callbackOn` to differentiate that, which will be `true` if it's the first time the collision occurs.
@@ -575,7 +575,7 @@ Crafty.c("Collision", {
      */
     onHit: function (component, callbackOn, callbackOff) {
         var justHit = false;
-        this.bind("EnterFrame", function () {
+        this.bind("UpdateFrame", function () {
             var hitData = this.hit(component);
             if (hitData) {
                 callbackOn.call(this, hitData, !justHit);
@@ -640,10 +640,10 @@ Crafty.c("Collision", {
      *
      * If you want more fine-grained control consider using `.hit()` or even `Crafty.map.search()`.
      *
-     * @note Hit checks are performed upon entering each new frame (using
-     * the *EnterFrame* event). It is entirely possible for object to move in
+     * @note Hit checks are performed on each new frame (using
+     * the *UpdateFrame* event). It is entirely possible for object to move in
      * said frame after the checks were performed (even if the more is the
-     * result of *EnterFrame*, as handlers run in no particular order). In such
+     * result of *UpdateFrame*, as handlers run in no particular order). In such
      * a case, the hit events will not fire until the next check is performed in
      * the following frame.
      *
@@ -682,7 +682,7 @@ Crafty.c("Collision", {
             this._collisionData[component] = collisionData = { occurring: false, handler: null };
             collisionData.handler = this._createCollisionHandler(component, collisionData);
 
-            this.bind("EnterFrame", collisionData.handler);
+            this.bind("UpdateFrame", collisionData.handler);
         }
 
         return this;
@@ -726,7 +726,7 @@ Crafty.c("Collision", {
 
         if (components.length === 0) {
             for (collisionData in this._collisionData) {
-                this.unbind("EnterFrame", collisionData.handler);
+                this.unbind("UpdateFrame", collisionData.handler);
             }
 
             this._collisionData = {};
@@ -744,7 +744,7 @@ Crafty.c("Collision", {
                 continue;
             }
 
-            this.unbind("EnterFrame", collisionData.handler);
+            this.unbind("UpdateFrame", collisionData.handler);
             delete this._collisionData[component];
         }
 

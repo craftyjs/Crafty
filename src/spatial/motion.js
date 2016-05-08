@@ -135,10 +135,10 @@ Crafty.c("AngularMotion", {
 
         this.__oldRotationDirection = 0;
 
-        this.bind("EnterFrame", this._angularMotionTick);
+        this.bind("UpdateFrame", this._angularMotionTick);
     },
     remove: function(destroyed) {
-        this.unbind("EnterFrame", this._angularMotionTick);
+        this.unbind("UpdateFrame", this._angularMotionTick);
     },
 
     /**@
@@ -329,10 +329,10 @@ Crafty.c("Motion", {
         this.__movedEvent = {axis: '', oldValue: 0};
         this.__oldDirection = {x: 0, y: 0};
 
-        this.bind("EnterFrame", this._linearMotionTick);
+        this.bind("UpdateFrame", this._linearMotionTick);
     },
     remove: function(destroyed) {
-        this.unbind("EnterFrame", this._linearMotionTick);
+        this.unbind("UpdateFrame", this._linearMotionTick);
     },
 
     /**@

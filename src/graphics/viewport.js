@@ -208,7 +208,7 @@ Crafty.extend({
         pan: (function () {
             var targetX, targetY, startingX, startingY, easing;
 
-            function enterFrame(e) {
+            function updateFrame(e) {
                 easing.tick(e.dt);
                 var v = easing.value();
                 Crafty.viewport.x = (1-v) * startingX + v * targetX;
@@ -222,7 +222,7 @@ Crafty.extend({
             }
 
             function stopPan(){
-                Crafty.unbind("EnterFrame", enterFrame);
+                Crafty.unbind("UpdateFrame", updateFrame);
             }
 
             Crafty._preBind("StopCamera", stopPan);
@@ -244,7 +244,7 @@ Crafty.extend({
                 easing = new Crafty.easing(time, easingFn);
 
                 // bind to event, using uniqueBind prevents multiple copies from being bound
-                Crafty.uniqueBind("EnterFrame", enterFrame);
+                Crafty.uniqueBind("UpdateFrame", updateFrame);
                        
             };
         })(),
@@ -360,13 +360,13 @@ Crafty.extend({
             
 
             function stopZoom(){
-                Crafty.unbind("EnterFrame", enterFrame);
+                Crafty.unbind("UpdateFrame", updateFrame);
             }
             Crafty._preBind("StopCamera", stopZoom);
 
             var startingZoom, finalZoom, finalAmount, startingX, finalX, startingY, finalY, easing;
 
-            function enterFrame(e){
+            function updateFrame(e){
                 var amount, v;
 
                 easing.tick(e.dt);
@@ -427,7 +427,7 @@ Crafty.extend({
 
                 easing = new Crafty.easing(time, easingFn);
 
-                Crafty.uniqueBind("EnterFrame", enterFrame);
+                Crafty.uniqueBind("UpdateFrame", updateFrame);
             };
 
             

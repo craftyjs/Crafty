@@ -269,7 +269,7 @@ Crafty.c("SpriteAnimation", {
         this._setFrame(0);
 
         // Start the anim
-        this.bind("EnterFrame", this._animationTick);
+        this.bind("UpdateFrame", this._animationTick);
         this._isPlaying = true;
         this.trigger("StartAnimation", currentReel);
 
@@ -288,7 +288,7 @@ Crafty.c("SpriteAnimation", {
      */
     resumeAnimation: function() {
         if (this._isPlaying === false &&  this._currentReel !== null) {
-            this.bind("EnterFrame", this._animationTick);
+            this.bind("UpdateFrame", this._animationTick);
             this._isPlaying = true;
             this._currentReel.easing.resume();
             this.trigger("StartAnimation", this._currentReel);
@@ -308,7 +308,7 @@ Crafty.c("SpriteAnimation", {
      */
     pauseAnimation: function () {
         if (this._isPlaying === true) {
-            this.unbind("EnterFrame", this._animationTick);
+            this.unbind("UpdateFrame", this._animationTick);
             this._isPlaying = false;
             this._reels[this._currentReelId].easing.pause();
         }
@@ -451,7 +451,7 @@ Crafty.c("SpriteAnimation", {
         return this;
     },
 
-    // Bound to "EnterFrame".  Progresses the animation by dt, changing the frame if necessary.
+    // Bound to "UpdateFrame".  Progresses the animation by dt, changing the frame if necessary.
     // dt is multiplied by the animationSpeed property
     _animationTick: function(frameData) {
         var currentReel = this._reels[this._currentReelId];
