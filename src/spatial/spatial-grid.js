@@ -1,6 +1,3 @@
-var Crafty = require('../core/core.js');
-
-
 /**
  * Spatial HashMap for broad phase collision
  *
@@ -154,7 +151,7 @@ var Crafty = require('../core/core.js');
             var i = 0,
                 j, hash;
 
-            if (arguments.length == 1) {
+            if (arguments.length === 1) {
                 obj = keys;
                 keys = HashMap.key(obj, keyHolder);
             }
@@ -284,7 +281,7 @@ var Crafty = require('../core/core.js');
                     for (k in this.map[h]) {
                         ent = this.map[h][k];
                         //make sure that this is a Crafty entity
-                        if (typeof ent == 'object' && 'requires' in ent) {
+                        if (typeof ent === 'object' && 'requires' in ent) {
                             coords.max.x = Math.max(coords.max.x, ent.x + ent.w);
                         }
                     }
@@ -293,7 +290,7 @@ var Crafty = require('../core/core.js');
                     hash.min.x = i;
                     for (k in this.map[h]) {
                         ent = this.map[h][k];
-                        if (typeof ent == 'object' && 'requires' in ent) {
+                        if (typeof ent === 'object' && 'requires' in ent) {
                             coords.min.x = Math.min(coords.min.x, ent.x);
                         }
                     }
@@ -302,7 +299,7 @@ var Crafty = require('../core/core.js');
                     hash.max.y = j;
                     for (k in this.map[h]) {
                         ent = this.map[h][k];
-                        if (typeof ent == 'object' && 'requires' in ent) {
+                        if (typeof ent === 'object' && 'requires' in ent) {
                             coords.max.y = Math.max(coords.max.y, ent.y + ent.h);
                         }
                     }
@@ -311,7 +308,7 @@ var Crafty = require('../core/core.js');
                     hash.min.y = j;
                     for (k in this.map[h]) {
                         ent = this.map[h][k];
-                        if (typeof ent == 'object' && 'requires' in ent) {
+                        if (typeof ent === 'object' && 'requires' in ent) {
                             coords.min.y = Math.min(coords.min.y, ent.y);
                         }
                     }
@@ -371,7 +368,7 @@ var Crafty = require('../core/core.js');
     Entry.prototype = {
         update: function (rect) {
             //check if buckets change
-            if (HashMap.hash(HashMap.key(rect, keyHolder)) != HashMap.hash(this.keys)) {
+            if (HashMap.hash(HashMap.key(rect, keyHolder)) !== HashMap.hash(this.keys)) {
                 this.map.refresh(this);
             }
         }

@@ -32,33 +32,34 @@
       Crafty.multitouch(true);
       
       var touchStartsOverEntities = 0,
-          touchEndsOverEntities = 0,
-          entity1 = Crafty.e('2D, Renderable, Touch')
-              .attr({ x: 100, y: 100, w:200, h:200, z:1 })
-              .bind('TouchStart',function(){ 
-                  touchStartsOverEntities++;
-              })
-              .bind('TouchEnd',function(){ 
-                  touchEndsOverEntities++;
-              }),
-          entity2 = Crafty.e('2D, Renderable, Touch')
-              .attr({ x: 40, y: 150, w:90, h:300, z:2 })
-              .bind('TouchStart',function(){ 
-                  touchStartsOverEntities++;
-              })
-              .bind('TouchEnd',function(){ 
-                  touchEndsOverEntities++;
-              }),
-         elem = Crafty.stage.elem,
-         sx = Crafty.stage.x,
-         sy = Crafty.stage.y,
-         touchStart1 = createTouchEvent(elem, "touchstart", [[100 + sx, 80 + sy, 0], [150 + sx, 150 + sy, 1], [200 + sx, 50 + sy, 2], [65 + sx, 275 + sy, 3]]),
-         touchEnd1 = createTouchEvent(elem, "touchend", [[65 + sx, 275 + sy, 3]]),
-         touchEnd2 = createTouchEvent(elem, "touchend", [[200 + sx, 50 + sy, 2]]),
-         touchStart2 = createTouchEvent(elem, "touchstart", [[100 + sx, 80 + sy, 4]]),
-         touchEnd3 = createTouchEvent(elem, "touchend", [[150 + sx, 150 + sy, 1]]),
-         touchEnd4 = createTouchEvent(elem, "touchend", [[100 + sx, 80 + sy, 0]]),
-         touchEnd5 = createTouchEvent(elem, "touchend", [[100 + sx, 80 + sy, 4]]);
+          touchEndsOverEntities = 0;
+      Crafty.e('2D, Renderable, Touch')
+          .attr({ x: 100, y: 100, w:200, h:200, z:1 })
+          .bind('TouchStart',function(){
+              touchStartsOverEntities++;
+          })
+          .bind('TouchEnd',function(){
+              touchEndsOverEntities++;
+          });
+      Crafty.e('2D, Renderable, Touch')
+          .attr({ x: 40, y: 150, w:90, h:300, z:2 })
+          .bind('TouchStart',function(){
+              touchStartsOverEntities++;
+          })
+          .bind('TouchEnd',function(){
+              touchEndsOverEntities++;
+          });
+
+      var elem = Crafty.stage.elem,
+          sx = Crafty.stage.x,
+          sy = Crafty.stage.y,
+          touchStart1 = createTouchEvent(elem, "touchstart", [[100 + sx, 80 + sy, 0], [150 + sx, 150 + sy, 1], [200 + sx, 50 + sy, 2], [65 + sx, 275 + sy, 3]]),
+          touchEnd1 = createTouchEvent(elem, "touchend", [[65 + sx, 275 + sy, 3]]),
+          touchEnd2 = createTouchEvent(elem, "touchend", [[200 + sx, 50 + sy, 2]]),
+          touchStart2 = createTouchEvent(elem, "touchstart", [[100 + sx, 80 + sy, 4]]),
+          touchEnd3 = createTouchEvent(elem, "touchend", [[150 + sx, 150 + sy, 1]]),
+          touchEnd4 = createTouchEvent(elem, "touchend", [[100 + sx, 80 + sy, 0]]),
+          touchEnd5 = createTouchEvent(elem, "touchend", [[100 + sx, 80 + sy, 4]]);
 
       touchStart1();
     

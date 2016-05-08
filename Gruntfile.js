@@ -27,7 +27,7 @@ module.exports = function (grunt) {
 
     var apiServer = require("./build/api-gen/dynamic-server.js");
     function runApiServer() {
-      var done = this.async();
+      this.async();
       apiServer(grunt, "./build/api.json");
       setTimeout(function(){
         open("http://localhost:8080");
@@ -107,19 +107,19 @@ module.exports = function (grunt) {
         },
 
         jshint: {
+            options: {
+                jshintrc: true
+            },
             misc: ['Gruntfile.js'],
             src: ['src/**/*.js'],
-            tests: ['tests/**/*.js'],
-            options: {
-                trailing: true,
-                ignores: ['tests/lib/*.js'],
-                globals: {
-                }
-            }
+            tests: ['tests/**/*.js', '!tests/lib/**/*.js']
         },
 
 
         qunit: {
+            options: {
+                noGlobals: true
+            },
             browser: ['tests/index.html']
         },
 

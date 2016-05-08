@@ -50,7 +50,7 @@
 
     Crafty.load(assets_to_load, function() {
         Crafty.removeAssets(assets_to_load);
-        ok(checkItems() == 3 && wereItemsRemoved(), 'all assets have been successfully loaded, and then successfully removed');
+        ok(checkItems() === 3 && wereItemsRemoved(), 'all assets have been successfully loaded, and then successfully removed');
         start();
       }, function(data) {
         items.push(data);

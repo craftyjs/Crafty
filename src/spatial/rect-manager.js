@@ -84,8 +84,7 @@ Crafty.extend({
        */
       boundingRect: function (set) {
           if (!set || !set.length) return;
-          var newset = [],
-              i = 1,
+          var i = 1,
               l = set.length,
               current, master = set[0],
               tmp;

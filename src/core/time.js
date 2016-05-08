@@ -114,7 +114,7 @@ module.exports = {
         var index = this._delays.length;
         while (--index >= 0) {
             var item = this._delays[index];
-            if(item && item.callback == callback){
+            if(item && item.callback === callback){
                 this._delays[index] = false;
             }
         }

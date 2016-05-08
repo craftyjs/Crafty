@@ -245,7 +245,7 @@ module.exports = {
                 return f.substr(f.lastIndexOf('.') + 1).toLowerCase();
             },
             getFilePath = function(type,f) {
-                return (f.search("://") === -1 ? (type == "audio" ? paths.audio + f : paths.images + f) : f);
+                return (f.search("://") === -1 ? (type === "audio" ? paths.audio + f : paths.images + f) : f);
             },
             // returns null if 'a' is not already a loaded asset, obj otherwise
             isAsset = function(a) {
@@ -255,7 +255,7 @@ module.exports = {
                 return Crafty.support.audio && Crafty.audio.supports(getExt(f));
             },
             isValidImage = function(f) {
-                return Crafty.image_whitelist.indexOf(getExt(f)) != -1;
+                return Crafty.image_whitelist.indexOf(getExt(f)) !== -1;
             },
             onImgLoad = function(obj,url) {
                 obj.onload = pro;
@@ -411,7 +411,7 @@ module.exports = {
         var current, fileUrl, type, asset,
             paths = Crafty.paths(),
             getFilePath = function(type,f) {
-                return (f.search("://") === -1 ? (type == "audio" ? paths.audio + f : paths.images + f) : f);
+                return (f.search("://") === -1 ? (type === "audio" ? paths.audio + f : paths.images + f) : f);
             };
 
         for (type in data) {

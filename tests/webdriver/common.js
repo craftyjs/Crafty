@@ -9,8 +9,8 @@ window.addEventListener('load', function() {
     };
 
     // wait for webdriver signal
-    window.barrierCallbacks = {};
-    window.barrierSignals = {};
+    var barrierCallbacks = window.barrierCallbacks = {};
+    var barrierSignals = window.barrierSignals = {};
     window.waitBarrier = function(label, callback) {
       if (barrierSignals[label]) { // signal already received, trigger callback immediately
         callback.call(null);

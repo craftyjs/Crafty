@@ -348,7 +348,7 @@ Crafty.DebugCanvas = {
     remove: function (ent) {
         var list = this.entities;
         for (var i = list.length - 1; i >= 0; i--)
-            if (list[i] == ent)
+            if (list[i] === ent)
                 list.splice(i, 1);
 
     },

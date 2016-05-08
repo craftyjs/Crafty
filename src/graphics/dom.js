@@ -72,9 +72,9 @@ Crafty.c("DOM", {
             c = this.__c,
             str = "";
         for (comp in c) {
-          if(comp != removedComponent) {
-            str += ' ' + comp;
-          }
+            if (comp !== removedComponent) {
+                str += ' ' + comp;
+            }
         }
         str = str.substr(1);
         this._element.className = str;
@@ -190,7 +190,7 @@ Crafty.c("DOM", {
             trans.push("scaleY(-1)");
         }
 
-        if (this._cssStyles.transform != trans.join(" ")) {
+        if (this._cssStyles.transform !== trans.join(" ")) {
             this._cssStyles.transform = trans.join(" ");
             style.transform = this._cssStyles.transform;
             style[prefix + "Transform"] = this._cssStyles.transform;

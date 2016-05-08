@@ -13,6 +13,7 @@
     "**",
     "!bower.json",
     "!README.md",
+    "!CHANGELOG.md",
     "!dist",
     "!dist/crafty.js",
     "!dist/crafty-min.js"

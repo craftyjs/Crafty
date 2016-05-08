@@ -171,7 +171,7 @@
   });
 
   test("circle", function() {
-    var player = Crafty.e("2D").attr({
+    Crafty.e("2D").attr({
       w: 50,
       h: 50
     });
@@ -219,10 +219,6 @@
       w: 50,
       h: 50
     });
-    var child0_ID = child0[0];
-    var child1_ID = child1[0];
-    var child2_ID = child2[0];
-    var child3_ID = child3[0];
     parent0.attach(child0);
     parent0.attach(child1);
     parent0.attach(child2);
@@ -236,9 +232,9 @@
     child1.destroy();
     deepEqual(parent0._children, [child0, child2, child3], 'child1 cleared itself from parent0._children when destroyed');
     parent0.destroy();
-    strictEqual(Crafty(child0_ID).length, 0, 'destruction of parent killed child0');
-    strictEqual(Crafty(child2_ID).length, 0, 'destruction of parent killed child2');
-    strictEqual(Crafty(child3_ID).length, 0, 'destruction of parent killed child3');
+    strictEqual(Crafty(child0[0]).length, 0, 'destruction of parent killed child0');
+    strictEqual(Crafty(child2[0]).length, 0, 'destruction of parent killed child2');
+    strictEqual(Crafty(child3[0]).length, 0, 'destruction of parent killed child3');
 
   });
 
@@ -907,11 +903,8 @@
   });
 
   test("Motion - changing vector", function() {
-    var Vector2D = Crafty.math.Vector2D;
-    var zero = new Vector2D();
     var ent = Crafty.e("2D, Motion")
       .attr({x: 0, y:0});
-    var vec1 = ent.velocity();
 
     ent.vx = 5;
 
@@ -949,8 +942,6 @@
   });
 
   test("Motion - Events", function() {
-    var Vector2D = Crafty.math.Vector2D;
-    var zero = new Vector2D();
     var e = Crafty.e("2D, Motion, AngularMotion")
       .attr({x: 0, y:0});
 

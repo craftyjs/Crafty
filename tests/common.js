@@ -1,15 +1,17 @@
-////////////////////////
-/// Helper functions ///
-////////////////////////
+//////////////////////
+// Helper functions //
+//////////////////////
 
-resetStage = function() {
+var global = typeof GLOBAL !== 'undefined' ? GLOBAL : window;
+
+global.resetStage = function() {
   Crafty.viewport.reset();
   Crafty.viewport.scroll('_x', 0);
   Crafty.viewport.scroll('_y', 0);
   Crafty.viewport.clampToEntities = true;
 };
 
-Round = function(x){
+global.Round = function(x){
   return Math.round(x*100)/100;
 };
 
@@ -23,6 +25,7 @@ QUnit.testDone(function() {
 });
 
 QUnit.config.hidepassed = true;
+QUnit.config.reorder = false;
 
 ///////////////////////
 // OpenSauce logging //

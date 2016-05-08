@@ -84,7 +84,7 @@
 
   test("Viewport resizing", function(){
     var flag = 0;
-    var e = Crafty("2D, Canvas");
+    Crafty("2D, Canvas");
     
     var layer = Crafty.s("CanvasLayer");
     layer.init();

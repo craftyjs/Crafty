@@ -147,21 +147,17 @@ Crafty.extend({
         if (!Crafty.mouseObjs) return;
         Crafty.lastEvent = e;
 
-        var maxz = -1,
-            tar = e.target ? e.target : e.srcElement,
+        var tar = e.target ? e.target : e.srcElement,
             closest,
-            q,
-            i = 0,
-            l,
             pos = Crafty.domHelper.translate(e.clientX, e.clientY),
             x, y,
             type = e.type;     
 
         //Normalize button according to http://unixpapa.com/js/mouse.html
         if (typeof e.which === 'undefined') {
-            e.mouseButton = (e.button < 2) ? Crafty.mouseButtons.LEFT : ((e.button == 4) ? Crafty.mouseButtons.MIDDLE : Crafty.mouseButtons.RIGHT);
+            e.mouseButton = (e.button < 2) ? Crafty.mouseButtons.LEFT : ((e.button === 4) ? Crafty.mouseButtons.MIDDLE : Crafty.mouseButtons.RIGHT);
         } else {
-            e.mouseButton = (e.which < 2) ? Crafty.mouseButtons.LEFT : ((e.which == 2) ? Crafty.mouseButtons.MIDDLE : Crafty.mouseButtons.RIGHT);
+            e.mouseButton = (e.which < 2) ? Crafty.mouseButtons.LEFT : ((e.which === 2) ? Crafty.mouseButtons.MIDDLE : Crafty.mouseButtons.RIGHT);
         }
 
         e.realX = x = Crafty.mousePos.x = pos.x;
@@ -176,9 +172,9 @@ Crafty.extend({
                 closest.trigger("MouseDown", e);
             } else if (type === "mouseup") {
                 closest.trigger("MouseUp", e);
-            } else if (type == "dblclick") {
+            } else if (type === "dblclick") {
                 closest.trigger("DoubleClick", e);
-            } else if (type == "click") {
+            } else if (type === "click") {
                 closest.trigger("Click", e);
             } else if (type === "mousemove") {
                 closest.trigger("MouseMove", e);
@@ -200,7 +196,7 @@ Crafty.extend({
                 Crafty.viewport.mouselook('start', e);
             } else if (type === "mousemove") {
                 Crafty.viewport.mouselook('drag', e);
-            } else if (type == "mouseup") {
+            } else if (type === "mouseup") {
                 Crafty.viewport.mouselook('stop');
             }
         }
@@ -310,7 +306,7 @@ Crafty.extend({
             
                 if (idx >= 0) {
                     if(typeof this.fingers[idx].entity !== "undefined")
-                        if (this.fingers[idx].entity == closest) {
+                        if (this.fingers[idx].entity === closest) {
                             this.fingers[idx].entity.trigger("TouchMove", touches[i]);
                         } else {
                             if (typeof closest === "object") closest.trigger("TouchStart", touches[i]);
@@ -325,14 +321,14 @@ Crafty.extend({
         
         handleEnd: function (e) {
             var touches = e.changedTouches, 
-                eventName = e.type == "touchcancel" ? "TouchCancel" : "TouchEnd";
+                eventName = e.type === "touchcancel" ? "TouchCancel" : "TouchEnd";
             for (var i = 0, l = touches.length; i < l; i++) {
                 var idx = this.fingerDownIndexById(touches[i].identifier);
             
                 if (idx >= 0) {
-                        if (this.fingers[idx].entity)
-                            this.fingers[idx].entity.trigger(eventName);
-                        this.fingers.splice(idx, 1);
+                    if (this.fingers[idx].entity)
+                        this.fingers[idx].entity.trigger(eventName);
+                    this.fingers.splice(idx, 1);
                 }
             }
         },
@@ -349,10 +345,10 @@ Crafty.extend({
             for (var i = 0, l = this.fingers.length; i < l; i++) {
                 var id = this.fingers[i].identifier;
                 
-                   if (id == idToFind) {
-                       return i;
-                   }
+                if (id === idToFind) {
+                    return i;
                 }
+            }
             return -1;
         },
             
@@ -360,7 +356,7 @@ Crafty.extend({
             for (var i = 0, l = this.fingers.length; i < l; i++) {
                 var ent = this.fingers[i].entity;
                 
-                if (ent == entityToFind) {
+                if (ent === entityToFind) {
                     return i;
                 }
             }
@@ -390,7 +386,7 @@ Crafty.extend({
             );
             first.target.dispatchEvent(simulatedEvent);
             // trigger click when it should be triggered
-            if (lastEvent !== null && lastEvent.type == 'mousedown' && type == 'mouseup') {
+            if (lastEvent !== null && lastEvent.type === 'mousedown' && type === 'mouseup') {
                 type = 'click';
                 simulatedEvent = document.createEvent("MouseEvent");
                 simulatedEvent.initMouseEvent(type, true, true, window, 1,
@@ -438,8 +434,8 @@ Crafty.extend({
             closest, current, q, l, i, maxz = -Infinity;
 
         //if it's a DOM element with component we are done
-        if (tar.nodeName != "CANVAS") {
-            while (typeof (tar.id) != 'string' && tar.id.indexOf('ent') == -1) {
+        if (tar.nodeName !== "CANVAS") {
+            while (typeof (tar.id) !== 'string' && tar.id.indexOf('ent') === -1) {
                 tar = tar.parentNode;
             }
             var ent = Crafty(parseInt(tar.id.replace('ent', ''), 10));
@@ -515,13 +511,13 @@ Crafty.extend({
      * @example
      * ~~~
      * Crafty.bind('KeyDown', function(e) {
-     *     if (e.key == Crafty.keys.LEFT_ARROW) {
+     *     if (e.key === Crafty.keys.LEFT_ARROW) {
      *       Crafty.viewport.x++;
-     *     } else if (e.key == Crafty.keys.RIGHT_ARROW) {
+     *     } else if (e.key === Crafty.keys.RIGHT_ARROW) {
      *       Crafty.viewport.x--;
-     *     } else if (e.key == Crafty.keys.UP_ARROW) {
+     *     } else if (e.key === Crafty.keys.UP_ARROW) {
      *       Crafty.viewport.y++;
-     *     } else if (e.key == Crafty.keys.DOWN_ARROW) {
+     *     } else if (e.key === Crafty.keys.DOWN_ARROW) {
      *       Crafty.viewport.y--;
      *     }
      *   });
@@ -557,7 +553,7 @@ Crafty.extend({
         //prevent bubbling up for all keys except backspace and F1-F12.
         //Among others this prevent the arrow keys from scrolling the parent page
         //of an iframe hosting the game
-        if (Crafty.selected && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
+        if (Crafty.selected && !(e.key === 8 || e.key >= 112 && e.key <= 135)) {
             if (original.stopPropagation) original.stopPropagation();
             else original.cancelBubble = true;
 

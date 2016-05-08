@@ -1,3 +1,6 @@
+var Crafty = require('../core/core.js');
+
+
 /**@
  * #Crafty.easing
  * @category Animation

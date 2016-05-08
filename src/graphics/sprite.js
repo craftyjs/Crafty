@@ -78,7 +78,7 @@ Crafty.extend({
      * @see Sprite
      */
     sprite: function (tile, tileh, url, map, paddingX, paddingY, paddingAroundBorder) {
-        var spriteName, temp, x, y, w, h, img;
+        var spriteName, temp, img;
 
         //if no tile value, default to 1.
         //(if the first passed argument is a string, it must be the url.)
@@ -91,7 +91,7 @@ Crafty.extend({
             tileh = 1;
         }
 
-        if (typeof tileh == "string") {
+        if (typeof tileh === "string") {
             paddingY = paddingX;
             paddingX = map;
             map = url;
@@ -253,7 +253,7 @@ Crafty.c("Sprite", {
             }
             style.backgroundPosition = "-" + co.x * hscale + "px -" + co.y * vscale + "px";
             // style.backgroundSize must be set AFTER style.background!
-            if (vscale != 1 || hscale != 1) {
+            if (vscale !== 1 || hscale !== 1) {
                 style.backgroundSize = (this.img.width * hscale) + "px" + " " + (this.img.height * vscale) + "px";
             }
         } else if (e.type === "webgl") {

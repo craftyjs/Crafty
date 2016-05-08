@@ -651,7 +651,7 @@ Crafty.c("Collision", {
 
         //loop through the edges of Polygon 1
         for (; i < l; i++) {
-            np = (i == l - 1 ? 0 : i + 1);
+            np = (i === l - 1 ? 0 : i + 1);
 
             //generate the normal for the current edge
             nx = -(points1[2*i+1] - points1[2*np+1]);
@@ -703,7 +703,7 @@ Crafty.c("Collision", {
 
         //loop through the edges of Polygon 2
         for (i = 0; i < k; i++) {
-            np = (i == k - 1 ? 0 : i + 1);
+            np = (i === k - 1 ? 0 : i + 1);
 
             //generate the normal for the current edge
             nx = -(points2[2*i+1] - points2[2*np+1]);

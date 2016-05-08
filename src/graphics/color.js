@@ -49,7 +49,7 @@ Crafty.extend({
 
         function hexComponent(component) {
             var hex = component.toString(16);
-            if (hex.length==1)
+            if (hex.length === 1)
                 hex = "0" + hex;
             return hex;
         }
@@ -84,7 +84,7 @@ Crafty.extend({
 
         function parseRgbString(rgb, c) {
             var values = rgb_regex.exec(rgb);
-            if( values===null || (values.length != 4 && values.length != 5)) {
+            if( values === null || (values.length !== 4 && values.length !== 5)) {
                 return default_value(c); // return bad result?
             }
             c._red = Math.round(parseFloat(values[1]));
@@ -264,7 +264,7 @@ Crafty.c("Color", {
             Crafty.assignColor(color, this);
             // Second argument, if present, is strength of color
             // Note that assignColor will give a default strength of 1.0 if none exists.
-            if (typeof arguments[1] == "number")
+            if (typeof arguments[1] === "number")
                 this._strength = arguments[1];
         }
         this._color = "rgba(" + this._red + ", " + this._green + ", " + this._blue + ", " + this._strength + ")";

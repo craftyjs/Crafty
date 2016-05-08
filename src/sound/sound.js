@@ -362,6 +362,7 @@ Crafty.extend({
         stop: function (id) {
             if (!Crafty.support.audio)
                 return;
+            var c;
             for (var i in this.channels) {
                 c = this.channels[i];
                 if ( (!id && c.active) || c._is(id) ) {
