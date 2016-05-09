@@ -1,0 +1,40 @@
+# Let git detect text files that are not listed below and let it normalize them
+# - convert line endings from LF to CRLF on checkout in Windows
+# - convert line endings from CRLF to LF on commit in Windows
+# - don't touch line endings in Linux / Mac
+
+* text=auto
+
+
+# Explicitly tell git which text files will be normalized
+
+# web languages
+*.js            text
+*.jsx           text
+*.json          text
+*.coffee        text
+*.html          text
+*.css           text
+
+# config files
+*.gitignore     text
+*.gitattributes text
+*.yml           text
+*.editorconfig  text
+*.npmignore     text
+*.jshintrc      text
+*.jshintignore  text
+
+# misc
+*.md            text
+*.sh            text
+*.frag          text
+*.vert          text
+
+
+# Explicitly tell git which binary files won't be normalized
+
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.wav   binary

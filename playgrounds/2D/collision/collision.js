@@ -27,7 +27,7 @@ purple.attr({x: 500, y: 500});
   });
 });
 
-var hitInfoToText = function(hitInfo) {
+function hitInfoToText(hitInfo) {
   // Assume a single member in hitInfo
   var result = "collided with " + hitInfo[0].obj._entityName + " (" + hitInfo[0].type;
   if (hitInfo[0].type === "SAT") {
@@ -37,13 +37,14 @@ var hitInfoToText = function(hitInfo) {
   result += ")";
 
   return result;
-};
+}
 
-var setHitEvents = function(on, entity, hitComponent) {
+/* exported setHitEvents */
+function setHitEvents(on, entity, hitComponent) {
   if (on === true) {
     entity.checkHits(hitComponent);
   }
   else {
     entity.ignoreHits(hitComponent);
   }
-};
+}

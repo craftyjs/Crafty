@@ -102,17 +102,21 @@ module.exports = function (grunt) {
             misc: ['Gruntfile.js'],
             src: ['src/**/*.js'],
             tests: ['tests/**/*.js'],
+            playgrounds: ['playgrounds/**/*.js'],
+            build: ['build/**/*.js'],
             dev: ['crafty.js'],
             release: ['dist/crafty.js', 'dist/crafty-min.js']
         },
 
         jshint: {
             options: {
-                jshintrc: true
+                jshintrc: true,
+                extract: 'auto'
             },
             misc: ['Gruntfile.js'],
-            src: ['src/**/*.js'],
-            tests: ['tests/**/*.js', '!tests/lib/**/*.js']
+            src: ['src/**/*.js', 'src/**/*.html'],
+            tests: ['tests/**/*.js', 'tests/**/*.html', '!tests/lib/**/*.js'],
+            playgrounds: ['playgrounds/**/*.js', 'playgrounds/**/*.html']
         },
 
 
