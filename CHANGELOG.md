@@ -6,6 +6,8 @@ A minor update with a few fixes.
 * Bug unregistering WebGL entities for some component types, causing the max entities limit to be reached too quickly
 * Fixes to the release process to ensure that bower release functions correctly
 
+[commits](https://github.com/craftyjs/Crafty/compare/0.7.0...0.7.1)
+
 ## 0.7.0
 
 Contains a lot of new functionality and bug fixes.
@@ -83,6 +85,7 @@ There are several new components that handle moving objects, and existing compon
 * Each commit into develop triggers an automatic build on Travis which is uploaded to the `Crafty-Distro` repo.
 * Simpler scripts for generating documentation data as a json file
 
+[commits](https://github.com/craftyjs/Crafty/compare/0.6.3...0.7.0)
 
 ## 0.6.3
 
@@ -95,6 +98,8 @@ A lot has changed since last time, no breaking changes, but a lot of optimizatio
 * Remove of Craftycomponent.com module loader
 * Lot of bugs fixed and tests added
 * Improved tests setup
+
+[commits](https://github.com/craftyjs/Crafty/compare/0.6.2...0.6.3)
 
 ## 0.6.2
 
@@ -124,16 +129,19 @@ Other fixes and enhancements
 * "SpriteAnimation" now respects all sprite-map options
 * Crafty.frame works correctly now
 
-
 Development
 
 * Some reorganization of the source files
 * Added grunt-contrib-connect task for use as a local file server
 * Reorganized qunit tests; now run as two files, and checked by jshint
 
+[commits](https://github.com/craftyjs/Crafty/compare/0.6.1...0.6.2)
+
 ## 0.6.1
 
 * Fix bower compatibility
+
+[commits](https://github.com/craftyjs/Crafty/compare/0.6.0...0.6.1)
 
 ## 0.6.0
 
@@ -203,6 +211,7 @@ See the associated documentation pages for more info
  * Everything now requires nodejs instead of php.
 * Many more unit tests!
 
+[commits](https://github.com/craftyjs/Crafty/compare/0.5.4...0.6.0)
 
 ## 0.5.4
 **June 2013**
@@ -373,7 +382,6 @@ See the associated documentation pages for more info
 
 [commits](https://github.com/craftyjs/Crafty/compare/0.4.5...0.4.6)
 
-
 ### 0.4.5
 **February 2012**
 * Crafty.module() is used to load community components from craftycomponents.com
@@ -397,6 +405,8 @@ See the associated documentation pages for more info
 * Crafty.audio.mute can take a bool.
 * Lots of bug fixes.
 
+[commits](https://github.com/craftyjs/Crafty/compare/0.4.4...0.4.5)
+
 ### 0.4.4
 **January 2012**
 * _SAT now also returns normal of side hit
@@ -404,6 +414,8 @@ See the associated documentation pages for more info
 * Added support for circle collision with Crafty.circle, which behaves like Crafty.polygon
 * Added TweenEnd event. It takes the Tweened property as an argument
 * Added HTML component.
+
+[commits](https://github.com/craftyjs/Crafty/compare/0.4.3...0.4.4)
 
 ### 0.4.3
 * CSS 3D transforms
@@ -417,6 +429,8 @@ See the associated documentation pages for more info
 * Draggable bugs fixed
 * Sprite takes a tile height if not square
 * Event names changed to PascalCase
+
+[commits](https://github.com/craftyjs/Crafty/compare/0.4.2...0.4.3)
 
 ### 0.4.2
 * Faster redraw for rotated entities and repeating background in canvas
@@ -435,9 +449,13 @@ See the associated documentation pages for more info
 * Fixed Full screen mode resize bug
 * Added a namespace for DOM methods (Crafty.DOM)
 
+[commits](https://github.com/craftyjs/Crafty/compare/0.4.1...0.4.2)
+
 ### 0.4.1
 * Getters and setters added
 * Pause bug fixed
+
+[commits](https://github.com/craftyjs/Crafty/compare/0.4...0.4.1)
 
 ### 0.4
 * .css() should accept both JS and CSS notation
@@ -462,13 +480,19 @@ See the associated documentation pages for more info
 * .DOM() will remove the previously created DOM element
 * Crafty.timer.getFPS() returns the current FPS (Leo Koppelkamm)
 
+[commits](https://github.com/craftyjs/Crafty/compare/0.3.2...0.4)
+
 ### 0.3.2
 * Fixed a collision bug
+
+[commits](https://github.com/craftyjs/Crafty/compare/0.3.1...0.3.2)
 
 ### 0.3.1
 * Window resize even on fullscreen
 * Use scrollTop and scrollLeft
 * Bug with .rotate()
+
+[commits](https://github.com/craftyjs/Crafty/compare/0.3...0.3.1)
 
 ### 0.3
 * Unit tests
@@ -488,12 +512,15 @@ See the associated documentation pages for more info
 * Physics component
 * Loader accepts onProgress and onError callbacks with info on what is loaded and percentages - thanks to Josh Tynjala
 
+[commits](https://github.com/craftyjs/Crafty/compare/0.2.1...0.3)
+
 ### 0.2.1
 **21/1/2011**
 * Global assets
 * Use of '*' in selector engine to select all entities
 * Bug fix for DOM elements using the mouse component
 
+[commits](https://github.com/craftyjs/Crafty/compare/0.2...0.2.1)
 
 ### 0.2
 **13/1/2011**
@@ -506,6 +533,8 @@ See the associated documentation pages for more info
 * Support object to detect support for HTML5 features and others
 * Loader to load assets before the game starts.
 * Rotation implemented
+
+[commits](https://github.com/craftyjs/Crafty/compare/0.1...0.2)
 
 ### 0.1
 **22/12/2010**
