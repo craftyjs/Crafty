@@ -1,0 +1,29 @@
+# Test against this version of Node.js.
+environment:
+  matrix:
+  - nodejs_version: "4"
+
+# preserve local npm modules but will reset them if package.json or appveyor.yml is modified
+cache:
+  - node_modules -> package.json, appveyor.yml
+
+version: '{build}'
+
+# Install scripts. (runs after repo cloning)
+install:
+  # Get the specified version of Node.js
+  - ps: Install-Product node $env:nodejs_version
+  # install modules
+  - npm install
+  - npm install -g grunt-cli
+
+# Post-install test scripts.
+test_script:
+  # Output useful info for debugging.
+  - node --version
+  - npm --version
+  # run tests
+  - npm test
+
+# Don't actually build.
+build: off
