@@ -759,6 +759,121 @@
 
   });
 
+  var EAST = new Crafty.math.Vector2D(1, 0).normalize();
+  var SOUTH_EAST = new Crafty.math.Vector2D(1, 1).normalize();
+  var NORTH_EAST = new Crafty.math.Vector2D(1, -1).normalize();
+  var NORTH_WEST = new Crafty.math.Vector2D(-1, -1).normalize();
+
+  test("Polygon intersection", function() {
+    var poly, distance,
+        origin, direction;
+
+    poly = new Crafty.polygon([0,0, 50,0, 50,50, 0,50]);
+
+    // intersection with ray slightly outside entity edge
+    origin = {_x: -1, _y: 25};
+    direction = EAST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance, 1, "ray intersects polygon on its left edge");
+
+    // intersection with ray origin at entity edge
+    origin = {_x: 0, _y: 0};
+    direction = EAST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance, 0, "ray intersects polygon on its left edge");
+
+    // intersection with ray origin inside entity
+    origin = {_x: 25, _y: 25};
+    direction = EAST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance, 25, "ray intersects polygon on its right edge");
+
+    // intersection with ray origin at entity edge
+    origin = {_x: 50, _y: 25};
+    direction = EAST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance, 0, "ray intersects polygon on its right edge");
+
+    // no intersection with ray going away
+    origin = {_x: 51, _y: 25};
+    direction = EAST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance, Infinity, "ray does not intersect polygon");
+
+
+    poly = new Crafty.polygon([-75,-75, -150,-150]);
+
+    // intersection with ray at crossing
+    origin = {_x: -150, _y: -75};
+    direction = NORTH_EAST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance.toFixed(4), (37.5 * Math.sqrt(2)).toFixed(4),
+      "ray intersects polygon at the crossing");
+
+    // no intersection with parallel ray
+    origin = {_x: -76, _y: -75};
+    direction = NORTH_WEST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance, Infinity, "ray does not intersect polygon");
+
+    // intersection with colinear ray starting before polygon
+    origin = {_x: -25, _y: -25};
+    direction = NORTH_WEST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance.toFixed(4), (50 * Math.sqrt(2)).toFixed(4),
+      "ray intersects polygon at polygon's start point");
+
+    // intersection with colinear ray starting at polygon start
+    origin = {_x: -75, _y: -75};
+    direction = NORTH_WEST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance, 0, "ray intersects polygon at polygon's start point");
+
+    // intersection with colinear ray starting inside polygon
+    origin = {_x: -100, _y: -100};
+    direction = NORTH_WEST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance.toFixed(4), (50 * Math.sqrt(2)).toFixed(4),
+      "ray intersects polygon at ray's origin");
+
+    // intersection with colinear ray starting at polygon end
+    origin = {_x: -150, _y: -150};
+    direction = NORTH_WEST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance, 0, "ray intersects polygon at polygon's end point");
+
+    // no intersection with colinear ray starting outside polygon
+    origin = {_x: -151, _y: -151};
+    direction = NORTH_WEST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance, Infinity, "ray does not intersect polygon");
+
+    // intersection with colinear ray starting at polygon end, going opposite direction
+    origin = {_x: -150, _y: -150};
+    direction = SOUTH_EAST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance, 0, "ray intersects polygon at polygon's end point");
+
+    // intersection with colinear ray starting inside polygon, going opposite direction
+    origin = {_x: -100, _y: -100};
+    direction = SOUTH_EAST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance.toFixed(4), (25 * Math.sqrt(2)).toFixed(4),
+      "ray intersects polygon at ray's origin");
+
+    // intersection with colinear ray starting at polygon start, going opposite direction
+    origin = {_x: -75, _y: -75};
+    direction = SOUTH_EAST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance, 0, "ray intersects polygon at polygon's start point");
+
+    // no intersection with colinear ray going opposite direction
+    origin = {_x: -74, _y: -74};
+    direction = SOUTH_EAST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance, Infinity, "ray does not intersect polygon");
+  });
+
 
   module("Motion");
 

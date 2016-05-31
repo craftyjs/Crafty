@@ -266,7 +266,7 @@ Crafty.c("2D", {
                 this._parent.detach(this);
             }
 
-            Crafty.map.remove(this);
+            Crafty.map.remove(this._entry);
 
             this.detach();
         });
@@ -1799,6 +1799,127 @@ Crafty.polygon.prototype = {
             p[i] = x;
             p[i+1] = y;
         }
+    },
+
+    /**@
+     * #.intersectRay
+     * @comp Crafty.polygon
+     * @sign public Number .intersectRay(Object origin, Object direction)
+     * @param origin - the point of origin from which the ray will be cast. The object must contain the properties `_x` and `_y`.
+     * @param direction - the direction the ray will be cast. It must be normalized. The object must contain the properties `x` and `y`.
+     * @returns a Number indicating the distance from the ray's origin to the closest intersection point of the polygon.
+     *          Returns `Infinity` if there is no intersection.
+     *
+     * Find the distance to the closest intersection point of the supplied ray with any of this polygon's segments.
+     *
+     * @example
+     * ~~~
+     * var poly = new Crafty.polygon([0,0, 50,0, 50,50, 0,50]);
+     *
+     * var origin = {_x: -1, _y: 25};
+     * var direction = new Crafty.math.Vector2D(1, 0).normalize();;
+     *
+     * var distance = poly.intersectRay(origin, direction);
+     * Crafty.log('Distance from origin to closest intersection point', distance); // logs '1'
+     * ~~~
+     */
+
+    // Note that for the algorithm to work, the points of the polygon have to be defined
+    // either clock-wise or counter-clock-wise
+    //
+    // Segment-segment intersection is described here: http://stackoverflow.com/a/565282/3041008
+    // see dot projection: http://www.wildbunny.co.uk/blog/vector-maths-a-primer-for-games-programmers/vector/#Projection
+    //
+    // origin = {_x, _y}
+    // direction = {x, y}, must be normalized
+    // edge = end - start (of segment)
+    //
+    //
+    // # Segment - segment intersection equation
+    // origin + d * direction = start + e * edge
+    //
+    // ## Solving for d
+    // (origin + d * direction) x edge = (start + e * edge) x edge
+    // edge x edge == 0
+    // d = (start − origin) × edge / (direction × edge)
+    // d_nominator = (start - origin) x edge =
+    //      (start.x - origin.x, start.y - origin.y) x (edge.x, edge.y) =
+    //      (start.x - origin.x) * edge.y - (start.y - origin.y) * edge.x
+    // d_denominator = direction x edge =
+    //      (direction.x, direction.y) x (edge.x, edge.y) =
+    //      direction.x * edge.y - direction.y * edge.x
+    //
+    // ## Solving for e
+    // (origin + d * direction) x direction = (start + e * edge) x direction
+    // direction x direction == 0
+    // edge factor must be in interval [0, 1]
+    // e = (start − origin) × direction / (direction × edge)
+    // e_nominator = (start − origin) × direction =
+    //      (start.x - origin.x) * direction.y - (start.y - origin.y) * direction.x
+    // e_denominator = d_denominator
+    //
+    //
+    // # If segments are colinear (both nominator and denominator == 0),
+    //    then minDistance is min(d0, d1) >= 0,
+    //    get d0, d1 by doing dot projection onto normalized direction vector
+    //
+    // origin + d0*direction = start
+    // d0*direction = (start - origin)
+    // -> d0 = (start - origin) • direction =
+    //      (start.x - origin.x, start.y - origin.y) • (direction.x, direction.y) =
+    //      (start.x - origin.x) * direction.x + (start.y - origin.y) * direction.y
+    //
+    // origin + d1*direction = end
+    // d1*direction = end - origin
+    // -> d1 = (end - origin) • direction =
+    //      (end.x - origin.x, end.y - origin.y) • (direction.x, direction.y) =
+    //      (end.x - origin.x) * direction.x + (end.y - origin.y) * direction.y
+    intersectRay: function (origin, direction) {
+        var points = this.points,
+            minDistance = Infinity;
+        var d, d_nom,
+            e, e_nom,
+            denom;
+
+        var originX = origin._x, directionX = direction.x,
+            originY = origin._y, directionY = direction.y;
+
+        var i = 0, l = points.length;
+        var startX = points[l - 2], endX, edgeX,
+            startY = points[l - 1], endY, edgeY;
+        for (; i < l; i += 2) {
+            endX = points[i];
+            endY = points[i+1];
+            edgeX = endX - startX;
+            edgeY = endY - startY;
+
+            d_nom = (startX - originX) * edgeY      - (startY - originY) * edgeX;
+            e_nom = (startX - originX) * directionY - (startY - originY) * directionX;
+            denom = directionX * edgeY - directionY * edgeX;
+
+            if (denom !== 0) {
+                d = d_nom / denom;
+                e = e_nom / denom;
+
+                if (e >= 0 && e <= 1 && d >= 0 && d < minDistance)
+                    minDistance = d;
+
+            } else if (d_nom === 0 || e_nom === 0) {
+
+                d = (startX - originX) * directionX + (startY - originY) * directionY;
+                if (d >= 0 && d < minDistance)
+                    minDistance = d;
+
+                d = (endX - originX) * directionX + (endY - originY) * directionY;
+                if (d >= 0 && d < minDistance)
+                    minDistance = d;
+            }
+
+            startX = endX;
+            startY = endY;
+        }
+
+        return minDistance;
     }
 };
 

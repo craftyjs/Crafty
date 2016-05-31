@@ -19,3 +19,5 @@ require('./time.js');
 require('./tween.js');
 require('./2D/collision/collision.js');
 require('./2D/collision/sat.js');
+require('./2D/spatial-grid.js');
+require('./2D/raycast.js');

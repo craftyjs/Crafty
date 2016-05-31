@@ -18,6 +18,28 @@
         HashMap = function (cell) {
             cellsize = cell || 64;
             this.map = {};
+
+            this.boundsDirty = false;
+            this.boundsHash = {
+                max: {
+                    x: -Infinity,
+                    y: -Infinity
+                },
+                min: {
+                    x: Infinity,
+                    y: Infinity
+                }
+            };
+            this.boundsCoords = {
+                max: {
+                    x: -Infinity,
+                    y: -Infinity
+                },
+                min: {
+                    x: Infinity,
+                    y: Infinity
+                }
+            };
         },
 
         SPACE = " ",
@@ -56,6 +78,9 @@
                     this.map[hash].push(obj);
                 }
             }
+
+            //mark map boundaries as dirty
+            this.boundsDirty = true;
 
             return entry;
         },
@@ -116,7 +141,7 @@
                     obj = results[i];
                     if (!obj) continue; //skip if deleted
                     id = obj[0]; //unique ID
-                    obj = obj._mbr || obj;
+                    obj = obj._cbr || obj._mbr || obj;
                     //check if not added to hash and that actually intersects
                     if (!found[id] && obj._x < rect._x + rect._w && obj._x + obj._w > rect._x &&
                                       obj._y < rect._y + rect._h && obj._y + obj._h > rect._y)
@@ -135,26 +160,21 @@
         /**@
          * #Crafty.map.remove
          * @comp Crafty.map
-         * @sign public void Crafty.map.remove([Object keys, ]Object obj)
-         * @param keys - key region. If omitted, it will be derived from obj by `Crafty.HashMap.key`.
-         * @param obj - An object to remove from the hashmap
+         * @sign public void Crafty.map.remove(Entry entry)
+         * @param entry - An entry to remove from the hashmap
          *
-         * Remove an entity in a broad phase map.
-         * - The second form is only used in Crafty.HashMap to save time for computing keys again, where keys were computed previously from obj. End users should not call this form directly.
+         * Remove an entry from the broad phase map.
          *
          * @example
          * ~~~
          * Crafty.map.remove(e);
          * ~~~
          */
-        remove: function (keys, obj) {
+        remove: function (entry) {
+            var keys = entry.keys;
+            var obj = entry.obj;
             var i = 0,
                 j, hash;
-
-            if (arguments.length === 1) {
-                obj = keys;
-                keys = HashMap.key(obj, keyHolder);
-            }
 
             //search in all x buckets
             for (i = keys.x1; i <= keys.x2; i++) {
@@ -172,12 +192,15 @@
                     }
                 }
             }
+
+            //mark map boundaries as dirty
+            this.boundsDirty = true;
         },
 
         /**@
          * #Crafty.map.refresh
          * @comp Crafty.map
-         * @sign public void Crafty.map.remove(Entry entry)
+         * @sign public void Crafty.map.refresh(Entry entry)
          * @param entry - An entry to update
          *
          * Update an entry's keys, and its position in the broad phrase map.
@@ -218,10 +241,11 @@
                 }
             }
 
+            //mark map boundaries as dirty
+            this.boundsDirty = true;
+
             return entry;
         },
-
-
 
 
         /**@
@@ -229,6 +253,9 @@
          * @comp Crafty.map
          * @sign public Object Crafty.map.boundaries()
          * @returns An object with the following structure, which represents an MBR which contains all entities
+         *
+         * Note that the returned object is a reference to the internally used object.
+         * Use `Crafty.clone` to get a copy instead.
          *
          * ~~~
          * {
@@ -243,29 +270,54 @@
          * }
          * ~~~
          */
-        boundaries: function () {
-            var k, ent,
-                hash = {
-                    max: {
-                        x: -Infinity,
-                        y: -Infinity
-                    },
-                    min: {
-                        x: Infinity,
-                        y: Infinity
-                    }
-                },
-                coords = {
-                    max: {
-                        x: -Infinity,
-                        y: -Infinity
-                    },
-                    min: {
-                        x: Infinity,
-                        y: Infinity
-                    }
-                };
+        boundaries: function() {
+            this._updateBoundaries();
+            return this.boundsCoords;
+        },
 
+        /**
+         * #Crafty.map._keyBoundaries
+         * @comp Crafty.map
+         * @sign private Object Crafty.map._keyBoundaries()
+         * @returns An object with the following structure, which represents an MBR which contains all hash keys
+         *
+         * Find boundaries of row/col cell grid keys instead of actual x/y pixel coordinates.
+         *
+         * ~~~
+         * {
+         *   min: {
+         *     x: val_x,
+         *     y: val_y
+         *   },
+         *   max: {
+         *     x: val_x,
+         *     y: val_y
+         *   }
+         * }
+         * ~~~
+         */
+        _keyBoundaries: function() {
+            this._updateBoundaries();
+            return this.boundsHash;
+        },
+
+        _updateBoundaries: function() {
+            // update map boundaries if they were changed
+            if (!this.boundsDirty) return;
+
+            var hash = this.boundsHash;
+            hash.max.x = -Infinity;
+            hash.max.y = -Infinity;
+            hash.min.x = Infinity;
+            hash.min.y = Infinity;
+
+            var coords = this.boundsCoords;
+            coords.max.x = -Infinity;
+            coords.max.y = -Infinity;
+            coords.min.x = Infinity;
+            coords.min.y = Infinity;
+
+            var k, ent;
             //Using broad phase hash to speed up the computation of boundaries.
             for (var h in this.map) {
                 if (!this.map[h].length) continue;
@@ -315,8 +367,194 @@
                 }
             }
 
-            return coords;
+            // mark map boundaries as clean
+            this.boundsDirty = false;
+        },
+
+
+        /**@
+         * #Crafty.map.traverseRay
+         * @comp Crafty.map
+         * @sign public void Crafty.map.traverseRay(Object origin, Object direction, Function callback)
+         * @param origin - the point of origin from which the ray will be cast. The object must contain the properties `_x` and `_y`.
+         * @param direction - the direction the ray will be cast. It must be normalized. The object must contain the properties `x` and `y`.
+         * @param callback - a callback that will be called for each object that is encountered along the ray.
+         *                   This function is called with two arguments: The first one represents the object encountered;
+         *                   the second one represents the distance up to which all objects have been reported so far.
+         *                   The callback can return a truthy value in order to stop the traversal early.
+         *
+         * Traverse the spatial map in the direction of the supplied ray.
+         *
+         * Given the `origin` and `direction` the ray is cast and the `callback` is called
+         * for each object encountered in map cells traversed by the ray.
+         *
+         * The callback is called for each object that may be intersected by the ray.
+         * Whether an actual intersection occurs shall be determined by the callback's implementation.
+         *
+         * @example
+         * ~~~
+         * Crafty.e("2D")
+         *       .setName('First entity')
+         *       .attr({x: 0, y: 0, w: 10, h: 10});
+         *
+         * Crafty.e("2D")
+         *       .setName('Second entity')
+         *       .attr({x: 20, y: 20, w: 10, h: 10});
+         *
+         * var origin = {_x: -25, _y: -25};
+         * var direction = new Crafty.math.Vector2D(1, 1).normalize();
+         *
+         * Crafty.map.traverseRay(origin, direction, function(ent, processedDistance) {
+         *   Crafty.log('Encountered entity named', ent.getName()); // logs 'First entity'
+         *   Crafty.log('All entities up to', processedDistance, 'px away have been reported thus far.');
+         *   Crafty.log('Stopping traversal after encountering the first entity.');
+         *   return true;
+         * });
+         * ~~~
+         */
+
+        // See [this tutorial](http://www.flipcode.com/archives/Raytracing_Topics_Techniques-Part_4_Spatial_Subdivisions.shtml) and linked materials
+        // Segment-segment intersection is described here: http://stackoverflow.com/a/565282/3041008
+        //
+        // origin = {_x, _y}
+        // direction = {x, y}, must be normalized
+        //
+        //
+        // # Let
+        //  edge = end - start
+        //  edge x edge == 0
+        //
+        // # Segment - segment intersection equation
+        //  origin + d * direction = start + e * edge
+        //
+        // # Solving for d
+        //  (origin + d * direction) x edge = (start + e * edge) x edge
+        //  d = (start − origin) × edge / (direction × edge)
+        //
+        //      (start.x - origin.x) * edge.y - (start.y - origin.y) * edge.x
+        //  d = --------------------------------------------------------------
+        //               direction.x * edge.y - direction.y * edge.x
+        //
+        //
+        // # In case ray intersects vertical cell grid edge
+        // start = (x, 0)
+        // edge = (0, 1)
+        //
+        //      start.x - origin.x
+        //  d = -------------------
+        //         direction.x
+        //
+        // # In case ray intersects horizontal cell grid edge
+        // start = (0, y)
+        // edge = (1, 0)
+        //
+        //      start.y - origin.y
+        //  d = -------------------
+        //         direction.y
+        //
+        traverseRay: function(origin, direction, callback) {
+            var dirX = direction.x,
+                dirY = direction.y;
+            // copy input data
+            // TODO maybe allow HashMap.key search with point only
+            origin = {
+                _x: origin._x,
+                _y: origin._y,
+                _w: 0,
+                _h: 0
+            };
+
+
+            var keyBounds = this._keyBoundaries();
+            var keys = HashMap.key(origin, keyHolder);
+
+            // calculate col & row cell indices
+            var currentCol = keys.x1,
+                currentRow = keys.y1;
+            var minCol = keyBounds.min.x,
+                minRow = keyBounds.min.y,
+                maxCol = keyBounds.max.x,
+                maxRow = keyBounds.max.y;
+            // direction to traverse cells
+            var stepCol = dirX > 0 ? 1 : (dirX < 0 ? -1 : 0),
+                stepRow = dirY > 0 ? 1 : (dirY < 0 ? -1 : 0);
+
+
+            // first, next cell edge in absolute coordinates
+            var firstCellEdgeX = (dirX >= 0) ? (currentCol + 1) * cellsize : currentCol * cellsize,
+                firstCellEdgeY = (dirY >= 0) ? (currentRow + 1) * cellsize : currentRow * cellsize;
+
+            // distance from origin to previous cell edge
+            var previousDistance = -Infinity;
+
+            // distances to next horizontal and vertical cell edge
+            var deltaDistanceX = 0, // distance for the ray to be advanced to cross a whole cell horizontally
+                deltaDistanceY = 0, // distance for the ray to be advanced to cross a whole cell vertically
+                nextDistanceX = Infinity, // distance we can advance(increase magnitude) ray until we advance to next horizontal cell
+                nextDistanceY = Infinity; // distance we can advance(increase magnitude) ray until we advance to next vertical cell
+
+            var norm;
+            if (dirX !== 0) {
+                norm = 1.0 / dirX;
+                nextDistanceX = (firstCellEdgeX - origin._x) * norm;
+                deltaDistanceX = (cellsize * stepCol) * norm;
+            }
+            if (dirY !== 0) {
+                norm = 1.0 / dirY;
+                nextDistanceY = (firstCellEdgeY - origin._y) * norm;
+                deltaDistanceY = (cellsize * stepRow) * norm;
+            }
+
+
+            // advance starting cell to be inside of map bounds
+            while ((stepCol === 1 && currentCol < minCol && minCol !== Infinity) || (stepCol === -1 && currentCol > maxCol && maxCol !== -Infinity) ||
+                   (stepRow === 1 && currentRow < minRow && minRow !== Infinity) || (stepRow === -1 && currentRow > maxRow && maxRow !== -Infinity)) {
+
+                // advance to closest cell
+                if (nextDistanceX < nextDistanceY) {
+                    previousDistance = nextDistanceX;
+
+                    currentCol += stepCol;
+                    nextDistanceX += deltaDistanceX;
+                } else {
+                    previousDistance = nextDistanceY;
+
+                    currentRow += stepRow;
+                    nextDistanceY += deltaDistanceY;
+                }
+            }
+
+            var cell;
+            // traverse over cells
+            // TODO: maybe change condition to `while (currentCol !== endX) || (currentRow !== endY)`
+            while ((minCol <= currentCol && currentCol <= maxCol) &&
+                   (minRow <= currentRow && currentRow <= maxRow)) {
+
+                // process cell
+                if ((cell = this.map[(currentCol << 16) ^ currentRow])) {
+                    // check each object inside this cell
+                    for (var k = 0; k < cell.length; k++) {
+                        // if supplied callback returns true, abort traversal
+                        if (callback(cell[k], previousDistance))
+                            return;
+                    }
+                }
+
+                // advance to closest cell
+                if (nextDistanceX < nextDistanceY) {
+                    previousDistance = nextDistanceX;
+
+                    currentCol += stepCol;
+                    nextDistanceX += deltaDistanceX;
+                } else {
+                    previousDistance = nextDistanceY;
+
+                    currentRow += stepRow;
+                    nextDistanceY += deltaDistanceY;
+                }
+            }
         }
+
     };
 
     /**@
@@ -341,12 +579,8 @@
      * @see Crafty.HashMap.constructor
      */
     HashMap.key = function (obj, keys) {
-        if (obj._mbr) {
-            obj = obj._mbr;
-        }
-        if (!keys) {
-            keys = {};
-        }
+        obj = obj._cbr || obj._mbr || obj;
+        keys = keys || {};
 
         keys.x1 = Math.floor(obj._x / cellsize);
         keys.y1 = Math.floor(obj._y / cellsize);
