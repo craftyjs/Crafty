@@ -436,13 +436,26 @@ Crafty.c("Jumper", {
         if (this.disableControls) return;
 
         if (this._jumpKeys[e.key]) {
-            var ground = this.ground;
-            this.canJump = !!ground;
-            this.trigger("CheckJumping", ground);
-            if (this.canJump) {
-                this.vy = -this._jumpSpeed;
-            }
+            this.jump();
         }
+    },
+
+    /**@
+     * #.jump
+     * @comp Jumper
+     * @sign public this .jump()
+     *
+     * Directly trigger the entity to jump.
+     *
+     */
+    jump: function() {
+        var ground = this.ground;
+        this.canJump = !!ground;
+        this.trigger("CheckJumping", ground);
+        if (this.canJump) {
+            this.vy = -this._jumpSpeed;
+        }
+        return this;
     },
 
     /**@
