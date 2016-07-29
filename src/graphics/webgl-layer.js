@@ -296,7 +296,7 @@ Crafty.webglLayerObject = {
         this._canvas = c;
 
         gl.clearColor(0.0, 0.0, 0.0, 0.0);
-        
+
         // These commands allow partial transparency, but require drawing in z-order
         gl.disable(gl.DEPTH_TEST);
         // This particular blend function requires the shader programs to output pre-multiplied alpha
@@ -410,9 +410,9 @@ Crafty.webglLayerObject = {
         if (shaderProgram !== null){
           shaderProgram.renderBatch();
         }
-        
+
     },
-    
+
     /**@
      * #.dirty
      * @comp WebGLLayer
@@ -421,7 +421,7 @@ Crafty.webglLayerObject = {
      *
      * Add an entity to the list of DOM object to draw
      */
-    dirty: function add(ent) {
+    dirty: function dirty(ent) {
         // WebGL doens't need to do any special tracking of changed objects
     },
 
@@ -450,7 +450,7 @@ Crafty.webglLayerObject = {
         // This could, like attach, be handled by components
         // We instead handle it in a central place for now
         if (ent.program) {
-            ent.program.unregisterEntity(this);
+            ent.program.unregisterEntity(ent);
         }
     },
 
