@@ -42,8 +42,10 @@ Crafty.c("Text", {
             "family": this.defaultFamily,
             "variant": this.defaultVariant
         };
+    },
 
-        this.bind("Draw", function (e) {
+    events: {
+        "Draw": function (e) {
             var font = this._fontString();
 
             if (e.type === "DOM") {
@@ -66,7 +68,7 @@ Crafty.c("Text", {
 
                 context.restore();
             }
-        });
+        }
     },
 
     remove: function(){
