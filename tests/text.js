@@ -12,6 +12,46 @@
 
   });
 
+  test("static textGenerator", function() {
+    var text = Crafty.e('DOM, Text');
+    var textValue = "123";
+    text.testField = "123";
+    text.text(function(){return this.testField; });
+
+    equal(text._text, textValue, 'Expect text to be set by generator function');
+  });
+
+  test("dynamic textGenerator", function() {
+    var text = Crafty.e('DOM, Text');
+    var textValue1 = "123";
+    var textValue2 = "123";
+    text.testField = textValue1;
+    text.text(function(){return this.testField; });
+    text.dynamicTextGeneration(true);
+    equal(text._text, textValue1, 'Expect text to be set by generator function');
+    test.testField = textValue2;
+    equal(text._text, textValue1, 'Expect text to be initial value');
+    Crafty.timer.simulateFrames(1);
+
+    equal(text._text, textValue2, 'Expect text to be updated by generator function');
+  });
+
+  test("dynamic textGenerator with custom event", function() {
+    var text = Crafty.e('DOM, Text');
+    var textValue1 = "123";
+    var textValue2 = "123";
+    text.testField = textValue1;
+    text.text(function(){return this.testField; });
+    text.dynamicTextGeneration(true, "MyEvent");
+    equal(text._text, textValue1, 'Expect text to be set by generator function');
+    test.testField = textValue2;
+    equal(text._text, textValue1, 'Expect text to be initial value');
+    Crafty.timer.simulateFrames(1);
+    equal(text._text, textValue1, 'Expect text to be initial value');
+    text.trigger("MyEvent");
+    equal(text._text, textValue2, 'Expect text to be updated by generator function');
+  });
+
   test("_getFontHeight", function() {
     var e = Crafty.e("Text");
     var h = e._getFontHeight("10px");
