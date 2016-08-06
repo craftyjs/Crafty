@@ -473,7 +473,10 @@ var EventPage = React.createClass({
 var InternalLink = React.createClass({
     render: function() {
       var cleanTarget = cleanName(this.props.target);
-      var linkText = this.props.target.replace(this.props.parent, "");
+      var linkText = this.props.target;
+      if (linkText.indexOf(this.props.parent) == 0 ) {
+        linkText = linkText.replace(this.props.parent, "");
+      }
       return <a href={"#" + cleanTarget}>{linkText}</a>
     }
 });
