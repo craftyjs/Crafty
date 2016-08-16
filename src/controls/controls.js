@@ -530,6 +530,59 @@ Crafty.c("Fourway", {
 
     init: function () {
         this.requires("Multiway");
+        
+        this.unbind("KeyDown", this._keydown)
+            .unbind("KeyUp", this._keyup);
+        
+        this.bind("KeyDown", this.__keydown)
+            .bind("KeyUp", this.__keyup);
+    },
+
+    __keydown: function (e) {
+        var direction = this._keyDirection[e.key];
+        if (direction !== undefined) { // if this is a key we are interested in 
+            if (this._activeDirections[direction] === 0 && !this.disableControls) { // if key is first one pressed for this direction
+                
+                this.vx = this._directionSpeed[direction].x;
+                this.vy = this._directionSpeed[direction].y;
+                                                                        
+                }
+                 
+            this._activeDirections[direction]++;
+            
+            }
+            
+                 
+            
+        
+    },
+
+    __keyup: function (e) {
+        var direction = this._keyDirection[e.key];
+        if (direction !== undefined) { // if this is a key we are interested in
+            this._activeDirections[direction]--;
+                    
+            if (this._activeDirections[direction] === 0 && !this.disableControls) { // if key is last one unpressed for this direction
+                
+                this.vx = 0;
+                this.vy = 0;
+                
+                for(var dir in this._activeDirections){
+                    
+                    if(this._activeDirections[dir] === 1){
+                        
+                        this.vx = this._directionSpeed[dir].x;
+                        this.vy = this._directionSpeed[dir].y;
+                                        
+                    }
+                            
+                }
+                
+                
+            }
+            
+            
+        }
     },
 
     /**@
@@ -542,8 +595,8 @@ Crafty.c("Fourway", {
      * Component will listen for key events and move the entity
      * in the respective direction by the speed passed in the argument.
      */
-    fourway: function (speed) {
-        this.multiway(speed || this._speed, {
+    fourway: function (speed, keys) {
+        this.multiway(speed || this._speed, keys || {
             UP_ARROW: -90,
             DOWN_ARROW: 90,
             RIGHT_ARROW: 0,
