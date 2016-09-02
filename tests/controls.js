@@ -95,37 +95,59 @@
     var directions = { UP_ARROW: -90, DOWN_ARROW: 90, RIGHT_ARROW: 0, LEFT_ARROW: 180 };
 
     e.multiway(50, directions, { clamp: true });
-    Crafty.timer.simulateFrames(1);
+
     Crafty.trigger('KeyDown', {
       key: Crafty.keys.DOWN_ARROW
     });
-    equal(e._vy, 50, "Speed is 50 in +y direction when DOWN is pressed with clamp mode");
+    // 90 deg
+    equal(e._vy, 50, "Speed is 50 in +y direction when ↓");
 
     Crafty.trigger('KeyDown', {
       key: Crafty.keys.LEFT_ARROW
     });
-    equal(e._vy, 35.355, "Speed is 35.355 in +y direction when DOWN & LEFT are pressed with clamp mode");
-    equal(e._vx, -35.355, "Speed is 35.355 in -x direction when DOWN & LEFT are pressed with clamp mode");
+    // 135 deg
+    equal(e._vy, 35.355, "Speed is 35.355 in +y direction when ↙");
+    equal(e._vx, -35.355, "Speed is 35.355 in -x direction whe ↙");
 
     Crafty.trigger('KeyUp', {
       key: Crafty.keys.DOWN_ARROW
     });
-    equal(e._vy, 0, "Speed is 0 in y direction when DOWN is released with clamp mode");
-    equal(e._vx, -50, "Speed is 50 in -x direction when LEFT is pressed with clamp mode");
+    // 180 deg
+    equal(e._vy, 0, "Speed is 0 in y direction when ←");
+    equal(e._vx, -50, "Speed is 50 in -x direction when ←");
 
-    Crafty.trigger('KeyUp', {
-      key: Crafty.keys.LEFT_ARROW
-    });
-    Crafty.trigger('KeyDown', {
-      key: Crafty.keys.RIGHT_ARROW
-    });
-    equal(e._vy, 0, "Speed is 0 in y direction when RIGHT is pressed with clamp mode");
-    equal(e._vx, 50, "Speed is 50 in +x direction when RIGHT is pressed with clamp mode");
     Crafty.trigger('KeyDown', {
       key: Crafty.keys.UP_ARROW
     });
-    equal(e._vy, -35.355, "Speed is 35.355 in -y direction when UP & RIGHT are pressed with clamp mode");
-    equal(e._vx, 35.355, "Speed is 35.355 in +x direction when UP & RIGHT are pressed with clamp mode");
+    equal(e._vy, -35.355, "Speed is 35.355 in -y direction when ↖");
+    equal(e._vx, -35.355, "Speed is 35.355 in -x direction when ↖");
+
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.LEFT_ARROW
+    });
+    equal(e._vy, -50, "Speed is 50 in -y direction when ↑");
+    equal(e._vx, 0, "Speed is 0 in x direction when ↑");
+
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.RIGHT_ARROW
+    });
+
+    equal(e._vy, -35.355, "Speed is 35.355 in -y direction when ↗");
+    equal(e._vx, 35.355, "Speed is 35.355 in x direction when ↗");
+
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.UP_ARROW
+    });
+
+    equal(e._vy, 0, "Speed is 0 in y direction when →");
+    equal(e._vx, 50, "Speed is 50 in x direction when →");
+
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.DOWN_ARROW
+    });
+
+    equal(e._vy, 35.355, "Speed is 35.355 in y direction when ↘");
+    equal(e._vx, 35.355, "Speed is 35.355 in x direction when ↘");
 
     e.destroy();
 

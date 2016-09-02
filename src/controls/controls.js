@@ -316,17 +316,14 @@ Crafty.c("Multiway", {
             if (this._activeDirections[direction] > 0) {
                 vx += this._directionSpeed[direction].x;
                 vy += this._directionSpeed[direction].y;
-                directions.push(parseInt(direction, 10));
+                directions.push(direction);
             }
         }
         if ((vx === 0) && (vy === 0)) return;
         if (this._clampSpeed === true) {
           var avgAngle = this.__directionsToRad(directions);
-          vx = vx < 0 ? vx * -1 : vx;
-          vy = vy < 0 ? vy * -1 : vy;
-
-          this.vx += Math.round(vx * Math.cos(avgAngle) * 1000) / 1000;
-          this.vy += Math.round(vy * Math.sin(avgAngle) * 1000) / 1000;
+          this.vx += Math.round(Math.abs(vx) * Math.cos(avgAngle) * 1000) / 1000;
+          this.vy += Math.round(Math.abs(vy) * Math.sin(avgAngle) * 1000) / 1000;
         } else {
           this.vx += vx;
           this.vy += vy;
@@ -339,16 +336,14 @@ Crafty.c("Multiway", {
             if (this._activeDirections[direction] > 0) {
                 vx += this._directionSpeed[direction].x;
                 vy += this._directionSpeed[direction].y;
-                directions.push(parseInt(direction, 10));
+                directions.push(direction);
             }
         }
         if ((vx === 0) && (vy === 0)) return;
         if (this._clampSpeed === true) {
           var avgAngle = this.__directionsToRad(directions);
-          vx = vx < 0 ? vx * -1 : vx;
-          vy = vy < 0 ? vy * -1 : vy;
-          this.vx -= Math.round(vx * Math.cos(avgAngle) * 1000) / 1000;
-          this.vy -= Math.round(vy * Math.sin(avgAngle) * 1000) / 1000;
+          this.vx -= Math.round(Math.abs(vx) * Math.cos(avgAngle) * 1000) / 1000;
+          this.vy -= Math.round(Math.abs(vy) * Math.sin(avgAngle) * 1000) / 1000;
         } else {
           this.vx -= vx;
           this.vy -= vy;
@@ -356,12 +351,16 @@ Crafty.c("Multiway", {
     },
 
     __directionsToRad: function(directions) {
-        var avgAngle = 0.0;
+        var avgAngle = 0.0, val = 0, hasZero = false;
         for (var i = 0; i < directions.length; i++) {
-          avgAngle += directions[i];
+          val = (parseInt(directions[i], 10) + 360) % 360;
+          avgAngle += val;
+          if (val === 0) hasZero = true;
         }
-        // var deg = (avgAngle / directions.length);
-        // var rad = deg  * Math.PI / 180;
+        if (avgAngle > 180 && hasZero) avgAngle += 360; // pull towards other side
+
+        //var deg = ((avgAngle / directions.length) + 360) % 360;
+        //var rad = deg * Math.PI / 180;
         return (avgAngle / directions.length) * Math.PI / 180;
     },
 
