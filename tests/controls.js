@@ -89,6 +89,48 @@
     e.destroy();
   });
 
+  test("clamp speed option on multiway", function() {
+    var e = Crafty.e("2D, Multiway")
+                  .attr({ x: 0, y: 0});
+    var directions = { UP_ARROW: -90, DOWN_ARROW: 90, RIGHT_ARROW: 0, LEFT_ARROW: 180 };
+
+    e.multiway(50, directions, { clamp: true });
+    Crafty.timer.simulateFrames(1);
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.DOWN_ARROW
+    });
+    equal(e._vy, 50, "Speed is 50 in +y direction when DOWN is pressed with clamp mode");
+
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.LEFT_ARROW
+    });
+    equal(e._vy, 35.355, "Speed is 35.355 in +y direction when DOWN & LEFT are pressed with clamp mode");
+    equal(e._vx, -35.355, "Speed is 35.355 in -x direction when DOWN & LEFT are pressed with clamp mode");
+
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.DOWN_ARROW
+    });
+    equal(e._vy, 0, "Speed is 0 in y direction when DOWN is released with clamp mode");
+    equal(e._vx, -50, "Speed is 50 in -x direction when LEFT is pressed with clamp mode");
+
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.LEFT_ARROW
+    });
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.RIGHT_ARROW
+    });
+    equal(e._vy, 0, "Speed is 0 in y direction when RIGHT is pressed with clamp mode");
+    equal(e._vx, 50, "Speed is 50 in +x direction when RIGHT is pressed with clamp mode");
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.UP_ARROW
+    });
+    equal(e._vy, -35.355, "Speed is 35.355 in -y direction when UP & RIGHT are pressed with clamp mode");
+    equal(e._vx, 35.355, "Speed is 35.355 in +x direction when UP & RIGHT are pressed with clamp mode");
+
+    e.destroy();
+
+  });
+
   test("disableControl and enableControl and speed", function() {
     var e = Crafty.e("2D, Twoway")
       .attr({ x: 0 })

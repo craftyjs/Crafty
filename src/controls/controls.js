@@ -143,7 +143,8 @@ Crafty.c("Draggable", {
  */
 Crafty.c("Multiway", {
     _speed: null,
-    
+    _clampSpeed: false,
+
     init: function () {
         this.requires("Motion, Keyboard");
 
@@ -151,6 +152,7 @@ Crafty.c("Multiway", {
         this._activeDirections = {}; // direction -> # of keys pressed for that direction
         this._directionSpeed = {}; // direction -> {x: x_speed, y: y_speed}
         this._speed = { x: 150, y: 150 };
+        this._clampSpeed = false;
 
         this.bind("KeyDown", this._keydown)
             .bind("KeyUp", this._keyup);
@@ -167,21 +169,33 @@ Crafty.c("Multiway", {
     _keydown: function (e) {
         var direction = this._keyDirection[e.key];
         if (direction !== undefined) { // if this is a key we are interested in
-            if (this._activeDirections[direction] === 0 && !this.disableControls) { // if key is first one pressed for this direction
-                this.vx += this._directionSpeed[direction].x;
-                this.vy += this._directionSpeed[direction].y;
+            if (this._clampSpeed === true) {
+                if (!this.disableControls) this.__unapplyActiveDirections();
+                this._activeDirections[direction]++;
+                if (!this.disableControls) this.__applyActiveDirections();
+            } else {
+                if (this._activeDirections[direction] === 0 && !this.disableControls) { // if key is first one pressed for this direction
+                    this.vx += this._directionSpeed[direction].x;
+                    this.vy += this._directionSpeed[direction].y;
+                }
+                this._activeDirections[direction]++;
             }
-            this._activeDirections[direction]++;
         }
     },
 
     _keyup: function (e) {
         var direction = this._keyDirection[e.key];
         if (direction !== undefined) { // if this is a key we are interested in
-            this._activeDirections[direction]--;
-            if (this._activeDirections[direction] === 0 && !this.disableControls) { // if key is last one unpressed for this direction
-                this.vx -= this._directionSpeed[direction].x;
-                this.vy -= this._directionSpeed[direction].y;
+            if (this._clampSpeed === true) {
+                if (!this.disableControls) this.__unapplyActiveDirections();
+                this._activeDirections[direction]--;
+                if (!this.disableControls) this.__applyActiveDirections();
+            } else {
+                this._activeDirections[direction]--;
+                if (this._activeDirections[direction] === 0 && !this.disableControls) { // if key is first one pressed for this direction
+                    this.vx -= this._directionSpeed[direction].x;
+                    this.vy -= this._directionSpeed[direction].y;
+                }
             }
         }
     },
@@ -207,7 +221,10 @@ Crafty.c("Multiway", {
      *
      * @see Crafty.keys
      */
-    multiway: function (speed, keys) {
+    multiway: function (speed, keys, options) {
+        options = options || { clamp: false };
+        this._clampSpeed = options.clamp || false;
+
         if (keys) {
             if (speed.x !== undefined && speed.y !== undefined) {
                 this._speed.x = speed.x;
@@ -294,21 +311,58 @@ Crafty.c("Multiway", {
     },
 
     __applyActiveDirections: function() {
+        var vx = 0, vy = 0, directions = [];
         for (var direction in this._activeDirections) {
             if (this._activeDirections[direction] > 0) {
-                this.vx += this._directionSpeed[direction].x;
-                this.vy += this._directionSpeed[direction].y;
+                vx += this._directionSpeed[direction].x;
+                vy += this._directionSpeed[direction].y;
+                directions.push(parseInt(direction, 10));
             }
+        }
+        if ((vx === 0) && (vy === 0)) return;
+        if (this._clampSpeed === true) {
+          var avgAngle = this.__directionsToRad(directions);
+          vx = vx < 0 ? vx * -1 : vx;
+          vy = vy < 0 ? vy * -1 : vy;
+
+          this.vx += Math.round(vx * Math.cos(avgAngle) * 1000) / 1000;
+          this.vy += Math.round(vy * Math.sin(avgAngle) * 1000) / 1000;
+        } else {
+          this.vx += vx;
+          this.vy += vy;
         }
     },
 
     __unapplyActiveDirections: function() {
+        var vx = 0, vy = 0, directions = [];
         for (var direction in this._activeDirections) {
             if (this._activeDirections[direction] > 0) {
-                this.vx -= this._directionSpeed[direction].x;
-                this.vy -= this._directionSpeed[direction].y;
+                vx += this._directionSpeed[direction].x;
+                vy += this._directionSpeed[direction].y;
+                directions.push(parseInt(direction, 10));
             }
         }
+        if ((vx === 0) && (vy === 0)) return;
+        if (this._clampSpeed === true) {
+          var avgAngle = this.__directionsToRad(directions);
+          vx = vx < 0 ? vx * -1 : vx;
+          vy = vy < 0 ? vy * -1 : vy;
+          this.vx -= Math.round(vx * Math.cos(avgAngle) * 1000) / 1000;
+          this.vy -= Math.round(vy * Math.sin(avgAngle) * 1000) / 1000;
+        } else {
+          this.vx -= vx;
+          this.vy -= vy;
+        }
+    },
+
+    __directionsToRad: function(directions) {
+        var avgAngle = 0.0;
+        for (var i = 0; i < directions.length; i++) {
+          avgAngle += directions[i];
+        }
+        // var deg = (avgAngle / directions.length);
+        // var rad = deg  * Math.PI / 180;
+        return (avgAngle / directions.length) * Math.PI / 180;
     },
 
     /**@
