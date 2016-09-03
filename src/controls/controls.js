@@ -204,28 +204,32 @@ Crafty.c("Multiway", {
     /**@
      * #.multiway
      * @comp Multiway
-     * @sign public this .multiway([Number speed,] Object keyBindings)
+     * @sign public this .multiway([Number speed,] Object keyBindings[, Boolean clamped])
      * @param speed - A speed in pixels per second
      * @param keyBindings - What keys should make the entity go in which direction. Direction is specified in degrees
+     * @param clamped - Clamps the speed for the diagonal movements.
      *
      * Constructor to initialize the speed and keyBindings.
      * Component will listen to key events and move the entity appropriately.
      * Can be called while a key is pressed to change direction & speed on the fly.
+     *
+     * When clamping is turned on diagonal directions will not use the full `speed.x` and `speed.y` but a fraction to
+     * simulate movement of a joystick axis. Pushing right would be a +1 for the right direction, but
+     * diagonal right would only be a +0.7 in that direction, since it is also moving downward or upward.
      *
      * @example
      * ~~~
      * this.multiway(150, {UP_ARROW: -90, DOWN_ARROW: 90, RIGHT_ARROW: 0, LEFT_ARROW: 180});
      * this.multiway({x:150,y:75}, {UP_ARROW: -90, DOWN_ARROW: 90, RIGHT_ARROW: 0, LEFT_ARROW: 180});
      * this.multiway({W: -90, S: 90, D: 0, A: 180});
+     * this.multiway({W: -90, S: 90, D: 0, A: 180}, true);
+     * this.multiway({x:150,y:75}, {UP_ARROW: -90, DOWN_ARROW: 90, RIGHT_ARROW: 0, LEFT_ARROW: 180}, true);
      * ~~~
      *
      * @see Crafty.keys
      */
-    multiway: function (speed, keys, options) {
-        options = options || { clamp: false };
-        this._clampSpeed = options.clamp || false;
-
-        if (keys) {
+    multiway: function (speed, keys, clamped) {
+        if (keys && (typeof keys === "object")) {
             if (speed.x !== undefined && speed.y !== undefined) {
                 this._speed.x = speed.x;
                 this._speed.y = speed.y;
@@ -234,9 +238,12 @@ Crafty.c("Multiway", {
                 this._speed.y = speed;
             }
         } else {
+            clamped = keys;
             keys = speed;
         }
-
+        if (clamped !== undefined) {
+            this._clampSpeed = clamped;
+        }
 
         if (!this.disableControls) {
             this.__unapplyActiveDirections();

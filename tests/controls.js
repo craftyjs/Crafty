@@ -89,12 +89,36 @@
     e.destroy();
   });
 
+  test("setting clamping on", function() {
+    var e = Crafty.e("2D, Multiway").attr({ x: 0, y: 0});
+    var directions = { UP_ARROW: -90, DOWN_ARROW: 90, RIGHT_ARROW: 0, LEFT_ARROW: 180 };
+    e.multiway(50, directions, true);
+
+    equal(e._clampSpeed, true, "all arguments satisfied");
+    e.destroy();
+
+    e = Crafty.e("2D, Multiway").attr({ x: 0, y: 0});
+    e.multiway(directions, true);
+    equal(e._clampSpeed, true, "optional speed argument omited");
+    e.destroy();
+
+    e = Crafty.e("2D, Multiway").attr({ x: 0, y: 0});
+    e.multiway(directions);
+    equal(e._clampSpeed, false, "only required arguments");
+    e.destroy();
+
+    e = Crafty.e("2D, Multiway").attr({ x: 0, y: 0});
+    e.multiway(50, directions);
+    equal(e._clampSpeed, false, "leaving out clamping option");
+    e.destroy();
+  });
+
   test("clamp speed option on multiway", function() {
     var e = Crafty.e("2D, Multiway")
                   .attr({ x: 0, y: 0});
     var directions = { UP_ARROW: -90, DOWN_ARROW: 90, RIGHT_ARROW: 0, LEFT_ARROW: 180 };
 
-    e.multiway(50, directions, { clamp: true });
+    e.multiway(50, directions, true);
 
     Crafty.trigger('KeyDown', {
       key: Crafty.keys.DOWN_ARROW
