@@ -329,6 +329,7 @@ Crafty.c("Multiway", {
         if ((vx === 0) && (vy === 0)) return;
         if (this._clampSpeed === true) {
           var avgAngle = this.__directionsToRad(directions);
+          if (avgAngle === null) return;
           this.vx += Math.round(Math.abs(vx) * Math.cos(avgAngle) * 1000) / 1000;
           this.vy += Math.round(Math.abs(vy) * Math.sin(avgAngle) * 1000) / 1000;
         } else {
@@ -349,6 +350,7 @@ Crafty.c("Multiway", {
         if ((vx === 0) && (vy === 0)) return;
         if (this._clampSpeed === true) {
           var avgAngle = this.__directionsToRad(directions);
+          if (avgAngle === null) return;
           this.vx -= Math.round(Math.abs(vx) * Math.cos(avgAngle) * 1000) / 1000;
           this.vy -= Math.round(Math.abs(vy) * Math.sin(avgAngle) * 1000) / 1000;
         } else {
@@ -359,8 +361,10 @@ Crafty.c("Multiway", {
 
     __directionsToRad: function(directions) {
         var avgAngle = 0.0, val = 0, hasZero = false;
+        directions = this.__rejectOpposites(directions);
+        if (directions.length === 0) return null;
         for (var i = 0; i < directions.length; i++) {
-          val = (parseInt(directions[i], 10) + 360) % 360;
+          val = directions[i];
           avgAngle += val;
           if (val === 0) hasZero = true;
         }
@@ -369,6 +373,21 @@ Crafty.c("Multiway", {
         //var deg = ((avgAngle / directions.length) + 360) % 360;
         //var rad = deg * Math.PI / 180;
         return (avgAngle / directions.length) * Math.PI / 180;
+    },
+
+    __rejectOpposites: function(directions) {
+        var result = [], opposite, val, pos;
+        for (var i = 0; i < directions.length; i++) {
+          val = (parseInt(directions[i], 10) + 360) % 360;
+          opposite = (val + 180) % 360;
+          pos = result.indexOf(opposite);
+          if (pos !== -1) {
+            result.splice(pos, 1);
+          } else {
+            result.push(val);
+          }
+        }
+        return result;
     },
 
     /**@

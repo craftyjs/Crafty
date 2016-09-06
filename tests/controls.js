@@ -173,8 +173,19 @@
     equal(e._vy, 35.355, "Speed is 35.355 in y direction when ↘");
     equal(e._vx, 35.355, "Speed is 35.355 in x direction when ↘");
 
-    e.destroy();
+    // Assert opposite directions
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.RIGHT_ARROW
+    });
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.UP_ARROW
+    });
 
+    // up and down
+    equal(e._vy, 0, "Speed y is 0 when result vector is null");
+    equal(e._vx, 0, "Speed x is 0 when result vector is null");
+
+    e.destroy();
   });
 
   test("disableControl and enableControl and speed", function() {
