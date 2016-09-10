@@ -15,6 +15,23 @@ global.Round = function(x){
   return Math.round(x*100)/100;
 };
 
+global.keysUp = function() {
+  var keysToRelease = Array.prototype.slice.call(arguments);
+    for (var k in keysToRelease) {
+      var key = Crafty.keys[keysToRelease[k]] || keysToRelease[k];
+      Crafty.keydown[key] = false;
+      Crafty.trigger("KeyUp", {key: key});
+    } 
+};
+global.keysDown = function() {
+    var keysToPress = Array.prototype.slice.call(arguments);
+    for (var k in keysToPress) {
+      var key = Crafty.keys[keysToPress[k]] || keysToPress[k];
+      Crafty.keydown[key] = true;
+      Crafty.trigger("KeyDown", {key: key});
+    }
+};
+
 //////////////////
 // QUnit config //
 //////////////////

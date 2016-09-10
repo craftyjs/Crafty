@@ -23,6 +23,7 @@ module.exports = function() {
     requireNew('./spatial/rect-manager');
     requireNew('./spatial/math');
 
+    require('./controls/controls-system');
     requireNew('./controls/controls');
     requireNew('./controls/keycodes');
 
@@ -42,6 +43,10 @@ module.exports = function() {
             return false;
         }
     });
-
+    // dummy keydown registry
+    Crafty.keydown = {};
+    Crafty.resetKeyDown = function() {
+        Crafty.keydown = {};
+    };
     return Crafty;
 };
