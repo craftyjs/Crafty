@@ -64,7 +64,7 @@
   test("removing DOM component cleans up", function(){
     var element = Crafty.e("DOM");
     var node = element._element;
-    strictEqual(node.parentNode, Crafty.s("DomLayer")._div, "child of the stage");
+    strictEqual(node.parentNode, Crafty.s("DefaultDOMLayer")._div, "child of the stage");
     element._changed = false;
     element.removeComponent("DOM");
     element.trigger("Invalidate");

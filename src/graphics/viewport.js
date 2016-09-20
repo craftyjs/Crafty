@@ -546,6 +546,11 @@ Crafty.extend({
          * @see Crafty.device, Crafty.domHelper, Crafty.stage, Crafty.viewport.reload
          */
         init: function (w, h, stage_elem) {
+            // Define default graphics layers with default z-layers
+            Crafty.createLayer("DefaultCanvasLayer", "Canvas", {z: 20});
+            Crafty.createLayer("DefaultDOMLayer", "DOM", {z: 30});
+            Crafty.createLayer("DefaultWebGLLayer", "WebGL", {z: 10});
+            
             // setters+getters for the viewport
             this._defineViewportProperties();
 

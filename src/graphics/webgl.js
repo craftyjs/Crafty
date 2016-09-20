@@ -167,7 +167,7 @@ Crafty.c("WebGL", {
         this.requires("Renderable");
         // Attach to webgl layer
         if (!this._customLayer){
-            this._attachToLayer( Crafty.s("WebGLLayer") );
+            this._attachToLayer( Crafty.s("DefaultWebGLLayer") );
         }
     },
  

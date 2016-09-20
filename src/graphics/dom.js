@@ -42,7 +42,7 @@ Crafty.c("DOM", {
 
         // Attach the entity to the dom layer
         if (!this._customLayer){
-            this._attachToLayer( Crafty.s("DomLayer") );
+            this._attachToLayer( Crafty.s("DefaultDOMLayer") );
         }
 
         this.bind("NewComponent", this._updateClass);

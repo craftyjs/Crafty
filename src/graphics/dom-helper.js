@@ -79,24 +79,39 @@ Crafty.extend({
         /**@
          * #Crafty.domHelper.translate
          * @comp Crafty.domHelper
-         * @sign public Object Crafty.domHelper.translate(Number clientX, Number clientY)
+         * @sign public Object Crafty.domHelper.translate(Number clientX, Number clientY[, DrawLayer layer])
          * @param clientX - clientX position in the browser screen
          * @param clientY - clientY position in the browser screen
+         * @param layer - a Crafty draw layer
          * @return Object `{x: ..., y: ...}` with Crafty coordinates.
          * 
          * The parameters clientX and clientY are pixel coordinates within the visible
          * browser window. This function translates those to Crafty coordinates (i.e.,
          * the coordinates that you might apply to an entity), by taking into account
          * where the stage is within the screen, what the current viewport is, etc.
+         * 
+         * If a draw layer is specified, the returned object will take into account any special scaling rules for that object.
          */
-        translate: function (clientX, clientY) {
+        translate: function (clientX, clientY, layer) {
             var doc = document.documentElement;
             var body = document.body;
-
-            return {
-                x: (clientX - Crafty.stage.x + ( doc && doc.scrollLeft || body && body.scrollLeft || 0 )) / Crafty.viewport._scale - Crafty.viewport._x,
-                y: (clientY - Crafty.stage.y + ( doc && doc.scrollTop  || body && body.scrollTop  || 0 )) / Crafty.viewport._scale - Crafty.viewport._y
-            };
+            var view;
+            // The branch here is to deal with the fact that the viewport position is the distance TO the origin, not from
+            // But the _viewportRect is the opposite -- it uses the same convention as a rectangle that matches the viewport in that layer
+            // At some point this should be simplified, probably by altering the viewport to use the more intuitive coordinates
+            if (layer) {
+                view = layer._viewportRect();
+                return {
+                    x: (clientX - Crafty.stage.x + (doc && doc.scrollLeft || body && body.scrollLeft || 0)) / view._scale + view._x,
+                    y: (clientY - Crafty.stage.y + (doc && doc.scrollTop || body && body.scrollTop || 0)) / view._scale + view._y
+                };
+            } else {
+                view = Crafty.viewport;
+                return {
+                    x: (clientX - Crafty.stage.x + (doc && doc.scrollLeft || body && body.scrollLeft || 0)) / view._scale - view._x,
+                    y: (clientY - Crafty.stage.y + (doc && doc.scrollTop || body && body.scrollTop || 0)) / view._scale - view._y
+                };
+            }
         }
     }
 });

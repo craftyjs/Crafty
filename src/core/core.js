@@ -1184,11 +1184,7 @@ Crafty.extend({
             }
         }
 
-        // Define default graphics layers
-        Crafty.s("CanvasLayer", Crafty.canvasLayerObject);
-        Crafty.s("DomLayer", Crafty.domLayerObject);
-        Crafty.s("WebGLLayer", Crafty.webglLayerObject);
-
+        // The viewport will init things like the default graphics layers as well
         Crafty.viewport.init(w, h, stage_elem);
 
         //call all arbitrary functions attached to onload

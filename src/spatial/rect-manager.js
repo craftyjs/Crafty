@@ -39,6 +39,28 @@ Crafty.extend({
         return (rectA._x < rectB._x + rectB._w && rectA._x + rectA._w > rectB._x &&
                 rectA._y < rectB._y + rectB._h && rectA._y + rectA._h > rectB._y);
       },
+      
+      /**@
+       * #Crafty.rectManager.integerBounds
+       * @comp Crafty.rectManager
+       * @sign public Boolean Crafty.rectManager.integerBounds(Object rect)
+       * @param rect - An object that must have the `_x, _y, _w, _h` values as properties
+       * @return An enclosing rectangle with integer coordinates
+       *
+       * Calculate the smallest rectangle with integer coordinates that encloses the specified rectangle,
+       * modifying the passed object to have those bounds.
+       */
+      integerBounds: function(rect){
+        rect._w = rect._x + rect._w;
+        rect._h = rect._y + rect._h;
+        rect._x = (rect._x > 0) ? (rect._x|0) : (rect._x|0) - 1;
+        rect._y = (rect._y > 0) ? (rect._y|0) : (rect._y|0) - 1;
+        rect._w -= rect._x;
+        rect._h -= rect._y;
+        rect._w = (rect._w === (rect._w|0)) ? rect._w : (rect._w|0) + 1;
+        rect._h = (rect._h === (rect._h|0)) ? rect._h : (rect._h|0) + 1;
+        return rect;
+      },
 
       /**@
       * #Crafty.rectManager.mergeSet

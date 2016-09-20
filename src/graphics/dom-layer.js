@@ -8,8 +8,15 @@ var Crafty = require('../core/core.js'),
  *
  * Collection of mostly private methods to represent entities using the DOM.
  */
-Crafty.domLayerObject = {
+Crafty._registerLayerTemplate("DOM", {
     type: "DOM",
+    options: {
+        xResponse: 1,
+        yResponse: 1,
+        scaleResponse: 1,
+        z: 0
+    },
+
     _changedObjs: [],
     _dirtyViewport: false,
 
@@ -29,7 +36,7 @@ Crafty.domLayerObject = {
 
         Crafty.stage.elem.appendChild(div);
         div.style.position = "absolute";
-        div.style.zIndex = "1";
+        div.style.zIndex = this.options.z;
         div.style.transformStyle = "preserve-3d"; // Seems necessary for Firefox to preserve zIndexes?
 
         // Bind scene rendering (see drawing.js)
@@ -44,11 +51,13 @@ Crafty.domLayerObject = {
         this.uniqueBind("InvalidateViewport", function() {
             this._dirtyViewport = true;
         });
+        Crafty._addDrawLayerInstance(this);
     },
 
     // Cleanup the DOM when the layer is destroyed
     remove: function() {
         this._div.parentNode.removeChild(this._div);
+        Crafty._removeDrawLayerInstance(this);
     },
 
     // Handle whether images should be smoothed or not
@@ -159,13 +168,16 @@ Crafty.domLayerObject = {
     _setViewport: function() {
         var style = this._div.style,
             view = Crafty.viewport;
+        
+        var cameraOptions = this.options;
+        var scale = Math.pow(view._scale, cameraOptions.scaleResponse); 
+        var dx = view._x * scale * cameraOptions.xResponse;
+        var dy = view._y * scale * cameraOptions.yResponse;
 
-        style.transform = style[Crafty.support.prefix + "Transform"] = "scale(" + view._scale + ", " + view._scale + ")";
-        style.left = Math.round(view._x * view._scale) + "px";
-        style.top = Math.round(view._y * view._scale) + "px";
-        style.zIndex = 10;
-
-
+        style.transform = style[Crafty.support.prefix + "Transform"] = "scale(" + scale + ", " + scale + ")";
+        style.left = Math.round(dx) + "px";
+        style.top = Math.round(dy) + "px";
+        style.zIndex = this.options.z;
     }
 
-};
+});

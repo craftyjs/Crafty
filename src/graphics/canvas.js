@@ -28,7 +28,7 @@ Crafty.c("Canvas", {
         
         // Add the default canvas layer if we aren't attached to a custom one
         if (!this._customLayer){
-            this._attachToLayer( Crafty.s("CanvasLayer"));
+            this._attachToLayer( Crafty.s("DefaultCanvasLayer"));
         }
         
     },
