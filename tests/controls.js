@@ -89,6 +89,105 @@
     e.destroy();
   });
 
+  test("setting clamping on", function() {
+    var e = Crafty.e("2D, Multiway").attr({ x: 0, y: 0});
+    var directions = { UP_ARROW: -90, DOWN_ARROW: 90, RIGHT_ARROW: 0, LEFT_ARROW: 180 };
+    e.multiway(50, directions, true);
+
+    equal(e._clampSpeed, true, "all arguments satisfied");
+    e.destroy();
+
+    e = Crafty.e("2D, Multiway").attr({ x: 0, y: 0});
+    e.multiway(directions, true);
+    equal(e._clampSpeed, true, "optional speed argument omited");
+    e.destroy();
+
+    e = Crafty.e("2D, Multiway").attr({ x: 0, y: 0});
+    e.multiway(directions);
+    equal(e._clampSpeed, false, "only required arguments");
+    e.destroy();
+
+    e = Crafty.e("2D, Multiway").attr({ x: 0, y: 0});
+    e.multiway(50, directions);
+    equal(e._clampSpeed, false, "leaving out clamping option");
+    e.destroy();
+  });
+
+  test("clamp speed option on multiway", function() {
+    var e = Crafty.e("2D, Multiway")
+                  .attr({ x: 0, y: 0});
+    var directions = { UP_ARROW: -90, DOWN_ARROW: 90, RIGHT_ARROW: 0, LEFT_ARROW: 180 };
+
+    e.multiway(50, directions, true);
+
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.DOWN_ARROW
+    });
+    // 90 deg
+    equal(e._vy, 50, "Speed is 50 in +y direction when ↓");
+
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.LEFT_ARROW
+    });
+    // 135 deg
+    equal(e._vy, 35.355, "Speed is 35.355 in +y direction when ↙");
+    equal(e._vx, -35.355, "Speed is 35.355 in -x direction whe ↙");
+
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.DOWN_ARROW
+    });
+    // 180 deg
+    equal(e._vy, 0, "Speed is 0 in y direction when ←");
+    equal(e._vx, -50, "Speed is 50 in -x direction when ←");
+
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.UP_ARROW
+    });
+    equal(e._vy, -35.355, "Speed is 35.355 in -y direction when ↖");
+    equal(e._vx, -35.355, "Speed is 35.355 in -x direction when ↖");
+
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.LEFT_ARROW
+    });
+    equal(e._vy, -50, "Speed is 50 in -y direction when ↑");
+    equal(e._vx, 0, "Speed is 0 in x direction when ↑");
+
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.RIGHT_ARROW
+    });
+
+    equal(e._vy, -35.355, "Speed is 35.355 in -y direction when ↗");
+    equal(e._vx, 35.355, "Speed is 35.355 in x direction when ↗");
+
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.UP_ARROW
+    });
+
+    equal(e._vy, 0, "Speed is 0 in y direction when →");
+    equal(e._vx, 50, "Speed is 50 in x direction when →");
+
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.DOWN_ARROW
+    });
+
+    equal(e._vy, 35.355, "Speed is 35.355 in y direction when ↘");
+    equal(e._vx, 35.355, "Speed is 35.355 in x direction when ↘");
+
+    // Assert opposite directions
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.RIGHT_ARROW
+    });
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.UP_ARROW
+    });
+
+    // up and down
+    equal(e._vy, 0, "Speed y is 0 when result vector is null");
+    equal(e._vx, 0, "Speed x is 0 when result vector is null");
+
+    e.destroy();
+  });
+
   test("disableControl and enableControl and speed", function() {
     var e = Crafty.e("2D, Twoway")
       .attr({ x: 0 })
