@@ -66,8 +66,8 @@
     Crafty.trigger('KeyDown', {
       key: Crafty.keys.LEFT_ARROW
     });
-    equal(e._vy, 50, "Speed is 50 in +y direction when DOWN & LEFT are pressed");
-    equal(e._vx, -50, "Speed is 50 in -x direction when DOWN & LEFT are pressed");
+    equal(~~e._vy, 35, "Speed is about 35 in +y direction when DOWN & LEFT are pressed");
+    equal(~~e._vx, -35, "Speed is about 35 in -x direction when DOWN & LEFT are pressed");
 
     Crafty.trigger('KeyUp', {
       key: Crafty.keys.DOWN_ARROW
@@ -162,6 +162,138 @@
       key: Crafty.keys.RIGHT_ARROW
     });
     equal(e._vx, 0, "vx = 0 once both keys are released");
+
+    e.destroy();
+  });
+
+  test("Multiway - diagonal movement", function() {
+    var e = Crafty.e("2D, Multiway")
+        .attr({ x: 0, y: 0 })
+        .multiway(50, {
+          NUMPAD_7:-135, NUMPAD_8: -90, NUMPAD_9: -45,
+          NUMPAD_4: 180,                NUMPAD_6:   0,
+          NUMPAD_1: 135, NUMPAD_2:  90, NUMPAD_3:  45
+        });
+
+    // test if diagonal movement same magnitude as horizontal/vertical movement
+    // ||(-35, -35)|| =~= ||(50, 0)||
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.NUMPAD_7
+    });
+    Crafty.timer.simulateFrames(1);
+    strictEqual(e._vx, -35, "vx ~ -35 when NUMPAD_7 pressed");
+    strictEqual(e._vy, -35, "vy ~ -35 when NUMPAD_7 pressed");
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.NUMPAD_7
+    });
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.NUMPAD_8
+    });
+    Crafty.timer.simulateFrames(1);
+    strictEqual(e._vx, 0, "vx = 0 when NUMPAD_8 pressed");
+    strictEqual(e._vy, -50, "vy = -50 when NUMPAD_8 pressed");
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.NUMPAD_8
+    });
+
+    // pressing both diagonal keys should result in correct vertical movement
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.NUMPAD_7
+    });
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.NUMPAD_9
+    });
+    Crafty.timer.simulateFrames(1);
+    strictEqual(e._vx, 0, "vx = 0 when both NUMPAD_7 & NUMPAD_9 pressed");
+    strictEqual(e._vy, -50, "vy = -50 when both NUMPAD_7 & NUMPAD_9 pressed");
+    // pressing an additional horizontal key in that direction should not change velocity
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.NUMPAD_8
+    });
+    Crafty.timer.simulateFrames(1);
+    strictEqual(e._vx, 0, "vx = 0 when NUMPAD_7 & NUMPAD_9 & NUMPAD_8 pressed");
+    strictEqual(e._vy, -50, "vy = -50 when NUMPAD_7 & NUMPAD_9 & NUMPAD_8 pressed");
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.NUMPAD_8
+    });
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.NUMPAD_7
+    });
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.NUMPAD_9
+    });
+
+    // pressing two keys of opposite directions cancels out all movement
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.NUMPAD_2
+    });
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.NUMPAD_8
+    });
+    Crafty.timer.simulateFrames(1);
+    strictEqual(e._vx, 0, "vx = 0 when NUMPAD_8 & NUMPAD_2 pressed");
+    strictEqual(e._vy, 0, "vy = 0 when NUMPAD_8 & NUMPAD_2 pressed");
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.NUMPAD_7
+    });
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.NUMPAD_3
+    });
+    Crafty.timer.simulateFrames(1);
+    strictEqual(e._vx, 0, "vx = 0 when NUMPAD_8 & NUMPAD_2 & NUMPAD_7 & NUMPAD_7 pressed");
+    strictEqual(e._vy, 0, "vy = 0 when NUMPAD_8 & NUMPAD_2 & NUMPAD_7 & NUMPAD_7 pressed");
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.NUMPAD_7
+    });
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.NUMPAD_3
+    });
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.NUMPAD_2
+    });
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.NUMPAD_8
+    });
+
+    // pressing 2 diagonal keys in one direction does not cancel out 1 vertical key in opposite direction
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.NUMPAD_7
+    });
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.NUMPAD_9
+    });
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.NUMPAD_2
+    });
+    Crafty.timer.simulateFrames(1);
+    strictEqual(e._vx, 0, "vx = 0 when NUMPAD_7 & NUMPAD_9 & NUMPAD_8 pressed");
+    strictEqual(e._vy, -50, "vy = -50 when NUMPAD_7 & NUMPAD_9 & NUMPAD_8 pressed");
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.NUMPAD_7
+    });
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.NUMPAD_9
+    });
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.NUMPAD_2
+    });
+
+    // asymetric key movement
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.NUMPAD_4
+    });
+    Crafty.trigger('KeyDown', {
+      key: Crafty.keys.NUMPAD_1
+    });
+    Crafty.timer.simulateFrames(1);
+    strictEqual(e._vx,-46, "vx ~ -46 when NUMPAD_4 & NUMPAD_1 pressed");
+    strictEqual(e._vy, 19, "vy ~ 19 when NUMPAD_4 & NUMPAD_1 pressed");
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.NUMPAD_4
+    });
+    Crafty.trigger('KeyUp', {
+      key: Crafty.keys.NUMPAD_1
+    });
 
     e.destroy();
   });
