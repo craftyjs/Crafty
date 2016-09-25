@@ -43,10 +43,12 @@ module.exports = function() {
             return false;
         }
     });
-    // dummy keydown registry
+    // dummy keydown+mousedown registry
     Crafty.keydown = {};
     Crafty.resetKeyDown = function() {
         Crafty.keydown = {};
     };
+    Crafty.mouseButtonsDown = {};
+
     return Crafty;
 };
