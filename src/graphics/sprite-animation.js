@@ -180,7 +180,7 @@ Crafty.c("SpriteAnimation", {
             reel.frames = fromX;
         }
         else {
-            throw "Urecognized arguments. Please see the documentation for 'reel(...)'.";
+            throw "Unrecognized arguments. Please see the documentation for 'reel(...)'.";
         }
 
         this._reels[reelId] = reel;
