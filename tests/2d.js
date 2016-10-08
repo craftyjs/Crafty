@@ -1597,9 +1597,13 @@
     ok(done, "Integrationtest completed");
   });
 
-
+  // Import keysUp/Down helper functions defined in common.js
+  var keysUp = global.keysUp;
+  var keysDown = global.keysDown;
+  
   test("Integrationtest - Twoway", function() {
     var done = false;
+    Crafty.resetKeyDown();
 
     var ground = Crafty.e("2D, platform")
           .attr({ x: 0, y: 200, w: 10, h: 20 });
@@ -1618,13 +1622,13 @@
         this.bind("LiftedOffGround", function() {
           liftCount++;
           this.bind("EnterFrame", function() {
-            this.trigger("KeyDown", {key: Crafty.keys.UP_ARROW});
+            keysDown(Crafty.keys.UP_ARROW);
             if (this.velocity().y < -this._jumpSpeed)
               ok(false, "Twoway should not modify velocity");
           });
         });
 
-        this.trigger("KeyDown", {key: Crafty.keys.UP_ARROW});
+        keysDown(Crafty.keys.UP_ARROW);
       } else {
         strictEqual(landCount, 2, "two land on ground events should have been registered");
         strictEqual(liftCount, 1, "one lift off ground event should have been registered");
@@ -1632,14 +1636,13 @@
         ground.destroy();
         player.destroy();
 
-        this.trigger("KeyUp", {key: Crafty.keys.UP_ARROW});
-        this.trigger("KeyUp", {key: Crafty.keys.UP_ARROW});
+        keysUp(Crafty.keys.UP_ARROW);
         done = true;
       }
     });
 
     Crafty.timer.simulateFrames(75);
-    ok(done, "Integrationtest completed");
+    ok(done, "Integration test completed");
   });
 
 })();
