@@ -8,7 +8,7 @@ module.exports = function (grunt) {
                 ' * <%= pkg.name %> <%= pkg.version %>\n' +
                 ' * <%= pkg.author.url %>\n *\n' +
                 ' * Copyright <%= grunt.template.today("yyyy") %>, <%= pkg.author.name %>\n' +
-                ' * Dual licensed under the MIT or GPL licenses.\n' +
+                ' * Licensed under the MIT license.\n' +
                 ' */\n\n';
 
     var docGen = function() {
