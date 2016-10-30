@@ -4,7 +4,7 @@ var Crafty = require('../core/core.js'),
 Crafty.extend({
     over: null, //object mouseover, waiting for out
     mouseObjs: 0,
-    mousePos: {},
+    mousePos: {},   
     touchObjs: 0,
 
     /**@
@@ -143,6 +143,7 @@ Crafty.extend({
      *
      * @see Crafty.mouseButtons, Crafty.lastEvent, Mouse
      */
+    mouseButtonsDown: {    },
     mouseDispatch: function (e) {
         if (!Crafty.mouseObjs) return;
         Crafty.lastEvent = e;
@@ -159,8 +160,17 @@ Crafty.extend({
             e.mouseButton = (e.which < 2) ? Crafty.mouseButtons.LEFT : ((e.which === 2) ? Crafty.mouseButtons.MIDDLE : Crafty.mouseButtons.RIGHT);
         }
 
+        // Set the mouse position based on standard viewport coordinates
         Crafty.mousePos.x = pos.x;
         Crafty.mousePos.y = pos.y;
+
+        // Track button state
+        if (type === "mousedown") {
+            this.mouseButtonsDown[e.mouseButton] = true;
+        }
+        if (type === "mouseup") {
+            delete this.mouseButtonsDown[e.mouseButton];
+        }
 
         closest = Crafty.findPointerEventTargetByComponent("Mouse", e, tar);
         //found closest object to mouse
@@ -177,7 +187,7 @@ Crafty.extend({
             } else if (type === "mousemove") {
                 closest.trigger("MouseMove", e);
                 if (this.over !== closest) { //if new mousemove, it is over
-                    if (this.over) {
+                    if (this.over) { 
                         this.over.trigger("MouseOut", e); //if over wasn't null, send mouseout
                         this.over = null;
                     }
@@ -196,6 +206,17 @@ Crafty.extend({
                 Crafty.viewport.mouselook('drag', e);
             } else if (type === "mouseup") {
                 Crafty.viewport.mouselook('stop');
+            }
+
+            // If nothing in particular was clicked, the controls system should get fed the event
+            if (type === "mousedown") {
+                Crafty.s("Controls").trigger("MouseDown", e);
+            } else if (type === "mouseup") {
+                Crafty.s("Controls").trigger("MouseUp", e);
+            } else if (type === "dblclick") {
+                Crafty.s("Controls").trigger("DoubleClick", e);
+            } else if (type === "click") {
+                Crafty.s("Controls").trigger("Click", e);
             }
         }
 
