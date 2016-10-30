@@ -7,7 +7,9 @@
     "game",
     "engine"
   ],
-  "license": ["MIT"],
+  "license": [
+    "MIT"
+  ],
   "main": "dist/crafty.js",
   "ignore": [
     "**",
