@@ -84,4 +84,6 @@ If you would like to make larger contributions please catch us in the [forum](ht
 
 The easiest way to build crafty uses [gruntjs](http://gruntjs.com/), which requires [node](nodejs.org/) and [npm](https://npmjs.org/).  If you have grunt, node, and npm already installed, then run `npm install` from Crafty's root directory.  (This will pull down about 30MB of node packages.)  From then on, just run `grunt` to build.
 
+You can also use [yarn](https://yarnpkg.com/) instead of npm.
+
 ([Full instructions here](https://github.com/craftyjs/Crafty/wiki/Building).)
