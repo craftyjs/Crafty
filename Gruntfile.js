@@ -121,9 +121,7 @@ module.exports = function (grunt) {
 
 
         qunit: {
-            options: {
-                noGlobals: true
-            },
+
             browser: ['tests/index.html']
         },
 
