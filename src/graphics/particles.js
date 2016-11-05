@@ -4,6 +4,8 @@ var Crafty = require('../core/core.js'),
 /**@
  * #Particles
  * @category Graphics
+ * @kind Component
+ * 
  * @trigger ParticleEnd - when the particle animation has finished
  *
  * Based on Parcycle by Mr. Speaker, licensed under the MIT, Ported by Leo Koppelkamm
@@ -23,6 +25,8 @@ Crafty.c("Particles", {
     /**@
      * #.particles
      * @comp Particles
+     * @kind Method
+     * 
      * @sign public this .particles(Object options)
      * @param options - Map of options that specify the behavior and look of the particles.
      *
@@ -386,6 +390,8 @@ Crafty.c("Particles", {
     /**@
      * #.pauseParticles
      * @comp Particles
+     * @kind Method
+     * 
      * @sign public this.pauseParticles()
      *
      * The pauseParticles will freeze these particles in execution.
@@ -406,6 +412,8 @@ Crafty.c("Particles", {
     /**@
      * #.resumeParticles
      * @comp Particles
+     * @kind Method
+     * 
      * @sign public this.resumeParticles()
      *
      * The resumeParticles will resume earlier paused particles

@@ -72,6 +72,7 @@ ToggleInputGroup.prototype = {
 /**@
  * #Controls
  * @category Controls
+ * @kind System
  * 
  * A built-in system for linking specific inputs to general types of input events.
  * 

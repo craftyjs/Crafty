@@ -3,6 +3,7 @@ var Crafty = require('../core/core.js');
 /**@
  * #Draggable
  * @category Controls
+ * @kind Component
  * Enable drag and drop of the entity. Listens to events from `MouseDrag` and moves entity accordingly.
  *
  * @see MouseDrag
@@ -130,6 +131,7 @@ Crafty.c("Draggable", {
 /**@
  * #Controllable
  * @category Controls
+ * @kind Component
  *
  * Used to bind methods to generalized input events.
  *
@@ -256,6 +258,7 @@ Crafty.c("Controllable", {
 /**@
  * #Multiway
  * @category Controls
+ * @kind Component
  *
  * Used to bind keys to directions and have the entity move accordingly.
  *
@@ -380,6 +383,7 @@ Crafty.c("Multiway", {
 /**@
  * #Jumper
  * @category Controls
+ * @kind Component
  * @trigger CheckJumping - When entity is about to jump. This event is triggered with the object the entity is about to jump from (if it exists). Third parties can respond to this event and enable the entity to jump.
  *
  * Make the entity jump in response to key events.
@@ -548,6 +552,7 @@ Crafty.c("Jumper", {
 /**@
  * #Fourway
  * @category Controls
+ * @kind Component
  *
  * Move an entity in four directions by using the
  * `Up Arrow`, `Left Arrow`, `Down Arrow`, `Right Arrow` keys or `W`, `A`, `S`, `D`.
@@ -594,6 +599,7 @@ Crafty.c("Fourway", {
 /**@
  * #Twoway
  * @category Controls
+ * @kind Component
  *
  * Move an entity left or right using the `Left Arrow`, `Right Arrow` keys or `D` and `A`
  * and make it jump using `Up Arrow` or `W`.

@@ -7,6 +7,8 @@
     /**@
      * #Crafty.HashMap.constructor
      * @comp Crafty.HashMap
+     * @kind Class
+     * 
      * @sign public void Crafty.HashMap([cellsize])
      * @param cellsize - the cell size. If omitted, `cellsize` is 64.
      *
@@ -49,6 +51,8 @@
         /**@
          * #Crafty.map.insert
          * @comp Crafty.map
+         * @kind Method
+         * 
          * @sign public Object Crafty.map.insert(Object obj)
          * @param obj - An entity to be inserted.
          * @returns An object representing this object's entry in the HashMap
@@ -88,6 +92,8 @@
         /**@
          * #Crafty.map.search
          * @comp Crafty.map
+         * @kind Method
+         * 
          * @sign public Object Crafty.map.search(Object rect[, Boolean filter])
          * @param rect - the rectangular region to search for entities.
          *               This object must contain the properties `_x`,`_y`,`_w`,`_h`.
@@ -160,6 +166,8 @@
         /**@
          * #Crafty.map.remove
          * @comp Crafty.map
+         * @kind Method
+         * 
          * @sign public void Crafty.map.remove(Entry entry)
          * @param entry - An entry to remove from the hashmap
          *
@@ -200,6 +208,8 @@
         /**@
          * #Crafty.map.refresh
          * @comp Crafty.map
+         * @kind Method
+         * 
          * @sign public void Crafty.map.refresh(Entry entry)
          * @param entry - An entry to update
          *
@@ -251,6 +261,8 @@
         /**@
          * #Crafty.map.boundaries
          * @comp Crafty.map
+         * @kind Method
+         * 
          * @sign public Object Crafty.map.boundaries()
          * @returns An object with the following structure, which represents an MBR which contains all entities
          *
@@ -278,6 +290,8 @@
         /**
          * #Crafty.map._keyBoundaries
          * @comp Crafty.map
+         * @kind Method
+         * 
          * @sign private Object Crafty.map._keyBoundaries()
          * @returns An object with the following structure, which represents an MBR which contains all hash keys
          *
@@ -375,6 +389,8 @@
         /**@
          * #Crafty.map.traverseRay
          * @comp Crafty.map
+         * @kind Method
+         * 
          * @sign public void Crafty.map.traverseRay(Object origin, Object direction, Function callback)
          * @param origin - the point of origin from which the ray will be cast. The object must contain the properties `_x` and `_y`.
          * @param direction - the direction the ray will be cast. It must be normalized. The object must contain the properties `x` and `y`.
@@ -560,6 +576,8 @@
     /**@
      * #Crafty.HashMap
      * @category 2D
+     * @kind Class
+     * 
      * Broad-phase collision detection engine. See background information at
      *
      * - [N Tutorial B - Broad-Phase Collision](http://www.metanetsoftware.com/technique/tutorialB.html)
@@ -570,6 +588,8 @@
     /**@
      * #Crafty.HashMap.key
      * @comp Crafty.HashMap
+     * @kind Method
+     * 
      * @sign public Object Crafty.HashMap.key(Object obj)
      * @param obj - an Object that has .mbr() or _x, _y, _w and _h.
      *

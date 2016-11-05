@@ -5,6 +5,7 @@ var Crafty = require('../core/core.js'),
 /**@
  * #DomLayer
  * @category Graphics
+ * @kind System
  *
  * Collection of mostly private methods to represent entities using the DOM.
  */
@@ -23,6 +24,9 @@ Crafty._registerLayerTemplate("DOM", {
     /**@
      * #._div
      * @comp DomLayer
+     * @kind Property
+     * @private
+     * 
      * A div inside the `#cr-stage` div that holds all DOM entities.
      */
     _div: null,
@@ -83,7 +87,11 @@ Crafty._registerLayerTemplate("DOM", {
     /**@
      * #.debug
      * @comp DomLayer
+     * @kind Method
+     * 
      * @sign public .debug()
+     * 
+     * Logs the current list of entities that have been invalidated in this layer.
      */
     debug: function () {
         Crafty.log(this._changedObjs);
@@ -93,6 +101,9 @@ Crafty._registerLayerTemplate("DOM", {
     /**@
      * #._render
      * @comp DomLayer
+     * @kind Method
+     * @private
+     * 
      * @sign public .render()
      *
      * When "RenderScene" is triggered, draws all DOM entities that have been flagged
@@ -125,6 +136,9 @@ Crafty._registerLayerTemplate("DOM", {
     /**@
      * #.dirty
      * @comp DomLayer
+     * @kind Method
+     * @private
+     * 
      * @sign public .dirty(ent)
      * @param ent - The entity to mark as dirty
      *
@@ -137,6 +151,9 @@ Crafty._registerLayerTemplate("DOM", {
     /**@
      * #.attach
      * @comp DomLayer
+     * @kind Method
+     * @private
+     * 
      * @sign public .attach(ent)
      * @param ent - The entity to add
      *
@@ -154,6 +171,9 @@ Crafty._registerLayerTemplate("DOM", {
     /**@
      * #.detach
      * @comp DomLayer
+     * @kind Method
+     * @private
+     * 
      * @sign public .detach(ent)
      * @param ent - The entity to remove
      *

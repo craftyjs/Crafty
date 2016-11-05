@@ -4,6 +4,7 @@ var Crafty = require('../core/core.js'),
 Crafty.extend({
     /**@
      * #Crafty.domHelper
+     * @kind Property
      * @category Graphics
      *
      * Collection of utilities for using the DOM.
@@ -40,6 +41,8 @@ Crafty.extend({
         /**@
          * #Crafty.domHelper.getStyle
          * @comp Crafty.domHelper
+         * @kind Method
+         * 
          * @sign public Object Crafty.domHelper.getStyle(HTMLElement obj, String property)
          * @param obj - HTML element to find the style
          * @param property - Style to return
@@ -79,6 +82,8 @@ Crafty.extend({
         /**@
          * #Crafty.domHelper.translate
          * @comp Crafty.domHelper
+         * @kind Method
+         * 
          * @sign public Object Crafty.domHelper.translate(Number clientX, Number clientY[, DrawLayer layer])
          * @param clientX - clientX position in the browser screen
          * @param clientY - clientY position in the browser screen

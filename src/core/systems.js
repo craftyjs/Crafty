@@ -7,6 +7,7 @@ Crafty._systems = {};
 /**@
  * #Crafty.s
  * @category Core
+ * @kind Method
  *
  * Registers a system.
  *

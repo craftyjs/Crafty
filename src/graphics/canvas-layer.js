@@ -4,6 +4,7 @@ var Crafty = require('../core/core.js');
 /**@
  * #CanvasLayer
  * @category Graphics
+ * @kind System
  *
  * An object for creating the canvas layer system.
  *
@@ -32,6 +33,9 @@ Crafty._registerLayerTemplate("Canvas", {
     /**@
      * #.dirty
      * @comp CanvasLayer
+     * @kind Method
+     * @private
+     * 
      * @sign public .dirty(ent)
      * @param ent - The entity to add
      *
@@ -44,6 +48,9 @@ Crafty._registerLayerTemplate("Canvas", {
     /**@
      * #.attach
      * @comp CanvasLayer
+     * @kind Method
+     * @private
+     * 
      * @sign public .attach(ent)
      * @param ent - The entity to add
      *
@@ -58,8 +65,11 @@ Crafty._registerLayerTemplate("Canvas", {
     /**@
      * #.detach
      * @comp CanvasLayer
+     * @kind Method
+     * @private
+     * 
      * @sign public .detach(ent)
-     * @param ent - The entity to add
+     * @param ent - The entity to detach
      *
      * Removes an entity to the list of Canvas objects to draw
      */
@@ -74,6 +84,7 @@ Crafty._registerLayerTemplate("Canvas", {
     /**@
      * #.context
      * @comp CanvasLayer
+     * @kind Property
      *
      * This will return the 2D context associated with the canvas layer's canvas element.
      */
@@ -82,6 +93,8 @@ Crafty._registerLayerTemplate("Canvas", {
     /**@
      * #._canvas
      * @comp CanvasLayer
+     * @kind Property
+     * @private
      *
      * The canvas element associated with the canvas layer.
      */
@@ -176,6 +189,9 @@ Crafty._registerLayerTemplate("Canvas", {
     /**@
      * #._drawDirty
      * @comp CanvasLayer
+     * @kind Method
+     * @private
+     * 
      * @sign public ._drawDirty()
      *
      * - Triggered by the "RenderScene" event
@@ -276,6 +292,9 @@ Crafty._registerLayerTemplate("Canvas", {
     /**@
      * #._drawAll
      * @comp CanvasLayer
+     * @kind Method
+     * @private
+     * 
      * @sign public CanvasLayer.drawAll([Object rect])
      * @param rect - a rectangular region {_x: x_val, _y: y_val, _w: w_val, _h: h_val}
      *
