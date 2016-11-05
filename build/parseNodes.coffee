@@ -136,9 +136,18 @@ addNode =
 		parent.requires = iterator.current().value
 		iterator.next()
 
+	kind: (parent, iterator)->
+		parent.kind = iterator.current().value
+		iterator.next()
+	
+	private: (parent, iterator)->
+		parent.private = true
+		iterator.next()
+	
+
 	#These are used only in 2d math files, and so don't have much meaning!
 	public: (parent, iterator)->
-		parent.public = true;
+		parent.private = false;
 		iterator.next()
 	class: (parent, iterator)->
 		parent.class = iterator.current().value

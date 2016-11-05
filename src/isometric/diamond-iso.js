@@ -5,6 +5,8 @@ Crafty.extend({
     /**@
      * #Crafty.diamondIso
      * @category 2D
+     * @kind CoreObject
+     * 
      * Place entities in a 45deg diamond isometric fashion. It is similar to isometric but has another grid locations
      * In this mode, the x axis and y axis are aligned to the edges of tiles with x increasing being down and to the
      * right and y being down and to the left.
@@ -32,6 +34,8 @@ Crafty.extend({
         /**@
          * #Crafty.diamondIso.init
          * @comp Crafty.diamondIso
+         * @kind Method
+         * 
          * @sign public this Crafty.diamondIso.init(Number tileWidth,Number tileHeight,Number mapWidth,Number mapHeight)
          * @param tileWidth - The size of base tile width's grid space in Pixel
          * @param tileHeight - The size of base tile height grid space in Pixel
@@ -72,6 +76,8 @@ Crafty.extend({
         /**@
          * #Crafty.diamondIso.place
          * @comp Crafty.diamondIso
+         * @kind Method
+         * 
          * @sign public this Crafty.diamondIso.place(Entity tile,Number x, Number y, Number layer)
          * @param x - The `x` position to place the tile
          * @param y - The `y` position to place the tile

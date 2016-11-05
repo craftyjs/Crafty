@@ -7,6 +7,10 @@ var Crafty = require('../core/core.js'),
 /**@
  * #Crafty.assignColor
  * @category Graphics
+ * @kind Method
+ * 
+ * Maps a wide vareity of color representations to a set of simple rgb(a) properties. 
+ * 
  * @sign Crafty.assignColor(color[, assignee])
  * @param color - a string represenation of the color to assign, in any valid HTML format
  * @param assignee - an object to use instead of creating one from scratch
@@ -165,6 +169,8 @@ Crafty.defaultShader("Color", new Crafty.WebGLShader(
 /**@
  * #Color
  * @category Graphics
+ * @kind Component
+ * 
  * Draw a colored rectangle.
  */
 Crafty.c("Color", {
@@ -218,6 +224,8 @@ Crafty.c("Color", {
     /**@
      * #.color
      * @comp Color
+     * @kind Method
+     * 
      * @trigger Invalidate - when the color changes
      *
      * Will assign the color and opacity, either through a string shorthand, or through explicit rgb values.

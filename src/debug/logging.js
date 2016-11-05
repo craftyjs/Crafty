@@ -4,6 +4,7 @@ var Crafty = require('../core/core.js');
 /**@
  * #Crafty.log
  * @category Debug
+ * @kind Method
  *
  * @sign Crafty.log( arguments )
  * @param arguments - arguments which are passed to `console.log`
@@ -14,6 +15,7 @@ var Crafty = require('../core/core.js');
 /**@
  * #Crafty.error
  * @category Debug
+ * @kind Method
  *
  * @sign Crafty.error( arguments )
  * @param arguments - arguments which are passed to `console.error`

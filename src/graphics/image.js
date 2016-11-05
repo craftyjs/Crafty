@@ -29,6 +29,8 @@ Crafty.defaultShader("Image", new Crafty.WebGLShader(
 /**@
  * #Image
  * @category Graphics
+ * @kind Component
+ * 
  * Draw an image with or without repeating (tiling).
  */
 Crafty.c("Image", {
@@ -48,6 +50,8 @@ Crafty.c("Image", {
     /**@
      * #.image
      * @comp Image
+     * @kind Method
+     * 
      * @trigger Invalidate - when the image is loaded
      * @sign public this .image(String url[, String repeat])
      * @param url - URL of the image

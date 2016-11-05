@@ -10,6 +10,7 @@ Crafty.extend({
     /**@
      * #Crafty.lastEvent
      * @category Input
+     * @kind Property
      * Check which mouse event occured most recently (useful for determining mouse position in every frame).
      *
      * The native [`MouseEvent`](https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent) is augmented with additional properties.
@@ -34,6 +35,7 @@ Crafty.extend({
     /**@
      * #Crafty.keydown
      * @category Input
+     * @kind Property
      * Check which keys (referred by `Crafty.keys` key codes) are currently down.
      *
      * @example
@@ -48,6 +50,7 @@ Crafty.extend({
     /**@
      * #Crafty.selected
      * @category Input
+     * @kind Property
      * @trigger CraftyFocus - is triggered when Crafty's stage gets selected
      * @trigger CraftyBlur - is triggered when Crafty's stage is no longer selected
      *
@@ -78,6 +81,7 @@ Crafty.extend({
     /**@
      * #Crafty.multitouch
      * @category Input
+     * @kind Method
      * @sign public this .multitouch(Boolean bool)
      * @param bool - Turns multitouch on and off.  The initial state is off (false).
      *
@@ -132,6 +136,8 @@ Crafty.extend({
     /**@
      * #Crafty.mouseDispatch
      * @category Input
+     * @private
+     * @kind Method
      *
      * Internal method which dispatches mouse events received by Crafty.
      *
@@ -230,6 +236,8 @@ Crafty.extend({
     /**@
      * #Crafty.touchDispatch
      * @category Input
+     * @kind Method
+     * @private
      *
      * Internal method which dispatches touch events received by Crafty (crafty.stage.elem).
      * The touch events get dispatched to the closest entity to the source of the event (if available).
@@ -416,6 +424,8 @@ Crafty.extend({
     /**@
      * #Crafty.findPointerEventTargetByComponent
      * @category Input
+     * @kind Method
+     * @private
      * 
      * @sign public this .findPointerEventTargetByComponent(String comp, Event e[, Object target])
      * Finds closest entity with certain component at a given event.
@@ -502,6 +512,8 @@ Crafty.extend({
     /**@
      * #Crafty.mouseWheelDispatch
      * @category Input
+     * @kind Method
+     * @private
      *
      * Internal method which dispatches mouse wheel events received by Crafty.
      * @trigger MouseWheelScroll - is triggered when mouse is scrolled on stage - { direction: +1 | -1} - Scroll direction (up | down)
@@ -579,6 +591,8 @@ Crafty.extend({
     /**@
      * #Crafty.keyboardDispatch
      * @category Input
+     * @kind Method
+     * @private
      *
      * Internal method which dispatches keyboard events received by Crafty.
      * @trigger KeyDown - is triggered for each entity when the DOM 'keydown' event is triggered. - { key: `Crafty.keys` keyCode (Number), originalEvent: original KeyboardEvent } - Crafty's KeyboardEvent
@@ -706,6 +720,7 @@ Crafty._preBind("CraftyStop", function () {
 /**@
  * #Mouse
  * @category Input
+ * @kind Component
  *
  * Provides the entity with mouse related events.
  *
@@ -771,6 +786,7 @@ Crafty.c("Mouse", {
 /**@
  * #Touch
  * @category Input
+ * @kind Component
  * Provides the entity with touch related events
  * @trigger TouchStart - when entity is touched - TouchPoint
  * @trigger TouchMove - when finger is moved over entity - TouchPoint
@@ -817,6 +833,8 @@ Crafty.c("Touch", {
 /**@
  * #AreaMap
  * @category Input
+ * @kind Component
+ * 
  * Component used by Mouse and Touch.
  * Can be added to other entities for use with the Crafty.findClosestEntityByComponent method.
  * 
@@ -848,6 +866,7 @@ Crafty.c("AreaMap", {
     /**@
      * #.areaMap
      * @comp AreaMap
+     * @kind Method
      *
      * @trigger NewAreaMap - when a new areaMap is assigned - Crafty.polygon
      *
@@ -904,6 +923,8 @@ Crafty.c("AreaMap", {
 /**@
  * #Button
  * @category Input
+ * @kind Component
+ * 
  * Provides the entity with touch or mouse functionality, depending on whether this is a pc 
  * or mobile device, and also on multitouch configuration.
  *
@@ -921,6 +942,8 @@ Crafty.c("Button", {
 /**@
  * #MouseDrag
  * @category Input
+ * @kind Component
+ * 
  * Provides the entity with drag and drop mouse events.
  * @trigger Dragging - is triggered each frame the entity is being dragged - MouseEvent
  * @trigger StartDrag - is triggered when dragging begins - MouseEvent
@@ -962,6 +985,8 @@ Crafty.c("MouseDrag", {
     /**@
      * #.startDrag
      * @comp MouseDrag
+     * @kind Method
+     * 
      * @sign public this .startDrag(void)
      *
      * Make the entity produce drag events, essentially making the entity follow the mouse positions.
@@ -983,6 +1008,8 @@ Crafty.c("MouseDrag", {
     /**@
      * #.stopDrag
      * @comp MouseDrag
+     * @kind Method
+     * 
      * @sign public this .stopDrag(void)
      *
      * Stop the entity from producing drag events, essentially reproducing the drop.
@@ -1005,6 +1032,7 @@ Crafty.c("MouseDrag", {
 /**@
  * #Keyboard
  * @category Input
+ * @kind Component
  *
  * Provides entity with keyboard events.
  * @trigger KeyDown - is triggered for each entity when the DOM 'keydown' event is triggered. - { key: `Crafty.keys` keyCode (Number), originalEvent: original KeyboardEvent } - Crafty's KeyboardEvent
@@ -1038,6 +1066,8 @@ Crafty.c("Keyboard", {
     /**@
      * #.isDown
      * @comp Keyboard
+     * @kind Method
+     * 
      * @sign public Boolean isDown(String keyName)
      * @param keyName - Name of the key to check. See `Crafty.keys`.
      * @sign public Boolean isDown(Number keyCode)

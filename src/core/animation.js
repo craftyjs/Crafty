@@ -4,6 +4,7 @@ var Crafty = require('../core/core.js');
 /**@
  * #Crafty.easing
  * @category Animation
+ * @kind Class
  * 
  *
  * An object for tracking transitions.  Typically used indirectly through "SpriteAnimation", "Tween", or viewport animations.

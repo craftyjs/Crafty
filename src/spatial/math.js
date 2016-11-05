@@ -4,6 +4,7 @@ var Crafty = require('../core/core.js');
 /**@
  * #Crafty.math
  * @category Utilities
+ * @kind CoreObj
  *
  * A set of utility functions for common (and not so common) operations.
  */
@@ -11,6 +12,8 @@ Crafty.math = {
     /**@
      * #Crafty.math.abs
      * @comp Crafty.math
+     * @kind Method
+     * 
      * @sign public this Crafty.math.abs(Number n)
      * @param n - Some value.
      * @return Absolute value.
@@ -24,6 +27,8 @@ Crafty.math = {
     /**@
      * #Crafty.math.amountOf
      * @comp Crafty.math
+     * @kind Method
+     * 
      * @sign public Number Crafty.math.amountOf(Number checkValue, Number minValue, Number maxValue)
      * @param checkValue - Value that should checked with minimum and maximum.
      * @param minValue - Bottom of the range
@@ -43,6 +48,8 @@ Crafty.math = {
     /**@
      * #Crafty.math.clamp
      * @comp Crafty.math
+     * @kind Method
+     * 
      * @sign public Number Crafty.math.clamp(Number value, Number min, Number max)
      * @param value - A value.
      * @param max - Maximum that value can be.
@@ -64,6 +71,8 @@ Crafty.math = {
      * #Crafty.math.degToRad
      * Converts angle from degree to radian.
      * @comp Crafty.math
+     * @kind Method
+     * 
      * @sign public Number degToRad(angleInDeg)
      * @param angleInDeg - The angle in degrees.
      * @return The angle in radians.
@@ -75,6 +84,8 @@ Crafty.math = {
     /**@
      * #Crafty.math.distance
      * @comp Crafty.math
+     * @kind Method
+     * 
      * @sign public Number Crafty.math.distance(Number x1, Number y1, Number x2, Number y2)
      * @param x1 - First x coordinate.
      * @param y1 - First y coordinate.
@@ -92,6 +103,8 @@ Crafty.math = {
     /**@
      * #Crafty.math.lerp
      * @comp Crafty.math
+     * @kind Method
+     * 
      * @sign public Number Crafty.math.lerp(Number value1, Number value2, Number amount)
      * @param value1 - One value.
      * @param value2 - Another value.
@@ -108,6 +121,8 @@ Crafty.math = {
     /**@
      * #Crafty.math.negate
      * @comp Crafty.math
+     * @kind Method
+     * 
      * @sign public Number Crafty.math.negate(Number percent)
      * @param percent - The probability of returning `-1`
      * @return 1 or -1.
@@ -124,6 +139,8 @@ Crafty.math = {
     /**@
      * #Crafty.math.radToDeg
      * @comp Crafty.math
+     * @kind Method
+     * 
      * @sign public Number Crafty.math.radToDeg(Number angle)
      * @param angleInRad - The angle in radian.
      * @return The angle in degree.
@@ -137,6 +154,8 @@ Crafty.math = {
     /**@
      * #Crafty.math.randomElementOfArray
      * @comp Crafty.math
+     * @kind Method
+     * 
      * @sign public Object Crafty.math.randomElementOfArray(Array array)
      * @param array - A specific array.
      * @return A random element of a specific array.
@@ -150,6 +169,8 @@ Crafty.math = {
     /**@
      * #Crafty.math.randomInt
      * @comp Crafty.math
+     * @kind Method
+     * 
      * @sign public Number Crafty.math.randomInt(Number start, Number end)
      * @param start - Smallest int value that can be returned.
      * @param end - Biggest int value that can be returned.
@@ -164,6 +185,8 @@ Crafty.math = {
     /**@
      * #Crafty.math.randomNumber
      * @comp Crafty.math
+     * @kind Method
+     * 
      * @sign public Number Crafty.math.randomNumber(Number start, Number end)
      * @param start - Smallest number value that can be returned.
      * @param end - Biggest number value that can be returned.
@@ -178,6 +201,8 @@ Crafty.math = {
     /**@
      * #Crafty.math.squaredDistance
      * @comp Crafty.math
+     * @kind Method
+     * 
      * @sign public Number Crafty.math.squaredDistance(Number x1, Number y1, Number x2, Number y2)
      * @param x1 - First x coordinate.
      * @param y1 - First y coordinate.
@@ -194,6 +219,8 @@ Crafty.math = {
     /**@
      * #Crafty.math.withinRange
      * @comp Crafty.math
+     * @kind Method
+     * 
      * @sign public Boolean Crafty.math.withinRange(Number value, Number min, Number max)
      * @param value - The specific value.
      * @param min - Minimum value.
@@ -211,6 +238,8 @@ Crafty.math.Vector2D = (function () {
     /**@
      * #Crafty.math.Vector2D
      * @category 2D
+     * @kind Class
+     * 
      * @class This is a general purpose 2D vector class
      *
      * Vector2D uses the following form:
@@ -241,6 +270,8 @@ Crafty.math.Vector2D = (function () {
     /**@
      * #.add
      * @comp Crafty.math.Vector2D
+     * @kind Method
+     * 
      *
      * Adds the passed vector to this vector
      *
@@ -258,6 +289,8 @@ Crafty.math.Vector2D = (function () {
     /**@
      * #.angleBetween
      * @comp Crafty.math.Vector2D
+     * @kind Method
+     * 
      *
      * Calculates the angle between the passed vector and this vector, using <0,0> as the point of reference.
      * Angles returned have the range (−π, π].
@@ -274,6 +307,8 @@ Crafty.math.Vector2D = (function () {
     /**@
      * #.angleTo
      * @comp Crafty.math.Vector2D
+     * @kind Method
+     * 
      *
      * Calculates the angle to the passed vector from this vector, using this vector as the point of reference.
      *
@@ -289,6 +324,8 @@ Crafty.math.Vector2D = (function () {
     /**@
      * #.clone
      * @comp Crafty.math.Vector2D
+     * @kind Method
+     * 
      *
      * Creates and exact, numeric copy of this vector
      *
@@ -303,6 +340,8 @@ Crafty.math.Vector2D = (function () {
     /**@
      * #.distance
      * @comp Crafty.math.Vector2D
+     * @kind Method
+     * 
      *
      * Calculates the distance from this vector to the passed vector.
      *
@@ -318,6 +357,8 @@ Crafty.math.Vector2D = (function () {
     /**@
      * #.distanceSq
      * @comp Crafty.math.Vector2D
+     * @kind Method
+     * 
      *
      * Calculates the squared distance from this vector to the passed vector.
      * This function avoids calculating the square root, thus being slightly faster than .distance( ).
@@ -335,6 +376,8 @@ Crafty.math.Vector2D = (function () {
     /**@
      * #.divide
      * @comp Crafty.math.Vector2D
+     * @kind Method
+     * 
      *
      * Divides this vector by the passed vector.
      *
@@ -352,6 +395,8 @@ Crafty.math.Vector2D = (function () {
     /**@
      * #.dotProduct
      * @comp Crafty.math.Vector2D
+     * @kind Method
+     * 
      *
      * Calculates the dot product of this and the passed vectors
      *
@@ -367,6 +412,8 @@ Crafty.math.Vector2D = (function () {
     /**@
      * #.crossProduct
      * @comp Crafty.math.Vector2D
+     * @kind Method
+     * 
      *
      * Calculates the z component of the cross product of the two vectors augmented to 3D.
      *
@@ -382,6 +429,8 @@ Crafty.math.Vector2D = (function () {
     /**@
      * #.equals
      * @comp Crafty.math.Vector2D
+     * @kind Method
+     * 
      *
      * Determines if this vector is numerically equivalent to the passed vector.
      *
@@ -398,6 +447,8 @@ Crafty.math.Vector2D = (function () {
     /**@
      * #.perpendicular
      * @comp Crafty.math.Vector2D
+     * @kind Method
+     * 
      *
      * Calculates a new vector that is perpendicular to this vector.
      * The perpendicular vector has the same magnitude as this vector and is obtained by a counter-clockwise rotation of 90° of this vector.
@@ -415,6 +466,7 @@ Crafty.math.Vector2D = (function () {
     /**@
      * #.getNormal
      * @comp Crafty.math.Vector2D
+     * @kind Method
      *
      * Calculates a new right-handed unit vector that is perpendicular to the line created by this and the passed vector.
      *
@@ -432,6 +484,8 @@ Crafty.math.Vector2D = (function () {
     /**@
      * #.isZero
      * @comp Crafty.math.Vector2D
+     * @kind Method
+     * 
      *
      * Determines if this vector is equal to <0,0>
      *
@@ -446,6 +500,7 @@ Crafty.math.Vector2D = (function () {
     /**@
      * #.magnitude
      * @comp Crafty.math.Vector2D
+     * @kind Method
      *
      * Calculates the magnitude of this vector.
      * Note: Function objects in JavaScript already have a 'length' member, hence the use of magnitude instead.
@@ -461,7 +516,8 @@ Crafty.math.Vector2D = (function () {
     /**@
      * #.magnitudeSq
      * @comp Crafty.math.Vector2D
-     *
+     * @kind Method
+     * 
      * Calculates the square of the magnitude of this vector.
      * This function avoids calculating the square root, thus being slightly faster than .magnitude( ).
      *
@@ -477,7 +533,8 @@ Crafty.math.Vector2D = (function () {
     /**@
      * #.multiply
      * @comp Crafty.math.Vector2D
-     *
+     * @kind Method
+     * 
      * Multiplies this vector by the passed vector
      *
      * @public
@@ -494,7 +551,8 @@ Crafty.math.Vector2D = (function () {
     /**@
      * #.negate
      * @comp Crafty.math.Vector2D
-     *
+     * @kind Method
+     * 
      * Negates this vector (ie. <-x,-y>)
      *
      * @public
@@ -510,7 +568,8 @@ Crafty.math.Vector2D = (function () {
     /**@
      * #.normalize
      * @comp Crafty.math.Vector2D
-     *
+     * @kind Method
+     * 
      * Normalizes this vector (scales the vector so that its new magnitude is 1)
      * For vectors where magnitude is 0, <1,0> is returned.
      *
@@ -536,7 +595,8 @@ Crafty.math.Vector2D = (function () {
     /**@
      * #.scale
      * @comp Crafty.math.Vector2D
-     *
+     * @kind Method
+     * 
      * Scales this vector by the passed amount(s)
      * If scalarY is omitted, scalarX is used for both axes
      *
@@ -559,7 +619,8 @@ Crafty.math.Vector2D = (function () {
     /**@
      * #.scaleToMagnitude
      * @comp Crafty.math.Vector2D
-     *
+     * @kind Method
+     * 
      * Scales this vector such that its new magnitude is equal to the passed value.
      *
      * @public
@@ -577,7 +638,8 @@ Crafty.math.Vector2D = (function () {
     /**@
      * #.setValues
      * @comp Crafty.math.Vector2D
-     *
+     * @kind Method
+     * 
      * Sets the values of this vector using a passed vector or pair of numbers.
      *
      * @public
@@ -602,7 +664,8 @@ Crafty.math.Vector2D = (function () {
     /**@
      * #.subtract
      * @comp Crafty.math.Vector2D
-     *
+     * @kind Method
+     * 
      * Subtracts the passed vector from this vector.
      *
      * @public
@@ -619,7 +682,8 @@ Crafty.math.Vector2D = (function () {
     /**@
      * #.toString
      * @comp Crafty.math.Vector2D
-     *
+     * @kind Method
+     * 
      * Returns a string representation of this vector.
      *
      * @public
@@ -633,7 +697,8 @@ Crafty.math.Vector2D = (function () {
     /**@
      * #.translate
      * @comp Crafty.math.Vector2D
-     *
+     * @kind Method
+     * 
      * Translates (moves) this vector by the passed amounts.
      * If dy is omitted, dx is used for both axes.
      *
@@ -656,7 +721,8 @@ Crafty.math.Vector2D = (function () {
     /**@
      * #.tripleProduct
      * @comp Crafty.math.Vector2D
-     *
+     * @kind Method
+     * 
      * Calculates the triple product of three vectors.
      * triple vector product = b(a•c) - a(b•c)
      *
@@ -683,7 +749,8 @@ Crafty.math.Matrix2D = (function () {
     /**@
      * #Crafty.math.Matrix2D
      * @category 2D
-     *
+     * @kind Class
+     * 
      * @class This is a 2D Matrix2D class. It is 3x3 to allow for affine transformations in 2D space.
      * The third row is always assumed to be [0, 0, 1].
      *
@@ -732,7 +799,8 @@ Crafty.math.Matrix2D = (function () {
     /**@
      * #.apply
      * @comp Crafty.math.Matrix2D
-     *
+     * @kind Method
+     * 
      * Applies the matrix transformations to the passed object
      *
      * @public
@@ -757,7 +825,8 @@ Crafty.math.Matrix2D = (function () {
     /**@
      * #.clone
      * @comp Crafty.math.Matrix2D
-     *
+     * @kind Method
+     * 
      * Creates an exact, numeric copy of the current matrix
      *
      * @public
@@ -771,6 +840,7 @@ Crafty.math.Matrix2D = (function () {
     /**@
      * #.combine
      * @comp Crafty.math.Matrix2D
+     * @kind Method
      *
      * Multiplies this matrix with another, overriding the values of this matrix.
      * The passed matrix is assumed to be on the right-hand side.
@@ -796,6 +866,7 @@ Crafty.math.Matrix2D = (function () {
     /**@
      * #.equals
      * @comp Crafty.math.Matrix2D
+     * @kind Method
      *
      * Checks for the numeric equality of this matrix versus another.
      *
@@ -813,6 +884,7 @@ Crafty.math.Matrix2D = (function () {
     /**@
      * #.determinant
      * @comp Crafty.math.Matrix2D
+     * @kind Method
      *
      * Calculates the determinant of this matrix
      *
@@ -827,6 +899,7 @@ Crafty.math.Matrix2D = (function () {
     /**@
      * #.invert
      * @comp Crafty.math.Matrix2D
+     * @kind Method
      *
      * Inverts this matrix if possible
      *
@@ -862,7 +935,8 @@ Crafty.math.Matrix2D = (function () {
     /**@
      * #.isIdentity
      * @comp Crafty.math.Matrix2D
-     *
+     * @kind Method
+     * 
      * Returns true if this matrix is the identity matrix
      *
      * @public
@@ -876,7 +950,8 @@ Crafty.math.Matrix2D = (function () {
     /**@
      * #.isInvertible
      * @comp Crafty.math.Matrix2D
-     *
+     * @kind Method
+     * 
      * Determines is this matrix is invertible.
      *
      * @public
@@ -891,7 +966,8 @@ Crafty.math.Matrix2D = (function () {
     /**@
      * #.preRotate
      * @comp Crafty.math.Matrix2D
-     *
+     * @kind Method
+     * 
      * Applies a counter-clockwise pre-rotation to this matrix
      *
      * @public
@@ -916,7 +992,8 @@ Crafty.math.Matrix2D = (function () {
     /**@
      * #.preScale
      * @comp Crafty.math.Matrix2D
-     *
+     * @kind Method
+     * 
      * Applies a pre-scaling to this matrix
      *
      * @public
@@ -940,7 +1017,8 @@ Crafty.math.Matrix2D = (function () {
     /**@
      * #.preTranslate
      * @comp Crafty.math.Matrix2D
-     *
+     * @kind Method
+     * 
      * Applies a pre-translation to this matrix
      *
      * @public
@@ -965,7 +1043,8 @@ Crafty.math.Matrix2D = (function () {
     /**@
      * #.rotate
      * @comp Crafty.math.Matrix2D
-     *
+     * @kind Method
+     * 
      * Applies a counter-clockwise post-rotation to this matrix
      *
      * @public
@@ -993,7 +1072,8 @@ Crafty.math.Matrix2D = (function () {
     /**@
      * #.scale
      * @comp Crafty.math.Matrix2D
-     *
+     * @kind Method
+     * 
      * Applies a post-scaling to this matrix
      *
      * @public
@@ -1019,7 +1099,8 @@ Crafty.math.Matrix2D = (function () {
     /**@
      * #.setValues
      * @comp Crafty.math.Matrix2D
-     *
+     * @kind Method
+     * 
      * Sets the values of this matrix
      *
      * @public
@@ -1056,7 +1137,8 @@ Crafty.math.Matrix2D = (function () {
     /**@
      * #.toString
      * @comp Crafty.math.Matrix2D
-     *
+     * @kind Method
+     * 
      * Returns the string representation of this matrix.
      *
      * @public
@@ -1071,7 +1153,8 @@ Crafty.math.Matrix2D = (function () {
     /**@
      * #.translate
      * @comp Crafty.math.Matrix2D
-     *
+     * @kind Method
+     * 
      * Applies a post-translation to this matrix
      *
      * @public

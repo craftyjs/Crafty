@@ -4,6 +4,8 @@ var Crafty = require('../core/core.js');
 /**@
  * #Model
  * @category Model
+ * @kind Component
+ * 
  * Model is a component that offers new features for isolating business
  * logic in your application. It offers default values, dirty values,
  * and deep events on your data.
@@ -76,6 +78,8 @@ module.exports = {
   /**@
    * #.is_dirty
    * @comp Model
+   * @kind Method
+   * 
    * Helps determine when data or the entire component is "dirty" or has changed attributes.
    *
    * @example

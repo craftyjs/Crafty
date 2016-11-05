@@ -4,6 +4,8 @@ var Crafty = require('../core/core.js');
 /**@
  * #SpriteAnimation
  * @category Animation
+ * @kind Component
+ * 
  * @trigger StartAnimation - When an animation starts playing, or is resumed from the paused state - {Reel}
  * @trigger AnimationEnd - When the animation finishes - { Reel }
  * @trigger FrameChange - Each time the frame of the current reel changes - { Reel }
@@ -67,6 +69,8 @@ Crafty.c("SpriteAnimation", {
     /**@
      * #.reel
      * @comp SpriteAnimation
+     * @kind Method
+     * 
      * Used to define reels, to change the active reel, and to fetch the id of the active reel.
      *
      * @sign public this .reel(String reelId, Duration duration, Number fromX, Number fromY, Number frameCount[, Number rowLength])
@@ -191,6 +195,8 @@ Crafty.c("SpriteAnimation", {
     /**@
      * #.animate
      * @comp SpriteAnimation
+     * @kind Method
+     * 
      * @sign public this .animate([String reelId] [, Number loopCount])
      * @param reelId - ID of the animation reel to play.  Defaults to the current reel if none is specified.
      * @param loopCount - Number of times to repeat the animation. Use -1 to repeat indefinitely.  Defaults to 1.
@@ -258,6 +264,8 @@ Crafty.c("SpriteAnimation", {
     /**@
      * #.resumeAnimation
      * @comp SpriteAnimation
+     * @kind Method
+     * 
      * @sign public this .resumeAnimation()
      *
      * This will resume animation of the current reel from its current state.
@@ -277,6 +285,8 @@ Crafty.c("SpriteAnimation", {
     /**@
      * #.pauseAnimation
      * @comp SpriteAnimation
+     * @kind Method
+     * 
      * @sign public this .pauseAnimation(void)
      *
      * Pauses the currently playing animation, or does nothing if no animation is playing.
@@ -294,6 +304,8 @@ Crafty.c("SpriteAnimation", {
     /**@
      * #.resetAnimation
      * @comp SpriteAnimation
+     * @kind Method
+     * 
      * @sign public this .resetAnimation()
      *
      * Resets the current animation to its initial state.  Resets the number of loops to the last specified value, which defaults to 1.
@@ -314,6 +326,8 @@ Crafty.c("SpriteAnimation", {
     /**@
      * #.loops
      * @comp SpriteAnimation
+     * @kind Method
+     * 
      * @sign public this .loops(Number loopCount)
      * @param loopCount - The number of times to play the animation
      *
@@ -343,6 +357,8 @@ Crafty.c("SpriteAnimation", {
 
     /**@
      * #.reelPosition
+     * @kind Method
+     * 
      * @comp SpriteAnimation
      *
      * @sign public this .reelPosition(Integer position)
@@ -441,6 +457,8 @@ Crafty.c("SpriteAnimation", {
     /**@
      * #.isPlaying
      * @comp SpriteAnimation
+     * @kind Method
+     * 
      * @sign public Boolean .isPlaying([String reelId])
      * @param reelId - The reelId of the reel we wish to examine
      * @returns The current animation state
@@ -463,6 +481,8 @@ Crafty.c("SpriteAnimation", {
     /**@
      * #.getReel
      * @comp SpriteAnimation
+     * @kind Method
+     * 
      * @sign public Reel .getReel()
      * @returns The current reel, or null if there is no active reel
      *

@@ -4,6 +4,7 @@ var Crafty = require('../core/core.js');
 /**@
  * #HTML
  * @category Graphics
+ * @kind Component
  *
  * A component which allows for the insertion of arbitrary HTML into a DOM entity.  
  *
@@ -19,6 +20,8 @@ Crafty.c("HTML", {
     /**@
      * #.replace
      * @comp HTML
+     * @kind Method
+     * 
      * @sign public this .replace(String html)
      * @param html - arbitrary html
      *
@@ -41,6 +44,8 @@ Crafty.c("HTML", {
     /**@
      * #.append
      * @comp HTML
+     * @kind Method
+     * 
      * @sign public this .append(String html)
      * @param html - arbitrary html
      *
@@ -63,6 +68,8 @@ Crafty.c("HTML", {
     /**@
      * #.prepend
      * @comp HTML
+     * @kind Method
+     * 
      * @sign public this .prepend(String html)
      * @param html - arbitrary html
      *

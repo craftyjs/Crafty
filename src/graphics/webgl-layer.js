@@ -176,6 +176,7 @@ RenderProgramWrapper.prototype = {
 /**@
  * #WebGLLayer
  * @category Graphics
+ * @kind System
  *
  * A collection of methods to handle webgl contexts.
  */
@@ -191,6 +192,7 @@ Crafty._registerLayerTemplate("WebGL", {
     /**@
      * #.context
      * @comp WebGLLayer
+     * @kind Property
      *
      * This will return the context of the webgl canvas element.
      */
@@ -426,6 +428,9 @@ Crafty._registerLayerTemplate("WebGL", {
     /**@
      * #.dirty
      * @comp WebGLLayer
+     * @kind Method
+     * @private
+     * 
      * @sign public .dirty(ent)
      * @param ent - The entity to mark as dirty
      *
@@ -438,6 +443,9 @@ Crafty._registerLayerTemplate("WebGL", {
     /**@
      * #.attach
      * @comp WebGLLayer
+     * @kind Method
+     * @private
+     * 
      * @sign public .attach(ent)
      * @param ent - The entity to add
      *
@@ -451,6 +459,9 @@ Crafty._registerLayerTemplate("WebGL", {
     /**@
      * #.detach
      * @comp WebGLLayer
+     * @kind Method
+     * @private
+     * 
      * @sign public .detach(ent)
      * @param ent - The entity to remove
      *

@@ -27,6 +27,8 @@ Crafty.defaultShader("Sprite", new Crafty.WebGLShader(
 Crafty.extend({
     /**@
      * #Crafty.sprite
+     * @kind Method
+     * 
      * @category Graphics
      * @sign public this Crafty.sprite([Number tile, [Number tileh]], String url, Object map[, Number paddingX[, Number paddingY[, Boolean paddingAroundBorder]]])
      * @param tile - Tile size of the sprite map, defaults to 1
@@ -168,6 +170,8 @@ Crafty.extend({
 /**@
  * #Sprite
  * @category Graphics
+ * @kind Component
+ * 
  * @trigger Invalidate - when the sprites change
  *
  * A component for using tiles in a sprite map.

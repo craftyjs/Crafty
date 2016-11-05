@@ -4,6 +4,7 @@ var Crafty = require('../core/core.js');
 /**@
  * #Crafty.rectManager
  * @category 2D
+ * @kind CoreObj
  *
  * Collection of methods for handling rectangles
  */
@@ -28,6 +29,8 @@ Crafty.extend({
       /**@
        * #Crafty.rectManager.overlap
        * @comp Crafty.rectManager
+       * @kind Method
+       * 
        * @sign public Boolean Crafty.rectManager.overlap(Object rectA, Object rectA)
        * @param rectA - An object that must have the `_x, _y, _w, _h` values as properties
        * @param rectB - An object that must have the `_x, _y, _w, _h` values as properties
@@ -43,6 +46,8 @@ Crafty.extend({
       /**@
        * #Crafty.rectManager.integerBounds
        * @comp Crafty.rectManager
+       * @kind Method
+       * 
        * @sign public Boolean Crafty.rectManager.integerBounds(Object rect)
        * @param rect - An object that must have the `_x, _y, _w, _h` values as properties
        * @return An enclosing rectangle with integer coordinates
@@ -65,6 +70,8 @@ Crafty.extend({
       /**@
       * #Crafty.rectManager.mergeSet
       * @comp Crafty.rectManager
+      * @kind Method
+      *
       * @sign public Object Crafty.rectManager.mergeSet(Object set)
       * @param set - an array of rectangular regions
       *
@@ -98,6 +105,8 @@ Crafty.extend({
       /**@
        * #Crafty.rectManager.boundingRect
        * @comp Crafty.rectManager
+       * @kind Method
+       * 
        * @sign public Crafty.rectManager.boundingRect(set)
        * @param set - An array of rectangles
        *

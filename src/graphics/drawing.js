@@ -4,6 +4,8 @@ Crafty.extend({
     /**@
      * #Crafty.pixelart
      * @category Graphics
+     * @kind Method
+     * 
      * @sign public void Crafty.pixelart(Boolean enabled)
      * @param enabled - whether to preserve sharp edges when rendering images
      *

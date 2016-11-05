@@ -5,6 +5,7 @@ Crafty.extend({
     /**@
      * #Crafty.device
      * @category Misc
+     * @kind Property
      *
      * Methods relating to devices such as tablets or phones
      */
@@ -83,6 +84,8 @@ Crafty.extend({
         /**@
          * #Crafty.device.deviceOrientation
          * @comp Crafty.device
+         * @kind Method
+         * 
          * @sign public Crafty.device.deviceOrientation(Function callback)
          * @param callback - Callback method executed once as soon as device orientation is change
          *
@@ -122,6 +125,8 @@ Crafty.extend({
         /**@
          * #Crafty.device.deviceMotion
          * @comp Crafty.device
+         * @kind Method
+         * 
          * @sign public Crafty.device.deviceMotion(Function callback)
          * @param callback - Callback method executed once as soon as device motion is change
          *

@@ -4,6 +4,8 @@ module.exports = {
     /**@
      * #Crafty.assets
      * @category Assets
+     * @kind Property
+     * 
      * An object containing every asset used in the current Crafty game.
      * The key is the URL and the value is the `Audio` or `Image` object.
      *
@@ -20,6 +22,8 @@ module.exports = {
     /**@
      * #Crafty.paths
      * @category Assets
+     * @kind Method
+     * 
      * @sign public void Crafty.paths([Object paths])
      * @param paths - Object containing paths for audio and images folders
      *
@@ -64,6 +68,8 @@ module.exports = {
     /**@
      * #Crafty.asset
      * @category Assets
+     * @kind Method
+     * 
      * @trigger NewAsset - After setting new asset - Object - key and value of new added asset.
      * @sign public void Crafty.asset(String key, Object asset)
      * @param key - asset url.
@@ -102,6 +108,7 @@ module.exports = {
     /**@
      * #Crafty.image_whitelist
      * @category Assets
+     * @kind Method
      *
      * A list of file extensions that can be loaded as images by Crafty.load
      *
@@ -144,6 +151,8 @@ module.exports = {
     /**@
      * #Crafty.load
      * @category Assets
+     * @kind Method
+     * 
      * @sign public void Crafty.load(Object assets, Function onLoad[, Function onProgress[, Function onError]])
      * @param assets - Object JSON formatted (or JSON string), with assets to load (accepts sounds, images and sprites)
      * @param onLoad - Callback when the assets are loaded
@@ -359,6 +368,7 @@ module.exports = {
     /**@
      * #Crafty.removeAssets
      * @category Assets
+     * @kind Method
      *
      * @sign public void Crafty.removeAssets(Object assets)
      * @param data - Object JSON formatted (or JSON string), with assets to remove (accepts sounds, images and sprites)

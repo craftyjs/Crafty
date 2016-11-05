@@ -5,6 +5,8 @@ Crafty.extend({
     /**@
      * #Crafty.viewport
      * @category Stage
+     * @kind Property
+     * 
      * @trigger ViewportScroll - when the viewport's x or y coordinates change
      * @trigger ViewportScale - when the viewport's scale changes
      * @trigger ViewportResize - when the viewport's dimension's change
@@ -45,6 +47,7 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.clampToEntities
          * @comp Crafty.viewport
+         * @kind Property
          *
          * Decides if the viewport functions should clamp to game entities.
          * When set to `true` functions such as Crafty.viewport.mouselook() will not allow you to move the
@@ -57,6 +60,7 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.x
          * @comp Crafty.viewport
+         * @kind Property
          *
          * Will move the stage and therefore every visible entity along the `x`
          * axis in the opposite direction.
@@ -69,6 +73,7 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.y
          * @comp Crafty.viewport
+         * @kind Property
          *
          * Will move the stage and therefore every visible entity along the `y`
          * axis in the opposite direction.
@@ -82,6 +87,7 @@ Crafty.extend({
         /**@
          * #Crafty.viewport._scale
          * @comp Crafty.viewport
+         * @kind Property
          *
          * This value is the current scale (zoom) of the viewport. When the value is bigger than 1, everything
          * looks bigger (zoomed in). When the value is less than 1, everything looks smaller (zoomed out). This
@@ -96,6 +102,7 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.bounds
          * @comp Crafty.viewport
+         * @kind Property
          *
          * A rectangle which defines the bounds of the viewport.
          * It should be an object with two properties, `max` and `min`,
@@ -120,6 +127,8 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.scroll
          * @comp Crafty.viewport
+         * @kind Method
+         * 
          * @sign Crafty.viewport.scroll(String axis, Number val)
          * @param axis - 'x' or 'y'
          * @param val - The new absolute position on the axis
@@ -145,6 +154,8 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.rect
          * @comp Crafty.viewport
+         * @kind Method
+         * 
          * @sign public Object Crafty.viewport.rect([Object out])
          * @param Object out - an optional Object to write the `rect` to
          * @return a rectangle encompassing the currently visible viewport region.
@@ -178,6 +189,8 @@ Crafty.extend({
 
          * #Crafty.viewport.pan
          * @comp Crafty.viewport
+         * @kind Method
+         * 
          * @sign public void Crafty.viewport.pan(Number dx, Number dy, Number time[, String|function easingFn])
          * @param Number dx - The distance along the x axis
          * @param Number dy - The distance along the y axis
@@ -239,6 +252,8 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.follow
          * @comp Crafty.viewport
+         * @kind Method
+         * 
          * @sign public void Crafty.viewport.follow(Object target, Number offsetx, Number offsety)
          * @param Object target - An entity with the 2D component
          * @param Number offsetx - Follow target's center should be offsetx pixels away from viewport's center. Positive values puts target to the right of the screen.
@@ -292,6 +307,8 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.centerOn
          * @comp Crafty.viewport
+         * @kind Method
+         * 
          * @sign public void Crafty.viewport.centerOn(Object target, Number time)
          * @param Object target - An entity with the 2D component
          * @param Number time - The duration in ms of the camera motion
@@ -320,6 +337,8 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.zoom
          * @comp Crafty.viewport
+         * @kind Method
+         * 
          * @sign public void Crafty.viewport.zoom(Number amt, Number cent_x, Number cent_y, Number time[, String|function easingFn])
          * @param Number amt - amount to zoom in on the target by (eg. 2, 4, 0.5)
          * @param Number cent_x - the center to zoom on
@@ -416,6 +435,8 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.scale
          * @comp Crafty.viewport
+         * @kind Method
+         * 
          * @sign public void Crafty.viewport.scale(Number amt)
          * @param Number amt - amount to zoom/scale in on the elements
          *
@@ -443,9 +464,12 @@ Crafty.extend({
 
             };
         })(),
+
         /**@
          * #Crafty.viewport.mouselook
          * @comp Crafty.viewport
+         * @kind Method
+         * 
          * @sign public void Crafty.viewport.mouselook(Boolean active)
          * @param Boolean active - Activate or deactivate mouselook
          *
@@ -531,6 +555,8 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.init
          * @comp Crafty.stage
+         * @kind Method
+         * 
          * @sign public void Crafty.viewport.init([Number width, Number height, String stage_elem])
          * @sign public void Crafty.viewport.init([Number width, Number height, HTMLElement stage_elem])
          * @param Number width - Width of the viewport
@@ -579,12 +605,16 @@ Crafty.extend({
             /**@
              * #Crafty.stage
              * @category Core
+             * @kind CoreObject
+             * 
              * The stage where all the DOM entities will be placed.
              */
 
             /**@
              * #Crafty.stage.elem
              * @comp Crafty.stage
+             * @kind Property
+             * 
              * The `#cr-stage` div element.
              */
 
@@ -738,6 +768,7 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.reload
          * @comp Crafty.stage
+         * @kind Method
          *
          * @sign public Crafty.viewport.reload()
          *
@@ -766,6 +797,8 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.reset
          * @comp Crafty.stage
+         * @kind Method
+         * 
          * @trigger StopCamera - called to cancel camera animations
          *
          * @sign public Crafty.viewport.reset()
@@ -785,6 +818,8 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.onScreen
          * @comp Crafty.viewport
+         * @kind Method
+         * 
          * @sign public Crafty.viewport.onScreen(Object rect)
          * @param rect - A rectangle with field {_x: x_val, _y: y_val, _w: w_val, _h: h_val}
          *

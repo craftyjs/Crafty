@@ -4,6 +4,7 @@ var Crafty = require('../core/core.js'),
 /**@
  * #DOM
  * @category Graphics
+ * @kind Component
  *
  * A component which renders entities as DOM nodes, specifically `<div>`s.
  */
@@ -11,6 +12,7 @@ Crafty.c("DOM", {
     /**@
      * #._element
      * @comp DOM
+     * @kind Property
      * The DOM element used to represent the entity.
      */
     _element: null,
@@ -20,6 +22,8 @@ Crafty.c("DOM", {
     /**@
      * #.avoidCss3dTransforms
      * @comp DOM
+     * @kind Property
+     * 
      * Avoids using of CSS 3D Transform for positioning when true. Default value is false.
      */
     avoidCss3dTransforms: false,
@@ -58,6 +62,8 @@ Crafty.c("DOM", {
     /**@
      * #.getDomId
      * @comp DOM
+     * @kind Method
+     * 
      * @sign public this .getId()
      *
      * Get the Id of the DOM element used to represent the entity.
@@ -95,6 +101,8 @@ Crafty.c("DOM", {
     /**@
      * #.DOM
      * @comp DOM
+     * @kind Method
+     * 
      * @trigger Draw - when the entity is ready to be drawn to the stage - { style:String, type:"DOM", co}
      * @sign public this .DOM(HTMLElement elem)
      * @param elem - HTML element that will replace the dynamically created one
@@ -116,6 +124,9 @@ Crafty.c("DOM", {
     /**@
      * #.draw
      * @comp DOM
+     * @kind Method
+     * @private
+     * 
      * @sign public this .draw(void)
      *
      * Updates the CSS properties of the node to draw on the stage.
@@ -208,6 +219,8 @@ Crafty.c("DOM", {
     /**@
      * #.css
      * @comp DOM
+     * @kind Method
+     * 
      * @sign public css(String property, String value)
      * @param property - CSS property to modify
      * @param value - Value to give the CSS property

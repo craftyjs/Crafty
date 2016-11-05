@@ -4,6 +4,8 @@ var Crafty = require('../core/core.js');
 /**@
  * #Canvas
  * @category Graphics
+ * @kind Component
+ * 
  * @trigger Draw - when the entity is ready to be drawn to the stage - {type: "canvas", pos, co, ctx}
  * @trigger NoCanvas - if the browser does not support canvas
  *
@@ -40,6 +42,8 @@ Crafty.c("Canvas", {
     /**@
      * #.draw
      * @comp Canvas
+     * @kind Method
+     * 
      * @sign public this .draw([[Context ctx, ]Number x, Number y, Number w, Number h])
      * @param ctx - Canvas 2D context if drawing on another canvas is required
      * @param x - X offset for drawing a segment

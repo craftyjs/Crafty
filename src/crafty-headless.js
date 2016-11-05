@@ -18,6 +18,8 @@ module.exports = function() {
     requireNew('./core/version');
 
     requireNew('./spatial/2d');
+    require('./spatial/motion');
+    require('./spatial/platform');
     requireNew('./spatial/collision');
     requireNew('./spatial/spatial-grid');
     requireNew('./spatial/rect-manager');

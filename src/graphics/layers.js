@@ -45,6 +45,7 @@ Crafty.extend({
 
     /**@
      * #Crafty.createLayer
+     * @kind Method
      * @category Graphics
      *
      * @sign public void Crafty.createLayer(string name, string type[, object options])
