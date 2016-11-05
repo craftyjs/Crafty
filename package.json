@@ -14,7 +14,7 @@
     "type": "git",
     "url": "https://github.com/craftyjs/Crafty.git"
   },
-  "licenses": "MIT",
+  "license": "MIT",
   "description": "Crafty is a modern component and event based framework for developing games in JavaScript that targets DOM, Canvas and WebGL.",
   "keywords": [
     "framework",
