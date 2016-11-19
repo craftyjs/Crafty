@@ -64,17 +64,17 @@ nameRe = /^\s*\#[^\#]/
 emptyRe = /^\s*$/
 
 # Check whether a tag should be greedy or lazy when consuming subsequent lines
+# A lazy tag will stop parsing at a newline
 lazyTag = (tag) ->
     switch tag 
-        when "name", "comp", "category", "example", "sign"
+        when "name", "comp", "category", "example", "sign", "kind", "private"
             true
         else
             false
 
 # Assign each line to a node, throwing away empty lines that aren't directly after untagged lines
-# Guaranteed to leave the buffer in a state where buffer.current() hasn't yet been processed
+# Promises to leave the buffer in a state where buffer.current() hasn't yet been processed
 nextNode = (buffer)->
-
     
     # Find next non-empty line
     while (buffer.isOpen() and buffer.current().indexOf('*/') == -1) and (clean = cleanLine( buffer.current() )).length == 0
@@ -188,7 +188,7 @@ parseNode = (tag, value)->
         }
 
 
-
+ 
 # The top level method: given a list of files, parses each file into an array of docblocks, which are themeselves arrays of nodes
 # Returns one array of all the docblocks parsed
 parse = (files)->
