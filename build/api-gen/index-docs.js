@@ -17,7 +17,7 @@ function createIndex(blocks) {
     if (block.categories) {
       for (var j = 0; j < block.categories.length; j++) {
         if (block.name) {
-          cat(block.categories[j]).pages.push(block.name)
+          cat(block.categories[j]).pages.push( {name: block.name, kind: block.kind});
         }
         comp(block.name).main = block;
       }
