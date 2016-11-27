@@ -2,4 +2,4 @@ if [ "$TRAVIS_BRANCH" != "testing" ]; then unset SAUCE_USERNAME && unset SAUCE_A
 
 # Work around for phantomjs+yarn install bug
 # See this issue for info: https://github.com/yarnpkg/yarn/issues/1538
-TMPDIR = $npm_config_tmp
+TMPDIR= $npm_config_tmp
