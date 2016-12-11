@@ -197,7 +197,7 @@ module.exports = function (grunt) {
 
         run: {
             phantomjs: {
-                cmd: require('phantomjs').path,
+                cmd: require('phantomjs-prebuilt').path,
                 args: [ '--webdriver=4444' ],
                 options: {
                     quiet: true,
