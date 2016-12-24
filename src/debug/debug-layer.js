@@ -405,11 +405,17 @@ Crafty.DebugCanvas = {
 
         ctx.clearRect(rect._x, rect._y, rect._w, rect._h);
 
-
-        //sort the objects by the global Z
-        //q.sort(zsort);
+        var lastLayer = null;
         for (; i < l; i++) {
             current = q[i];
+
+            // If necessary, update the view transform to match the current entities layer
+            if (lastLayer !== current._drawlayer){
+                view = current._drawLayer._viewportRect();
+                ctx.setTransform(view._scale, 0, 0, view._scale, Math.round(-view._x*view._scale), Math.round(-view._y*view._scale));
+                lastLayer = current._drawLayer;
+            }
+
             current.debugDraw(ctx);
         }
 
