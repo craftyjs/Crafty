@@ -154,10 +154,10 @@ Crafty._registerLayerTemplate("Canvas", {
         // Set the camera transforms from the combination of the current viewport parameters and this layers 
         var cameraOptions = this.options;
         if (dirtyViewport && cameraOptions) {
-            var view = Crafty.viewport;
-            var scale = Math.pow(Crafty.viewport._scale, cameraOptions.scaleResponse); 
-            var dx = view._x * scale * cameraOptions.xResponse;
-            var dy = view._y * scale * cameraOptions.yResponse;
+            var view = this._viewportRect();
+            var scale = view._scale; 
+            var dx = -view._x * scale;
+            var dy = -view._y * scale;
             ctx.setTransform(scale, 0, 0, scale, Math.round(dx), Math.round(dy) );
         }
 

@@ -167,12 +167,11 @@ Crafty._registerLayerTemplate("DOM", {
     // Called by render when the dirtyViewport flag is set
     _setViewport: function() {
         var style = this._div.style,
-            view = Crafty.viewport;
-        
-        var cameraOptions = this.options;
-        var scale = Math.pow(view._scale, cameraOptions.scaleResponse); 
-        var dx = view._x * scale * cameraOptions.xResponse;
-        var dy = view._y * scale * cameraOptions.yResponse;
+            view = this._viewportRect();
+
+        var scale = view._scale;
+        var dx = -view._x * scale;
+        var dy = -view._y * scale;
 
         style.transform = style[Crafty.support.prefix + "Transform"] = "scale(" + scale + ", " + scale + ")";
         style.left = Math.round(dx) + "px";
