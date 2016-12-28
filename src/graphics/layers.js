@@ -23,13 +23,15 @@ Crafty.extend({
             if (layerTemplate[key]) continue;
             layerTemplate[key] = common[key];
         }
+        // A marker to avoid creating temporary objects
+        layerTemplate._viewportRectHolder = {};
     },
 
     _commonLayerProperties: {
         // Based on the camera options, find the Crafty coordinates corresponding to the layer's position in the viewport
         _viewportRect: function () {
             var options = this.options;
-            var rect = {};
+            var rect = this._viewportRectHolder;
             var scale = Math.pow(Crafty.viewport._scale, options.scaleResponse);
             var viewport = Crafty.viewport;
             rect._scale = scale;
@@ -94,8 +96,8 @@ Crafty.extend({
         Crafty.s(name, layerTemplate, options);
         Crafty.c(name, {
             init: function () {
-                this.requires("Renderable");
-
+                this.requires("Renderable"); 
+                
                 // Flag to indicate that the base component doesn't need to attach a layer
                 this._customLayer = true;
                 this.requires(layerTemplate.type);
