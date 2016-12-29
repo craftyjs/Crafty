@@ -24,7 +24,7 @@
       }
     });
     
-    var layerType = "WebGL";
+    var layerType = "Canvas";
     
     // Define 4 different layers with different x parallax 
     Crafty.createLayer("Background", layerType, {z: 10, xResponse: 0.2, scaleResponse: 1});
@@ -62,9 +62,9 @@
       // Note that the globalZ value determines which item is on the "top" for mouse clicks
       // not the z value of the individual layer -- do we want to change this?
       for (var i = 0; i < 10; i++){
-        Crafty.e("Background, Bar").color("blue").attr({x: 100*i, y: 10, z: 30});
-        Crafty.e("Midground, Bar").color("purple").attr({x: 100*i, y: 20, z: 30});
-        Crafty.e("Foreground, Bar").color("yellow").attr({x: 100*i, y: 30, z: 10});
+        Crafty.e("Background, Bar, Collision, WiredHitBox").color("blue").attr({x: 100*i, y: 10, z: 30});
+        Crafty.e("Midground, Bar, Collision, WiredHitBox").color("purple").attr({x: 100*i, y: 20, z: 30});
+        Crafty.e("Foreground, Bar, Collision, WiredHitBox").color("yellow").attr({x: 100*i, y: 30, z: 10});
       }
 
       // Some text that shows the viewport's current position, and sits in the UI layer
