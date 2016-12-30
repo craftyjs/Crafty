@@ -1,6 +1,7 @@
 /**@
  * #Delay
  * @category Utilities
+ * @kind Component
  *
  * A component for triggering functions after a given amount of time.
  *
@@ -40,6 +41,7 @@ module.exports = {
     /**@
      * #.delay
      * @comp Delay
+     * @kind Method
      * @sign public this.delay(Function callback, Number delay[, Number repeat[, Function callbackOff]])
      * @param callback - Method to execute after given amount of milliseconds. If reference of a
      * method is passed, there's possibility to cancel the delay.
@@ -92,6 +94,8 @@ module.exports = {
     /**@
      * #.cancelDelay
      * @comp Delay
+     * @kind Method
+     * 
      * @sign public this.cancelDelay(Function callback)
      * @param callback - Method reference passed to .delay
      *
@@ -123,6 +127,8 @@ module.exports = {
     /**@
      * #.pauseDelays
      * @comp Delay
+     * @kind Method
+     * 
      * @sign public this.pauseDelays()
      *
      * The pauseDelays method will pause all delays of this
@@ -147,6 +153,8 @@ module.exports = {
     /**@
      * #.resumeDelays
      * @comp Delay
+     * @kind Method
+     * 
      * @sign public this.resumeDelays()
      *
      * The resumeDelays method will resume earlier paused delays for this

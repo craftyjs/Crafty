@@ -4,6 +4,8 @@ var Crafty = require('../core/core.js');
 /**@
  * #Renderable
  * @category Graphics
+ * @kind Component
+ * 
  * Component for any entity that has a position on the stage.
  * @trigger Invalidate - when the entity needs to be redrawn
  */
@@ -15,6 +17,8 @@ Crafty.c("Renderable", {
     /**@
      * #.alpha
      * @comp Renderable
+     * @kind Property
+     * 
      * Transparency of an entity. Must be a decimal value between 0.0 being fully transparent to 1.0 being fully opaque.
      */
     _alpha: 1.0,
@@ -22,6 +26,8 @@ Crafty.c("Renderable", {
     /**@
      * #.visible
      * @comp Renderable
+     * @kind Property
+     * 
      * If the entity is visible or not. Accepts a true or false value.
      * Can be used for optimization by setting an entities visibility to false when not needed to be drawn.
      *
@@ -116,6 +122,8 @@ Crafty.c("Renderable", {
     /**@
      * #.flip
      * @comp Renderable
+     * @kind Method
+     * 
      * @trigger Invalidate - when the entity has flipped
      * @sign public this .flip(String dir)
      * @param dir - Flip direction
@@ -139,6 +147,8 @@ Crafty.c("Renderable", {
     /**@
      * #.unflip
      * @comp Renderable
+     * @kind Method
+     * 
      * @trigger Invalidate - when the entity has unflipped
      * @sign public this .unflip(String dir)
      * @param dir - Unflip direction

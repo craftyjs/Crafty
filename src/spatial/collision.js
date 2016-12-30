@@ -6,6 +6,8 @@ Crafty.extend({
     /**@
      * #Crafty.raycast
      * @category 2D
+     * @kind Method
+     * 
      * @sign public Array .raycast(Object origin, Object direction[, Number maxDistance][, String comp][, Boolean sort])
      * @param origin - the point of origin from which the ray will be cast. The object must contain the properties `_x` and `_y`.
      * @param direction - the direction the ray will be cast. It must be normalized. The object must contain the properties `x` and `y`.
@@ -169,6 +171,8 @@ Crafty.extend({
 /**@
  * #Collision
  * @category 2D
+ * @kind Component
+ * 
  * @trigger HitOn - Triggered when collisions occur. Will not trigger again until collisions of this type cease, or an event is requested once more (using `resetHitChecks(component)`). - { hitData }
  * @trigger HitOff - Triggered when collision with a specific component type ceases - String - componentName
  *
@@ -204,6 +208,7 @@ Crafty.c("Collision", {
     /**@
      * #.collision
      * @comp Collision
+     * @kind Method
      *
      * @trigger NewHitbox - when a new hitbox is assigned - Crafty.polygon
      *
@@ -295,6 +300,8 @@ Crafty.c("Collision", {
     /**@
      * #.cbr
      * @comp Collision
+     * @kind Method
+     * 
      * @sign public Object .cbr([Object cbr])
      * @param cbr - an object to use as output
      * @returns an object with `_x`, `_y`, `_w`, and `_h` properties; if an object is passed in, it will be reused rather than creating a new object.
@@ -418,6 +425,8 @@ Crafty.c("Collision", {
     /**@
      * #.hit
      * @comp Collision
+     * @kind Method
+     * 
      * @sign public Array .hit(String component)
      * @param component - Check collision with entities that have this component
      * applied to them.
@@ -529,6 +538,8 @@ Crafty.c("Collision", {
     /**@
      * #.onHit
      * @comp Collision
+     * @kind Method
+     * 
      * @sign public this .onHit(String component, Function callbackOn[, Function callbackOff])
      * @param component - Component to check collisions for.
      * @param callbackOn - Callback method to execute upon collision with the component.
@@ -609,6 +620,8 @@ Crafty.c("Collision", {
     /**@
      * #.checkHits
      * @comp Collision
+     * @kind Method
+     * 
      * @sign public this .checkHits(String componentList)
      * @param componentList - A comma seperated list of components to check for collisions with.
      * @sign public this .checkHits(String component1[, .., String componentN])
@@ -678,6 +691,7 @@ Crafty.c("Collision", {
     /**@
      * #.ignoreHits
      * @comp Collision
+     * @kind Method
      *
      * @sign public this .ignoreHits()
      *
@@ -740,6 +754,8 @@ Crafty.c("Collision", {
     /**@
      * #.resetHitChecks
      * @comp Collision
+     * @kind Method
+     * 
      * @sign public this .resetHitChecks()
      * @sign public this .resetHitChecks(String componentList)
      * @param componentList - A comma seperated list of components to re-check

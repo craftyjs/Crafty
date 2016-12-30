@@ -13,7 +13,7 @@ var cleanName = require("./clean-name");
 function startServer(grunt, input){
     var api = grunt.file.readJSON(input),
       index = createIndex(api),
-      pages = index.pages,
+      pages = index.pages,  
       props = {data: api, index: index};
 
     function createPage(selector, filename) {

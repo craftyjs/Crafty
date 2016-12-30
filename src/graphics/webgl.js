@@ -3,6 +3,8 @@ var Crafty = require('../core/core.js');
 /**@
  * #WebGL
  * @category Graphics
+ * @kind Component
+ * 
  * @trigger Draw - when the entity is ready to be drawn to the stage - {type: "canvas", pos, co, ctx}
  * @trigger NoCanvas - if the browser does not support canvas
  *
@@ -26,6 +28,8 @@ Crafty.extend({
     /**@
      * #Crafty.WebGLShader
      * @category Graphics
+     * @kind Method
+     * 
      * @sign public Crafty.WebGLShader Crafty.WebGLShader(String vertexShaderCode, String fragmentShaderCode, Array attributeList, Function drawCallback(e, entity))
      * @param vertexShaderCode - GLSL code for the vertex shader
      * @param fragmentShaderCode - GLSL code for the fragment shader
@@ -124,6 +128,8 @@ Crafty.extend({
     /**@
      * #Crafty.defaultShader
      * @category Graphics
+     * @kind Method
+     * 
      * @sign public Crafty.WebGLShader Crafty.defaultShader(String component[, Crafty.WebGLShader shader])
      * @param component - Name of the component to assign a default shader to
      * @param shader - New default shader to assign to a component
@@ -160,6 +166,7 @@ Crafty.c("WebGL", {
     /**@
      * #.context
      * @comp WebGL
+     * @kind Property
      *
      * The webgl context this entity will be rendered to.
      */
@@ -192,6 +199,9 @@ Crafty.c("WebGL", {
     /**@
      * #.draw
      * @comp WebGL
+     * @kind Method
+     * @private
+     * 
      * @sign public this .draw([[Context ctx, ]Number x, Number y, Number w, Number h])
      * @param ctx - Optionally supply a different r 2D context if drawing on another canvas is required
      * @param x - X offset for drawing a segment

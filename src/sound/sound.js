@@ -5,6 +5,7 @@ Crafty.extend({
     /**@
      * #Crafty.audio
      * @category Audio
+     * @kind CoreObject
      *
      * Add sound files and play them. Chooses best format for browser support.
      * Due to the nature of HTML5 audio, three types of audio files will be
@@ -53,6 +54,8 @@ Crafty.extend({
         /**@
          * #Crafty.audio.supports
          * @comp Crafty.audio
+         * @kind Method
+         * 
          * @sign public this Crafty.audio.supports(String extension)
          * @param extension - A file extension to check audio support for
          *
@@ -80,6 +83,9 @@ Crafty.extend({
         /**@
          * #Crafty.audio.create
          * @comp Crafty.audio
+         * @kind Method
+         * @private
+         * 
          * @sign public this Crafty.audio.create(String id, String url)
          * @param id - A string to refer to sounds
          * @param url - A string pointing to the sound file
@@ -115,6 +121,8 @@ Crafty.extend({
         /**@
          * #Crafty.audio.add
          * @comp Crafty.audio
+         * @kind Method
+         * 
          * @sign public this Crafty.audio.add(String id, String url)
          * @param id - A string to refer to sounds
          * @param url - A string pointing to the sound file
@@ -190,6 +198,8 @@ Crafty.extend({
         /**@
          * #Crafty.audio.play
          * @comp Crafty.audio
+         * @kind Method
+         * 
          * @sign public this Crafty.audio.play(String id)
          * @sign public this Crafty.audio.play(String id, Number repeatCount)
          * @sign public this Crafty.audio.play(String id, Number repeatCount, Number volume)
@@ -260,6 +270,8 @@ Crafty.extend({
         /**@
          * #Crafty.audio.setChannels
          * @comp Crafty.audio
+         * @kind Method
+         * 
          * @sign public this Crafty.audio.setChannels(Number n)
          * @param n - The maximum number of channels
          */
@@ -305,6 +317,8 @@ Crafty.extend({
         /**@
          * #Crafty.audio.remove
          * @comp Crafty.audio
+         * @kind Method
+         * 
          * @sign public this Crafty.audio.remove([String id])
          * @param id - A string to refer to sounds
          *
@@ -348,6 +362,8 @@ Crafty.extend({
         /**@
          * #Crafty.audio.stop
          * @comp Crafty.audio
+         * @kind Method
+         * 
          * @sign public this Crafty.audio.stop([Number ID])
          *
          * Stops any playing sound. if id is not set, stop all sounds which are playing
@@ -375,6 +391,9 @@ Crafty.extend({
         /**
          * #Crafty.audio._mute
          * @comp Crafty.audio
+         * @kind Method
+         * @kind private
+         * 
          * @sign public this Crafty.audio._mute([Boolean mute])
          *
          * Mute or unmute every Audio instance that is playing.
@@ -392,6 +411,8 @@ Crafty.extend({
         /**@
          * #Crafty.audio.toggleMute
          * @comp Crafty.audio
+         * @kind Method
+         * 
          * @sign public this Crafty.audio.toggleMute()
          *
          * Mute or unmute every Audio instance that is playing. Toggles between
@@ -414,6 +435,8 @@ Crafty.extend({
         /**@
          * #Crafty.audio.mute
          * @comp Crafty.audio
+         * @kind Method
+         * 
          * @sign public this Crafty.audio.mute()
          *
          * Mute every Audio instance that is playing.
@@ -429,6 +452,8 @@ Crafty.extend({
         /**@
          * #Crafty.audio.unmute
          * @comp Crafty.audio
+         * @kind Method
+         * 
          * @sign public this Crafty.audio.unmute()
          *
          * Unmute every Audio instance that is playing.
@@ -445,6 +470,8 @@ Crafty.extend({
         /**@
          * #Crafty.audio.pause
          * @comp Crafty.audio
+         * @kind Method
+         * 
          * @sign public this Crafty.audio.pause(string ID)
          * @param {string} id - The id of the audio object to pause
          *
@@ -471,6 +498,8 @@ Crafty.extend({
         /**@
          * #Crafty.audio.unpause
          * @comp Crafty.audio
+         * @kind Method
+         * 
          * @sign public this Crafty.audio.unpause(string ID)
          * @param {string} id - The id of the audio object to unpause
          *
@@ -496,6 +525,8 @@ Crafty.extend({
         /**@
          * #Crafty.audio.togglePause
          * @comp Crafty.audio
+         * @kind Method
+         * 
          * @sign public this Crafty.audio.togglePause(string ID)
          * @param {string} id - The id of the audio object to pause/
          *
@@ -526,6 +557,8 @@ Crafty.extend({
         /**@
          * #Crafty.audio.isPlaying
          * @comp Crafty.audio
+         * @kind Method
+         * 
          * @sign public Boolean Crafty.audio.isPlaying(string ID)
          * @param {string} id - The id of the audio object
          * @return a Boolean indicating whether the audio is playing or not

@@ -4,6 +4,8 @@ var Crafty = require('../core/core.js');
 /**@
  * #Text
  * @category Graphics
+ * @kind Component
+ * 
  * @trigger Invalidate - when the text is changed
  * @requires Canvas or DOM
  * Component to make a text entity.
@@ -109,6 +111,8 @@ Crafty.c("Text", {
     /**@
      * #.text
      * @comp Text
+     * @kind Method
+     * 
      * @sign public this .text(String text)
      * @param text - String of text that will be inserted into the DOM or Canvas element.
      *
@@ -158,6 +162,8 @@ Crafty.c("Text", {
     /**@
      * #.dynamicTextGeneration
      * @comp Text
+     * @kind Method
+     * 
      * @sign public this .dynamicTextGeneration(bool dynamicTextOn[, string textUpdateEvent])
      * @param dynamicTextOn - A flag that indicates whether dyanamic text should be on or off.
      * @param textUpdateEvent - The name of the event which will trigger text to be updated.  Defaults to "EnterFrame".  (This parameter does nothing if dynamicTextOn is false.)
@@ -220,6 +226,8 @@ Crafty.c("Text", {
     /**@
      * #.textColor
      * @comp Text
+     * @kind Method
+     * 
      * @sign public this .textColor(String color)
      * @param color - The color in name, hex, rgb or rgba
      *
@@ -249,6 +257,8 @@ Crafty.c("Text", {
 
     /**@
      * @comp Text
+     * @kind Method
+     * 
      * @sign public this .textAlign(String alignment)
      * @param alignment - The new alignment of the text.
      *
@@ -265,6 +275,8 @@ Crafty.c("Text", {
     /**@
      * #.textFont
      * @comp Text
+     * @kind Method
+     * 
      * @triggers Invalidate
      * @sign public this .textFont(String key, * value)
      * @param key - Property of the entity to modify
@@ -315,6 +327,8 @@ Crafty.c("Text", {
     /**@
      * #.unselectable
      * @comp Text
+     * @kind Method
+     * 
      * @triggers Invalidate
      * @sign public this .unselectable()
      *
