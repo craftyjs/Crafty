@@ -3,6 +3,7 @@ var http = require('http'),
 
 
 var React = require('react');
+var ReactDOMServer = require('react-dom/server');
 require('node-jsx').install({extension: '.jsx'});
 var StaticPage = require('./server-side'); // React component
 
@@ -12,14 +13,14 @@ var cleanName = require("./clean-name");
 function startServer(grunt, input){
     var api = grunt.file.readJSON(input),
       index = createIndex(api),
-      pages = index.pages,
+      pages = index.pages,  
       props = {data: api, index: index};
 
     function createPage(selector, filename) {
       filename = filename || cleanName(selector) + ".html";
       props.selector = selector;
       var page = React.createElement(StaticPage, props);
-      var raw = React.renderToStaticMarkup(page);
+      var raw = ReactDOMServer.renderToStaticMarkup(page);
       if (pages[selector]) {
         var title = pages[selector].main.name;
       } else {

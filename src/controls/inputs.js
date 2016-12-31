@@ -4,30 +4,64 @@ var Crafty = require('../core/core.js'),
 Crafty.extend({
     over: null, //object mouseover, waiting for out
     mouseObjs: 0,
-    mousePos: {},
-    lastEvent: null,
+    mousePos: {},   
     touchObjs: 0,
-    selected: false,
 
+    /**@
+     * #Crafty.lastEvent
+     * @category Input
+     * @kind Property
+     * Check which mouse event occured most recently (useful for determining mouse position in every frame).
+     *
+     * The native [`MouseEvent`](https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent) is augmented with additional properties.
+     * @example
+     * ~~~
+     * // (x,y) coordinates of newest mouse event in web-browser (screen) space
+     * Crafty.lastEvent.clientX
+     * Crafty.lastEvent.clientY
+     *
+     * //(x,y) coordinates of newest mouse event in world (default viewport) space
+     * Crafty.lastEvent.realX
+     * Crafty.lastEvent.realY
+     *
+     * // Normalized mouse button according to Crafty.mouseButtons:
+     * // Crafty.mouseButtons.LEFT, Crafty.mouseButtons.RIGHT or Crafty.mouseButtons.MIDDLE
+     * Crafty.lastEvent.mouseButton
+     * ~~~
+     * @see Mouse, Crafty.mouseButtons, Crafty.mouseDispatch
+     */
+
+    lastEvent: null,
     /**@
      * #Crafty.keydown
      * @category Input
-     * Check which keys (referred by Unicode values) are currently down.
+     * @kind Property
+     * Check which keys (referred by `Crafty.keys` key codes) are currently down.
      *
      * @example
      * ~~~
-     * Crafty.c("Keyboard", {
-     *   isDown: function (key) {
-     *     if (typeof key === "string") {
-     *       key = Crafty.keys[key];
-     *     }
-     *     return !!Crafty.keydown[key];
-     *   }
-     * });
+     * // is "Shift" currently pressed?
+     * var shiftDown = !!Crafty.keydown[Crafty.keys.SHIFT];
      * ~~~
-     * @see Keyboard, Crafty.keys
+     * @see Keyboard, Crafty.keys, Crafty.keyboardDispatch
      */
-     keydown: {},
+    keydown: {},
+
+    /**@
+     * #Crafty.selected
+     * @category Input
+     * @kind Property
+     * @trigger CraftyFocus - is triggered when Crafty's stage gets selected
+     * @trigger CraftyBlur - is triggered when Crafty's stage is no longer selected
+     *
+     * Check whether Crafty's stage (`Crafty.stage.elem`) is currently selected.
+     *
+     * After a click occurs inside Crafty's stage, this property is set to `true`.
+     * After a click occurs outside Crafty's stage, this property is set to `false`.
+     *
+     * @see Crafty.stage#Crafty.stage.elem
+     */
+    selected: false,
 
     detectBlur: function (e) {
         var selected = ((e.clientX > Crafty.stage.x && e.clientX < Crafty.stage.x + Crafty.viewport.width) &&
@@ -36,17 +70,18 @@ Crafty.extend({
         if (!Crafty.selected && selected) {
             Crafty.trigger("CraftyFocus");
         }
-        
+
         if (Crafty.selected && !selected) {
             Crafty.trigger("CraftyBlur");
         }
-        
+
         Crafty.selected = selected;
     },
 
     /**@
      * #Crafty.multitouch
      * @category Input
+     * @kind Method
      * @sign public this .multitouch(Boolean bool)
      * @param bool - Turns multitouch on and off.  The initial state is off (false).
      *
@@ -78,84 +113,72 @@ Crafty.extend({
      * Crafty.log("multitouch is "+Crafty.multitouch());
      * ~~~
      * @see Crafty.touchDispatch
+     * @see Touch
      */
     multitouch: function (bool) {
         if (typeof bool !== "boolean") return this._touchHandler.multitouch;
         this._touchHandler.multitouch = bool;
     },
-    
-    resetKeyDown: function() {
+
+    resetKeyDown: function () {
         // Tell all the keys they're no longer held down
         for (var k in Crafty.keys) {
-             if (Crafty.keydown[Crafty.keys[k]]) {
-                 this.trigger("KeyUp", {
-                     key: Crafty.keys[k]
-                 });
-             }
+            if (Crafty.keydown[Crafty.keys[k]]) {
+                this.trigger("KeyUp", {
+                    key: Crafty.keys[k]
+                });
+            }
         }
-		
+
         Crafty.keydown = {};
     },
-    
+
     /**@
      * #Crafty.mouseDispatch
      * @category Input
+     * @private
+     * @kind Method
      *
-     * Internal method which dispatches mouse events received by Crafty (crafty.stage.elem).
-     * The mouse events get dispatched to the closest entity to the source of the event (if available).
+     * Internal method which dispatches mouse events received by Crafty.
      *
-     * You can read more about the MouseEvent, which is the parameter passed to the callback.
-     * https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent
+     * This method processes a native [`MouseEvent`](https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent) received by `Crafty.stage.elem`,
+     * augments it with additional properties and
+     * dispatches it to the closest (visible & `Mouse`-enhanced) entity to the source of the event (if available).
      *
-     * This method also sets a global property Crafty.lastEvent, which holds the most recent event that
-     * occured (useful for determining mouse position in every frame).
-     * 
-     * ~~~
-     * @example
-     * ~~~
-     * var newestX = Crafty.lastEvent.realX,
-     *     newestY = Crafty.lastEvent.realY;
-     * ~~~
-     * 
-     * Notable properties of a MouseEvent e:
-     * ~~~
-     * //(x,y) coordinates of mouse event in web browser screen space
-     * e.clientX, e.clientY
-     * //(x,y) coordinates of mouse event in world/viewport space
-     * e.realX, e.realY
-     * // Normalized mouse button according to Crafty.mouseButtons
-     * e.mouseButton
-     * ~~~
-     * @see Crafty.touchDispatch
-     * @see Crafty.multitouch
+     * This method also updates `Crafty.lastEvent`.
+     *
+     * @see Crafty.mouseButtons, Crafty.lastEvent, Mouse
      */
+    mouseButtonsDown: {    },
     mouseDispatch: function (e) {
         if (!Crafty.mouseObjs) return;
         Crafty.lastEvent = e;
 
-        var maxz = -1,
-            tar = e.target ? e.target : e.srcElement,
+        var tar = e.target ? e.target : e.srcElement,
             closest,
-            q,
-            i = 0,
-            l,
             pos = Crafty.domHelper.translate(e.clientX, e.clientY),
-            x, y,
-            dupes = {},
-            type = e.type;     
+            type = e.type;
 
         //Normalize button according to http://unixpapa.com/js/mouse.html
         if (typeof e.which === 'undefined') {
-            e.mouseButton = (e.button < 2) ? Crafty.mouseButtons.LEFT : ((e.button == 4) ? Crafty.mouseButtons.MIDDLE : Crafty.mouseButtons.RIGHT);
+            e.mouseButton = (e.button < 2) ? Crafty.mouseButtons.LEFT : ((e.button === 4) ? Crafty.mouseButtons.MIDDLE : Crafty.mouseButtons.RIGHT);
         } else {
-            e.mouseButton = (e.which < 2) ? Crafty.mouseButtons.LEFT : ((e.which == 2) ? Crafty.mouseButtons.MIDDLE : Crafty.mouseButtons.RIGHT);
+            e.mouseButton = (e.which < 2) ? Crafty.mouseButtons.LEFT : ((e.which === 2) ? Crafty.mouseButtons.MIDDLE : Crafty.mouseButtons.RIGHT);
         }
 
-        e.realX = x = Crafty.mousePos.x = pos.x;
-        e.realY = y = Crafty.mousePos.y = pos.y;
+        // Set the mouse position based on standard viewport coordinates
+        Crafty.mousePos.x = pos.x;
+        Crafty.mousePos.y = pos.y;
 
-        closest = Crafty.findClosestEntityByComponent("Mouse", x, y, tar);
+        // Track button state
+        if (type === "mousedown") {
+            this.mouseButtonsDown[e.mouseButton] = true;
+        }
+        if (type === "mouseup") {
+            delete this.mouseButtonsDown[e.mouseButton];
+        }
 
+        closest = Crafty.findPointerEventTargetByComponent("Mouse", e, tar);
         //found closest object to mouse
         if (closest) {
             //click must mousedown and out on tile
@@ -163,14 +186,14 @@ Crafty.extend({
                 closest.trigger("MouseDown", e);
             } else if (type === "mouseup") {
                 closest.trigger("MouseUp", e);
-            } else if (type == "dblclick") {
+            } else if (type === "dblclick") {
                 closest.trigger("DoubleClick", e);
-            } else if (type == "click") {
+            } else if (type === "click") {
                 closest.trigger("Click", e);
             } else if (type === "mousemove") {
                 closest.trigger("MouseMove", e);
                 if (this.over !== closest) { //if new mousemove, it is over
-                    if (this.over) {
+                    if (this.over) { 
                         this.over.trigger("MouseOut", e); //if over wasn't null, send mouseout
                         this.over = null;
                     }
@@ -187,8 +210,19 @@ Crafty.extend({
                 Crafty.viewport.mouselook('start', e);
             } else if (type === "mousemove") {
                 Crafty.viewport.mouselook('drag', e);
-            } else if (type == "mouseup") {
+            } else if (type === "mouseup") {
                 Crafty.viewport.mouselook('stop');
+            }
+
+            // If nothing in particular was clicked, the controls system should get fed the event
+            if (type === "mousedown") {
+                Crafty.s("Controls").trigger("MouseDown", e);
+            } else if (type === "mouseup") {
+                Crafty.s("Controls").trigger("MouseUp", e);
+            } else if (type === "dblclick") {
+                Crafty.s("Controls").trigger("DoubleClick", e);
+            } else if (type === "click") {
+                Crafty.s("Controls").trigger("Click", e);
             }
         }
 
@@ -202,6 +236,8 @@ Crafty.extend({
     /**@
      * #Crafty.touchDispatch
      * @category Input
+     * @kind Method
+     * @private
      *
      * Internal method which dispatches touch events received by Crafty (crafty.stage.elem).
      * The touch events get dispatched to the closest entity to the source of the event (if available).
@@ -223,11 +259,11 @@ Crafty.extend({
      * http://www.w3.org/TR/touch-events/#dfn-active-touch-point
      * 
      * @see Crafty.multitouch
-     * @see Crafty.mouseDispatch
+     * @see Touch
      */
     touchDispatch: function (e) {
         if (!Crafty.touchObjs && !Crafty.mouseObjs) return;
-        
+
         if (this._touchHandler.multitouch)
             switch (e.type) {
                 case "touchstart":
@@ -253,22 +289,19 @@ Crafty.extend({
                 e.returnValue = false;
             }
     },
-    
+
     _touchHandler: {
         fingers: [], // keeps track of touching fingers
         multitouch: false,
-        
+
         handleStart: function (e) {
             var touches = e.changedTouches;
             for (var i = 0, l = touches.length; i < l; i++) {
                 var idx = false,
-                  pos = Crafty.domHelper.translate(touches[i].clientX, touches[i].clientY),
-                  tar = e.target ? e.target : e.srcElement,
-                  x, y, closest;
-                touches[i].realX = x = pos.x;
-                touches[i].realY = y = pos.y;
-                closest = this.findClosestTouchEntity(x, y, tar);
-                
+                    tar = e.target ? e.target : e.srcElement,
+                    closest;
+                closest = this.findClosestTouchEntity(touches[i], tar);
+
                 if (closest) {
                     closest.trigger("TouchStart", touches[i]);
                     // In case the entity was already being pressed, get the finger index
@@ -283,71 +316,67 @@ Crafty.extend({
                 }
             }
         },
-            
+
         handleMove: function (e) {
             var touches = e.changedTouches;
             for (var i = 0, l = touches.length; i < l; i++) {
                 var idx = this.fingerDownIndexById(touches[i].identifier),
-                  pos = Crafty.domHelper.translate(touches[i].clientX, touches[i].clientY),
-                  tar = e.target ? e.target : e.srcElement,
-                  x, y, closest;
-                touches[i].realX = x = pos.x;
-                touches[i].realY = y = pos.y;
-                closest = this.findClosestTouchEntity(x, y, tar);
-            
+                    tar = e.target ? e.target : e.srcElement;
+                var closest = this.findClosestTouchEntity(touches[i], tar);
+
                 if (idx >= 0) {
-                    if(typeof this.fingers[idx].entity !== "undefined")
-                        if (this.fingers[idx].entity == closest) {
-                            this.fingers[idx].entity.trigger("TouchMove", touches[i]);
+                    var finger = this.fingers[idx];
+                    if(typeof finger.entity !== "undefined")
+                        if (finger.entity === closest) {
+                            finger.entity.trigger("TouchMove", touches[i]);
                         } else {
                             if (typeof closest === "object") closest.trigger("TouchStart", touches[i]);
-                            this.fingers[idx].entity.trigger("TouchEnd");
+                            finger.entity.trigger("TouchEnd");
                         }
-                    this.fingers[idx].entity = closest;
-                    this.fingers[idx].realX = x;
-                    this.fingers[idx].realY = y;
+                    finger.entity = closest;
+                    finger.realX = touches[i].realX;
+                    finger.realY = touches[i].realY;
                 }
             }
         },
-        
+
         handleEnd: function (e) {
             var touches = e.changedTouches, 
-                eventName = e.type == "touchcancel" ? "TouchCancel" : "TouchEnd";
+                eventName = e.type === "touchcancel" ? "TouchCancel" : "TouchEnd";
             for (var i = 0, l = touches.length; i < l; i++) {
                 var idx = this.fingerDownIndexById(touches[i].identifier);
-            
+
                 if (idx >= 0) {
-                        if (this.fingers[idx].entity)
-                            this.fingers[idx].entity.trigger(eventName);
-                        this.fingers.splice(idx, 1);
+                    if (this.fingers[idx].entity)
+                        this.fingers[idx].entity.trigger(eventName);
+                    this.fingers.splice(idx, 1);
                 }
             }
         },
-            
+
         setTouch: function (touch, entity) {
             return { identifier: touch.identifier, realX: touch.realX, realY: touch.realY, entity: entity };
         },
-            
-        findClosestTouchEntity: function (x, y, tar) {
-            return Crafty.findClosestEntityByComponent("Touch", x, y, tar);
+
+        findClosestTouchEntity: function (touchEvent, tar) {
+            return Crafty.findPointerEventTargetByComponent("Touch", touchEvent, tar);
         },
-           
-        fingerDownIndexById: function(idToFind) {
+
+        fingerDownIndexById: function (idToFind) {
             for (var i = 0, l = this.fingers.length; i < l; i++) {
                 var id = this.fingers[i].identifier;
-                
-                   if (id == idToFind) {
-                       return i;
-                   }
+                if (id === idToFind) {
+                    return i;
                 }
+            }
             return -1;
         },
-            
-        fingerDownIndexByEntity: function(entityToFind) {
+
+        fingerDownIndexByEntity: function (entityToFind) {
             for (var i = 0, l = this.fingers.length; i < l; i++) {
                 var ent = this.fingers[i].entity;
-                
-                if (ent == entityToFind) {
+
+                if (ent === entityToFind) {
                     return i;
                 }
             }
@@ -355,7 +384,7 @@ Crafty.extend({
         },
 
         mimicMouse: function (e) {
-            var type,
+            var type, first,
                 lastEvent = Crafty.lastEvent;
             if (e.type === "touchstart") type = "mousedown";
             else if (e.type === "touchmove") type = "mousemove";
@@ -369,107 +398,113 @@ Crafty.extend({
             }
             var simulatedEvent = document.createEvent("MouseEvent");
             simulatedEvent.initMouseEvent(type, true, true, window, 1,
-              first.screenX,
-              first.screenY,
-              first.clientX,
-              first.clientY,
-              false, false, false, false, 0, e.relatedTarget
+                first.screenX,
+                first.screenY,
+                first.clientX,
+                first.clientY,
+                false, false, false, false, 0, e.relatedTarget
             );
             first.target.dispatchEvent(simulatedEvent);
             // trigger click when it should be triggered
-            if (lastEvent !== null && lastEvent.type == 'mousedown' && type == 'mouseup') {
+            if (lastEvent !== null && lastEvent.type === 'mousedown' && type === 'mouseup') {
                 type = 'click';
                 simulatedEvent = document.createEvent("MouseEvent");
                 simulatedEvent.initMouseEvent(type, true, true, window, 1,
-                  first.screenX,
-                  first.screenY,
-                  first.clientX,
-                  first.clientY,
-                  false, false, false, false, 0, e.relatedTarget
+                    first.screenX,
+                    first.screenY,
+                    first.clientX,
+                    first.clientY,
+                    false, false, false, false, 0, e.relatedTarget
                 );
                 first.target.dispatchEvent(simulatedEvent);
             }
         },
     },
-    
+
     /**@
-     * #Crafty.findClosestEntityByComponent
+     * #Crafty.findPointerEventTargetByComponent
      * @category Input
+     * @kind Method
+     * @private
      * 
-     * @sign public this .findClosestEntityByComponent(String comp, Number x, Number y[, Object target])
-     * Finds closest entity with certain component at given coordinates.
+     * @sign public this .findPointerEventTargetByComponent(String comp, Event e[, Object target])
+     * Finds closest entity with certain component at a given event.
      * @param comp - Component name
-     * @param x - `x` position where to look for entities
-     * @param y - `y` position where to look for entities
+     * @param e - The pointer event, which will be modifed to add `realX` and `realY` properties 
      * @param target - Target element wherein to look for entities 
      * 
      * This method is used internally by the .mouseDispatch and .touchDispatch methods, but can be used otherwise for 
      * Canvas entities.
      * 
-     * Finds the top most entity (with the highest z) with a given component at a given point (x, y).
+     * Finds the top most entity (with the highest z) with a given component at a given point (x, y) associated with the event.
      * For having a detection area specified for the enity, add the AreaMap component to the entity expected to be found.
      * 
      * The 'target' argument is only meant to be used by .mouseDispatch and touchDispatch; defaults to Crafty.stage.elem, 
      * thus using this function directly is only worth anything for canvas entities.
      * 
-     * Returns the found entity, or undefined if no entity was found.
+     * Returns the found entity, or undefined if no entity was found.  
+     * Updates the event object to have two additional properties, `realX` and `realY`, which correspond to the point in the Crafty layer that the event targeted.
      * 
-     * @example
-     * ~~~
-     * var coords = { x: 455, y: 267 },
-     *     closestText = Crafty.findClosestEntityByComponent("Text", coords.x, coords.y);
-     * ~~~
      */
-    findClosestEntityByComponent: function (comp, x, y, target) { 
+    findPointerEventTargetByComponent: function (comp, e, target) {
         var tar = target ? target : Crafty.stage.elem,
-            closest, q, l, i = 0, maxz = -1, dupes = {};
-            
+            closest, current, q, l, i, pos, layerPos, maxz = -Infinity;
+        var x = e.clientX;
+        var y = e.clientY;
+
         //if it's a DOM element with component we are done
-        if (tar.nodeName != "CANVAS") {
-            while (typeof (tar.id) != 'string' && tar.id.indexOf('ent') == -1) {
+        if (tar.nodeName !== "CANVAS") {
+            while (typeof (tar.id) !== 'string' && tar.id.indexOf('ent') === -1) {
                 tar = tar.parentNode;
             }
             var ent = Crafty(parseInt(tar.id.replace('ent', ''), 10));
-            if (ent.__c[comp] && ent.isAt(x, y)){
+            pos = Crafty.domHelper.translate(x, y, ent._drawLayer);
+            if (ent.__c[comp] && ent.isAt(pos.x, pos.y)) {
                 closest = ent;
+                layerPos = pos;
             }
         }
-            //else we search for an entity with component
+
+        //else we search for an entity with component
         if (!closest) {
-            q = Crafty.map.search({
-                _x: x,
-                _y: y,
-                _w: 1,
-                _h: 1
-            }, false);
 
-            for (l = q.length; i < l; ++i) {
-                
-                if (!q[i].__c[comp] || !q[i]._visible){ continue; }
+            // Loop through each layer
+            for (var layerIndex in Crafty._drawLayers) {
+                var layer = Crafty._drawLayers[layerIndex];
 
-                    var current = q[i],
-                        flag = false;
+                // Skip a layer if it has no entities listening for pointer events
+                if (layer._pointerEntities <= 0) continue;
 
-                    //weed out duplicates
-                    if (dupes[current[0]]){  continue; }
-                    else dupes[current[0]] = true;
+                // Get the position in this layer
+                pos = Crafty.domHelper.translate(x, y, layer);
+                q = Crafty.map.search({
+                    _x: pos.x,
+                    _y: pos.y,
+                    _w: 1,
+                    _h: 1
+                }, false);
 
-                    if (current.mapArea) {
-                        if (current.mapArea.containsPoint(x, y)) {
-                            flag = true;
-                        }
-                    } else if (current.isAt(x, y)) flag = true;
-
-                    if (flag && (current._z >= maxz || maxz === -1)) {
-                        //if the Z is the same, select the closest GUID
-                        if (current._z === maxz && current[0] < closest[0]) {
-                            continue; 
+                for (i = 0, l = q.length; i < l; ++i) {
+                    current = q[i];
+                    if (current._visible && current._drawLayer === layer && current._globalZ > maxz &&
+                        current.__c[comp] && current.isAt(pos.x, pos.y)) {
+                        maxz = current._globalZ;
+                        closest = current;
+                        layerPos = pos;
                     }
-                    maxz = current._z;
-                    closest = current;
                 }
             }
         }
+        
+        // If the pointer event isn't related to a specific layer, 
+        // find the Crafty position in the default coordinate set
+        if (!layerPos) {
+            layerPos = Crafty.domHelper.translate(x, y);
+        }
+
+        // Update the event coordinates and return the event target
+        e.realX = layerPos.x;
+        e.realY = layerPos.y;
             
         return closest;
     },
@@ -477,73 +512,113 @@ Crafty.extend({
     /**@
      * #Crafty.mouseWheelDispatch
      * @category Input
-     * Mouse wheel event triggered by Crafty.
+     * @kind Method
+     * @private
      *
+     * Internal method which dispatches mouse wheel events received by Crafty.
      * @trigger MouseWheelScroll - is triggered when mouse is scrolled on stage - { direction: +1 | -1} - Scroll direction (up | down)
      *
-     * Internal method which dispatches mouse wheel events received by Crafty (crafty.stage.elem).
-     * The mouse wheel events get dispatched to Crafty, as well as all entities.
-     *
-     * The native event parameter is passed to the callback.
-     * You can read more about the native `mousewheel` event (all browsers except Firefox) https://developer.mozilla.org/en-US/docs/Web/Events/mousewheel
-     * or the native `DOMMouseScroll` event (Firefox only) https://developer.mozilla.org/en-US/docs/Web/Events/DOMMouseScroll .
+     * This method processes a native [`mousewheel` event](https://developer.mozilla.org/en-US/docs/Web/Events/mousewheel) (all browsers except Firefox)
+     * or a native [`DOMMouseScroll` event](https://developer.mozilla.org/en-US/docs/Web/Events/DOMMouseScroll) (Firefox only) received by `Crafty.stage.elem`,
+     * augments it with the additional `.direction` property (see below) and dispatches it to the global Crafty object and thus to every entity.
      *
      * Note that the wheel delta properties of the event vary in magnitude across browsers, thus it is recommended to check for `.direction` instead.
-     * The `.direction` equals `+1` if wheel was scrolled up, `-1` if wheel was scrolled down.
-     * See http://stackoverflow.com/questions/5527601/normalizing-mousewheel-speed-across-browsers .
+     * The `.direction` equals `+1` if wheel was scrolled up, `-1` if wheel was scrolled down
+     * (see [details](http://stackoverflow.com/questions/5527601/normalizing-mousewheel-speed-across-browsers)).
      *
      * @example
+     * Zoom the viewport (camera) in response to mouse scroll events.
      * ~~~
      * Crafty.bind("MouseWheelScroll", function(evt) {
      *     Crafty.viewport.scale(Crafty.viewport._scale * (1 + evt.direction * 0.1));
      * });
      * ~~~
+     *
+     * @example
+     * Interactive, map-like zooming of the viewport (camera) in response to mouse scroll events.
+     * ~~~
+     * // sign public void zoomTowards(Number amt, Number posX, Number posY, Number time[, String|function easingFn])
+     * // param Number amt - amount to zoom in on the target by (eg. `2`, `4`, `0.5`)
+     * // param Number posX - the x coordinate to zoom towards
+     * // param Number posY - the y coordinate to zoom towards
+     * // param Number time - the duration in ms of the entire zoom operation
+     * // param easingFn - A string or custom function specifying an easing.
+     * //                   (Defaults to linear behavior.)
+     * //                   See `Crafty.easing` for more information.
+     * //
+     * // Zooms the camera towards a given point, preserving the current center.
+     * // `amt > 1` will bring the camera closer to the subject,
+     * // `amt < 1` will bring it farther away,
+     * // `amt = 0` will reset to the default zoom level.
+     * // Zooming is multiplicative. To reset the zoom amount, pass `0`.
+     * //
+     * // <example>
+     * // // Make the entities appear twice as large by zooming in towards (100,100) over the duration of 3 seconds using linear easing behavior
+     * // zoomTowards(2, 100, 100, 3000);
+     * // </example>
+     * //
+     * function zoomTowards (amt, posX, posY, time, easingFn) {
+     *     var scale = Crafty.viewport._scale,
+     *         // current viewport center
+     *         centX = -Crafty.viewport._x + Crafty.viewport._width / 2 / scale,
+     *         centY = -Crafty.viewport._y + Crafty.viewport._height / 2 / scale,
+     *         // direction vector from viewport center to position
+     *         deltaX = posX - centX,
+     *         deltaY = posY - centY;
+     *     var f = amt - 1;
+     *
+     *     Crafty.viewport.zoom(amt, centX + deltaX * f, centY + deltaY * f, time, easingFn);
+     * }
+     *
+     * // don't restrict panning of viewport in any way
+     * Crafty.viewport.clampToEntities = false;
+     *
+     * // enable panning of viewport by dragging the mouse
+     * Crafty.viewport.mouselook(true);
+     *
+     * // enable interactive map-like zooming by scrolling the mouse
+     * Crafty.bind("MouseWheelScroll", function (evt) {
+     *     var pos = Crafty.domHelper.translate(evt.clientX, evt.clientY);
+     *     zoomTowards(1 + evt.direction/10, pos.x, pos.y, 5);
+     * });
+     * ~~~
      */
-     mouseWheelDispatch: function(e) {
+    mouseWheelDispatch: function (e) {
         e.direction = (e.detail < 0 || e.wheelDelta > 0) ? 1 : -1;
         Crafty.trigger("MouseWheelScroll", e);
-     },
+    },
 
     /**@
-     * #KeyboardEvent
+     * #Crafty.keyboardDispatch
      * @category Input
-     * Keyboard Event triggered by Crafty Core
-     * @trigger KeyDown - is triggered for each entity when the DOM 'keydown' event is triggered.
-     * @trigger KeyUp - is triggered for each entity when the DOM 'keyup' event is triggered.
+     * @kind Method
+     * @private
+     *
+     * Internal method which dispatches keyboard events received by Crafty.
+     * @trigger KeyDown - is triggered for each entity when the DOM 'keydown' event is triggered. - { key: `Crafty.keys` keyCode (Number), originalEvent: original KeyboardEvent } - Crafty's KeyboardEvent
+     * @trigger KeyUp - is triggered for each entity when the DOM 'keyup' event is triggered. - { key: `Crafty.keys` keyCode (Number), originalEvent: original KeyboardEvent } - Crafty's KeyboardEvent
+     *
+     * This method processes a native [`KeyboardEvent`](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent) received by `window.document`,
+     * wraps it in a custom event object (for cross-browser compatibility) and dispatches it to the global Crafty object and thus to every entity.
+     *
+     * This method also updates `Crafty.keydown`.
      *
      * @example
      * ~~~
-     * Crafty.e("2D, DOM, Color")
-     *   .attr({x: 100, y: 100, w: 50, h: 50})
-     *   .color("red")
-     *   .bind('KeyDown', function(e) {
-     *     if(e.key == Crafty.keys.LEFT_ARROW) {
-     *       this.x = this.x-1;
-     *     } else if (e.key == Crafty.keys.RIGHT_ARROW) {
-     *       this.x = this.x+1;
-     *     } else if (e.key == Crafty.keys.UP_ARROW) {
-     *       this.y = this.y-1;
-     *     } else if (e.key == Crafty.keys.DOWN_ARROW) {
-     *       this.y = this.y+1;
+     * Crafty.bind('KeyDown', function(e) {
+     *     if (e.key === Crafty.keys.LEFT_ARROW) {
+     *       Crafty.viewport.x++;
+     *     } else if (e.key === Crafty.keys.RIGHT_ARROW) {
+     *       Crafty.viewport.x--;
+     *     } else if (e.key === Crafty.keys.UP_ARROW) {
+     *       Crafty.viewport.y++;
+     *     } else if (e.key === Crafty.keys.DOWN_ARROW) {
+     *       Crafty.viewport.y--;
      *     }
      *   });
      * ~~~
      *
-     * @see Crafty.keys
-     */
-
-    /**@
-     * #Crafty.eventObject
-     * @category Input
-     *
-     * Event Object used in Crafty for cross browser compatibility
-     */
-
-    /**@
-     * #.key
-     * @comp Crafty.eventObject
-     *
-     * Unicode of the key pressed
+     * @see Crafty.keys, Crafty.keydown, Keyboard
      */
     keyboardDispatch: function (e) {
         // Use a Crafty-standard event object to avoid cross-browser issues
@@ -573,7 +648,7 @@ Crafty.extend({
         //prevent bubbling up for all keys except backspace and F1-F12.
         //Among others this prevent the arrow keys from scrolling the parent page
         //of an iframe hosting the game
-        if (Crafty.selected && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
+        if (Crafty.selected && !(e.key === 8 || e.key >= 112 && e.key <= 135)) {
             if (original.stopPropagation) original.stopPropagation();
             else original.cancelBubble = true;
 
@@ -645,8 +720,11 @@ Crafty._preBind("CraftyStop", function () {
 /**@
  * #Mouse
  * @category Input
+ * @kind Component
  *
- * Provides the entity with mouse related events
+ * Provides the entity with mouse related events.
+ *
+ * If you do not add this component, mouse events will not be triggered on the entity.
  *
  * @trigger MouseOver - when the mouse enters - MouseEvent
  * @trigger MouseOut - when the mouse leaves - MouseEvent
@@ -656,16 +734,21 @@ Crafty._preBind("CraftyStop", function () {
  * @trigger DoubleClick - when the user double clicks - MouseEvent
  * @trigger MouseMove - when the mouse is over and moves - MouseEvent
  *
- * If you do not add this component, mouse events will not be triggered on an entity.
+ * The event callbacks are triggered with a native [`MouseEvent`](https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent) parameter,
+ * which is further augmented with additional properties:
+ * ~~~
+ * //(x,y) coordinates of mouse event in web-browser (screen) space
+ * e.clientX
+ * e.clientY
  *
- * You can read more about the MouseEvent, which is the parameter passed to the callback.
- * https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent
+ * //(x,y) coordinates of mouse event in world (default viewport) space
+ * e.realX
+ * e.realY
  *
- * Crafty will add the mouseButton property to MouseEvents that match one of
- *
- * - Crafty.mouseButtons.LEFT
- * - Crafty.mouseButtons.RIGHT
- * - Crafty.mouseButtons.MIDDLE
+ * // Normalized mouse button according to Crafty.mouseButtons:
+ * // Crafty.mouseButtons.LEFT, Crafty.mouseButtons.RIGHT or Crafty.mouseButtons.MIDDLE
+ * e.mouseButton
+ * ~~~
  *
  * @note If you're targeting mobile, you should know that by default Crafty turns touch events into mouse events, 
  * making mouse dependent components work with touch. However, if you need multitouch, you'll have 
@@ -685,10 +768,10 @@ Crafty._preBind("CraftyStop", function () {
  *        Crafty.log("Clicked right button");
  * })
  * ~~~
+ * @see Crafty.mouseButtons
  * @see Crafty.mouseDispatch
  * @see Crafty.multitouch
  * @see Crafty.touchDispatch
- * @see Crafty.mouseButtons
  */
 Crafty.c("Mouse", {
     init: function () {
@@ -703,6 +786,7 @@ Crafty.c("Mouse", {
 /**@
  * #Touch
  * @category Input
+ * @kind Component
  * Provides the entity with touch related events
  * @trigger TouchStart - when entity is touched - TouchPoint
  * @trigger TouchMove - when finger is moved over entity - TouchPoint
@@ -735,8 +819,6 @@ Crafty.c("Mouse", {
  * ~~~
  * @see Crafty.multitouch
  * @see Crafty.touchDispatch
- * @see Crafty.mouseDispatch
- * @see Crafty.mouseButtons
  */
 Crafty.c("Touch", {
     init: function () {
@@ -751,21 +833,40 @@ Crafty.c("Touch", {
 /**@
  * #AreaMap
  * @category Input
+ * @kind Component
+ * 
  * Component used by Mouse and Touch.
  * Can be added to other entities for use with the Crafty.findClosestEntityByComponent method.
  * 
- * @see Crafty.mouseDispatch
- * @see Crafty.touchDispatch
- * @see Crafty.mouseButtons
+ * @see Button
  * @see Crafty.polygon
  */
 Crafty.c("AreaMap", {
     init: function () {
+        if (this.has("Renderable") && this._drawLayer) {
+            this._drawLayer._pointerEntities++;
+        }
+    },
+
+    remove: function () {
+        if (this.has("Renderable") && this._drawLayer) {
+            this._drawLayer._pointerEntities--;
+        }
+    },
+
+    events: {
+        "LayerAttached": function (layer) {
+            layer._pointerEntities++;
+        },
+        "LayerDetached": function (layer) {
+            layer._pointerEntities--;
+        }
     },
 
     /**@
      * #.areaMap
      * @comp AreaMap
+     * @kind Method
      *
      * @trigger NewAreaMap - when a new areaMap is assigned - Crafty.polygon
      *
@@ -822,9 +923,13 @@ Crafty.c("AreaMap", {
 /**@
  * #Button
  * @category Input
+ * @kind Component
+ * 
  * Provides the entity with touch or mouse functionality, depending on whether this is a pc 
  * or mobile device, and also on multitouch configuration.
- * 
+ *
+ * @see Mouse
+ * @see Touch
  * @see Crafty.multitouch
  */
 Crafty.c("Button", {
@@ -837,6 +942,8 @@ Crafty.c("Button", {
 /**@
  * #MouseDrag
  * @category Input
+ * @kind Component
+ * 
  * Provides the entity with drag and drop mouse events.
  * @trigger Dragging - is triggered each frame the entity is being dragged - MouseEvent
  * @trigger StartDrag - is triggered when dragging begins - MouseEvent
@@ -847,13 +954,12 @@ Crafty.c("Button", {
 Crafty.c("MouseDrag", {
     _dragging: false,
 
-    //Note: the code is not tested with zoom, etc., that may distort the direction between the viewport and the coordinate on the canvas.
     init: function () {
         this.requires("Mouse");
         this.bind("MouseDown", this._ondown);
     },
 
-    remove: function() {
+    remove: function () {
         this.unbind("MouseDown", this._ondown);
     },
 
@@ -879,6 +985,8 @@ Crafty.c("MouseDrag", {
     /**@
      * #.startDrag
      * @comp MouseDrag
+     * @kind Method
+     * 
      * @sign public this .startDrag(void)
      *
      * Make the entity produce drag events, essentially making the entity follow the mouse positions.
@@ -900,6 +1008,8 @@ Crafty.c("MouseDrag", {
     /**@
      * #.stopDrag
      * @comp MouseDrag
+     * @kind Method
+     * 
      * @sign public this .stopDrag(void)
      *
      * Stop the entity from producing drag events, essentially reproducing the drop.
@@ -922,22 +1032,42 @@ Crafty.c("MouseDrag", {
 /**@
  * #Keyboard
  * @category Input
+ * @kind Component
  *
- * Give entities keyboard events (`Keydown` and `Keyup`).
+ * Provides entity with keyboard events.
+ * @trigger KeyDown - is triggered for each entity when the DOM 'keydown' event is triggered. - { key: `Crafty.keys` keyCode (Number), originalEvent: original KeyboardEvent } - Crafty's KeyboardEvent
+ * @trigger KeyUp - is triggered for each entity when the DOM 'keyup' event is triggered. - { key: `Crafty.keys` keyCode (Number), originalEvent: original KeyboardEvent } - Crafty's KeyboardEvent
  *
- * In particular, changes to the key state are broadcasted by `KeyboardEvent`s; interested entities can bind to these events.
+ * In addition to binding to these events, the current state (pressed/released) of a key can also be queried using the `.isDown` method.
  *
- * The current state (pressed/released) of a key can also be queried using the `.isDown` method.
+ * @example
+ * ~~~
+ * Crafty.e("2D, DOM, Color, Keyboard")
+ *   .attr({x: 100, y: 100, w: 50, h: 50})
+ *   .color("red")
+ *   .bind('KeyDown', function(e) {
+ *     if (e.key == Crafty.keys.LEFT_ARROW) {
+ *       this.x = this.x-1;
+ *     } else if (e.key == Crafty.keys.RIGHT_ARROW) {
+ *       this.x = this.x+1;
+ *     } else if (e.key == Crafty.keys.UP_ARROW) {
+ *       this.y = this.y-1;
+ *     } else if (e.key == Crafty.keys.DOWN_ARROW) {
+ *       this.y = this.y+1;
+ *     }
+ *   });
+ * ~~~
  *
- * All available key codes are described in `Crafty.keys`.
- *
- * @see KeyboardEvent
  * @see Crafty.keys
+ * @see Crafty.keydown
+ * @see Crafty.keyboardDispatch
  */
 Crafty.c("Keyboard", {
     /**@
      * #.isDown
      * @comp Keyboard
+     * @kind Method
+     * 
      * @sign public Boolean isDown(String keyName)
      * @param keyName - Name of the key to check. See `Crafty.keys`.
      * @sign public Boolean isDown(Number keyCode)
@@ -947,7 +1077,11 @@ Crafty.c("Keyboard", {
      *
      * @example
      * ~~~
-     * entity.requires('Keyboard').bind('KeyDown', function () { if (this.isDown('SPACE')) jump(); });
+     * ent.requires('Keyboard')
+     *    .bind('EnterFrame', function() {
+     *       if (this.isDown('SPACE'))
+     *          this.y--;
+     *    });
      * ~~~
      *
      * @see Crafty.keys
@@ -959,4 +1093,3 @@ Crafty.c("Keyboard", {
         return !!Crafty.keydown[key];
     }
 });
-

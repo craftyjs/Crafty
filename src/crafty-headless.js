@@ -1,4 +1,7 @@
-var requireNew = require('require-nocache')(module);
+function requireNew (id) {
+    delete require.cache[require.resolve(id)];
+    return require(id);
+}
 
 module.exports = function() {
     var Crafty = requireNew('./core/core');
@@ -14,17 +17,15 @@ module.exports = function() {
     requireNew('./core/systems');
     requireNew('./core/version');
 
-
     requireNew('./spatial/2d');
+    require('./spatial/motion');
+    require('./spatial/platform');
     requireNew('./spatial/collision');
     requireNew('./spatial/spatial-grid');
     requireNew('./spatial/rect-manager');
     requireNew('./spatial/math');
 
-    //TODO needs adaptation to work in nodejs
-    //requireNew('./isometric/diamond-iso');
-    //requireNew('./isometric/isometric');
-
+    require('./controls/controls-system');
     requireNew('./controls/controls');
     requireNew('./controls/keycodes');
 
@@ -44,6 +45,12 @@ module.exports = function() {
             return false;
         }
     });
+    // dummy keydown+mousedown registry
+    Crafty.keydown = {};
+    Crafty.resetKeyDown = function() {
+        Crafty.keydown = {};
+    };
+    Crafty.mouseButtonsDown = {};
 
     return Crafty;
 };

@@ -18,7 +18,7 @@
   });
 
   test('remove an value', function(){
-    var person = Crafty.storage('person', 'test');
+    Crafty.storage('person', 'test');
     equal(Crafty.storage('person'), 'test', 'person should be defined');
 
     Crafty.storage.remove('person');

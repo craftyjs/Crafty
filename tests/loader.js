@@ -14,7 +14,7 @@
 
 
   asyncTest('assets loading', function() {
-    expect(1);
+    expect(2);
 
     var items = [],
         checkItems = function() {
@@ -36,7 +36,7 @@
     Crafty.paths({images: "assets/"});
     
     var assets_to_load = {
-      "images": ["100x100.png", "100x100.jpeg"],
+      "images": ["100x100.png", "100x100.png", "100x100.jpeg"],
       "sprites": {
         "craftyLogo.png": {
           "tile" : 147,
@@ -50,12 +50,12 @@
 
     Crafty.load(assets_to_load, function() {
         Crafty.removeAssets(assets_to_load);
-        ok(checkItems() == 3 && wereItemsRemoved(), 'all assets have been successfully loaded, and then successfully removed');
+        ok(checkItems() === 3 && wereItemsRemoved(), 'all assets have been successfully loaded, and then successfully removed');
         start();
       }, function(data) {
         items.push(data);
       }, function(error) {
-        Crafty.log(error);
+        strictEqual(error.src, 'assets/100x100.png', 'duplicate asset reported as error of load operation');
       }
     );
   });

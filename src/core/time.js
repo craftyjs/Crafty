@@ -1,6 +1,7 @@
 /**@
  * #Delay
  * @category Utilities
+ * @kind Component
  *
  * A component for triggering functions after a given amount of time.
  *
@@ -9,7 +10,9 @@
 module.exports = {
     init: function () {
         this._delays = [];
+        this._delaysPaused = false;
         this.bind("EnterFrame", function (frameData) {
+            if (this._delaysPaused) return;
             var index = this._delays.length;
             while (--index >= 0) {
                 var item = this._delays[index];
@@ -38,6 +41,7 @@ module.exports = {
     /**@
      * #.delay
      * @comp Delay
+     * @kind Method
      * @sign public this.delay(Function callback, Number delay[, Number repeat[, Function callbackOff]])
      * @param callback - Method to execute after given amount of milliseconds. If reference of a
      * method is passed, there's possibility to cancel the delay.
@@ -90,6 +94,8 @@ module.exports = {
     /**@
      * #.cancelDelay
      * @comp Delay
+     * @kind Method
+     * 
      * @sign public this.cancelDelay(Function callback)
      * @param callback - Method reference passed to .delay
      *
@@ -112,10 +118,66 @@ module.exports = {
         var index = this._delays.length;
         while (--index >= 0) {
             var item = this._delays[index];
-            if(item && item.callback == callback){
+            if(item && item.callback === callback){
                 this._delays[index] = false;
             }
         }
         return this;
+    },
+    /**@
+     * #.pauseDelays
+     * @comp Delay
+     * @kind Method
+     * 
+     * @sign public this.pauseDelays()
+     *
+     * The pauseDelays method will pause all delays of this
+     * entity until resumed.
+     *
+     * @example
+     * ~~~
+     * var doSomething = function(){
+     *   Crafty.log("doing something");
+     * };
+     *
+     * // execute doSomething each 100 miliseconds indefinetely
+     * var ent = Crafty.e("Delay").delay(doSomething, 100, -1);
+     *
+     * // and some time later, the gameplay is paused
+     * ent.pauseDelays();
+     * ~~~
+     */
+    pauseDelays: function() {
+        this._delaysPaused = true;
+    },
+    /**@
+     * #.resumeDelays
+     * @comp Delay
+     * @kind Method
+     * 
+     * @sign public this.resumeDelays()
+     *
+     * The resumeDelays method will resume earlier paused delays for this
+     * entity
+     *
+     * @example
+     * ~~~
+     * var doSomething = function(){
+     *   Crafty.log("doing something");
+     * };
+     *
+     * // execute doSomething each 100 miliseconds indefinetely
+     * var ent = Crafty.e("Delay").delay(doSomething, 100, -1);
+     *
+     * // and some time later, the gameplay is paused (or only
+     * // a part of it is frozen)
+     * ent.pauseDelays();
+     *
+     * // the player resumes gameplay
+     * ent.resumeDelays();
+     * ~~~
+     */
+    resumeDelays: function() {
+        this._delaysPaused = false;
     }
 };

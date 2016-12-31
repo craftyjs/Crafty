@@ -5,6 +5,8 @@ Crafty.extend({
     /**@
      * #Crafty.isometric
      * @category 2D
+     * @kind CoreObject
+     * 
      * Place entities in a 45deg isometric fashion. The alignment of this
      * grid's axes for tile placement is 90 degrees.  If you are looking
      * to have the grid of tile indicies for this.place aligned to the tiles
@@ -24,6 +26,8 @@ Crafty.extend({
         /**@
          * #Crafty.isometric.size
          * @comp Crafty.isometric
+         * @kind Method
+         * 
          * @sign public this Crafty.isometric.size(Number tileSize)
          * @param tileSize - The size of the tiles to place.
          *
@@ -46,6 +50,8 @@ Crafty.extend({
         /**@
          * #Crafty.isometric.place
          * @comp Crafty.isometric
+         * @kind Method
+         * 
          * @sign public this Crafty.isometric.place(Number x, Number y, Number z, Entity tile)
          * @param x - The `x` position to place the tile
          * @param y - The `y` position to place the tile
@@ -65,15 +71,16 @@ Crafty.extend({
         place: function (x, y, z, obj) {
             var pos = this.pos2px(x, y);
             pos.top -= z * (this._tile.height / 2);
-            obj.attr({
-                x: pos.left + Crafty.viewport._x,
-                y: pos.top + Crafty.viewport._y
-            }).z += z;
+            obj.x = pos.left + Crafty.viewport._x;
+            obj.y = pos.top + Crafty.viewport._y;
+            obj.z += z;
             return this;
         },
         /**@
          * #Crafty.isometric.pos2px
          * @comp Crafty.isometric
+         * @kind Method
+         * 
          * @sign public Object Crafty.isometric.pos2px(Number x,Number y)
          * @param x - A position along the x axis
          * @param y - A position along the y axis
@@ -96,6 +103,8 @@ Crafty.extend({
         /**@
          * #Crafty.isometric.px2pos
          * @comp Crafty.isometric
+         * @kind Method
+         * 
          * @sign public Object Crafty.isometric.px2pos(Number left,Number top)
          * @param top - Offset from the top in pixels
          * @param left - Offset from the left in pixels
@@ -119,7 +128,8 @@ Crafty.extend({
         /**@
          * #Crafty.isometric.centerAt
          * @comp Crafty.isometric
-         *
+         * @kind Method
+         * 
          * @sign public Obect Crafty.isometric.centerAt()
          * @returns An object with `top` and `left` fields represneting the viewport's current center
          *
@@ -137,7 +147,7 @@ Crafty.extend({
          * ~~~
          */
         centerAt: function (x, y) {
-            if (typeof x == "number" && typeof y == "number") {
+            if (typeof x === "number" && typeof y === "number") {
                 var center = this.pos2px(x, y);
                 Crafty.viewport._x = -center.left + Crafty.viewport.width / 2 - this._tile.width / 2;
                 Crafty.viewport._y = -center.top + Crafty.viewport.height / 2 - this._tile.height / 2;
@@ -152,6 +162,8 @@ Crafty.extend({
         /**@
          * #Crafty.isometric.area
          * @comp Crafty.isometric
+         * @kind Method
+         * 
          * @sign public Object Crafty.isometric.area()
          * @return An obect with `x` and `y` fields, each of which have a start and end field.
          * In other words, the object has this structure: `{x:{start Number,end Number},y:{start Number,end Number}}`

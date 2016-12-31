@@ -4,7 +4,9 @@ var Crafty = require('../core/core.js'),
 /**@
  * #DebugCanvas
  * @category Debug
- * @trigger Draw - when the entity is ready to be drawn to the stage
+ * @kind Component
+ * 
+ * @trigger DebugDraw - when the entity is ready to be drawn to the stage
  * @trigger NoCanvas - if the browser does not support canvas
  *
  * When this component is added to an entity it will be drawn by the DebugCanvas layer.
@@ -43,6 +45,8 @@ Crafty.c("DebugCanvas", {
     /**@
      * #.debugAlpha
      * @comp DebugCanvas
+     * @kind Method
+     * 
      * @sign public  .debugAlpha(Number alpha)
      * @param alpha - The alpha level the component will be drawn with
      */
@@ -54,6 +58,8 @@ Crafty.c("DebugCanvas", {
     /**@
      * #.debugFill
      * @comp DebugCanvas
+     * @kind Method
+     * 
      * @sign public  .debugFill([String fillStyle])
      * @param fillStyle - The color the component will be filled with.  Defaults to "red". Pass the boolean false to turn off filling.
      * @example
@@ -71,6 +77,8 @@ Crafty.c("DebugCanvas", {
     /**@
      * #.debugStroke
      * @comp DebugCanvas
+     * @kind Method
+     * 
      * @sign public  .debugStroke([String strokeStyle])
      * @param strokeStyle - The color the component will be outlined with.  Defaults to "red".  Pass the boolean false to turn this off.
      * @example
@@ -101,7 +109,7 @@ Crafty.c("DebugCanvas", {
         if (props.fillStyle)
             ctx.fillStyle = props.fillStyle;
 
-        this.trigger("DebugDraw");
+        this.trigger("DebugDraw", ctx);
 
         ctx.globalAlpha = ga;
 
@@ -115,6 +123,7 @@ Crafty.c("DebugCanvas", {
 /**@
  * #DebugRectangle
  * @category Debug
+ * @kind Component
  *
  * A component for rendering an object with a position and dimensions to the debug canvas.
  *
@@ -135,6 +144,8 @@ Crafty.c("DebugRectangle", {
     /**@
      * #.debugRectangle
      * @comp DebugRectangle
+     * @kind Method
+     * 
      * @sign public  .debugRectangle(Object rect)
      * @param rect - an object with _x, _y, _w, and _h to draw
      *
@@ -149,9 +160,8 @@ Crafty.c("DebugRectangle", {
 
     },
 
-    drawDebugRect: function () {
+    drawDebugRect: function (ctx) {
 
-        var ctx = Crafty.DebugCanvas.context;
         var rect = this.debugRect;
         if (rect === null || rect === undefined)
             return;
@@ -173,6 +183,7 @@ Crafty.c("DebugRectangle", {
 /**@
  * #VisibleMBR
  * @category Debug
+ * @kind Component
  *
  * Adding this component to an entity will cause it's MBR to be drawn to the debug canvas.
  *
@@ -202,6 +213,7 @@ Crafty.c("VisibleMBR", {
 /**@
  * #DebugPolygon
  * @category Debug
+ * @kind Component
  *
  * For drawing a polygon to the debug canvas
  *
@@ -220,6 +232,8 @@ Crafty.c("DebugPolygon", {
     /**@
      * #.debugPolygon
      * @comp DebugPolygon
+     * @kind Method
+     * 
      * @sign public  .debugPolygon(Polygon poly)
      * @param poly - a polygon to render
      *
@@ -233,11 +247,10 @@ Crafty.c("DebugPolygon", {
         return this;
     },
 
-    drawDebugPolygon: function () {
+    drawDebugPolygon: function (ctx) {
         if (typeof this.polygon === "undefined")
             return;
 
-        var ctx = Crafty.DebugCanvas.context;
         ctx.beginPath();
         var p = this.polygon.points, l = p.length;
         for (var i=0; i<l; i+=2){
@@ -256,6 +269,7 @@ Crafty.c("DebugPolygon", {
 /**@
  * #WiredHitBox
  * @category Debug
+ * @kind Component
  *
  * Adding this component to an entity with a Collision component will cause its collision polygon to be drawn to the debug canvas as an outline
  *
@@ -277,6 +291,7 @@ Crafty.c("WiredHitBox", {
 /**@
  * #SolidHitBox
  * @category Debug
+ * @kind Component
  *
  * Adding this component to an entity with a Collision component will cause its collision polygon to be drawn to the debug canvas, with a default alpha level of 0.7.
  *
@@ -298,6 +313,7 @@ Crafty.c("SolidHitBox", {
 /**@
  * #WiredAreaMap
  * @category Debug
+ * @kind Component
  *
  * Adding this component to an entity with an AreaMap component will cause its click polygon to be drawn to the debug canvas as an outline.
  * Following click areas exist for an entity (in decreasing order of priority): AreaMap, Hitbox, MBR. Use the appropriate debug components to display them.
@@ -320,6 +336,7 @@ Crafty.c("WiredAreaMap", {
 /**@
  * #SolidAreaMap
  * @category Debug
+ * @kind Component
  *
  * Adding this component to an entity with an AreaMap component will cause its click polygon to be drawn to the debug canvas, with a default alpha level of 0.7.
  * Following click areas exist for an entity (in decreasing order of priority): AreaMap, Hitbox, MBR. Use the appropriate debug components to display them.
@@ -350,7 +367,7 @@ Crafty.DebugCanvas = {
     remove: function (ent) {
         var list = this.entities;
         for (var i = list.length - 1; i >= 0; i--)
-            if (list[i] == ent)
+            if (list[i] === ent)
                 list.splice(i, 1);
 
     },
@@ -407,11 +424,17 @@ Crafty.DebugCanvas = {
 
         ctx.clearRect(rect._x, rect._y, rect._w, rect._h);
 
-
-        //sort the objects by the global Z
-        //q.sort(zsort);
+        var lastLayer = null;
         for (; i < l; i++) {
             current = q[i];
+
+            // If necessary, update the view transform to match the current entities layer
+            if (lastLayer !== current._drawlayer){
+                view = current._drawLayer._viewportRect();
+                ctx.setTransform(view._scale, 0, 0, view._scale, Math.round(-view._x*view._scale), Math.round(-view._y*view._scale));
+                lastLayer = current._drawLayer;
+            }
+
             current.debugDraw(ctx);
         }
 

@@ -5,7 +5,7 @@
 
   test("AreaMap", function() {
     var areaMapEvents = 0;
-    var e = Crafty.e("2D, AreaMap")
+    var e = Crafty.e("2D, DOM, AreaMap")
               .bind("NewAreaMap", function(newAreaMap) {
                 areaMapEvents++;
               });
@@ -32,24 +32,24 @@
       Crafty.multitouch(true);
       
       var touchStartsOverEntities = 0,
-          touchEndsOverEntities = 0,
-          entity1 = Crafty.e('2D, Touch')
+          touchEndsOverEntities = 0;
+      Crafty.e('2D, Renderable, DOM, Touch')
               .attr({ x: 100, y: 100, w:200, h:200, z:1 })
               .bind('TouchStart',function(){ 
                   touchStartsOverEntities++;
               })
               .bind('TouchEnd',function(){ 
                   touchEndsOverEntities++;
-              }),
-          entity2 = Crafty.e('2D, Touch')
+              });
+      Crafty.e('2D, Renderable, DOM, Touch')
               .attr({ x: 40, y: 150, w:90, h:300, z:2 })
               .bind('TouchStart',function(){ 
                   touchStartsOverEntities++;
               })
               .bind('TouchEnd',function(){ 
                   touchEndsOverEntities++;
-              }),
-         elem = Crafty.stage.elem,
+              });
+      var elem = Crafty.stage.elem,
          sx = Crafty.stage.x,
          sy = Crafty.stage.y,
          touchStart1 = createTouchEvent(elem, "touchstart", [[100 + sx, 80 + sy, 0], [150 + sx, 150 + sy, 1], [200 + sx, 50 + sy, 2], [65 + sx, 275 + sy, 3]]),

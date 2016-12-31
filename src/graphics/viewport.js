@@ -5,6 +5,8 @@ Crafty.extend({
     /**@
      * #Crafty.viewport
      * @category Stage
+     * @kind Property
+     * 
      * @trigger ViewportScroll - when the viewport's x or y coordinates change
      * @trigger ViewportScale - when the viewport's scale changes
      * @trigger ViewportResize - when the viewport's dimension's change
@@ -45,6 +47,7 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.clampToEntities
          * @comp Crafty.viewport
+         * @kind Property
          *
          * Decides if the viewport functions should clamp to game entities.
          * When set to `true` functions such as Crafty.viewport.mouselook() will not allow you to move the
@@ -57,6 +60,7 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.x
          * @comp Crafty.viewport
+         * @kind Property
          *
          * Will move the stage and therefore every visible entity along the `x`
          * axis in the opposite direction.
@@ -69,6 +73,7 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.y
          * @comp Crafty.viewport
+         * @kind Property
          *
          * Will move the stage and therefore every visible entity along the `y`
          * axis in the opposite direction.
@@ -82,6 +87,7 @@ Crafty.extend({
         /**@
          * #Crafty.viewport._scale
          * @comp Crafty.viewport
+         * @kind Property
          *
          * This value is the current scale (zoom) of the viewport. When the value is bigger than 1, everything
          * looks bigger (zoomed in). When the value is less than 1, everything looks smaller (zoomed out). This
@@ -96,6 +102,7 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.bounds
          * @comp Crafty.viewport
+         * @kind Property
          *
          * A rectangle which defines the bounds of the viewport.
          * It should be an object with two properties, `max` and `min`,
@@ -120,6 +127,8 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.scroll
          * @comp Crafty.viewport
+         * @kind Method
+         * 
          * @sign Crafty.viewport.scroll(String axis, Number val)
          * @param axis - 'x' or 'y'
          * @param val - The new absolute position on the axis
@@ -142,18 +151,46 @@ Crafty.extend({
 
         rect_object: { _x: 0, _y: 0, _w: 0, _h: 0},
 
-        rect: function () {
-            this.rect_object._x = -this._x;
-            this.rect_object._y = -this._y;
-            this.rect_object._w = this._width / this._scale;
-            this.rect_object._h = this._height / this._scale;
-            return this.rect_object;
+        /**@
+         * #Crafty.viewport.rect
+         * @comp Crafty.viewport
+         * @kind Method
+         * 
+         * @sign public Object Crafty.viewport.rect([Object out])
+         * @param Object out - an optional Object to write the `rect` to
+         * @return a rectangle encompassing the currently visible viewport region.
+         *         Contains the `_x`,`_y`,`_w`,`_h` properties.
+         *
+         * Convenience method which returns a `rect` of the currently visible viewport region.
+         * With no supplied `out` parameter, this method returns an internally reused object across invocations.
+         * If you want to save the viewport region for later use, pass an `out` argument instead, where the region will be written to.
+         *
+         * @example
+         * The `rect` is equivalent to the following properties:
+         * ~~~
+         * var rect = Crafty.viewport.rect();
+         *
+         * rect._x === -Crafty.viewport._x
+         * rect._y === -Crafty.viewport._y
+         * rect._w === Crafty.viewport._width / Crafty.viewport._scale
+         * rect._h === Crafty.viewport._height / Crafty.viewport._scale
+         * ~~~
+         */
+        rect: function (out) {
+            out = out || this.rect_object;
+            out._x = -this._x;
+            out._y = -this._y;
+            out._w = this._width / this._scale;
+            out._h = this._height / this._scale;
+            return out;
         },
 
         /**@ 
 
          * #Crafty.viewport.pan
          * @comp Crafty.viewport
+         * @kind Method
+         * 
          * @sign public void Crafty.viewport.pan(Number dx, Number dy, Number time[, String|function easingFn])
          * @param Number dx - The distance along the x axis
          * @param Number dy - The distance along the y axis
@@ -169,7 +206,6 @@ Crafty.extend({
          * ~~~
          */
         pan: (function () {
-            var tweens = {}, i, bound = false;
             var targetX, targetY, startingX, startingY, easing;
 
             function enterFrame(e) {
@@ -196,7 +232,7 @@ Crafty.extend({
                 Crafty.trigger("StopCamera");
 
                 // Handle request to reset
-                if (dx == 'reset') {
+                if (dx === 'reset') {
                    return;
                 }
 
@@ -216,6 +252,8 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.follow
          * @comp Crafty.viewport
+         * @kind Method
+         * 
          * @sign public void Crafty.viewport.follow(Object target, Number offsetx, Number offsety)
          * @param Object target - An entity with the 2D component
          * @param Number offsetx - Follow target's center should be offsetx pixels away from viewport's center. Positive values puts target to the right of the screen.
@@ -256,8 +294,8 @@ Crafty.extend({
                 Crafty.trigger("StopCamera");
 
                 oldTarget = target;
-                offx = (typeof offsetx != 'undefined') ? offsetx : 0;
-                offy = (typeof offsety != 'undefined') ? offsety : 0;
+                offx = (typeof offsetx !== 'undefined') ? offsetx : 0;
+                offy = (typeof offsety !== 'undefined') ? offsety : 0;
 
                 target.bind('Move', change);
                 target.bind('ViewportScale', change);
@@ -269,6 +307,8 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.centerOn
          * @comp Crafty.viewport
+         * @kind Method
+         * 
          * @sign public void Crafty.viewport.centerOn(Object target, Number time)
          * @param Object target - An entity with the 2D component
          * @param Number time - The duration in ms of the camera motion
@@ -297,6 +337,8 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.zoom
          * @comp Crafty.viewport
+         * @kind Method
+         * 
          * @sign public void Crafty.viewport.zoom(Number amt, Number cent_x, Number cent_y, Number time[, String|function easingFn])
          * @param Number amt - amount to zoom in on the target by (eg. 2, 4, 0.5)
          * @param Number cent_x - the center to zoom on
@@ -393,6 +435,8 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.scale
          * @comp Crafty.viewport
+         * @kind Method
+         * 
          * @sign public void Crafty.viewport.scale(Number amt)
          * @param Number amt - amount to zoom/scale in on the elements
          *
@@ -420,9 +464,12 @@ Crafty.extend({
 
             };
         })(),
+
         /**@
          * #Crafty.viewport.mouselook
          * @comp Crafty.viewport
+         * @kind Method
+         * 
          * @sign public void Crafty.viewport.mouselook(Boolean active)
          * @param Boolean active - Activate or deactivate mouselook
          *
@@ -436,14 +483,9 @@ Crafty.extend({
             var active = false,
                 dragging = false,
                 lastMouse = {};
-            old = {};
-            function stopLook(){
-                dragging = false;
-            }
-
 
             return function (op, arg) {
-                if (typeof op == 'boolean') {
+                if (typeof op === 'boolean') {
                     active = op;
                     if (active) {
                         Crafty.mouseObjs++;
@@ -457,7 +499,7 @@ Crafty.extend({
                 case 'move':
                 case 'drag':
                     if (!dragging) return;
-                    diff = {
+                    var diff = {
                         x: arg.clientX - lastMouse.x,
                         y: arg.clientY - lastMouse.y
                     };
@@ -485,7 +527,7 @@ Crafty.extend({
             // clamps the viewport to the viewable area
             // under no circumstances should the viewport see something outside the boundary of the 'world'
             if (!this.clampToEntities) return;
-            var bound = Crafty.clone(this.bounds) || Crafty.map.boundaries();
+            var bound = Crafty.clone(this.bounds) || Crafty.clone(Crafty.map.boundaries());
             bound.max.x *= this._scale;
             bound.min.x *= this._scale;
             bound.max.y *= this._scale;
@@ -512,20 +554,29 @@ Crafty.extend({
 
         /**@
          * #Crafty.viewport.init
-         * @comp Crafty.viewport
+         * @comp Crafty.stage
+         * @kind Method
+         * 
          * @sign public void Crafty.viewport.init([Number width, Number height, String stage_elem])
          * @sign public void Crafty.viewport.init([Number width, Number height, HTMLElement stage_elem])
          * @param Number width - Width of the viewport
          * @param Number height - Height of the viewport
          * @param String or HTMLElement stage_elem - the element to use as the stage (either its id or the actual element).
          *
-         * Initialize the viewport. If the arguments 'width' or 'height' are missing, use `window.innerWidth` and `window.innerHeight` (full screen model).
-         *
+         * Initialize the viewport.
+         * If the arguments 'width' or 'height' are missing, use `window.innerWidth` and `window.innerHeight` (full screen model).
          * The argument 'stage_elem' is used to specify a stage element other than the default, and can be either a string or an HTMLElement.  If a string is provided, it will look for an element with that id and, if none exists, create a div.  If an HTMLElement is provided, that is used directly.  Omitting this argument is the same as passing an id of 'cr-stage'.
          *
-         * @see Crafty.device, Crafty.domHelper, Crafty.stage
+         * Usually you don't have to initialize the viewport by yourself, it's automatically initialized by calling `Crafty.init()`. Multiple `init`s will create redundant stage elements. Use `Crafty.viewport.width`, `Crafty.viewport.height` or `Crafty.viewport.reload` to adjust the current viewport's dimensions.
+         *
+         * @see Crafty.device, Crafty.domHelper, Crafty.stage, Crafty.viewport.reload
          */
         init: function (w, h, stage_elem) {
+            // Define default graphics layers with default z-layers
+            Crafty.createLayer("DefaultCanvasLayer", "Canvas", {z: 20});
+            Crafty.createLayer("DefaultDOMLayer", "DOM", {z: 30});
+            Crafty.createLayer("DefaultWebGLLayer", "WebGL", {z: 10});
+            
             // setters+getters for the viewport
             this._defineViewportProperties();
 
@@ -554,27 +605,17 @@ Crafty.extend({
             /**@
              * #Crafty.stage
              * @category Core
+             * @kind CoreObject
+             * 
              * The stage where all the DOM entities will be placed.
              */
 
             /**@
              * #Crafty.stage.elem
              * @comp Crafty.stage
+             * @kind Property
+             * 
              * The `#cr-stage` div element.
-             */
-
-            /**@
-             * #Crafty.domLayer._div
-             * @comp Crafty.domLayer
-             * `Crafty.domLayer._div` is a div inside the `#cr-stage` div that holds all DOM entities.
-             * If you use canvas, a `canvas` element is created at the same level in the dom
-             * as the the `Crafty.domLayer._div` div. So the hierarchy in the DOM is
-             *  
-             * ~~~
-             * Crafty.stage.elem
-             *  - Crafty.domLayer._div (a div HTMLElement)
-             *  - Crafty.canvasLayer._canvas (a canvas HTMLElement)
-             * ~~~
              */
 
             //create stage div to contain everything
@@ -727,6 +768,7 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.reload
          * @comp Crafty.stage
+         * @kind Method
          *
          * @sign public Crafty.viewport.reload()
          *
@@ -755,6 +797,8 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.reset
          * @comp Crafty.stage
+         * @kind Method
+         * 
          * @trigger StopCamera - called to cancel camera animations
          *
          * @sign public Crafty.viewport.reset()
@@ -774,6 +818,8 @@ Crafty.extend({
         /**@
          * #Crafty.viewport.onScreen
          * @comp Crafty.viewport
+         * @kind Method
+         * 
          * @sign public Crafty.viewport.onScreen(Object rect)
          * @param rect - A rectangle with field {_x: x_val, _y: y_val, _w: w_val, _h: h_val}
          *
@@ -782,6 +828,6 @@ Crafty.extend({
         onScreen: function (rect) {
             return Crafty.viewport._x + rect._x + rect._w > 0 && Crafty.viewport._y + rect._y + rect._h > 0 &&
                 Crafty.viewport._x + rect._x < Crafty.viewport.width && Crafty.viewport._y + rect._y < Crafty.viewport.height;
-        },
+        }
     }
 });

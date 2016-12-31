@@ -8,13 +8,13 @@
   "branches": {
     "develop": true
   },
-  "main": "src/crafty_headless.js",
+  "main": "src/crafty-headless.js",
   "browser": "src/crafty.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/craftyjs/Crafty.git"
   },
-  "licenses": "(GPL OR MIT)",
+  "license": "MIT",
   "description": "Crafty is a modern component and event based framework for developing games in JavaScript that targets DOM, Canvas and WebGL.",
   "keywords": [
     "framework",
@@ -27,29 +27,41 @@
   },
   "homepage": "https://github.com/craftyjs/Crafty",
   "dependencies": {
-    "brfs": "1.0.1",
-    "node-localstorage": "^0.5.0",
-    "require-nocache": "1.0.0"
+    "brfs": "^1.4.3",
+    "node-localstorage": "^1.3.0"
   },
   "devDependencies": {
-    "coffee-script": "1.7.1",
+    "coffee-script": "^1.10.0",
     "director": "^1.2.8",
-    "git-rev-sync": "^1.0.0",
-    "grunt": "^0.4.5",
-    "grunt-banner": "^0.2.3",
-    "grunt-browserify": "^2.1.4",
-    "grunt-contrib-connect": "^0.8.0",
-    "grunt-contrib-jshint": "^0.10.0",
-    "grunt-contrib-qunit": "^0.4.0",
-    "grunt-contrib-uglify": "^0.5.1",
-    "grunt-contrib-watch": "^0.6.1",
+    "git-rev-sync": "^1.8.0",
+    "grunt": "^1.0.1",
+    "grunt-banner": "^0.6.0",
+    "grunt-browserify": "^5.0.0",
+    "grunt-contrib-connect": "^1.0.2",
+    "grunt-contrib-jshint": "^1.0.0",
+    "grunt-contrib-qunit": "^1.2.0",
+    "grunt-contrib-uglify": "^2.0.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-gh-pages": "^2.0.0",
     "grunt-jsvalidate": "^0.2.2",
-    "highlight.js": "^8.6.0",
-    "marked": "^0.3.3",
+    "grunt-node-qunit": "https://github.com/axemclion/grunt-node-qunit/tarball/6443ff0bdb59076cb93a20855be8921ff32d3540",
+    "grunt-run": "^0.6.0",
+    "grunt-saucelabs": "^9.0.0",
+    "grunt-webdriver": "^1.0.0",
+    "highlight.js": "^9.7.0",
+    "jimp": "^0.2.27",
+    "marked": "^0.3.6",
     "node-jsx": "^0.13.3",
-    "open": "0.0.5",
-    "react": "^0.13.3",
-    "grunt-node-qunit": "^2.0.2"
+    "node-resemble-js": "^0.1.1",
+    "open": "^0.0.5",
+    "phantomjs-prebuilt": "2.1.13",
+    "q": "^1.4.1",
+    "q-io": "^1.13.1",
+    "qunitjs": "^2.0.1",
+    "react": "^15.3.2",
+    "react-dom": "^15.3.2",
+    "semver": "^5.3.0",
+    "webdriverio": "mucaho/webdriverio#qunit_android"
   },
   "browserify": {
     "transform": [

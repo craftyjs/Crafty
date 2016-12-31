@@ -4,18 +4,33 @@ var Crafty = require('../core/core.js');
 //
 // Define some variables required for webgl
 var fs = require('fs');
-var IMAGE_VERTEX_SHADER = fs.readFileSync(__dirname + '/shaders/sprite.vert', 'utf8');
-var IMAGE_FRAGMENT_SHADER = fs.readFileSync(__dirname + '/shaders/sprite.frag', 'utf8');
-var IMAGE_ATTRIBUTE_LIST = [
-    {name:"aPosition", width: 2},
-    {name:"aOrientation", width: 3},
-    {name:"aLayer", width:2},
-    {name:"aTextureCoord",  width: 2}
-];
+
+Crafty.defaultShader("Image", new Crafty.WebGLShader(
+    fs.readFileSync(__dirname + '/shaders/sprite.vert', 'utf8'),
+    fs.readFileSync(__dirname + '/shaders/sprite.frag', 'utf8'),
+    [
+        { name: "aPosition",     width: 2 },
+        { name: "aOrientation",  width: 3 },
+        { name: "aLayer",        width: 2 },
+        { name: "aTextureCoord", width: 2 }
+    ],
+    function(e, _entity) {
+        var pos = e.pos;
+        // Write texture coordinates
+        e.program.writeVector("aTextureCoord",
+            0, 0,
+            0, pos._h,
+            pos._w, 0,
+            pos._w, pos._h
+        );
+    }
+));
 
 /**@
  * #Image
  * @category Graphics
+ * @kind Component
+ * 
  * Draw an image with or without repeating (tiling).
  */
 Crafty.c("Image", {
@@ -24,15 +39,19 @@ Crafty.c("Image", {
 
     init: function () {
         this.bind("Draw", this._drawImage);
+        this.bind("LayerAttached", this._setupImage);
     },
 
     remove: function() {
+        this.unbind("LayerAttached", this._setupImage);
         this.unbind("Draw", this._drawImage);
     },
 
     /**@
      * #.image
      * @comp Image
+     * @kind Method
+     * 
      * @trigger Invalidate - when the image is loaded
      * @sign public this .image(String url[, String repeat])
      * @param url - URL of the image
@@ -75,33 +94,32 @@ Crafty.c("Image", {
             var self = this;
 
             this.img.onload = function () {
-                self._onImageLoad();
+                self._setupImage(self._drawLayer);
             };
         } else {
-            this._onImageLoad();
+            this._setupImage(this._drawLayer);
         }
-
 
         this.trigger("Invalidate");
 
         return this;
     },
 
-    _onImageLoad: function(){
+    // called on image change or layer attachment
+    _setupImage: function(layer){
+        if (!this.img || !layer) return;
 
-        if (this.has("Canvas")) {
+        if (layer.type === "Canvas") {
             this._pattern = this._drawContext.createPattern(this.img, this._repeat);
-        } else if (this.has("WebGL")) {
-            this._establishShader("image:" + this.__image, IMAGE_FRAGMENT_SHADER, IMAGE_VERTEX_SHADER, IMAGE_ATTRIBUTE_LIST);
-            this.program.setTexture( this.webgl.makeTexture(this.__image, this.img, (this._repeat!=="no-repeat")));
+        } else if (layer.type === "WebGL") {
+            this._establishShader("image:" + this.__image, Crafty.defaultShader("Image"));
+            this.program.setTexture( this._drawLayer.makeTexture(this.__image, this.img, (this._repeat!=="no-repeat")));
         }
 
         if (this._repeat === "no-repeat") {
             this.w = this.w || this.img.width;
             this.h = this.h || this.img.height;
         }
-
-
 
         this.ready = true;
         this.trigger("Invalidate");
@@ -126,14 +144,7 @@ Crafty.c("Image", {
               e.style.backgroundRepeat = this._repeat;
             }
         } else if (e.type === "webgl") {
-            var pos = e.pos;
-            // Write texture coordinates
-            e.program.writeVector("aTextureCoord",
-                0, 0,
-                0, pos._h,
-                pos._w, 0,
-                pos._w, pos._h
-            );
+          e.program.draw(e, this);
         }
 
     }

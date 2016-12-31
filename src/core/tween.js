@@ -1,6 +1,11 @@
+var Crafty = require('../core/core.js');
+
+
 /**@
  * #Tween
  * @category Animation
+ * @kind Component
+ * 
  * @trigger TweenEnd - when a tween finishes - String - property
  *
  * Component to animate the change in 2D properties over time.
@@ -40,6 +45,8 @@ module.exports = {
   /**@
   * #.tween
   * @comp Tween
+  * @kind Method
+  *
   * @sign public this .tween(Object properties, Number duration[, String|function easingFn])
   * @param properties - Object of numeric properties and what they should animate to
   * @param duration - Duration to animate the properties over, in milliseconds.
@@ -95,6 +102,8 @@ module.exports = {
   /**@
   * #.cancelTween
   * @comp Tween
+  * @kind Method
+  *
   * @sign public this .cancelTween(String target)
   * @param target - The property to cancel
   *
@@ -106,7 +115,7 @@ module.exports = {
   */
   cancelTween: function(target){
     if (typeof target === "string"){
-      if (typeof this.tweenGroup[target] == "object" )
+      if (typeof this.tweenGroup[target] === "object" )
         delete this.tweenGroup[target][target];
     } else if (typeof target === "object") {
       for (var propname in target)
@@ -120,6 +129,8 @@ module.exports = {
   /**@
   * #.pauseTweens
   * @comp Tween
+  * @kind Method
+  *
   * @sign public this .pauseTweens()
   *
   * Pauses all tweens associated with the entity
@@ -129,8 +140,10 @@ module.exports = {
   },
 
   /**@
-  * #.resumeTWeens
+  * #.resumeTweens
   * @comp Tween
+  * @kind Method
+  *
   * @sign public this .resumeTweens()
   *
   * Resumes all paused tweens associated with the entity

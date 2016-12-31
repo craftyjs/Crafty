@@ -7,6 +7,10 @@ var Crafty = require('../core/core.js'),
 /**@
  * #Crafty.assignColor
  * @category Graphics
+ * @kind Method
+ * 
+ * Maps a wide vareity of color representations to a set of simple rgb(a) properties. 
+ * 
  * @sign Crafty.assignColor(color[, assignee])
  * @param color - a string represenation of the color to assign, in any valid HTML format
  * @param assignee - an object to use instead of creating one from scratch
@@ -16,7 +20,7 @@ var Crafty = require('../core/core.js'),
  */
 Crafty.extend({
     assignColor: (function(){
-        
+
         // Create phantom element to assess color
         var element = document.createElement("div");
         element.style.display = "none";
@@ -49,7 +53,7 @@ Crafty.extend({
 
         function hexComponent(component) {
             var hex = component.toString(16);
-            if (hex.length==1)
+            if (hex.length === 1)
                 hex = "0" + hex;
             return hex;
         }
@@ -59,17 +63,24 @@ Crafty.extend({
         }
 
         function parseHexString(hex, c) {
-            var l;
-            if (hex.length === 7){
-                l=2;
-            } else if (hex.length === 4){
-                l=1;
+            var r, g, b,
+                l = hex.length;
+
+            if (l === 7) {
+                r = hex.substr(1, 2);
+                g = hex.substr(3, 2);
+                b = hex.substr(5, 2);
+            } else if (l === 4) {
+                r = hex.substr(1, 1); r += r;
+                g = hex.substr(2, 1); g += g;
+                b = hex.substr(3, 1); b += b;
             } else {
                 return default_value(c);
             }
-            c._red = parseInt(hex.substr(1, l), 16);
-            c._green = parseInt(hex.substr(1+l, l), 16);
-            c._blue = parseInt(hex.substr(1+2*l, l), 16);
+            c._red = parseInt(r, 16);
+            c._green = parseInt(g, 16);
+            c._blue = parseInt(b, 16);
+
             return c;
         }
 
@@ -77,8 +88,8 @@ Crafty.extend({
 
         function parseRgbString(rgb, c) {
             var values = rgb_regex.exec(rgb);
-            if( values===null || (values.length != 4 && values.length != 5)) {
-                return default_value(c); // return bad result?         
+            if( values === null || (values.length !== 4 && values.length !== 5)) {
+                return default_value(c); // return bad result?
             }
             c._red = Math.round(parseFloat(values[1]));
             c._green = Math.round(parseFloat(values[2]));
@@ -135,20 +146,31 @@ Crafty.extend({
 
 // Define some variables required for webgl
 var fs = require('fs');
-var COLOR_VERTEX_SHADER = fs.readFileSync(__dirname + '/shaders/color.vert', 'utf8');
-var COLOR_FRAGMENT_SHADER = fs.readFileSync(__dirname + '/shaders/color.frag', 'utf8');
-var COLOR_ATTRIBUTE_LIST = [
-    {name:"aPosition", width: 2},
-    {name:"aOrientation", width: 3},
-    {name:"aLayer", width:2},
-    {name:"aColor",  width: 4}
-];
 
-
+Crafty.defaultShader("Color", new Crafty.WebGLShader(
+    fs.readFileSync(__dirname + '/shaders/color.vert', 'utf8'),
+    fs.readFileSync(__dirname + '/shaders/color.frag', 'utf8'),
+    [
+        { name: "aPosition",    width: 2 },
+        { name: "aOrientation", width: 3 },
+        { name: "aLayer",       width: 2 },
+        { name: "aColor",       width: 4 }
+    ],
+    function(e, entity) {
+        e.program.writeVector("aColor",
+            entity._red/255,
+            entity._green/255,
+            entity._blue/255,
+            entity._strength
+        );
+    }
+));
 
 /**@
  * #Color
  * @category Graphics
+ * @kind Component
+ * 
  * Draw a colored rectangle.
  */
 Crafty.c("Color", {
@@ -161,10 +183,14 @@ Crafty.c("Color", {
 
     init: function () {
         this.bind("Draw", this._drawColor);
-        if (this.has("WebGL")){
-            this._establishShader("Color", COLOR_FRAGMENT_SHADER, COLOR_VERTEX_SHADER, COLOR_ATTRIBUTE_LIST);
+        if (this._drawLayer) {
+            this._setupColor(this._drawLayer);
         }
         this.trigger("Invalidate");
+    },
+
+    events: {
+        "LayerAttached": "_setupColor"
     },
 
     remove: function(){
@@ -173,6 +199,12 @@ Crafty.c("Color", {
             this._element.style.backgroundColor = "transparent";
         }
         this.trigger("Invalidate");
+    },
+
+    _setupColor: function(layer) {
+        if (layer.type === "WebGL") {
+            this._establishShader("Color", Crafty.defaultShader("Color"));
+        }
     },
 
     // draw function for "Color"
@@ -185,18 +217,15 @@ Crafty.c("Color", {
             e.ctx.fillStyle = this._color;
             e.ctx.fillRect(e.pos._x, e.pos._y, e.pos._w, e.pos._h);
         } else if (e.type === "webgl"){
-            e.program.writeVector("aColor",
-                this._red/255,
-                this._green/255,
-                this._blue/255,
-                this._strength
-            );
+            e.program.draw(e, this);
         }
     },
 
     /**@
      * #.color
      * @comp Color
+     * @kind Method
+     * 
      * @trigger Invalidate - when the color changes
      *
      * Will assign the color and opacity, either through a string shorthand, or through explicit rgb values.
@@ -208,7 +237,7 @@ Crafty.c("Color", {
      * @param r - value for the red channel
      * @param g - value for the green channel
      * @param b - value for the blue channel
-     * @param strength - the opacity of the rectangle 
+     * @param strength - the opacity of the rectangle
      *
      * @sign public String .color()
      * @return A string representing the current color as a CSS property.
@@ -219,7 +248,7 @@ Crafty.c("Color", {
      * c.color("#FF0000");
      * c.color("red");
      * c.color(255, 0, 0);
-     * c.color("rgb(255, 0, 0")
+     * c.color("rgb(255, 0, 0)");
      * ```
      * Three different ways of assign the color red.
      * ```
@@ -243,7 +272,7 @@ Crafty.c("Color", {
             Crafty.assignColor(color, this);
             // Second argument, if present, is strength of color
             // Note that assignColor will give a default strength of 1.0 if none exists.
-            if (typeof arguments[1] == "number")
+            if (typeof arguments[1] === "number")
                 this._strength = arguments[1];
         }
         this._color = "rgba(" + this._red + ", " + this._green + ", " + this._blue + ", " + this._strength + ")";

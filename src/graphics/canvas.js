@@ -4,12 +4,14 @@ var Crafty = require('../core/core.js');
 /**@
  * #Canvas
  * @category Graphics
+ * @kind Component
+ * 
  * @trigger Draw - when the entity is ready to be drawn to the stage - {type: "canvas", pos, co, ctx}
  * @trigger NoCanvas - if the browser does not support canvas
  *
  * When this component is added to an entity it will be drawn to the global canvas element. The canvas element (and hence all Canvas entities) is always rendered below any DOM entities.
  *
- * Crafty.canvasLayer.init() will be automatically called if it is not called already to initialize the canvas element.
+ * The canvas layer will be automatically initialized if it has not been created yet.
  *
  * Create a canvas entity like this
  * ~~~
@@ -21,40 +23,27 @@ var Crafty = require('../core/core.js');
 Crafty.c("Canvas", {
 
     init: function () {
-        var canvasLayer = Crafty.canvasLayer;
-        if (!canvasLayer.context) {
-            canvasLayer.init();
-        }
-        this._drawLayer = canvasLayer;
-        this._drawContext = canvasLayer.context;
-
-        //increment the amount of canvas objs
-        canvasLayer.layerCount++;
+        this.requires("Renderable");
+        
         //Allocate an object to hold this components current region
         this.currentRect = {};
-        this._changed = true;
-        canvasLayer.add(this);
+        
+        // Add the default canvas layer if we aren't attached to a custom one
+        if (!this._customLayer){
+            this._attachToLayer( Crafty.s("DefaultCanvasLayer"));
+        }
+        
+    },
 
-        this.bind("Invalidate", function (e) {
-            //flag if changed
-            if (this._changed === false) {
-                this._changed = true;
-                canvasLayer.add(this);
-            }
-
-        });
-
-
-        this.bind("Remove", function () {
-            this._drawLayer.layerCount--;
-            this._changed = true;
-            this._drawLayer.add(this);
-        });
+    remove: function() {
+        this._detachFromLayer();
     },
 
     /**@
      * #.draw
      * @comp Canvas
+     * @kind Method
+     * 
      * @sign public this .draw([[Context ctx, ]Number x, Number y, Number w, Number h])
      * @param ctx - Canvas 2D context if drawing on another canvas is required
      * @param x - X offset for drawing a segment
@@ -77,8 +66,6 @@ Crafty.c("Canvas", {
             w: 0,
             h: 0
         }
-
-
     },
 
     draw: function (ctx, x, y, w, h) {
@@ -98,8 +85,8 @@ Crafty.c("Canvas", {
         pos._h = (h || this._h);
 
 
-        context = ctx || this._drawContext;
-        coord = this.__coord || [0, 0, 0, 0];
+        var context = ctx || this._drawContext;
+        var coord = this.__coord || [0, 0, 0, 0];
         var co = this.drawVars.co;
         co.x = coord[0] + (x || 0);
         co.y = coord[1] + (y || 0);

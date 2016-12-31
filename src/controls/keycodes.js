@@ -5,7 +5,9 @@ Crafty.extend({
     /**@
      * #Crafty.keys
      * @category Input
-     * Object of key names and the corresponding key code.
+     * @kind Property
+     * 
+     * Object of key names and the corresponding Unicode key code.
      *
      * ~~~
      * BACKSPACE: 8,
@@ -199,6 +201,8 @@ Crafty.extend({
     /**@
      * #Crafty.mouseButtons
      * @category Input
+     * @kind Property
+     * 
      * An object mapping mouseButton names to the corresponding button ID.
      * In all mouseEvents, we add the `e.mouseButton` property with a value normalized to match e.button of modern webkit browsers:
      *

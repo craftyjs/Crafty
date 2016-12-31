@@ -4,6 +4,8 @@ var Crafty = require('../core/core.js');
 /**@
  * #Text
  * @category Graphics
+ * @kind Component
+ * 
  * @trigger Invalidate - when the text is changed
  * @requires Canvas or DOM
  * Component to make a text entity.
@@ -30,6 +32,7 @@ Crafty.c("Text", {
     defaultFamily: "sans-serif",
     defaultVariant: "normal",
     defaultLineHeight: "normal",
+    defaultTextAlign: "left",
     ready: true,
 
     init: function () {
@@ -42,8 +45,11 @@ Crafty.c("Text", {
             "family": this.defaultFamily,
             "variant": this.defaultVariant
         };
+        this._textAlign = this.defaultTextAlign;
+    },
 
-        this.bind("Draw", function (e) {
+    events: {
+        "Draw": function (e) {
             var font = this._fontString();
 
             if (e.type === "DOM") {
@@ -52,6 +58,7 @@ Crafty.c("Text", {
 
                 style.color = this._textColor;
                 style.font = font;
+                style.textAlign = this._textAlign;
                 el.innerHTML = this._text;
             } else if (e.type === "canvas") {
                 var context = e.ctx;
@@ -61,12 +68,18 @@ Crafty.c("Text", {
                 context.textBaseline = "top";
                 context.fillStyle = this._textColor || "rgb(0,0,0)";
                 context.font = font;
+                context.textAlign = this._textAlign;
 
                 context.fillText(this._text, e.pos._x, e.pos._y);
 
                 context.restore();
             }
-        });
+        }
+    },
+
+    remove: function(){
+        // Clean up the dynamic text update
+        this.unbind(this._textUpdateEvent, this._dynamicTextUpdate);
     },
 
     // takes a CSS font-size string and gets the height of the resulting font in px
@@ -98,6 +111,8 @@ Crafty.c("Text", {
     /**@
      * #.text
      * @comp Text
+     * @kind Method
+     * 
      * @sign public this .text(String text)
      * @param text - String of text that will be inserted into the DOM or Canvas element.
      *
@@ -108,6 +123,10 @@ Crafty.c("Text", {
      * This method will update the text inside the entity.
      *
      * If you need to reference attributes on the entity itself you can pass a function instead of a string.
+     * 
+     * If dynamic text generation is turned on, the function will then be reevaluated as necessary.
+     * 
+     * @see .dynamicTextGeneration
      *
      * @example
      * ~~~
@@ -122,17 +141,60 @@ Crafty.c("Text", {
      *     .text(function () { return "My position is " + this._x });
      * ~~~
      */
+    _textGenerator: null,
     text: function (text) {
         if (!(typeof text !== "undefined" && text !== null)) return this._text;
-        if (typeof (text) == "function")
+        if (typeof (text) === "function"){
             this._text = text.call(this);
-        else
+            this._textGenerator = text;
+        } else {
             this._text = text;
+            this._textGenerator = null;
+        }
 
         if (this.has("Canvas") )
             this._resizeForCanvas();
 
         this.trigger("Invalidate");
+        return this;
+    },
+
+    /**@
+     * #.dynamicTextGeneration
+     * @comp Text
+     * @kind Method
+     * 
+     * @sign public this .dynamicTextGeneration(bool dynamicTextOn[, string textUpdateEvent])
+     * @param dynamicTextOn - A flag that indicates whether dyanamic text should be on or off.
+     * @param textUpdateEvent - The name of the event which will trigger text to be updated.  Defaults to "EnterFrame".  (This parameter does nothing if dynamicTextOn is false.)
+     *
+     * Turns on (or off) dynamic text generation for this entity.  While dynamic text generation is on, 
+     * if the `.text()` method is called with a text generating function, the text will be updated each frame.
+     * 
+     * If textUpdateEvent is provided, text generation will be bound to that event instead of "EnterFrame".  
+     * 
+     * @note Dynamic text generation could cause performance issues when the entity is attached to a Canvas layer.
+     *
+     * @example
+     * ~~~
+     * Crafty.e("2D, DOM, Text, Motion").attr({ x: 100, y: 100, vx: 10 })
+     *     .text(function () { return "My position is " + this._x })
+     *     .dynamicTextGeneration(true)
+     * ~~~
+     * The above example will update the text with the entities position as it changes.
+     */
+    _dynamicTextOn: false,
+    _textUpdateEvent: null,
+    _dynamicTextUpdate: function(){
+        if (!this._textGenerator) return;
+        this.text(this._textGenerator);
+    },
+    dynamicTextGeneration: function(dynamicTextOn, textUpdateEvent) {
+        this.unbind(this._textUpdateEvent, this._dynamicTextUpdate);
+        if (dynamicTextOn) {
+            this._textUpdateEvent = textUpdateEvent || "EnterFrame";
+            this.bind(this._textUpdateEvent, this._dynamicTextUpdate);
+        }
         return this;
     },
 
@@ -146,6 +208,15 @@ Crafty.c("Text", {
 
         var size = (this._textFont.size || this.defaultSize);
         this.h = 1.1 * this._getFontHeight(size);
+
+        /* Offset the MBR for text alignment*/
+        if (this._textAlign === 'left' || this._textAlign === 'start') {
+            this.offsetBoundary(0, 0, 0, 0);
+        } else if (this._textAlign === 'center') {
+            this.offsetBoundary(this.w/2, 0, -this.w/2, 0);
+        } else if (this._textAlign === 'end' || this._textAlign === 'right') {
+            this.offsetBoundary(this.w, 0, -this.w, 0);
+        }
     },
 
     // Returns the font string to use
@@ -155,6 +226,8 @@ Crafty.c("Text", {
     /**@
      * #.textColor
      * @comp Text
+     * @kind Method
+     * 
      * @sign public this .textColor(String color)
      * @param color - The color in name, hex, rgb or rgba
      *
@@ -183,8 +256,27 @@ Crafty.c("Text", {
     },
 
     /**@
+     * @comp Text
+     * @kind Method
+     * 
+     * @sign public this .textAlign(String alignment)
+     * @param alignment - The new alignment of the text.
+     *
+     * Change the alignment of the text. Valid values are 'start', 'end, 'left', 'center', or 'right'.
+     */
+    textAlign: function(alignment) {
+        this._textAlign = alignment;
+        if (this.has("Canvas"))
+            this._resizeForCanvas();
+        this.trigger("Invalidate");
+        return this;
+    },
+
+    /**@
      * #.textFont
      * @comp Text
+     * @kind Method
+     * 
      * @triggers Invalidate
      * @sign public this .textFont(String key, * value)
      * @param key - Property of the entity to modify
@@ -215,7 +307,7 @@ Crafty.c("Text", {
 
             if (typeof key === "object") {
                 for (var propertyKey in key) {
-                    if(propertyKey == 'family'){
+                    if(propertyKey === 'family'){
                         this._textFont[propertyKey] = "'" + key[propertyKey] + "'";
                     } else {
                         this._textFont[propertyKey] = key[propertyKey];
@@ -235,6 +327,8 @@ Crafty.c("Text", {
     /**@
      * #.unselectable
      * @comp Text
+     * @kind Method
+     * 
      * @triggers Invalidate
      * @sign public this .unselectable()
      *
