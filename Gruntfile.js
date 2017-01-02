@@ -4,6 +4,7 @@ var open = require("open"),
 
 
 module.exports = function (grunt) {
+    grunt.option('stack', true);
     var banner = '/**\n' +
                 ' * <%= pkg.name %> <%= pkg.version %>\n' +
                 ' * <%= pkg.author.url %>\n *\n' +
