@@ -1,5 +1,6 @@
 var version = require('./version');
 
+
 /**@
  * #Crafty
  * @category Core

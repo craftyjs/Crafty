@@ -106,7 +106,7 @@ module.exports = {
         }
     },
     /**@
-     * #Crafty.image_whitelist
+     * #Crafty.imageWhitelist
      * @category Assets
      * @kind Method
      *
@@ -115,7 +115,7 @@ module.exports = {
      * @example
      * ~~~
      * // add tif extension to list of supported image files
-     * Crafty.image_whitelist.push("tif");
+     * Crafty.imageWhitelist.push("tif");
      *
      * var assets = {
      *     "sprites": {
@@ -147,7 +147,7 @@ module.exports = {
      * @see Crafty.asset
      * @see Crafty.load
      */
-    image_whitelist: ["jpg", "jpeg", "gif", "png", "svg"],
+    imageWhitelist: ["jpg", "jpeg", "gif", "png", "svg"],
     /**@
      * #Crafty.load
      * @category Assets
@@ -169,7 +169,7 @@ module.exports = {
      * By default, Crafty will assume all files are in the current path.  For changing these,
      * use the function `Crafty.paths`.
      *
-     * Files with suffixes in `image_whitelist` (case insensitive) will be loaded.
+     * Files with suffixes in `imageWhitelist` (case insensitive) will be loaded.
      *
      * It's possible to pass the full file path(including protocol), instead of just the filename.ext, in case
      * you want some asset to be loaded from another domain.
@@ -232,7 +232,7 @@ module.exports = {
      *
      * @see Crafty.paths
      * @see Crafty.assets
-     * @see Crafty.image_whitelist
+     * @see Crafty.imageWhitelist
      * @see Crafty.removeAssets
      */
     load: function (data, oncomplete, onprogress, onerror) {
@@ -264,7 +264,7 @@ module.exports = {
                 return Crafty.support.audio && Crafty.audio.supports(getExt(f));
             },
             isValidImage = function(f) {
-                return Crafty.image_whitelist.indexOf(getExt(f)) !== -1;
+                return Crafty.imageWhitelist.indexOf(getExt(f)) !== -1;
             },
             onImgLoad = function(obj,url) {
                 obj.onload = pro;
