@@ -269,6 +269,7 @@ Crafty.c("Sprite", {
     /**@
      * #.sprite
      * @comp Sprite
+     * @kind Method
      *
      * @sign public this .sprite(Number x, Number y[, Number w, Number h])
      * @param x - X cell position
@@ -300,6 +301,7 @@ Crafty.c("Sprite", {
     /**@
      * #.__coord
      * @comp Sprite
+     * @kind Property
      *
      * The coordinate of the slide within the sprite in the format of [x, y, w, h].
      */
@@ -330,6 +332,8 @@ Crafty.c("Sprite", {
     /**@
      * #.crop
      * @comp Sprite
+     * @kind Method
+     * 
      * @sign public this .crop(Number x, Number y, Number w, Number h)
      * @param x - Offset x position
      * @param y - Offset y position
