@@ -19,10 +19,10 @@ var Crafty = require('../core/core.js');
  * use .attach() (from 2D component) to glue the text to the image so they move and
  * rotate together.
  *
- * @note For DOM (but not canvas) text entities, various font settings (like
- * text-decoration and text-align) can be set using `.css()` (see DOM component). But
- * you cannot use `.css()` to set the properties which are controlled by `.textFont()`
- * or `.textColor()` -- the settings will be ignored.
+ * @note For DOM (but not canvas) text entities, various font settings (such as
+ * text-decoration) can be set using `.css()` (see DOM component). But
+ * you cannot use `.css()` to set the properties which are controlled by `.textFont()`,
+ *  `.textColor()`, or `.textAlign()` -- the settings will be ignored.
  *
  * @note If you use canvas text with glyphs that are taller than standard letters, portions of the glyphs might be cut off.
  */
@@ -256,6 +256,7 @@ Crafty.c("Text", {
     },
 
     /**@
+     * #.textAlign
      * @comp Text
      * @kind Method
      * 
