@@ -64,7 +64,7 @@ Crafty.c("DOM", {
      * @comp DOM
      * @kind Method
      * 
-     * @sign public this .getId()
+     * @sign public this .getDomId()
      *
      * Get the Id of the DOM element used to represent the entity.
      */

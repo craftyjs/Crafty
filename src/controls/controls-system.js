@@ -144,6 +144,8 @@ Crafty.s("Controls", {
     /**@
      * #.defineTriggerGroup
      * @comp Controls
+     * @kind Method
+     * 
      * @sign defineTriggerGroup(string name, obj definition)
      * @param name - a name for the trigger group
      * @param definition - an object which defines the inputs for the trigger
@@ -200,6 +202,8 @@ Crafty.s("Controls", {
     /**@
      * #.defineDpad
      * @comp Controls
+     * @kind Method
+     * 
      * @sign defineDpad(string name, obj definition[, obj options])
      * @param name - a name for the dpad input
      * @param definition - an object which defines the inputs and directions for the dpad
