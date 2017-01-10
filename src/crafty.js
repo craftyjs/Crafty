@@ -56,6 +56,9 @@ require('./sound/sound');
 require('./debug/debug-layer');
 require('./debug/logging');
 
+// Define some aliases for renamed properties
+require('./aliases').defineAliases(Crafty);
+
 if(window) window.Crafty = Crafty;
 
 module.exports = Crafty;
