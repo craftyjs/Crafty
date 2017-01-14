@@ -63,7 +63,7 @@ Crafty.extend({
      * @param type - the type of the draw layer to create ('DOM', 'Canvas', or 'WebGL')
      * @param options - this will override the default values of each layer
      *
-     * Creates a new instance of the specified type of layer.  The options (and their default values) are
+     * Creates a new system which implements the specified type of layer.  The options (and their default values) are
      *
      * ```
      * {
@@ -77,20 +77,37 @@ Crafty.extend({
      * Crafty will automatically define three built-in layers: "DefaultDOMLayer", DefaultCanvasLayer",  and "DefaultWebGLLayer".
      * They will have `z` values of `30`, `20`, and `10` respectively, and will be initialized if a "DOM", "Canvas" or "WebGL" component
      * is used with an entity not attached to any user-specified layer.
+     * 
+     * @note Layers are implemented as systems, so the layer name must be distinct from other systems.
+     * 
+     * @note By default, layers will persist across scene changes.  You can manually clean up a layer by removing all it's entities and then destroying it.
      *
      * @example
      * ```
-     * Crafty.s("MyCanvasLayer", "Canvas")
+     * Crafty.createLayer("MyCanvasLayer", "Canvas")
      * Crafty.e("2D, MyCanvasLayer, Color");
      * ```
      * Define a custom canvas layer, then create an entity that uses the custom layer to render.
      *
      * @example
      * ```
-     * Crafty.s("UILayer", "DOM", {scaleResponse: 0, xResponse: 0, yResponse: 0})
+     * Crafty.createLayer("UILayer", "DOM", {scaleResponse: 0, xResponse: 0, yResponse: 0})
      * Crafty.e("2D, UILayer, Text");
      * ```
      * Define a custom DOM layer that will not move with the camera.  (Useful for static UI elements!)
+     *
+     * @example
+     * ```
+     * Crafty.createLayer("MyCanvasLayer", "Canvas");
+     * Crafty.s("MyCanvasLayer").one("RenderScene", function(){ this.everRendered = true; }); 
+     * ```
+     * Create a custom layer, and then bind a method to run the first time it renders.
+     * * @example
+     * ```
+     * Crafty("MyCanvasLayer").destroy();
+     * Crafty.s("MyCanvasLayer").destroy(); 
+     * ```
+     * For a previously defined "MyCanvasLayer", destroy it and all the entities rendered by it.
      */
     createLayer: function createLayer(name, type, options) {
         var layerTemplate = this._drawLayerTemplates[type];
