@@ -31,6 +31,9 @@ module.exports = function() {
 
     requireNew('./debug/logging');
 
+    // Define some aliases for renamed properties
+    require('./aliases').defineAliases(Crafty);
+
     // add dummys - TODO remove this in future
     Crafty.viewport = {
         _x: 0,
