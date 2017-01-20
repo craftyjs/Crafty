@@ -7,13 +7,14 @@ cache:
   directories:
   - node_modules
 
-before_install: if [ "$TRAVIS_BRANCH" != "testing" ]; then unset SAUCE_USERNAME && unset SAUCE_ACCESS_KEY; fi
+before_install: if [ "$TRAVIS_BRANCH" != $SAUCE_BRANCH ]; then unset SAUCE_USERNAME && unset SAUCE_ACCESS_KEY; fi
 before_script: npm install -g grunt-cli
 after_success: "./travis-nightly.sh"
 after_failure: if [ "$GH_TOKEN" ]; then grunt gh-pages:crafty-distro-regression-tests; fi
 
 env:
   global:
+  - SAUCE_BRANCH=testing
   # GitHub token
   - secure: p6SeAGd+Gohr6XeDkb5JPSQBu88UxAjljSMK0BNLJQgr8GkoA3mSJWy4uX0YjNq93VX4UMFxr0D4MlkcWZpX+cdN8K9PpxOgTq8Ml1Ljs355zbX9U/CdY99okiwzHktY4qKXBPsHLiEuCBeJ6pxs/v7m9z88mkjwDSunJG7F1oo=
   # OpenSauce credentials: for pre-relase testing
@@ -21,4 +22,5 @@ env:
   - secure: iGO+VCkCq/26Dqrc6+G1nX8Dk+tTqhcINuiIVhxGtMARcY+WIzcyEK/cfXRaLnvIzIxQ0xUoGGnM9xe4DQT8L+BGzo8AGnVbzxITzceWTlhsFepcbOTgqOg0ZGMxQVQ6VBh888Cdks8KsOgtTNhzd+oVgcStsyxZPCVD/7VgNTE=
 
 addons:
-  sauce_connect: true
+  sauce_connect:
+    no_ssl_bump_domains: all

@@ -139,6 +139,7 @@
 
   test("curTime", 1, function() {
     var startTime, lastKnownTime;
+
     Crafty.e("").bind("EnterFrame", function(params) {
       if (!startTime) {
         startTime = params.gameTime;
@@ -146,7 +147,6 @@
         lastKnownTime = params.gameTime;
       }
     });
-
     setTimeout(function() {
       var endTime = lastKnownTime;
       ok(endTime > startTime, "EndTime " + endTime + " must be larger than StartTime " + startTime);

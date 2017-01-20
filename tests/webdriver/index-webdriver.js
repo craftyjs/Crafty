@@ -9,14 +9,14 @@ var fs = require('fs'),
 
 // ADD ALL TESTS & RUN CONDITIONS HERE
 var tests = {
-    'template-generic': true,
-    'template-local': true,
-    'template-crafty': true,
-    'template-multi': true,
+    // Problems with input capture in firefox driver
+    'template-multi': function(browserName) { return browserName !== "firefox"; },
     'color/color-dom': true,
     'color/color-canvas': true,
-    'color/color-webgl': function(browserName) { return browserName !== 'phantomjs'; }
+    // neither phantomjs nor open sauce support webgl right now
+    'color/color-webgl': function(browserName) { return false; }
 };
+
 exports.specs = function() {
     return Object.keys(tests).map(function(t) {
         return 'tests/webdriver/' + t + '.js';
@@ -27,7 +27,7 @@ exports.exclude = function(browserName, version, platform) {
         runCondition;
     for (var test in tests) {
         runCondition = tests[test];
-        if (runCondition !== true && !runCondition(browserName, version, platform))
+        if (runCondition !== true && (runCondition === false || !runCondition(browserName, version, platform)))
             excluded.push('tests/webdriver/' + test + '.js');
     }
     return excluded;
@@ -43,13 +43,13 @@ function getRunId(capabilities) {
 // =====
 exports.onPrepare = function() {};
 exports.before = function() { // BEFORE RUNNING ANY TESTS, WITH GLOBALS AVAILABLE
-    var capabilities = GLOBAL.browser.desiredCapabilities;
+    var capabilities = global.browser.desiredCapabilities;
 
     //TODO retry commands with webbriverio/lib/helpers.js/staleElementRetry if need arises (StaleElementReference)
-    addGenericCommands(GLOBAL.browser);
-    addBrowserSpecificCommands(GLOBAL.browser, capabilities);
-    addTestSpecificCommands(GLOBAL.browser, GLOBAL.QUnit, getRunId(capabilities));
-    return setBrowserSpecificConfig(GLOBAL.browser, capabilities);
+    addGenericCommands(global.browser);
+    addBrowserSpecificCommands(global.browser, capabilities);
+    addTestSpecificCommands(global.browser, global.QUnit, getRunId(capabilities));
+    return setBrowserSpecificConfig(global.browser, capabilities);
 };
 exports.after = function(failures, pid) {};
 exports.onComplete = function() {};
@@ -147,6 +147,9 @@ function addGenericCommands(client) {
 
 // NON-STANDARD SCREENSHOT REGIONS PER PLATFORM
 var rotatedCrops = {};
+
+// These platforms are no longer used, and the updated versions require different regions
+// TODO: update them and add the new platforms back to supported-platforms-webdriver
 rotatedCrops[getRunId({"browserName": "android", "version": "4.1", "platform": "Linux"})] = { x: 0, y: 98, w: 261, h: 196, stretchW: 320, stretchH: 240 };
 rotatedCrops[getRunId({"browserName": "android", "version": "5.1", "platform": "Linux"})] = { x: 0, y: 110, w: 261, h: 196, stretchW: 320, stretchH: 240 };
 // TODO: iphone 8.4 emulator currently changing screenshot region constantly, readd to supported-browsers and observe region in future
@@ -308,10 +311,13 @@ function addTestSpecificCommands(client, QUnit, runId) {
 
     // WEBDRIVER COMMAND: TEST PAGE URL SHORTCUT
     client.addCommand("testUrl", function(testName, testScript) {
+        
         if (typeof testName === 'string' && typeof testScript === 'undefined') {
             testScript = testName;
             testName = undefined;
         }
+
+        console.log("\n# Starting " + (testName || currentTestName)  + " test for " + runId);
 
         if (typeof testScript === 'string') {
             var testFilePath = resultPath + (testName || currentTestName) + '.html',
@@ -330,10 +336,9 @@ function addTestSpecificCommands(client, QUnit, runId) {
                     "</script>"                                                             + EOL +
                     "</body>"                                                               + EOL +
                     "</html>"                                                               + EOL;
-
-            return qfs.write(testFilePath, testFile, 'w+')
-                    .then(this.url.bind(this, testFilePath));
-        } else {
+            return qfs.write("./" + testFilePath, testFile, 'w+')
+                    .then(this.url.bind(this, "/" + testFilePath));
+        } else { 
             return this.url(testPath + currentTestPath + '.html');
         }
     });
