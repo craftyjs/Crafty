@@ -278,7 +278,8 @@ module.exports = function (grunt) {
     grunt.registerTask('test-cloud-webdriver', ['webdriver:cloud']);
     grunt.registerTask('test-cloud', function() {
         // execute cloud tests only in travis, while on testing branch, with open sauce lab credentials
-        if (process.env.TRAVIS && process.env.TRAVIS_BRANCH === "testing" &&
+        var branch =  process.env.TRAVIS_BRANCH;
+        if (process.env.TRAVIS && branch === process.env.SAUCE_BRANCH &&
             process.env.SAUCE_USERNAME && process.env.SAUCE_ACCESS_KEY)
             grunt.task.run('connect', 'test-cloud-browser', 'test-cloud-webdriver');
     });

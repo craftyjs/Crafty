@@ -139,7 +139,9 @@
 
   test("curTime", 1, function() {
     var startTime, lastKnownTime;
+
     var framesTriggered = 0;
+
     Crafty.e("").bind("EnterFrame", function(params) {
       framesTriggered++;
       if (!startTime) {
@@ -148,7 +150,6 @@
         lastKnownTime = params.gameTime;
       }
     });
-
     setTimeout(function() {
       var endTime = lastKnownTime;
 

@@ -54,7 +54,7 @@
     "node-jsx": "^0.13.3",
     "node-resemble-js": "^0.1.1",
     "open": "^0.0.5",
-    "phantomjs-prebuilt": "2.1.13",
+    "phantomjs-prebuilt": "2.1.14",
     "q": "^1.4.1",
     "q-io": "^1.13.1",
     "qunitjs": "^2.0.1",

@@ -1,5 +1,5 @@
 /** CRAFTY-JS **/
-GLOBAL.Crafty = require('../src/crafty-headless.js')();
+global.Crafty = require('../src/crafty-headless.js')();
 Crafty.init();
 
 /** COMMON TEST CODE **/
