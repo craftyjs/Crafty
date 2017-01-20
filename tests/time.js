@@ -151,7 +151,7 @@
       var endTime = lastKnownTime;
       ok(endTime > startTime, "EndTime " + endTime + " must be larger than StartTime " + startTime);
       start();
-    }, 100);
+    }, 200);
     stop(); // pause the QUnit so the timeout has time to complete.
   });
 
