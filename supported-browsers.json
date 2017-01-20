@@ -6,7 +6,7 @@
   },
   {
     "browserName": "MicrosoftEdge",
-    "version": "20",
+    "version": "latest",
     "platform": "Windows 10"
   },
   {
@@ -36,7 +36,7 @@
   },
   {
     "browserName": "firefox",
-    "version": "beta",
+    "version": "latest",
     "platform": "Linux"
   },
   {
@@ -46,9 +46,9 @@
   },
   {
     "browserName": "android",
-    "version": "4.1",
+    "version": "4.4",
     "deviceName": "Android Emulator",
-    "platform": "Linux",
+    "platform": "linux",
     "deviceOrientation": "landscape"
   },
   {
