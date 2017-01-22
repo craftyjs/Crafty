@@ -216,10 +216,18 @@ Crafty.c("DOM", {
         return this;
     },
 
+    _setCssProperty: function(style, key, val) {
+        key = Crafty.domHelper.camelize(key);
+        if (typeof val === "number") val += 'px';
+        style[key] = val;
+        this.trigger("SetStyle", key);
+    },
+
     /**@
      * #.css
      * @comp DOM
      * @kind Method
+     * @trigger SetStyle - for each style that is set - string - propertyName
      * 
      * @sign public css(String property, String value)
      * @param property - CSS property to modify
@@ -259,21 +267,19 @@ Crafty.c("DOM", {
             for (key in obj) {
                 if (!obj.hasOwnProperty(key)) continue;
                 val = obj[key];
-                if (typeof val === "number") val += 'px';
-
-                style[Crafty.domHelper.camelize(key)] = val;
+                this._setCssProperty(style, key, val);
             }
         } else {
             //if a value is passed, set the property
             if (value) {
-                if (typeof value === "number") value += 'px';
-                style[Crafty.domHelper.camelize(obj)] = value;
+                this._setCssProperty(style, obj, value);
             } else { //otherwise return the computed property
                 return Crafty.domHelper.getStyle(elem, obj);
             }
         }
 
         this.trigger("Invalidate");
+        
 
         return this;
     }
