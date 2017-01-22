@@ -247,13 +247,15 @@ Crafty.c("DOM", {
      * To return a value, pass the property.
      *
      * Note: For entities with "Text" component, some css properties are controlled by separate functions
-     * `.textFont()` and `.textColor()`, and ignore `.css()` settings. See Text component for details.
+     * `.textFont()`, `.textAlign()` and `.textColor()`.  When possible, prefer text-specific methods, since
+     * they will work for non-DOM text.
+     * See the Text component for details.
      *
      * @example
      * ~~~
-     * this.css({'border-radius': '5px', 'text-decoration': 'line-through'});
-     * this.css("borderRadius", "10px");
-     * this.css("border-radius"); //returns 10px
+     * this.css({'border': '1px solid black', 'text-decoration': 'line-through'});
+     * this.css("textDecoration", "line-through");
+     * this.css("text-Decoration"); //returns line-through
      * ~~~
      */
     css: function (obj, value) {
