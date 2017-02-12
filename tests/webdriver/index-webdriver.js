@@ -224,7 +224,7 @@ function addBrowserSpecificCommands(client, capabilities) {
     }
 
     // WEBDRIVER COMMAND: NORMALIZED POINTER - trigger synthetic event
-    if (capabilities.browserName === 'chrome' && capabilities.version === 'beta') {
+    if (capabilities.browserName === 'chrome' && capabilities.platform === "Windows 10" ) {
 
         client.addCommand("pointerMove", function(x, y) {
             pointer.x = x;
