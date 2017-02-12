@@ -234,7 +234,7 @@ Crafty.c("DOM", {
      *
      * For setting one style, simply pass the style as the first argument and the value as the second.
      *
-     * The notation can be CSS or JS (e.g. `text-align` or `textAlign`).
+     * The notation can be CSS or JS (e.g. `border-radius` or `borderRadius`).
      *
      * To return a value, pass the property.
      *
@@ -243,9 +243,9 @@ Crafty.c("DOM", {
      *
      * @example
      * ~~~
-     * this.css({'text-align': 'center', 'text-decoration': 'line-through'});
-     * this.css("textAlign", "center");
-     * this.css("text-align"); //returns center
+     * this.css({'border-radius': '5px', 'text-decoration': 'line-through'});
+     * this.css("borderRadius", "10px");
+     * this.css("border-radius"); //returns 10px
      * ~~~
      */
     css: function (obj, value) {

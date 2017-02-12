@@ -44,7 +44,7 @@ module.exports = {
      *     Crafty.e("2D, DOM, Text")
      *           .attr({ w: 100, h: 20, x: 150, y: 120 })
      *           .text("Loading")
-     *           .css({ "text-align": "center"})
+     *           .css({ "border": "1px solid red"})
      *           .textColor("#FFFFFF");
      * });
      *
