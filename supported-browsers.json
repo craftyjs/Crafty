@@ -16,7 +16,7 @@
   },
   {
     "browserName": "chrome",
-    "version": "beta",
+    "version": "latest",
     "platform": "Windows 10"
   },
   {
