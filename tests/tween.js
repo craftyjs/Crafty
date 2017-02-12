@@ -23,7 +23,7 @@
   test("Tween with quadratic easing function", function() {
     var e = Crafty.e("2D, Tween");
     e.x = 0;
-    var ret = e.tween({
+    e.tween({
       x: 16
     }, 200, function(t){return (t*t);}); // 10 frames == 200 ms by efault
     Crafty.timer.simulateFrames(5);
@@ -60,7 +60,7 @@
       .tween({
         x: 100
       }, 50);
-    var e2 = Crafty.e('2D, Tween')
+    Crafty.e('2D, Tween')
       .attr({
         x: 0,
         y: 0

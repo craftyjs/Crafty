@@ -76,6 +76,37 @@
     strictEqual(destroyFlag, true, "Destroy flag true on destruction");
   });
 
+  test("name", function() {
+    var counter = 0;
+    var player = Crafty.e().bind("NewEntityName", function() {
+      counter++;
+    });
+
+    player.one("NewEntityName", function(name) {
+      strictEqual(name, "Player");
+    });
+    player.setName("Player");
+    strictEqual(player.getName(), "Player");
+
+    player.one("NewEntityName", function(name) {
+      strictEqual(name, "Player2");
+    });
+    player.setName("Player2");
+    strictEqual(player.getName(), "Player2");
+
+
+    var player3 = Crafty.e().one("NewEntityName", function(name) {
+      counter++;
+      strictEqual(name, "Player3");
+    });
+    player3.setName("Player3");
+    strictEqual(player3.getName(), "Player3");
+
+
+    strictEqual(player.getName(), "Player2", "other entity's name didn't change after changing another entity's name");
+    strictEqual(counter, 3, "correct number of events fired");
+  });
+
   test("attr", function() {
     var first = Crafty.e("test");
     first.attr("single", true);
@@ -397,7 +428,7 @@
   });
 
   test("Calling a scene destroys 2D entities", function() {
-    var e = Crafty.e("2D");
+    Crafty.e("2D");
     var sceneInit = function() {};
     Crafty.scene("test-destroy", sceneInit);
     Crafty.scene("test-destroy");
@@ -407,7 +438,7 @@
   });
 
   test("Calling a scene doesn't destroy 2D entities with Persist", function() {
-    var e = Crafty.e("2D, Persist");
+    Crafty.e("2D, Persist");
     var sceneInit = function() {};
     Crafty.scene("test-persist", sceneInit);
     Crafty.scene("test-persist");
@@ -613,6 +644,41 @@
     Crafty.unbind("PreRender", preRenderFunc);
     Crafty.unbind("RenderScene", renderSceneFunc);
     Crafty.unbind("PostRender", postRenderFunc);
+  });
+
+  test('Crafty.timer.steptype', function() {
+    var originalSteptype = Crafty.timer.steptype(),
+        steptype,
+        counter = 0;
+    var increment = function() {
+      counter++;
+    };
+    Crafty.bind("NewSteptype", increment);
+
+
+    Crafty.one("NewSteptype", function(evt) {
+      strictEqual(evt.mode, "fixed");
+      strictEqual(evt.maxTimeStep, 100);
+    });
+    Crafty.timer.steptype("fixed", 100);
+    steptype = Crafty.timer.steptype();
+    strictEqual(steptype.mode, "fixed");
+    strictEqual(steptype.maxTimeStep, 100);
+
+
+    Crafty.one("NewSteptype", function(evt) {
+      strictEqual(evt.mode, "variable");
+      strictEqual(evt.maxTimeStep, 1000);
+    });
+    Crafty.timer.steptype("variable", 1000);
+    steptype = Crafty.timer.steptype();
+    strictEqual(steptype.mode, "variable");
+    strictEqual(steptype.maxTimeStep, 1000);
+
+
+    strictEqual(counter, 2);
+    Crafty.unbind("NewSteptype", increment);
+    Crafty.timer.steptype(originalSteptype.mode, originalSteptype.maxTimeStep);
   });
 
   test('Crafty.timer.FPS', function() {

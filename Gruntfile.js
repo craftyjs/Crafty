@@ -1,12 +1,14 @@
 require("coffee-script");
-var open = require("open");
+var open = require("open"),
+    semver = require("semver");
+
 
 module.exports = function (grunt) {
     var banner = '/**\n' +
                 ' * <%= pkg.name %> <%= pkg.version %>\n' +
                 ' * <%= pkg.author.url %>\n *\n' +
                 ' * Copyright <%= grunt.template.today("yyyy") %>, <%= pkg.author.name %>\n' +
-                ' * Dual licensed under the MIT or GPL licenses.\n' +
+                ' * Licensed under the MIT license.\n' +
                 ' */\n\n';
 
     var docGen = function() {
@@ -25,7 +27,7 @@ module.exports = function (grunt) {
 
     var apiServer = require("./build/api-gen/dynamic-server.js");
     function runApiServer() {
-      var done = this.async();
+      this.async();
       apiServer(grunt, "./build/api.json");
       setTimeout(function(){
         open("http://localhost:8080");
@@ -38,8 +40,10 @@ module.exports = function (grunt) {
 
         pkg: grunt.file.readJSON('package.json'),
 
+        supportedBrowsers: grunt.file.readJSON('supported-browsers.json'),
+
         usebanner: {
-            dist: {
+            release: {
                 options: {
                     position: 'top',
                     banner: banner
@@ -48,7 +52,7 @@ module.exports = function (grunt) {
                     src: ['dist/crafty.js']
                 }
             },
-            debug: {
+            dev: {
                 options: {
                     position: 'top',
                     banner: banner
@@ -60,7 +64,7 @@ module.exports = function (grunt) {
         },
 
         browserify: {
-            dist: {
+            release: {
                 files: {
                     'dist/crafty.js': ['src/crafty.js']
                 },
@@ -68,7 +72,7 @@ module.exports = function (grunt) {
                     transform: ['brfs']
                 }
             },
-            debug: {
+            dev: {
                 files: {
                     'crafty.js': ['src/crafty.js']
                 },
@@ -79,9 +83,8 @@ module.exports = function (grunt) {
             }
         },
 
-
         watch: {
-            files: ['src/*.js', 'src/**/*.js'],
+            files: ['src/**/*.js'],
             tasks: ['build:dev']
         },
 
@@ -95,44 +98,36 @@ module.exports = function (grunt) {
             }
         },
 
-        jshint: {
-            files: ['Gruntfile.js', 'src/**/*.js', 'tests/**/*.js'],
-            options: {
-                trailing: true,
-                ignores: ['tests/lib/*.js'],
-                globals: {
-                }
-            }
+        jsvalidate: {
+            misc: ['Gruntfile.js'],
+            src: ['src/**/*.js'],
+            tests: ['tests/**/*.js'],
+            playgrounds: ['playgrounds/**/*.js'],
+            build: ['build/**/*.js'],
+            dev: ['crafty.js'],
+            release: ['dist/crafty.js', 'dist/crafty-min.js']
         },
 
+        jshint: {
+            options: {
+                jshintrc: true,
+                extract: 'auto'
+            },
+            misc: ['Gruntfile.js'],
+            src: ['src/**/*.js', 'src/**/*.html'],
+            tests: ['tests/**/*.js', 'tests/**/*.html', '!tests/lib/**/*.js'],
+            playgrounds: ['playgrounds/**/*.js', 'playgrounds/**/*.html']
+        },
+
+
         qunit: {
-            all: ['tests/index.html']
+
+            browser: ['tests/index.html']
         },
 
         'node-qunit': {
-            all: {
-                deps: 'tests/lib/helperFunctions.js',
-                code: 'tests/index_headless.js',
-                tests: [
-                    'tests/common.js',
-                    'tests/core.js',
-                    'tests/2d.js',
-                    'tests/logging.js',
-                    'tests/controls.js',
-                    'tests/events.js',
-                    //TODO add these once isometric adapted:
-                    //'tests/isometric.js',
-                    'tests/math.js',
-                    'tests/model.js',
-                    'tests/storage.js',
-                    'tests/systems.js',
-                    'tests/time.js',
-                    'tests/tween.js',
-                    'tests/issue746/mbr.js',
-                    'tests/issue746/pos.js',
-                    'tests/2D/collision/collision.js',
-                    'tests/2D/collision/sat.js'
-                ],
+            node: {
+                code: 'tests/index-headless.js',
                 setup: {
                     log: {
                         errors: true,
@@ -140,23 +135,56 @@ module.exports = function (grunt) {
                         globalSummary: true
                     }
                 },
-                done: function(err, res) {
-                    if (!err)
-                        grunt.log.ok("NODE TESTS SUCCESSFUL");
+                callback: function(err, res) {
+                    if (!err && res.failed === 0)
+                        grunt.log.ok("Node tests successful.");
                     else
-                        grunt.log.error("NODE TESTS FAILED");
+                        grunt.log.error("Node tests failed!");
                 }
             }
         },
 
-        jsvalidate: {
-            files: ['crafty.js', 'tests/**/*.js']
+        'saucelabs-qunit': {
+            browser: {
+                options: {
+                    urls: [ 'http://localhost:8000/tests/index.html' ],
+                    browsers: '<%= supportedBrowsers %>',
+                    testname: "Cross-browser compatibility tests for CraftyJS",
+                    build: process.env.TRAVIS_BUILD_NUMBER,
+                    tags: [ process.env.TRAVIS_BRANCH ],
+                    identifier: process.env.TRAVIS_JOB_NUMBER,
+                    tunneled: false,
+                    'public': 'public',
+                    sauceConfig: {
+                        "recordVideo": false,
+                        "recordScreenshots": true,
+                        "disablePopupHandler": true,
+                        "tunnel-identifier": process.env.TRAVIS_JOB_NUMBER,
+                        "tunnelIdentifier": process.env.TRAVIS_JOB_NUMBER
+                    },
+                    throttled: 5,
+                    'max-duration': 480,
+                    statusCheckAttempts: 150
+                }
+            }
+        },
+
+        webdriver: {
+            options: {
+            },
+            local: {
+                configFile: './tests/webdriver/index-webdriver-local.js'
+            },
+            cloud: {
+                configFile: './tests/webdriver/index-webdriver-cloud.js'
+            }
         },
 
         connect: {
             server: {
                 options: {
-                    keepalive: true
+                    port: 8000,
+                    base: '.'
                 }
             }
         },
@@ -165,11 +193,44 @@ module.exports = function (grunt) {
             api : {
               path: 'http://localhost:8080/',
             },
+        },
+
+        run: {
+            phantomjs: {
+                cmd: require('phantomjs-prebuilt').path,
+                args: [ '--webdriver=4444' ],
+                options: {
+                    quiet: true,
+                    wait: false,
+                    ready: /.*GhostDriver.*running.*/i
+                }
+            }
+        },
+
+        'gh-pages': {
+            options: {
+                silent: true,
+            },
+            'crafty-distro-regression-tests': {
+              options: {
+                repo: 'https://' + process.env.GH_TOKEN + '@github.com/craftyjs/Crafty-Distro.git',
+                branch: 'regression-tests',
+                message: 'Auto-generated commit of Travis build ' + process.env.TRAVIS_BUILD_NUMBER,
+                user: {
+                    name: 'Travis',
+                    email: 'travis@travis-ci.org'
+                },
+                base: 'build/webdriver/failed'
+                //add: false,
+                //only: ['**/*', '!README.md']
+              },
+              src: ['**/*.png']
+            }
         }
 
     });
 
-    // Load the plugin that provides the "uglify" task.
+    // Load grunt tasks
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-qunit');
@@ -179,18 +240,21 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-banner');
     grunt.loadNpmTasks('grunt-node-qunit');
+    grunt.loadNpmTasks('grunt-saucelabs');
+    grunt.loadNpmTasks('grunt-gh-pages');
+    grunt.loadNpmTasks('grunt-run');
+    grunt.loadNpmTasks('grunt-webdriver');
 
- 
 
     grunt.registerTask('version', 'Propagates version changes', function() {
         var pkg = grunt.config.get('pkg');
-        var version = grunt.option('crafty_version');
+        var version = grunt.option('crafty-version');
         if (!version) {
-            grunt.warn("No command-line argument 'crafty_version' specified. Rerun the task with '--crafty_version=X.X.X'.");
+            grunt.warn("No command-line argument '--crafty-version' specified. Rerun the task with '--crafty-version=X.X.X'. You can force a release with the previous version.");
             version = pkg.version;
         }
-        if (version === pkg.version) {
-            grunt.warn("Command-line argument 'crafty_version' is same as previous release version.");
+        if (!semver.gt(version, pkg.version)) {
+            grunt.warn("Command-line argument '--crafty-version' is not greater than previous version.");
         }
         pkg.version = version;
         grunt.config.set('pkg', pkg);
@@ -199,28 +263,50 @@ module.exports = function (grunt) {
         grunt.file.write('src/core/version.js', 'module.exports = "' + version + '";');
     });
 
+
+    // Run local tests
+    grunt.registerTask('test-local-browser', ['qunit:browser']);
+    grunt.registerTask('test-local-node', ['node-qunit:node']);
+    grunt.registerTask('test-local-webdriver', ['run:phantomjs', 'webdriver:local']);
+    grunt.registerTask('test-local', [
+        'test-local-browser', 'test-local-node', 'test-local-webdriver'
+    ]);
+
+
+    // Run tests in the cloud
+    grunt.registerTask('test-cloud-browser', ['saucelabs-qunit:browser']);
+    grunt.registerTask('test-cloud-webdriver', ['webdriver:cloud']);
+    grunt.registerTask('test-cloud', function() {
+        // execute cloud tests only in travis, while on testing branch, with open sauce lab credentials
+        var branch =  process.env.TRAVIS_BRANCH;
+        if (process.env.TRAVIS && branch === process.env.SAUCE_BRANCH &&
+            process.env.SAUCE_USERNAME && process.env.SAUCE_ACCESS_KEY)
+            grunt.task.run('connect', 'test-cloud-browser', 'test-cloud-webdriver');
+    });
+
+
+
     // Build development
-    grunt.registerTask('build:dev', ['browserify:debug', 'usebanner:debug']);
-
+    grunt.registerTask('build:dev', ['browserify:dev', 'usebanner:dev']);
     // Build release
-    grunt.registerTask('build:release', ['browserify:dist', 'usebanner:dist']);
-
+    grunt.registerTask('build:release', ['browserify:release', 'usebanner:release']);
     // Building the documentation
     grunt.registerTask('api', "Generate api documentation", docGen);
-
-    // Default task.
-    grunt.registerTask('default', ['build:dev', 'jsvalidate']);
-
-    // Run the test suite
-    grunt.registerTask('check', ['build:dev', 'jsvalidate', 'qunit', 'node-qunit', 'jshint']);
-
-    // Make crafty.js ready for release - minified version
-    grunt.registerTask('release', ['version', 'build:release', 'uglify', 'api']);
-
-    // Run only tests
-    grunt.registerTask('validate', ['qunit', 'node-qunit']);
-
     grunt.registerTask('api-server', "View dynamically generated docs", runApiServer);
     grunt.registerTask('view-api', ['api', 'api-server'] );
+
+    // Run only validation and lint
+    grunt.registerTask('validate', ['jsvalidate', 'jshint']);
+    // Run only test suite
+    grunt.registerTask('test', ['test-local', 'test-cloud']);
+
+    // Rebuild, validate and run the test suite
+    grunt.registerTask('check', ['build:dev', 'validate', 'test']);
+
+    // Default task - debug version
+    grunt.registerTask('default', ['jsvalidate:src', 'build:dev', 'jsvalidate:dev']);
+
+    // Make crafty.js ready for release - minified version
+    grunt.registerTask('release', ['version', 'build:release', 'uglify', 'jsvalidate:release', 'api']);
 
 };

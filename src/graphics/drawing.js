@@ -4,6 +4,8 @@ Crafty.extend({
     /**@
      * #Crafty.pixelart
      * @category Graphics
+     * @kind Method
+     * 
      * @sign public void Crafty.pixelart(Boolean enabled)
      * @param enabled - whether to preserve sharp edges when rendering images
      *
@@ -30,7 +32,6 @@ Crafty.extend({
      * @example
      * This is the preferred way to draw pixel art with the best cross-browser compatibility.
      * ~~~
-     * Crafty.canvasLayer.init();
      * Crafty.pixelart(true);
      * 
      * Crafty.sprite(imgWidth, imgHeight, "spriteMap.png", {sprite1:[0,0]});

@@ -280,7 +280,6 @@
     Crafty.timer.simulateFrames(2);
 
     equal(collisions.length, 2, "Exactly 2 collisions should have occurred");
-    if (collisions.length != 2) return;
 
     deepEqual(getCollisionParticipants(collisions[0]), ['Green', 'Purple'], "The first collision should have been between the purple and green blocks");
     deepEqual(getCollisionParticipants(collisions[1]), ['Green', 'Purple'], "The second collision should have been between the purple and green blocks");

@@ -192,7 +192,31 @@
     s.destroy();
   });
 
+  test("Special property `options` default values", function() {
+    var sys =  {
+        n: 0,
+        options: {
+            testFlag: true
+        }
+    };
+    Crafty.s("Test", sys, {secondFlag: false});
+    var s = Crafty.s("Test");
+    equal(s.options.testFlag, true, "Default values for options not changed when not set");
+    s.destroy();
+  });
 
+  test("Special property `options` override values", function() {
+    var sys =  {
+        n: 0,
+        options: {
+            testFlag: true
+        }
+    };
+    Crafty.s("Test", sys, {testFlag: false});
+    var s = Crafty.s("Test");
+    equal(s.options.testFlag, false, "Default values for options can be overridden");
+    s.destroy();
+  });
 
 })();
 

@@ -4,6 +4,7 @@ var Crafty = require('../core/core.js');
 /**@
  * #Crafty.rectManager
  * @category 2D
+ * @kind CoreObj
  *
  * Collection of methods for handling rectangles
  */
@@ -28,6 +29,8 @@ Crafty.extend({
       /**@
        * #Crafty.rectManager.overlap
        * @comp Crafty.rectManager
+       * @kind Method
+       * 
        * @sign public Boolean Crafty.rectManager.overlap(Object rectA, Object rectA)
        * @param rectA - An object that must have the `_x, _y, _w, _h` values as properties
        * @param rectB - An object that must have the `_x, _y, _w, _h` values as properties
@@ -39,10 +42,36 @@ Crafty.extend({
         return (rectA._x < rectB._x + rectB._w && rectA._x + rectA._w > rectB._x &&
                 rectA._y < rectB._y + rectB._h && rectA._y + rectA._h > rectB._y);
       },
+      
+      /**@
+       * #Crafty.rectManager.integerBounds
+       * @comp Crafty.rectManager
+       * @kind Method
+       * 
+       * @sign public Boolean Crafty.rectManager.integerBounds(Object rect)
+       * @param rect - An object that must have the `_x, _y, _w, _h` values as properties
+       * @return An enclosing rectangle with integer coordinates
+       *
+       * Calculate the smallest rectangle with integer coordinates that encloses the specified rectangle,
+       * modifying the passed object to have those bounds.
+       */
+      integerBounds: function(rect){
+        rect._w = rect._x + rect._w;
+        rect._h = rect._y + rect._h;
+        rect._x = (rect._x > 0) ? (rect._x|0) : (rect._x|0) - 1;
+        rect._y = (rect._y > 0) ? (rect._y|0) : (rect._y|0) - 1;
+        rect._w -= rect._x;
+        rect._h -= rect._y;
+        rect._w = (rect._w === (rect._w|0)) ? rect._w : (rect._w|0) + 1;
+        rect._h = (rect._h === (rect._h|0)) ? rect._h : (rect._h|0) + 1;
+        return rect;
+      },
 
       /**@
       * #Crafty.rectManager.mergeSet
       * @comp Crafty.rectManager
+      * @kind Method
+      *
       * @sign public Object Crafty.rectManager.mergeSet(Object set)
       * @param set - an array of rectangular regions
       *
@@ -76,6 +105,8 @@ Crafty.extend({
       /**@
        * #Crafty.rectManager.boundingRect
        * @comp Crafty.rectManager
+       * @kind Method
+       * 
        * @sign public Crafty.rectManager.boundingRect(set)
        * @param set - An array of rectangles
        *
@@ -84,8 +115,7 @@ Crafty.extend({
        */
       boundingRect: function (set) {
           if (!set || !set.length) return;
-          var newset = [],
-              i = 1,
+          var i = 1,
               l = set.length,
               current, master = set[0],
               tmp;

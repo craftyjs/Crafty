@@ -4,6 +4,7 @@ var Crafty = require('../core/core.js');
 /**@
  * #Crafty.log
  * @category Debug
+ * @kind Method
  *
  * @sign Crafty.log( arguments )
  * @param arguments - arguments which are passed to `console.log`
@@ -14,6 +15,7 @@ var Crafty = require('../core/core.js');
 /**@
  * #Crafty.error
  * @category Debug
+ * @kind Method
  *
  * @sign Crafty.error( arguments )
  * @param arguments - arguments which are passed to `console.error`
@@ -26,12 +28,12 @@ Crafty.extend({
 	loggingEnabled: true,
 	// In some cases console.log doesn't exist, so provide a wrapper for it
 	log: function() {
-		if (Crafty.loggingEnabled && console && console.log) {
+		if (Crafty.loggingEnabled && (typeof window !== "undefined" ? window.console : console) && console.log) {
 			console.log.apply(console, arguments);
 		}
 	},
 	error: function() {
-		if (Crafty.loggingEnabled && console && console.error) {
+		if (Crafty.loggingEnabled && (typeof window !== "undefined" ? window.console : console) && console.error) {
 			console.error.apply(console, arguments);
 		}
 	}

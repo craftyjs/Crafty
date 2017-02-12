@@ -120,8 +120,58 @@
 
   });
 
-  test("circle", function() {
+  test("pos", function() {
     var player = Crafty.e("2D").attr({
+      x: 0,
+      y: 50,
+      w: 100,
+      h: 150
+    });
+
+    var posObject = {};
+
+    player.pos(posObject);
+
+    strictEqual(player.pos()._x, 0, "X value");
+    strictEqual(posObject._x, 0, "X value");
+
+    strictEqual(player.pos()._y, 50, "Y value");
+    strictEqual(posObject._y, 50, "Y value");
+
+    strictEqual(player.pos()._w, 100, "W value");
+    strictEqual(posObject._w, 100, "W value");
+
+    strictEqual(player.pos()._h, 150, "H value");
+    strictEqual(posObject._h, 150, "H value");
+  });
+
+  test("mbr", function() {
+    var player = Crafty.e("2D").attr({
+      x: 0,
+      y: 50,
+      w: 100,
+      h: 150
+    });
+
+    var mbrObject = {};
+
+    player.mbr(mbrObject);
+
+    strictEqual(player.mbr()._x, 0, "X value");
+    strictEqual(mbrObject._x, 0, "X value");
+
+    strictEqual(player.mbr()._y, 50, "Y value");
+    strictEqual(mbrObject._y, 50, "Y value");
+
+    strictEqual(player.mbr()._w, 100, "W value");
+    strictEqual(mbrObject._w, 100, "W value");
+
+    strictEqual(player.mbr()._h, 150, "H value");
+    strictEqual(mbrObject._h, 150, "H value");
+  });
+
+  test("circle", function() {
+    Crafty.e("2D").attr({
       w: 50,
       h: 50
     });
@@ -169,10 +219,6 @@
       w: 50,
       h: 50
     });
-    var child0_ID = child0[0];
-    var child1_ID = child1[0];
-    var child2_ID = child2[0];
-    var child3_ID = child3[0];
     parent0.attach(child0);
     parent0.attach(child1);
     parent0.attach(child2);
@@ -186,9 +232,9 @@
     child1.destroy();
     deepEqual(parent0._children, [child0, child2, child3], 'child1 cleared itself from parent0._children when destroyed');
     parent0.destroy();
-    strictEqual(Crafty(child0_ID).length, 0, 'destruction of parent killed child0');
-    strictEqual(Crafty(child2_ID).length, 0, 'destruction of parent killed child2');
-    strictEqual(Crafty(child3_ID).length, 0, 'destruction of parent killed child3');
+    strictEqual(Crafty(child0[0]).length, 0, 'destruction of parent killed child0');
+    strictEqual(Crafty(child2[0]).length, 0, 'destruction of parent killed child2');
+    strictEqual(Crafty(child3[0]).length, 0, 'destruction of parent killed child3');
 
   });
 
@@ -274,6 +320,230 @@
     ok(e.map instanceof Crafty.polygon, "Hitbox is a polygon");
 
     strictEqual(newHitboxEvents, 3, "NewHitBox event triggered 3 times");
+  });
+
+  test("hit", function() {
+    var e = Crafty.e("2D, Collision, solid")
+                  .attr({x: 0, y: 0, w: 25, h: 25});
+    var f = Crafty.e("2D, Collision, solid")
+                  .attr({x: 255, y: 255, w: 25, h: 25});
+    var g = Crafty.e("2D, Collision, solid")
+                  .attr({x: 255, y: 255, w: 25, h: 25});
+    var h = Crafty.e("2D, Collision, plasma")
+                  .attr({x: 255, y: 255, w: 25, h: 25});
+
+    var results;
+
+    // check entity itself is not reported
+    results = e.hit('solid');
+    strictEqual(results, null, "empty collision results");
+
+    // check no reported hits given no intersections
+    results = e.hit('obj');
+    strictEqual(results, null, "empty collision results");
+
+    // check for hits given any-entity intersections
+    h.x = h.y = 0;
+    results = e.hit('obj');
+    strictEqual(results.length, 1, "exactly one collision result");
+    strictEqual(results[0].obj, h, "expected collision with entity h");
+
+    // check no reported hits with solid component
+    results = e.hit('solid');
+    strictEqual(results, null, "empty collision results");
+
+    // check for hits with solid entity
+    f.x = f.y = 0;
+    results = e.hit('solid');
+    strictEqual(results.length, 1, "exactly one collision result");
+    strictEqual(results[0].obj, f, "expected collision with entity f");
+
+    // check for hits with solid entities
+    g.x = g.y = 0;
+    results = e.hit('solid');
+    strictEqual(results.length, 2, "exactly two collision results");
+    var counter = 0;
+    for (var i = 0; i < 2; ++i) {
+      if (results[i].obj === f) counter++;
+      else if (results[i].obj === g) counter++;
+    }
+    strictEqual(counter, 2, "expected collisions with entity f and g");
+
+    // check no reported hits with solid component
+    f.x = f.y = g.x = g.y = 255;
+    results = e.hit('solid');
+    strictEqual(results, null, "empty collision results");
+  });
+
+  test("hit - collision type", function() {
+    var e = Crafty.e("2D, Collision, solid")
+                  .attr({x: 0, y: 0, w: 25, h: 25});
+    var f = Crafty.e("2D, solid")
+                  .attr({x: 0, y: 0, w: 25, h: 25});
+
+    var results;
+
+    // check for MBR type collision with other entity
+    results = e.hit('solid');
+    strictEqual(results.length, 1, "exactly one collision result");
+    strictEqual(results[0].obj, f, "expected collision with entity f");
+    strictEqual(results[0].type, 'MBR', "expected collision type");
+
+    // check for SAT type collision with other entity
+    f.addComponent('Collision');
+    results = e.hit('solid');
+    strictEqual(results.length, 1, "exactly one collision result");
+    strictEqual(results[0].obj, f, "expected collision with entity f");
+    strictEqual(results[0].type, 'SAT', "expected collision type");
+    ok('overlap' in results[0], "expected overlap value");
+  });
+
+  test("onHit", function() {
+    var e = Crafty.e("2D, Collision")
+                  .attr({x: 0, y: 0, w: 25, h: 25});
+    var f = Crafty.e("2D, Collision")
+                  .attr({x: 255, y: 255, w: 25, h: 25});
+    var g = Crafty.e("2D, Collision, solid")
+                  .attr({x: 255, y: 255, w: 25, h: 25});
+
+    var expectedHitDatas = {},
+        onCallbacks = 0,
+        firstOnCallbacks = 0,
+        offCallbacks = 0;
+
+    e.onHit('solid', function(hitDatas, isFirstCallback) { // callbackOn
+      onCallbacks++;
+      if (isFirstCallback) firstOnCallbacks++;
+
+      strictEqual(hitDatas.length, Object.keys(expectedHitDatas).length, "collision with exactly expected amount of entities");
+      for (var i = 0; i < hitDatas.length; ++i)
+        ok(hitDatas[i].obj[0] in expectedHitDatas, "collision with expected entity occurred");
+
+    }, function() { // callbackOff
+      offCallbacks++;
+    });
+
+    // check initial state
+    // default state with no intersections, before update frame
+    strictEqual(onCallbacks, 0, "no collision callbacks yet before update frame");
+    strictEqual(firstOnCallbacks, 0, "no collision callbacks yet before update frame");
+    strictEqual(offCallbacks, 0, "no collision callbacks yet before update frame");
+
+    // check initial state
+    // default state with no intersections, after update frame
+    Crafty.timer.simulateFrames(1);
+
+    strictEqual(onCallbacks, 0, "no collision callbacks if no intersection");
+    strictEqual(firstOnCallbacks, 0, "no collision callbacks if no intersection");
+    strictEqual(offCallbacks, 0, "no collision callbacks if no intersection");
+
+    // check no callbacks
+    // intersection with f, but without required component
+    f.x = f.y = 0;
+    Crafty.timer.simulateFrames(1);
+
+    strictEqual(onCallbacks, 0, "no collision callbacks yet before update frame");
+    strictEqual(firstOnCallbacks, 0, "no collision callbacks yet before update frame");
+    strictEqual(offCallbacks, 0, "no collision callbacks yet before update frame");
+
+    // check no callbacks done before frame update
+    // intersection with f, with required component, before update frame
+    f.addComponent('solid');
+
+    strictEqual(onCallbacks, 0, "no collision callbacks yet before update frame");
+    strictEqual(firstOnCallbacks, 0, "no collision callbacks yet before update frame");
+    strictEqual(offCallbacks, 0, "no collision callbacks yet before update frame");
+
+    // check callbacks done after frame update
+    // intersection with f, with required component, after update frame
+    expectedHitDatas = {};
+    expectedHitDatas[f[0]] = true;
+    Crafty.timer.simulateFrames(1);
+
+    strictEqual(onCallbacks, 1, "one collision callbackOn occurred");
+    strictEqual(firstOnCallbacks, 1, "first collision callbackOn occurred");
+    strictEqual(offCallbacks, 0, "no collision callbackOff occurred yet");
+
+    // check that first callbackOn no longer triggered
+    // another frame while intersected with f
+    Crafty.timer.simulateFrames(1);
+
+    strictEqual(onCallbacks, 2, "another collision callbackOn occurred");
+    strictEqual(firstOnCallbacks, 1, "not another first collision callbackOn occurred");
+    strictEqual(offCallbacks, 0, "no collision callbackOff occurred yet");
+
+    // check no callbacks before frame update
+    // no more intersection with f, before update frame
+    f.x = f.y = 255;
+
+    strictEqual(onCallbacks, 2, "no collision callbacks yet before update frame");
+    strictEqual(firstOnCallbacks, 1, "no collision callbacks yet before update frame");
+    strictEqual(offCallbacks, 0, "no collision callbacks yet before update frame");
+
+    // check callbacks done after frame update
+    // no more intersection with f, after update frame
+    expectedHitDatas = {};
+    Crafty.timer.simulateFrames(1);
+
+    strictEqual(onCallbacks, 2, "no more on-collision callbacks occurred");
+    strictEqual(firstOnCallbacks, 1, "no more on-collision callbacks occurred");
+    strictEqual(offCallbacks, 1, "one off-collision callback occurred");
+
+    // check that no callbacks while ide
+    // no intersections, after another update frame
+    Crafty.timer.simulateFrames(1);
+
+    strictEqual(onCallbacks, 2, "no collision callbacks occurred while idle");
+    strictEqual(firstOnCallbacks, 1, "no collision callbacks occurred while idle");
+    strictEqual(offCallbacks, 1, "no collision callbacks occurred while idle");
+
+    // check callbacks properly called with new collision event
+    f.x = f.y = 0;
+    expectedHitDatas = {};
+    expectedHitDatas[f[0]] = true;
+    Crafty.timer.simulateFrames(1);
+
+    strictEqual(onCallbacks, 3, "again collision callbackOn occurred");
+    strictEqual(firstOnCallbacks, 2, "again first collision callbackOn occurred");
+    strictEqual(offCallbacks, 1, "no collision callbackOff occurred yet");
+
+    // check that another intersecting entity does not change semantics of callbacks
+    g.x = g.y = 0;
+    expectedHitDatas[g[0]] = true;
+    Crafty.timer.simulateFrames(1);
+
+    strictEqual(onCallbacks, 4, "again collision callbackOn occurred");
+    strictEqual(firstOnCallbacks, 2, "first collision callbackOn did not occur");
+    strictEqual(offCallbacks, 1, "no collision callbackOff occurred yet");
+
+    // check semantics of all intersecting entities leaving collision at same time
+    f.x = f.y = g.x = g.y = 255;
+    expectedHitDatas = {};
+    Crafty.timer.simulateFrames(1);
+
+    strictEqual(onCallbacks, 4, "no more on-collision callbacks occurred");
+    strictEqual(firstOnCallbacks, 2, "no more on-collision callbacks occurred");
+    strictEqual(offCallbacks, 2, "one off-collision callback occurred");
+
+    // check semantics of all entities entering collision at same time
+    f.x = f.y = g.x = g.y = 0;
+    expectedHitDatas = {};
+    expectedHitDatas[f[0]] = true;
+    expectedHitDatas[g[0]] = true;
+    Crafty.timer.simulateFrames(1);
+
+    strictEqual(onCallbacks, 5, "again collision callbackOn occurred");
+    strictEqual(firstOnCallbacks, 3, "again first collision callbackOn occurred");
+    strictEqual(offCallbacks, 2, "no collision callbackOff occurred yet");
+
+    // check that an intersecting entity leaving collision does not change semantics of callbacks
+    g.x = g.y = 255;
+    delete expectedHitDatas[g[0]];
+    Crafty.timer.simulateFrames(1);
+
+    strictEqual(onCallbacks, 6, "again collision callbackOn occurred");
+    strictEqual(firstOnCallbacks, 3, "first collision callbackOn did not occur");
+    strictEqual(offCallbacks, 2, "no collision callbackOff occurred yet");
   });
 
   // This test assumes that the "circles" are really octagons, as per Crafty.circle.
@@ -379,6 +649,31 @@
     e.destroy();
   });
 
+  test("cbr", function() {
+    var player = Crafty.e("2D, Collision").attr({
+      x: 0,
+      y: 50,
+      w: 100,
+      h: 150
+    });
+
+    var cbrObject = {};
+
+    player.cbr(cbrObject);
+
+    strictEqual(player.cbr()._x, 0, "X value");
+    strictEqual(cbrObject._x, 0, "X value");
+
+    strictEqual(player.cbr()._y, 50, "Y value");
+    strictEqual(cbrObject._y, 50, "Y value");
+
+    strictEqual(player.cbr()._w, 100, "W value");
+    strictEqual(cbrObject._w, 100, "W value");
+
+    strictEqual(player.cbr()._h, 150, "H value");
+    strictEqual(cbrObject._h, 150, "H value");
+  });
+
   test("Hitboxes outside of entities (CBR)", function() {
     var poly = new Crafty.polygon([
       -8, 6,
@@ -462,6 +757,121 @@
 
     ok(e._cbr === null, "_cbr should now be removed along with Collision");
 
+  });
+
+  var EAST = new Crafty.math.Vector2D(1, 0).normalize();
+  var SOUTH_EAST = new Crafty.math.Vector2D(1, 1).normalize();
+  var NORTH_EAST = new Crafty.math.Vector2D(1, -1).normalize();
+  var NORTH_WEST = new Crafty.math.Vector2D(-1, -1).normalize();
+
+  test("Polygon intersection", function() {
+    var poly, distance,
+        origin, direction;
+
+    poly = new Crafty.polygon([0,0, 50,0, 50,50, 0,50]);
+
+    // intersection with ray slightly outside entity edge
+    origin = {_x: -1, _y: 25};
+    direction = EAST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance, 1, "ray intersects polygon on its left edge");
+
+    // intersection with ray origin at entity edge
+    origin = {_x: 0, _y: 0};
+    direction = EAST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance, 0, "ray intersects polygon on its left edge");
+
+    // intersection with ray origin inside entity
+    origin = {_x: 25, _y: 25};
+    direction = EAST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance, 25, "ray intersects polygon on its right edge");
+
+    // intersection with ray origin at entity edge
+    origin = {_x: 50, _y: 25};
+    direction = EAST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance, 0, "ray intersects polygon on its right edge");
+
+    // no intersection with ray going away
+    origin = {_x: 51, _y: 25};
+    direction = EAST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance, Infinity, "ray does not intersect polygon");
+
+
+    poly = new Crafty.polygon([-75,-75, -150,-150]);
+
+    // intersection with ray at crossing
+    origin = {_x: -150, _y: -75};
+    direction = NORTH_EAST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance.toFixed(4), (37.5 * Math.sqrt(2)).toFixed(4),
+      "ray intersects polygon at the crossing");
+
+    // no intersection with parallel ray
+    origin = {_x: -76, _y: -75};
+    direction = NORTH_WEST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance, Infinity, "ray does not intersect polygon");
+
+    // intersection with colinear ray starting before polygon
+    origin = {_x: -25, _y: -25};
+    direction = NORTH_WEST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance.toFixed(4), (50 * Math.sqrt(2)).toFixed(4),
+      "ray intersects polygon at polygon's start point");
+
+    // intersection with colinear ray starting at polygon start
+    origin = {_x: -75, _y: -75};
+    direction = NORTH_WEST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance, 0, "ray intersects polygon at polygon's start point");
+
+    // intersection with colinear ray starting inside polygon
+    origin = {_x: -100, _y: -100};
+    direction = NORTH_WEST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance.toFixed(4), (50 * Math.sqrt(2)).toFixed(4),
+      "ray intersects polygon at ray's origin");
+
+    // intersection with colinear ray starting at polygon end
+    origin = {_x: -150, _y: -150};
+    direction = NORTH_WEST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance, 0, "ray intersects polygon at polygon's end point");
+
+    // no intersection with colinear ray starting outside polygon
+    origin = {_x: -151, _y: -151};
+    direction = NORTH_WEST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance, Infinity, "ray does not intersect polygon");
+
+    // intersection with colinear ray starting at polygon end, going opposite direction
+    origin = {_x: -150, _y: -150};
+    direction = SOUTH_EAST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance, 0, "ray intersects polygon at polygon's end point");
+
+    // intersection with colinear ray starting inside polygon, going opposite direction
+    origin = {_x: -100, _y: -100};
+    direction = SOUTH_EAST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance.toFixed(4), (25 * Math.sqrt(2)).toFixed(4),
+      "ray intersects polygon at ray's origin");
+
+    // intersection with colinear ray starting at polygon start, going opposite direction
+    origin = {_x: -75, _y: -75};
+    direction = SOUTH_EAST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance, 0, "ray intersects polygon at polygon's start point");
+
+    // no intersection with colinear ray going opposite direction
+    origin = {_x: -74, _y: -74};
+    direction = SOUTH_EAST;
+    distance = poly.intersectRay(origin, direction);
+    strictEqual(distance, Infinity, "ray does not intersect polygon");
   });
 
 
@@ -578,12 +988,38 @@
     ent.destroy();
   });
 
+  test("Motion - CCDBR", function() {
+    var ent = Crafty.e("2D, Motion")
+      .attr({x: 0, y:0, w: 10, h: 10});
+    var ccdbr, ccdbr2;
+
+    ent._dx = 10; ent.x = 10;
+    ent._dy = -5; ent.y = -5;
+    ccdbr = ent.ccdbr();
+    strictEqual(ccdbr._x, 0, "tunneling rectangle property matches expected value");
+    strictEqual(ccdbr._w, 20, "tunneling rectangle property matches expected value");
+    strictEqual(ccdbr._y, -5, "tunneling rectangle property matches expected value");
+    strictEqual(ccdbr._h, 15, "tunneling rectangle property matches expected value");
+
+    ent._dx = -25; ent.x = -15;
+    ent._dy = 50; ent.y = 45;
+    ccdbr2 = ent.ccdbr(ccdbr);
+    strictEqual(ccdbr._x, -15, "tunneling rectangle property matches expected value");
+    strictEqual(ccdbr._w, 35, "tunneling rectangle property matches expected value");
+    strictEqual(ccdbr._y, -5, "tunneling rectangle property matches expected value");
+    strictEqual(ccdbr._h, 60, "tunneling rectangle property matches expected value");
+
+    strictEqual(ccdbr2._x, ccdbr._x, "object was reused");
+    strictEqual(ccdbr2._y, ccdbr._y, "object was reused");
+    strictEqual(ccdbr2._w, ccdbr._w, "object was reused");
+    strictEqual(ccdbr2._h, ccdbr._h, "object was reused");
+
+    ent.destroy();
+  });
+
   test("Motion - changing vector", function() {
-    var Vector2D = Crafty.math.Vector2D;
-    var zero = new Vector2D();
     var ent = Crafty.e("2D, Motion")
       .attr({x: 0, y:0});
-    var vec1 = ent.velocity();
 
     ent.vx = 5;
 
@@ -621,8 +1057,6 @@
   });
 
   test("Motion - Events", function() {
-    var Vector2D = Crafty.math.Vector2D;
-    var zero = new Vector2D();
     var e = Crafty.e("2D, Motion, AngularMotion")
       .attr({x: 0, y:0});
 
@@ -792,49 +1226,58 @@
       })
       .startGroundDetection("Ground");
 
-
+    // entity shouldn't land in initial position
     strictEqual(ent.ground, null, "entity should not be on ground");
     Crafty.timer.simulateFrames(1);
     strictEqual(ent.ground, null, "entity should not be on ground");
 
+    // entity should land when immediately above ground
     ent.y = 5;
     Crafty.timer.simulateFrames(1); // 1 landed event should have occured
     equal(ent.y, 5, "ent y should not have changed");
     strictEqual(ent.ground, ground, "entity should be on ground");
 
+    // entity should lift when no longer near ground
     ent.y = 0;
     Crafty.timer.simulateFrames(1); // 1 lifted event should have occured
     equal(ent.y, 0, "ent y should not have changed");
     strictEqual(ent.ground, null, "entity should not be on ground");
 
+    // entity should land when intersecting ground, and should snap to ground
     ent.y = 7;
     Crafty.timer.simulateFrames(1); // 1 landed event should have occured
     equal(ent.y, ground.y - ent.h, "ent y should have been snapped to ground");
     strictEqual(ent.ground, ground, "entity should be on ground");
 
+    // no snapping should happen if entity moves while still intersecting ground
     ent.y = 9;
     Crafty.timer.simulateFrames(1);
     equal(ent.y, 9, "ent y should not have changed");
     strictEqual(ent.ground, ground, "entity should be on ground");
 
+    // entity still interesects ground, nothing should change
     ent.y = 16;
     Crafty.timer.simulateFrames(1);
     equal(ent.y, 16, "ent y should not have changed");
     strictEqual(ent.ground, ground, "entity should be on ground");
 
+    // entity should change ground (lift from old & land on new) in a single frame
     ent.y = 21;
     Crafty.timer.simulateFrames(1); // 1 lifted event & 1 landed event should have occured
     equal(ent.y, ground2.y - ent.h, "ent y should have been snapped to ground");
     strictEqual(ent.ground, ground2, "entity should be on ground2");
 
+    // entity should lift from ground, if it looses the required component
     ground.removeComponent("Ground");
     ground2.removeComponent("Ground");
     Crafty.timer.simulateFrames(1); // 1 lifted event should have occured
     equal(ent.y, ground2.y - ent.h, "ent y should not have changed");
     strictEqual(ent.ground, null, "entity should not be on ground");
-
     ground.addComponent("Ground");
     ground2.addComponent("Ground");
+
+    // entity should not be able to land on ground if user forbids it
+    // but should be able to land on other ground2 since it's not forbidden
     ent.bind("CheckLanding", function(candidate) {
       if (candidate === ground)
         this.canLand = false;
@@ -848,8 +1291,15 @@
     equal(ent.y, ground2.y - ent.h, "ent y should have been snapped to ground");
     strictEqual(ent.ground, ground2, "entity should be on ground2");
 
+    // entity should lift from ground, if it gets destroyed
+    ground2.destroy();
+    Crafty.timer.simulateFrames(1); // 1 lifted event should have occured
+    equal(ent.y, ground2.y - ent.h, "ent y should not have changed");
+    strictEqual(ent.ground, null, "entity should not be on ground");
+
+
     equal(landedCount, 4, "landed count mismatch");
-    equal(liftedCount, 3, "lifted count mismatch");
+    equal(liftedCount, 4, "lifted count mismatch");
 
     ground.destroy();
     ground2.destroy();
@@ -869,6 +1319,232 @@
     strictEqual(player.x, 10, "player did not move with ground");
   });
 
+  test("Gravity", function() {
+    var player = Crafty.e("2D, Gravity")
+        .attr({ x: 0, y: 100, w: 32, h: 10 });
+
+    strictEqual(player.velocity().y, 0, "velocity should be 0 before activating gravity");
+    strictEqual(player.acceleration().y, 0, "acceleration should be 0 before activating gravity");
+    strictEqual(player._gravityConst, 500, "gravityConst should match default value");
+    strictEqual(player._gravityActive, false, "gravity should not be active");
+
+    player.gravityConst(0.3*50*50);
+    strictEqual(player.velocity().y, 0, "velocity should be 0 before activating gravity");
+    strictEqual(player.acceleration().y, 0, "acceleration should be 0 before activating gravity");
+    strictEqual(player._gravityConst, 0.3*50*50, "gravityConst should match new value");
+    strictEqual(player._gravityActive, false, "gravity should not be active");
+
+    strictEqual(player._groundComp, null, "no ground component set before activating gravity");
+    player.gravity("platform2");
+    strictEqual(player._gravityActive, true, "gravity should be active");
+    strictEqual(player._groundComp, "platform2", "new ground component set after activating gravity");
+    strictEqual(player.velocity().y, 0, "velocity should be 0 before stepping a frame");
+    strictEqual(player.acceleration().y, player._gravityConst, "acceleration should match gravity constant after activating gravity");
+
+    player.gravity("platform");
+    strictEqual(player._gravityActive, true, "gravity should be active");
+    strictEqual(player._groundComp, "platform", "ground component changed after reactivating gravity");
+    strictEqual(player.velocity().y, 0, "velocity should be 0 before stepping a frame");
+    strictEqual(player.acceleration().y, player._gravityConst, "acceleration should match gravity constant after activating gravity twice");
+
+    player.gravityConst(100);
+    strictEqual(player.velocity().y, 0, "velocity should be 0 before stepping a frame");
+    strictEqual(player.acceleration().y, player._gravityConst, "acceleration should match gravity constant after changing gravity constant while gravity is active");
+    strictEqual(player._gravityActive, true, "gravity should still be active");
+
+    player.vy = 1000;
+    player.gravityConst(0.2*50*50);
+    strictEqual(player.velocity().y, 1000, "velocity should not have been reset after changing gravityConst");
+
+    player.antigravity();
+    strictEqual(player._gravityActive, false, "gravity should be inactive");
+    strictEqual(player.acceleration().y, 0, "acceleration should be zero after deactivating gravity");
+    strictEqual(player.velocity().y, 0, "velocity should be zero after deactivating gravity");
+
+    player.gravity();
+    strictEqual(player._gravityActive, true, "gravity should be active");
+    strictEqual(player._groundComp, "platform", "ground component didn't change after reactivating");
+    strictEqual(player.acceleration().y, player._gravityConst, "acceleration should match gravity constant after activating gravity");
+    strictEqual(player.velocity().y, 0, "velocity should be still be zero immediately after deactivating gravity");
+  });
+
+
+  test("Supportable - Tunneling", function() {
+    var landedCount = 0,
+        liftedCount = 0,
+        fps = Crafty.timer.FPS(),
+        ground;
+
+    var player = Crafty.e("2D, Supportable, Motion")
+        .attr({ x: 10, y: 0, w: 10, h: 10 }) // x-extent [x, x+10] y-extent [y, y+10]
+        .bind("LiftedOffGround", function() {
+          liftedCount++;
+        })
+        .bind("LandedOnGround", function() {
+          landedCount++;
+        })
+        .startGroundDetection("Floor")
+        .preventGroundTunneling();
+
+
+    /*****************************************
+     * VERTICAL TUNNELING TESTS
+     *****************************************/
+    ground = Crafty.e("2D, Floor")
+                  .attr({ x: 0, y: 100, w: 30, h: 1 }); // x-extent [0, 30] y-extent [100, 101]
+
+    // slow fall velocity does not land player on far away ground
+    player.y = 0;
+    player.vy = 5 * fps;
+    Crafty.timer.simulateFrames(1); // player did not land
+    strictEqual(player.dy, 5, "player should have moved for an expected amount");
+    strictEqual(player.y + player.h, 5+10, "player should be at expected position");
+    ok(player.y + player.h < ground.y, "player should not have landed on ground");
+    player.y = 0;
+    player.resetMotion();
+    Crafty.timer.simulateFrames(1); // player did not lift
+
+    // fast fall velocity lands player on far away ground, does not tunnel player through ground
+    player.y = 0;
+    player.vy = 1e6 * fps;
+    Crafty.timer.simulateFrames(1); // landedCount++
+    strictEqual(player.dy, 1e6, "player should have moved for an expected amount");
+    strictEqual(player.y + player.h, ground.y, "player should have landed on ground");
+    player.y = 0;
+    player.resetMotion();
+    Crafty.timer.simulateFrames(1); // liftedCount++
+
+
+    // slow fall velocity lands player directly above ground
+    player.y = 90;
+    player.vy = 5 * fps;
+    Crafty.timer.simulateFrames(1); // landedCount++
+    strictEqual(player.dy, 5, "player should have moved for an expected amount");
+    strictEqual(player.y + player.h, ground.y, "player should have landed on ground");
+    player.y = 0;
+    player.resetMotion();
+    Crafty.timer.simulateFrames(1); // liftedCount++
+
+    // fast fall velocity lands player directly above ground, does not tunnel player through ground
+    player.y = 90;
+    player.vy = 1e6 * fps;
+    Crafty.timer.simulateFrames(1); // landedCount++
+    strictEqual(player.dy, 1e6, "player should have moved for an expected amount");
+    strictEqual(player.y + player.h, ground.y, "player should have landed on ground");
+    player.y = 0;
+    player.resetMotion();
+    Crafty.timer.simulateFrames(1); // liftedCount++
+
+
+    // slow fall velocity lands player while intersecting ground
+    player.y = 91;
+    player.vy = 5 * fps;
+    Crafty.timer.simulateFrames(1); // landedCount++
+    strictEqual(player.dy, 5, "player should have moved for an expected amount");
+    strictEqual(player.y + player.h, ground.y, "player should have landed on ground");
+    player.y = 0;
+    player.resetMotion();
+    Crafty.timer.simulateFrames(1); // liftedCount++
+
+    // fast fall velocity lands player while intersecting ground, does not tunnel player through ground
+    player.y = 91;
+    player.vy = 1e6 * fps;
+    Crafty.timer.simulateFrames(1); // landedCount++
+    strictEqual(player.dy, 1e6, "player should have moved for an expected amount");
+    strictEqual(player.y + player.h, ground.y, "player should have landed on ground");
+    player.y = 0;
+    player.resetMotion();
+    Crafty.timer.simulateFrames(1); // liftedCount++
+
+
+    // slow fall velocity lands player while intersecting ground
+    player.y = 101;
+    player.vy = 5 * fps;
+    Crafty.timer.simulateFrames(1); // player did not land
+    strictEqual(player.dy, 5, "player should have moved for an expected amount");
+    strictEqual(player.y + player.h, 101+5+10, "player should be at expected position");
+    ok(player.y > ground.y + ground.h, "player should not have landed on ground");
+    player.y = 0;
+    player.resetMotion();
+    Crafty.timer.simulateFrames(1); // player did not lift
+
+    // fast fall velocity lands player while intersecting ground, does not tunnel player through ground
+    player.y = 101;
+    player.vy = 1e6 * fps;
+    Crafty.timer.simulateFrames(1); // player did not land
+    strictEqual(player.dy, 1e6, "player should have moved for an expected amount");
+    strictEqual(player.y + player.h, 101+1e6+10, "player should be at expected position");
+    ok(player.y > ground.y + ground.h, "player should not have landed on ground");
+    player.y = 0;
+    player.resetMotion();
+    Crafty.timer.simulateFrames(1);// player did not lift
+
+    /*****************************************
+     * HORIZONTAL TUNNELING TESTS
+     *****************************************/
+    ground = Crafty.e("2D, Floor")
+                  .attr({ x: 100, y: 0, w: 1, h: 30 }); // x-extent [100, 101] y-extent [0, 30]
+
+    // slow horizontal velocity does not land player on far away ground
+    player.x = 0;
+    player.vx = 5 * fps;
+    Crafty.timer.simulateFrames(1); // player did not land
+    strictEqual(player.dx, 5, "player should have moved for an expected amount");
+    strictEqual(player.x + player.w, 5+10, "player should be at expected position");
+    ok(player.x + player.w < ground.x, "player should not have landed on ground");
+    player.x = 0;
+    player.resetMotion();
+    Crafty.timer.simulateFrames(1); // player did not lift
+
+    // fast horizontal velocity lands player on far away ground, does not tunnel player through ground
+    player.x = 0;
+    player.vx = 1e6 * fps;
+    Crafty.timer.simulateFrames(1); // landedCount++
+    strictEqual(player.dx, 1e6, "player should have moved for an expected amount");
+    strictEqual(player.x, ground.x + ground.w - 1, "player should have landed on ground");
+    player.x = 0;
+    player.resetMotion();
+    Crafty.timer.simulateFrames(1); // liftedCount++
+
+    /*****************************************
+     * DIAGONAL TUNNELING TESTS
+     *****************************************/
+    ground = Crafty.e("2D, Floor")
+                  .attr({ x: 99, y: 99, w: 2, h: 2 }); // x-extent [99, 101] y-extent [99, 101]
+
+    // slow diagonal velocity does not land player on far away ground
+    player.x = 150; player.vx = -5 * fps;
+    player.y = 150; player.vy = -5 * fps;
+    Crafty.timer.simulateFrames(1); // player did not land
+    strictEqual(player.dx, -5, "player should have moved for an expected amount");
+    strictEqual(player.dy, -5, "player should have moved for an expected amount");
+    strictEqual(player.x, 150-5, "player should be at expected position");
+    strictEqual(player.y, 150-5, "player should be at expected position");
+    ok(ground.x + ground.w < player.x, "player should not have landed on ground");
+    ok(ground.y + ground.h < player.y, "player should not have landed on ground");
+    player.x = 0;
+    player.y = 0;
+    player.resetMotion();
+    Crafty.timer.simulateFrames(1); // player did not lift
+
+    // fast diagonal velocity lands player on far away ground, does not tunnel player through ground
+    player.x = 150; player.vx = -100 * fps;
+    player.y = 150; player.vy = -100 * fps;
+    Crafty.timer.simulateFrames(1); // landedCount++
+    strictEqual(player.dx, -100, "player should have moved for an expected amount");
+    strictEqual(player.dy, -100, "player should have moved for an expected amount");
+    strictEqual(player.x + player.w, ground.x + 1, "player should have landed on ground");
+    strictEqual(player.y + player.h, ground.y, "player should have landed on ground");
+    player.x = 0;
+    player.y = 0;
+    player.resetMotion();
+    Crafty.timer.simulateFrames(1); // liftedCount++
+
+
+    strictEqual(landedCount, 7, "player should have landed correct number of times");
+    strictEqual(liftedCount, 7, "player should have lifted correct number of times");
+  });
+
 
   test("Integrationtest - Gravity", function() {
     var done = false;
@@ -880,8 +1556,7 @@
           .attr({ x: 0, y: 100, w: 32, h: 16 })
           .gravityConst(0.3*50*50)
           .gravity("platform");
-   
-    strictEqual(player.acceleration().y, player._gravityConst, "acceleration should match gravity constant");
+
 
     var vel = -1;
     player.bind("EnterFrame", function() {
@@ -905,12 +1580,6 @@
 
           Crafty.timer.simulateFrames(3);
           vel = -1;
-
-          var oldVel = this.velocity().y;
-          this.gravityConst(0.2*50*50);
-          strictEqual(this._gravityConst, 0.2*50*50, "gravity constant should have changed");
-          strictEqual(this.acceleration().y, this._gravityConst, "acceleration should match gravity constant");
-          strictEqual(this.velocity().y, oldVel, "velocity should not have been reset");
         });
         this.attr({y: 100});
       } else {
@@ -925,12 +1594,16 @@
     });
 
     Crafty.timer.simulateFrames(75);
-    ok(done, "Test completed");
+    ok(done, "Integrationtest completed");
   });
 
-
+  // Import keysUp/Down helper functions defined in common.js
+  var keysUp = global.keysUp;
+  var keysDown = global.keysDown;
+  
   test("Integrationtest - Twoway", function() {
     var done = false;
+    Crafty.resetKeyDown();
 
     var ground = Crafty.e("2D, platform")
           .attr({ x: 0, y: 200, w: 10, h: 20 });
@@ -949,13 +1622,13 @@
         this.bind("LiftedOffGround", function() {
           liftCount++;
           this.bind("EnterFrame", function() {
-            this.trigger("KeyDown", {key: Crafty.keys.UP_ARROW});
+            keysDown(Crafty.keys.UP_ARROW);
             if (this.velocity().y < -this._jumpSpeed)
               ok(false, "Twoway should not modify velocity");
           });
         });
 
-        this.trigger("KeyDown", {key: Crafty.keys.UP_ARROW});
+        keysDown(Crafty.keys.UP_ARROW);
       } else {
         strictEqual(landCount, 2, "two land on ground events should have been registered");
         strictEqual(liftCount, 1, "one lift off ground event should have been registered");
@@ -963,14 +1636,13 @@
         ground.destroy();
         player.destroy();
 
-        this.trigger("KeyUp", {key: Crafty.keys.UP_ARROW});
-        this.trigger("KeyUp", {key: Crafty.keys.UP_ARROW});
+        keysUp(Crafty.keys.UP_ARROW);
         done = true;
       }
     });
 
     Crafty.timer.simulateFrames(75);
-    ok(done, "Test completed");
+    ok(done, "Integration test completed");
   });
 
 })();

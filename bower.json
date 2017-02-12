@@ -7,12 +7,15 @@
     "game",
     "engine"
   ],
-  "license": ["GPL", "MIT"],
+  "license": [
+    "MIT"
+  ],
   "main": "dist/crafty.js",
   "ignore": [
     "**",
     "!bower.json",
     "!README.md",
+    "!CHANGELOG.md",
     "!dist",
     "!dist/crafty.js",
     "!dist/crafty-min.js"

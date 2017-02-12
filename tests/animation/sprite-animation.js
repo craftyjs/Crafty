@@ -8,7 +8,62 @@
   var finishedAnimations = [];
 
   // Initialize a sprite component
-  Crafty.sprite(64, 'animation/numbers.png', { 'numbers': [0, 0] });
+  Crafty.sprite(64, 'animation/numbers.png', {
+    'numbers': [0, 0],
+    'number3': [3, 0],
+    'number9': [9, 0]
+  });
+
+
+  module("Sprite");
+
+  test("Change sprite coordinates", function() {
+      var ent = Crafty.e('2D, Canvas')
+            .attr({ w: 64, h: 64 });
+
+      // adding the base Sprite component should provide no sprite coordinates
+      ent.addComponent('Sprite');
+      strictEqual(ent.__coord, undefined, "sprite coodinates unknown");
+
+      // adding a sprite component should affect sprite coordinates
+      ent.addComponent('numbers');
+      strictEqual(ent.__coord[0], 0, "sprite position inside sprite map matches");
+      strictEqual(ent.__coord[1], 0, "sprite position inside sprite map matches");
+      strictEqual(ent.__coord[2], 64, "sprite dimension inside sprite map matches");
+      strictEqual(ent.__coord[3], 64, "sprite dimension inside sprite map matches");
+
+      // changing sprite via cell location should affect sprite coordinates
+      ent.sprite(1, 0, 2, 1);
+      strictEqual(ent.__coord[0], 1 * 64, "sprite position inside sprite map matches");
+      strictEqual(ent.__coord[1], 0 * 64, "sprite position inside sprite map matches");
+      strictEqual(ent.__coord[2], 2 * 64, "sprite dimension inside sprite map matches");
+      strictEqual(ent.__coord[3], 1 * 64, "sprite dimension inside sprite map matches");
+
+      // changing sprite via tile name should affect sprite coordinates
+      ent.sprite('number9');
+      strictEqual(ent.__coord[0], 9 * 64, "sprite position inside sprite map matches");
+      strictEqual(ent.__coord[1], 0 * 64, "sprite position inside sprite map matches");
+      strictEqual(ent.__coord[2], 1 * 64, "sprite dimension inside sprite map matches");
+      strictEqual(ent.__coord[3], 1 * 64, "sprite dimension inside sprite map matches");
+
+      // changing sprite via invalid tile name should have no effect on sprite coordinates
+      ent.sprite('InvalidIdentifierXYZ');
+      strictEqual(ent.__coord[0], 9 * 64, "sprite position inside sprite map matches");
+      strictEqual(ent.__coord[1], 0 * 64, "sprite position inside sprite map matches");
+      strictEqual(ent.__coord[2], 1 * 64, "sprite dimension inside sprite map matches");
+      strictEqual(ent.__coord[3], 1 * 64, "sprite dimension inside sprite map matches");
+
+      // switching sprite components should affect sprite coordinates
+      ent.removeComponent('numbers');
+      ent.addComponent('number3');
+      strictEqual(ent.__coord[0], 3 * 64, "sprite position inside sprite map matches");
+      strictEqual(ent.__coord[1], 0 * 64, "sprite position inside sprite map matches");
+      strictEqual(ent.__coord[2], 1 * 64, "sprite dimension inside sprite map matches");
+      strictEqual(ent.__coord[3], 1 * 64, "sprite dimension inside sprite map matches");
+
+      ent.destroy();
+  });
+
 
   module("Sprite animation", {
     setup: function() {
@@ -117,7 +172,6 @@
   });
 
   test("Test .resetAnimation() with no active reel", function() {
-    var ret;
     var newAnimation = Crafty.e("SpriteAnimation");
 
     throws(function() {newAnimation.resetAnimation();}, /No active reel/, "Throws when calling .resetAnimation().");
@@ -145,7 +199,6 @@
     equal(ret, spriteAnimation, "Correctly returned self");
     equal(spriteAnimation._currentReelId, "short", "Correct _currentReelId after switching");
     equal(spriteAnimation._currentReel.id, "short", "Correct _currentReel.id after switching");
-    var e = "";
 
     throws( function() {spriteAnimation.reel("wrong");}, /The specified reel wrong is undefined/,  "Function should throw on bad reel");
 
@@ -200,6 +253,50 @@
     deepEqual(frames[0], [0, 0], "First frame is correct.");
     deepEqual(frames[1], [1, 0], "Second frame is correct.");
     deepEqual(frames[2], [2, 0], "Third frame is correct.");
+  });
+
+  test("Test using .reel to set a forward animation using start and end values with row wrapping", function() {
+    var ret = spriteAnimation.reel('long-test-forward', 70, 0, 0, 7, 4);
+    equal(ret, spriteAnimation, ".reel returned self correctly");
+    spriteAnimation.reel('long-test-forward');
+    var reel = spriteAnimation.getReel('long-test-forward');
+    equal(reel.id, "long-test-forward", "Id of reel is set correctly.");
+
+    equal(reel.duration, 70, "Reel has correct duration.");
+    equal(reel.currentFrame, 0, "Reel starts with correct currentFrame of 0.");
+    equal(reel.defaultLoops, 1, "Reel starts with correct default number of loops.");
+
+    var frames = reel.frames;
+    equal(frames.length, 7, "Reel has correct number of frames.");
+    deepEqual(frames[0], [0, 0], "First frame is correct.");
+    deepEqual(frames[1], [1, 0], "Second frame is correct.");
+    deepEqual(frames[2], [2, 0], "Third frame is correct.");
+    deepEqual(frames[3], [3, 0], "Fourth frame is correct.");
+    deepEqual(frames[4], [0, 1], "Fifth frame is correct.");
+    deepEqual(frames[5], [1, 1], "Sixth frame is correct.");
+    deepEqual(frames[6], [2, 1], "Seventh frame is correct.");
+  });
+
+  test("Test using .reel to set a backward animation using start and end values with row wrapping", function() {
+    var ret = spriteAnimation.reel('long-test-backward', 70, 2, 1, -7, 4);
+    equal(ret, spriteAnimation, ".reel returned self correctly");
+    spriteAnimation.reel('long-test-backward');
+    var reel = spriteAnimation.getReel('long-test-backward');
+    equal(reel.id, "long-test-backward", "Id of reel is set correctly.");
+
+    equal(reel.duration, 70, "Reel has correct duration.");
+    equal(reel.currentFrame, 0, "Reel starts with correct currentFrame of 0.");
+    equal(reel.defaultLoops, 1, "Reel starts with correct default number of loops.");
+
+    var frames = reel.frames;
+    equal(frames.length, 7, "Reel has correct number of frames.");
+    deepEqual(frames[0], [2, 1], "First frame is correct.");
+    deepEqual(frames[1], [1, 1], "Second frame is correct.");
+    deepEqual(frames[2], [0, 1], "Third frame is correct.");
+    deepEqual(frames[3], [3, 0], "Fourth frame is correct.");
+    deepEqual(frames[4], [2, 0], "Fifth frame is correct.");
+    deepEqual(frames[5], [1, 0], "Sixth frame is correct.");
+    deepEqual(frames[6], [0, 0], "Seventh frame is correct.");
   });
 
   test("Test using .reel to set an animation using an array of frames", function() {
@@ -361,7 +458,6 @@
 
   test("Play an animation and then switch to another reel", function() {
     var countReel = spriteAnimation.getReel("count");
-    var shortReel = spriteAnimation.getReel("short");
     spriteAnimation.animate('count');
     equal(spriteAnimation._isPlaying, true, "playing after call to animate.");
     equal(countReel.easing.paused, false, "easing not paused after call to animate.");

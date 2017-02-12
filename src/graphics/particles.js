@@ -4,6 +4,8 @@ var Crafty = require('../core/core.js'),
 /**@
  * #Particles
  * @category Graphics
+ * @kind Component
+ * 
  * @trigger ParticleEnd - when the particle animation has finished
  *
  * Based on Parcycle by Mr. Speaker, licensed under the MIT, Ported by Leo Koppelkamm
@@ -17,11 +19,14 @@ Crafty.c("Particles", {
         //We need to clone it
         this._Particles = Crafty.clone(this._Particles);
         this._Particles.parentEntity = this;
+        this._particlesPaused = false;
     },
 
     /**@
      * #.particles
      * @comp Particles
+     * @kind Method
+     * 
      * @sign public this .particles(Object options)
      * @param options - Map of options that specify the behavior and look of the particles.
      *
@@ -103,6 +108,7 @@ Crafty.c("Particles", {
         };
 
         this.bind('EnterFrame', function () {
+            if (this._particlesPaused) return;
             relativeX = this.x + Crafty.viewport.x;
             relativeY = this.y + Crafty.viewport.y;
             this._Particles.viewportDelta = {
@@ -118,7 +124,7 @@ Crafty.c("Particles", {
             this._Particles.position = this._Particles.vectorHelpers.create(relativeX, relativeY);
 
             //Selective clearing
-            if (typeof Crafty.rectManager.boundingRect == 'function') {
+            if (typeof Crafty.rectManager.boundingRect === 'function') {
                 bounding = Crafty.rectManager.boundingRect(this._Particles.register);
                 if (bounding) ctx.clearRect(bounding._x, bounding._y, bounding._w, bounding._h);
             } else {
@@ -181,11 +187,11 @@ Crafty.c("Particles", {
 
         init: function (options) {
             this.position = this.vectorHelpers.create(0, 0);
-            if (typeof options == 'undefined') options = {};
+            if (typeof options === 'undefined') options = {};
 
             //Create current config by merging given options and presets.
             for (var key in this.presets) {
-                if (typeof options[key] != 'undefined') this[key] = options[key];
+                if (typeof options[key] !== 'undefined') this[key] = options[key];
                 else this[key] = this.presets[key];
             }
 
@@ -194,7 +200,7 @@ Crafty.c("Particles", {
         },
 
         addParticle: function () {
-            if (this.particleCount == this.maxParticles) {
+            if (this.particleCount === this.maxParticles) {
                 return false;
             }
 
@@ -256,7 +262,7 @@ Crafty.c("Particles", {
                     this.emitCounter -= rate;
                 }
                 this.elapsedFrames++;
-                if (this.duration != -1 && this.duration < this.elapsedFrames) {
+                if (this.duration !== -1 && this.duration < this.elapsedFrames) {
                     this.stop();
                 }
             }
@@ -303,7 +309,7 @@ Crafty.c("Particles", {
                     this.particleIndex++;
                 } else {
                     // Replace particle with the last active
-                    if (this.particleIndex != this.particleCount - 1) {
+                    if (this.particleIndex !== this.particleCount - 1) {
                         this.particles[this.particleIndex] = this.particles[this.particleCount - 1];
                     }
                     this.particleCount--;
@@ -380,5 +386,52 @@ Crafty.c("Particles", {
                 return vector1;
             }
         }
+    },
+    /**@
+     * #.pauseParticles
+     * @comp Particles
+     * @kind Method
+     * 
+     * @sign public this.pauseParticles()
+     *
+     * The pauseParticles will freeze these particles in execution.
+     *
+     * @example
+     * ~~~
+     * // start particle animation
+     * var ent = Crafty.e("Particles").particles(someParticleConfig);
+     *
+     * // and some time later, the gameplay is paused (or only
+     * // a part of it is frozen)
+     * ent.pauseParticles();
+     * ~~~
+     */
+    pauseParticles: function() {
+        this._particlesPaused = true;
+    },
+    /**@
+     * #.resumeParticles
+     * @comp Particles
+     * @kind Method
+     * 
+     * @sign public this.resumeParticles()
+     *
+     * The resumeParticles will resume earlier paused particles
+     *
+     * @example
+     * ~~~
+     * // start particle animation
+     * var ent = Crafty.e("Particles").particles(someParticleConfig);
+     *
+     * // and some time later, the gameplay is paused (or only
+     * // a part of it is frozen)
+     * ent.pauseParticles();
+     *
+     * // and we resume the particles again
+     * ent.resumeParticles();
+     * ~~~
+     */
+    resumeParticles: function() {
+        this._particlesPaused = false;
     }
 });

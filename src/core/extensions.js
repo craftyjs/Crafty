@@ -1,9 +1,11 @@
-var Crafty = require('./core');
+var Crafty = require('../core/core.js');
 var document = (typeof window !== "undefined") && window.document;
 
 /**@
  * #Crafty.support
  * @category Misc, Core
+ * @kind CoreObject
+ * 
  * Determines feature support for what Crafty can do.
  */
 (function testSupport() {
@@ -19,6 +21,7 @@ var document = (typeof window !== "undefined") && window.document;
     /**@
      * #Crafty.mobile
      * @comp Crafty.device
+     * @kind Property
      *
      * Determines if Crafty is running on mobile device.
      *
@@ -36,6 +39,8 @@ var document = (typeof window !== "undefined") && window.document;
     /**@
      * #Crafty.support.defineProperty
      * @comp Crafty.support
+     * @kind Property
+     * 
      * Is `Object.defineProperty` supported?
      */
     support.defineProperty = (function () {
@@ -51,6 +56,8 @@ var document = (typeof window !== "undefined") && window.document;
     /**@
      * #Crafty.support.audio
      * @comp Crafty.support
+     * @kind Property
+     * 
      * Is HTML5 `Audio` supported?
      */
     support.audio = (typeof window !== "undefined") && ('canPlayType' in document.createElement('audio'));
@@ -58,6 +65,8 @@ var document = (typeof window !== "undefined") && window.document;
     /**@
      * #Crafty.support.prefix
      * @comp Crafty.support
+     * @kind Property
+     * 
      * Returns the browser specific prefix (`Moz`, `O`, `ms`, `webkit`, `node`).
      */
     support.prefix = (match[1] || match[0]);
@@ -71,6 +80,8 @@ var document = (typeof window !== "undefined") && window.document;
         /**@
          * #Crafty.support.versionName
          * @comp Crafty.support
+         * @kind Property
+         * 
          * Version of the browser
          */
         support.versionName = match[2];
@@ -78,6 +89,8 @@ var document = (typeof window !== "undefined") && window.document;
         /**@
          * #Crafty.support.version
          * @comp Crafty.support
+         * @kind Property
+         * 
          * Version number of the browser as an Integer (first number)
          */
         support.version = +(match[2].split("."))[0];
@@ -86,6 +99,8 @@ var document = (typeof window !== "undefined") && window.document;
     /**@
      * #Crafty.support.canvas
      * @comp Crafty.support
+     * @kind Property
+     * 
      * Is the `canvas` element supported?
      */
     support.canvas = (typeof window !== "undefined") && ('getContext' in document.createElement("canvas"));
@@ -93,6 +108,8 @@ var document = (typeof window !== "undefined") && window.document;
     /**@
      * #Crafty.support.webgl
      * @comp Crafty.support
+     * @kind Property
+     * 
      * Is WebGL supported on the canvas element?
      */
     if (support.canvas) {
@@ -111,6 +128,8 @@ var document = (typeof window !== "undefined") && window.document;
     /**@
      * #Crafty.support.css3dtransform
      * @comp Crafty.support
+     * @kind Property
+     * 
      * Is css3Dtransform supported by browser.
      */
     support.css3dtransform = (typeof window !== "undefined") && ((typeof document.createElement("div").style.Perspective !== "undefined") || (typeof document.createElement("div").style[support.prefix + "Perspective"] !== "undefined"));
@@ -118,6 +137,7 @@ var document = (typeof window !== "undefined") && window.document;
     /**@
      * #Crafty.support.deviceorientation
      * @comp Crafty.support
+     * @kind Property
      * Is deviceorientation event supported by browser.
      */
     support.deviceorientation = (typeof window !== "undefined") && ((typeof window.DeviceOrientationEvent !== "undefined") || (typeof window.OrientationEvent !== "undefined"));
@@ -125,6 +145,8 @@ var document = (typeof window !== "undefined") && window.document;
     /**@
      * #Crafty.support.devicemotion
      * @comp Crafty.support
+     * @kind Property
+     * 
      * Is devicemotion event supported by browser.
      */
     support.devicemotion = (typeof window !== "undefined") && (typeof window.DeviceMotionEvent !== "undefined");
@@ -137,6 +159,8 @@ module.exports = {
     /**@
      * #Crafty.addEvent
      * @category Events, Misc
+     * @kind Method
+     * 
      * @sign public this Crafty.addEvent(Object ctx, HTMLElement obj, String event, Function callback)
      * @param ctx - Context of the callback or the value of `this`
      * @param obj - Element to add the DOM event to
@@ -194,6 +218,8 @@ module.exports = {
     /**@
      * #Crafty.removeEvent
      * @category Events, Misc
+     * @kind Method
+     * 
      * @sign public this Crafty.removeEvent(Object ctx, HTMLElement obj, String event, Function callback)
      * @param ctx - Context of the callback or the value of `this`
      * @param obj - Element the event is on
@@ -226,6 +252,8 @@ module.exports = {
     /**@
      * #Crafty.background
      * @category Graphics, Stage
+     * @kind Method
+     * 
      * @sign public void Crafty.background(String style)
      * @param style - Modify the background with a color or image
      *

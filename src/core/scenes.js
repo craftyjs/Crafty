@@ -8,6 +8,8 @@ module.exports = {
     /**@
      * #Crafty.scene
      * @category Scenes, Stage
+     * @kind Method
+     * 
      * @trigger SceneChange - just before a new scene is initialized - { oldScene:String, newScene:String }
      * @trigger SceneDestroy - just before the current scene is destroyed - { newScene:String  }
      *
@@ -42,7 +44,7 @@ module.exports = {
      *     Crafty.e("2D, DOM, Text")
      *           .attr({ w: 100, h: 20, x: 150, y: 120 })
      *           .text("Loading")
-     *           .css({ "text-align": "center"})
+     *           .css({ "border": "1px solid red"})
      *           .textColor("#FFFFFF");
      * });
      *
@@ -94,6 +96,7 @@ module.exports = {
     /* 
      * #Crafty.defineScene
      * @category Scenes, Stage
+     * @kind Method
      *
      * @sign public void Crafty.enterScene(String name[, Data])
      * @param name - Name of the scene to run.
@@ -117,6 +120,8 @@ module.exports = {
     /* 
      * #Crafty.enterScene
      * @category Scenes, Stage
+     * @kind Method
+     * 
      * @trigger SceneChange - just before a new scene is initialized - { oldScene:String, newScene:String }
      * @trigger SceneDestroy - just before the current scene is destroyed - { newScene:String  }
      *

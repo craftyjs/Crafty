@@ -4,6 +4,7 @@ var Crafty = require('../core/core.js'),
 /**@
  * #DOM
  * @category Graphics
+ * @kind Component
  *
  * A component which renders entities as DOM nodes, specifically `<div>`s.
  */
@@ -11,6 +12,7 @@ Crafty.c("DOM", {
     /**@
      * #._element
      * @comp DOM
+     * @kind Property
      * The DOM element used to represent the entity.
      */
     _element: null,
@@ -20,17 +22,15 @@ Crafty.c("DOM", {
     /**@
      * #.avoidCss3dTransforms
      * @comp DOM
+     * @kind Property
+     * 
      * Avoids using of CSS 3D Transform for positioning when true. Default value is false.
      */
     avoidCss3dTransforms: false,
 
     init: function () {
-        var domLayer = Crafty.domLayer;
-        if (!domLayer._div) {
-            domLayer.init();
-        }
-        this._drawLayer = domLayer;
-
+        this.requires("Renderable");
+        
         this._cssStyles = {
             visibility: '',
             left: '',
@@ -43,29 +43,28 @@ Crafty.c("DOM", {
             transform: ''
         };
         this._element = document.createElement("div");
-        domLayer._div.appendChild(this._element);
-        this._element.style.position = "absolute";
-        this._element.id = "ent" + this[0];
 
-        this.bind("Invalidate", this._invalidateDOM);
+        // Attach the entity to the dom layer
+        if (!this._customLayer){
+            this._attachToLayer( Crafty.s("DefaultDOMLayer") );
+        }
+
         this.bind("NewComponent", this._updateClass);
         this.bind("RemoveComponent", this._removeClass);
-
-        this._invalidateDOM();
-
     },
 
     remove: function(){
-        this.undraw();
+        this._detachFromLayer();
         this.unbind("NewComponent", this._updateClass);
         this.unbind("RemoveComponent", this._removeClass);
-        this.unbind("Invalidate", this._invalidateDOM);
     },
 
     /**@
      * #.getDomId
      * @comp DOM
-     * @sign public this .getId()
+     * @kind Method
+     * 
+     * @sign public this .getDomId()
      *
      * Get the Id of the DOM element used to represent the entity.
      */
@@ -75,13 +74,13 @@ Crafty.c("DOM", {
 
     // removes a component on RemoveComponent events
     _removeClass: function(removedComponent) {
-        var i = 0,
+        var comp,
             c = this.__c,
             str = "";
-        for (i in c) {
-          if(i != removedComponent) {
-            str += ' ' + i;
-          }
+        for (comp in c) {
+            if (comp !== removedComponent) {
+                str += ' ' + comp;
+            }
         }
         str = str.substr(1);
         this._element.className = str;
@@ -89,37 +88,35 @@ Crafty.c("DOM", {
 
     // adds a class on NewComponent events
     _updateClass: function() {
-        var i = 0,
+        var comp,
             c = this.__c,
             str = "";
-        for (i in c) {
-            str += ' ' + i;
+        for (comp in c) {
+            str += ' ' + comp;
         }
         str = str.substr(1);
         this._element.className = str;
     },
 
-    _invalidateDOM: function(){
-        if (!this._changed) {
-                this._changed = true;
-                this._drawLayer.add(this);
-            }
-    },
-
     /**@
      * #.DOM
      * @comp DOM
+     * @kind Method
+     * 
      * @trigger Draw - when the entity is ready to be drawn to the stage - { style:String, type:"DOM", co}
      * @sign public this .DOM(HTMLElement elem)
      * @param elem - HTML element that will replace the dynamically created one
      *
      * Pass a DOM element to use rather than one created. Will set `._element` to this value. Removes the old element.
+     * 
+     * Will reattach the entity to the current draw layer
      */
     DOM: function (elem) {
         if (elem && elem.nodeType) {
-            this.undraw();
+            var layer = this._drawLayer;
+            this._detachFromLayer();
             this._element = elem;
-            this._element.style.position = 'absolute';
+            this._attachToLayer(layer);
         }
         return this;
     },
@@ -127,6 +124,9 @@ Crafty.c("DOM", {
     /**@
      * #.draw
      * @comp DOM
+     * @kind Method
+     * @private
+     * 
      * @sign public this .draw(void)
      *
      * Updates the CSS properties of the node to draw on the stage.
@@ -201,7 +201,7 @@ Crafty.c("DOM", {
             trans.push("scaleY(-1)");
         }
 
-        if (this._cssStyles.transform != trans.join(" ")) {
+        if (this._cssStyles.transform !== trans.join(" ")) {
             this._cssStyles.transform = trans.join(" ");
             style.transform = this._cssStyles.transform;
             style[prefix + "Transform"] = this._cssStyles.transform;
@@ -217,23 +217,10 @@ Crafty.c("DOM", {
     },
 
     /**@
-     * #.undraw
-     * @comp DOM
-     * @sign public this .undraw(void)
-     *
-     * Removes the element from the stage.
-     */
-    undraw: function () {
-        var el = this._element;
-        if (el && el.parentNode !== null) {
-            el.parentNode.removeChild(el);
-        }
-        return this;
-    },
-
-    /**@
      * #.css
      * @comp DOM
+     * @kind Method
+     * 
      * @sign public css(String property, String value)
      * @param property - CSS property to modify
      * @param value - Value to give the CSS property
@@ -247,7 +234,7 @@ Crafty.c("DOM", {
      *
      * For setting one style, simply pass the style as the first argument and the value as the second.
      *
-     * The notation can be CSS or JS (e.g. `text-align` or `textAlign`).
+     * The notation can be CSS or JS (e.g. `border-radius` or `borderRadius`).
      *
      * To return a value, pass the property.
      *
@@ -256,9 +243,9 @@ Crafty.c("DOM", {
      *
      * @example
      * ~~~
-     * this.css({'text-align': 'center', 'text-decoration': 'line-through'});
-     * this.css("textAlign", "center");
-     * this.css("text-align"); //returns center
+     * this.css({'border-radius': '5px', 'text-decoration': 'line-through'});
+     * this.css("borderRadius", "10px");
+     * this.css("border-radius"); //returns 10px
      * ~~~
      */
     css: function (obj, value) {

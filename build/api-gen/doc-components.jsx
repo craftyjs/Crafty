@@ -26,8 +26,7 @@ var MarkdownBlock = React.createClass({
   render: function() {
     var raw = this.props.value;
     var rawHtml = this.convert(raw);
-    var key = this.props.key;
-    return <span key={key} className="markdown" dangerouslySetInnerHTML={{__html: rawHtml}} />
+    return <span className="markdown" dangerouslySetInnerHTML={{__html: rawHtml}} />
   }
 })
 
@@ -46,11 +45,11 @@ var ToC = React.createClass({
       }
     }
     catArray.sort(nameSort);
-    var catElements = catArray.map( function(cat, index){return <Category key={cat.name} catName = {cat.name} pages = {cat.pages}/>});
-    return (
+    var catElements = catArray.map( function(cat, index){return <Category key={cat.name} catName = {cat.name} pages = {cat.pages} />});
+    return ( 
       <ul id = "doc-level-one">
         <li><a href="events.html">List of Events</a></li>
-        <Category catName = {primary} pages = {toc.categories[primary].pages}/>
+        <Category catName = {primary} pages = {toc.categories[primary].pages} />
         {catElements}
       </ul>
     )
@@ -58,9 +57,11 @@ var ToC = React.createClass({
 
 })
 
+// The logic for choosing the link name and target is complicated due to the inconsistent way these are tagged in source
 var DocLink = React.createClass({
   render: function() {
     var target = this.props.target;
+    var kind = this.props.kind || "missing";
     var linkText, href;
     var parent = (this.props.parentPage) ? this.props.parentPage.main.name : undefined;
     // If the link target starts with the name of the page, assume it is an internal link
@@ -94,14 +95,16 @@ var DocLink = React.createClass({
       linkText = target;
       href = cleanName(target) + ".html";
     }
-    return <a href={href}>{linkText}</a>
+    return <a href={href} className={"kind-" + kind}>{linkText}</a>
   }
 })
 
 var Category = React.createClass({
   render: function() {
-    this.props.pages.sort(stringSort);
-    var pages = this.props.pages.map(function(page, index){return <li key={page}><DocLink target={page}/></li>});
+    this.props.pages.sort(nameSort);
+    var dictionary = this.props.dict;
+    var pages = this.props.pages.map(function(page, index){return <li key={page.name}><DocLink target={page.name} kind={page.kind}/></li>});
+
     return ( 
       <li className="category">
         {this.props.catName}
@@ -473,7 +476,10 @@ var EventPage = React.createClass({
 var InternalLink = React.createClass({
     render: function() {
       var cleanTarget = cleanName(this.props.target);
-      var linkText = this.props.target.replace(this.props.parent, "");
+      var linkText = this.props.target;
+      if (linkText.indexOf(this.props.parent) == 0 ) {
+        linkText = linkText.replace(this.props.parent, "");
+      }
       return <a href={"#" + cleanTarget}>{linkText}</a>
     }
 });

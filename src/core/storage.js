@@ -10,6 +10,8 @@ try {
 /**@
  * #Storage
  * @category Utilities
+ * @kind Property
+ * 
  * Very simple way to get and set values, which will persist when the browser is closed also.
  * Storage wraps around HTML5 Web Storage, which is well-supported across browsers and platforms, but limited to 5MB total storage per domain.
  * Storage is also available for node, which is permanently persisted to the `./localStorage` folder - take care of removing entries. Note that multiple Crafty instances use the same storage, so care has to be taken not to overwrite existing entries.
@@ -17,6 +19,8 @@ try {
 /**@
  * #Crafty.storage
  * @comp Storage
+ * @kind Method
+ * 
  * @sign Crafty.storage(String key)
  * @param key - a key you would like to get from the storage. 
  * @returns The stored value, or `null` if none saved under that key exists
@@ -91,6 +95,8 @@ var store = function(key, value) {
 /**@
  * #Crafty.storage.remove
  * @comp Storage
+ * @kind Method
+ * 
  * @sign Crafty.storage.remove(String key)
  * @param key - a key where you will like to delete the value of.
  *
