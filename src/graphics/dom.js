@@ -216,10 +216,18 @@ Crafty.c("DOM", {
         return this;
     },
 
+    _setCssProperty: function(style, key, val) {
+        key = Crafty.domHelper.camelize(key);
+        if (typeof val === "number") val += 'px';
+        style[key] = val;
+        this.trigger("SetStyle", key);
+    },
+
     /**@
      * #.css
      * @comp DOM
      * @kind Method
+     * @trigger SetStyle - for each style that is set - string - propertyName
      * 
      * @sign public css(String property, String value)
      * @param property - CSS property to modify
@@ -239,13 +247,15 @@ Crafty.c("DOM", {
      * To return a value, pass the property.
      *
      * Note: For entities with "Text" component, some css properties are controlled by separate functions
-     * `.textFont()` and `.textColor()`, and ignore `.css()` settings. See Text component for details.
+     * `.textFont()`, `.textAlign()` and `.textColor()`.  When possible, prefer text-specific methods, since
+     * they will work for non-DOM text.
+     * See the Text component for details.
      *
      * @example
      * ~~~
-     * this.css({'border-radius': '5px', 'text-decoration': 'line-through'});
-     * this.css("borderRadius", "10px");
-     * this.css("border-radius"); //returns 10px
+     * this.css({'border': '1px solid black', 'text-decoration': 'line-through'});
+     * this.css("textDecoration", "line-through");
+     * this.css("text-Decoration"); //returns line-through
      * ~~~
      */
     css: function (obj, value) {
@@ -259,21 +269,19 @@ Crafty.c("DOM", {
             for (key in obj) {
                 if (!obj.hasOwnProperty(key)) continue;
                 val = obj[key];
-                if (typeof val === "number") val += 'px';
-
-                style[Crafty.domHelper.camelize(key)] = val;
+                this._setCssProperty(style, key, val);
             }
         } else {
             //if a value is passed, set the property
             if (value) {
-                if (typeof value === "number") value += 'px';
-                style[Crafty.domHelper.camelize(obj)] = value;
+                this._setCssProperty(style, obj, value);
             } else { //otherwise return the computed property
                 return Crafty.domHelper.getStyle(elem, obj);
             }
         }
 
         this.trigger("Invalidate");
+        
 
         return this;
     }

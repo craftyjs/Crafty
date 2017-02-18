@@ -106,6 +106,29 @@
     checkAlignment();
   });
 
+  test("Listen to style events for DOM Text", function(){
+    var e = Crafty.e("2D, DOM, Text");
+    
+    
+    e.text("hey how are you")
+      .textColor('#00FF00')
+      .textFont("size", "50px")
+      .textAlign("center");
+    equal(e._textColor, "rgba(0, 255, 0, 1)", "Color should be green.");
+    equal(e._textFont.size, "50px", "Size should be 50px.");
+    equal(e._textAlign, "center", "Alignment should be centered.");
+
+    e.css({
+      color: "red",
+      fontSize: "30px",
+      textAlign: "right"
+    });
+
+    equal(e._textColor, "rgba(255, 0, 0, 1)", "Color should be red.");
+    equal(e._textFont.size, "30px", "Size should be 30px.");
+    equal(e._textAlign, "right", "Alignment should be right.");
+  });
+
   test("MBR after alignment change", function() {
     var e = Crafty.e("2D, Canvas, Text");
     e.text("a");
