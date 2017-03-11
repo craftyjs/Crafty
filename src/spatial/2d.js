@@ -770,6 +770,8 @@ Crafty.c("2D", {
      *
      * Set the origin point of an entity for it to rotate around.
      *
+     * @triggers OriginSet -- after the new origin is assigned
+     * 
      * @example
      * ~~~
      * this.origin("top left")
@@ -814,7 +816,7 @@ Crafty.c("2D", {
 
         this._origin.x = x;
         this._origin.y = y;
-
+        this.trigger("OriginChanged");
         return this;
     },
 
