@@ -58,10 +58,12 @@ Crafty.extend({
      *
      * After a click occurs inside Crafty's stage, this property is set to `true`.
      * After a click occurs outside Crafty's stage, this property is set to `false`.
+     * 
+     * Defaults to true.
      *
      * @see Crafty.stage#Crafty.stage.elem
      */
-    selected: false,
+    selected: true,
 
     detectBlur: function (e) {
         var selected = ((e.clientX > Crafty.stage.x && e.clientX < Crafty.stage.x + Crafty.viewport.width) &&
