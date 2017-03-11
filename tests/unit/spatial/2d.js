@@ -303,6 +303,25 @@
     _.strictEqual(child._rotation, 90, "child also rotates 90deg");
   });
 
+  test("origin properties", function(_) {
+        var player = Crafty.e("2D, Centered").attr({
+            x: 0,
+            y: 0,
+            w: 50,
+            h: 50
+        });
+        player.origin(10, 10);
+        
+        
+        player.ox = 20;
+        _.strictEqual(player.x, 10, "X set such that origin is at ox");
+        _.strictEqual(player.ox, 20, "OX set to 20");
+        
+        
+        player.oy = 30;
+        _.strictEqual(player.y, 20, "Y set such that origin is at oy");
+        _.strictEqual(player.oy, 30, "OY set to 20");
+    });
 
 
   module("Geometric");

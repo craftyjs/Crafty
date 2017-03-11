@@ -138,7 +138,7 @@ Crafty.c("2D", {
     _children: null,
     _parent: null,
 
-    // Setup   all the properties that we need to define
+    // Setup all the properties that we need to define
     properties: {
         x: {
             set: function (v) {
@@ -210,7 +210,49 @@ Crafty.c("2D", {
             configurable: true,
             enumerable: true
         },
-        _rotation: {enumerable:false}
+        _rotation: {enumerable:false},
+        
+        /**@
+         * #.ox
+         * @comp 2D
+         * @kind Property
+         * 
+         * The `x` position on the stage of the origin. When modified, will set the underlying `x` value of the entity.
+         * 
+         * @see .origin
+         */
+        ox: {
+            set: function (v) {
+                var x = v - this._origin.x;
+                this._setter2d('_x', x);
+            },
+            get: function () {
+                return this._x + this._origin.x;
+            },
+            configurable: true,
+            enumerable: true
+        },
+
+        /**@
+         * #.oy
+         * @comp 2D
+         * @kind Property
+         * 
+         * The `y` position on the stage of the origin. When modified, will set the underlying `y` value of the entity.
+         * 
+         * @see .origin
+         */
+        oy: {
+            set: function (v) {
+                var y = v - this._origin.y;
+                this._setter2d('_y', y);
+            },
+            get: function () {
+                return this._y + this._origin.y;
+            },
+            configurable: true,
+            enumerable: true
+        }
     },
 
     init: function () {
@@ -780,7 +822,12 @@ Crafty.c("2D", {
      * @param offset - Alignment identifier, which is a combination of center, top, bottom, middle, left and right
      *
      * Set the origin point of an entity for it to rotate around.
+     * 
+     * The properties `ox` and `oy` map to the coordinates of the origin on the stage; setting them moves the entity.
+     * In contrast, this method sets the origin relative to the entity itself.
      *
+     * @triggers OriginChanged -- after the new origin is assigned
+     * 
      * @example
      * ~~~
      * this.origin("top left")
@@ -803,7 +850,7 @@ Crafty.c("2D", {
      *       .attr({x: 25, y: 25, rotation: 180});
      * ~~~
      *
-     * @see .rotation
+     * @see .rotation, .ox, .oy
      */
     origin: function (x, y) {
         //text based origin
@@ -825,7 +872,7 @@ Crafty.c("2D", {
 
         this._origin.x = x;
         this._origin.y = y;
-
+        this.trigger("OriginChanged");
         return this;
     },
 
