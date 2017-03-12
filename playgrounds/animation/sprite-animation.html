@@ -14,6 +14,7 @@
 			<select id="playReelId">
 				<option value="count" selected>Count</option>
 				<option value="countEven">Count Even</option>
+                                <option value="countEven_names">Count Even (frame names)</option>
 				<option value="short">Short</option>
 				<option value="countSlow">Count Slow</option>
 			</select>
@@ -23,6 +24,10 @@
 		<div>
 			<button onclick="playgroundPosition();">Jump to</button>
 			<input type="number" id="reelPosition"></input>
+		</div>
+                <div>
+			<button onclick="playgroundFrame();">Jump to by name</button>
+			<input id="reelFrame"></input>
 		</div>
 		<div>
 			<button onclick="playgroundPause();">Pause</button>

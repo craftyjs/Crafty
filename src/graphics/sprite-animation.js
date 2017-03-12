@@ -406,7 +406,34 @@ Crafty.c("SpriteAnimation", {
 
         return this;
     },
-
+    
+    /**@
+     * #.reelFrame
+     * @kind Method
+     * 
+     * @comp SpriteAnimation
+     * 
+     * @sign public this .reelFrame(String frameName)
+     * Sets the position of the current reel by frame name.
+     * @param frameName - Name in the sprite map.
+     * 
+     * Jumps to specifed frame if the reel was created with sprite names.
+     * 
+     */
+    reelFrame: function (frameName) {
+        if (this._currentReel === null)
+            throw("No active reel.");
+        
+        var index = this._currentReel.frames.indexOf(frameName);
+        
+        if (index === -1) {
+            throw("Frame name " + frameName + " is invalid.");
+        }
+        
+        this.reelPosition(index);
+        
+        return this;
+    },
 
     // Bound to "EnterFrame".  Progresses the animation by dt, changing the frame if necessary.
     // dt is multiplied by the animationSpeed property
@@ -424,10 +451,6 @@ Crafty.c("SpriteAnimation", {
         }
     },
 
-
-
-
-
     // Set the current frame and update the displayed sprite
     // The actual progress for the animation must be set seperately.
     _setFrame: function(frameNumber) {
@@ -442,9 +465,13 @@ Crafty.c("SpriteAnimation", {
     // Update the displayed sprite.
     _updateSprite: function() {
         var currentReel = this._currentReel;
-        var pos = currentReel.frames[currentReel.currentFrame];
-        this.sprite(pos[0], pos[1]); // .sprite will trigger redraw
-
+        var frame = currentReel.frames[currentReel.currentFrame];
+        
+        if(typeof frame === "string") {
+            this.sprite(frame);
+        }
+        else
+            this.sprite(frame[0], frame[1]); // .sprite will trigger redraw
     },
 
 
