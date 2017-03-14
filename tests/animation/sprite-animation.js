@@ -8,10 +8,18 @@
   var finishedAnimations = [];
 
   // Initialize a sprite component
-  Crafty.sprite(64, 'animation/numbers.png', {
-    'numbers': [0, 0],
-    'number3': [3, 0],
-    'number9': [9, 0]
+  Crafty.sprite(64, "animation/numbers.png", {
+    "numbers": [0, 0],
+    "number0": [0, 0], 
+    "number1": [1, 0], 
+    "number2": [2, 0], 
+    "number3": [3, 0], 
+    "number4": [4, 0], 
+    "number5": [5, 0], 
+    "number6": [6, 0], 
+    "number7": [7, 0], 
+    "number8": [8, 0], 
+    "number9": [9, 0]
   });
 
 
@@ -73,6 +81,7 @@
       spriteAnimation.reel('count', 200, 0, 0, 10); // 10 frames duration
       spriteAnimation.reel('countSlow', 1200, 0, 0, 10); //60 frames duration
       spriteAnimation.reel('countEven', 100, [[0, 0], [2, 0], [4, 0], [6, 0], [8, 0]]); // 5 frames
+      spriteAnimation.reel('countEven_names', 100, ["number0", "number2", "number4", "number6", "number8"]); // animation by sprite names
       spriteAnimation.reel('short', 60, 0, 0, 3); // 3 frames
 
       spriteAnimation.reel("count").resetAnimation().pauseAnimation();
@@ -319,7 +328,7 @@
     deepEqual(frames[2], [2, 0], "Third frame is correct.");
   });
 
-  test("Set position of current reel by frame.", function() {
+  test("Set position of current reel by frame number.", function() {
     spriteAnimation.reel("short");
     var ret = spriteAnimation.reelPosition(1);
     equal(ret, spriteAnimation, "Correctly returned self.");
@@ -365,6 +374,18 @@
     pos = spriteAnimation.reelPosition();
     equal(pos, 0, "Correctly returned current position at beginning.");
   });
+  
+  test("Set position of current reel by sprite name.", function() {
+    spriteAnimation.reel("countEven_names");
+    
+    spriteAnimation.reelFrame("number2");
+    equal(spriteAnimation._currentReel.currentFrame, 1, "Set to frame of index 1.");
+    
+    spriteAnimation.reelFrame("number0");
+    equal(spriteAnimation._currentReel.currentFrame, 0, "Set back to first frame.");
+    
+    throws(function() {spriteAnimation.reelFrame("numbers");}, /Frame .+ is invalid/, "Throws when calling .reelFrame().");
+  });
 
   test("Get number of loops left; .loops(void)", function() {
     spriteAnimation.reel("count");
@@ -398,6 +419,16 @@
   test("Play an animation defined using an array", function() {
     // Play for 5 frames, each sprite will show up for one frame
     spriteAnimation.animate('countEven');
+    for (var i = 0; i < 5; i++) {
+      var activeReel = spriteAnimation.getReel();
+      equal(activeReel.currentFrame, i, "Frame " + i + " should be displayed");
+      Crafty.timer.simulateFrames(1);
+    }
+  });
+  
+  test("Play an animation defined using sprite names", function() {
+    // Play for 5 frames, each sprite will show up for one frame
+    spriteAnimation.animate('countEven_names');
     for (var i = 0; i < 5; i++) {
       var activeReel = spriteAnimation.getReel();
       equal(activeReel.currentFrame, i, "Frame " + i + " should be displayed");
@@ -584,7 +615,7 @@
     deepEqual(finishedAnimations, ['short', 'short'], "Expected the animation to end twice");
   });
 
-  test("Set an animation to a specific frame", function() {
+  test("Set an animation to a specific frame number", function() {
     spriteAnimation.animate('short');
     Crafty.timer.simulateFrames(3);
     var ret = spriteAnimation.reelPosition(1);
