@@ -108,7 +108,7 @@ Crafty.c("Image", {
     // called on image change or layer attachment
     _setupImage: function(layer){
         if (!this.img || !layer) return;
-        
+
         if (layer.type === "Canvas") {
             this._pattern = this._drawContext.createPattern(this.img, this._repeat);
         } else if (layer.type === "WebGL") {
