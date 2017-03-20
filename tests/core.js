@@ -76,6 +76,43 @@
     strictEqual(destroyFlag, true, "Destroy flag true on destruction");
   });
 
+  // check the properties attribute of components, especially the pattern used by existing components
+  test("properties", function() {
+    
+    Crafty.c("PropertyTest", {
+      properties: {
+        foo: {
+          set: function(value){
+            this._foo = value;
+          },
+          get: function(){
+            return this._foo;
+          },
+          configurable: true,
+          enumerable: true
+        },
+        _foo: {value: 0, writable: true, enumerable:false}
+      }
+    });
+    var e = Crafty.e("PropertyTest");
+ 
+    strictEqual(e._foo, 0, "Initial value works");
+
+    e.foo = 5;
+    strictEqual(e._foo, 5, "Setter works");
+    
+    e._foo = 10;
+    strictEqual(e.foo, 10, "Getter works");
+    
+    var propList = [];
+    for (var prop in e){
+      propList.push(prop);
+    }
+
+    ok(propList.indexOf("foo") >=0, "Property foo is enumerable");
+    ok(propList.indexOf("_foo") == -1, "Property _foo is not enumerable");
+  });
+
   test("name", function() {
     var counter = 0;
     var player = Crafty.e().bind("NewEntityName", function() {
