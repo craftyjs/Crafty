@@ -110,7 +110,7 @@
     }
 
     ok(propList.indexOf("foo") >=0, "Property foo is enumerable");
-    ok(propList.indexOf("_foo") == -1, "Property _foo is not enumerable");
+    ok(propList.indexOf("_foo") === -1, "Property _foo is not enumerable");
   });
 
   test("name", function() {
