@@ -239,6 +239,9 @@ Crafty.c("GroundAttacher", {
  *
  * Additionally, this component provides the entity with `Supportable` and `Motion` methods & events.
  *
+ * Simulates jumping and falling when used with the `Twoway` component and is thus well suited for side-scrolling platformer type games.
+ * This component should not be used alongside `Fourway` or `Multiway`.
+ *
  * @see Supportable, Motion
  */
 Crafty.c("Gravity", {
