@@ -15,7 +15,7 @@ Other Goodies:
 * Pure JavaScript - No magic. Works in all major browsers and can be combined with your favorite js library.
 
 
-##Using Crafty
+## Using Crafty
 
 A simple game of pong:
 ```javascript
@@ -73,7 +73,7 @@ Crafty.e("RightPoints, DOM, 2D, Text")
 _Left paddle is controlled by `W` & `S`, right paddle by `UpArrow` & `DownArrow`._   
 [Check it out online and try to modify it yourself here](https://jsfiddle.net/mucaho/yL3v48r6/).
 
-##Developing
+## Developing
 
 If you want to fix a bug, please submit a pull request against the development branch.  Some guides to help you can be found [on the wiki](https://github.com/craftyjs/Crafty/wiki)
 
