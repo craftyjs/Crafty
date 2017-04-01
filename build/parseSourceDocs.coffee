@@ -134,6 +134,7 @@ cleanName = (name) -> name.replace(".", "-")
 
 
 # Alternate names for some tags
+# Any node names matching a key will be treated as nodes of the value instead
 aliases = {
     "returns": "return"
     "triggers": "trigger"
@@ -175,11 +176,19 @@ nodeParsers =
             paramDefault: paramDefault
             description: description
         }
+    return: (value)->
+        [..., returnType, returnDescription] = value.match(/^\s*({(.+)})\s+(.+)?\s*$/) ? [null, null, "", value]
+        return {
+            type: "return",
+            value: returnDescription,
+            returnType: returnType
+        }
     category: (value)-> 
         type: "category"
         categories: value.split(/\s*,\s*/)
     example: ()->
         type: "example"
+    
 
 
 # Parse the node, calling any defined parser as necessary

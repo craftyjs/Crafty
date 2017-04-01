@@ -142,7 +142,7 @@ var Node = React.createClass({
       case "raw":
         return <MarkdownBlock value={node.value} page={page}/>
       case "return":
-        return <Returns value={node.value} page={page}/>
+        return <Returns value={node.value} returnType={node.returnType} page={page}/>
       case "xref":
         return <SeeAlso xrefs = {node.xrefs} page={page} />
       case "example":
@@ -298,7 +298,7 @@ var Method = React.createClass({
 var Parameter = React.createClass({
   render: function() {
     var paramSpan = this.props.paramType 
-      ? <span className = 'paramType' style={{color: "#36597d"}}>{this.props.paramType}</span> 
+      ? <span className = 'param-qualifier' style={{color: "#36597d"}}>{this.props.paramType}</span> 
       : <span/>
     return (
       <dl className = "parameter">
@@ -359,9 +359,12 @@ var SignatureSeperator = React.createClass({
 
 var Returns = React.createClass({
   render: function() {
-       return (
+    var typeSpan = this.props.returnType
+      ? <span className = 'returns-qualifier' style={{color: "#36597d"}}> {this.props.returnType}</span> 
+      : ""
+    return (
       <dl className = "parameter returns"> 
-        <dt className="returns"> [Returns] </dt> 
+        <dt className="returns"> [Returns{typeSpan}] </dt> 
         <dd><MarkdownBlock value={this.props.value} key={2} /></dd> 
       </dl>
     )
