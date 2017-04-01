@@ -281,7 +281,7 @@ Crafty.math.Vector2D = (function () {
      *
      * Adds the passed vector to this vector
      *
-     * @sign public {Vector2D} add(Vector2D);
+     * @sign public {Vector2D} add(Vector2D vecRH);
      * @param {Vector2D} vecRH - The vector to add
      * @returns {Vector2D} The resulting modified vector
      */
@@ -606,6 +606,7 @@ Crafty.math.Vector2D = (function () {
      * @public
      * @sign public {Vector2D} scale(Number scale);
      * @param {Number} scale - The amount to scale by
+     * @returns {Vector2D} this after scaling
      * 
      * @sign public {Vector2D} scale(Number scalarX, Number scalarY);
      * @param {Number} scalarX - The amount to scale x by
@@ -678,8 +679,8 @@ Crafty.math.Vector2D = (function () {
      * Subtracts the passed vector from this vector.
      *
      * @public
-     * @sign public {Vector2D} subtract(Vector2D);
-     * @param {Vector2D} vecRH
+     * @sign public {Vector2D} subtract(Vector2D vecRH);
+     * @param {Vector2D} vecRH - the passed vector to subtract
      * @returns {vector2D} this vector after subtracting
      */
     Vector2D.prototype.subtract = function (vecRH) {
@@ -712,7 +713,7 @@ Crafty.math.Vector2D = (function () {
      * If dy is omitted, dx is used for both axes.
      *
      * @public
-     * @sign public {Vector2D} translate(Number x[, Number y]);
+     * @sign public {Vector2D} translate(Number dx[, Number dy]);
      * @param {Number} dx - The amount to shift by
      * @param {Number} [dy] - The amount to shift along the y axis
      * @returns {Vector2D} this vector after translating
@@ -738,9 +739,9 @@ Crafty.math.Vector2D = (function () {
      * @public
      * @static
      * @sign public {Vector2D} tripleProduct(Vector2D a, Vector2D b, Vector2D c, [Vector2D result]);
-     * @param {Vector2D} a
-     * @param {Vector2D} b
-     * @param {Vector2D} c
+     * @param {Vector2D} a - The first vector
+     * @param {Vector2D} b - The second vector
+     * @param {Vector2D} c - The third vector
      * @param {Vector2D} [result] - An optional parameter to save the result in
      * @return {Vector2D} the triple product as a new vector
      */
@@ -770,14 +771,20 @@ Crafty.math.Matrix2D = (function () {
      *
      * @public
      * @sign public {Matrix2D} new Matrix2D();
-     * @sign public {Matrix2D} new Matrix2D(Matrix2D);
-     * @sign public {Matrix2D} new Matrix2D(Number, Number, Number, Number, Number, Number);
-     * @param {Matrix2D|Number=1} a
-     * @param {Number=0} b
-     * @param {Number=0} c
-     * @param {Number=1} d
-     * @param {Number=0} e
-     * @param {Number=0} f
+     * @returns {Matrix2D} A new identity matrix
+     * 
+     * @sign public {Matrix2D} new Matrix2D(Matrix2D matrix);
+     * @param {Matrix2D} matrix - a matrix to copy
+     * @returns {Matrix2D} A new instance whose entries are copied from the passed matrix
+     * 
+     * @sign public {Matrix2D} new Matrix2D(Number a, Number b, Number c, Number d, Number e, Number f);
+     * @param {Number=1} a - (m11) Horizontal scale
+     * @param {Number=0} b - (m12) Horizontal skew
+     * @param {Number=0} c - (m21) Vertical skew
+     * @param {Number=1} d - (m22) Vertical scale
+     * @param {Number=0} e - (dx) Horizontal translation
+     * @param {Number=0} f - (dy) Vertical translation
+     * @returns {Matrix2D} A new instance whose entries are set from the passed arguments
      */
     function Matrix2D (a, b, c, d, e, f) {
         if (a instanceof Matrix2D) {
@@ -813,7 +820,7 @@ Crafty.math.Matrix2D = (function () {
      * Applies the matrix transformations to the passed object
      *
      * @public
-     * @sign public {Vector2D} apply(Vector2D);
+     * @sign public {Vector2D} apply(Vector2D vecRH);
      * @param {Vector2D} vecRH - vector to be transformed
      * @returns {Vector2D} the passed vector object after transforming
      */
@@ -840,7 +847,7 @@ Crafty.math.Matrix2D = (function () {
      *
      * @public
      * @sign public {Matrix2D} clone();
-     * @returns {Matrix2D}
+     * @returns {Matrix2D} The cloned matrix
      */
     Matrix2D.prototype.clone = function () {
         return new Matrix2D(this);
@@ -855,8 +862,8 @@ Crafty.math.Matrix2D = (function () {
      * The passed matrix is assumed to be on the right-hand side.
      *
      * @public
-     * @sign public {Matrix2D} combine(Matrix2D);
-     * @param {Matrix2D} mtrxRH
+     * @sign public {Matrix2D} combine(Matrix2D mtrxRH);
+     * @param {Matrix2D} mtrxRH - The passed matrix
      * @returns {Matrix2D} this matrix after combination
      */
     Matrix2D.prototype.combine = function (mtrxRH) {
@@ -877,11 +884,11 @@ Crafty.math.Matrix2D = (function () {
      * @comp Crafty.math.Matrix2D
      * @kind Method
      *
-     * Checks for the numeric equality of this matrix versus another.
+     * Checks for the numeric element-wise equality of this matrix versus another.
      *
      * @public
-     * @sign public {Boolean} equals(Matrix2D);
-     * @param {Matrix2D} mtrxRH
+     * @sign public {Boolean} equals(Matrix2D mtrxRH);
+     * @param {Matrix2D} mtrxRH - The matrix to check equality with
      * @returns {Boolean} true if the two matrices are numerically equal
      */
     Matrix2D.prototype.equals = function (mtrxRH) {
@@ -950,7 +957,7 @@ Crafty.math.Matrix2D = (function () {
      *
      * @public
      * @sign public {Boolean} isIdentity();
-     * @returns {Boolean}
+     * @returns {Boolean} true if this matrix is an identity matrix
      */
     Matrix2D.prototype.isIdentity = function () {
         return this.a === 1 && this.b === 0 && this.c === 0 && this.d === 1 && this.e === 0 && this.f === 0;
@@ -980,7 +987,7 @@ Crafty.math.Matrix2D = (function () {
      * Applies a counter-clockwise pre-rotation to this matrix
      *
      * @public
-     * @sign public {Matrix2D} preRotate(Number);
+     * @sign public {Matrix2D} preRotate(Number rads);
      * @param {number} rads - angle to rotate in radians
      * @returns {Matrix2D} this matrix after pre-rotation
      */
@@ -1003,12 +1010,14 @@ Crafty.math.Matrix2D = (function () {
      * @comp Crafty.math.Matrix2D
      * @kind Method
      * 
-     * Applies a pre-scaling to this matrix
+     * Applies a pre-scaling to this matrix, applied to the a, b, c, and d elements.
+     * 
+     * If two arguments are supplied, a and c are multiplied by scalarX, b, and d by scalarY.
      *
      * @public
-     * @sign public {Matrix2D} preScale(Number[, Number]);
-     * @param {Number} scalarX
-     * @param {Number} [scalarY] scalarX is used if scalarY is undefined
+     * @sign public {Matrix2D} preScale(Number scalarX[, Number scalarY]);
+     * @param {Number} scalarX - The amount to scale
+     * @param {Number} [scalarY] - scalarX is used if scalarY is undefined
      * @returns {Matrix2D} this after pre-scaling
      */
     Matrix2D.prototype.preScale = function (scalarX, scalarY) {
@@ -1031,10 +1040,13 @@ Crafty.math.Matrix2D = (function () {
      * Applies a pre-translation to this matrix
      *
      * @public
-     * @sign public {Matrix2D} preTranslate(Vector2D);
-     * @sign public {Matrix2D} preTranslate(Number, Number);
-     * @param {Number|Vector2D} dx
-     * @param {Number} dy
+     * @sign public {Matrix2D} preTranslate(Number dx, Number dy);
+     * @param {Number} dx - The amount to shift the e component
+     * @param {Number} dy - The amount to shift the f component
+     * @returns {Matrix2D} this matrix after pre-translation
+     * 
+     * @sign public {Matrix2D} preTranslate(Vector2D vector);
+     * @param {Vector2D} vector - The vector to shift (e, f) by.
      * @returns {Matrix2D} this matrix after pre-translation
      */
     Matrix2D.prototype.preTranslate = function (dx, dy) {
@@ -1057,7 +1069,7 @@ Crafty.math.Matrix2D = (function () {
      * Applies a counter-clockwise post-rotation to this matrix
      *
      * @public
-     * @sign public {Matrix2D} rotate(Number);
+     * @sign public {Matrix2D} rotate(Number rads);
      * @param {Number} rads - angle to rotate in radians
      * @returns {Matrix2D} this matrix after rotation
      */
@@ -1083,11 +1095,13 @@ Crafty.math.Matrix2D = (function () {
      * @comp Crafty.math.Matrix2D
      * @kind Method
      * 
-     * Applies a post-scaling to this matrix
+     * Applies a post-scaling to this matrix, modifying components a-f.
+     * 
+     * If two arguments are passed, scalarX is used for components a, c, and e; scalarY for b, d, and f.
      *
      * @public
-     * @sign public {Matrix2D} scale(Number[, Number]);
-     * @param {Number} scalarX
+     * @sign public {Matrix2D} scale(Number scalarX[, Number scalarY]);
+     * @param {Number} scalarX The amount to scale by along the x axis
      * @param {Number} [scalarY] scalarX is used if scalarY is undefined
      * @returns {Matrix2D} this after post-scaling
      */
@@ -1110,17 +1124,21 @@ Crafty.math.Matrix2D = (function () {
      * @comp Crafty.math.Matrix2D
      * @kind Method
      * 
-     * Sets the values of this matrix
+     * Sets the values of this matrix.
      *
      * @public
-     * @sign public {Matrix2D} setValues(Matrix2D);
-     * @sign public {Matrix2D} setValues(Number, Number, Number, Number, Number, Number);
-     * @param {Matrix2D|Number} a
-     * @param {Number} b
-     * @param {Number} c
-     * @param {Number} d
-     * @param {Number} e
-     * @param {Number} f
+     * @sign public {Matrix2D} setValues(Matrix2D matrix);
+     * @param {Matrix2D} matrix - A matrix to copy the values from
+     * @returns {Matrix2D} This matrix after copying the values
+     * 
+     * @sign public {Matrix2D} setValues(Number a, Number b, Number c, Number d, Number e, Number f);
+     * When used as a translation matrix, the 6 elements have particular meanings.
+     * @param {Number} a - (m11) Horizontal scale
+     * @param {Number} b - (m12) Horizontal skew
+     * @param {Number} c - (m21) Vertical skew
+     * @param {Number} d - (m22) Vertical scale
+     * @param {Number} e - (dx) Horizontal translation
+     * @param {Number} f - (dy) Vertical translation
      * @returns {Matrix2D} this matrix containing the new values
      */
     Matrix2D.prototype.setValues = function (a, b, c, d, e, f) {
@@ -1152,7 +1170,7 @@ Crafty.math.Matrix2D = (function () {
      *
      * @public
      * @sign public {String} toString();
-     * @returns {String}
+     * @returns {String} A string representation like "Matrix2D([a, c, e], [b, d, f], [0, 0, 1])"
      */
     Matrix2D.prototype.toString = function () {
         return "Matrix2D([" + this.a + ", " + this.c + ", " + this.e +
@@ -1167,10 +1185,13 @@ Crafty.math.Matrix2D = (function () {
      * Applies a post-translation to this matrix
      *
      * @public
-     * @sign public {Matrix2D} translate(Vector2D);
-     * @sign public {Matrix2D} translate(Number, Number);
-     * @param {Number|Vector2D} dx
-     * @param {Number} dy
+     * @sign public {Matrix2D} translate(Vector2D vector);
+     * @param {Vector2D} vector - the vector to translate by
+     * @returns {Matrix2D} this matrix after post-translation
+     * 
+     * @sign public {Matrix2D} translate(Number dx, Number dy);
+     * @param {Number} dx - The shift along the x-axis
+     * @param {Number} dy - The shift along the y-axis
      * @returns {Matrix2D} this matrix after post-translation
      */
     Matrix2D.prototype.translate = function (dx, dy) {
