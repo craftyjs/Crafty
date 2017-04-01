@@ -298,7 +298,7 @@ var Method = React.createClass({
 var Parameter = React.createClass({
   render: function() {
     var paramSpan = this.props.paramType 
-      ? <span className = 'param-qualifier' style={{color: "#36597d"}}>{this.props.paramType}</span> 
+      ? <span className = 'param-qualifier'>{this.props.paramType}</span> 
       : <span/>
     return (
       <dl className = "parameter">
@@ -360,7 +360,7 @@ var SignatureSeperator = React.createClass({
 var Returns = React.createClass({
   render: function() {
     var typeSpan = this.props.returnType
-      ? <span className = 'returns-qualifier' style={{color: "#36597d"}}> {this.props.returnType}</span> 
+      ? <span className = 'returns-qualifier'> {this.props.returnType}</span> 
       : ""
     return (
       <dl className = "parameter returns"> 

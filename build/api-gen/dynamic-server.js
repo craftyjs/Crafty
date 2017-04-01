@@ -26,7 +26,11 @@ function startServer(grunt, input){
       } else {
         var title = selector || filename;
       }
-      raw = "<head><title>" + title + "</title><link type='text/css' rel='stylesheet' href='http://craftyjs.com/craftyjs-site.css'/><link type='text/css' rel='stylesheet' href='http://craftyjs.com/github.css'/></head>"
+      raw = "<head><title>" + title + "</title>"
+          + " <link type='text/css' rel='stylesheet' href='http://craftyjs.com/craftyjs-site.css'/>" 
+          + " <link type='text/css' rel='stylesheet' href='http://craftyjs.com/github.css'/>" 
+          + " <link type='text/css' rel='stylesheet' href='dev.css' />"
+          + "</head>"
           + "<body><div id='main'><div id='content' class='container'>" + raw +  "</div></div></body>";
 
       return raw;
@@ -44,6 +48,15 @@ function startServer(grunt, input){
       });
     });
 
+    // Temporary css selectors for dev work
+    router.path(/(.*)dev\.css/, function(){
+      this.get(function () {
+        this.res.writeHead(200, { 'Content-Type': 'text/css' })
+        this.res.end( ".returns-qualifier, .param-qualifier {color: #36597d}" );
+      });
+    })
+    
+    // Actual doc pages
     router.path(/(.+)\.html/, function () {
       this.get(function (id) {
         this.res.writeHead(200, { 'Content-Type': 'text/html' })
