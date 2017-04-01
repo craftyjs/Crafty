@@ -136,7 +136,7 @@ var Node = React.createClass({
       case "method":
         return <Method data={node} page={page}/>
       case "param":
-        return <Parameter paramName={node.name} page={page} paramDescription={node.description} />
+        return <Parameter paramName={node.name} page={page} paramDescription={node.description} paramType={node.paramType} paramDefault={node.paramDefault}/>
       case "triggers":
         return <Events triggers={node.events} page={page}/>
       case "raw":
@@ -297,9 +297,12 @@ var Method = React.createClass({
 
 var Parameter = React.createClass({
   render: function() {
+    var paramSpan = this.props.paramType 
+      ? <span className = 'paramType' style={{color: "#36597d"}}>{this.props.paramType}</span> 
+      : <span/>
     return (
       <dl className = "parameter">
-        <dt> {this.props.paramName} </dt>
+        <dt> {paramSpan} {this.props.paramName} </dt>
         <dd><MarkdownBlock value={this.props.paramDescription} key={1} /></dd>
       </dl>
     )
