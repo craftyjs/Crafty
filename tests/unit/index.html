@@ -24,10 +24,8 @@
     <script type="text/javascript" src="./lib/qunit.js"></script>
     <script type="text/javascript" src="./lib/modernizr-2.7.1.min.js"></script>
     <script type="text/javascript" src="./lib/mockTouchEvents.js"></script>
-
-
-
   </head>
+
   <body>
     <h1 id="qunit-header">Crafty.js Test Suite</h1>
     <h2 id="qunit-banner"></h2>
@@ -39,39 +37,47 @@
     <!-- CRAFTY.JS -->
     <script type="text/javascript" src="../../crafty.js"></script>
     <script type="text/javascript">
-      Crafty.init(500,500);
+        Crafty.init();
     </script>
 
-    <!-- COMMON TEST CODE -->
-    <script type="text/javascript" src="./common.js"></script>
+    <!-- DISABLE AUTOMATIC TEST START -->
+    <script type="text/javascript">
+        QUnit.config.autostart = false;
+    </script>
 
-    <!-- ALL THE TESTS -->
-    <script type="text/javascript" src="./graphics/color.js"></script>
-    <script type="text/javascript" src="./core/core.js"></script>
-    <script type="text/javascript" src="./debug/debug.js"></script>
-    <script type="text/javascript" src="./debug/logging.js"></script>
-    <script type="text/javascript" src="./spatial/2d.js"></script>
-    <script type="text/javascript" src="./sound/audio.js"></script>
-    <script type="text/javascript" src="./controls/inputs.js"></script>
-    <script type="text/javascript" src="./controls/controls.js"></script>
-    <script type="text/javascript" src="./graphics/dom.js"></script>
-    <script type="text/javascript" src="./graphics/dom-helper.js"></script>
-    <script type="text/javascript" src="./core/events.js"></script>
-    <script type="text/javascript" src="./core/systems.js"></script>
-    <script type="text/javascript" src="./isometric/isometric.js"></script>
-    <script type="text/javascript" src="./core/loader.js"></script>
-    <script type="text/javascript" src="./spatial/math.js"></script>
-    <script type="text/javascript" src="./graphics/viewport.js"></script>
-    <script type="text/javascript" src="./graphics/text.js"></script>
-    <script type="text/javascript" src="./core/tween.js"></script>
-    <script type="text/javascript" src="./core/storage.js"></script>
-    <script type="text/javascript" src="./core/model.js"></script>
-    <script type="text/javascript" src="./core/time.js"></script>
-    <script type="text/javascript" src="./graphics/sprite-animation.js"></script>
-    <script type="text/javascript" src="./spatial/collision.js"></script>
-    <script type="text/javascript" src="./spatial/sat.js"></script>
-    <script type="text/javascript" src="./spatial/spatial-grid.js"></script>
-    <script type="text/javascript" src="./spatial/raycast.js"></script>
+    <!-- GET COMMON TEST FILES THAT RUN IN BROWSER AND NODE -->
+    <script type="text/javascript" src="./index-common.js"></script>
 
+    <!-- GET TEST FILES THAT ONLY RUN IN BROWSER -->
+    <script type="text/javascript" src="./index.js"></script>
+
+    <!-- LOAD TESTS AS SCRIPTS -->
+    <!-- see https://developer.mozilla.org/en-US/docs/Web/API/HTMLScriptElement -->
+    <script type="text/javascript">
+        function loadScript (src, onload) {
+            var script = document.createElement("script");
+            script.type = "text\/javascript";
+            script.onerror = function(error) {
+                throw new URIError("The script " + error.target.src + " is not accessible!");
+            };
+            script.onload = onload;
+            (document.body || document.getElementsByTagName("body")[0]).appendChild(script);
+            script.src = src;
+        }
+
+        var totalFiles = window.COMMON_TEST_FILES.length + window.BROWSER_TEST_FILES.length;
+        var loadedFiles = 0;
+        /** START LOADED QUNIT TESTS ONCE ALL FILES LOADED **/
+        var callback = function() {
+            if (++loadedFiles === totalFiles) {
+                QUnit.start();
+            }
+        };
+
+        /** LOAD TEST FILES **/
+        window.COMMON_TEST_FILES.concat(window.BROWSER_TEST_FILES).forEach(function (file) {
+            loadScript(file, callback);
+        });
+    </script>
   </body>
 </html>
