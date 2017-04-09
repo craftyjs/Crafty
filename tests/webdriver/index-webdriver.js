@@ -287,7 +287,7 @@ var currentTestName,
     currentTestPath;
 // BASE PATHS FOR TEST SPECIFIC FILES
 var testPath = '/tests/webdriver/', // this index file must always be located at root of testPath
-    expectedPath = 'tests/assets/webdriver/',
+    expectedPath = 'tests/webdriver/assets/',
     resultPath = 'build/webdriver/',
     failedPath = resultPath + 'failed/';
 

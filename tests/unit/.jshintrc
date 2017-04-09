@@ -1,5 +1,5 @@
 {
-  "extends": "../.jshintrc",
+  "extends": "../../.jshintrc",
   "qunit": true,
   "globals": {
     "Crafty": false,

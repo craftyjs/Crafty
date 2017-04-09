@@ -115,19 +115,23 @@ module.exports = function (grunt) {
             },
             misc: ['Gruntfile.js'],
             src: ['src/**/*.js', 'src/**/*.html'],
-            tests: ['tests/**/*.js', 'tests/**/*.html', '!tests/lib/**/*.js'],
+            tests: ['tests/**/*.js', 'tests/**/*.html', '!tests/unit/lib/**/*.js'],
             playgrounds: ['playgrounds/**/*.js', 'playgrounds/**/*.html']
         },
 
 
         qunit: {
-
-            browser: ['tests/index.html']
+            /* PhantomJS has propblem with url parameter "noGlobal", omit for now
+            options: {
+                noGlobals: true
+            },
+            */
+            browser: ['tests/unit/index.html']
         },
 
         'node-qunit': {
             node: {
-                code: 'tests/index-headless.js',
+                code: 'tests/unit/index-headless.js',
                 setup: {
                     log: {
                         errors: true,
@@ -147,7 +151,7 @@ module.exports = function (grunt) {
         'saucelabs-qunit': {
             browser: {
                 options: {
-                    urls: [ 'http://localhost:8000/tests/index.html' ],
+                    urls: [ 'http://localhost:8000/tests/unit/index.html' ],
                     browsers: '<%= supportedBrowsers %>',
                     testname: "Cross-browser compatibility tests for CraftyJS",
                     build: process.env.TRAVIS_BUILD_NUMBER,
