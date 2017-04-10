@@ -8,7 +8,7 @@
   var finishedAnimations = [];
 
   // Initialize a sprite component
-  Crafty.sprite(64, "animation/numbers.png", {
+  Crafty.sprite(64, "../assets/numbers.png", {
     "numbers": [0, 0],
     "number0": [0, 0], 
     "number1": [1, 0], 
