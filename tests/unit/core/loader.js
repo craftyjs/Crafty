@@ -1,20 +1,22 @@
 (function() {
   var module = QUnit.module;
+  var test = QUnit.test;
 
   module('Loader');
 
-  test("Warning on old syntax", function(){
+  test("Warning on old syntax", function(_){
     var original_log = Crafty.log;
     var logged_message = "";
     Crafty.log = function(msg) { logged_message = msg; };
     Crafty.load(["falsey.png"], function(){ logged_message = "nope"; });
-    ok(logged_message.indexOf("no longer works") >=0, "Correctly logged warning.");
+    _.ok(logged_message.indexOf("no longer works") >=0, "Correctly logged warning.");
     Crafty.log = original_log;
   });
 
 
-  asyncTest('assets loading', function() {
-    expect(2);
+  test('assets loading', function(_) {
+    _.expect(2);
+    var done = _.async();
 
     var items = [],
         checkItems = function() {
@@ -50,12 +52,12 @@
 
     Crafty.load(assets_to_load, function() {
         Crafty.removeAssets(assets_to_load);
-        ok(checkItems() === 3 && wereItemsRemoved(), 'all assets have been successfully loaded, and then successfully removed');
-        start();
+        _.ok(checkItems() === 3 && wereItemsRemoved(), 'all assets have been successfully loaded, and then successfully removed');
+        done();
       }, function(data) {
         items.push(data);
       }, function(error) {
-        strictEqual(error.src, 'assets/100x100.png', 'duplicate asset reported as error of load operation');
+        _.strictEqual(error.src, 'assets/100x100.png', 'duplicate asset reported as error of load operation');
       }
     );
   });

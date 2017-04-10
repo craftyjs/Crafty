@@ -2,20 +2,20 @@
 // Helper functions //
 //////////////////////
 
-var global = typeof GLOBAL !== 'undefined' ? GLOBAL : window;
+var globalScope = typeof global !== 'undefined' ? global : window;
 
-global.resetStage = function() {
+globalScope.resetStage = function() {
   Crafty.viewport.reset();
   Crafty.viewport.scroll('_x', 0);
   Crafty.viewport.scroll('_y', 0);
   Crafty.viewport.clampToEntities = true;
 };
 
-global.Round = function(x){
+globalScope.Round = function(x){
   return Math.round(x*100)/100;
 };
 
-global.keysUp = function() {
+globalScope.keysUp = function() {
   var keysToRelease = Array.prototype.slice.call(arguments);
     for (var k in keysToRelease) {
       var key = Crafty.keys[keysToRelease[k]] || keysToRelease[k];
@@ -23,7 +23,7 @@ global.keysUp = function() {
       Crafty.trigger("KeyUp", {key: key});
     } 
 };
-global.keysDown = function() {
+globalScope.keysDown = function() {
     var keysToPress = Array.prototype.slice.call(arguments);
     for (var k in keysToPress) {
       var key = Crafty.keys[keysToPress[k]] || keysToPress[k];
@@ -72,6 +72,6 @@ QUnit.done(function (test_results) {
   test_results.tests = tests;
   if (typeof window !== "undefined")
     window.global_test_results = test_results;
-  else if (typeof GLOBAL !== "undefined")
-    GLOBAL.global_test_results = test_results;
+  else if (typeof global !== "undefined")
+    global.global_test_results = test_results;
 });

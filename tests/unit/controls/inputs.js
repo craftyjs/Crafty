@@ -1,9 +1,10 @@
 (function() {
   var module = QUnit.module;
+  var test = QUnit.test;
 
   module('Inputs');
 
-  test("AreaMap", function() {
+  test("AreaMap", function(_) {
     var areaMapEvents = 0;
     var e = Crafty.e("2D, DOM, AreaMap")
               .bind("NewAreaMap", function(newAreaMap) {
@@ -12,23 +13,23 @@
 
     var poly = new Crafty.polygon([50, 0, 100, 100, 0, 100]);
     e.areaMap(poly);
-    ok(e.mapArea instanceof Crafty.polygon, "Hitbox is a polygon");
-    ok(e.mapArea !== poly, "Hitbox is a clone of passed polygon");
+    _.ok(e.mapArea instanceof Crafty.polygon, "Hitbox is a polygon");
+    _.ok(e.mapArea !== poly, "Hitbox is a clone of passed polygon");
 
     var arr = [50, 0, 100, 100, 0, 100];
     e.areaMap(arr);
-    ok(e.mapArea instanceof Crafty.polygon, "Hitbox is a polygon");
-    ok(e.mapArea.points && e.mapArea.points !== arr, "Array used in hitbox is a clone of passed array");
+    _.ok(e.mapArea instanceof Crafty.polygon, "Hitbox is a polygon");
+    _.ok(e.mapArea.points && e.mapArea.points !== arr, "Array used in hitbox is a clone of passed array");
 
     e.areaMap(50, 0, 100, 100, 0, 100);
-    ok(e.mapArea instanceof Crafty.polygon, "Hitbox is a polygon");
+    _.ok(e.mapArea instanceof Crafty.polygon, "Hitbox is a polygon");
 
-    strictEqual(areaMapEvents, 3, "NewAreaMap event triggered 3 times");
+    _.strictEqual(areaMapEvents, 3, "NewAreaMap event triggered 3 times");
   });
 
   // mock-phantom-touch-events is a PhantomJS plugin, thus the test below is skipped if enviroment is not PhantomJS
   if (navigator.userAgent.indexOf("PhantomJS") !== -1)
-    test('Multitouch simulation', function() {
+    test('Multitouch simulation', function(_) {
       Crafty.multitouch(true);
       
       var touchStartsOverEntities = 0,
@@ -62,34 +63,34 @@
 
       touchStart1();
     
-      equal(Crafty._touchHandler.fingers.length, 4, "Four fingers currently touching stage");
+      _.equal(Crafty._touchHandler.fingers.length, 4, "Four fingers currently touching stage");
     
       touchEnd1();
 
-      equal(Crafty._touchHandler.fingers.length, 3, "Three fingers currently touching stage");
+      _.equal(Crafty._touchHandler.fingers.length, 3, "Three fingers currently touching stage");
     
       touchEnd2();
       touchStart2();
       
-      equal(Crafty._touchHandler.fingers.length, 3, "Three fingers currently touching stage");
+      _.equal(Crafty._touchHandler.fingers.length, 3, "Three fingers currently touching stage");
     
       touchEnd3();
     
-      equal(Crafty._touchHandler.fingers.length, 2, "Two fingers currently touching stage");
+      _.equal(Crafty._touchHandler.fingers.length, 2, "Two fingers currently touching stage");
 
       touchEnd4();
       
-      equal(Crafty._touchHandler.fingers.length, 1, "One finger currently touching stage");
+      _.equal(Crafty._touchHandler.fingers.length, 1, "One finger currently touching stage");
 
       touchEnd5();
     
-      equal(Crafty._touchHandler.fingers.length, 0, "No fingers currently touching stage");
+      _.equal(Crafty._touchHandler.fingers.length, 0, "No fingers currently touching stage");
       
-      equal(touchStartsOverEntities, 2, "Two entities recieved TouchStart");
-      equal(touchEndsOverEntities, 2, "Two entities recieved TouchEnd");
+      _.equal(touchStartsOverEntities, 2, "Two entities recieved TouchStart");
+      _.equal(touchEndsOverEntities, 2, "Two entities recieved TouchEnd");
     });
     
-    test("stopKeyPropagation", function() {
+    test("stopKeyPropagation", function(_) {
       var stopPropCalled = false;
       var preventDefaultCalled = false;
 
@@ -111,7 +112,7 @@
       Crafty.keyboardDispatch(mockEvent);
       Crafty.selected = false;
       
-      ok(stopPropCalled, "stopPropagation Not Called");
-      ok(preventDefaultCalled, "preventDefault Not Called");
+      _.ok(stopPropCalled, "stopPropagation Not Called");
+      _.ok(preventDefaultCalled, "preventDefault Not Called");
     });
 })();

@@ -1,9 +1,10 @@
 (function() {
   var module = QUnit.module;
+  var test = QUnit.test;
 
   module("Model");
 
-  test('Set triggers change events', function() {
+  test('Set triggers change events', function(_) {
     var fox, results = [];
     Crafty.c('Animal', {
       name: 'Fox',
@@ -28,7 +29,7 @@
     fox.attr({name: 'Lucky'});
     fox.attr({contact: {email: 'foxxy@example.com'}}, false, true);
 
-    deepEqual(results, [
+    _.deepEqual(results, [
       'Change[name]',
       'Change',
       'Change[contact.email]',
@@ -37,7 +38,7 @@
 
   });
 
-  test('Dirty', function() {
+  test('Dirty', function(_) {
     var fox;
     Crafty.c('Animal', {
       name: 'Fox',
@@ -47,17 +48,17 @@
 
     fox = Crafty.e('Animal, Model');
 
-    equal(fox.is_dirty(), false);
-    equal(fox.is_dirty('name'), false);
-    equal(fox.is_dirty('age'), false);
+    _.strictEqual(fox.is_dirty(), false);
+    _.strictEqual(fox.is_dirty('name'), false);
+    _.strictEqual(fox.is_dirty('age'), false);
 
     fox.attr('name', 'Lucky');
     fox.attr('dob', 'March 22');
 
-    equal(fox.is_dirty(), true);
-    equal(fox.is_dirty('name'), true);
-    equal(fox.is_dirty('age'), false);
+    _.strictEqual(fox.is_dirty(), true);
+    _.strictEqual(fox.is_dirty('name'), true);
+    _.strictEqual(fox.is_dirty('age'), false);
 
-    deepEqual(fox.changed, ['name', 'dob']);
+    _.deepEqual(fox.changed, ['name', 'dob']);
   });
 })();

@@ -1,5 +1,6 @@
 (function() {
   var module = QUnit.module;
+  var test = QUnit.test;
 
 
   var cellsize = 64;
@@ -55,7 +56,7 @@
   }
 
   function checkResults (origin, direction, raycastResults, expectedResults) {
-    strictEqual(raycastResults.length, Object.keys(expectedResults).length, "expected ids count must match");
+    QUnit.assert.strictEqual(raycastResults.length, Object.keys(expectedResults).length, "expected ids count must match");
 
     var actualId, actualDistance, expectedDistance,
         actualIntersectionX, expectedIntersectionX,
@@ -69,10 +70,10 @@
       expectedIntersectionX = origin._x + expectedDistance * direction.x;
       expectedIntersectionY = origin._y + expectedDistance * direction.y;
 
-      ok(typeof expectedResults[actualId] !== 'undefined', "actual id is among expected ids");
-      strictEqual(actualDistance.toFixed(2), expectedDistance.toFixed(2),  "actual distance matches expected distance");
-      strictEqual(actualIntersectionX.toFixed(2), expectedIntersectionX.toFixed(2), "actual intersection point x matches expected intersection point x");
-      strictEqual(actualIntersectionY.toFixed(2), expectedIntersectionY.toFixed(2), "actual intersection point y matches expected intersection point y");
+      QUnit.assert.ok(typeof expectedResults[actualId] !== 'undefined', "actual id is among expected ids");
+      QUnit.assert.strictEqual(actualDistance.toFixed(2), expectedDistance.toFixed(2),  "actual distance matches expected distance");
+      QUnit.assert.strictEqual(actualIntersectionX.toFixed(2), expectedIntersectionX.toFixed(2), "actual intersection point x matches expected intersection point x");
+      QUnit.assert.strictEqual(actualIntersectionY.toFixed(2), expectedIntersectionY.toFixed(2), "actual intersection point y matches expected intersection point y");
     }
   }
 
@@ -93,7 +94,7 @@
   var BOTTOM_LEFT = {_x: 0, _y: mapSize};
   var BOTTOM_RIGHT = {_x: mapSize, _y: mapSize};
 
-  test("Check multiple hits", function() {
+  test("Check multiple hits", function(_) {
     var origin, direction,
         expectedResults = {},
         e, f,
@@ -221,7 +222,7 @@
   });
 
 
-  test("Check big entity hits", function() {
+  test("Check big entity hits", function(_) {
     var origin, direction,
         expectedResults = {},
         e, f,
@@ -301,7 +302,7 @@
   });
 
 
-  test("Check diagonal hits", function() {
+  test("Check diagonal hits", function(_) {
     var origin, direction,
         expectedResults = {},
         e,
@@ -385,7 +386,7 @@
   });
 
 
-  test("Check vert/horiz hits", function() {
+  test("Check vert/horiz hits", function(_) {
     var origin, direction,
         expectedResults = {},
         e,
@@ -469,7 +470,7 @@
   });
 
 
-  test("Check no hits", function() {
+  test("Check no hits", function(_) {
     var origin, direction,
         expectedResults = {},
         e,
@@ -611,7 +612,7 @@
   });
 
 
-  test("Check colinear hits", function() {
+  test("Check colinear hits", function(_) {
     var origin, direction,
         expectedResults = {},
         e,
@@ -689,7 +690,7 @@
   });
 
 
-  test("Check first hit", function() {
+  test("Check first hit", function(_) {
     var origin, direction,
         expectedResults = {},
         e, f, g, h,
@@ -738,7 +739,7 @@
   });
 
 
-  test("Check maxDistance hits", function() {
+  test("Check maxDistance hits", function(_) {
     var origin, direction,
         expectedResults = {},
         e, f, g, h,
@@ -791,7 +792,7 @@
   });
 
 
-  test("Check component filter", function() {
+  test("Check component filter", function(_) {
     var origin, direction,
         expectedResults = {},
         e, f, g, h,
@@ -840,7 +841,7 @@
   });
 
 
-  test("Check origin within entity", function() {
+  test("Check origin within entity", function(_) {
     var origin, direction,
         expectedResults = {},
         e, f,
@@ -890,7 +891,7 @@
   });
 
 
-  test("Check intersection at 0 distance", function() {
+  test("Check intersection at 0 distance", function(_) {
     var origin, direction,
         expectedResults = {},
         e, f,
@@ -938,7 +939,7 @@
   });
 
 
-  test("Check result sorting", function() {
+  test("Check result sorting", function(_) {
     var origin, direction,
         expectedResults = {},
         e, f, g, h,
@@ -979,39 +980,39 @@
 
     // with sorting explicitly disabled
     results = Crafty.raycast(origin, direction, false);
-    strictEqual(results.length, 4, "all entities found");
+    _.strictEqual(results.length, 4, "all entities found");
 
-    strictEqual(results[0].obj[0], e[0], "entity e reported first");
-    strictEqual(results[1].obj[0], f[0], "entity f reported second");
-    strictEqual(results[2].obj[0], g[0], "entity g reported third");
-    strictEqual(results[3].obj[0], h[0], "entity h reported fourth");
+    _.strictEqual(results[0].obj[0], e[0], "entity e reported first");
+    _.strictEqual(results[1].obj[0], f[0], "entity f reported second");
+    _.strictEqual(results[2].obj[0], g[0], "entity g reported third");
+    _.strictEqual(results[3].obj[0], h[0], "entity h reported fourth");
 
     // with sorting enabled - this should be default case
     results = Crafty.raycast(origin, direction);
-    strictEqual(results.length, 4, "all entities found");
+    _.strictEqual(results.length, 4, "all entities found");
 
-    strictEqual(results[0].obj[0], f[0], "entity f first hit with ray");
-    ok(results[0].distance > 0.5*cellsize, "entity f first hit with ray");
-    strictEqual(results[0].x, f.x + f.w, "entity f first hit with ray");
-    ok(results[0].y > cellsize/32, "entity f first hit with ray");
+    _.strictEqual(results[0].obj[0], f[0], "entity f first hit with ray");
+    _.ok(results[0].distance > 0.5*cellsize, "entity f first hit with ray");
+    _.strictEqual(results[0].x, f.x + f.w, "entity f first hit with ray");
+    _.ok(results[0].y > cellsize/32, "entity f first hit with ray");
 
-    strictEqual(results[1].obj[0], g[0], "entity g second hit with ray");
-    ok(results[1].distance > results[0].distance, "entity g second hit with ray");
-    ok(results[1].distance > 1.5*cellsize, "entity g second hit with ray");
-    strictEqual(results[1].x, g.x + g.w, "entity g second hit with ray");
-    ok(results[1].y > results[0].y, "entity g second hit with ray");
+    _.strictEqual(results[1].obj[0], g[0], "entity g second hit with ray");
+    _.ok(results[1].distance > results[0].distance, "entity g second hit with ray");
+    _.ok(results[1].distance > 1.5*cellsize, "entity g second hit with ray");
+    _.strictEqual(results[1].x, g.x + g.w, "entity g second hit with ray");
+    _.ok(results[1].y > results[0].y, "entity g second hit with ray");
 
-    strictEqual(results[2].obj[0], h[0], "entity h third hit with ray");
-    ok(results[2].distance > results[1].distance, "entity h third hit with ray");
-    ok(results[2].distance > 2.5*cellsize, "entity h third hit with ray");
-    strictEqual(results[2].x, h.x, "entity h third hit with ray");
-    ok(results[2].y > results[1].y, "entity h third hit with ray");
+    _.strictEqual(results[2].obj[0], h[0], "entity h third hit with ray");
+    _.ok(results[2].distance > results[1].distance, "entity h third hit with ray");
+    _.ok(results[2].distance > 2.5*cellsize, "entity h third hit with ray");
+    _.strictEqual(results[2].x, h.x, "entity h third hit with ray");
+    _.ok(results[2].y > results[1].y, "entity h third hit with ray");
 
-    strictEqual(results[3].obj[0], e[0], "entity e fourth hit with ray");
-    ok(results[3].distance > results[2].distance, "entity e fourth hit with ray");
-    ok(results[3].distance > 3.5*cellsize, "entity e fourth hit with ray");
-    strictEqual(results[3].x, e.x + e.w, "entity e fourth hit with ray");
-    ok(results[3].y > results[2].y, "entity e fourth hit with ray");
+    _.strictEqual(results[3].obj[0], e[0], "entity e fourth hit with ray");
+    _.ok(results[3].distance > results[2].distance, "entity e fourth hit with ray");
+    _.ok(results[3].distance > 3.5*cellsize, "entity e fourth hit with ray");
+    _.strictEqual(results[3].x, e.x + e.w, "entity e fourth hit with ray");
+    _.ok(results[3].y > results[2].y, "entity e fourth hit with ray");
 
     e.destroy();
     f.destroy();
@@ -1020,7 +1021,7 @@
   });
 
 
-  test("Check intersection with hitbox outside entity (CBR)", function() {
+  test("Check intersection with hitbox outside entity (CBR)", function(_) {
     var origin, direction,
         expectedResults = {},
         e, f, g,
@@ -1085,7 +1086,7 @@
   });
 
 
-  test("Check more complex scenarios", function() {
+  test("Check more complex scenarios", function(_) {
     var origin, direction,
         expectedResults = {},
         e, f,
@@ -1204,20 +1205,20 @@
 
     results = Crafty.raycast(origin, direction, -Infinity);
 
-    strictEqual(results.length, 1, "only first entity found");
-    strictEqual(results[0].obj[0], f[0], "entity f hit with ray");
-    ok(results[0].distance > cellsize/2 + 1, "distance greater than x-difference");
-    ok(results[0].distance < diagonalDistance(0.5, 0.5), "distance less than diagonal distance");
-    strictEqual(results[0].x, f.x, "x intersection point same as f's left side");
-    ok(results[0].y > f.y + 0.5 *f.h, "y intersection point lower than f's center");
-    ok(results[0].y < f.y + 0.75*f.h, "y intersection point higher than 3/4 of f's height");
+    _.strictEqual(results.length, 1, "only first entity found");
+    _.strictEqual(results[0].obj[0], f[0], "entity f hit with ray");
+    _.ok(results[0].distance > cellsize/2 + 1, "distance greater than x-difference");
+    _.ok(results[0].distance < diagonalDistance(0.5, 0.5), "distance less than diagonal distance");
+    _.strictEqual(results[0].x, f.x, "x intersection point same as f's left side");
+    _.ok(results[0].y > f.y + 0.5 *f.h, "y intersection point lower than f's center");
+    _.ok(results[0].y < f.y + 0.75*f.h, "y intersection point higher than 3/4 of f's height");
 
     e.destroy();
     f.destroy();
   });
 
 
-  test("Check a complex scenario constructed in playground", function() {
+  test("Check a complex scenario constructed in playground", function(_) {
     var origin, direction, magnitude,
         expectedResults = {},
         results;

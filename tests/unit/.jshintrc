@@ -5,6 +5,8 @@
     "Crafty": false,
     "createTouchEvent": false,
     "Round": false,
-    "resetStage": false
+    "resetStage": false,
+    "keysUp": false,
+    "keysDown": false
   }
 }
