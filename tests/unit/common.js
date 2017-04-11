@@ -2,20 +2,18 @@
 // Helper functions //
 //////////////////////
 
-var globalScope = typeof global !== 'undefined' ? global : window;
-
-globalScope.resetStage = function() {
+resetStage = function() { // jshint ignore:line
   Crafty.viewport.reset();
   Crafty.viewport.scroll('_x', 0);
   Crafty.viewport.scroll('_y', 0);
   Crafty.viewport.clampToEntities = true;
 };
 
-globalScope.Round = function(x){
+Round = function(x){ // jshint ignore:line
   return Math.round(x*100)/100;
 };
 
-globalScope.keysUp = function() {
+keysUp = function() { // jshint ignore:line
   var keysToRelease = Array.prototype.slice.call(arguments);
     for (var k in keysToRelease) {
       var key = Crafty.keys[keysToRelease[k]] || keysToRelease[k];
@@ -23,7 +21,7 @@ globalScope.keysUp = function() {
       Crafty.trigger("KeyUp", {key: key});
     } 
 };
-globalScope.keysDown = function() {
+keysDown = function() { // jshint ignore:line
     var keysToPress = Array.prototype.slice.call(arguments);
     for (var k in keysToPress) {
       var key = Crafty.keys[keysToPress[k]] || keysToPress[k];
