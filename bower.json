@@ -7,17 +7,26 @@
     "game",
     "engine"
   ],
-  "license": [
-    "MIT"
-  ],
-  "main": "dist/crafty.js",
+  "license": "MIT",
+  "authors": [{
+    "name": "Louis Stowasser",
+    "homepage": "http://craftyjs.com/"
+  }],
+  "homepage": "https://github.com/craftyjs/Crafty",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/craftyjs/Crafty.git"
+  },
   "ignore": [
     "**",
     "!bower.json",
     "!README.md",
     "!CHANGELOG.md",
+    "!LICENSE",
     "!dist",
     "!dist/crafty.js",
     "!dist/crafty-min.js"
-  ]
+  ],
+  "main": "dist/crafty.js",
+  "moduleType": "globals"
 }

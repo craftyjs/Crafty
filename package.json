@@ -1,20 +1,6 @@
 {
   "name": "craftyjs",
   "version": "0.8.0",
-  "author": {
-    "name": "Louis Stowasser",
-    "url": "http://craftyjs.com/"
-  },
-  "branches": {
-    "develop": true
-  },
-  "main": "src/crafty-headless.js",
-  "browser": "src/crafty.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/craftyjs/Crafty.git"
-  },
-  "license": "MIT",
   "description": "Crafty is a modern component and event based framework for developing games in JavaScript that targets DOM, Canvas and WebGL.",
   "keywords": [
     "framework",
@@ -22,11 +8,40 @@
     "game",
     "engine"
   ],
+  "license": "MIT",
+  "author": {
+    "name": "Louis Stowasser",
+    "url": "http://craftyjs.com/"
+  },
+  "homepage": "https://github.com/craftyjs/Crafty",
+  "bugs": "https://github.com/craftyjs/Crafty/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/craftyjs/Crafty.git"
+  },
+  "branches": {
+    "develop": true
+  },
+  "files": [
+    "package.json",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "dist/crafty.js",
+    "dist/crafty-min.js",
+    "src/"
+  ],
+  "main": "src/crafty-headless.js",
+  "browser": "src/crafty.js",
   "scripts": {
     "test": "grunt check",
     "postinstall": "(node -e \"process.env.NODE_ENV !== 'production' && process.exit()\" && grunt copy:lib) || node -v"
   },
-  "homepage": "https://github.com/craftyjs/Crafty",
+  "browserify": {
+    "transform": [
+      "brfs"
+    ]
+  },
   "dependencies": {
     "brfs": "^1.4.3",
     "node-localstorage": "^1.3.0"
