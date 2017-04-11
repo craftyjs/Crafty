@@ -1,3 +1,28 @@
+/////////////////////////
+// INIT & PAUSE CRAFTY //
+/////////////////////////
+
+// Init Crafty.
+Crafty.init();
+
+// By default Crafty is paused for all tests and time is simulated manually
+// by calling Crafty.timer.simulateFrames(amountOfFrames).
+// If you need to advance the real timer automatically,
+// enable the timer before your test and disable it again after your test.
+/*
+  module("MyModule", {
+    beforeEach: function() {
+      // enable timer before each test in this module
+      Crafty.pause(false);
+    },
+    afterEach: function() {
+      // disable timer after each test in this module
+      Crafty.pause(true);
+    }
+  });
+*/
+Crafty.pause();
+
 //////////////////////
 // Helper functions //
 //////////////////////
