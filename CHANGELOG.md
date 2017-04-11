@@ -1,3 +1,44 @@
+## 0.8.0
+Several important new features: raycasting, control over webgl shaders, a new system for wiring up inputs to entities, and more versatile graphics layers.
+
+Only minor breaking changes in this release.
+
+
+**New features**
+- The default WebGL shaders can now be overridden for existing components
+- Raycast collision checking is now supported
+- A full revamp of how graphics layers are implemented:
+  - Multiple instances of the same layer type are supported
+  - Static (UI) layers are supported, along with more general parallax effects
+  - The z-order of rendering layers can be specified
+- A revamp of how "Multiway" and company are implemeneted:
+  - A new "Control" system that maps specified user input to triggered event commands
+  - A "Controllable" entity that makes it simple to bind to these events
+- Text can now be dynamically generated each frame for the "Text" component
+- Better control over text alignment on Canvas
+- Changing the timer steptype now fires an event
+- Graphics layers created using Crafty.s
+- Pause supported by particle and delay components
+- Easier to specify animations when the sprite spans multiple rows
+- "Jumper" component can now be triggered directly 
+
+**Breaking changes**
+- All drawing-related methods of the "2D" component moved to a new "Renderable" component. (This should only affect custom draw code -- WebGL/Canvas/DOM components automatically require "Renderable".)
+- "Multiway" and company have a different implementation with slightly different behavior in some corner cases.  Triggering keyboard events directly on these entities will no longer work -- instead, trigger the related control events.
+- If you were previously setting `text-align` via CSS, you might need to switch to explicitly calling the new `textAlign` method.
+
+**Bug fixes**
+- WebGL entities unregistered correctly
+- Fixes to "Gravity" component
+- Fixed issue where audio could continue repeating when only 1 play is specified
+ 
+**Project**
+- Open sauce tests
+- Updated node packages; switch to yarn over npm
+- Numerous documentation fixes
+
+[Commits since the last version](https://github.com/craftyjs/Crafty/compare/0.7.1...0.8.0-rc2).
+
 ## 0.7.1
 
 A minor update with a few fixes.
@@ -58,7 +99,7 @@ There are several new components that handle moving objects, and existing compon
 * "Motion": for handling two dimensional motion -- allows you to set acceleration and velocity
 * "AngularMotion": For handling rotation
 * "Supportable": For handling platform behavior
-* Multiway and friends now use Motion internally, and so work properly with Crafty's timer step types.
+* Multiway and friends now use Motion internally, and so work properly with Crafty's timer step types.  
 * TwoWay now uses Supportable.
 
 
@@ -69,7 +110,7 @@ There are several new components that handle moving objects, and existing compon
 * Mobile positioning was handled weirdly, resulting in both layout and touch event bugs
 * Various bugs with disableControls
 * Numerous small issues with documentation
-* Problems with event cancelling
+* Problems with event cancelling	
 * Fixed a long standing issue where DOM sprites blinked and flickered in Chrome
 * Numerous bug fixes related to calling `Crafty.stop()`.
 * A use of constructor.name which broke IE9
@@ -163,7 +204,7 @@ See the associated documentation pages for more info
 * New set of Debug components
 
 **Known issues**
-* Poor behavior in IE8
+* Poor behavior in IE8 
 * Some of the viewport transitions do not animate correctly
 
 **Improvements/bug fixes**
@@ -174,7 +215,7 @@ See the associated documentation pages for more info
 * Optimizations to how _attr and cascade work
 * Fix errors with "2D" methods isAt, contains, and within when an entity is rotated.
 * Each stage of the game loop now has an associated event that measures how much time passed.
-* "SceneChange" now called *before* the scene init function is run.
+* "SceneChange" now called *before* the scene init function is run.  
 * New "SceneDestroy" event.
 * "Isometric" place method works now; several other fixes to isometric behavior
 * Crafty audio can now play the same sound file multiple times such that it overlaps with itself
@@ -190,7 +231,7 @@ See the associated documentation pages for more info
 * Fix image loader bug in IE  (That was caused by a workaround for a Webkit bug!)
 * Canvas entities at non-integer positions now correctly calculate their drawing region (no more tracers)
 * Sprites properly require the "2D" component
-* Fix some odd behavior with isometric entities;
+* Fix some odd behavior with isometric entities; 
 * Performance improvements in a few cases
 * Changes to how Gravity handles collisions with platforms
 * Crafty.audio.play now returns the audio element used to play the sound
@@ -231,7 +272,7 @@ See the associated documentation pages for more info
 
 * Multiple issues when changing the viewport
 * Quirks with SpriteAnimation in some corner cases
-
+	
 *Misc bug fixes*
 
 * Crafty should now be noticeably less janky on Firefox
@@ -289,14 +330,14 @@ See the associated documentation pages for more info
 
 [commits](https://github.com/craftyjs/Crafty/compare/0.5.1...0.5.2)
 
-## Crafty Builder
+## Crafty Builder 
 **September 2012**
-* No improvements to the Crafty engine was released this month. Efforts were spend on:
+* No improvements to the Crafty engine was released this month. Efforts were spend on: 
 * Online IDE www.craftybuilder.com Expect many changes in the future
 * a major rewrite of the drawing system. See https://groups.google.com/forum/?fromgroups=#!topic/craftyjs/b73gpKLE7nE
 
 
-## 0.5.1
+## 0.5.1 
 **August 2012**
 * CraftyStop is no longer triggered when the game is paused
 * Fix bug that prevented inputs from triggering when game is paused
