@@ -1,5 +1,6 @@
 (function() {
   var module = QUnit.module;
+  var test = QUnit.test;
 
   module("Audio");
 
@@ -58,7 +59,7 @@
       if (this.src) {
         self.ended = true;
         self.src = null;
-        ok(true, "Audio played");
+        QUnit.assert.ok(true, "Audio played");
       }
     };
     this.pause = function() {};
@@ -66,27 +67,30 @@
   }
 
 
-  asyncTest("setChannels", function() {
+  test("setChannels", function(_) {
     // Test that setChannels doesn't break sound
-    expect(2);
+    _.expect(2);
+    var done = _.async();
+
     window.Audio = MockAudio;
     Crafty.support.audio = true;
     Crafty.audio.setChannels(5);
     Crafty.audio.add("mockSound", ["sound.ogg"]);
     var a = Crafty.audio.play("mockSound", 1);
-    ok(typeof a === "object", "Type of a is object: " + a);
+    _.ok(typeof a === "object", "Type of a is object: " + a);
     a.addEventListener("ended", function() {
-      ok(true, "Sound played");
+      _.ok(true, "Sound played");
       delete window.Audio; //reset Audio to platform default
       Crafty.audio.channels = [];
-      start();
+      done();
     });
   });
 
-  test("chromeBug", function() {
+  test("chromeBug", function(_) {
     // Test that we don't exhaust our audio channels if Chrome bug 280417
     // eats our "ended" events
-    expect(10);
+    _.expect(10);
+
     window.Audio = ChromeBuggedAudio;
     Crafty.support.audio = true;
     Crafty.audio.setChannels(1);

@@ -1,29 +1,30 @@
 (function() {
   var module = QUnit.module;
+  var test = QUnit.test;
 
   module("Storage");
 
-  test('get a value', function(){
+  test('get a value', function(_){
     Crafty.storage('name', 'test');
     var name = Crafty.storage('name');
 
-    equal(name, 'test', 'the values should be equal');
+    _.strictEqual(name, 'test', 'the values should be equal');
 
     Crafty.storage.remove('name');
   });
 
-  test('get null when a value does not exist', function(){
+  test('get null when a value does not exist', function(_){
     var name = Crafty.storage('notexisting');
-    equal(name, null, 'should be null');
+    _.strictEqual(name, null, 'should be null');
   });
 
-  test('remove an value', function(){
+  test('remove an value', function(_){
     Crafty.storage('person', 'test');
-    equal(Crafty.storage('person'), 'test', 'person should be defined');
+    _.strictEqual(Crafty.storage('person'), 'test', 'person should be defined');
 
     Crafty.storage.remove('person');
 
     var savedperson = Crafty.storage('person');
-    equal(savedperson, null, 'should be null because we just removed the value');
+    _.strictEqual(savedperson, null, 'should be null because we just removed the value');
   });
 })();

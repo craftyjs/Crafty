@@ -23,7 +23,8 @@
     "engine"
   ],
   "scripts": {
-    "test": "grunt check"
+    "test": "grunt check",
+    "postinstall": "(node -e \"process.env.NODE_ENV !== 'production' && process.exit()\" && grunt copy:lib) || node -v"
   },
   "homepage": "https://github.com/craftyjs/Crafty",
   "dependencies": {
@@ -38,13 +39,14 @@
     "grunt-banner": "^0.6.0",
     "grunt-browserify": "^5.0.0",
     "grunt-contrib-connect": "^1.0.2",
+    "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-jshint": "^1.0.0",
     "grunt-contrib-qunit": "^1.2.0",
     "grunt-contrib-uglify": "^2.0.0",
     "grunt-contrib-watch": "^1.0.0",
     "grunt-gh-pages": "^2.0.0",
     "grunt-jsvalidate": "^0.2.2",
-    "grunt-node-qunit": "https://github.com/axemclion/grunt-node-qunit/tarball/6443ff0bdb59076cb93a20855be8921ff32d3540",
+    "grunt-qunit-node": "^0.1.0",
     "grunt-run": "^0.6.0",
     "grunt-saucelabs": "^9.0.0",
     "grunt-webdriver": "^1.0.0",
@@ -57,7 +59,7 @@
     "phantomjs-prebuilt": "2.1.14",
     "q": "^1.4.1",
     "q-io": "^1.13.1",
-    "qunitjs": "^2.0.1",
+    "qunitjs": "^2.3.0",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
     "semver": "^5.3.0",

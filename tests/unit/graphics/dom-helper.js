@@ -1,8 +1,9 @@
 (function() {
   var module = QUnit.module;
+  var test = QUnit.test;
 
   module("dom-helper", {
-    setup: function() {
+    beforeEach: function() {
       var div = document.createElement('div');
       div.style.position = 'absolute';
       div.style.top = '10000px';
@@ -25,13 +26,13 @@
       }
     },
 
-    teardown: function() {
+    afterEach: function() {
       resetStage();
     }
   });
 
-  test("translate coordinates", function() {
-    strictEqual(Crafty.domHelper.translate(10, 10).x, 0, "translates x from 10 to 0");
-    strictEqual(Crafty.domHelper.translate(10, 10).y, 100, "translates y from 10 to 100");
+  test("translate coordinates", function(_) {
+    _.strictEqual(Crafty.domHelper.translate(10, 10).x, 0, "translates x from 10 to 0");
+    _.strictEqual(Crafty.domHelper.translate(10, 10).y, 100, "translates y from 10 to 100");
   });
 })();
