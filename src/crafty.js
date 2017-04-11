@@ -1,23 +1,8 @@
-var Crafty = require('./core/core');
+// Define common features
+var Crafty = require('./crafty-common.js')();
 
-Crafty.easing = require('./core/animation');
-Crafty.extend(require('./core/extensions'));
+// Define features only available in browser environment
 Crafty.extend(require('./core/loader'));
-Crafty.c('Model', require('./core/model'));
-Crafty.extend(require('./core/scenes'));
-Crafty.storage = require('./core/storage');
-Crafty.c('Delay', require('./core/time'));
-Crafty.c('Tween', require('./core/tween'));
-
-require('./core/systems');
-
-require('./spatial/2d');
-require('./spatial/motion');
-require('./spatial/platform');
-require('./spatial/collision');
-require('./spatial/spatial-grid');
-require('./spatial/rect-manager');
-require('./spatial/math');
 
 // Needs to be required before any specific layers are
 require('./graphics/layers');
@@ -46,15 +31,11 @@ require('./isometric/diamond-iso');
 require('./isometric/isometric');
 
 require('./controls/inputs');
-require('./controls/controls-system');
-require('./controls/controls');
 require('./controls/device');
-require('./controls/keycodes');
 
 require('./sound/sound');
 
 require('./debug/debug-layer');
-require('./debug/logging');
 
 // Define some aliases for renamed properties
 require('./aliases').defineAliases(Crafty);
