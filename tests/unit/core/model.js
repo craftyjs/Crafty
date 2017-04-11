@@ -4,6 +4,102 @@
 
   module("Model");
 
+  test('Get', function(_) {
+    var fox;
+    Crafty.c('Animal', {
+      contact: {
+        email: 'test@example.com',
+        address: {
+          city: 'Portland',
+          state: 'Oregon'
+        }
+      },
+      name: 'Fox'
+    });
+    fox = Crafty.e('Animal, Model');
+
+    _.strictEqual(fox.attr('contact.address.city'), 'Portland');
+    _.strictEqual(fox.attr('contact.email'), 'test@example.com');
+    _.strictEqual(fox.attr('name'), 'Fox');
+  });
+
+  test('Set', function(_) {
+    var fox;
+    Crafty.c('Animal', {
+      name: 'Fox'
+    });
+
+    fox = Crafty.e('Animal, Model');
+
+    fox.attr('name', 'Foxxy');
+    _.strictEqual(fox.attr('name'), 'Foxxy');
+
+    fox.attr('name', 'Slick', {});
+    _.strictEqual(fox.attr('name'), 'Slick');
+
+    fox.attr({name: 'Lucky'});
+    _.strictEqual(fox.attr('name'), 'Lucky');
+
+    fox.attr({name: 'Spot'}, {});
+    _.strictEqual(fox.attr('name'), 'Spot');
+  });
+
+  test('Set with dot notation', function(_) {
+    var fox;
+    Crafty.c('Animal', {
+      contact: {
+        email: 'test@example.com',
+        address: {
+          city: 'Portland',
+          state: 'Oregon'
+        }
+      },
+      name: 'Fox'
+    });
+    fox = Crafty.e('Animal, Model');
+
+    fox.attr('contact.address.city', 'Salem');
+
+    _.deepEqual(fox.attr('contact.address'), {city: 'Salem', state: 'Oregon'});
+  });
+
+  test('Set Silent', function(_) {
+    var fox, called;
+    Crafty.c('Animal', {
+      name: 'Fox'
+    });
+
+    fox = Crafty.e('Animal, Model');
+
+    called = false;
+    fox.bind('Change', function() {
+      called = true;
+    });
+
+    fox.attr({name: 'Lucky'}, true);
+    _.strictEqual(called, false);
+
+    fox.attr({name: 'Spot'}, false);
+    _.strictEqual(called, true);
+  });
+
+  test('Set Recursive', function(_) {
+    var fox;
+    Crafty.c('Animal', {
+      name: 'Fox',
+      contact: {
+        email: 'fox@example.com',
+        phone: '555-555-4545'
+      }
+    });
+
+    fox = Crafty.e('Animal, Model');
+
+    fox.attr({contact: {email: 'foxxy@example.com'}}, false, true);
+
+    _.deepEqual(fox.attr('contact'), {email: 'foxxy@example.com', phone: '555-555-4545'});
+  });
+
   test('Set triggers change events', function(_) {
     var fox, results = [];
     Crafty.c('Animal', {

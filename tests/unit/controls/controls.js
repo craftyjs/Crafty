@@ -147,4 +147,49 @@
     e.destroy();
   });
 
+  // Use keysUp/Down helper functions defined in common.js
+  test("Integrationtest - Twoway", function(_) {
+    var done = false;
+    Crafty.resetKeyDown();
+
+    var ground = Crafty.e("2D, platform")
+          .attr({ x: 0, y: 200, w: 10, h: 20 });
+
+    var player = Crafty.e("2D, Gravity, Twoway")
+          .attr({ x: 0, y: 150, w: 32, h: 10 })
+          .gravity("platform")
+          .gravityConst(0.3*50*50)
+          .twoway(2, 4);
+
+    var landCount = 0, liftCount = 0;
+    player.bind("LandedOnGround", function() {
+      landCount++;
+      
+      if (landCount === 1) {
+        this.bind("LiftedOffGround", function() {
+          liftCount++;
+          this.bind("EnterFrame", function() {
+            keysDown(Crafty.keys.UP_ARROW);
+            if (this.velocity().y < -this._jumpSpeed)
+              _.ok(false, "Twoway should not modify velocity");
+          });
+        });
+
+        keysDown(Crafty.keys.UP_ARROW);
+      } else {
+        _.strictEqual(landCount, 2, "two land on ground events should have been registered");
+        _.strictEqual(liftCount, 1, "one lift off ground event should have been registered");
+
+        ground.destroy();
+        player.destroy();
+
+        keysUp(Crafty.keys.UP_ARROW);
+        done = true;
+      }
+    });
+
+    Crafty.timer.simulateFrames(75);
+    _.ok(done, "Integration test completed");
+  });
+
 })();

@@ -4,6 +4,107 @@
 
   module("Events");
 
+  test("bind", function(_) {
+    var first = Crafty.e("test"),
+      triggered = false;
+    first.bind("myevent", function() {
+      triggered = true;
+    });
+    first.trigger("myevent");
+    _.strictEqual(triggered, true, "custom event triggered");
+
+  });
+
+  test("bind groups of entities", function(_) {
+    var e1 = Crafty.e("test"), e2 = Crafty.e("test");
+    var test_callback = function(){
+      this.test_flag = true;
+    };
+    Crafty("test").bind("TestEvent", test_callback);
+    e1.trigger("TestEvent");
+    _.strictEqual(e1.test_flag, true, "Entity event triggered on first entity");
+    _.notEqual(e2.test_flag, false, "Not triggered on second ");
+
+    e1.test_flag = false;
+
+    Crafty.trigger("TestEvent");
+    _.strictEqual(e1.test_flag, true, "Global event triggered on first entity");
+    _.strictEqual(e2.test_flag, true, "Global event triggered on second entity");
+
+  });
+
+  test("trigger groups of entities", function(_){
+    var e1 = Crafty.e("test"), e2 = Crafty.e("test");
+    var test_callback = function(){
+      this.test_flag = true;
+    };
+    e1.bind("TestEvent", test_callback);
+    e2.bind("TestEvent", test_callback);
+    Crafty("test").trigger("TestEvent");
+    _.strictEqual(e1.test_flag, true, "Triggered on first entity");
+    _.strictEqual(e2.test_flag, true, "Triggered on second entity");
+  });
+
+  test("bind to an event in response to that same event", function(_) {
+    var first = Crafty.e("test"),
+      triggered = 0;
+    function increment(){ triggered++; }
+    first.bind("myevent", function() {
+      increment();
+      first.bind("myevent", increment);
+    });
+    first.trigger("myevent");
+    _.strictEqual(triggered, 1, "event added in response to an event should not be triggered by that same event");
+
+  });
+
+  test("unbind", function(_) {
+    var first = Crafty.e("test");
+    first.bind("myevent", function() {
+      _.ok(false, "This should not be triggered (unbinding all)");
+    });
+    first.unbind("myevent");
+    first.trigger("myevent");
+
+    function callback() {
+      _.ok(false, "This should also not be triggered (unbind by FN)");
+    }
+
+    function callback2() {
+      _.ok(true, "This should be triggered");
+    }
+
+    first.bind("myevent", callback);
+    first.bind("myevent", callback2);
+    first.unbind("myevent", callback);
+    first.trigger("myevent");
+
+  });
+
+  test("globalBindAndUnbind", function(_) {
+    var flag = 0;
+    var add_1 = function() {
+      flag += 1;
+    };
+    var add_10 = function() {
+      flag += 10;
+    };
+    var add_100 = function() {
+      flag += 100;
+    };
+    Crafty.bind("theglobalevent", add_1);
+    Crafty.bind("theglobalevent", add_10);
+    Crafty.bind("theglobalevent", add_100);
+    Crafty.trigger("theglobalevent");
+    _.strictEqual(flag, 111, "global event binding worked");
+    Crafty.unbind("theglobalevent", add_1);
+    Crafty.trigger("theglobalevent");
+    _.strictEqual(flag, 221, "global event single-function unbinding worked");
+    Crafty.unbind("theglobalevent");
+    Crafty.trigger("theglobalevent");
+    _.strictEqual(flag, 221, "global event full unbinding worked");
+  });
+
   test("Global binding events", function(_) {
     var x = 0;
 
