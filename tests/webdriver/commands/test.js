@@ -7,16 +7,22 @@ var path = require('path'),
 // TEST ENVIRONMENT RESOLUTION - lowest common denominator of resolutions across all platforms -> QVGA (240x320) in landscape
 var viewportWidth = 320,
     viewportHeight = 240;
-// CURRENT TEST BASENAME AND RELATIVE PATH WITHOUT EXTENSION
-var currentTestName,
-    currentTestPath;
+
 // BASE PATHS FOR TEST SPECIFIC FILES
-var testPath = '/tests/webdriver/',
+var testPath = 'tests/webdriver/',
     expectedPath = 'tests/webdriver/assets/',
     resultPath = 'build/webdriver/',
     failedPath = resultPath + 'failed/';
 
+
 module.exports = function addTestSpecificCommands(client, capabilities, runId, QUnit, indexModuleFileName) {
+    // CURRENT TEST BASENAME AND RELATIVE PATH WITHOUT EXTENSION
+    function currentTestPath() {
+        return QUnit.config.current.module.name;
+    }
+    function currentTestName() {
+        return path.basename(currentTestPath());
+    }
 
     // QUnit TESTRUNNER SETUP
     var qunitModule = QUnit.module;
@@ -36,13 +42,10 @@ module.exports = function addTestSpecificCommands(client, capabilities, runId, Q
             testName = undefined;
         }
 
-        currentTestPath = QUnit.config.current.module.name;
-        currentTestName = path.basename(currentTestPath);
-
-        console.log("\n# Starting " + (testName || currentTestName)  + " test for " + runId);
+        console.log("\n# Starting " + (testName || currentTestName())  + " test for " + runId);
 
         if (typeof testScript === 'string') {
-            var testFilePath = resultPath + (testName || currentTestName) + '.html',
+            var testFilePath = resultPath + (testName || currentTestName()) + '.html',
                 testFile = "<!DOCTYPE html>"                                                + EOL +
                     "<html>"                                                                + EOL +
                     "<head>"                                                                + EOL +
@@ -59,9 +62,11 @@ module.exports = function addTestSpecificCommands(client, capabilities, runId, Q
                     "</body>"                                                               + EOL +
                     "</html>"                                                               + EOL;
             return qfs.write(testFilePath, testFile, 'w+')
-                    .then(this.url.bind(this, testFilePath));
-        } else { 
-            return this.url(testPath + currentTestPath + '.html');
+                    // all urls need a prepended "/" so that they are expanded based upon baseUrl in config
+                    .then(this.url.bind(this, '/' + testFilePath));
+        } else {
+            // all urls need a prepended "/" so that they are expanded based upon baseUrl in config
+            return this.url('/' + testPath + currentTestPath() + '.html');
         }
     });
 
@@ -75,7 +80,7 @@ module.exports = function addTestSpecificCommands(client, capabilities, runId, Q
             else testName = pathMod;
 
         suffix = suffix || '';
-        testName = testName || currentTestName;
+        testName = testName || currentTestName();
         bounds = bounds || {x: 0, y: 0, w: viewportWidth, h: viewportHeight};
 
         return this.saveNormalizedScreenshot(expectedPath + testName + suffix + '-expected.png', bounds);
@@ -88,7 +93,7 @@ module.exports = function addTestSpecificCommands(client, capabilities, runId, Q
         suffix = suffix ? '-' + suffix : '';
         bounds = bounds || {x: 0, y: 0, w: viewportWidth, h: viewportHeight};
 
-        return this.saveNormalizedScreenshot(resultPath + currentTestName + suffix + '-' + runId + '-actual.png', bounds);
+        return this.saveNormalizedScreenshot(resultPath + currentTestName() + suffix + '-' + runId + '-actual.png', bounds);
     });
 
     // WEBDRIVER COMMAND: IMAGE RESAMBLANCE ASSERTION SHORTCUT
@@ -104,14 +109,14 @@ module.exports = function addTestSpecificCommands(client, capabilities, runId, Q
                 else testName = arguments[i];
         }
         suffix = suffix || '';
-        testName = testName || currentTestName;
+        testName = testName || currentTestName();
         threshold = threshold || 0.05;
         bounds = bounds || {x: 0, y: 0, w: viewportWidth, h: viewportHeight};
         checkAntialiasing = !!checkAntialiasing;
 
         var expected = testName + suffix + '-expected.png',
-            actual = currentTestName + suffix + '-' + runId + '-actual.png',
-            diff = currentTestName + suffix + '-' + runId + '-diff.png';
+            actual = currentTestName() + suffix + '-' + runId + '-actual.png',
+            diff = currentTestName() + suffix + '-' + runId + '-diff.png';
 
         return this.resemble(resultPath + actual, expectedPath + expected,
                             resultPath + diff, bounds, checkAntialiasing)

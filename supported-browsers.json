@@ -7,7 +7,8 @@
   {
     "browserName": "MicrosoftEdge",
     "version": "latest",
-    "platform": "Windows 10"
+    "platform": "Windows 10",
+    "hasWebGL": true
   },
   {
     "browserName": "chrome",
@@ -16,53 +17,58 @@
   },
   {
     "browserName": "chrome",
-    "version": "beta",
-    "platform": "Windows 10"
+    "version": "latest",
+    "platform": "Windows 10",
+    "syntheticMouseEvents": true
   },
   {
     "browserName": "safari",
     "version": "6.0",
-    "platform": "OS X 10.8"
+    "platform": "OS X 10.8",
+    "syntheticKeyEvents": true,
+    "syntheticMouseEvents": true
   },
   {
     "browserName": "safari",
-    "version": "9",
-    "platform": "OS X 10.11"
+    "version": "latest",
+    "platform": "OS X 10.12",
+    "syntheticKeyEvents": true,
+    "syntheticMouseEvents": true
   },
   {
     "browserName": "firefox",
     "version": "6.0",
-    "platform": "Linux"
+    "platform": "Linux",
+    "noWebdriver": true
   },
   {
     "browserName": "firefox",
     "version": "latest",
-    "platform": "Linux"
-  },
-  {
-    "browserName": "opera",
-    "version": "12.15",
-    "platform": "Linux"
+    "platform": "Linux",
+    "syntheticKeyEvents": true
   },
   {
     "browserName": "android",
     "version": "4.4",
     "deviceName": "Android Emulator",
     "platform": "linux",
-    "deviceOrientation": "landscape"
+    "deviceOrientation": "landscape",
+    "noWebdriver": true
   },
   {
     "browserName": "android",
     "version": "5.1",
     "deviceName": "Android Emulator",
     "platform": "Linux",
-    "deviceOrientation": "landscape"
+    "deviceOrientation": "landscape",
+    "noWebdriver": true
   },
   {
     "browserName": "iphone",
-    "version": "9.1",
+    "version": "10.2",
     "deviceName": "iPhone Simulator",
-    "platform": "OS X 10.10",
-    "deviceOrientation": "landscape"
+    "platform": "OS X 10.12",
+    "deviceOrientation": "landscape",
+    "noWebdriver": true
   }
 ]
