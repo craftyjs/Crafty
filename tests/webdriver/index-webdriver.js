@@ -10,7 +10,7 @@ var fs = require('fs'),
 // ADD ALL TESTS & RUN CONDITIONS HERE
 var tests = {
     // Problems with input capture in firefox driver
-    'template-multi': function(browserName) { return browserName !== "firefox"; },
+    'template/template-multi': function(browserName) { return browserName !== "firefox"; },
     'color/color-dom': true,
     'color/color-canvas': true,
     // neither phantomjs nor open sauce support webgl right now
@@ -303,19 +303,16 @@ function addTestSpecificCommands(client, QUnit, runId) {
             testFilePathNoExt = testFilePath.substr(0, testFilePath.lastIndexOf('.')) || testFilePath;
         qunitModule(testFilePathNoExt);
     };
-    QUnit.moduleStart(function(details) {
-        //console.log("Now running:", details.name);
-        currentTestPath = details.name;
-        currentTestName = path.basename(details.name);
-    });
 
     // WEBDRIVER COMMAND: TEST PAGE URL SHORTCUT
     client.addCommand("testUrl", function(testName, testScript) {
-        
         if (typeof testName === 'string' && typeof testScript === 'undefined') {
             testScript = testName;
             testName = undefined;
         }
+
+        currentTestPath = QUnit.config.current.module.name;
+        currentTestName = path.basename(currentTestPath);
 
         console.log("\n# Starting " + (testName || currentTestName)  + " test for " + runId);
 
@@ -336,8 +333,8 @@ function addTestSpecificCommands(client, QUnit, runId) {
                     "</script>"                                                             + EOL +
                     "</body>"                                                               + EOL +
                     "</html>"                                                               + EOL;
-            return qfs.write("./" + testFilePath, testFile, 'w+')
-                    .then(this.url.bind(this, "/" + testFilePath));
+            return qfs.write(testFilePath, testFile, 'w+')
+                    .then(this.url.bind(this, testFilePath));
         } else { 
             return this.url(testPath + currentTestPath + '.html');
         }
