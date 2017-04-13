@@ -2,6 +2,7 @@ exports.config = {
     specs: require('./index-webdriver.js').specs(),
     framework: 'qunit',
     baseUrl: './',
+    sync: false,
 
     capabilities: [{
         browserName: 'phantomjs',
@@ -10,7 +11,7 @@ exports.config = {
     updateJob: false,
     waitforTimeout: 1000,
 
-    logLevel: 'silent',
+    logLevel: 'silent', // 'verbose' for debugging
     coloredLogs: true,
     screenshotPath: 'build/webdriver/failed',
 

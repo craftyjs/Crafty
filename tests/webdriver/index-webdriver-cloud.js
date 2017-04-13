@@ -2,6 +2,7 @@ exports.config = {
     specs: require('./index-webdriver.js').specs(),
     framework: 'qunit',
     baseUrl: 'http://localhost:8000',
+    sync: false,
 
     user: process.env.SAUCE_USERNAME,
     key: process.env.SAUCE_ACCESS_KEY,
@@ -35,7 +36,7 @@ exports.config = {
     updateJob: true,
     waitforTimeout: 2000,
 
-    logLevel: 'silent', //'verbose'
+    logLevel: 'silent', // 'verbose' for debugging
     coloredLogs: true,
     screenshotPath: 'build/webdriver/failed',
 
