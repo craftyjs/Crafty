@@ -6,7 +6,7 @@ exports.config = {
 
     capabilities: [{
         browserName: 'phantomjs',
-        exclude: require('./index-webdriver.js').exclude('phantomjs')
+        exclude: require('./index-webdriver.js').exclude({ browserName: 'phantomjs' })
     }],
     updateJob: false,
     waitforTimeout: 1000,

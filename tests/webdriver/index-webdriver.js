@@ -1,44 +1,42 @@
 // NOTE: this index file must always be located at root of webdriver tests directory (Crafty/tests/webdriver)
 
 // ADD ALL TESTS & RUN CONDITIONS HERE
+var canRunWebdriver = function(capabilities) {
+    return !("noWebdriver" in capabilities);
+};
+var hasWebGL = function(capabilities) {
+    return "hasWebGL" in capabilities;
+};
+
 var tests = {
-    // Problems with input capture in firefox driver
-    'template/template-multi': function(browserName) { return browserName !== "firefox"; },
-    'color/color-dom': true,
-    'color/color-canvas': true,
-    // neither phantomjs nor open sauce support webgl right now
-    'color/color-webgl': function(browserName) { return false; }
+    'template/template-multi': canRunWebdriver,
+    'color/color-dom': canRunWebdriver,
+    'color/color-canvas': canRunWebdriver,
+    // only edge supports webgl for webdriver right now
+    'color/color-webgl': function(capabilities) {
+        return canRunWebdriver(capabilities) && hasWebGL(capabilities);
+    }
 };
 
 
 // BROWSERS THAT NEED SYNTHETIC EVENTS
 // some browsers don't support triggering native events via webdriver
 var syntheticKeyEvents = function(capabilities) {
-    return capabilities.browserName in {'safari': 0, 'MicrosoftEdge': 0, 'iphone': 0};
+    return 'syntheticKeyEvents' in capabilities;
 };
 var syntheticMouseEvents = function(capabilities) {
-    return (capabilities.browserName in {'safari': 0, 'MicrosoftEdge': 0, 'iphone': 0}) ||
-            (capabilities.browserName === 'firefox' && capabilities.version === '6.0')  ||
-            (capabilities.browserName === 'chrome' && capabilities.version === 'beta');
+    return 'syntheticMouseEvents' in capabilities;
 };
 
 
+// TODO: FIX NON-STANDARD SCREENSHOT REGIONS FOR MOBILE BROWSERS
 // NON-STANDARD SCREENSHOT REGIONS PER PLATFORM
 // ROTATE CCW 90°, CROP TO DOCUMENT REGION, SCALE UP, CROP TO BOUNDS
 var rotatedCrops = {};
 // These platforms are no longer used, and the updated versions require different regions
-// TODO: update them and add the new platforms back to supported-platforms-webdriver
-rotatedCrops[getRunId({"browserName": "android", "version": "4.1", "platform": "Linux"})] = { x: 0, y: 98, w: 261, h: 196, stretchW: 320, stretchH: 240 };
-rotatedCrops[getRunId({"browserName": "android", "version": "5.1", "platform": "Linux"})] = { x: 0, y: 110, w: 261, h: 196, stretchW: 320, stretchH: 240 };
-// TODO: iphone 8.4 emulator currently changing screenshot region constantly, readd to supported-browsers and observe region in future
+//rotatedCrops[getRunId({"browserName": "android", "version": "4.1", "platform": "Linux"})] = { x: 0, y: 98, w: 261, h: 196, stretchW: 320, stretchH: 240 };
+//rotatedCrops[getRunId({"browserName": "android", "version": "5.1", "platform": "Linux"})] = { x: 0, y: 110, w: 261, h: 196, stretchW: 320, stretchH: 240 };
 //rotatedCrops[getRunId({"browserName": "iphone", "version": "8.4", "platform": "OS X 10.10"})] = { x: 0, y: 420, w: 217, h: 162, stretchW: 320, stretchH: 240 };
-/*{
-    "browserName": "iphone",
-    "version": "8.4",
-    "deviceName": "iPhone Simulator",
-    "platform": "OS X 10.10",
-    "deviceOrientation": "landscape"
-}*/
 
 
 
@@ -59,12 +57,12 @@ exports.specs = function() {
         return 'tests/webdriver/' + t + '.js';
     });
 };
-exports.exclude = function(browserName, version, platform) {
+exports.exclude = function(capabilities) {
     var excluded = [],
         runCondition;
     for (var test in tests) {
         runCondition = tests[test];
-        if (runCondition !== true && (runCondition === false || !runCondition(browserName, version, platform)))
+        if (runCondition === false || !runCondition(capabilities))
             excluded.push('tests/webdriver/' + test + '.js');
     }
     return excluded;
