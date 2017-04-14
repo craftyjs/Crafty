@@ -9,7 +9,8 @@ exports.config = {
         exclude: require('./index-webdriver.js').exclude({ browserName: 'phantomjs' })
     }],
     updateJob: false,
-    waitforTimeout: 1000,
+    waitforTimeout: 3000,
+    // maxInstances: 1, // uncomment this for debugging
 
     logLevel: 'silent', // 'verbose' for debugging
     coloredLogs: true,

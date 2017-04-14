@@ -32,7 +32,8 @@ module.exports = function addTestSpecificCommands(client, capabilities, runId, Q
 
         var testFilePath = path.relative(path.dirname(indexModuleFileName), testModule.filename),
             testFilePathNoExt = testFilePath.substr(0, testFilePath.lastIndexOf('.')) || testFilePath;
-        qunitModule(testFilePathNoExt);
+        // need to convert possible windows path (with backslashes) to url (with forwardslashes)
+        qunitModule(testFilePathNoExt.replace(/\\/g, '/'));
     };
 
     // WEBDRIVER COMMAND: TEST PAGE URL SHORTCUT

@@ -547,9 +547,6 @@
         });
       });
 
-      // We don't want anything to actually run in an uncontrolled manner during tests
-      Crafty.pause();
-
       collisions = [];
       decollisions = [];
       resetPositions();

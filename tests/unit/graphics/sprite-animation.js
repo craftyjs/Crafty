@@ -93,9 +93,6 @@
       eventFrames = [];
       finishedAnimations = [];
 
-      // We don't want anything to actually run in an uncontrolled manner during tests
-      Crafty.pause(true);
-
       spriteAnimation.bind("FrameChange", function(changeData) {
         eventFrames.push(changeData.currentFrame);
       });
@@ -103,10 +100,6 @@
       spriteAnimation.bind("AnimationEnd", function(endData) {
         finishedAnimations.push(endData.id);
       });
-    },
-
-    afterEach: function() {
-      Crafty.pause(false);
     }
   });
 

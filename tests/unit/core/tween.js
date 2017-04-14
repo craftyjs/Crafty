@@ -2,7 +2,16 @@
   var module = QUnit.module;
   var test = QUnit.test;
 
-  module("Tween");
+  module("Tween", {
+    beforeEach: function() {
+      // enable timer before each test in this module
+      Crafty.pause(false);
+    },
+    afterEach: function() {
+      // disable timer after each test in this module
+      Crafty.pause(true);
+    }
+  });
 
   test("Tween", function(_) {
     var e = Crafty.e("2D, Tween");

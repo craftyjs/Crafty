@@ -4,8 +4,8 @@ environment:
 
 # preserve local npm and yarn modules but will reset them if package.json or appveyor.yml is modified
 cache:
-  - node_modules -> appveyor.yml, package.json
-  - '%LOCALAPPDATA%\Yarn -> appveyor.yml, package.json'
+  - node_modules -> appveyor.yml, package.json, yarn.lock
+  - '%LOCALAPPDATA%\Yarn -> appveyor.yml, package.json, yarn.lock'
 
 version: '{build}'
 
@@ -24,7 +24,9 @@ test_script:
   - npm --version
   - yarn --version
   # run tests
-  - npm test
+  - npm test || set FAILEDTESTS=true
+after_test:
+  - IF "%FAILEDTESTS%"=="true" ( echo Tests failed! & echo upload screenshots for debugging & exit 1 )
 
 # Don't actually build.
 build: off

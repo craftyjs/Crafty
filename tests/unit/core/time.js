@@ -124,7 +124,16 @@
     _.strictEqual(ent._delays.length, 0, "no more scheduled delays");
   });
 
-  module("Crafty.timer");
+  module("Crafty.timer", {
+    beforeEach: function() {
+      // enable timer before each test in this module
+      Crafty.pause(false);
+    },
+    afterEach: function() {
+      // disable timer after each test in this module
+      Crafty.pause(true);
+    }
+  });
 
   test("simulateFrames", function(_) {
     var framesPlayed = 0;
