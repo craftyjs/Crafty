@@ -23,6 +23,8 @@ indent_size = 4
 
 [tests/webdriver/index*.js]
 indent_size = 4
+[tests/webdriver/commands/**]
+indent_size = 4
 
 [build/**.coffee]
 indent_size = 4
