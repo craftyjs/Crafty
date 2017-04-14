@@ -1,7 +1,7 @@
 [
   {
     "browserName": "internet explorer",
-    "version": "9.0",
+    "version": "9",
     "platform": "Windows 7"
   },
   {
@@ -12,7 +12,7 @@
   },
   {
     "browserName": "chrome",
-    "version": "26.0",
+    "version": "26",
     "platform": "Windows XP"
   },
   {
@@ -23,21 +23,21 @@
   },
   {
     "browserName": "safari",
-    "version": "6.0",
+    "version": "6",
     "platform": "OS X 10.8",
     "syntheticKeyEvents": true,
     "syntheticMouseEvents": true
   },
   {
     "browserName": "safari",
-    "version": "latest",
-    "platform": "OS X 10.12",
+    "version": "10",
+    "platform": "macOS 10.12",
     "syntheticKeyEvents": true,
     "syntheticMouseEvents": true
   },
   {
     "browserName": "firefox",
-    "version": "6.0",
+    "version": "6",
     "platform": "Linux",
     "noWebdriver": true
   },
