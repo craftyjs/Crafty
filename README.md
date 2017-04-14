@@ -1,4 +1,4 @@
-# Crafty JS [![Build Status](https://travis-ci.org/craftyjs/Crafty.svg?branch=develop)](https://travis-ci.org/craftyjs/Crafty) [![Sauce Test Status](https://saucelabs.com/buildstatus/mucaho)](https://saucelabs.com/u/mucaho)
+# Crafty JS [![Travis Build Status](https://travis-ci.org/craftyjs/Crafty.svg?branch=develop)](https://travis-ci.org/craftyjs/Crafty) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/craftyjs/Crafty?svg=true&branch=develop)](https://ci.appveyor.com/project/starwed/crafty) [![Sauce Test Status](https://saucelabs.com/buildstatus/mucaho)](https://saucelabs.com/u/mucaho)
 
 Crafty is a JavaScript game library that can help you create games in a structured way…
 
