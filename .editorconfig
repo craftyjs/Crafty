@@ -18,7 +18,7 @@ indent_size = 4
 [src/**]
 indent_size = 4
 
-[tests/lib/mockTouchEvents.js]
+[tests/unit/lib/mockTouchEvents.js]
 indent_size = 4
 
 [tests/webdriver/index*.js]
