@@ -35,7 +35,7 @@
     e.x = 0;
     e.tween({
       x: 16
-    }, 200, function(t){return (t*t);}); // 10 frames == 200 ms by efault
+    }, 200, function(t){return (t*t);}); // 10 frames == 200 ms by default
     Crafty.timer.simulateFrames(5);
     _.strictEqual(Round(e.x), 4, "At halfway point, x is a quarter of original value");
     Crafty.timer.simulateFrames(10);
@@ -84,5 +84,30 @@
       _.ok(this.x === 100);
       done();
     });
+  });
+
+  test('fully cancelled tween should not trigger TweenEnd event', function(_) {
+    var fired = false;
+
+    Crafty.e('2D, Tween')
+      .tween({ x: 100, y: 100}, 200) // 10 frames == 200 ms by default
+      .cancelTween('x')
+      .cancelTween('y')
+      .bind('TweenEnd', function() {
+        fired = true;
+      });
+    Crafty.timer.simulateFrames(10+2);
+    _.notOk(fired, "TweenEnd shouldn't have fired.");
+
+    fired = false;
+    var tweenObj = { x: 100, y: 100};
+    Crafty.e('2D, Tween')
+      .tween(tweenObj, 200) // 10 frames == 200 ms by default
+      .cancelTween(tweenObj)
+      .bind('TweenEnd', function() {
+        fired = true;
+      });
+    Crafty.timer.simulateFrames(10+2);
+    _.notOk(fired, "TweenEnd shouldn't have fired.");
   });
 })();
