@@ -86,6 +86,96 @@
     });
   });
 
+  test('pause and resume tween', function(_) {
+    var actualTweens = [],
+        fired = 0;
+
+    var e = Crafty.e('2D, Tween')
+      .tween({ x: 100 }, 100) // 5 frames == 100 ms by default
+      .tween({ y: 50, z: 300 }, 200) // 10 frames = 200ms by default
+      .bind('TweenEnd', function(props) {
+        ++fired;
+        actualTweens = actualTweens.concat(Object.keys(props).sort());
+      });
+
+    // no progress if paused
+    e.pauseTweens();
+    Crafty.timer.simulateFrames(10+2);
+    _.strictEqual(fired, 0, "no events fired");
+    _.deepEqual(actualTweens, [], "no tweens finished");
+    _.strictEqual(e.x, 0, "start position");
+    _.strictEqual(e.y, 0, "start position");
+    _.strictEqual(e.z, 0, "start position");
+
+    // x finished after resume
+    e.resumeTweens();
+    Crafty.timer.simulateFrames(5);
+    _.strictEqual(fired, 1, "1 event fired");
+    _.deepEqual(actualTweens, ['x'], "x tween finished");
+    _.strictEqual(e.x, 100, "end position");
+    _.strictEqual(e.y, 25, "mid position");
+    _.strictEqual(e.z, 150, "mid position");
+
+    // no progress on pausing again
+    e.pauseTweens();
+    Crafty.timer.simulateFrames(10+2);
+    _.strictEqual(fired, 1, "1 event fired");
+    _.deepEqual(actualTweens, ['x'], "x tween finished");
+    _.strictEqual(e.x, 100, "end position");
+    _.strictEqual(e.y, 25, "mid position");
+    _.strictEqual(e.z, 150, "mid position");
+
+    // all finished after resume
+    e.resumeTweens();
+    Crafty.timer.simulateFrames(5);
+    _.strictEqual(fired, 2, "2 events fired");
+    _.deepEqual(actualTweens, ['x', 'y', 'z'], "all tweens finished");
+    _.strictEqual(e.x, 100, "end position");
+    _.strictEqual(e.y, 50, "end position");
+    _.strictEqual(e.z, 300, "end position");
+
+    // no change after all finished
+    Crafty.timer.simulateFrames(10+2);
+    _.strictEqual(fired, 2, "2 events fired");
+    _.deepEqual(actualTweens, ['x', 'y', 'z'], "all tweens finished");
+    _.strictEqual(e.x, 100, "end position");
+    _.strictEqual(e.y, 50, "end position");
+    _.strictEqual(e.z, 300, "end position");
+  });
+
+  test('cancel tween', function(_) {
+    _.expect(12); // 3[x,y,z-start] + 2[x,z]*3[TweenEnd] + 3[x,y,z-end] assertions
+
+    var fired = 0,
+        expectedTweens = ['x', 'z'];
+
+    var e = Crafty.e('2D, Tween')
+      .tween({ x: 100 }, 100) // 5 frames == 100 ms by default
+      .tween({ y: 100, z: 100 }, 200) // 10 frames == 200 ms by default
+      .bind('TweenEnd', function(props) {
+        _.strictEqual(Object.keys(props).length, 1, "one tween prop ended");
+        var prop = Object.keys(props)[0];
+
+        _.strictEqual(prop, expectedTweens[fired++], "tween prop ended at expected time");
+        _.strictEqual(this[prop], 100, "tween prop ended at expected position");
+
+        // cancel "y" tween prop after 100ms
+        if (fired === 1) this.cancelTween('y');
+      });
+
+    // check tween start pos
+    _.strictEqual(e.x, 0, "start position");
+    _.strictEqual(e.y, 0, "start position");
+    _.strictEqual(e.z, 0, "start position");
+
+    Crafty.timer.simulateFrames(10);
+
+    // check tween end position
+    _.strictEqual(e.x, 100, "end position");
+    _.strictEqual(e.y, 50, "end position");
+    _.strictEqual(e.z, 100, "end position");
+  });
+
   test('fully cancelled tween should not trigger TweenEnd event', function(_) {
     var fired = false;
 
