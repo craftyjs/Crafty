@@ -22,7 +22,7 @@ exports.config = {
             'public': 'public'
         };
 
-        var browsers = require('../../supported-browsers.json');
+        var browsers = require('../test-browsers.json');
         browsers.forEach(function(capabilities) {
             for (var k in baseCapabilities)
                 capabilities[k] = baseCapabilities[k];

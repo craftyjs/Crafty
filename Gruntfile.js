@@ -46,8 +46,6 @@ module.exports = function (grunt) {
 
         pkg: grunt.file.readJSON('package.json'),
 
-        supportedBrowsers: grunt.file.readJSON('supported-browsers.json'),
-
         copy: {
             lib: {
                 expand: true,
@@ -174,7 +172,7 @@ module.exports = function (grunt) {
             browser: {
                 options: {
                     urls: [ 'http://localhost:8000/tests/unit/index.html' ],
-                    browsers: '<%= supportedBrowsers %>',
+                    browsers: grunt.file.readJSON('tests/test-browsers.json'),
                     testname: "Cross-browser compatibility tests for CraftyJS",
                     build: process.env.TRAVIS_BUILD_NUMBER,
                     tags: [ process.env.TRAVIS_BRANCH ],
