@@ -26,14 +26,20 @@
     player.z = 1;
     _.strictEqual(player._z, 1, "Z index");
 
-    var global_z_guess;
-    if (player[0] < 10) {
-      global_z_guess = parseInt('10000' + player[0], 10);
-    } else {
-      global_z_guess = parseInt('1000' + player[0], 10);
-    }
-    _.strictEqual(player._globalZ, global_z_guess, "Global Z, After");
+    _.strictEqual(player._globalZ, player._z * 1e5 + player[0], "Global Z, After");
 
+    // test global order of entities depending on which was created last
+    var player2 = Crafty.e("2D");
+    var player3 = Crafty.e("2D");
+    _.ok(player3._globalZ > player2._globalZ, "player3 should be in front of player2");
+
+    // test global order of entities on same z level, depending on which was created last
+    player2.z = 1;
+    _.ok(player2._globalZ > player._globalZ, "player2 should be in front of player1");
+
+    // test global order of entities on different z level
+    player3.z = -1;
+    _.ok(player2._globalZ > player3._globalZ, "player2 should be in front of player3");
   });
 
   test("intersect", function(_) {
