@@ -4,8 +4,8 @@ environment:
 
 # preserve local npm and yarn modules but will reset them if package.json or appveyor.yml is modified
 cache:
-  - node_modules -> appveyor.yml, package.json
-  - '%LOCALAPPDATA%\Yarn -> appveyor.yml, package.json'
+  - node_modules -> appveyor.yml, package.json, yarn.lock
+  - '%LOCALAPPDATA%\Yarn -> appveyor.yml, package.json, yarn.lock'
 
 version: '{build}'
 
