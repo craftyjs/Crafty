@@ -24,7 +24,9 @@ test_script:
   - npm --version
   - yarn --version
   # run tests
-  - npm test
+  - npm test || set FAILEDTESTS=true
+after_test:
+  - IF "%FAILEDTESTS%"=="true" ( echo Tests failed! & echo upload screenshots for debugging & exit 1 )
 
 # Don't actually build.
 build: off

@@ -32,7 +32,7 @@ exports.config = {
         return browsers;
     })(),
     updateJob: true,
-    waitforTimeout: 2000,
+    waitforTimeout: 3000,
 
     services: ['sauce'],
     sauceConnect: false,
@@ -55,7 +55,7 @@ exports.config = {
         connectRetryTimeout: 2000,
 
         downloadRetries: 3,
-        downloadRetryTimeout: 1000
+        downloadRetryTimeout: 2000
     },
 
     logLevel: 'silent', // 'verbose' for debugging
