@@ -450,7 +450,7 @@ Crafty.extend({
      */
     findPointerEventTargetByComponent: function (comp, e, target) {
         var tar = target ? target : Crafty.stage.elem,
-            closest, current, q, l, i, pos, layerPos, maxz = -Infinity;
+            closest, current, q, l, i, pos, maxz = -Infinity;
         var x = e.clientX;
         var y = e.clientY;
 
@@ -463,7 +463,6 @@ Crafty.extend({
             pos = Crafty.domHelper.translate(x, y, ent._drawLayer);
             if (ent.__c[comp] && ent.isAt(pos.x, pos.y)) {
                 closest = ent;
-                layerPos = pos;
             }
         }
 
@@ -492,21 +491,18 @@ Crafty.extend({
                         current.__c[comp] && current.isAt(pos.x, pos.y)) {
                         maxz = current._globalZ;
                         closest = current;
-                        layerPos = pos;
                     }
                 }
             }
         }
         
-        // If the pointer event isn't related to a specific layer, 
-        // find the Crafty position in the default coordinate set
-        if (!layerPos) {
-            layerPos = Crafty.domHelper.translate(x, y);
-        }
+        // Find the Crafty position in the default coordinate set,
+        // disregard the fact that the pointer event was related to a specific layer.
+        pos = Crafty.domHelper.translate(x, y);
 
         // Update the event coordinates and return the event target
-        e.realX = layerPos.x;
-        e.realY = layerPos.y;
+        e.realX = pos.x;
+        e.realY = pos.y;
             
         return closest;
     },
