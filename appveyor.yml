@@ -1,11 +1,11 @@
 # Test against this version of Node.js.
 environment:
-  matrix:
-  - nodejs_version: "4"
+  nodejs_version: "6"
 
-# preserve local npm modules but will reset them if package.json or appveyor.yml is modified
+# preserve local npm and yarn modules but will reset them if package.json or appveyor.yml is modified
 cache:
-  - node_modules -> package.json, appveyor.yml
+  - node_modules -> appveyor.yml, package.json, yarn.lock
+  - '%LOCALAPPDATA%\Yarn -> appveyor.yml, package.json, yarn.lock'
 
 version: '{build}'
 
@@ -14,7 +14,7 @@ install:
   # Get the specified version of Node.js
   - ps: Install-Product node $env:nodejs_version
   # install modules
-  - npm install
+  - yarn install
   - npm install -g grunt-cli
 
 # Post-install test scripts.
@@ -22,8 +22,11 @@ test_script:
   # Output useful info for debugging.
   - node --version
   - npm --version
+  - yarn --version
   # run tests
-  - npm test
+  - npm test || set FAILEDTESTS=true
+after_test:
+  - IF "%FAILEDTESTS%"=="true" ( echo Tests failed! & echo upload screenshots for debugging & exit 1 )
 
 # Don't actually build.
 build: off

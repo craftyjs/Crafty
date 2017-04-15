@@ -1,0 +1,74 @@
+[
+  {
+    "browserName": "internet explorer",
+    "version": "9",
+    "platform": "Windows 7"
+  },
+  {
+    "browserName": "MicrosoftEdge",
+    "version": "latest",
+    "platform": "Windows 10",
+    "hasWebGL": true
+  },
+  {
+    "browserName": "chrome",
+    "version": "26",
+    "platform": "Windows XP"
+  },
+  {
+    "browserName": "chrome",
+    "version": "latest",
+    "platform": "Windows 10",
+    "syntheticMouseEvents": true
+  },
+  {
+    "browserName": "safari",
+    "version": "6",
+    "platform": "OS X 10.8",
+    "syntheticKeyEvents": true,
+    "syntheticMouseEvents": true
+  },
+  {
+    "browserName": "safari",
+    "version": "10",
+    "platform": "macOS 10.12",
+    "syntheticKeyEvents": true,
+    "syntheticMouseEvents": true
+  },
+  {
+    "browserName": "firefox",
+    "version": "6",
+    "platform": "Linux",
+    "noWebdriver": true
+  },
+  {
+    "browserName": "firefox",
+    "version": "latest",
+    "platform": "Linux",
+    "syntheticKeyEvents": true
+  },
+  {
+    "browserName": "android",
+    "version": "4.4",
+    "deviceName": "Android Emulator",
+    "platform": "linux",
+    "deviceOrientation": "landscape",
+    "noWebdriver": true
+  },
+  {
+    "browserName": "android",
+    "version": "5.1",
+    "deviceName": "Android Emulator",
+    "platform": "Linux",
+    "deviceOrientation": "landscape",
+    "noWebdriver": true
+  },
+  {
+    "browserName": "iphone",
+    "version": "10.2",
+    "deviceName": "iPhone Simulator",
+    "platform": "OS X 10.12",
+    "deviceOrientation": "landscape",
+    "noWebdriver": true
+  }
+]

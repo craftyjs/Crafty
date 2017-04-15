@@ -560,6 +560,7 @@ Crafty.c("Jumper", {
  * It is a well suited for games with a top-down (birds-eye) perspective.
  *
  * @see Multiway
+ * @see Motion
  */
 Crafty.c("Fourway", {
 
@@ -572,14 +573,24 @@ Crafty.c("Fourway", {
      * @comp Fourway
      * @kind Method
      * 
-     * @sign public this .fourway([Number speed])
+     * @sign public this .fourway([Number speed[, Object options]])
      * @param speed - The speed of motion in pixels per second.
+     * @param options - A dictionary of options passed through to the underlying Multiway component
      *
-     * Constructor to initialize the speed.
-     * Component will listen for key events and move the entity
-     * in the respective direction by the speed passed in the argument.
+     * Initialize the component with the given speed and options.  See the Multiway component for available options.
+     * 
+     * @example
+     * ~~~
+     * Crafty.e("2D, Color, Fourway")
+     *    .attr({x: 100, y: 100, w: 50, h:50})
+     *    .color("green")
+     *    .fourway(100, {normalize:true});
+     * ~~~
+     * Create a green square controlled by the arrow keys and WASD, with diagonal movement normalized to the given speed.
+     * 
+     * The speed is in units of pixels per second.
      */
-    fourway: function (speed) {
+    fourway: function (speed, options) {
         this.multiway(speed || this._speed, {
             UP_ARROW: -90,
             DOWN_ARROW: 90,
@@ -591,7 +602,7 @@ Crafty.c("Fourway", {
             A: 180,
             Z: -90,
             Q: 180
-        });
+        }, options);
 
         return this;
     }

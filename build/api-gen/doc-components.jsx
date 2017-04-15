@@ -1,6 +1,10 @@
 var marked = require("marked");
 var hljs = require("highlight.js");
 var cleanName = require("./clean-name");
+var kindName = function(name, kind) {
+  return kind === "Method" ? name + "()" : name;
+}
+
 var githubRoot = "https://github.com/craftyjs/Crafty/blob/";
 
 
@@ -26,7 +30,8 @@ var MarkdownBlock = React.createClass({
   render: function() {
     var raw = this.props.value;
     var rawHtml = this.convert(raw);
-    return <span className="markdown" dangerouslySetInnerHTML={{__html: rawHtml}} />
+    var key = this.props.key;
+    return <span key={key} className="markdown" dangerouslySetInnerHTML={{__html: rawHtml}} />
   }
 })
 
@@ -45,11 +50,11 @@ var ToC = React.createClass({
       }
     }
     catArray.sort(nameSort);
-    var catElements = catArray.map( function(cat, index){return <Category key={cat.name} catName = {cat.name} pages = {cat.pages} />});
-    return ( 
+    var catElements = catArray.map( function(cat, index){return <Category key={cat.name} catName = {cat.name} pages = {cat.pages}/>});
+    return (
       <ul id = "doc-level-one">
         <li><a href="events.html">List of Events</a></li>
-        <Category catName = {primary} pages = {toc.categories[primary].pages} />
+        <Category catName = {primary} pages = {toc.categories[primary].pages}/>
         {catElements}
       </ul>
     )
@@ -57,11 +62,20 @@ var ToC = React.createClass({
 
 })
 
-// The logic for choosing the link name and target is complicated due to the inconsistent way these are tagged in source
+var TocLink = React.createClass({
+  render: function() {
+    var target = this.props.target;
+    var linkText = kindName(target.name, target.kind);
+    var href = cleanName(target.name) + ".html"; 
+    return <a href={href}>{linkText}</a>
+  }
+  
+
+});
+
 var DocLink = React.createClass({
   render: function() {
     var target = this.props.target;
-    var kind = this.props.kind || "missing";
     var linkText, href;
     var parent = (this.props.parentPage) ? this.props.parentPage.main.name : undefined;
     // If the link target starts with the name of the page, assume it is an internal link
@@ -95,16 +109,14 @@ var DocLink = React.createClass({
       linkText = target;
       href = cleanName(target) + ".html";
     }
-    return <a href={href} className={"kind-" + kind}>{linkText}</a>
+    return <a href={href}>{linkText}</a>
   }
 })
 
 var Category = React.createClass({
   render: function() {
     this.props.pages.sort(nameSort);
-    var dictionary = this.props.dict;
-    var pages = this.props.pages.map(function(page, index){return <li key={page.name}><DocLink target={page.name} kind={page.kind}/></li>});
-
+    var pages = this.props.pages.map(function(page, index){return <li key={page.name}><TocLink target={page}/></li>});
     return ( 
       <li className="category">
         {this.props.catName}
@@ -124,13 +136,13 @@ var Node = React.createClass({
       case "method":
         return <Method data={node} page={page}/>
       case "param":
-        return <Parameter paramName={node.name} page={page} paramDescription={node.description} />
+        return <Parameter paramName={node.name} page={page} paramDescription={node.description} paramType={node.paramType} paramDefault={node.paramDefault}/>
       case "triggers":
         return <Events triggers={node.events} page={page}/>
       case "raw":
         return <MarkdownBlock value={node.value} page={page}/>
       case "return":
-        return <Returns value={node.value} page={page}/>
+        return <Returns value={node.value} returnType={node.returnType} page={page}/>
       case "xref":
         return <SeeAlso xrefs = {node.xrefs} page={page} />
       case "example":
@@ -285,9 +297,12 @@ var Method = React.createClass({
 
 var Parameter = React.createClass({
   render: function() {
+    var paramSpan = this.props.paramType 
+      ? <span className = 'param-qualifier'>{this.props.paramType}</span> 
+      : <span/>
     return (
       <dl className = "parameter">
-        <dt> {this.props.paramName} </dt>
+        <dt> {paramSpan} {this.props.paramName} </dt>
         <dd><MarkdownBlock value={this.props.paramDescription} key={1} /></dd>
       </dl>
     )
@@ -344,9 +359,12 @@ var SignatureSeperator = React.createClass({
 
 var Returns = React.createClass({
   render: function() {
-       return (
+    var typeSpan = this.props.returnType
+      ? <span className = 'returns-qualifier'> {this.props.returnType}</span> 
+      : ""
+    return (
       <dl className = "parameter returns"> 
-        <dt className="returns"> [Returns] </dt> 
+        <dt className="returns"> [Returns{typeSpan}] </dt> 
         <dd><MarkdownBlock value={this.props.value} key={2} /></dd> 
       </dl>
     )
@@ -360,9 +378,11 @@ var Doclet = React.createClass({
   render: function() {
     var contents = this.props.data.contents;
     var pieces =  mapNodes(contents, this.props.page);
+    var partName = kindName(this.props.data.name, this.props.data.kind); 
+    
     if (!this.props.top) {
       var link = <a href='#doc-nav' className='doc-top'>Back to top</a>
-      var header = <h2 className="doclet-header">{this.props.data.name}</h2>
+      var header = <h2 className="doclet-header">{partName}</h2>
     } else {
       var link = "";
       var header = "";
@@ -384,13 +404,21 @@ var SourceLink = React.createClass({
     var start = this.props.data.startLine;
     var end = this.props.data.endLine;
     var commit = this.props.data.commit;
-    var fileLocation = file +"#L" + start + "-" + end;
+    var fileLocation = file +"#L" + start + "-" + "L" + end;
     var target = githubRoot + commit + "/" + fileLocation;
     return <a href={target}>{fileLocation}</a>
   }
 
 })
 
+// properties before methods
+function partSort(a, b) {
+  if (a.kind != b.kind) {
+    return (a.kind == "method") ? 1 : -1
+  } else {
+    return nameSort(a, b);
+  }
+}
 
 
 function nameSort(a, b) {
@@ -416,33 +444,71 @@ var DocPage = React.createClass({
       return <div/>
     }
     var parts = page.parts;
-    parts.sort(nameSort);
+    parts.sort(partSort);
     var partlets = parts.map(function(part, index){return <Doclet key={index} data={part} top={false} page={page}/>});
-    var page_toc = parts.map( function(part, index){ return <li key={index}><InternalLink parent={page.main.name} target={part.name} value={part.name}/></li>});
+    
+
+    var toc_mapper = function(part, index){ return <li key={index}><InternalLink parent={page.main.name} target={part.name} value={part.name} kind={part.kind}/></li>}
+    var method_toc = parts.filter(function(p){return p.kind === "Method"})
+      .map(toc_mapper);
+    var property_toc = parts.filter(function(p){return p.kind !== "Method"})
+      .map( toc_mapper);
+    //var page_toc = parts.map( function(part, index){ return <li key={index}><InternalLink parent={page.main.name} target={part.name} value={part.name} kind={part.kind}/></li>});
     if (!page.main){
       return <div/>
     }
     if (parts.length > 0) {
+      var pageTocPart = [];
+
+
+      if (property_toc.length > 0) {
+        pageTocPart.push(<SubSectionHeader>Properties</SubSectionHeader>);
+        pageTocPart.push(
+          <ul className = "page-toc">
+              {property_toc}
+          </ul>);
+      }
+
+      if (method_toc.length > 0) {
+        pageTocPart.push(<SubSectionHeader>Methods</SubSectionHeader>);
+        pageTocPart.push(
+          <ul className = "page-toc">
+              {method_toc}
+          </ul>);
+      }
+
       var bottomParts = 
         <div>
-          <SubSectionHeader>Methods and Properties</SubSectionHeader>
-          <ul className = "page-toc">
-            {page_toc}
-          </ul>
+          {pageTocPart}
           {partlets}
         </div>
     } else {
       var bottomParts = "";
     }
+    var header;
+    if (page.main.kind) {
+      header = <h1>{page.main.name}</h1> 
+    }
+    var pageName = kindName(page.main.name, page.main.kind);
     return (
       <div className="doc-page">
-        <h1>{page.main.name}</h1>
+        <h1>{pageName} <KindBadge kind={page.main.kind} /></h1>
         <Doclet data={page.main} page={page} top={true}/>
         {bottomParts}
       </div>
     )
   }
 })
+
+var KindBadge = React.createClass({
+  render: function() {
+    var kind = this.props.kind;
+    if (kind == "Component" || kind == "System" || kind == "Class") {
+      return <span className="page-badge">{kind}</span>
+    }
+    return <span/>;
+  }
+});
 
 var EventPage = React.createClass({
   render: function() {
@@ -479,6 +545,10 @@ var InternalLink = React.createClass({
       var linkText = this.props.target;
       if (linkText.indexOf(this.props.parent) == 0 ) {
         linkText = linkText.replace(this.props.parent, "");
+      }
+      var kind = this.props.kind;
+      if (kind === "Method") {
+        linkText += "()";
       }
       return <a href={"#" + cleanTarget}>{linkText}</a>
     }

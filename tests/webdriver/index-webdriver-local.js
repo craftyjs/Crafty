@@ -2,15 +2,17 @@ exports.config = {
     specs: require('./index-webdriver.js').specs(),
     framework: 'qunit',
     baseUrl: './',
+    sync: false,
 
     capabilities: [{
         browserName: 'phantomjs',
-        exclude: require('./index-webdriver.js').exclude('phantomjs')
+        exclude: require('./index-webdriver.js').exclude({ browserName: 'phantomjs' })
     }],
     updateJob: false,
-    waitforTimeout: 1000,
+    waitforTimeout: 3000,
+    // maxInstances: 1, // uncomment this for debugging
 
-    logLevel: 'silent',
+    logLevel: 'silent', // 'verbose' for debugging
     coloredLogs: true,
     screenshotPath: 'build/webdriver/failed',
 

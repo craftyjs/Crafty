@@ -134,6 +134,7 @@ cleanName = (name) -> name.replace(".", "-")
 
 
 # Alternate names for some tags
+# Any node names matching a key will be treated as nodes of the value instead
 aliases = {
     "returns": "return"
     "triggers": "trigger"
@@ -155,25 +156,39 @@ nodeParsers =
     see: (value)->
         type: "xref"
         xrefs: value.split(/\s*,\s*/)
+
+    # Parse the param with the format `name {type} - descriptipon`, where type and description are optional
     param: (value)-> 
-        split = value.match(/(.+)\s+-\s+(.+)/)
-        if split?
-            return {
-                type: "param"
-                name: split[1]
-                description: split[2]
-            }
-        else
-            return {
-                type: "param"
-                name: value
-                description: ""
-            }
+        # Since we have to parse sets of regex matches that might not exist, provide
+        # default values if the match fails in the form of an array, and use destructuring assignments
+
+        # Parse out `firstPart - description`
+        [..., firstPart, description] = value.match(/(.+)\s-\s+(.+)/) ? [null, value, ""]
+        # Parse out the `{metadata} name` pieces
+        [..., meta, name] = firstPart.match(/\s*({(.+)})\s+(.+)\s*$/) ? [null, null, "", firstPart]
+        # Parse out `type=default` from metadata
+        [..., paramType, paramDefault] = meta.match(/(.+)=(.+)/) ? [null, meta, ""] 
+
+        return {
+            type: "param"
+            name: name
+            paramType: paramType
+            paramDefault: paramDefault
+            description: description
+        }
+    return: (value)->
+        [..., returnType, returnDescription] = value.match(/^\s*({(.+)})\s+(.+)?\s*$/) ? [null, null, "", value]
+        return {
+            type: "return",
+            value: returnDescription,
+            returnType: returnType
+        }
     category: (value)-> 
         type: "category"
         categories: value.split(/\s*,\s*/)
     example: ()->
         type: "example"
+    
 
 
 # Parse the node, calling any defined parser as necessary

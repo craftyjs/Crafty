@@ -4,10 +4,10 @@ language: node_js
 node_js:
 - '6'
 cache:
+  yarn: true
   directories:
   - node_modules
 
-before_install: if [ "$TRAVIS_BRANCH" != $SAUCE_BRANCH ]; then unset SAUCE_USERNAME && unset SAUCE_ACCESS_KEY; fi
 before_script: npm install -g grunt-cli
 after_success: "./travis-nightly.sh"
 after_failure: if [ "$GH_TOKEN" ]; then grunt gh-pages:crafty-distro-regression-tests; fi

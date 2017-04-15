@@ -1,0 +1,12 @@
+{
+  "extends": "../../.jshintrc",
+  "qunit": true,
+  "globals": {
+    "Crafty": false,
+    "createTouchEvent": false,
+    "Round": false,
+    "resetStage": false,
+    "keysUp": false,
+    "keysDown": false
+  }
+}

@@ -139,7 +139,7 @@ Crafty.c("2D", {
     _parent: null,
 
     // Setup   all the properties that we need to define
-    _2D_property_definitions: {
+    properties: {
         x: {
             set: function (v) {
                 this._setter2d('_x', v);
@@ -213,12 +213,6 @@ Crafty.c("2D", {
         _rotation: {enumerable:false}
     },
 
-    _define2DProperties: function () {
-        for (var prop in this._2D_property_definitions){
-            Object.defineProperty(this, prop, this._2D_property_definitions[prop]);
-        }
-    },
-
     init: function () {
         this._globalZ = this[0];
         this._origin = {
@@ -233,11 +227,6 @@ Crafty.c("2D", {
         this._by2 = 0;
 
         this._children = [];
-
-        
-        // create setters and getters that associate properties such as x/_x
-        this._define2DProperties();
-        
 
         //insert self into the HashMap
         this._entry = Crafty.map.insert(this);

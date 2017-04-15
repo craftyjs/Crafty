@@ -1,7 +1,13 @@
 require("coffee-script");
-var open = require("open"),
+var path = require("path"),
+    fs = require("fs"),
+    EOL = require("os").EOL;
+
+var request = require("request"),
+    open = require("open"),
     semver = require("semver");
 
+var pathToQUnit = path.dirname(path.relative(path.resolve(), require.resolve('qunitjs')));
 
 module.exports = function (grunt) {
     var banner = '/**\n' +
@@ -40,7 +46,14 @@ module.exports = function (grunt) {
 
         pkg: grunt.file.readJSON('package.json'),
 
-        supportedBrowsers: grunt.file.readJSON('supported-browsers.json'),
+        copy: {
+            lib: {
+                expand: true,
+                flatten: true,
+                src: pathToQUnit + '/*',
+                dest: 'tests/unit/lib/',
+            },
+        },
 
         usebanner: {
             release: {
@@ -115,31 +128,42 @@ module.exports = function (grunt) {
             },
             misc: ['Gruntfile.js'],
             src: ['src/**/*.js', 'src/**/*.html'],
-            tests: ['tests/**/*.js', 'tests/**/*.html', '!tests/lib/**/*.js'],
+            tests: ['tests/**/*.js', 'tests/**/*.html', '!tests/unit/lib/**/*.js'],
             playgrounds: ['playgrounds/**/*.js', 'playgrounds/**/*.html']
         },
 
 
         qunit: {
-
-            browser: ['tests/index.html']
+            /* PhantomJS has propblem with url parameter "noGlobal", omit for now
+            options: {
+                noGlobals: true
+            },
+            */
+            browser: ['tests/unit/index.html']
         },
 
-        'node-qunit': {
+        'qunit-node': {
+            options: {
+                noglobals: true
+            },
             node: {
-                code: 'tests/index-headless.js',
-                setup: {
-                    log: {
-                        errors: true,
-                        //tests: true,
-                        globalSummary: true
+                src: 'tests/unit/index-headless.js',
+                options: {
+                    // requireExpects: true,
+                    setup: function (qunit) {
+                        qunit.on('testEnd', function (testEnd) {
+                            testEnd.errors.forEach(function (error) {
+                                var actual = qunit.dump.parse(error.actual),
+                                expected = qunit.dump.parse(error.expected),
+                                reason = 'Actual value ' + actual + ' does not match expected value ' + expected,
+                                message = 'Description: ' + error.message + EOL +
+                                'Reason: ' + reason + EOL +
+                                'Stack: ' + error.stack;
+
+                                grunt.log.errorlns(message);
+                            });
+                        });
                     }
-                },
-                callback: function(err, res) {
-                    if (!err && res.failed === 0)
-                        grunt.log.ok("Node tests successful.");
-                    else
-                        grunt.log.error("Node tests failed!");
                 }
             }
         },
@@ -147,8 +171,8 @@ module.exports = function (grunt) {
         'saucelabs-qunit': {
             browser: {
                 options: {
-                    urls: [ 'http://localhost:8000/tests/index.html' ],
-                    browsers: '<%= supportedBrowsers %>',
+                    urls: [ 'http://localhost:8000/tests/unit/index.html' ],
+                    browsers: grunt.file.readJSON('tests/test-browsers.json'),
                     testname: "Cross-browser compatibility tests for CraftyJS",
                     build: process.env.TRAVIS_BUILD_NUMBER,
                     tags: [ process.env.TRAVIS_BRANCH ],
@@ -232,6 +256,7 @@ module.exports = function (grunt) {
 
     // Load grunt tasks
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-contrib-watch');
@@ -239,7 +264,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-jsvalidate');
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-banner');
-    grunt.loadNpmTasks('grunt-node-qunit');
+    grunt.loadNpmTasks('grunt-qunit-node');
     grunt.loadNpmTasks('grunt-saucelabs');
     grunt.loadNpmTasks('grunt-gh-pages');
     grunt.loadNpmTasks('grunt-run');
@@ -261,12 +286,41 @@ module.exports = function (grunt) {
 
         grunt.file.write('package.json', JSON.stringify(pkg, null, 2));
         grunt.file.write('src/core/version.js', 'module.exports = "' + version + '";');
+
+        grunt.log.ok('Updated version in all files.');
+    });
+
+    grunt.registerTask('changelog', 'Copies changelog to file', function() {
+        var done = this.async();
+
+        var changelog = grunt.option('changelog');
+        if (typeof changelog === 'undefined') {
+            grunt.fatal("No command-line argument '--changelog' specified. Rerun the task with the appropriate argument value." + EOL +
+                "Use '--changelog=false' to indicate that you DON'T want to update the changelog." + EOL +
+                "Use '--changelog=true' to indicate that you DO want to update the changelog." + " " +
+                "However, first make sure that the release notes on the wiki are updated for the version you are about to release.");
+        } else if (changelog === true) {
+            request
+                .get('https://raw.github.com/wiki/craftyjs/Crafty/Release-Notes.md')
+                .on('error', function(err) {
+                    grunt.fatal(err);
+                })
+                .on('response', function(response) {
+                    if (response.statusCode === 200) {
+                        grunt.log.ok('Successfully retrieved release notes.');
+                        done();
+                    } else {
+                        grunt.fatal('Error while retrieving release notes: ' + response.statusCode);
+                    }
+                })
+                .pipe(fs.createWriteStream('CHANGELOG.md'));
+        }
     });
 
 
     // Run local tests
     grunt.registerTask('test-local-browser', ['qunit:browser']);
-    grunt.registerTask('test-local-node', ['node-qunit:node']);
+    grunt.registerTask('test-local-node', ['qunit-node:node']);
     grunt.registerTask('test-local-webdriver', ['run:phantomjs', 'webdriver:local']);
     grunt.registerTask('test-local', [
         'test-local-browser', 'test-local-node', 'test-local-webdriver'
@@ -307,6 +361,6 @@ module.exports = function (grunt) {
     grunt.registerTask('default', ['jsvalidate:src', 'build:dev', 'jsvalidate:dev']);
 
     // Make crafty.js ready for release - minified version
-    grunt.registerTask('release', ['version', 'build:release', 'uglify', 'jsvalidate:release', 'api']);
+    grunt.registerTask('release', ['version', 'changelog', 'build:release', 'uglify', 'jsvalidate:release', 'api']);
 
 };

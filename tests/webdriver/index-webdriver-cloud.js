@@ -2,6 +2,7 @@ exports.config = {
     specs: require('./index-webdriver.js').specs(),
     framework: 'qunit',
     baseUrl: 'http://localhost:8000',
+    sync: false,
 
     user: process.env.SAUCE_USERNAME,
     key: process.env.SAUCE_ACCESS_KEY,
@@ -21,21 +22,43 @@ exports.config = {
             'public': 'public'
         };
 
-        var browsers = require('../../supported-browsers-webdriver.json');
+        var browsers = require('../test-browsers.json');
         browsers.forEach(function(capabilities) {
             for (var k in baseCapabilities)
                 capabilities[k] = baseCapabilities[k];
 
-            capabilities.exclude = require('./index-webdriver.js').exclude(
-                capabilities.browserName, capabilities.version, capabilities.platform
-            );
+            capabilities.exclude = require('./index-webdriver.js').exclude(capabilities);
         });
         return browsers;
     })(),
     updateJob: true,
-    waitforTimeout: 2000,
+    waitforTimeout: 3000,
 
-    logLevel: 'silent', //'verbose'
+    services: ['sauce'],
+    sauceConnect: false,
+    maxInstances: 5,
+    sauceConnectOpts: {
+        doctor: true,
+        verbose: false,
+        verboseDebugging: false,
+        vv: false,
+
+        logger: console.log,
+        tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER,
+
+        // an optional suffix to be appended to the `readyFile` name.
+        // useful when running multiple tunnels on the same machine,
+        // such as in a continuous integration environment. (optional)
+        readyFileId: null,
+
+        connectRetries: 3,
+        connectRetryTimeout: 2000,
+
+        downloadRetries: 3,
+        downloadRetryTimeout: 2000
+    },
+
+    logLevel: 'silent', // 'verbose' for debugging
     coloredLogs: true,
     screenshotPath: 'build/webdriver/failed',
 

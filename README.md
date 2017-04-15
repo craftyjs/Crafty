@@ -1,4 +1,4 @@
-# Crafty JS [![Build Status](https://travis-ci.org/craftyjs/Crafty.svg?branch=develop)](https://travis-ci.org/craftyjs/Crafty) [![Sauce Test Status](https://saucelabs.com/buildstatus/mucaho)](https://saucelabs.com/u/mucaho)
+# Crafty JS [![Travis Build Status](https://travis-ci.org/craftyjs/Crafty.svg?branch=develop)](https://travis-ci.org/craftyjs/Crafty) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/craftyjs/Crafty?svg=true&branch=develop)](https://ci.appveyor.com/project/starwed/crafty) [![Sauce Test Status](https://saucelabs.com/buildstatus/mucaho)](https://saucelabs.com/u/mucaho)
 
 Crafty is a JavaScript game library that can help you create games in a structured way…
 
@@ -15,7 +15,7 @@ Other Goodies:
 * Pure JavaScript - No magic. Works in all major browsers and can be combined with your favorite js library.
 
 
-##Using Crafty
+## Using Crafty
 
 A simple game of pong:
 ```javascript
@@ -73,7 +73,7 @@ Crafty.e("RightPoints, DOM, 2D, Text")
 _Left paddle is controlled by `W` & `S`, right paddle by `UpArrow` & `DownArrow`._   
 [Check it out online and try to modify it yourself here](https://jsfiddle.net/mucaho/yL3v48r6/).
 
-##Developing
+## Developing
 
 If you want to fix a bug, please submit a pull request against the development branch.  Some guides to help you can be found [on the wiki](https://github.com/craftyjs/Crafty/wiki)
 

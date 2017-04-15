@@ -20,9 +20,10 @@ var Crafty = require('../core/core.js');
  * rotate together.
  *
  * @note For DOM (but not canvas) text entities, various font settings (such as
- * text-decoration) can be set using `.css()` (see DOM component). But
- * you cannot use `.css()` to set the properties which are controlled by `.textFont()`,
- *  `.textColor()`, or `.textAlign()` -- the settings will be ignored.
+ * text-decoration) can be set using `.css()` (see DOM component). If you 
+ * use `.css()` to set the *individual* properties which are controlled by `.textFont()`,
+ *  `.textColor()`, or `.textAlign()`, the text component will set these properties internally as well.
+ * However, if you use `.css()` to set shorthand properties such as `font`, these will be ignored by the text component.
  *
  * @note If you use canvas text with glyphs that are taller than standard letters, portions of the glyphs might be cut off.
  */
@@ -74,6 +75,41 @@ Crafty.c("Text", {
 
                 context.restore();
             }
+        },
+
+        // type, weight, size, family, lineHeight, and variant.
+        // For a few hardcoded css properties, set the internal definitions
+        "SetStyle": function(propertyName) {
+            // could check for DOM component, but this event should only be fired by such an entity!
+            // Rather than triggering Invalidate on each of these, we rely on css() triggering that event 
+            switch(propertyName) {
+                case "textAlign": 
+                    this._textAlign = this._element.style.textAlign;
+                    break;
+                case "color":
+                    // Need to set individual color components, so use method
+                    this.textColor(this._element.style.color);
+                    break;
+                case "fontType":
+                    this._textFont.type = this._element.style.fontType;
+                    break;
+                case "fontWeight":
+                    this._textFont.weight = this._element.style.fontWeight;
+                    break;
+                case "fontSize":
+                    this._textFont.size = this._element.style.fontSize;
+                    break;
+                case "fontFamily":
+                    this._textFont.family = this._element.style.fontFamily;
+                    break;
+                case "fontVariant":
+                    this._textFont.variant = this._element.style.fontVariant;
+                    break;
+                case "lineHeight":
+                    this._textFont.lineHeight = this._element.style.lineHeight;
+                    break;
+            }
+           
         }
     },
 

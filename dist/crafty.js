@@ -1,5 +1,5 @@
 /**
- * craftyjs 0.8.0-rc2
+ * craftyjs 0.8.0
  * http://craftyjs.com/
  *
  * Copyright 2017, Louis Stowasser
@@ -5847,7 +5847,7 @@ module.exports = {
      *     Crafty.e("2D, DOM, Text")
      *           .attr({ w: 100, h: 20, x: 150, y: 120 })
      *           .text("Loading")
-     *           .css({ "text-align": "center"})
+     *           .css({ "border": "1px solid red"})
      *           .textColor("#FFFFFF");
      * });
      *
@@ -6626,7 +6626,7 @@ module.exports = {
 };
 
 },{"../core/core.js":9}],18:[function(require,module,exports){
-module.exports = "0.8.0-rc2";
+module.exports = "0.8.0";
 },{}],19:[function(require,module,exports){
 var Crafty = require('./core/core');
 
@@ -8570,7 +8570,7 @@ Crafty.c("DOM", {
      *
      * For setting one style, simply pass the style as the first argument and the value as the second.
      *
-     * The notation can be CSS or JS (e.g. `text-align` or `textAlign`).
+     * The notation can be CSS or JS (e.g. `border-radius` or `borderRadius`).
      *
      * To return a value, pass the property.
      *
@@ -8579,9 +8579,9 @@ Crafty.c("DOM", {
      *
      * @example
      * ~~~
-     * this.css({'text-align': 'center', 'text-decoration': 'line-through'});
-     * this.css("textAlign", "center");
-     * this.css("text-align"); //returns center
+     * this.css({'border-radius': '5px', 'text-decoration': 'line-through'});
+     * this.css("borderRadius", "10px");
+     * this.css("border-radius"); //returns 10px
      * ~~~
      */
     css: function (obj, value) {

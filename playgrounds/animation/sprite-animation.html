@@ -1,33 +1,37 @@
 <!DOCTYPE HTML>
 <html>
-	<head>
-		<script src="../../tests/lib/jquery.min.js"></script>
-		<script type="text/javascript" src="../../crafty.js"></script>
-	</head>
-	<body>
-		<h1>Sprite animation playground:</h1>
-		<div id="cr-stage"></div>
-		<script type="text/javascript" src="sprite-animation.js"></script>
-		<div>
-			<button onclick="playgroundPlay();">Play</button>
-			<label for="playReelId">Reel ID:</label>
-			<select id="playReelId">
-				<option value="count" selected>Count</option>
-				<option value="countEven">Count Even</option>
-				<option value="short">Short</option>
-				<option value="countSlow">Count Slow</option>
-			</select>
-			<label for="playRepeatCount">Loops:</label>
-			<input type="number" id="playRepeatCount"></input>
-		</div>
-		<div>
-			<button onclick="playgroundPosition();">Jump to</button>
-			<input type="number" id="reelPosition"></input>
-		</div>
-		<div>
-			<button onclick="playgroundPause();">Pause</button>
-			<button onclick="playgroundResume();">Resume</button>
-			<button onclick="playgroundReset();">Reset</button>
-		</div>
-	</body>
+  <head>
+    <script type="text/javascript" src="../../crafty.js"></script>
+  </head>
+  <body>
+    <h1>Sprite animation playground:</h1>
+    <div id="cr-stage"></div>
+    <script type="text/javascript" src="sprite-animation.js"></script>
+    <div>
+      <button onclick="playgroundPlay();">Play</button>
+      <label for="playReelId">Reel ID:</label>
+	<select id="playReelId">
+          <option value="count" selected>Count</option>
+          <option value="countEven">Count Even</option>
+          <option value="countEven_names">Count Even (frame names)</option>
+          <option value="short">Short</option>
+          <option value="countSlow">Count Slow</option>
+        </select>
+      <label for="playRepeatCount">Loops:</label>
+      <input type="number" id="playRepeatCount"></input>
+    </div>
+    <div>
+      <button onclick="playgroundPosition();">Jump to</button>
+      <input type="number" id="reelPosition"></input>
+    </div>
+    <div>
+      <button onclick="playgroundFrame();">Jump to by name</button>
+      <input id="reelFrame"></input>
+    </div>
+    <div>
+      <button onclick="playgroundPause();">Pause</button>
+      <button onclick="playgroundResume();">Resume</button>
+      <button onclick="playgroundReset();">Reset</button>
+    </div>
+  </body>
 </html>

@@ -292,6 +292,13 @@ Crafty.fn = Crafty.prototype = {
             if (comp && "required" in comp) {
                 this.requires( comp.required );
             }
+            // Define properties
+            if (comp && "properties" in comp) {
+                var props = comp.properties;
+                for (var propertyName in props) {
+                    Object.defineProperty(this, propertyName, props[propertyName]);
+                }
+            }
             // Call constructor function
             if (comp && "init" in comp) {
                 comp.init.call(this);
@@ -1720,6 +1727,7 @@ Crafty.extend({
      * - `init`: A function to be called when the component is added to an entity
      * - `remove`: A function which will be called just before a component is removed, or before an entity is destroyed. It is passed a single boolean parameter that is `true` if the entity is being destroyed.
      * - `events`: An object whose properties represent functions bound to events equivalent to the property names.  (See the example below.)  The binding occurs directly after the call to `init`, and will be removed directly before `remove` is called.
+     * - `properties`: A dictionary of properties which will be defined using Object.defineProperty.  Typically used to add setters and getters.
      *
      * In addition to these hardcoded special methods, there are some conventions for writing components.
      *
