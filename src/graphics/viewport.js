@@ -507,8 +507,8 @@ Crafty.extend({
                     lastMouse.x = arg.clientX;
                     lastMouse.y = arg.clientY;
 
-                    Crafty.viewport.x += diff.x;
-                    Crafty.viewport.y += diff.y;
+                    Crafty.viewport.x += diff.x / this._scale;
+                    Crafty.viewport.y += diff.y / this._scale;
                     Crafty.viewport._clamp();
                     break;
                 case 'start':
