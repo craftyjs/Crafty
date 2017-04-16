@@ -156,9 +156,11 @@ module.exports = {
   * Stops tweening the specified group of properties, and fires the "TweenEnd" event.
   */
   _endTween: function(properties){
+    var notEmpty = false;
     for (var propname in properties){
+      notEmpty = true;
       delete this.tweenGroup[propname];
     }
-    this.trigger("TweenEnd", properties);
+    if (notEmpty) this.trigger("TweenEnd", properties);
   }
 };
