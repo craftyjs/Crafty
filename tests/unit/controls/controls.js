@@ -64,7 +64,7 @@
     _.strictEqual(e._vy, 0, "No change when key released after component removed");
     _.strictEqual(e._vx, 0, "No change when key released after component is removed");
 
-    Crafty.resetKeyDown(); 
+    Crafty.resetKeyDown();
 
     e.destroy();
   });

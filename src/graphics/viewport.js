@@ -480,49 +480,62 @@ Crafty.extend({
          * If the user starts a drag, "StopCamera" will be triggered, which will cancel any existing camera animations.
          */
         mouselook: (function () {
+            var mouseSystem;
+
             var active = false,
                 dragging = false,
-                lastMouse = {};
+                lastMouse = {x: 0, y: 0},
+                diff = {x: 0, y: 0};
 
-            return function (op, arg) {
-                if (typeof op === 'boolean') {
-                    active = op;
-                    if (active) {
-                        Crafty.mouseObjs++;
-                    } else {
-                        Crafty.mouseObjs = Math.max(0, Crafty.mouseObjs - 1);
-                    }
-                    return;
-                }
-                if (!active) return;
-                switch (op) {
-                case 'move':
-                case 'drag':
-                    if (!dragging) return;
-                    var diff = {
-                        x: arg.clientX - lastMouse.x,
-                        y: arg.clientY - lastMouse.y
-                    };
+            function startFn (e) {
+                if (dragging) return;
 
-                    lastMouse.x = arg.clientX;
-                    lastMouse.y = arg.clientY;
-
-                    Crafty.viewport.x += diff.x / this._scale;
-                    Crafty.viewport.y += diff.y / this._scale;
-                    Crafty.viewport._clamp();
-                    break;
-                case 'start':
+                // TODO change viewport to system, then lock to viewport itself
+                if (mouseSystem.lockFocus(mouseSystem)) {
                     Crafty.trigger("StopCamera");
-                    lastMouse.x = arg.clientX;
-                    lastMouse.y = arg.clientY;
+                    lastMouse.x = e.clientX;
+                    lastMouse.y = e.clientY;
                     dragging = true;
-                    break;
-                case 'stop':
-                    dragging = false;
-                    break;
+                }
+            }
+            function moveFn (e) {
+                if (!dragging) return;
+
+                diff.x = e.clientX - lastMouse.x;
+                diff.y = e.clientY - lastMouse.y;
+
+                lastMouse.x = e.clientX;
+                lastMouse.y = e.clientY;
+
+                var viewport = Crafty.viewport;
+                viewport.x += diff.x / viewport._scale;
+                viewport.y += diff.y / viewport._scale;
+                viewport._clamp();
+            }
+            function stopFn (e) {
+                if (!dragging) return;
+
+                // TODO change viewport to system, then release viewport itself
+                if (mouseSystem.releaseFocus(mouseSystem)) dragging = false;
+            }
+
+            return function (op) {
+                mouseSystem = Crafty.s('Mouse');
+
+                if (op && !active) {
+                    mouseSystem.bind("MouseDown", startFn);
+                    mouseSystem.bind("MouseMove", moveFn);
+                    mouseSystem.bind("MouseUp", stopFn);
+                    active = op;
+                } else if (!op && active) {
+                    mouseSystem.unbind("MouseDown", startFn);
+                    mouseSystem.unbind("MouseMove", moveFn);
+                    mouseSystem.unbind("MouseUp", stopFn);
+                    active = op;
                 }
             };
         })(),
+
         _clamp: function () {
             // clamps the viewport to the viewable area
             // under no circumstances should the viewport see something outside the boundary of the 'world'
@@ -807,7 +820,7 @@ Crafty.extend({
          * Called when scene() is run.
          */
         reset: function () {
-            Crafty.viewport.mouselook("stop");
+            Crafty.viewport.mouselook(false);
             Crafty.trigger("StopCamera");
             // Reset viewport position and scale
             Crafty.viewport.scroll("_x", 0);

@@ -1356,7 +1356,6 @@ Crafty.extend({
             setTimeout(function () {
                 Crafty.timer.stop();
             }, 0);
-            Crafty.keydown = {};
         } else {
             this.trigger('Unpause');
             this._paused = false;
