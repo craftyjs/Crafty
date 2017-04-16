@@ -323,6 +323,26 @@
     _.deepEqual(frames[2], [2, 0], "Third frame is correct.");
   });
 
+  test("Test using .reel to set an animation using an array of sprite names", function(_) {
+    // This should produce the same results as the previous test!
+    var ret = spriteAnimation.reel('short-test-3', 3, ['number0', 'number1', 'number2'] );
+    _.strictEqual(ret, spriteAnimation, ".reel returned self correctly");
+    spriteAnimation.reel('short-test-3');
+    var reel = spriteAnimation.getReel('short-test-3');
+    _.strictEqual(reel.id, "short-test-3", "Id of reel is set correctly.");
+
+    _.strictEqual(reel.duration, 3, "Reel has correct duration.");
+    _.strictEqual(reel.currentFrame, 0, "Reel starts with correct currentFrame of 0.");
+    _.strictEqual(reel.defaultLoops, 1, "Reel starts with correct default number of loops.");
+
+    var frames = reel.frames;
+    _.strictEqual(frames.length, 3, "Reel has correct number of frames.");
+    // This relies on the sprite being defined with a size of 64
+    _.deepEqual(frames[0], 'number0', "First frame is correct.");
+    _.deepEqual(frames[1], 'number1', "Second frame is correct.");
+    _.deepEqual(frames[2], 'number2', "Third frame is correct.");
+  });
+
   test("Set position of current reel by frame number.", function(_) {
     spriteAnimation.reel("short");
     var ret = spriteAnimation.reelPosition(1);
@@ -407,6 +427,7 @@
     for (var i = 0; i < 10; i++) {
       var activeReel = spriteAnimation.getReel();
       _.strictEqual(activeReel.currentFrame, i, "Frame " + i + " should be displayed");
+      _.deepEqual(activeReel.frames[spriteAnimation.reelPosition()], [i, 0], "Correct sprite coordinates should be used");
       Crafty.timer.simulateFrames(1);
     }
   });
@@ -417,6 +438,7 @@
     for (var i = 0; i < 5; i++) {
       var activeReel = spriteAnimation.getReel();
       _.strictEqual(activeReel.currentFrame, i, "Frame " + i + " should be displayed");
+      _.deepEqual(activeReel.frames[spriteAnimation.reelPosition()], [2*i, 0], "Correct sprite coordinates should be used");
       Crafty.timer.simulateFrames(1);
     }
   });
@@ -427,6 +449,7 @@
     for (var i = 0; i < 5; i++) {
       var activeReel = spriteAnimation.getReel();
       _.strictEqual(activeReel.currentFrame, i, "Frame " + i + " should be displayed");
+      _.deepEqual(activeReel.frames[spriteAnimation.reelPosition()], "number"+(2*i), "Correct sprite name should be used");
       Crafty.timer.simulateFrames(1);
     }
   });
