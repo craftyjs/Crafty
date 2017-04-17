@@ -9,21 +9,30 @@
   });
 
   test("selectors", function(_) {
-    var first = Crafty.e("test");
-    Crafty.e("test");
+    var first = Crafty.e("test, test3");
     Crafty.e("test");
     Crafty.e("test");
     Crafty.e("test, test2");
-    Crafty.e("test, test2");
-    Crafty.e("test2");
+    var other = Crafty.e("test2, test, test3");
+    Crafty.e("test2, test3");
+    Crafty.e("test3, test");
     _.strictEqual(Crafty("test").length, 6, "Single component");
     _.strictEqual(Crafty("test test2").length, 2, "Two components ANDed");
+    _.strictEqual(Crafty("test2 test test3").length, 1, "Three components ANDed");
     _.strictEqual(Crafty("test, test2").length, 7, "Two components ORed");
 
     _.strictEqual(Crafty("*").length, 7, "All components - universal selector");
 
     _.strictEqual(Crafty(first[0]), first, "Get by ID");
 
+    first.removeComponent("test3");
+    _.strictEqual(Crafty("test3").length, 3, "Single component query after removing a component");
+
+    other.destroy();
+    _.strictEqual(Crafty("test test2 test3").length, 0, "Compount component query after destroying an entity");
+    _.strictEqual(Crafty("test").length, 5, "Single component query after destroying an entity");
+    _.strictEqual(Crafty("test2").length, 2, "Single component query after destroying an entity");
+    _.strictEqual(Crafty("test3").length, 2, "Single component query after destroying an entity");
   });
 
   test("addComponent and removeComponent", function(_) {
