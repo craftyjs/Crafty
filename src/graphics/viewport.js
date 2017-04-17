@@ -491,7 +491,7 @@ Crafty.extend({
                 if (dragging) return;
 
                 // TODO change viewport to system, then lock to viewport itself
-                if (mouseSystem.lockFocus(mouseSystem)) {
+                if (mouseSystem.lockMouse(mouseSystem)) {
                     Crafty.trigger("StopCamera");
                     lastMouse.x = e.clientX;
                     lastMouse.y = e.clientY;
@@ -516,7 +516,7 @@ Crafty.extend({
                 if (!dragging) return;
 
                 // TODO change viewport to system, then release viewport itself
-                if (mouseSystem.releaseFocus(mouseSystem)) dragging = false;
+                if (mouseSystem.releaseMouse(mouseSystem)) dragging = false;
             }
 
             return function (op) {

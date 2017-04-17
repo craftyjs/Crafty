@@ -43,7 +43,7 @@ keysUp = function() { // jshint ignore:line
     for (var k in keysToRelease) {
       var key = Crafty.keys[keysToRelease[k]] || keysToRelease[k];
       Crafty.keydown[key] = false;
-      Crafty.trigger("KeyUp", {key: key});
+      Crafty.trigger("KeyUp", {eventName: "KeyUp", key: key});
     } 
 };
 keysDown = function() { // jshint ignore:line
@@ -51,7 +51,7 @@ keysDown = function() { // jshint ignore:line
     for (var k in keysToPress) {
       var key = Crafty.keys[keysToPress[k]] || keysToPress[k];
       Crafty.keydown[key] = true;
-      Crafty.trigger("KeyDown", {key: key});
+      Crafty.trigger("KeyDown", {eventName: "KeyDown", key: key});
     }
 };
 

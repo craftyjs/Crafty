@@ -1,6 +1,278 @@
 var Crafty = require('../core/core.js');
 
 /**@
+ * #KeyboardState
+ * @category Input
+ * @kind Component
+ *
+ * Provides entity with keyboard events.
+ * @note This component requires the `Keyboard` component to be added to the entity, otherwise key events will not be triggered on this entity.
+ *
+ * @trigger KeyDown - is triggered for each entity when the DOM 'keydown' event is triggered. - { key: `Crafty.keys` keyCode (Number), originalEvent: original KeyboardEvent } - Crafty's KeyboardEvent
+ * @trigger KeyUp - is triggered for each entity when the DOM 'keyup' event is triggered. - { key: `Crafty.keys` keyCode (Number), originalEvent: original KeyboardEvent } - Crafty's KeyboardEvent
+ *
+ * The event callbacks are triggered with a native [`KeyboardEvent`](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent), accessible by the `originalEvent` property.
+ *
+ * In addition to binding to these events, the current state (pressed/released) of a key can also be queried using the `.isDown` method.
+ *
+ * @example
+ * ~~~
+ * Crafty.e("2D, DOM, Color, Keyboard")
+ *   .attr({x: 100, y: 100, w: 50, h: 50})
+ *   .color("red")
+ *   .bind('KeyDown', function(e) {
+ *     if (e.key == Crafty.keys.LEFT_ARROW) {
+ *       this.x = this.x-1;
+ *     } else if (e.key == Crafty.keys.RIGHT_ARROW) {
+ *       this.x = this.x+1;
+ *     } else if (e.key == Crafty.keys.UP_ARROW) {
+ *       this.y = this.y-1;
+ *     } else if (e.key == Crafty.keys.DOWN_ARROW) {
+ *       this.y = this.y+1;
+ *     }
+ *   });
+ * ~~~
+ *
+ * @see Keyboard, KeyboardSystem
+ * @see Crafty.keys
+ * @see Crafty.keydown
+ * @see Crafty.keyboardDispatch
+ */
+Crafty.__keyboardStateTemplate = {
+    _keyDown: null,
+
+    init: function() {
+        this._keyDown = {};
+    },
+
+    /**@
+     * #.isDown
+     * @comp KeyboardState
+     * @kind Method
+     *
+     * @sign public Boolean isDown(String keyName)
+     * @param keyName - Name of the key to check. See `Crafty.keys`.
+     * @returns The pressed state of the key
+     *
+     * @sign public Boolean isDown(Number keyCode)
+     * @param keyCode - Key code in `Crafty.keys`.
+     * @returns The pressed state of the key
+     *
+     * Determine if a certain key is currently down.
+     *
+     * @example
+     * ~~~
+     * ent.requires('Keyboard')
+     *    .bind('EnterFrame', function() {
+     *       if (this.isDown('SPACE'))
+     *          this.y--;
+     *    });
+     * ~~~
+     *
+     * @see Crafty.keys
+     */
+    isDown: function (key) {
+        if (typeof key === "string") {
+            key = Crafty.keys[key];
+        }
+        return !!this._keyDown[key];
+    },
+
+    /**@
+     * #.triggerKey
+     * @comp KeyboardState
+     * @kind Method
+     *
+     * @sign public this triggerKey(String eventName, Object eventData)
+     * @param eventName - Name of the key event to trigger ("KeyDown" or "KeyUp")
+     * @param eventData - The key event to trigger
+     *
+     * Try to trigger a key event on this entity.
+     * This method prevents inconsistent key state.
+     * e.g. If this entity didn't receive a "KeyDown" previously, it won't fire a "KeyUp" event.
+     *
+     * This method is called internally, but may be useful when running Crafty in headless mode.
+     *
+     * @example
+     * ~~~
+     * var wasTriggered = false;
+     *
+     * ent.requires('KeyboardState')
+     *    .bind('KeyUp', function(evt) {
+     *       wasTriggered = true;
+     *    })
+     *    .triggerKey('KeyUp', { key: Crafty.keys.RIGHT_ARROW });
+     *
+     * Crafty.log(wasTriggered); // prints false
+     * ~~~
+     *
+     * @see Crafty.keys
+     */
+    triggerKey: function (eventName, eventData) {
+        var key = eventData.key;
+        if (eventName === "KeyDown") {
+            // ignore KeyDown due to inconsistent state caused by loosing focus
+            if (this._keyDown[key] !== true) {
+                this._keyDown[key] = true;
+                this.trigger(eventName, eventData);
+            }
+        } else if (eventName === "KeyUp") {
+            // ignore KeyUp due to inconsistent state caused by loosing focus
+            if (this._keyDown[key] === true) {
+                this._keyDown[key] = false;
+                this.trigger(eventName, eventData);
+            }
+        }
+        return this;
+    }
+};
+Crafty.c("KeyboardState", Crafty.__keyboardStateTemplate);
+
+/**@
+ * #MouseState
+ * @category Input
+ * @kind Component
+ *
+ * Provides the entity with mouse related events.
+ * @note This component requires the `Mouse` component to be added to the entity, otherwise mouse events will not be triggered on this entity.
+ *
+ * @trigger MouseOver - when the mouse enters - MouseEvent
+ * @trigger MouseOut - when the mouse leaves - MouseEvent
+ * @trigger MouseDown - when the mouse button is pressed on - MouseEvent
+ * @trigger MouseUp - when the mouse button is released on - MouseEvent
+ * @trigger Click - when the user clicks - MouseEvent
+ * @trigger DoubleClick - when the user double clicks - MouseEvent
+ * @trigger MouseMove - when the mouse is over and moves - MouseEvent
+ *
+ * The event callbacks are triggered with a native [`MouseEvent`](https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent) parameter,
+ * which is further augmented with additional properties:
+ * ~~~
+ * //(x,y) coordinates of mouse event in web-browser (screen) space
+ * e.clientX
+ * e.clientY
+ *
+ * //(x,y) coordinates of mouse event in world (default viewport) space
+ * e.realX
+ * e.realY
+ *
+ * // Normalized mouse button according to Crafty.mouseButtons:
+ * // Crafty.mouseButtons.LEFT, Crafty.mouseButtons.RIGHT or Crafty.mouseButtons.MIDDLE
+ * e.mouseButton
+ * ~~~
+ *
+ * In addition to binding to these events, the current state (pressed/released) of a mouse button can also be queried using the `.isButtonDown` method.
+ *
+ * @example
+ * ~~~
+ * var myEntity = Crafty.e('2D, Canvas, Color, Mouse')
+ * .attr({x: 10, y: 10, w: 40, h: 40})
+ * .color('red')
+ * .bind('Click', function(MouseEvent){
+ *   alert('clicked', MouseEvent);
+ * });
+ *
+ * myEntity.bind('MouseUp', function(e) {
+ *    if( e.mouseButton == Crafty.mouseButtons.RIGHT )
+ *        Crafty.log("Clicked right button");
+ * })
+ * ~~~
+ *
+ * @see Mouse, MouseSystem
+ * @see Crafty.mouseButtonsDown
+ * @see Crafty.mouseButtons
+ * @see Crafty.mouseDispatch
+ */
+Crafty.__mouseStateTemplate = {
+    _mouseButtonDown: null,
+
+    init: function() {
+        this._mouseButtonDown = {};
+    },
+
+    /**@
+     * #.isButtonDown
+     * @comp MouseState
+     * @kind Method
+     *
+     * @sign public Boolean isButtonDown(String mouseButtonName)
+     * @param mouseButtonName - Name of the button to check. See `Crafty.mouseButtons`.
+     * @returns The pressed state of the button
+     *
+     * @sign public Boolean isButtonDown(Number buttonId)
+     * @param buttonId - ButtonId in `Crafty.mouseButtons`.
+     * @returns The pressed state of the button
+     *
+     * Determine if a certain mouse button is currently down.
+     *
+     * @example
+     * ~~~
+     * ent.requires('Mouse')
+     *    .bind('EnterFrame', function() {
+     *       if (this.isButtonDown('LEFT'))
+     *          this.y--;
+     *    });
+     * ~~~
+     *
+     * @see Crafty.mouseButtons
+     */
+    isButtonDown: function (button) {
+        if (typeof button === "string") {
+            button = Crafty.mouseButtons[button];
+        }
+        return !!this._mouseButtonDown[button];
+    },
+
+    /**@
+     * #.triggerMouseButton
+     * @comp MouseState
+     * @kind Method
+     *
+     * @sign public this triggerMouseButton(String eventName, Object eventData)
+     * @param eventName - Name of the mouse button event to trigger ("MouseDown" or "MouseUp")
+     * @param eventData - The mouse button event to trigger
+     *
+     * Try to trigger a mouse button event on this entity.
+     * This method prevents inconsistent button state.
+     * e.g. If this entity didn't receive a "MouseDown" previously, it won't fire a "MouseUp" event.
+     *
+     * This method is called internally, but may be useful when running Crafty in headless mode.
+     *
+     * @example
+     * ~~~
+     * var wasTriggered = false;
+     *
+     * ent.requires('MouseState')
+     *    .bind('MouseUp', function(evt) {
+     *       wasTriggered = true;
+     *    })
+     *    .triggerMouseButton('MouseUp', { mouseButton: Crafty.mouseButtons.LEFT });
+     *
+     * Crafty.log(wasTriggered); // prints false
+     * ~~~
+     *
+     * @see Crafty.keys
+     */
+    triggerMouseButton: function (eventName, eventData) {
+        var mouseButton = eventData.mouseButton;
+        if (eventName === "MouseDown") {
+            // ignore MouseDown due to inconsistent state caused by loosing focus
+            if (this._mouseButtonDown[mouseButton] !== true) {
+                this._mouseButtonDown[mouseButton] = true;
+                this.trigger(eventName, eventData);
+            }
+        } else if (eventName === "MouseUp") {
+            // ignore MouseUp due to inconsistent state caused by loosing focus
+            if (this._mouseButtonDown[mouseButton] === true) {
+                this._mouseButtonDown[mouseButton] = false;
+                this.trigger(eventName, eventData);
+            }
+        }
+        return this;
+    }
+};
+Crafty.c("MouseState", Crafty.__mouseStateTemplate);
+
+/**@
  * #Draggable
  * @category Controls
  * @kind Component

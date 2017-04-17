@@ -2,10 +2,8 @@ var Crafty = require('../core/core.js'),
     document = window.document;
 
 //TODO fix documentation
-
-//TODO add MouseState and KeyState which listen to events, required by Mouse and Keyboard comps
-//TODO extend Mouse system with MouseState object
-
+//TODO trigger FocusChange events and add that to documentation
+//TODO test all this
 
 // common base functionality for all EventDispatchers
 function EventDispatcher() {
@@ -81,46 +79,227 @@ EventDispatcher.prototype.dispatchEvent = function (e, focusedElem) {
     // otherwise find the entity to dispatch to (e.g. mouse events) or dispatch it globally (e.g. key events)
 };
 
-
-Crafty.s("Mouse", {
-    _focusedElement: { // TODO add MouseState to this entity
-        _elem: null,
+/**@
+ * #MouseSystem
+ * @category Input
+ * @kind System
+ *
+ * Provides access to unconsumed mouse events.
+ * Mouse events get dispatched to the closest (visible & `Mouse`-enhanced) entity to the source of the event (if available).
+ * If there is no such entity, the MouseSystem receives the event instead.
+ *
+ * Inherits methods and events from the `MouseState` component.
+ *
+ * Additionally, this system can provide exclusive access to MouseEvents.
+ * If the events are locked onto this entity, no other entity or system will receive MouseEvents.
+ *
+ * @note If you're targeting mobile, you should know that by default Crafty turns touch events into mouse events,
+ * making mouse dependent components work with touch. However, if you need multitouch, you'll have
+ * to make use of the Touch component instead, which can break compatibility with things which directly interact with the Mouse component.
+ *
+ * @see MouseState, Mouse
+ * @see Crafty.mouseDispatch
+ * @see Crafty.multitouch
+ * @see Crafty.touchDispatch
+ */
+Crafty.s("Mouse", Crafty.extend.call({
+    _focusedElement: Crafty.e('MouseState').attr({
+        _wrappedElem: null,
         trigger: function(event, data) {
-            if (this._elem) this._elem.trigger(event, data);
+            if (this._wrappedElem) this._wrappedElem.trigger(event, data);
         }
-    },
+    }),
 
-    lockFocus: function(elem) {
+    /**@
+     * #.lockMouse
+     * @comp MouseSystem
+     * @kind Method
+     *
+     * @sign public Boolean .lockMouse(System target)
+     * @param target - Target system which would like exclusive access to MouseEvents
+     * @returns A boolean indicating whether the lock has been acquired
+     *
+     * Make all mouse events be received by target system exclusively.
+     * Locking may fail if another entity or system acquired the lock already. In that case `false` will be returned.
+     *
+     * @example
+     * ~~~
+     * // This system will lock mouse events to itself when the mouse is clicked or dragged on the viewport.
+     * // No other entities, including e.g. "Draggable" entities, can interfere accidentally while a lock is in effect
+     * Crafty.s("Instructor", {
+     *     init: function() {
+     *         // register this system's "MouseDown" callback for when user clicks on the background / viewport
+     *         Crafty.s('Mouse').bind('MouseDown', this.events["MouseDown"].bind(this));
+     *     },
+     *
+     *     events: {
+     *         "MouseDown": function (e) {
+     *             // acquire the lock
+     *             Crafty.s('Mouse').lockMouse(this);
+     *             // do something while lock is in effect
+     *             this.events["MouseMove"].call(this, e);
+     *         },
+     *         "MouseMove": function (e) {
+     *             // do something while lock is in effect
+     *             Crafty.trigger("MoveTo", { x: e.realX, y: e.realY });
+     *         },
+     *         "MouseUp": function (e) {
+     *             // release the lock
+     *             Crafty.s('Mouse').releaseMouse(this);
+     *         }
+     *     }
+     * }, {}, false);
+     * ~~~
+     *
+     * @see .releaseMouse
+     */
+    lockMouse: function(elem) {
         var success = Crafty._mouseDispatcher.lockFocus(this._focusedElement);
-        if (success) this._focusedElement._elem = elem;
+        if (success) this._focusedElement._wrappedElem = elem;
         return success;
     },
-    releaseFocus: function(elem) {
+
+    /**@
+     * #.releaseMouse
+     * @comp MouseSystem
+     * @kind Method
+     *
+     * @sign public Boolean .releaseMouse(System target)
+     * @param target - Target system which would like to relinquish exclusive access to MouseEvents
+     * @returns A boolean indicating whether the lock has been released
+     *
+     * Stop all mouse events from being received by target system exclusively.
+     * Releasing may fail if another entity or system acquired the lock. In that case `false` will be returned.
+     *
+     * @see .lockMouse
+     */
+    releaseMouse: function(elem) {
         var success = Crafty._mouseDispatcher.releaseFocus(this._focusedElement);
-        if (success) this._focusedElement._elem = null;
+        if (success) this._focusedElement._wrappedElem = null;
         return success;
     }
-}, {}, false);
+}, Crafty.__mouseStateTemplate), {}, false);
 
-Crafty.s("Keyboard", {
-    _focusedElement: { // TODO add KeyboardState to this entity
-        _elem: null,
+/**@
+ * #KeyboardSystem
+ * @category Input
+ * @kind System
+ *
+ * Provides access to key events.
+ * Keyboard events get dispatched to all entities that have the Keyboard component and to the KeyboardSystem itself.
+ *
+ * Inherits methods and events from the `KeyboardState` component.
+ *
+ * Additionally, this system can provide exclusive access to KeyEvents.
+ * If the events are locked onto this entity, no other entity or system will receive KeyEvents.
+ *
+ * @see KeyboardState, Keyboard
+ * @see Crafty.keyboardDispatch
+ */
+Crafty.s("Keyboard", Crafty.extend.call({
+    _focusedElement: Crafty.e('KeyboardState').attr({
+        _wrappedElem: null,
         trigger: function(event, data) {
-            if (this._elem) this._elem.trigger(event, data);
+            if (this._wrappedElem) this._wrappedElem.trigger(event, data);
         }
+    }),
+
+    /**@
+     * #.lockKeyboard
+     * @comp KeyboardSystem
+     * @kind Method
+     *
+     * @sign public Boolean .lockKeyboard(System target)
+     * @param target - Target system which would like exclusive access to KeyEvents
+     * @returns A boolean indicating whether the lock has been acquired
+     *
+     * Make all keyboard events be received by target system exclusively.
+     * Locking may fail if another entity or system acquired the lock already. In that case `false` will be returned.
+     *
+     * @example
+     * ~~~
+     * var started = false;
+     *
+     * // This entity moves randomly and bounces off viewport borders.
+     * // It will acquire the lock once the Mouse is pointed over it.
+     * // However, if you fail to keep the Mouse pointed at it, it will loose focus and release the lock.
+     * //
+     * Crafty.e("2D, DOM, Color, Keyboard, Mouse, Motion")
+     *     .attr({ // place it in the middle of viewport
+     *         x: Crafty.viewport._width / 2 - 32, w: 64,
+     *         y: Crafty.viewport._height / 2 - 32, h: 64,
+     *         lastMoveDT: 0
+     *     })
+     *     .color('blue')
+     *     .bind('Moved', function() { // bounce off borders
+     *         if (this.x < 0) {
+     *             this.vx = Crafty.math.abs(this.vx);
+     *         } else if (this.x + this.w > Crafty.viewport._width) {
+     *             this.vx = -Crafty.math.abs(this.vx);
+     *         }
+     *
+     *         if (this.y < 0) {
+     *             this.vy = Crafty.math.abs(this.vy);
+     *         } else if (this.y + this.h > Crafty.viewport._height) {
+     *             this.vy = -Crafty.math.abs(this.vy);
+     *         }
+     *     })
+     *     .bind('EnterFrame', function(frame) { // after a random amount of time, set a random direction for the entity to move
+     *         if (this.lastMoveDT > Crafty.math.randomInt(1000, 3000)) {
+     *             this.vx = Crafty.math.randomInt(-150, 150);
+     *             this.vy = Crafty.math.randomInt(-150, 150);
+     *             this.lastMoveDT = 0;
+     *         }
+     *         this.lastMoveDT += frame.dt;
+     *     })
+     *     .bind('MouseOver', function() {
+     *         this.lockKeyboard(); // once the mouse points over entity, acquire the lock
+     *         started = true; // let the game of concentration begin!
+     *     })
+     *     .bind('MouseOut', function() {
+     *         this.releaseKeyboard(); // once the mouse no longer points at the entity, release the lock
+     *     });
+     *
+     * // This system will try to steal the lock in each frame, resulting in an explosion!
+     * Crafty.s("HotWire", {
+     *     events: {
+     *         "EnterFrame": function() {
+     *             if (started && Crafty.s('Keyboard').lockKeyboard(this)) {
+     *                 alert('Kaboom!');
+     *             }
+     *         }
+     *     }
+     * }, {}, false);
+     * ~~~
+     *
+     * @see .releaseKeyboard
+     */
+    lockKeyboard: function(elem) {
+        var success = Crafty._keyboardDispatcher.lockFocus(this._focusedElement);
+        if (success) this._focusedElement._wrappedElem = elem;
+        return success;
     },
 
-    lockFocus: function(elem) {
-        var success = Crafty._keyboardDispatcher.lockFocus(this._focusedElement);
-        if (success) this._focusedElement._elem = elem;
-        return success;
-    },
-    releaseFocus: function(elem) {
+    /**@
+     * #.releaseKeyboard
+     * @comp KeyboardSystem
+     * @kind Method
+     *
+     * @sign public Boolean .releaseKeyboard(System target)
+     * @param target - Target system which would like to relinquish exclusive access to KeyEvents
+     * @returns A boolean indicating whether the lock has been released
+     *
+     * Stop all keyboard events from being received by target system exclusively.
+     * Releasing may fail if another entity or system acquired the lock. In that case `false` will be returned.
+     *
+     * @see .lockKeyboard
+     */
+    releaseKeyboard: function(elem) {
         var success = Crafty._keyboardDispatcher.releaseFocus(this._focusedElement);
-        if (success) this._focusedElement._elem = null;
+        if (success) this._focusedElement._wrappedElem = null;
         return success;
     }
-}, {}, false);
+}, Crafty.__keyboardStateTemplate), {}, false);
 
 Crafty.extend({
     // Indicates how many entities have the Mouse component, for performance optimization
@@ -1008,69 +1187,137 @@ Crafty._preBind("CraftyStop", function () {
  * @category Input
  * @kind Component
  *
- * Provides the entity with mouse related events.
+ * Provides the entity with mouse events.
+ * Mouse events get dispatched to the closest (visible & `Mouse`-enhanced) entity to the source of the event (if available).
+ * If there is no such entity, the MouseSystem receives the event instead.
+ * @note If you do not add this component, mouse events will not be triggered on the entity.
  *
- * If you do not add this component, mouse events will not be triggered on the entity.
+ * Inherits methods and events from the `MouseState` component.
  *
- * @trigger MouseOver - when the mouse enters - MouseEvent
- * @trigger MouseOut - when the mouse leaves - MouseEvent
- * @trigger MouseDown - when the mouse button is pressed on - MouseEvent
- * @trigger MouseUp - when the mouse button is released on - MouseEvent
- * @trigger Click - when the user clicks - MouseEvent
- * @trigger DoubleClick - when the user double clicks - MouseEvent
- * @trigger MouseMove - when the mouse is over and moves - MouseEvent
- *
- * The event callbacks are triggered with a native [`MouseEvent`](https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent) parameter,
- * which is further augmented with additional properties:
- * ~~~
- * //(x,y) coordinates of mouse event in web-browser (screen) space
- * e.clientX
- * e.clientY
- *
- * //(x,y) coordinates of mouse event in world (default viewport) space
- * e.realX
- * e.realY
- *
- * // Normalized mouse button according to Crafty.mouseButtons:
- * // Crafty.mouseButtons.LEFT, Crafty.mouseButtons.RIGHT or Crafty.mouseButtons.MIDDLE
- * e.mouseButton
- * ~~~
+ * Additionally, this component can provide exclusive access to MouseEvents.
+ * If the events are locked onto this entity, no other entity or system will receive MouseEvents.
  *
  * @note If you're targeting mobile, you should know that by default Crafty turns touch events into mouse events, 
  * making mouse dependent components work with touch. However, if you need multitouch, you'll have 
  * to make use of the Touch component instead, which can break compatibility with things which directly interact with the Mouse component.
  *
- * @example
- * ~~~
- * var myEntity = Crafty.e('2D, Canvas, Color, Mouse')
- * .attr({x: 10, y: 10, w: 40, h: 40})
- * .color('red')
- * .bind('Click', function(MouseEvent){
- *   alert('clicked', MouseEvent);
- * });
- *
- * myEntity.bind('MouseUp', function(e) {
- *    if( e.mouseButton == Crafty.mouseButtons.RIGHT )
- *        Crafty.log("Clicked right button");
- * })
- * ~~~
- * @see Crafty.mouseButtons
+ * @see MouseState, MouseSystem
  * @see Crafty.mouseDispatch
  * @see Crafty.multitouch
  * @see Crafty.touchDispatch
  */
 Crafty.c("Mouse", {
-    required: "AreaMap",
+    required: "MouseState, AreaMap",
     init: function () {
         Crafty.mouseObjs++;
     },
     remove: function() {
         Crafty.mouseObjs--;
     },
-    lockFocus: function() {
+
+    /**@
+     * #.lockMouse
+     * @comp Mouse
+     * @kind Method
+     *
+     * @sign public Boolean .lockMouse()
+     * @returns A boolean indicating whether the lock has been acquired
+     *
+     * Make all mouse events be received by the entity exclusively.
+     * Locking may fail if another entity or system acquired the lock already. In that case `false` will be returned.
+     *
+     * @example
+     * ~~~
+     * // Create a component that allows painting with the mouse inside the entity
+     * // This component will lock mouse events to itself when the mouse is clicked or dragged inside the entity
+     * // No other entities, including e.g. "Draggable" entities, can interfere accidentally while a lock is in effect
+     * Crafty.c("Paint", {
+     *     required: "2D, Canvas, Mouse",
+     *
+     *     _points: null,
+     *
+     *     ready: false,
+     *
+     *     events: {
+     *         // see https://github.com/craftyjs/Crafty/wiki/Crafty-FAQ-(draft)
+     *         // for details on Canvas drawing
+     *         "Draw": function (e) { // paint the path
+     *             var points = this._points;
+     *             if (points.length < 2*2) return;
+     *
+     *             var ctx = e.ctx;
+     *             ctx.lineWidth = 2;
+     *             ctx.strokeStyle = "orange";
+     *             ctx.beginPath();
+     *
+     *             ctx.moveTo(points[0], points[1]);
+     *             for (var i = 2, l = points.length; i < l; i += 2) {
+     *                 ctx.lineTo(points[i], points[i + 1]);
+     *             }
+     *
+     *             ctx.stroke();
+     *         },
+     *
+     *         "MouseDown": function (e) {
+     *             // process LMB clicks only
+     *             if (e.mouseButton !== Crafty.mouseButtons.LEFT) return;
+     *
+     *             // start the painting process
+     *             if (!this.ready && this.lockMouse()) { // painting procedure was not already started and lock is successfully acquired
+     *                 this._points = []; // reset path to be painted
+     *                 this.ready = true; // notify the render code that this component is ready to be drawn
+     *             }
+     *         },
+     *         "MouseMove": function (e) {
+     *             // continue only if paiting procedure started
+     *             if (!this.ready) return;
+     *
+     *             // painting process
+     *             this._points.push(e.realX, e.realY); // add points to the path to be painted
+     *             this.trigger("Invalidate");  // notify the render code that this component's appearance changed
+     *         },
+     *         "MouseUp": function (e) {
+     *             // process LMB clicks only
+     *             if (e.mouseButton !== Crafty.mouseButtons.LEFT) return;
+     *
+     *             // stop the painting process
+     *             if (this.ready && this.releaseMouse()) { // painting procedure was not already started and lock is successfully acquired
+     *                 this.one('PostRender', function() { // notify the render code that this component requires no drawing, but do this not before next render
+     *                     this.ready = false;
+     *                 });
+     *             }
+     *         }
+     *     }
+     * });
+     *
+     * // Make an entity with the Paint component
+     * // span it across the whole viewport
+     * Crafty.e("Paint").attr({
+     *     w: Crafty.viewport._width,
+     *     h: Crafty.viewport._height
+     * });
+     * ~~~
+     *
+     * @see .releaseMouse
+     */
+    lockMouse: function() {
         return Crafty._mouseDispatcher.lockFocus(this);
     },
-    releaseFocus: function() {
+
+    /**@
+     * #.releaseMouse
+     * @comp Mouse
+     * @kind Method
+     *
+     * @sign public Boolean .releaseMouse()
+     * @returns A boolean indicating whether the lock has been released
+     *
+     * Stop all mouse events from being received by the entity exclusively.
+     * Releasing may fail if another entity or system acquired the lock. In that case `false` will be returned.
+     *
+     * @see .lockMouse
+     */
+    releaseMouse: function() {
         return Crafty._mouseDispatcher.releaseFocus(this);
     }
 });
@@ -1079,7 +1326,10 @@ Crafty.c("Mouse", {
  * #Touch
  * @category Input
  * @kind Component
+ *
  * Provides the entity with touch related events
+ * @note If you do not add this component, touch events will not be triggered on the entity.
+ *
  * @trigger TouchStart - when entity is touched - TouchPoint
  * @trigger TouchMove - when finger is moved over entity - TouchPoint
  * @trigger TouchCancel - when a touch event has been disrupted in some way - TouchPoint
@@ -1252,7 +1502,7 @@ Crafty.c("MouseDrag", {
     events: {
         "MouseDown": function (e) {
             if (e.mouseButton !== Crafty.mouseButtons.LEFT) return;
-            if (this.lockFocus()) this.startDrag(e);
+            if (this.lockMouse()) this.startDrag(e);
         },
         "MouseMove": function (e) {
             // ignore invalid 0 position - strange problem on ipad
@@ -1261,7 +1511,7 @@ Crafty.c("MouseDrag", {
         },
         "MouseUp": function (e) {
             if (e.mouseButton !== Crafty.mouseButtons.LEFT) return;
-            if (this.releaseFocus()) this.stopDrag(e);
+            if (this.releaseMouse()) this.stopDrag(e);
         }
     },
 
@@ -1314,68 +1564,107 @@ Crafty.c("MouseDrag", {
  * @kind Component
  *
  * Provides entity with keyboard events.
- * @trigger KeyDown - is triggered for each entity when the DOM 'keydown' event is triggered. - { key: `Crafty.keys` keyCode (Number), originalEvent: original KeyboardEvent } - Crafty's KeyboardEvent
- * @trigger KeyUp - is triggered for each entity when the DOM 'keyup' event is triggered. - { key: `Crafty.keys` keyCode (Number), originalEvent: original KeyboardEvent } - Crafty's KeyboardEvent
+ * Keyboard events get dispatched to all entities that have the Keyboard component and to the KeyboardSystem itself.
+ * @note If you do not add this component, key events will not be triggered on the entity.
  *
- * In addition to binding to these events, the current state (pressed/released) of a key can also be queried using the `.isDown` method.
+ * Inherits methods and events from the `KeyboardState` component.
  *
- * @example
- * ~~~
- * Crafty.e("2D, DOM, Color, Keyboard")
- *   .attr({x: 100, y: 100, w: 50, h: 50})
- *   .color("red")
- *   .bind('KeyDown', function(e) {
- *     if (e.key == Crafty.keys.LEFT_ARROW) {
- *       this.x = this.x-1;
- *     } else if (e.key == Crafty.keys.RIGHT_ARROW) {
- *       this.x = this.x+1;
- *     } else if (e.key == Crafty.keys.UP_ARROW) {
- *       this.y = this.y-1;
- *     } else if (e.key == Crafty.keys.DOWN_ARROW) {
- *       this.y = this.y+1;
- *     }
- *   });
- * ~~~
+ * Additionally, this component can provide exclusive access to KeyEvents.
+ * If the events are locked onto this entity, no other entity or system will receive KeyEvents.
  *
- * @see Crafty.keys
- * @see Crafty.keydown
+ * @see KeyboardState, KeyboardSystem
  * @see Crafty.keyboardDispatch
  */
 Crafty.c("Keyboard", {
+    required: "KeyboardState",
+
     /**@
-     * #.isDown
+     * #.lockKeyboard
      * @comp Keyboard
      * @kind Method
-     * 
-     * @sign public Boolean isDown(String keyName)
-     * @param keyName - Name of the key to check. See `Crafty.keys`.
-     * @sign public Boolean isDown(Number keyCode)
-     * @param keyCode - Key code in `Crafty.keys`.
      *
-     * Determine if a certain key is currently down.
+     * @sign public Boolean .lockKeyboard()
+     * @returns A boolean indicating whether the lock has been acquired
+     *
+     * Make all keyboard events be received by the entity exclusively.
+     * Locking may fail if another entity or system acquired the lock already. In that case `false` will be returned.
      *
      * @example
      * ~~~
-     * ent.requires('Keyboard')
-     *    .bind('EnterFrame', function() {
-     *       if (this.isDown('SPACE'))
-     *          this.y--;
-     *    });
+     * var started = false;
+     *
+     * // This entity moves randomly and bounces off viewport borders.
+     * // It will acquire the lock once the Mouse is pointed over it.
+     * // However, if you fail to keep the Mouse pointed at it, it will loose focus and release the lock.
+     * //
+     * Crafty.e("2D, DOM, Color, Keyboard, Mouse, Motion")
+     *     .attr({ // place it in the middle of viewport
+     *         x: Crafty.viewport._width / 2 - 32, w: 64,
+     *         y: Crafty.viewport._height / 2 - 32, h: 64,
+     *         lastMoveDT: 0
+     *     })
+     *     .color('blue')
+     *     .bind('Moved', function() { // bounce off borders
+     *         if (this.x < 0) {
+     *             this.vx = Crafty.math.abs(this.vx);
+     *         } else if (this.x + this.w > Crafty.viewport._width) {
+     *             this.vx = -Crafty.math.abs(this.vx);
+     *         }
+     *
+     *         if (this.y < 0) {
+     *             this.vy = Crafty.math.abs(this.vy);
+     *         } else if (this.y + this.h > Crafty.viewport._height) {
+     *             this.vy = -Crafty.math.abs(this.vy);
+     *         }
+     *     })
+     *     .bind('EnterFrame', function(frame) { // after a random amount of time, set a random direction for the entity to move
+     *         if (this.lastMoveDT > Crafty.math.randomInt(1000, 3000)) {
+     *             this.vx = Crafty.math.randomInt(-150, 150);
+     *             this.vy = Crafty.math.randomInt(-150, 150);
+     *             this.lastMoveDT = 0;
+     *         }
+     *         this.lastMoveDT += frame.dt;
+     *     })
+     *     .bind('MouseOver', function() {
+     *         this.lockKeyboard(); // once the mouse points over entity, acquire the lock
+     *         started = true; // let the game of concentration begin!
+     *     })
+     *     .bind('MouseOut', function() {
+     *         this.releaseKeyboard(); // once the mouse no longer points at the entity, release the lock
+     *     });
+     *
+     * // This system will try to steal the lock in each frame, resulting in an explosion!
+     * Crafty.s("HotWire", {
+     *     events: {
+     *         "EnterFrame": function() {
+     *             if (started && Crafty.s('Keyboard').lockKeyboard(this)) {
+     *                 alert('Kaboom!');
+     *             }
+     *         }
+     *     }
+     * }, {}, false);
      * ~~~
      *
-     * @see Crafty.keys
+     * @see .releaseKeyboard
      */
-    isDown: function (key) {
-        if (typeof key === "string") {
-            key = Crafty.keys[key];
-        }
-        return !!Crafty.keydown[key];
+    lockKeyboard: function() {
+        return Crafty._keyboardDispatcher.lockFocus(this);
     },
 
-    lockFocus: function() {
-        return Crafty._mouseDispatcher.lockFocus(this);
-    },
-    releaseFocus: function() {
-        return Crafty._mouseDispatcher.releaseFocus(this);
+    /**@
+     * #.releaseKeyboard
+     * @comp Keyboard
+     * @kind Method
+     *
+     * @sign public Boolean .releaseKeyboard()
+     * @returns A boolean indicating whether the lock has been released
+     *
+     * Stop all keyboard events from being received by the entity exclusively.
+     * Releasing may fail if another entity or system acquired the lock. In that case `false` will be returned.
+     *
+     * @see .lockKeyboard
+     */
+    releaseKeyboard: function() {
+        return Crafty._keyboardDispatcher.releaseFocus(this);
     }
 });
