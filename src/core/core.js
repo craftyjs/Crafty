@@ -56,7 +56,7 @@ var Crafty = function (selector) {
     return new Crafty.fn.init(selector);
 };
     // Internal variables
-var GUID, frame, components, entities, handlers, onloads,
+var GUID, frame, components, entities, handlers, onloads, compEntities,
 slice, rlist, rspace;
 
 
@@ -70,6 +70,7 @@ var initState = function () {
     frame       = 0;
 
     entities    = {}; // Map of entities and their data
+    compEntities= {}; // Map from componentName to (entityId -> entity)
     handlers    = {}; // Global event handlers
     onloads     = []; // Temporary storage of onload handlers
 };
@@ -95,12 +96,11 @@ Crafty.fn = Crafty.prototype = {
         if (typeof selector === "string") {
             var elem = 0, //index elements
                 e, //entity forEach
-                current,
                 and = false, //flags for multiple
                 or = false,
                 del,
                 comps,
-                score,
+                filteredCompEnts, compEnts, compEnts2, compEnt,
                 i, l;
 
             if (selector === '*') {
@@ -130,30 +130,49 @@ Crafty.fn = Crafty.prototype = {
                 del = rspace;
             }
 
-            //loop over entities
-            for (e in entities) {
-                if (!entities.hasOwnProperty(e)) continue; //skip
-                current = entities[e];
+            if (or) {
+                comps = selector.split(del);
 
-                if (and || or) { //multiple components
-                    comps = selector.split(del);
-                    i = 0;
-                    l = comps.length;
-                    score = 0;
+                filteredCompEnts = {}; // populate object with union of keys from all sets
+                for (i = 0, l = comps.length; i < l; i++) {
+                    compEnts = compEntities[comps[i]];
+                    for (compEnt in compEnts) {
+                        filteredCompEnts[compEnt] = +compEnt; //convert to int
+                    }
+                }
 
-                    for (; i < l; i++) //loop over components
-                        if (current.__c[comps[i]]) score++; //if component exists add to score
+                for (compEnt in filteredCompEnts) { // add set elements to result
+                    this[elem++] = filteredCompEnts[compEnt];
+                }
+            } else if (and) {
+                comps = selector.split(del);
 
-                        //if anded comps and has all OR ored comps and at least 1
-                    if (and && score === l || or && score > 0) this[elem++] = +e;
+                filteredCompEnts = {}; // populate initial object with keys in common from first two sets
+                compEnts = compEntities[comps[0]];
+                compEnts2 = compEntities[comps[1]];
+                for (compEnt in compEnts) {
+                    if (compEnts2[compEnt] !== undefined)
+                        filteredCompEnts[compEnt] = +compEnt; //convert to int
+                }
 
-                } else if (current.__c[selector]) this[elem++] = +e; //convert to int
+                for (i = 2, l = comps.length; i < l; i++) { // strip initial object keys not in following sets
+                    compEnts = compEntities[comps[i]];
+                    for (compEnt in filteredCompEnts) {
+                        if (compEnts[compEnt] === undefined)
+                            filteredCompEnts[compEnt] = -1;
+                    }
+                }
+
+                for (compEnt in filteredCompEnts) { // add valid elements to result
+                    i = filteredCompEnts[compEnt];
+                    if (i >= 0) this[elem++] = i;
+                }
+            } else { // single component selector
+                compEnts = compEntities[selector];
+                for (compEnt in compEnts) {
+                    this[elem++] = +compEnt; //convert to int
+                }
             }
-
-            //extend all common components
-            if (elem > 0 && !and && !or) this.extend(components[selector]);
-            if (comps && and)
-                for (i = 0; i < l; i++) this.extend(components[comps[i]]);
 
             this.length = elem; //length is the last index (already incremented)
 
@@ -268,7 +287,7 @@ Crafty.fn = Crafty.prototype = {
      * ~~~
      */
     addComponent: function (id) {
-        var comps,
+        var comps, compName,
             comp, c = 0;
 
         //add multiple arguments
@@ -280,12 +299,17 @@ Crafty.fn = Crafty.prototype = {
 
         //extend the components
         for (; c < comps.length; c++) {
+            compName = comps[c];
+
             // If component already exists, continue
-            if (this.__c[comps[c]] === true) {
+            if (this.__c[compName] === true) {
                 continue;
             }
-            this.__c[comps[c]] = true;
-            comp = components[comps[c]];
+            this.__c[compName] = true;
+            // update map from component to (entityId -> entity)
+            (compEntities[compName] = compEntities[compName] || {})[this[0]] = this;
+
+            comp = components[compName];
             // Copy all methods of the component
             this.extend(comp);
             // Add any required components
@@ -442,7 +466,8 @@ Crafty.fn = Crafty.prototype = {
             }
         }
         delete this.__c[id];
-
+        // update map from component to (entityId -> entity)
+        delete compEntities[id][this[0]];
 
         return this;
     },
@@ -1037,6 +1062,9 @@ Crafty.fn = Crafty.prototype = {
                 comp = components[compName];
                 if (comp && "remove" in comp)
                     comp.remove.call(this, true);
+
+                // update map from component to (entityId -> entity)
+                delete compEntities[compName][this[0]];
             }
             this._unbindAll();
             delete entities[this[0]];
