@@ -207,6 +207,7 @@ Crafty.c("Controllable", {
      */
     linkInput: function(event, name, fn) {
         this._inputBindings[event][name] = fn;
+        return this;
     },
 
     /**@
@@ -224,6 +225,7 @@ Crafty.c("Controllable", {
      */
     unlinkInput: function(event, name) {
         delete this._inputBindings[event][name];
+        return this;
     },
 
 
