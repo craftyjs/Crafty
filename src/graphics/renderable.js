@@ -77,6 +77,20 @@ Crafty.c("Renderable", {
     init: function () {
     },
 
+    // Need to store visibility before being frozen
+    _hideOnUnfreeze: false,
+    events: {
+        "Freeze":function(){
+            this._hideOnUnfreeze = !this._visible;
+            this._visible = false;
+            this.trigger("Invalidate");
+        },
+        "Unfreeze":function(){
+            this._visible = !this._hideOnUnfreeze;
+            this.trigger("Invalidate");
+        }
+    },
+
     // Renderable assumes that a draw layer has 3 important methods: attach, detach, and dirty
 
     // Dirty the entity when it's invalidated

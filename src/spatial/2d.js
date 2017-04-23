@@ -230,6 +230,7 @@ Crafty.c("2D", {
 
         //insert self into the HashMap
         this._entry = Crafty.map.insert(this);
+        
 
         //when object changes, update HashMap
         this.bind("Move", function (e) {
@@ -279,6 +280,14 @@ Crafty.c("2D", {
         });
     },
 
+    events: {
+        "Freeze":function(){
+            Crafty.map.remove(this._entry);
+        },
+        "Unfreeze":function(){
+            this._entry = Crafty.map.insert(this, this._entry);
+        }
+    }, 
 
     /**@
      * #.offsetBoundary
@@ -670,6 +679,7 @@ Crafty.c("2D", {
         if (("cos" in e) || ("sin" in e)) {
             for (; i < l; ++i) {
                 obj = children[i];
+                if (obj.__frozen) continue;
                 if ('rotate' in obj) obj.rotate(e);
             }
         } else {
@@ -681,6 +691,7 @@ Crafty.c("2D", {
 
             for (; i < l; ++i) {
                 obj = children[i];
+                if (obj.__frozen) continue;
                 obj.shift(dx, dy, dw, dh);
             }
         }

@@ -358,5 +358,123 @@
 
   });
 
+
+  test("Freezing and unfreezing events", function(_) {
+    var x = 0, triggered = 0;
+
+    function add() {
+      x++;
+    }
+    function trigger(amount) {
+      triggered += amount;
+    }
+    var e = Crafty.e("Triggerable");
+    e.bind("Increment", add);
+    e.bind("Freeze", trigger.bind(null, 1));
+    e.bind("Unfreeze", trigger.bind(null, -1));
+
+    triggered = 0;
+    e.freeze();
+    _.strictEqual(triggered, 1, "Freeze event was triggered");
+
+    triggered = 0;
+    e.freeze();
+    _.strictEqual(triggered, 0, "Freeze event wasn't triggered, because it was already frozen");
+
+    x = 0;
+    e.trigger("Increment");
+    _.strictEqual(x, 0, "Callback does not run while frozen");
+
+    x = 0;
+    Crafty.trigger("Increment");
+    _.strictEqual(x, 0, "Callback does not run while frozen");
+
+    triggered = 0;
+    e.unfreeze();
+    _.strictEqual(triggered, -1, "Unfreeze event was triggered");
+
+    triggered = 0;
+    e.unfreeze();
+    _.strictEqual(triggered, 0, "Unfreeze event wasn't triggered, because it was already unfrozen");
+
+    x = 0;
+    e.trigger("Increment");
+    _.strictEqual(x, 1, "Event can be triggered once unfrozen");
+
+    x = 0;
+    Crafty.trigger("Increment");
+    _.strictEqual(x, 1, "Event can be globally triggered once unfrozen");
+
+    e.destroy();
+  });
+
+  test("Freezing should prevent cascade", function(_) {
+    var parent = Crafty.e("2D");
+    var child = Crafty.e("2D");
+    parent.attr({x: 10, y:10});
+    child.attr({x:20, y:20});
+    parent.attach(child);
+
+    child.freeze();
+    parent.x += 10;
+    _.strictEqual(child._x, 20, "Child does not move while frozen");
+
+    child.unfreeze();
+    parent.x += 10;
+    _.strictEqual(child._x, 30, "Child moves with parent when frozen");
+  });
+
+  test("Freezing and unfreezing events on groups", function(_) {
+    var x = 0, triggered = 0;
+
+    function add() {
+      x++;
+    }
+    function trigger(amount) {
+      triggered += amount;
+    }
+    //Create 2 triggerable entities
+    Crafty.e("Triggerable");
+    Crafty.e("Triggerable");
+
+    var group = Crafty("Triggerable");
+    group.bind("Increment", add);
+    group.bind("Freeze", trigger.bind(null, 1));
+    group.bind("Unfreeze", trigger.bind(null, -1));
+
+    triggered = 0;
+    group.freeze();
+    _.strictEqual(triggered, 2, "Freeze events were triggered");
+
+    triggered = 0;
+    group.freeze();
+    _.strictEqual(triggered, 0, "Freeze events weren't triggered, because they were already frozen");
+
+    x = 0;
+    group.trigger("Increment");
+    _.strictEqual(x, 0, "Callback does not run while frozen");
+
+    x = 0;
+    Crafty.trigger("Increment");
+    _.strictEqual(x, 0, "Callback does not run while frozen when triggered globally");
+
+    triggered = 0;
+    group.unfreeze();
+    _.strictEqual(triggered, -2, "Unfreeze events were triggered");
+
+    triggered = 0;
+    group.unfreeze();
+    _.strictEqual(triggered, 0, "Unfreeze event weren't triggered, because they were already unfrozen");
+
+    x = 0;
+    group.trigger("Increment");
+    _.strictEqual(x, 2, "Event can be triggered once unfrozen");
+
+    x = 0;
+    Crafty.trigger("Increment");
+    _.strictEqual(x, 2, "Event can be globally triggered once unfrozen");
+
+    group.destroy();
+  });
 })();
 

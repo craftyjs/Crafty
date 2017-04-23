@@ -53,8 +53,9 @@
          * @comp Crafty.map
          * @kind Method
          * 
-         * @sign public Object Crafty.map.insert(Object obj)
+         * @sign public Object Crafty.map.insert(Object obj[, Object entry])
          * @param obj - An entity to be inserted.
+         * @param entry - An existing entry object to reuse.  (Optional)
          * @returns An object representing this object's entry in the HashMap
          * 
          * `obj` is inserted in '.map' of the corresponding broad phase cells. An object of the following fields is returned.
@@ -66,12 +67,10 @@
          * }
          * ~~~
          */
-        insert: function (obj) {
-            var keys = HashMap.key(obj),
-                entry = new Entry(keys, obj, this),
-                i = 0,
-                j,
-                hash;
+        insert: function (obj, entry) {
+            var i, j, hash;
+            var keys = HashMap.key(obj, entry && entry.keys);
+            entry = entry || new Entry(keys, obj, this);
 
             //insert into all x buckets
             for (i = keys.x1; i <= keys.x2; i++) {
