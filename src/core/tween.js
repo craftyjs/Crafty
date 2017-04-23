@@ -6,7 +6,7 @@ var Crafty = require('../core/core.js');
  * @category Animation
  * @kind Component
  * 
- * @trigger TweenEnd - when a tween finishes - String - property
+ * @trigger TweenEnd - when a tween finishes - Object - an object containing the properties that finished tweening
  *
  * Component to animate the change in 2D properties over time.
  */
