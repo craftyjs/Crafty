@@ -218,9 +218,7 @@ Crafty.s("Controls", {
      * @example
      * ~~~
      * // Define a two-direction dpad, with two keys each bound to the right and left directions
-     * Crafty.s("Controls").defineDpad("MyDpad", {
-     *   {RIGHT_ARROW: 0, LEFT_ARROW: 180, D: 0, A: 180}
-     * });
+     * Crafty.s("Controls").defineDpad("MyDpad", {RIGHT_ARROW: 0, LEFT_ARROW: 180, D: 0, A: 180});
      * ~~~
      * 
      * @see Crafty.keys
