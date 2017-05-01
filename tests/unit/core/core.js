@@ -122,6 +122,20 @@
     _.ok(propList.indexOf("_foo") === -1, "Property _foo is not enumerable");
   });
 
+  test("overwrite component definition", function(_) {
+    Crafty.c('MyCompDef', { a: 0 });
+    var e = Crafty.e('MyCompDef');
+    _.strictEqual(e.a, 0);
+    _.strictEqual(e.b, undefined);
+
+    Crafty.c('MyCompDef', { a: 1, b: 1 });
+    var f = Crafty.e('MyCompDef');
+    _.strictEqual(e.a, 0);
+    _.strictEqual(e.b, undefined);
+    _.strictEqual(f.a, 1);
+    _.strictEqual(f.b, 1);
+  });
+
   test("name", function(_) {
     var counter = 0;
     var player = Crafty.e().bind("NewEntityName", function() {

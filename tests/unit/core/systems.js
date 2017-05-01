@@ -256,5 +256,15 @@
     s.destroy();
   });
 
+  test("Overwrite system definition", function(_) {
+    Crafty.s('MySystemDef', { a: 0 }, {}, false);
+    _.strictEqual(Crafty.s('MySystemDef').a, 0);
+    _.strictEqual(Crafty.s('MySystemDef').b, undefined);
+
+    Crafty.s('MySystemDef', { a: 1, b: 1 }, {}, false);
+    _.strictEqual(Crafty.s('MySystemDef').a, 1);
+    _.strictEqual(Crafty.s('MySystemDef').b, 1);
+  });
+
 })();
 
