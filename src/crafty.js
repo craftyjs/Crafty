@@ -32,7 +32,7 @@ require('./isometric/diamond-iso');
 require('./isometric/isometric');
 
 require('./controls/inputs');
-require('./controls/device');
+require('./inputs/device');
 
 require('./sound/sound');
 
