@@ -41,6 +41,6 @@ require('./debug/debug-layer');
 // Define some aliases for renamed properties
 require('./aliases').defineAliases(Crafty);
 
-if(window) window.Crafty = Crafty;
+if (window) window.Crafty = Crafty;
 
 module.exports = Crafty;

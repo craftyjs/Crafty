@@ -29,7 +29,9 @@ module.exports = function(requireNew) {
 
     require('./controls/controls-system');
     require('./controls/controls');
+    require('./controls/keyboard');
     require('./controls/keycodes');
+    require('./controls/mouse');
 
     require('./debug/logging');
 
