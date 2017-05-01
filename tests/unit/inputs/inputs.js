@@ -63,28 +63,28 @@
 
       touchStart1();
     
-      _.equal(Crafty._touchHandler.fingers.length, 4, "Four fingers currently touching stage");
+      _.equal(Crafty.s('Touch')._touchHandler.fingers.length, 4, "Four fingers currently touching stage");
     
       touchEnd1();
 
-      _.equal(Crafty._touchHandler.fingers.length, 3, "Three fingers currently touching stage");
+      _.equal(Crafty.s('Touch')._touchHandler.fingers.length, 3, "Three fingers currently touching stage");
     
       touchEnd2();
       touchStart2();
       
-      _.equal(Crafty._touchHandler.fingers.length, 3, "Three fingers currently touching stage");
+      _.equal(Crafty.s('Touch')._touchHandler.fingers.length, 3, "Three fingers currently touching stage");
     
       touchEnd3();
     
-      _.equal(Crafty._touchHandler.fingers.length, 2, "Two fingers currently touching stage");
+      _.equal(Crafty.s('Touch')._touchHandler.fingers.length, 2, "Two fingers currently touching stage");
 
       touchEnd4();
       
-      _.equal(Crafty._touchHandler.fingers.length, 1, "One finger currently touching stage");
+      _.equal(Crafty.s('Touch')._touchHandler.fingers.length, 1, "One finger currently touching stage");
 
       touchEnd5();
     
-      _.equal(Crafty._touchHandler.fingers.length, 0, "No fingers currently touching stage");
+      _.equal(Crafty.s('Touch')._touchHandler.fingers.length, 0, "No fingers currently touching stage");
       
       _.equal(touchStartsOverEntities, 2, "Two entities recieved TouchStart");
       _.equal(touchEndsOverEntities, 2, "Two entities recieved TouchEnd");
@@ -109,7 +109,7 @@
       };
 
       Crafty.selected = true;
-      Crafty.keyboardDispatch(mockEvent);
+      Crafty.s('Keyboard').processEvent(mockEvent);
       Crafty.selected = false;
       
       _.ok(stopPropCalled, "stopPropagation Not Called");

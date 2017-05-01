@@ -103,7 +103,7 @@ Crafty.__mouseStateTemplate = {
      *
      * @example
      * ~~~
-     * ent.bind('EnterFrame', function() {
+     * ent.bind('UpdateFrame', function() {
      *   if (Crafty.s('Mouse').isButtonDown('LEFT'))
      *     this.y--;
      * });

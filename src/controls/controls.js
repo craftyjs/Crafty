@@ -15,15 +15,10 @@ Crafty.c("Draggable", {
     _oldY: null,
     _dir: null,
 
-    init: function () {
-        this.requires("MouseDrag");
-        this.bind("StartDrag", this._startDrag)
-            .bind("Dragging", this._drag);
-    },
-
-    remove: function() {
-        this.unbind("StartDrag", this._startDrag)
-            .unbind("Dragging", this._drag);
+    required: "MouseDrag",
+    events: {
+        "StartDrag": "_startDrag",
+        "Dragging": "_drag"
     },
 
     /**@

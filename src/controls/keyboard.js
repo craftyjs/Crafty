@@ -54,7 +54,7 @@ Crafty.__keyboardStateTemplate = {
      *
      * @example
      * ~~~
-     * ent.bind('EnterFrame', function() {
+     * ent.bind('UpdateFrame', function() {
      *   if (Crafty.s('Keyboard').isKeyDown('SPACE'))
      *     this.y--;
      * });

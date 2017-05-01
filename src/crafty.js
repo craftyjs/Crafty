@@ -31,8 +31,14 @@ require('./graphics/viewport');
 require('./isometric/diamond-iso');
 require('./isometric/isometric');
 
-require('./controls/inputs');
+// Needs to be required before any specific inputs are
+require('./inputs/util');
 require('./inputs/device');
+require('./inputs/keyboard');
+require('./inputs/lifecycle');
+require('./inputs/mouse');
+require('./inputs/pointer');
+require('./inputs/touch');
 
 require('./sound/sound');
 

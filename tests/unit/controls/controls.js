@@ -375,7 +375,7 @@
     _.strictEqual(e._vy, 0, "No change when key released after component removed");
     _.strictEqual(e._vx, 0, "No change when key released after component is removed");
 
-    Crafty.resetKeyDown(); 
+    Crafty.s('Keyboard').resetKeyDown();
 
     e.destroy();
   });
@@ -461,7 +461,7 @@
   // Use keysUp/Down helper functions defined in common.js
   test("Integrationtest - Twoway", function(_) {
     var done = false;
-    Crafty.resetKeyDown();
+    Crafty.s('Keyboard').resetKeyDown();
 
     var ground = Crafty.e("2D, platform")
           .attr({ x: 0, y: 200, w: 10, h: 20 });
