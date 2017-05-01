@@ -5,9 +5,9 @@ module.exports = function(requireNew) {
     }
 
     var Crafty = require('./core/core');
+    require('./core/extensions');
 
     Crafty.easing = require('./core/animation');
-    Crafty.extend(require('./core/extensions'));
     Crafty.c('Model', require('./core/model'));
     Crafty.extend(require('./core/scenes'));
     Crafty.storage = require('./core/storage');

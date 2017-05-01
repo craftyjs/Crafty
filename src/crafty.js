@@ -2,11 +2,12 @@
 var Crafty = require('./crafty-common.js')();
 
 // Define features only available in browser environment
+
 Crafty.extend(require('./core/loader'));
+Crafty.extend(require('./inputs/dom-events'));
 
 // Needs to be required before any specific layers are
 require('./graphics/layers');
-
 require('./graphics/canvas');
 require('./graphics/canvas-layer');
 require('./graphics/webgl');
