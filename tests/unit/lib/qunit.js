@@ -1,12 +1,12 @@
 /*!
- * QUnit 2.3.1
+ * QUnit 2.3.2
  * https://qunitjs.com/
  *
  * Copyright jQuery Foundation and other contributors
  * Released under the MIT license
  * https://jquery.org/license
  *
- * Date: 2017-04-10T19:56Z
+ * Date: 2017-04-18T02:19Z
  */
 (function (global$1) {
   'use strict';
@@ -634,7 +634,8 @@
   		name: "",
   		tests: [],
   		childModules: [],
-  		testsRun: 0
+  		testsRun: 0,
+  		unskippedTestsRun: 0
   	},
 
   	callbacks: {},
@@ -1347,7 +1348,8 @@
 
   	this.module.tests.push({
   		name: this.testName,
-  		testId: this.testId
+  		testId: this.testId,
+  		skip: !!settings.skip
   	});
 
   	if (settings.skip) {
@@ -1451,14 +1453,14 @@
   		    test = this;
   		return function runHook() {
   			if (hookName === "before") {
-  				if (hookOwner.testsRun !== 0) {
+  				if (hookOwner.unskippedTestsRun !== 0) {
   					return;
   				}
 
   				test.preserveEnvironment = true;
   			}
 
-  			if (hookName === "after" && hookOwner.testsRun !== numberOfTests(hookOwner) - 1 && config.queue.length > 2) {
+  			if (hookName === "after" && hookOwner.unskippedTestsRun !== numberOfUnskippedTests(hookOwner) - 1 && config.queue.length > 2) {
   				return;
   			}
 
@@ -1532,7 +1534,7 @@
   			}
   		}
 
-  		notifyTestsRan(module);
+  		notifyTestsRan(module, skipped);
 
   		// Store result when possible
   		if (storage) {
@@ -1992,24 +1994,40 @@
   	}
   }
 
-  function numberOfTests(module) {
-  	var count = module.tests.length;
+  function collectTests(module) {
+  	var tests = [].concat(module.tests);
   	var modules = [].concat(toConsumableArray(module.childModules));
 
   	// Do a breadth-first traversal of the child modules
   	while (modules.length) {
   		var nextModule = modules.shift();
-  		count += nextModule.tests.length;
+  		tests.push.apply(tests, nextModule.tests);
   		modules.push.apply(modules, toConsumableArray(nextModule.childModules));
   	}
 
-  	return count;
+  	return tests;
   }
 
-  function notifyTestsRan(module) {
+  function numberOfTests(module) {
+  	return collectTests(module).length;
+  }
+
+  function numberOfUnskippedTests(module) {
+  	return collectTests(module).filter(function (test) {
+  		return !test.skip;
+  	}).length;
+  }
+
+  function notifyTestsRan(module, skipped) {
   	module.testsRun++;
+  	if (!skipped) {
+  		module.unskippedTestsRun++;
+  	}
   	while (module = module.parentModule) {
   		module.testsRun++;
+  		if (!skipped) {
+  			module.unskippedTestsRun++;
+  		}
   	}
   }
 
@@ -2565,7 +2583,7 @@
   QUnit.isLocal = !(defined.document && window.location.protocol !== "file:");
 
   // Expose the current QUnit version
-  QUnit.version = "2.3.1";
+  QUnit.version = "2.3.2";
 
   function createModule(name, testEnvironment) {
   	var parentModule = moduleStack.length ? moduleStack.slice(-1)[0] : null;
@@ -2578,6 +2596,7 @@
   		tests: [],
   		moduleId: generateHash(moduleName),
   		testsRun: 0,
+  		unskippedTestsRun: 0,
   		childModules: [],
   		suiteReport: new SuiteReport(name, parentSuite)
   	};
@@ -3641,13 +3660,19 @@
 
   				message += "<tr class='test-actual'><th>Result: </th><td><pre>" + escapeText(actual) + "</pre></td></tr>";
 
-  				// Don't show diff if actual or expected are booleans
-  				if (!/^(true|false)$/.test(actual) && !/^(true|false)$/.test(expected)) {
+  				if (typeof details.actual === "number" && typeof details.expected === "number") {
+  					if (!isNaN(details.actual) && !isNaN(details.expected)) {
+  						showDiff = true;
+  						diff = details.actual - details.expected;
+  						diff = (diff > 0 ? "+" : "") + diff;
+  					}
+  				} else if (typeof details.actual !== "boolean" && typeof details.expected !== "boolean") {
   					diff = QUnit.diff(expected, actual);
+
+  					// don't show diff if there is zero overlap
   					showDiff = stripHtml(diff).length !== stripHtml(expected).length + stripHtml(actual).length;
   				}
 
-  				// Don't show diff if expected and actual are totally different
   				if (showDiff) {
   					message += "<tr class='test-diff'><th>Diff: </th><td><pre>" + diff + "</pre></td></tr>";
   				}
