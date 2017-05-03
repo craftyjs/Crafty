@@ -193,6 +193,43 @@
     s.destroy();
   });
 
+  test("Special property `properties`", function(_) {
+    var sys = {
+      properties: {
+        foo: {
+          set: function(value){
+            this._foo = value;
+          },
+          get: function(){
+            return this._foo;
+          },
+          configurable: true,
+          enumerable: true
+        },
+        _foo: {value: 0, writable: true, enumerable:false}
+      }
+    };
+    Crafty.s("PropertySystem", sys);
+
+    var s = Crafty.s("PropertySystem");
+
+    _.strictEqual(s._foo, 0, "Initial value works");
+
+    s.foo = 5;
+    _.strictEqual(s._foo, 5, "Setter works");
+
+    s._foo = 10;
+    _.strictEqual(s.foo, 10, "Getter works");
+
+    var propList = [];
+    for (var prop in s) {
+      propList.push(prop);
+    }
+
+    _.ok(propList.indexOf("foo") >= 0 , "Property foo is enumerable");
+    _.ok(propList.indexOf("_foo") === -1, "Property _foo is not enumerable");
+  });
+
   test("Special property `options` default values", function(_) {
     var sys =  {
         n: 0,
