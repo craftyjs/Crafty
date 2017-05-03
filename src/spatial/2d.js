@@ -28,6 +28,7 @@ var M = Math,
  * @trigger Invalidate - when the entity needs to be redrawn
  * @trigger Rotate - when the entity is rotated - { cos:Number, sin:Number, deg:Number, rad:Number, o: {x:Number, y:Number}}
  * @trigger Reorder - when the entity's z index has changed
+ * @trigger Resize - when the entity's dimensions have changed - { axis: 'w' | 'h', amount: Number }
  */
 Crafty.c("2D", {
     /**@
