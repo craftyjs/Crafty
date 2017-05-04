@@ -24,12 +24,16 @@ module.exports = function() {
             return false;
         }
     });
+    Crafty.s("Mouse", {});
     // dummy keydown+mousedown registry
     Crafty.keydown = {};
     Crafty.resetKeyDown = function() {
         Crafty.keydown = {};
     };
     Crafty.mouseButtonsDown = {};
+    Crafty.resetMouseDown = function() {
+        Crafty.mouseButtonsDown = {};
+    };
 
     return Crafty;
 };

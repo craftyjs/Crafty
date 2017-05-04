@@ -3,7 +3,247 @@
   var test = QUnit.test;
 
   module("Controls");
-  
+
+  test("KeyboardState", function(_) {
+    var keyUpsE = 0, keyDownsE = 0,
+        keyUpsF = 0, keyDownsF = 0;
+    var e = Crafty.e("KeyboardState")
+        .bind('KeyDown', function(evt) { keyDownsE++; })
+        .bind('KeyUp', function(evt) { keyUpsE++; });
+    var f = Crafty.e("KeyboardState")
+        .bind('KeyDown', function(evt) { keyDownsF++; })
+        .bind('KeyUp', function(evt) { keyUpsF++; });
+
+    // initial
+    _.strictEqual(e.isDown('UP_ARROW'), false, "1st signature");
+    _.strictEqual(e.isDown(Crafty.keys.DOWN_ARROW), false, "2nd signature");
+    _.strictEqual(keyDownsE, 0);
+    _.strictEqual(keyUpsE, 0);
+    _.strictEqual(f.isDown(Crafty.keys.UP_ARROW), false, "2nd signature");
+    _.strictEqual(f.isDown('DOWN_ARROW'), false, "1st signature");
+    _.strictEqual(keyDownsF, 0);
+    _.strictEqual(keyUpsF, 0);
+
+    // after e receives invalid KeyUp
+    e.triggerKey("KeyUp", { eventName: "KeyUp", key: Crafty.keys.UP_ARROW });
+    _.strictEqual(e.isDown(Crafty.keys.UP_ARROW), false, "2nd signature");
+    _.strictEqual(e.isDown('DOWN_ARROW'), false, "1st signature");
+    _.strictEqual(keyDownsE, 0);
+    _.strictEqual(keyUpsE, 0);
+    _.strictEqual(f.isDown('UP_ARROW'), false, "1st signature");
+    _.strictEqual(f.isDown(Crafty.keys.DOWN_ARROW), false, "2nd signature");
+    _.strictEqual(keyDownsF, 0);
+    _.strictEqual(keyUpsF, 0);
+
+    // after e receives valid KeyDown
+    e.triggerKey("KeyDown", { eventName: "KeyDown", key: Crafty.keys.UP_ARROW });
+    _.strictEqual(e.isDown(Crafty.keys.UP_ARROW), true);
+    _.strictEqual(e.isDown(Crafty.keys.DOWN_ARROW), false);
+    _.strictEqual(keyDownsE, 1);
+    _.strictEqual(keyUpsE, 0);
+    _.strictEqual(f.isDown(Crafty.keys.UP_ARROW), false);
+    _.strictEqual(f.isDown(Crafty.keys.DOWN_ARROW), false);
+    _.strictEqual(keyDownsF, 0);
+    _.strictEqual(keyUpsF, 0);
+
+    // after e receives invalid KeyDown
+    e.triggerKey("KeyDown", { eventName: "KeyDown", key: Crafty.keys.UP_ARROW });
+    _.strictEqual(e.isDown(Crafty.keys.UP_ARROW), true);
+    _.strictEqual(e.isDown(Crafty.keys.DOWN_ARROW), false);
+    _.strictEqual(keyDownsE, 1);
+    _.strictEqual(keyUpsE, 0);
+    _.strictEqual(f.isDown(Crafty.keys.UP_ARROW), false);
+    _.strictEqual(f.isDown(Crafty.keys.DOWN_ARROW), false);
+    _.strictEqual(keyDownsF, 0);
+    _.strictEqual(keyUpsF, 0);
+
+    // after f receives valid KeyDown, check if it messes with e
+    f.triggerKey("KeyDown", { eventName: "KeyDown", key: Crafty.keys.UP_ARROW });
+    _.strictEqual(e.isDown(Crafty.keys.UP_ARROW), true);
+    _.strictEqual(e.isDown(Crafty.keys.DOWN_ARROW), false);
+    _.strictEqual(keyDownsE, 1);
+    _.strictEqual(keyUpsE, 0);
+    _.strictEqual(f.isDown(Crafty.keys.UP_ARROW), true);
+    _.strictEqual(f.isDown(Crafty.keys.DOWN_ARROW), false);
+    _.strictEqual(keyDownsF, 1);
+    _.strictEqual(keyUpsF, 0);
+
+    // after e receives valid KeyDown for different key, check if it messes with both
+    e.triggerKey("KeyDown", { eventName: "KeyDown", key: Crafty.keys.DOWN_ARROW });
+    _.strictEqual(e.isDown(Crafty.keys.UP_ARROW), true);
+    _.strictEqual(e.isDown(Crafty.keys.DOWN_ARROW), true);
+    _.strictEqual(keyDownsE, 2);
+    _.strictEqual(keyUpsE, 0);
+    _.strictEqual(f.isDown(Crafty.keys.UP_ARROW), true);
+    _.strictEqual(f.isDown(Crafty.keys.DOWN_ARROW), false);
+    _.strictEqual(keyDownsF, 1);
+    _.strictEqual(keyUpsF, 0);
+
+    // after e receives valid KeyUp for different key, check if it messes with both
+    e.triggerKey("KeyUp", { eventName: "KeyUp", key: Crafty.keys.DOWN_ARROW });
+    _.strictEqual(e.isDown(Crafty.keys.UP_ARROW), true);
+    _.strictEqual(e.isDown(Crafty.keys.DOWN_ARROW), false);
+    _.strictEqual(keyDownsE, 2);
+    _.strictEqual(keyUpsE, 1);
+    _.strictEqual(f.isDown(Crafty.keys.UP_ARROW), true);
+    _.strictEqual(e.isDown(Crafty.keys.DOWN_ARROW), false);
+    _.strictEqual(keyDownsF, 1);
+    _.strictEqual(keyUpsF, 0);
+
+    // after f receives invalid KeyUp for different key, check if it messes with both
+    f.triggerKey("KeyUp", { eventName: "KeyUp", key: Crafty.keys.DOWN_ARROW });
+    _.strictEqual(e.isDown(Crafty.keys.UP_ARROW), true);
+    _.strictEqual(e.isDown(Crafty.keys.DOWN_ARROW), false);
+    _.strictEqual(keyDownsE, 2);
+    _.strictEqual(keyUpsE, 1);
+    _.strictEqual(f.isDown(Crafty.keys.UP_ARROW), true);
+    _.strictEqual(e.isDown(Crafty.keys.DOWN_ARROW), false);
+    _.strictEqual(keyDownsF, 1);
+    _.strictEqual(keyUpsF, 0);
+
+    // after f receives valid KeyUp, check if it messes with e
+    f.triggerKey("KeyUp", { eventName: "KeyUp", key: Crafty.keys.UP_ARROW });
+    _.strictEqual(e.isDown(Crafty.keys.UP_ARROW), true);
+    _.strictEqual(e.isDown(Crafty.keys.DOWN_ARROW), false);
+    _.strictEqual(keyDownsE, 2);
+    _.strictEqual(keyUpsE, 1);
+    _.strictEqual(f.isDown(Crafty.keys.UP_ARROW), false);
+    _.strictEqual(e.isDown(Crafty.keys.DOWN_ARROW), false);
+    _.strictEqual(keyDownsF, 1);
+    _.strictEqual(keyUpsF, 1);
+
+    // after e receives valid KeyUp, check final status
+    e.triggerKey("KeyUp", { eventName: "KeyUp", key: Crafty.keys.UP_ARROW });
+    _.strictEqual(e.isDown(Crafty.keys.UP_ARROW), false);
+    _.strictEqual(e.isDown(Crafty.keys.DOWN_ARROW), false);
+    _.strictEqual(keyDownsE, 2);
+    _.strictEqual(keyUpsE, 2);
+    _.strictEqual(f.isDown(Crafty.keys.UP_ARROW), false);
+    _.strictEqual(e.isDown(Crafty.keys.DOWN_ARROW), false);
+    _.strictEqual(keyDownsF, 1);
+    _.strictEqual(keyUpsF, 1);
+  });
+
+  test("MouseState", function(_) { // this is a copy of KeyboardState tests //
+    var buttonUpsE = 0, buttonDownsE = 0,
+        buttonUpsF = 0, buttonDownsF = 0;
+    var e = Crafty.e("MouseState")
+        .bind('MouseDown', function(evt) { buttonDownsE++; })
+        .bind('MouseUp', function(evt) { buttonUpsE++; });
+    var f = Crafty.e("MouseState")
+        .bind('MouseDown', function(evt) { buttonDownsF++; })
+        .bind('MouseUp', function(evt) { buttonUpsF++; });
+
+    // initial
+    _.strictEqual(e.isButtonDown('LEFT'), false, "1st signature");
+    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.RIGHT), false, "2nd signature");
+    _.strictEqual(buttonDownsE, 0);
+    _.strictEqual(buttonUpsE, 0);
+    _.strictEqual(f.isButtonDown(Crafty.mouseButtons.LEFT), false, "2nd signature");
+    _.strictEqual(f.isButtonDown('RIGHT'), false, "1st signature");
+    _.strictEqual(buttonDownsF, 0);
+    _.strictEqual(buttonUpsF, 0);
+
+    // after e receives invalid MouseUp
+    e.triggerMouseButton("MouseUp", { eventName: "MouseUp", mouseButton: Crafty.mouseButtons.LEFT });
+    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.LEFT), false, "2nd signature");
+    _.strictEqual(e.isButtonDown('RIGHT'), false, "1st signature");
+    _.strictEqual(buttonDownsE, 0);
+    _.strictEqual(buttonUpsE, 0);
+    _.strictEqual(f.isButtonDown('LEFT'), false, "1st signature");
+    _.strictEqual(f.isButtonDown(Crafty.mouseButtons.RIGHT), false, "2nd signature");
+    _.strictEqual(buttonDownsF, 0);
+    _.strictEqual(buttonUpsF, 0);
+
+    // after e receives valid MouseDown
+    e.triggerMouseButton("MouseDown", { eventName: "MouseDown", mouseButton: Crafty.mouseButtons.LEFT });
+    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.LEFT), true);
+    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.RIGHT), false);
+    _.strictEqual(buttonDownsE, 1);
+    _.strictEqual(buttonUpsE, 0);
+    _.strictEqual(f.isButtonDown(Crafty.mouseButtons.LEFT), false);
+    _.strictEqual(f.isButtonDown(Crafty.mouseButtons.RIGHT), false);
+    _.strictEqual(buttonDownsF, 0);
+    _.strictEqual(buttonUpsF, 0);
+
+    // after e receives invalid MouseDown
+    e.triggerMouseButton("MouseDown", { eventName: "MouseDown", mouseButton: Crafty.mouseButtons.LEFT });
+    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.LEFT), true);
+    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.RIGHT), false);
+    _.strictEqual(buttonDownsE, 1);
+    _.strictEqual(buttonUpsE, 0);
+    _.strictEqual(f.isButtonDown(Crafty.mouseButtons.LEFT), false);
+    _.strictEqual(f.isButtonDown(Crafty.mouseButtons.RIGHT), false);
+    _.strictEqual(buttonDownsF, 0);
+    _.strictEqual(buttonUpsF, 0);
+
+    // after f receives valid MouseDown, check if it messes with e
+    f.triggerMouseButton("MouseDown", { eventName: "MouseDown", mouseButton: Crafty.mouseButtons.LEFT });
+    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.LEFT), true);
+    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.RIGHT), false);
+    _.strictEqual(buttonDownsE, 1);
+    _.strictEqual(buttonUpsE, 0);
+    _.strictEqual(f.isButtonDown(Crafty.mouseButtons.LEFT), true);
+    _.strictEqual(f.isButtonDown(Crafty.mouseButtons.RIGHT), false);
+    _.strictEqual(buttonDownsF, 1);
+    _.strictEqual(buttonUpsF, 0);
+
+    // after e receives valid MouseDown for different mouseButton, check if it messes with both
+    e.triggerMouseButton("MouseDown", { eventName: "MouseDown", mouseButton: Crafty.mouseButtons.RIGHT });
+    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.LEFT), true);
+    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.RIGHT), true);
+    _.strictEqual(buttonDownsE, 2);
+    _.strictEqual(buttonUpsE, 0);
+    _.strictEqual(f.isButtonDown(Crafty.mouseButtons.LEFT), true);
+    _.strictEqual(f.isButtonDown(Crafty.mouseButtons.RIGHT), false);
+    _.strictEqual(buttonDownsF, 1);
+    _.strictEqual(buttonUpsF, 0);
+
+    // after e receives valid MouseUp for different mouseButton, check if it messes with both
+    e.triggerMouseButton("MouseUp", { eventName: "MouseUp", mouseButton: Crafty.mouseButtons.RIGHT });
+    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.LEFT), true);
+    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.RIGHT), false);
+    _.strictEqual(buttonDownsE, 2);
+    _.strictEqual(buttonUpsE, 1);
+    _.strictEqual(f.isButtonDown(Crafty.mouseButtons.LEFT), true);
+    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.RIGHT), false);
+    _.strictEqual(buttonDownsF, 1);
+    _.strictEqual(buttonUpsF, 0);
+
+    // after f receives invalid MouseUp for different mouseButton, check if it messes with both
+    f.triggerMouseButton("MouseUp", { eventName: "MouseUp", mouseButton: Crafty.mouseButtons.RIGHT });
+    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.LEFT), true);
+    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.RIGHT), false);
+    _.strictEqual(buttonDownsE, 2);
+    _.strictEqual(buttonUpsE, 1);
+    _.strictEqual(f.isButtonDown(Crafty.mouseButtons.LEFT), true);
+    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.RIGHT), false);
+    _.strictEqual(buttonDownsF, 1);
+    _.strictEqual(buttonUpsF, 0);
+
+    // after f receives valid MouseUp, check if it messes with e
+    f.triggerMouseButton("MouseUp", { eventName: "MouseUp", mouseButton: Crafty.mouseButtons.LEFT });
+    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.LEFT), true);
+    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.RIGHT), false);
+    _.strictEqual(buttonDownsE, 2);
+    _.strictEqual(buttonUpsE, 1);
+    _.strictEqual(f.isButtonDown(Crafty.mouseButtons.LEFT), false);
+    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.RIGHT), false);
+    _.strictEqual(buttonDownsF, 1);
+    _.strictEqual(buttonUpsF, 1);
+
+    // after e receives valid MouseUp, check final status
+    e.triggerMouseButton("MouseUp", { eventName: "MouseUp", mouseButton: Crafty.mouseButtons.LEFT });
+    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.LEFT), false);
+    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.RIGHT), false);
+    _.strictEqual(buttonDownsE, 2);
+    _.strictEqual(buttonUpsE, 2);
+    _.strictEqual(f.isButtonDown(Crafty.mouseButtons.LEFT), false);
+    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.RIGHT), false);
+    _.strictEqual(buttonDownsF, 1);
+    _.strictEqual(buttonUpsF, 1);
+  });
+
   test("Multiway and Fourway", function(_) {
     var e = Crafty.e("2D, Fourway")
                   .attr({ x: 0, y: 0});
@@ -64,7 +304,7 @@
     _.strictEqual(e._vy, 0, "No change when key released after component removed");
     _.strictEqual(e._vx, 0, "No change when key released after component is removed");
 
-    Crafty.resetKeyDown(); 
+    Crafty.resetKeyDown();
 
     e.destroy();
   });

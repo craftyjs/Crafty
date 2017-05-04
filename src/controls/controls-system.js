@@ -10,16 +10,12 @@ var Crafty = require('../core/core.js');
 
 // MouseButtonToggleInput
 function MouseButtonToggleInput(button) {
-    Crafty.mouseObjs++;
     this.button = button;
 }
 
 MouseButtonToggleInput.prototype = {
     isDown: function() {
         return Crafty.mouseButtonsDown[this.button];
-    },
-    destroy: function() {
-        Crafty.mouseObjs--;
     }
 };
 
@@ -89,6 +85,12 @@ Crafty.s("Controls", {
         // internal object to store definitions
         this._dpads = {};
         this._triggers = {};
+
+        // listen to mouse events
+        Crafty.s("Mouse").bind("MouseDown", this.updateTriggers.bind(this));
+        Crafty.s("Mouse").bind("MouseUp", this.updateTriggers.bind(this));
+        Crafty.s("Mouse").bind("DoubleClick", this.updateTriggers.bind(this));
+        Crafty.s("Mouse").bind("Click", this.updateTriggers.bind(this));
     },
 
     events: {
