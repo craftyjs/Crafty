@@ -13,44 +13,77 @@
 
   });
 
+  test("text string", function(_) {
+    var text = Crafty.e('DOM, Text');
+    _.strictEqual(text.text(), "", 'Expect text to be empty value');
+
+    text.text("123");
+    _.strictEqual(text._text, "123", 'Expect text to be set');
+    _.strictEqual(text.text(), "123", 'Expect text to be get');
+  });
+
   test("static textGenerator", function(_) {
     var text = Crafty.e('DOM, Text');
-    var textValue = "123";
-    text.testField = "123";
-    text.text(function(){return this.testField; });
+    var textValue1 = "123";
+    var textValue2 = "456";
 
-    _.strictEqual(text._text, textValue, 'Expect text to be set by generator function');
+    text.testField = textValue1;
+    text.text(function() { return this.testField; });
+    _.strictEqual(text._text, textValue1, 'Expect text to be set by generator function');
+
+    text.testField = textValue2;
+    _.strictEqual(text._text, textValue1, 'Expect text to not be changed');
   });
 
   test("dynamic textGenerator", function(_) {
     var text = Crafty.e('DOM, Text');
     var textValue1 = "123";
-    var textValue2 = "123";
+    var textValue2 = "456";
     text.testField = textValue1;
-    text.text(function(){return this.testField; });
-    text.dynamicTextGeneration(true);
+
+    // Test one-off function invocation
+    text.text(function(){ return this.testField; });
     _.strictEqual(text._text, textValue1, 'Expect text to be set by generator function');
-    test.testField = textValue2;
+    text.testField = textValue2;
     _.strictEqual(text._text, textValue1, 'Expect text to be initial value');
     Crafty.timer.simulateFrames(1);
+    _.strictEqual(text._text, textValue1, 'Expect text to be initial value');
 
+    // Test dynamic function invocation
+    text.dynamicTextGeneration(true);
+    _.strictEqual(text._text, textValue1, 'Expect text to be initial value');
+    Crafty.timer.simulateFrames(1);
     _.strictEqual(text._text, textValue2, 'Expect text to be updated by generator function');
   });
 
   test("dynamic textGenerator with custom event", function(_) {
     var text = Crafty.e('DOM, Text');
     var textValue1 = "123";
-    var textValue2 = "123";
+    var textValue2 = "456";
     text.testField = textValue1;
-    text.text(function(){return this.testField; });
-    text.dynamicTextGeneration(true, "MyEvent");
+
+    // Test one-off function invocation
+    text.text(function(data) {
+      if (data) return data;
+      return this.testField;
+    });
     _.strictEqual(text._text, textValue1, 'Expect text to be set by generator function');
-    test.testField = textValue2;
+    text.testField = textValue2;
+    _.strictEqual(text._text, textValue1, 'Expect text to be initial value');
+    Crafty.timer.simulateFrames(1);
+    _.strictEqual(text._text, textValue1, 'Expect text to be initial value');
+
+    // Test dynamic function invocation
+    text.dynamicTextGeneration(true, "MyEvent");
     _.strictEqual(text._text, textValue1, 'Expect text to be initial value');
     Crafty.timer.simulateFrames(1);
     _.strictEqual(text._text, textValue1, 'Expect text to be initial value');
     text.trigger("MyEvent");
     _.strictEqual(text._text, textValue2, 'Expect text to be updated by generator function');
+
+    // Test parameter passing
+    text.trigger("MyEvent", "789");
+    _.strictEqual(text._text, "789", 'Expect text to be updated by generator function');
   });
 
   test("_getFontHeight", function(_) {
