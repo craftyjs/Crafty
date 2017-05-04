@@ -1,17 +1,5 @@
-var Crafty = require('../core/core.js'),
-    HashMap = require('./spatial-grid.js');
+var Crafty = require('../core/core.js');
 
-
-
-/**@
- * #Crafty.map
- * @category 2D
- * @kind CoreObject
- * 
- * Functions related with querying entities.
- * @see Crafty.HashMap
- */
-Crafty.map = new HashMap();
 var M = Math,
     //Mc = M.cos,
     //Ms = M.sin,

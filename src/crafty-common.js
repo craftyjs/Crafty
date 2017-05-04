@@ -14,13 +14,16 @@ module.exports = function(requireNew) {
     Crafty.c('Delay', require('./core/time'));
     Crafty.c('Tween', require('./core/tween'));
 
+    var HashMap = require('./spatial/spatial-grid');
+    Crafty.HashMap = HashMap;
+    Crafty.map = new HashMap();
+
     require('./core/systems');
 
     require('./spatial/2d');
     require('./spatial/motion');
     require('./spatial/platform');
     require('./spatial/collision');
-    require('./spatial/spatial-grid');
     require('./spatial/rect-manager');
     require('./spatial/math');
 

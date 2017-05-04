@@ -4,49 +4,98 @@
  * @author Louis Stowasser
  */
 
+
+    /**@
+     * #Crafty.HashMap
+     * @category 2D
+     * @kind Class
+     *
+     * Broad-phase collision detection engine. See background information at
+     *
+     * - [N Tutorial B - Broad-Phase Collision](http://www.metanetsoftware.com/technique/tutorialB.html)
+     * - [Broad-Phase Collision Detection with CUDA](http://http.developer.nvidia.com/GPUGems3/gpugems3_ch32.html)
+     * @see Crafty.map
+     */
+    var cellsize, // TODO: make cellsize an instance property, so multiple maps with different cellsizes can be created
+        SPACE = " ",
+        keyHolder = {}; // temp object for reuse
+
     /**@
      * #Crafty.HashMap.constructor
      * @comp Crafty.HashMap
      * @kind Class
-     * 
+     *
      * @sign public void Crafty.HashMap([cellsize])
      * @param cellsize - the cell size. If omitted, `cellsize` is 64.
      *
      * Set `cellsize`.
      * And create `this.map`.
      */
-    var cellsize,
+    var HashMap = function (cell) {
+        cellsize = cell || 64;
+        this.map = {};
 
-        HashMap = function (cell) {
-            cellsize = cell || 64;
-            this.map = {};
+        this.boundsDirty = false;
+        this.boundsHash = {
+            max: {
+                x: -Infinity,
+                y: -Infinity
+            },
+            min: {
+                x: Infinity,
+                y: Infinity
+            }
+        };
+        this.boundsCoords = {
+            max: {
+                x: -Infinity,
+                y: -Infinity
+            },
+            min: {
+                x: Infinity,
+                y: Infinity
+            }
+        };
+    };
 
-            this.boundsDirty = false;
-            this.boundsHash = {
-                max: {
-                    x: -Infinity,
-                    y: -Infinity
-                },
-                min: {
-                    x: Infinity,
-                    y: Infinity
-                }
-            };
-            this.boundsCoords = {
-                max: {
-                    x: -Infinity,
-                    y: -Infinity
-                },
-                min: {
-                    x: Infinity,
-                    y: Infinity
-                }
-            };
-        },
+    /**@
+     * #Crafty.HashMap.key
+     * @comp Crafty.HashMap
+     * @kind Method
+     *
+     * @sign public Object Crafty.HashMap.key(Object obj[, Object keys])
+     * @param obj - an Object that has .cbr(), .mbr() or _x, _y, _w and _h.
+     * @param [keys] - optional object to reuse for the saving result in
+     * @returns an object describing the region in grid cells the given object is located in - { x1: start col index, y1: start row index, x2: end col index, y2: end row index}
+     *
+     * Get the rectangular region (in terms of the grid, with grid size `cellsize`), where the object may fall in. This region is determined by the object's bounding box.
+     * The `cellsize` is 64 by default.
+     *
+     * @see Crafty.HashMap.constructor
+     */
+    HashMap.key = function (obj, keys) {
+        obj = obj._cbr || obj._mbr || obj;
+        keys = keys || {};
 
-        SPACE = " ",
-        keyHolder = {};
+        keys.x1 = Math.floor(obj._x / cellsize);
+        keys.y1 = Math.floor(obj._y / cellsize);
+        keys.x2 = Math.floor((obj._w + obj._x) / cellsize);
+        keys.y2 = Math.floor((obj._h + obj._y) / cellsize);
+        return keys;
+    };
 
+    HashMap.hash = function (keys) {
+        return keys.x1 + SPACE + keys.y1 + SPACE + keys.x2 + SPACE + keys.y2;
+    };
+
+    /**@
+     * #Crafty.map
+     * @category 2D
+     * @kind CoreObject
+     *
+     * Functions related with querying entities.
+     * @see Crafty.HashMap
+     */
     HashMap.prototype = {
         /**@
          * #Crafty.map.insert
@@ -570,46 +619,6 @@
             }
         }
 
-    };
-
-    /**@
-     * #Crafty.HashMap
-     * @category 2D
-     * @kind Class
-     * 
-     * Broad-phase collision detection engine. See background information at
-     *
-     * - [N Tutorial B - Broad-Phase Collision](http://www.metanetsoftware.com/technique/tutorialB.html)
-     * - [Broad-Phase Collision Detection with CUDA](http://http.developer.nvidia.com/GPUGems3/gpugems3_ch32.html)
-     * @see Crafty.map
-     */
-
-    /**@
-     * #Crafty.HashMap.key
-     * @comp Crafty.HashMap
-     * @kind Method
-     * 
-     * @sign public Object Crafty.HashMap.key(Object obj)
-     * @param obj - an Object that has .mbr() or _x, _y, _w and _h.
-     *
-     * Get the rectangular region (in terms of the grid, with grid size `cellsize`), where the object may fall in. This region is determined by the object's bounding box.
-     * The `cellsize` is 64 by default.
-     *
-     * @see Crafty.HashMap.constructor
-     */
-    HashMap.key = function (obj, keys) {
-        obj = obj._cbr || obj._mbr || obj;
-        keys = keys || {};
-
-        keys.x1 = Math.floor(obj._x / cellsize);
-        keys.y1 = Math.floor(obj._y / cellsize);
-        keys.x2 = Math.floor((obj._w + obj._x) / cellsize);
-        keys.y2 = Math.floor((obj._h + obj._y) / cellsize);
-        return keys;
-    };
-
-    HashMap.hash = function (keys) {
-        return keys.x1 + SPACE + keys.y1 + SPACE + keys.x2 + SPACE + keys.y2;
     };
 
     function Entry(keys, obj, map) {

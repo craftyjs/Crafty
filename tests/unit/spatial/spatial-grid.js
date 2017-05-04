@@ -32,18 +32,22 @@
   // UTILITY FUNCTIONS
   //////////////////////
 
-  function insertEntry (cellX, cellY, cellWidth, cellHeight) {
+  function createObj (cellX, cellY, cellWidth, cellHeight) {
     cellX = cellX || 0;
     cellY = cellY || 0;
     cellWidth = cellWidth || 1;
     cellHeight = cellHeight || 1;
 
-    return Crafty.map.insert({
+    return {
       _x: cellX * cellsize + 1,
       _y: cellY * cellsize + 1,
       _w: cellWidth * cellsize - 2,
       _h: cellHeight * cellsize - 2,
-    });
+    };
+  }
+
+  function insertEntry (cellX, cellY, cellWidth, cellHeight) {
+    return Crafty.map.insert(createObj(cellX, cellY, cellWidth, cellHeight));
   }
 
   function refreshEntry(entry, cellX, cellY, cellWidth, cellHeight) {
@@ -101,6 +105,41 @@
   //////////////////////
 
   module("Spatial map");
+
+  test("HashMap - constructor", function(_) {
+    // TODO test constructor with different cellsize
+    var newMap = new Crafty.HashMap();
+    _.notDeepEqual(newMap, Crafty.map, "Properties are different");
+
+    newMap.__SOME_PROPERTY__ = '__SOME_PROPERTY__';
+    _.strictEqual(newMap.__SOME_PROPERTY__, '__SOME_PROPERTY__', "Property set on one instance");
+    _.notEqual(Crafty.map.__SOME_PROPERTY__, '__SOME_PROPERTY__', "Property not set on other instance");
+  });
+
+  test("HashMap - key", function(_) {
+    var keys = {};
+
+    // returns correct hash keys of obj
+    var obj = createObj(0, 0, 1, 1);
+    keys = Crafty.HashMap.key(obj);
+    checkHashKeys({keys: keys}, 0, 0, 1, 1);
+
+    // returns correct hash keys for prioritized obj._mbr
+    obj._mbr = createObj(1, 1, 2, 2);
+    keys = Crafty.HashMap.key(obj);
+    checkHashKeys({keys: keys}, 1, 1, 2, 2);
+
+    // returns correct hash keys for prioritized obj._cbr
+    obj._cbr = createObj(2, 2, 3, 3);
+    keys = Crafty.HashMap.key(obj);
+    checkHashKeys({keys: keys}, 2, 2, 3, 3);
+
+    // reuses keys parameter
+    var keys2 = Crafty.HashMap.key(createObj(-10, 3, 5, 7), keys);
+    checkHashKeys({keys: keys2}, -10, 3, 5, 7);
+    _.strictEqual(keys2, keys, "same object");
+    _.deepEqual(keys2, keys, "same properties");
+  });
 
   test("Spatial map - entry properly added, removed & shifted", function(_) {
     var found;
