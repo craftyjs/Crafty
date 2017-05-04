@@ -344,7 +344,7 @@
 
     _.ok(frameNumber, '.frame function should return a value.');
 
-    Crafty.unbind(frameFunction);
+    Crafty.unbind('EnterFrame', frameFunction);
   });
 
   // TODO: add test for Crafty.stop() once problematic side effects are fixed!

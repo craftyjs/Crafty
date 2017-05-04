@@ -137,14 +137,18 @@
 
   test("simulateFrames", function(_) {
     var framesPlayed = 0;
-    Crafty.bind("EnterFrame", function() {
+    var framesFunc = function() {
       framesPlayed++;
-    });
+    };
+    Crafty.bind("EnterFrame", framesFunc);
+
     Crafty.timer.simulateFrames(1);
     _.strictEqual(framesPlayed, 1, "A frame should have been simulated");
 
     Crafty.timer.simulateFrames(100);
     _.strictEqual(framesPlayed, 101, "101 frames should have been simulated");
+
+    Crafty.unbind("EnterFrame", framesFunc);
   });
 
   test("curTime", function(_) {
