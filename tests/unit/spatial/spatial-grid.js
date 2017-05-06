@@ -116,6 +116,32 @@
     _.notEqual(Crafty.map.__SOME_PROPERTY__, '__SOME_PROPERTY__', "Property not set on other instance");
   });
 
+  test("HashMap - cell size", function(_) {
+    var keys, csize = Crafty.HashMap.cellsize();
+
+    _.strictEqual(csize, cellsize, "Check if we work with correct assumptions");
+
+    // returns correct hash keys of obj spanning entire single cell
+    keys = Crafty.HashMap.key({
+      _x: 0 * csize, _w: csize - 1,
+      _y: 0 * csize, _h: csize - 1
+    });
+    _.strictEqual(keys.x1, 0, "cell key should start at correct cell col");
+    _.strictEqual(keys.y1, 0, "cell key should start at correct cell row");
+    _.strictEqual(keys.x2, keys.x1, "cell keys should match 1 cell width");
+    _.strictEqual(keys.y2, keys.y1, "cell keys should match 1 cell height");
+
+    // returns correct hash keys of obj spanning multiple cells and overlaps a bit into adjacent cells
+    keys = Crafty.HashMap.key({
+      _x: -1 * csize, _w: 2 * csize, // spans 3 cell cols
+      _y: +3 * csize, _h: 4 * csize // spans 4 cell rows
+    });
+    _.strictEqual(keys.x1, -1, "cell key should start at correct cell col");
+    _.strictEqual(keys.y1, +3, "cell key should start at correct cell row");
+    _.strictEqual(keys.x2, -1 + 2, "cell keys should match barely 3 cell widths");
+    _.strictEqual(keys.y2, +3 + 4, "cell keys should match barely 4 cell heights");
+  });
+
   test("HashMap - key", function(_) {
     var keys = {};
 

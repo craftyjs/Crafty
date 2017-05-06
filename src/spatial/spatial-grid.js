@@ -88,6 +88,11 @@ HashMap.hash = function (keys) {
     return keys.x1 + SPACE + keys.y1 + SPACE + keys.x2 + SPACE + keys.y2;
 };
 
+// TODO make this an instance property getter
+HashMap.cellsize = function() {
+    return cellsize;
+};
+
 /**@
  * #Crafty.map
  * @category 2D
