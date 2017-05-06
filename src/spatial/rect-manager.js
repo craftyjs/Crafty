@@ -55,15 +55,13 @@ Crafty.extend({
        * Calculate the smallest rectangle with integer coordinates that encloses the specified rectangle,
        * modifying the passed object to have those bounds.
        */
-      integerBounds: function(rect){
-        rect._w = rect._x + rect._w;
-        rect._h = rect._y + rect._h;
-        rect._x = (rect._x > 0) ? (rect._x|0) : (rect._x|0) - 1;
-        rect._y = (rect._y > 0) ? (rect._y|0) : (rect._y|0) - 1;
-        rect._w -= rect._x;
-        rect._h -= rect._y;
-        rect._w = (rect._w === (rect._w|0)) ? rect._w : (rect._w|0) + 1;
-        rect._h = (rect._h === (rect._h|0)) ? rect._h : (rect._h|0) + 1;
+      integerBounds: function(rect) {
+        // Truncate to next, lower integer, but don't modify if already integer
+        rect._x = Math.floor(rect._x);
+        rect._y = Math.floor(rect._y);
+        // Ceil to next, higher integer, but don't modify if already integer
+        rect._w = Math.ceil(rect._w);
+        rect._h = Math.ceil(rect._h);
         return rect;
       },
 
