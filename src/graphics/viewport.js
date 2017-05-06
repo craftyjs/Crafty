@@ -527,7 +527,7 @@ Crafty.extend({
             // clamps the viewport to the viewable area
             // under no circumstances should the viewport see something outside the boundary of the 'world'
             if (!this.clampToEntities) return;
-            var bound = Crafty.clone(this.bounds) || Crafty.clone(Crafty.map.boundaries());
+            var bound = Crafty.clone(this.bounds) || Crafty.map.boundaries();
             bound.max.x *= this._scale;
             bound.min.x *= this._scale;
             bound.max.y *= this._scale;

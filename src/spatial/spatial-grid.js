@@ -37,24 +37,16 @@ var HashMap = function (cell) {
 
     this.boundsDirty = false;
     this.boundsHash = {
-        max: {
-            x: -Infinity,
-            y: -Infinity
-        },
-        min: {
-            x: Infinity,
-            y: Infinity
-        }
+        maxX: -Infinity,
+        maxY: -Infinity,
+        minX: Infinity,
+        minY: Infinity
     };
     this.boundsCoords = {
-        max: {
-            x: -Infinity,
-            y: -Infinity
-        },
-        min: {
-            x: Infinity,
-            y: Infinity
-        }
+        maxX: -Infinity,
+        maxY: -Infinity,
+        minX: Infinity,
+        minY: Infinity
     };
 };
 
@@ -319,8 +311,7 @@ HashMap.prototype = {
      * @sign public Object Crafty.map.boundaries()
      * @returns An object with the following structure, which represents an MBR which contains all entities
      *
-     * Note that the returned object is a reference to the internally used object.
-     * Use `Crafty.clone` to get a copy instead.
+     * Return a copy of the minimum bounding rectangle encompassing all entities.
      *
      * ~~~
      * {
@@ -336,8 +327,20 @@ HashMap.prototype = {
      * ~~~
      */
     boundaries: function() {
+        // TODO: flatten output, likewise do it for Crafty.viewport.bounds
+        // TODO: accept optional parameter to save result in
         this._updateBoundaries();
-        return this.boundsCoords;
+        var bounds = this.boundsCoords;
+        return {
+            min: {
+                x: bounds.minX,
+                y: bounds.minY
+            },
+            max: {
+                x: bounds.maxX,
+                y: bounds.maxY
+            }
+        };
     },
 
     /**
@@ -352,14 +355,10 @@ HashMap.prototype = {
      *
      * ~~~
      * {
-     *   min: {
-     *     x: val_x,
-     *     y: val_y
-     *   },
-     *   max: {
-     *     x: val_x,
-     *     y: val_y
-     *   }
+     *   minX: val_x,
+     *   minY: val_y,
+     *   maxX: val_x,
+     *   maxY: val_y
      * }
      * ~~~
      */
@@ -373,62 +372,65 @@ HashMap.prototype = {
         if (!this.boundsDirty) return;
 
         var hash = this.boundsHash;
-        hash.max.x = -Infinity;
-        hash.max.y = -Infinity;
-        hash.min.x = Infinity;
-        hash.min.y = Infinity;
+        hash.maxX = -Infinity;
+        hash.maxY = -Infinity;
+        hash.minX = Infinity;
+        hash.minY = Infinity;
 
         var coords = this.boundsCoords;
-        coords.max.x = -Infinity;
-        coords.max.y = -Infinity;
-        coords.min.x = Infinity;
-        coords.min.y = Infinity;
+        coords.maxX = -Infinity;
+        coords.maxY = -Infinity;
+        coords.minX = Infinity;
+        coords.minY = Infinity;
 
-        var k, ent;
+        var k, ent, cell;
         //Using broad phase hash to speed up the computation of boundaries.
         for (var h in this.map) {
-            if (!this.map[h].length) continue;
+            cell = this.map[h];
+            if (!cell.length) continue;
 
             //broad phase coordinate
             var i = h >> 16,
                 j = (h << 16) >> 16;
             if (j < 0) {
-                i = i ^ -1;
+                i = ~i; // i ^ -1
             }
-            if (i >= hash.max.x) {
-                hash.max.x = i;
-                for (k in this.map[h]) {
-                    ent = this.map[h][k];
+
+            if (i >= hash.maxX) {
+                hash.maxX = i;
+                for (k in cell) {
+                    ent = cell[k];
+                    //TODO: remove these checks introduced by 25e7c88f61f64525adc32f7fd776099413cb1567?
                     //make sure that this is a Crafty entity
                     if (typeof ent === 'object' && 'requires' in ent) {
-                        coords.max.x = Math.max(coords.max.x, ent.x + ent.w);
+                        coords.maxX = Math.max(coords.maxX, ent.x + ent.w);
                     }
                 }
             }
-            if (i <= hash.min.x) {
-                hash.min.x = i;
-                for (k in this.map[h]) {
-                    ent = this.map[h][k];
+            if (i <= hash.minX) {
+                hash.minX = i;
+                for (k in cell) {
+                    ent = cell[k];
                     if (typeof ent === 'object' && 'requires' in ent) {
-                        coords.min.x = Math.min(coords.min.x, ent.x);
+                        coords.minX = Math.min(coords.minX, ent.x);
                     }
                 }
             }
-            if (j >= hash.max.y) {
-                hash.max.y = j;
-                for (k in this.map[h]) {
-                    ent = this.map[h][k];
+            if (j >= hash.maxY) {
+                hash.maxY = j;
+                for (k in cell) {
+                    ent = cell[k];
                     if (typeof ent === 'object' && 'requires' in ent) {
-                        coords.max.y = Math.max(coords.max.y, ent.y + ent.h);
+                        coords.maxY = Math.max(coords.maxY, ent.y + ent.h);
                     }
                 }
             }
-            if (j <= hash.min.y) {
-                hash.min.y = j;
-                for (k in this.map[h]) {
-                    ent = this.map[h][k];
+            if (j <= hash.minY) {
+                hash.minY = j;
+                for (k in cell) {
+                    ent = cell[k];
                     if (typeof ent === 'object' && 'requires' in ent) {
-                        coords.min.y = Math.min(coords.min.y, ent.y);
+                        coords.minY = Math.min(coords.minY, ent.y);
                     }
                 }
             }
@@ -540,10 +542,10 @@ HashMap.prototype = {
         // calculate col & row cell indices
         var currentCol = keys.x1,
             currentRow = keys.y1;
-        var minCol = keyBounds.min.x,
-            minRow = keyBounds.min.y,
-            maxCol = keyBounds.max.x,
-            maxRow = keyBounds.max.y;
+        var minCol = keyBounds.minX,
+            minRow = keyBounds.minY,
+            maxCol = keyBounds.maxX,
+            maxRow = keyBounds.maxY;
         // direction to traverse cells
         var stepCol = dirX > 0 ? 1 : (dirX < 0 ? -1 : 0),
             stepRow = dirY > 0 ? 1 : (dirY < 0 ? -1 : 0);
