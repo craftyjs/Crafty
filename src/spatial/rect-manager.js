@@ -83,19 +83,14 @@ Crafty.extend({
       * and so might be consecutive.
       */
       mergeSet: function (set) {
-          var i = 0;
-          while (i < set.length - 1) {
+          if (set.length < 2) return set;
+
+          var i = set.length - 1;
+          while (i--) {
               // If current and next overlap, merge them together into the first, removing the second
-              // Then skip the index backwards to compare the previous pair.
-              // Otherwise skip forward
               if (this.overlap(set[i], set[i + 1])) {
                   this.merge(set[i], set[i + 1], set[i]);
                   set.splice(i + 1, 1);
-                  if (i > 0) {
-                    i--;
-                  }
-              } else {
-                  i++;
               }
           }
 
