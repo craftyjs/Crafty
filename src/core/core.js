@@ -2066,6 +2066,10 @@ Crafty.extend({
         return frame;
     },
 
+    entities: function () {
+        return entities;
+    },
+
     components: function () {
         return components;
     },
