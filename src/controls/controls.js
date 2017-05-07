@@ -305,7 +305,7 @@ Crafty.c("Multiway", {
     },
 
     events: {
-        "EnterFrame": function() {
+        "UpdateFrame": function() {
             if (!this.disableControls) {
                 if (typeof this._speed.x !== 'undefined' && this._speed.x !== null){
                     this.vx = this._speed.x * this._direction.x;

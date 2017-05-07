@@ -168,7 +168,7 @@
       if (landCount === 1) {
         this.bind("LiftedOffGround", function() {
           liftCount++;
-          this.bind("EnterFrame", function() {
+          this.bind("UpdateFrame", function() {
             keysDown(Crafty.keys.UP_ARROW);
             if (this.velocity().y < -this._jumpSpeed)
               _.ok(false, "Twoway should not modify velocity");

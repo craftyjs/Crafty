@@ -107,7 +107,7 @@ Crafty.c("Particles", {
             y: Crafty.viewport.y
         };
 
-        this.bind('EnterFrame', function () {
+        this.bind('UpdateFrame', function () {
             if (this._particlesPaused) return;
             relativeX = this.x + Crafty.viewport.x;
             relativeY = this.y + Crafty.viewport.y;

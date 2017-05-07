@@ -339,12 +339,12 @@
     var frameFunction = function() {
       frameNumber = Crafty.frame();
     };
-    Crafty.bind('EnterFrame', frameFunction);
+    Crafty.bind('UpdateFrame', frameFunction);
     Crafty.timer.simulateFrames(1);
 
     _.ok(frameNumber, '.frame function should return a value.');
 
-    Crafty.unbind('EnterFrame', frameFunction);
+    Crafty.unbind('UpdateFrame', frameFunction);
   });
 
   // TODO: add test for Crafty.stop() once problematic side effects are fixed!
@@ -357,34 +357,41 @@
 
     var enterFrameFunc = function() {
       counter++;
-      _.ok(counter === 1 || counter === 3 || counter === 5, "different counter value expected");
+      _.ok(counter === 1 || counter === 4 || counter === 7, "different counter value expected");
+    };
+    var updateFrameFunc = function() {
+      counter++;
+      _.ok(counter === 2 || counter === 5 || counter === 8, "different counter value expected");
     };
     var exitFrameFunc = function() {
       counter++;
-      _.ok(counter === 2 || counter === 4 || counter === 6, "different counter value expected");
+      _.ok(counter === 3 || counter === 6 || counter === 9, "different counter value expected");
     };
     var preRenderFunc = function() {
       counter++;
-      _.ok(counter === 7, "different counter value expected");
+      _.ok(counter === 10, "different counter value expected");
     };
     var renderSceneFunc = function() {
       counter++;
-      _.ok(counter === 8, "different counter value expected");
+      _.ok(counter === 11, "different counter value expected");
     };
     var postRenderFunc = function() {
       counter++;
-      _.ok(counter === 9, "different counter value expected");
+      _.ok(counter === 12, "different counter value expected");
     };
 
     Crafty.bind("EnterFrame", enterFrameFunc);
+    Crafty.bind("UpdateFrame", updateFrameFunc);
     Crafty.bind("ExitFrame", exitFrameFunc);
     Crafty.bind("PreRender", preRenderFunc);
     Crafty.bind("RenderScene", renderSceneFunc);
     Crafty.bind("PostRender", postRenderFunc);
 
-    Crafty.timer.simulateFrames(3); // 3*2 frame events + 1*3 render events
+    Crafty.timer.simulateFrames(3); // 3*3 frame events + 1*3 render events
+    _.strictEqual(counter, 12, "12 events should have been fired");
 
     Crafty.unbind("EnterFrame", enterFrameFunc);
+    Crafty.unbind("UpdateFrame", updateFrameFunc);
     Crafty.unbind("ExitFrame", exitFrameFunc);
     Crafty.unbind("PreRender", preRenderFunc);
     Crafty.unbind("RenderScene", renderSceneFunc);
@@ -437,7 +444,7 @@
       _.strictEqual(fps, 25);
       _.strictEqual(Crafty.timer.FPS(), 25);
     });
-    Crafty.one("EnterFrame", function(frameData) {
+    Crafty.one("UpdateFrame", function(frameData) {
       _.strictEqual(frameData.dt, 1000/25);
     });
     Crafty.timer.FPS(25);
@@ -447,7 +454,7 @@
       _.strictEqual(fps, 50);
       _.strictEqual(Crafty.timer.FPS(), 50);
     });
-    Crafty.one("EnterFrame", function(frameData) {
+    Crafty.one("UpdateFrame", function(frameData) {
       _.strictEqual(frameData.dt, 1000/50);
     });
     Crafty.timer.FPS(50);

@@ -80,7 +80,7 @@
         .textColor("white")
         .textFont({size: '20px', family:'Arial'})
         .attr({x: 10, y: 130, w: 200})
-        .bind("EnterFrame", function(){
+        .bind("UpdateFrame", function(){
             this.text("Distance: " + Math.floor(Math.abs(Crafty.viewport.x)));
         });
 
