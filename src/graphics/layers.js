@@ -19,15 +19,88 @@ Crafty.extend({
     _registerLayerTemplate: function (type, layerTemplate) {
         this._drawLayerTemplates[type] = layerTemplate;
         var common = this._commonLayerProperties;
+
+        // merge inits
+        if (typeof layerTemplate.init === 'function') {
+            var layerInit = layerTemplate.init;
+            var commonInit = common.init;
+            layerTemplate.init = function() {
+                layerInit.call(this);
+                commonInit.call(this);
+            };
+        }
+        // merge removes
+        if (typeof layerTemplate.remove === 'function') {
+            var layerRemove = layerTemplate.remove;
+            var commonRemove = common.remove;
+            layerTemplate.remove = function() {
+                layerRemove.call(this);
+                commonRemove.call(this);
+            };
+        }
+        // add common properties, don't overwrite existing ones
         for (var key in common) {
             if (layerTemplate[key]) continue;
             layerTemplate[key] = common[key];
         }
+
         // A marker to avoid creating temporary objects
         layerTemplate._viewportRectHolder = {};
     },
 
     _commonLayerProperties: {
+        // Layer options
+        options: {
+            xResponse: 1,
+            yResponse: 1,
+            scaleResponse: 1,
+            z: 0
+        },
+
+        // Track dirty viewport state - render code should uncheck flag once finished handling it
+        _dirtyViewport: false,
+
+        // This init code will be run after any other specific layer init code
+        init: function() {
+            // Handle viewport modifications
+            this.uniqueBind("ViewportResize", this._resize);
+            this.uniqueBind("InvalidateViewport", function () {
+                this._dirtyViewport = true;
+            });
+
+            // Bind scene rendering (see drawing.js)
+            this.uniqueBind("RenderScene", this._render);
+
+            // Set pixelart to current status, and listen for changes
+            this._setPixelart(Crafty._pixelartEnabled);
+            this.uniqueBind("PixelartSet", this._setPixelart);
+
+            Crafty._addDrawLayerInstance(this);
+        },
+        // This remove code will be run after any other specific layer remove code
+        remove: function() {
+            Crafty._removeDrawLayerInstance(this);
+        },
+
+        _resize: function() {
+            // per default, do nothing
+            // specific layer should overwrite this method
+        },
+        _setPixelart: function(enabled) {
+            // per default, do nothing
+            // specific layer should overwrite this method
+        },
+        _render: function() {
+            // per default, render nothing
+            // specific layer should overwrite this method
+        },
+
+        // Sort function for rendering in the correct order
+        // Sort by globalZ
+        _sort: function(a, b) {
+            return a._globalZ - b._globalZ;
+        },
+
         // Based on the camera options, find the Crafty coordinates corresponding to the layer's position in the viewport
         _viewportRect: function () {
             var options = this.options;

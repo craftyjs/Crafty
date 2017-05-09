@@ -13,22 +13,10 @@ var Crafty = require('../core/core.js');
 Crafty._registerLayerTemplate("Canvas", {
     type: "Canvas",
     
-    options: {
-        xResponse: 1,
-        yResponse: 1,
-        scaleResponse: 1,
-        z: 0
-    },
-    
     _dirtyRects: [],
     _changedObjs: [],
     layerCount: 0,
-    _dirtyViewport: false,
 
-    // Sort function for rendering in the correct order
-    _sort: function(a, b) {
-        return a._globalZ - b._globalZ;
-    },
 
     /**@
      * #.dirty
@@ -132,28 +120,11 @@ Crafty._registerLayerTemplate("Canvas", {
         var zoom = Crafty.viewport._scale;
         if (zoom !== 1)
             this.context.scale(zoom, zoom);
-
-        // Set pixelart to current status, and listen for changes
-        this._setPixelart(Crafty._pixelartEnabled);
-        this.uniqueBind("PixelartSet", this._setPixelart);
-
-        //Bind rendering of canvas context (see drawing.js)
-        this.uniqueBind("RenderScene", this._render);
-        
-        this.uniqueBind("ViewportResize", this._resize);
-
-        this.bind("InvalidateViewport", function () {
-            this._dirtyViewport = true;
-        });
-        
-        Crafty._addDrawLayerInstance(this);
     },
 
     // When the system is destroyed, remove related resources
     remove: function() {
-
         this._canvas.parentNode.removeChild(this._canvas);
-        Crafty._removeDrawLayerInstance(this);
     },
 
     _render: function() {

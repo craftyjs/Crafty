@@ -182,13 +182,7 @@ RenderProgramWrapper.prototype = {
  */
 Crafty._registerLayerTemplate("WebGL", {
     type: "WebGL",
-    // Layer options
-    options: {
-        xResponse: 1,
-        yResponse: 1,
-        scaleResponse: 1,
-        z: 0
-    },
+
     /**@
      * #.context
      * @comp WebGLLayer
@@ -197,7 +191,6 @@ Crafty._registerLayerTemplate("WebGL", {
      * This will return the context of the webgl canvas element.
      */
     context: null,
-    changed_objects: [],
 
     // Create a vertex or fragment shader, given the source and type
     _compileShader: function(src, type) {
@@ -273,7 +266,6 @@ Crafty._registerLayerTemplate("WebGL", {
         }
 
         // Avoid shared state between systems
-        this.changed_objects = [];
         this.programs = {};
 
         //create an empty canvas element
@@ -313,22 +305,14 @@ Crafty._registerLayerTemplate("WebGL", {
         gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
         gl.enable(gl.BLEND);
 
-        //Bind rendering of canvas context (see drawing.js)
-        this.uniqueBind("RenderScene", this.render);
-        this.uniqueBind("ViewportResize", this._resize);
-        this.uniqueBind("InvalidateViewport", function() { this.dirtyViewport = true; });
-        this.uniqueBind("PixelartSet", this._setPixelart);
-        this._setPixelart(Crafty._pixelartEnabled);
-        this.dirtyViewport = true;
-
         this.texture_manager = new Crafty.TextureManager(gl, this);
-        Crafty._addDrawLayerInstance(this);
+
+        this._dirtyViewport = true;
     },
 
     // Cleanup the DOM when the system is destroyed
     remove: function() {
         this._canvas.parentNode.removeChild(this._canvas);
-        Crafty._removeDrawLayerInstance(this);
     },
 
     // Called when the viewport resizes
@@ -352,16 +336,11 @@ Crafty._registerLayerTemplate("WebGL", {
         }
     },
 
-    // convenicne to sort array by global Z
-    zsort: function(a, b) {
-        return a._globalZ - b._globalZ;
-    },
-
     // Hold an array ref to avoid garbage
     visible_gl: [],
 
     // Render any entities associated with this context; called in response to a draw event
-    render: function(rect) {
+    _render: function(rect) {
         rect = rect || this._viewportRect();
         var gl = this.context;
 
@@ -371,12 +350,12 @@ Crafty._registerLayerTemplate("WebGL", {
 
         //Set the viewport uniform variables used by each registered program
         var programs = this.programs;
-        if (this.dirtyViewport) {
+        if (this._dirtyViewport) {
             var view = this._viewportRect();
             for (var comp in programs) {
                 programs[comp].setViewportUniforms(view, this.options);
             }
-            this.dirtyViewport = false;
+            this._dirtyViewport = false;
         }
 
         // Search for any entities in the given area (viewport unless otherwise specified)
@@ -393,7 +372,7 @@ Crafty._registerLayerTemplate("WebGL", {
                 visible_gl.push(current);
             }
         }
-        visible_gl.sort(this.zsort);
+        visible_gl.sort(this._sort);
         l = visible_gl.length;
 
 
