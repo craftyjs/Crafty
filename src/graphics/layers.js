@@ -139,10 +139,10 @@ Crafty.extend({
                 scale = view._scale;
 
             outRect = outRect || {};
-            outRect._x = Math.floor( rect._x * scale + Math.round(-view._x * scale) );
-            outRect._y = Math.floor( rect._y * scale + Math.round(-view._y * scale) );
-            outRect._w = Math.ceil( rect._w * scale );
-            outRect._h = Math.ceil( rect._h * scale );
+            outRect._x = rect._x * scale + Math.round(-view._x * scale);
+            outRect._y = rect._y * scale + Math.round(-view._y * scale);
+            outRect._w = rect._w * scale;
+            outRect._h = rect._h * scale;
 
             return outRect;
         }
