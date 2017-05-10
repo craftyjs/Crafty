@@ -13,29 +13,26 @@ Crafty.extend({
         /**@
          * #Crafty.domHelper.innerPosition
          * @comp Crafty.domHelper
-         * @sign public Object Crafty.domHelper.innerPosition(HTMLElement obj)
+         * @sign public Object Crafty.domHelper.innerPosition(HTMLElement obj[, Object out])
          * @param obj - HTML element to calculate the position
+         * @param out - optional object to save result in
          * @returns Object with `x` key being the `x` position, `y` being the `y` position
          *
          * Find a DOM elements position including
          * padding and border.
          */
-        innerPosition: function (obj) {
+        innerPosition: function (obj, out) {
+            out = out || {};
             var rect = obj.getBoundingClientRect(),
                 x = rect.left + (window.pageXOffset ? window.pageXOffset : document.body.scrollLeft),
                 y = rect.top + (window.pageYOffset ? window.pageYOffset : document.body.scrollTop),
-
                 //border left
                 borderX = parseInt(this.getStyle(obj, 'border-left-width') || 0, 10) || parseInt(this.getStyle(obj, 'borderLeftWidth') || 0, 10) || 0,
                 borderY = parseInt(this.getStyle(obj, 'border-top-width') || 0, 10) || parseInt(this.getStyle(obj, 'borderTopWidth') || 0, 10) || 0;
 
-            x += borderX;
-            y += borderY;
-
-            return {
-                x: x,
-                y: y
-            };
+            out.x = x + borderX;
+            out.y = y + borderY;
+            return out;
         },
 
         /**@
@@ -84,10 +81,11 @@ Crafty.extend({
          * @comp Crafty.domHelper
          * @kind Method
          * 
-         * @sign public Object Crafty.domHelper.translate(Number clientX, Number clientY[, DrawLayer layer])
+         * @sign public Object Crafty.domHelper.translate(Number clientX, Number clientY[, DrawLayer layer[, Object out]])
          * @param clientX - clientX position in the browser screen
          * @param clientY - clientY position in the browser screen
          * @param layer - a Crafty draw layer
+         * @param out - an optional object to save result in
          * @return Object `{x: ..., y: ...}` with Crafty coordinates.
          * 
          * The parameters clientX and clientY are pixel coordinates within the visible
@@ -97,7 +95,8 @@ Crafty.extend({
          * 
          * If a draw layer is specified, the returned object will take into account any special scaling rules for that object.
          */
-        translate: function (clientX, clientY, layer) {
+        translate: function (clientX, clientY, layer, out) {
+            out = out || {};
             var doc = document.documentElement;
             var body = document.body;
             var view;
@@ -106,17 +105,14 @@ Crafty.extend({
             // At some point this should be simplified, probably by altering the viewport to use the more intuitive coordinates
             if (layer) {
                 view = layer._viewportRect();
-                return {
-                    x: (clientX - Crafty.stage.x + (doc && doc.scrollLeft || body && body.scrollLeft || 0)) / view._scale + view._x,
-                    y: (clientY - Crafty.stage.y + (doc && doc.scrollTop || body && body.scrollTop || 0)) / view._scale + view._y
-                };
+                out.x = (clientX - Crafty.stage.x + (doc && doc.scrollLeft || body && body.scrollLeft || 0)) / view._scale + view._x;
+                out.y = (clientY - Crafty.stage.y + (doc && doc.scrollTop || body && body.scrollTop || 0)) / view._scale + view._y;
             } else {
                 view = Crafty.viewport;
-                return {
-                    x: (clientX - Crafty.stage.x + (doc && doc.scrollLeft || body && body.scrollLeft || 0)) / view._scale - view._x,
-                    y: (clientY - Crafty.stage.y + (doc && doc.scrollTop || body && body.scrollTop || 0)) / view._scale - view._y
-                };
+                out.x = (clientX - Crafty.stage.x + (doc && doc.scrollLeft || body && body.scrollLeft || 0)) / view._scale - view._x;
+                out.y = (clientY - Crafty.stage.y + (doc && doc.scrollTop || body && body.scrollTop || 0)) / view._scale - view._y;
             }
+            return out;
         }
     }
 });
