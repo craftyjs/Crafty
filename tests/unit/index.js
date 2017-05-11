@@ -1,6 +1,5 @@
 /** BROWSER-SPECIFIC TEST CODE **/
 var files = [
-    './controls/inputs.js',
     './core/loader.js',
     './debug/debug.js',
     './graphics/color.js',
@@ -9,6 +8,7 @@ var files = [
     './graphics/sprite-animation.js',
     './graphics/text.js',
     './graphics/viewport.js',
+    './inputs/inputs.js',
     './isometric/isometric.js',
     './sound/audio.js'
 ];

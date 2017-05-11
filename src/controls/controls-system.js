@@ -10,16 +10,14 @@ var Crafty = require('../core/core.js');
 
 // MouseButtonToggleInput
 function MouseButtonToggleInput(button) {
-    Crafty.mouseObjs++;
     this.button = button;
 }
 
 MouseButtonToggleInput.prototype = {
     isDown: function() {
-        return Crafty.mouseButtonsDown[this.button];
-    },
-    destroy: function() {
-        Crafty.mouseObjs--;
+        var mouseSystem = this.mouseSystem;
+        if (!mouseSystem) this.mouseSystem = mouseSystem = Crafty.s('Mouse');
+        return mouseSystem.isButtonDown(this.button);
     }
 };
 
@@ -30,7 +28,9 @@ function KeyboardToggleInput(key) {
 
 KeyboardToggleInput.prototype = {
     isDown: function() {
-        return Crafty.keydown[this.key];
+        var keyboardSystem = this.keyboardSystem;
+        if (!keyboardSystem) this.keyboardSystem = keyboardSystem = Crafty.s('Keyboard');
+        return keyboardSystem.isKeyDown(this.key);
     }
 };
 
@@ -89,24 +89,18 @@ Crafty.s("Controls", {
         // internal object to store definitions
         this._dpads = {};
         this._triggers = {};
+
+        // listen to mouse events
+        Crafty.s("Mouse").bind("MouseDown", this.updateTriggers.bind(this));
+        Crafty.s("Mouse").bind("MouseUp", this.updateTriggers.bind(this));
+        Crafty.s("Mouse").bind("DoubleClick", this.updateTriggers.bind(this));
+        Crafty.s("Mouse").bind("Click", this.updateTriggers.bind(this));
     },
 
     events: {
-        "EnterFrame": function () {
-            this.runEvents();
-        },
-        "KeyDown": function () {
-            this.updateTriggers();
-        },
-        "KeyUp": function () {
-            this.updateTriggers();
-        },
-        "MouseDown": function (e) {
-            this.updateTriggers();
-        },
-        "MouseUp": function (e) {
-            this.updateTriggers();
-        },
+        "EnterFrame": "runEvents",
+        "KeyDown": "updateTriggers",
+        "KeyUp": "updateTriggers"
     },
 
     // Runs through all triggers and updates their status
