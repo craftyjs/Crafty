@@ -6,8 +6,11 @@ var Crafty = require('../core/core.js');
  * @kind System
  *
  * Provides access to key events.
+ * @note Events and methods are inherited from the `KeyboardState` component.
  *
- * Events and methods are inherited from the `KeyboardState` component.
+ * The event callbacks are triggered with a native [`KeyboardEvent`](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent)
+ * received by `window.document`, which is wrapped in a standard Crafty event object (as described in `KeyboardState`).
+ *
  * These key events are triggered globally, thus on the global Crafty instance, every entity and system.
  *
  * @example
@@ -75,7 +78,9 @@ Crafty.s("Keyboard", Crafty.extend.call(Crafty.extend.call(new Crafty.__eventDis
  * Keyboard events get dispatched to all entities that have the Keyboard component.
  * @note If you do not add this component, key events will not be triggered on the entity.
  *
- * Triggers all events described in the `KeyboardState` component.
+ * Triggers all events described in the `KeyboardState` component, these are:
+ * @trigger KeyDown - when a key is pressed - KeyboardEvent
+ * @trigger KeyUp - when a key is released - KeyboardEvent
  *
  * @example
  * ~~~

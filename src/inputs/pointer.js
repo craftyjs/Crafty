@@ -11,13 +11,13 @@ Crafty.extend({
      * @param comp - Component name
      * @param clientX - x coordinate in client space, usually taken from a pointer event
      * @param clientY - y coordinate in client space, usually taken from a pointer event
-     * @returns The found entity, or undefined if no entity was found.
+     * @returns The found entity, or null if no entity was found.
      *
      * @sign public Object .findPointerEventTargetByComponent(String comp, Event e)
      * Finds closest entity with certain component at a given event.
      * @param comp - Component name
      * @param e - The pointer event, containing the target and the required properties `clientX` & `clientY`, which will be used as the query point
-     * @returns The found entity, or undefined if no entity was found.
+     * @returns The found entity, or null if no entity was found.
      *
      * This method is used internally by the .mouseDispatch and .touchDispatch methods, but can be used otherwise for
      * Canvas entities.
@@ -31,7 +31,7 @@ Crafty.extend({
         y = typeof y !== 'undefined' ? y : x.clientY;
         x = typeof x.clientX !== 'undefined' ? x.clientX : x;
 
-        var closest, current, q, l, i, pos, maxz = -Infinity;
+        var closest = null, current, q, l, i, pos, maxz = -Infinity;
 
         //if it's a DOM element with component we are done
         if (tar.nodeName !== "CANVAS") {
@@ -79,13 +79,14 @@ Crafty.extend({
     },
 
     /**@
-     * #Crafty.augmentPointerEvent
+     * #Crafty.translatePointerEventCoordinates
      * @category Input
      * @kind Method
      *
-     * @sign public Object .augmentPointerEvent(PointerEvent e)
+     * @sign public Object .translatePointerEventCoordinates(PointerEvent e[, PointerEvent out])
      * @param e - Any pointer event with `clientX` and `clientY` properties, usually a `MouseEvent` or `Touch` object
-     * @returns The same event object, augmented with additional `realX` and `realY` properties
+     * @param out - Optional pointer event to augment with coordinates instead
+     * @returns The pointer event, augmented with additional `realX` and `realY` properties
      *
      * Updates the passed event object to have two additional properties, `realX` and `realY`,
      * which correspond to the point in actual world space the event happened.
@@ -93,17 +94,20 @@ Crafty.extend({
      * This method is used internally by the .mouseDispatch and .touchDispatch methods,
      * but may be used for custom events.
      *
-     * @see Crafty.domHelper.translate
+     * @see Crafty.domHelper#Crafty.domHelper.translate
      */
-    augmentPointerEvent: function (e) {
+    translatePointerEventCoordinates: function (e, out) {
+        out = out || e;
+
         // Find the Crafty position in the default coordinate set,
         // disregard the fact that the pointer event was related to a specific layer.
-        var pos = Crafty.domHelper.translate(e.clientX, e.clientY);
+        var pos = Crafty.domHelper.translate(e.clientX, e.clientY, undefined, this.__pointerPos);
 
         // Set the mouse position based on standard viewport coordinates
-        e.realX = pos.x;
-        e.realY = pos.y;
-    }
+        out.realX = pos.x;
+        out.realY = pos.y;
+    },
+    __pointerPos: {x: 0, y: 0} // object to reuse
 });
 
 /**@

@@ -257,8 +257,9 @@
     e.triggerMouse("MouseDown", {
       eventName: "MouseDown",
       mouseButton: Crafty.mouseButtons.LEFT,
+      target: 'a',
       realX: 1, realY: 2,
-      clientX: 3, clientY: 4,
+      clientX: 3, clientY: 4, // DEPRECATED: remove in upcoming release
       originalEvent: { prop1: true }
     });
     lastMouseEventB = e.lastMouseEvent;
@@ -269,6 +270,7 @@
     _.strictEqual(lastMouseEventB.originalEvent.prop1, true);
     _.strictEqual(lastMouseEventB.eventName, "MouseDown");
     _.strictEqual(lastMouseEventB.mouseButton, Crafty.mouseButtons.LEFT);
+    _.strictEqual(lastMouseEventB.target, 'a');
     _.strictEqual(lastMouseEventB.realX, 1);
     _.strictEqual(lastMouseEventB.realY, 2);
     _.strictEqual(lastMouseEventB.clientX, 3);
@@ -280,8 +282,9 @@
     e.triggerMouse("MouseDown", {
       eventName: "MouseDown",
       mouseButton: Crafty.mouseButtons.LEFT,
+      target: 'b',
       realX: 5, realY: 6,
-      clientX: 7, clientY: 8,
+      clientX: 7, clientY: 8, // DEPRECATED: remove in upcoming release
       originalEvent: { prop2: true }
     });
     lastMouseEventB = e.lastMouseEvent;
@@ -295,8 +298,9 @@
     e.triggerMouse("MouseUp", {
       eventName: "MouseUp",
       mouseButton: Crafty.mouseButtons.LEFT,
+      target: 'c',
       realX: 9, realY: 0,
-      clientX: -1, clientY: -2,
+      clientX: -1, clientY: -2, // DEPRECATED: remove in upcoming release
       originalEvent: { prop3: true }
     });
     lastMouseEventB = e.lastMouseEvent;
@@ -307,6 +311,7 @@
     _.strictEqual(lastMouseEventB.originalEvent.prop3, true);
     _.strictEqual(lastMouseEventB.eventName, "MouseUp");
     _.strictEqual(lastMouseEventB.mouseButton, Crafty.mouseButtons.LEFT);
+    _.strictEqual(lastMouseEventB.target, 'c');
     _.strictEqual(lastMouseEventB.realX, 9);
     _.strictEqual(lastMouseEventB.realY, 0);
     _.strictEqual(lastMouseEventB.clientX, -1);
