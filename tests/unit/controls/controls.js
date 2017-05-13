@@ -276,6 +276,362 @@
     originalEventA = lastMouseEventA.originalEvent;
   });
 
+  test("TouchState", function(_) {
+    var finger0Starts = 0, finger0Moves = 0, finger0Ends = 0, finger0Cancels = 0,
+        finger1Starts = 0, finger1Moves = 0, finger1Ends = 0, finger1Cancels = 0;
+    var e = Crafty.e("TouchState")
+        .bind('TouchStart', function(evt) {
+            if (evt.identifier === 0) finger0Starts++;
+            else if (evt.identifier === 1) finger1Starts++;
+            else _.ok(false, "Unexpected touch identifier event received.");
+        })
+        .bind('TouchMove', function(evt) {
+            if (evt.identifier === 0) finger0Moves++;
+            else if (evt.identifier === 1) finger1Moves++;
+            else _.ok(false, "Unexpected touch identifier event received.");
+        })
+        .bind('TouchEnd', function(evt) {
+            if (evt.identifier === 0) finger0Ends++;
+            else if (evt.identifier === 1) finger1Ends++;
+            else _.ok(false, "Unexpected touch identifier event received.");
+        })
+        .bind('TouchCancel', function(evt) {
+            if (evt.identifier === 0) finger0Cancels++;
+            else if (evt.identifier === 1) finger1Cancels++;
+            else _.ok(false, "Unexpected touch identifier event received.");
+        });
+
+    // check that TouchState doesn't cause conflicts between entities
+    Crafty.e("TouchState")
+        .bind('TouchStart', function(evt) {
+            _.ok(false, "Unexpected touch identifier event received.");
+        })
+        .bind('TouchMove', function(evt) {
+            _.ok(false, "Unexpected touch identifier event received.");
+        })
+        .bind('TouchEnd', function(evt) {
+            _.ok(false, "Unexpected touch identifier event received.");
+        })
+        .bind('TouchCancel', function(evt) {
+            _.ok(false, "Unexpected touch identifier event received.");
+        });
+
+    // initial
+    _.strictEqual(e.touchPoints.length, 0, "no current touch points");
+    _.strictEqual(e._touchPointsPool.length, 0, "no current reusable touch points");
+    _.strictEqual(finger0Starts, 0);
+    _.strictEqual(finger0Moves, 0);
+    _.strictEqual(finger0Ends, 0);
+    _.strictEqual(finger0Cancels, 0);
+    _.strictEqual(finger1Starts, 0);
+    _.strictEqual(finger1Moves, 0);
+    _.strictEqual(finger1Ends, 0);
+    _.strictEqual(finger1Cancels, 0);
+
+    // after e receives invalid TouchMove for finger 0
+    e.triggerTouch("TouchMove", { eventName: "TouchMove", identifier: 0 });
+    _.strictEqual(e.touchPoints.length, 0, "no current touch points");
+    _.strictEqual(e._touchPointsPool.length, 0, "no current reusable touch points");
+    _.strictEqual(finger0Starts, 0);
+    _.strictEqual(finger0Moves, 0);
+    _.strictEqual(finger0Ends, 0);
+    _.strictEqual(finger0Cancels, 0);
+    _.strictEqual(finger1Starts, 0);
+    _.strictEqual(finger1Moves, 0);
+    _.strictEqual(finger1Ends, 0);
+    _.strictEqual(finger1Cancels, 0);
+
+    // after e receives valid TouchStart for finger 0
+    e.triggerTouch("TouchStart", { eventName: "TouchStart", identifier: 0 });
+    _.strictEqual(e.touchPoints.length, 1);
+    _.strictEqual(e.touchPoints[0].identifier, 0);
+    _.strictEqual(e.touchPoints[0].eventName, "TouchStart");
+    _.strictEqual(e._touchPointsPool.length, 0);
+    _.strictEqual(finger0Starts, 1);
+    _.strictEqual(finger0Moves, 0);
+    _.strictEqual(finger0Ends, 0);
+    _.strictEqual(finger0Cancels, 0);
+    _.strictEqual(finger1Starts, 0);
+    _.strictEqual(finger1Moves, 0);
+    _.strictEqual(finger1Ends, 0);
+    _.strictEqual(finger1Cancels, 0);
+
+    // after e receives invalid TouchStart for finger 0
+    e.triggerTouch("TouchStart", { eventName: "TouchStart", identifier: 0 });
+    _.strictEqual(e.touchPoints.length, 1);
+    _.strictEqual(e.touchPoints[0].identifier, 0);
+    _.strictEqual(e.touchPoints[0].eventName, "TouchStart");
+    _.strictEqual(e._touchPointsPool.length, 0);
+    _.strictEqual(finger0Starts, 1);
+    _.strictEqual(finger0Moves, 0);
+    _.strictEqual(finger0Ends, 0);
+    _.strictEqual(finger0Cancels, 0);
+    _.strictEqual(finger1Starts, 0);
+    _.strictEqual(finger1Moves, 0);
+    _.strictEqual(finger1Ends, 0);
+    _.strictEqual(finger1Cancels, 0);
+
+    // after e receives valid TouchStart for finger 1
+    e.triggerTouch("TouchStart", { eventName: "TouchStart", identifier: 1 });
+    _.strictEqual(e.touchPoints.length, 2);
+    _.strictEqual(e.touchPoints[0].identifier, 0);
+    _.strictEqual(e.touchPoints[0].eventName, "TouchStart");
+    _.strictEqual(e.touchPoints[1].identifier, 1);
+    _.strictEqual(e.touchPoints[1].eventName, "TouchStart");
+    _.strictEqual(e._touchPointsPool.length, 0);
+    _.strictEqual(finger0Starts, 1);
+    _.strictEqual(finger0Moves, 0);
+    _.strictEqual(finger0Ends, 0);
+    _.strictEqual(finger0Cancels, 0);
+    _.strictEqual(finger1Starts, 1);
+    _.strictEqual(finger1Moves, 0);
+    _.strictEqual(finger1Ends, 0);
+    _.strictEqual(finger1Cancels, 0);
+
+    // after e receives invalid TouchEnd for unrelated finger
+    e.triggerTouch("TouchEnd", { eventName: "TouchEnd", identifier: -1 });
+    _.strictEqual(e.touchPoints.length, 2);
+    _.strictEqual(e.touchPoints[0].identifier, 0);
+    _.strictEqual(e.touchPoints[0].eventName, "TouchStart");
+    _.strictEqual(e.touchPoints[1].identifier, 1);
+    _.strictEqual(e.touchPoints[1].eventName, "TouchStart");
+    _.strictEqual(e._touchPointsPool.length, 0);
+    _.strictEqual(finger0Starts, 1);
+    _.strictEqual(finger0Moves, 0);
+    _.strictEqual(finger0Ends, 0);
+    _.strictEqual(finger0Cancels, 0);
+    _.strictEqual(finger1Starts, 1);
+    _.strictEqual(finger1Moves, 0);
+    _.strictEqual(finger1Ends, 0);
+    _.strictEqual(finger1Cancels, 0);
+
+    // after e receives valid TouchMove for finger 0
+    e.triggerTouch("TouchMove", { eventName: "TouchMove", identifier: 0 });
+    _.strictEqual(e.touchPoints.length, 2);
+    _.strictEqual(e.touchPoints[0].identifier, 0);
+    _.strictEqual(e.touchPoints[0].eventName, "TouchMove");
+    _.strictEqual(e.touchPoints[1].identifier, 1);
+    _.strictEqual(e.touchPoints[1].eventName, "TouchStart");
+    _.strictEqual(e._touchPointsPool.length, 0);
+    _.strictEqual(finger0Starts, 1);
+    _.strictEqual(finger0Moves, 1);
+    _.strictEqual(finger0Ends, 0);
+    _.strictEqual(finger0Cancels, 0);
+    _.strictEqual(finger1Starts, 1);
+    _.strictEqual(finger1Moves, 0);
+    _.strictEqual(finger1Ends, 0);
+    _.strictEqual(finger1Cancels, 0);
+
+    // after e receives valid TouchMove for finger 1
+    e.triggerTouch("TouchMove", { eventName: "TouchMove", identifier: 1 });
+    _.strictEqual(e.touchPoints.length, 2);
+    _.strictEqual(e.touchPoints[0].identifier, 0);
+    _.strictEqual(e.touchPoints[0].eventName, "TouchMove");
+    _.strictEqual(e.touchPoints[1].identifier, 1);
+    _.strictEqual(e.touchPoints[1].eventName, "TouchMove");
+    _.strictEqual(e._touchPointsPool.length, 0);
+    _.strictEqual(finger0Starts, 1);
+    _.strictEqual(finger0Moves, 1);
+    _.strictEqual(finger0Ends, 0);
+    _.strictEqual(finger0Cancels, 0);
+    _.strictEqual(finger1Starts, 1);
+    _.strictEqual(finger1Moves, 1);
+    _.strictEqual(finger1Ends, 0);
+    _.strictEqual(finger1Cancels, 0);
+
+    // after e receives valid TouchEnd for finger 1
+    e.triggerTouch("TouchEnd", { eventName: "TouchEnd", identifier: 1 });
+    _.strictEqual(e.touchPoints.length, 1);
+    _.strictEqual(e.touchPoints[0].identifier, 0);
+    _.strictEqual(e.touchPoints[0].eventName, "TouchMove");
+    _.strictEqual(e._touchPointsPool.length, 1);
+    _.strictEqual(e._touchPointsPool[0].identifier, 1);
+    _.strictEqual(e._touchPointsPool[0].eventName, "TouchEnd");
+    _.strictEqual(finger0Starts, 1);
+    _.strictEqual(finger0Moves, 1);
+    _.strictEqual(finger0Ends, 0);
+    _.strictEqual(finger0Cancels, 0);
+    _.strictEqual(finger1Starts, 1);
+    _.strictEqual(finger1Moves, 1);
+    _.strictEqual(finger1Ends, 1);
+    _.strictEqual(finger1Cancels, 0);
+
+    // after e receives valid TouchCancel for finger 0
+    e.triggerTouch("TouchCancel", { eventName: "TouchCancel", identifier: 0 });
+    _.strictEqual(e.touchPoints.length, 0);
+    _.strictEqual(e._touchPointsPool.length, 2);
+    _.strictEqual(e._touchPointsPool[0].identifier, 1);
+    _.strictEqual(e._touchPointsPool[0].eventName, "TouchEnd");
+    _.strictEqual(e._touchPointsPool[1].identifier, 0);
+    _.strictEqual(e._touchPointsPool[1].eventName, "TouchCancel");
+    _.strictEqual(finger0Starts, 1);
+    _.strictEqual(finger0Moves, 1);
+    _.strictEqual(finger0Ends, 0);
+    _.strictEqual(finger0Cancels, 1);
+    _.strictEqual(finger1Starts, 1);
+    _.strictEqual(finger1Moves, 1);
+    _.strictEqual(finger1Ends, 1);
+    _.strictEqual(finger1Cancels, 0);
+
+    // check that e reuses touchPool
+    e.triggerTouch("TouchStart", { eventName: "TouchStart", identifier: 1 });
+    e.triggerTouch("TouchStart", { eventName: "TouchStart", identifier: 0 });
+    _.strictEqual(e.touchPoints.length, 2);
+    _.strictEqual(e.touchPoints[0].identifier, 1);
+    _.strictEqual(e.touchPoints[0].eventName, "TouchStart");
+    _.strictEqual(e.touchPoints[1].identifier, 0);
+    _.strictEqual(e.touchPoints[1].eventName, "TouchStart");
+    _.strictEqual(e._touchPointsPool.length, 0);
+    _.strictEqual(finger0Starts, 2);
+    _.strictEqual(finger0Moves, 1);
+    _.strictEqual(finger0Ends, 0);
+    _.strictEqual(finger0Cancels, 1);
+    _.strictEqual(finger1Starts, 2);
+    _.strictEqual(finger1Moves, 1);
+    _.strictEqual(finger1Ends, 1);
+    _.strictEqual(finger1Cancels, 0);
+
+    // check that resetTouchPoints fires TouchCancel events in reverse chronological order
+    e.resetTouchPoints();
+    _.strictEqual(e.touchPoints.length, 0);
+    _.strictEqual(e._touchPointsPool.length, 2);
+    _.strictEqual(e._touchPointsPool[0].identifier, 0);
+    _.strictEqual(e._touchPointsPool[0].eventName, "TouchCancel");
+    _.strictEqual(e._touchPointsPool[1].identifier, 1);
+    _.strictEqual(e._touchPointsPool[1].eventName, "TouchCancel");
+    _.strictEqual(finger0Starts, 2);
+    _.strictEqual(finger0Moves, 1);
+    _.strictEqual(finger0Ends, 0);
+    _.strictEqual(finger0Cancels, 2);
+    _.strictEqual(finger1Starts, 2);
+    _.strictEqual(finger1Moves, 1);
+    _.strictEqual(finger1Ends, 1);
+    _.strictEqual(finger1Cancels, 1);
+  });
+
+  test("TouchState - touchPoints", function(_) {
+    var e = Crafty.e("TouchState"),
+        touchPointA, touchPointB,
+        originalEventA, originalEventB;
+
+    // initial state
+    touchPointA = e.touchPoints[0];
+    originalEventA = touchPointA && touchPointA.originalEvent;
+    _.strictEqual(touchPointA, undefined, "no initial touchPoint");
+    _.strictEqual(originalEventA, undefined, "no initial originalEvent");
+
+   // after e receives valid TouchStart, touchPoint persisted
+    e.triggerTouch("TouchStart", {
+      eventName: "TouchStart",
+      identifier: -3,
+      target: 'a',
+      entity: 'a', // DEPRECATED: remove in upcoming release
+      realX: 1, realY: 2,
+      originalEvent: { prop1: true }
+    });
+    touchPointB = e.touchPoints[0];
+    originalEventB = touchPointB.originalEvent;
+    _.strictEqual(e.touchPoints.length, 1, "One touchPoint exists");
+    _.ok(touchPointB, "new touchPoint created");
+    _.ok(originalEventB, "new originalEvent created");
+    _.strictEqual(touchPointB.originalEvent.prop1, true);
+    _.strictEqual(touchPointB.eventName, "TouchStart");
+    _.strictEqual(touchPointB.identifier, -3);
+    _.strictEqual(touchPointB.target, 'a');
+    _.strictEqual(touchPointB.entity, 'a');
+    _.strictEqual(touchPointB.realX, 1);
+    _.strictEqual(touchPointB.realY, 2);
+    touchPointA = touchPointB;
+    originalEventA = touchPointA.originalEvent;
+
+    // after e receives invalid TouchStart, touchPoint shouldn't change
+    e.triggerTouch("TouchStart", {
+      eventName: "TouchStart",
+      identifier: -3,
+      target: 'b',
+      entity: 'b', // DEPRECATED: remove in upcoming release
+      realX: 3, realY: 4,
+      originalEvent: { prop2: true }
+    });
+    touchPointB = e.touchPoints[0];
+    originalEventB = touchPointB.originalEvent;
+    _.strictEqual(e.touchPoints.length, 1, "One touchPoint exists");
+    _.strictEqual(touchPointB, touchPointA, "touchPoint objects are reused");
+    _.deepEqual(touchPointB, touchPointA, "touchPoint objects have same content");
+    touchPointA = touchPointB;
+    originalEventA = touchPointA.originalEvent;
+
+    // after e receives valid TouchMove, touchPoint should change
+    e.triggerTouch("TouchMove", {
+      eventName: "TouchMove",
+      identifier: -3,
+      target: 'c',
+      entity: 'c', // DEPRECATED: remove in upcoming release
+      realX: 5, realY: 6,
+      originalEvent: { prop3: true }
+    });
+    touchPointB = e.touchPoints[0];
+    originalEventB = touchPointB.originalEvent;
+    _.strictEqual(e.touchPoints.length, 1, "One touchPoint exists");
+    _.strictEqual(touchPointB, touchPointA, "touchPoint objects are reused");
+    _.strictEqual(touchPointB.originalEvent, touchPointA.originalEvent, "originalEvent is not a clone, but merely a reference");
+    _.notEqual(originalEventB, originalEventA, "originalEvent reference changed");
+    _.strictEqual(touchPointB.originalEvent.prop3, true);
+    _.strictEqual(touchPointB.eventName, "TouchMove");
+    _.strictEqual(touchPointB.identifier, -3);
+    _.strictEqual(touchPointB.target, 'c');
+    _.strictEqual(touchPointB.entity, 'c');
+    _.strictEqual(touchPointB.realX, 5);
+    _.strictEqual(touchPointB.realY, 6);
+    touchPointA = touchPointB;
+    originalEventA = touchPointA.originalEvent;
+
+    // after e receives valid TouchStart for another finger, first touchPoint should not change
+    e.triggerTouch("TouchStart", {
+      eventName: "TouchStart",
+      identifier: 11,
+      target: 'd',
+      entity: 'd', // DEPRECATED: remove in upcoming release
+      realX: 7, realY: 8,
+      originalEvent: { prop4: true }
+    });
+    touchPointB = e.touchPoints[0];
+    originalEventB = touchPointB.originalEvent;
+
+    _.strictEqual(e.touchPoints.length, 2, "Two touchPoints exist");
+    _.strictEqual(touchPointB, touchPointA, "touchPoint objects for first finger are reused");
+    _.deepEqual(touchPointB, touchPointA, "touchPoint objects for first finger have same content");
+
+    var otherTouchPoint = e.touchPoints[1];
+    _.ok(otherTouchPoint, "new touchPoint created for second finger");
+    _.notEqual(otherTouchPoint, touchPointB,  "different touchPoint objects for different fingers");
+    _.ok(otherTouchPoint.originalEvent, "new originalEvent created for second finger");
+    _.notEqual(otherTouchPoint.originalEvent, touchPointB.originalEvent, "originalEvent of second finger has nothing to do with originalEvent of first finger");
+    _.strictEqual(otherTouchPoint.originalEvent.prop4, true);
+    _.strictEqual(otherTouchPoint.eventName, "TouchStart");
+    _.strictEqual(otherTouchPoint.identifier, 11);
+    _.strictEqual(otherTouchPoint.target, 'd');
+    _.strictEqual(otherTouchPoint.entity, 'd');
+    _.strictEqual(otherTouchPoint.realX, 7);
+    _.strictEqual(otherTouchPoint.realY, 8);
+
+    touchPointA = touchPointB;
+    originalEventA = touchPointA.originalEvent;
+
+    // after e receives valid TouchEnd, touchPoint for first finger should be removed
+    e.triggerTouch("TouchEnd", {
+      eventName: "TouchEnd",
+      identifier: -3,
+      target: 'e',
+      entity: 'e', // DEPRECATED: remove in upcoming release
+      realX: 9, realY: 0,
+      originalEvent: { prop5: true }
+    });
+    _.strictEqual(e.touchPoints.length, 1, "One touchPoints exists");
+    _.strictEqual(e.touchPoints[0], otherTouchPoint, "touchPoint objects for second finger are reused");
+    _.deepEqual(e.touchPoints[0], otherTouchPoint, "touchPoint objects for second finger have same content");
+  });
+
   test("Multiway and Fourway", function(_) {
     var e = Crafty.e("2D, Fourway")
                   .attr({ x: 0, y: 0});
