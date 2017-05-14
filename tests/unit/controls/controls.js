@@ -79,41 +79,19 @@
     _.strictEqual(keyDownsF, 1);
     _.strictEqual(keyUpsF, 0);
 
-    // after e receives valid KeyUp for different key, check if it messes with both
-    e.triggerKey("KeyUp", { eventName: "KeyUp", key: Crafty.keys.DOWN_ARROW });
-    _.strictEqual(e.isKeyDown(Crafty.keys.UP_ARROW), true);
+    // after e.resetKeyDown is invoked, both keys should be reset
+    e.resetKeyDown();
+    _.strictEqual(e.isKeyDown(Crafty.keys.UP_ARROW), false);
     _.strictEqual(e.isKeyDown(Crafty.keys.DOWN_ARROW), false);
     _.strictEqual(keyDownsE, 2);
-    _.strictEqual(keyUpsE, 1);
+    _.strictEqual(keyUpsE, 2);
     _.strictEqual(f.isKeyDown(Crafty.keys.UP_ARROW), true);
     _.strictEqual(e.isKeyDown(Crafty.keys.DOWN_ARROW), false);
     _.strictEqual(keyDownsF, 1);
     _.strictEqual(keyUpsF, 0);
 
-    // after f receives invalid KeyUp for different key, check if it messes with both
-    f.triggerKey("KeyUp", { eventName: "KeyUp", key: Crafty.keys.DOWN_ARROW });
-    _.strictEqual(e.isKeyDown(Crafty.keys.UP_ARROW), true);
-    _.strictEqual(e.isKeyDown(Crafty.keys.DOWN_ARROW), false);
-    _.strictEqual(keyDownsE, 2);
-    _.strictEqual(keyUpsE, 1);
-    _.strictEqual(f.isKeyDown(Crafty.keys.UP_ARROW), true);
-    _.strictEqual(e.isKeyDown(Crafty.keys.DOWN_ARROW), false);
-    _.strictEqual(keyDownsF, 1);
-    _.strictEqual(keyUpsF, 0);
-
-    // after f receives valid KeyUp, check if it messes with e
+    // after f receives valid KeyUp, check final status
     f.triggerKey("KeyUp", { eventName: "KeyUp", key: Crafty.keys.UP_ARROW });
-    _.strictEqual(e.isKeyDown(Crafty.keys.UP_ARROW), true);
-    _.strictEqual(e.isKeyDown(Crafty.keys.DOWN_ARROW), false);
-    _.strictEqual(keyDownsE, 2);
-    _.strictEqual(keyUpsE, 1);
-    _.strictEqual(f.isKeyDown(Crafty.keys.UP_ARROW), false);
-    _.strictEqual(e.isKeyDown(Crafty.keys.DOWN_ARROW), false);
-    _.strictEqual(keyDownsF, 1);
-    _.strictEqual(keyUpsF, 1);
-
-    // after e receives valid KeyUp, check final status
-    e.triggerKey("KeyUp", { eventName: "KeyUp", key: Crafty.keys.UP_ARROW });
     _.strictEqual(e.isKeyDown(Crafty.keys.UP_ARROW), false);
     _.strictEqual(e.isKeyDown(Crafty.keys.DOWN_ARROW), false);
     _.strictEqual(keyDownsE, 2);
@@ -199,41 +177,19 @@
     _.strictEqual(buttonDownsF, 1);
     _.strictEqual(buttonUpsF, 0);
 
-    // after e receives valid MouseUp for different mouseButton, check if it messes with both
-    e.triggerMouse("MouseUp", { eventName: "MouseUp", mouseButton: Crafty.mouseButtons.RIGHT });
-    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.LEFT), true);
+    // after e.resetButtonDown is invoked, both buttons should be reset
+    e.resetButtonDown();
+    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.LEFT), false);
     _.strictEqual(e.isButtonDown(Crafty.mouseButtons.RIGHT), false);
     _.strictEqual(buttonDownsE, 2);
-    _.strictEqual(buttonUpsE, 1);
+    _.strictEqual(buttonUpsE, 2);
     _.strictEqual(f.isButtonDown(Crafty.mouseButtons.LEFT), true);
     _.strictEqual(e.isButtonDown(Crafty.mouseButtons.RIGHT), false);
     _.strictEqual(buttonDownsF, 1);
     _.strictEqual(buttonUpsF, 0);
 
-    // after f receives invalid MouseUp for different mouseButton, check if it messes with both
-    f.triggerMouse("MouseUp", { eventName: "MouseUp", mouseButton: Crafty.mouseButtons.RIGHT });
-    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.LEFT), true);
-    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.RIGHT), false);
-    _.strictEqual(buttonDownsE, 2);
-    _.strictEqual(buttonUpsE, 1);
-    _.strictEqual(f.isButtonDown(Crafty.mouseButtons.LEFT), true);
-    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.RIGHT), false);
-    _.strictEqual(buttonDownsF, 1);
-    _.strictEqual(buttonUpsF, 0);
-
-    // after f receives valid MouseUp, check if it messes with e
+    // after f receives valid MouseUp, check final status
     f.triggerMouse("MouseUp", { eventName: "MouseUp", mouseButton: Crafty.mouseButtons.LEFT });
-    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.LEFT), true);
-    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.RIGHT), false);
-    _.strictEqual(buttonDownsE, 2);
-    _.strictEqual(buttonUpsE, 1);
-    _.strictEqual(f.isButtonDown(Crafty.mouseButtons.LEFT), false);
-    _.strictEqual(e.isButtonDown(Crafty.mouseButtons.RIGHT), false);
-    _.strictEqual(buttonDownsF, 1);
-    _.strictEqual(buttonUpsF, 1);
-
-    // after e receives valid MouseUp, check final status
-    e.triggerMouse("MouseUp", { eventName: "MouseUp", mouseButton: Crafty.mouseButtons.LEFT });
     _.strictEqual(e.isButtonDown(Crafty.mouseButtons.LEFT), false);
     _.strictEqual(e.isButtonDown(Crafty.mouseButtons.RIGHT), false);
     _.strictEqual(buttonDownsE, 2);
