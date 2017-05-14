@@ -74,7 +74,7 @@ function createTouchList(target, list) {
         list = [list];
     }
     list = list.map(function (entry, index) {
-        var x = entry[0], y = entry[1], id = entry[2] ? entry[2] : index + 1;
+        var x = entry[0], y = entry[1], id = entry[2] || index;
         return createTouch(x, y, target, id);
     });
     return document.createTouchList.apply(document, list);
@@ -83,7 +83,7 @@ function createTouchList(target, list) {
 function createTouch(x, y, target, id) {
     return document.createTouch(window, target,
         //identifier
-        id || 1,
+        id || 0,
         //pageX / clientX
         x,
         //pageY / clientY
