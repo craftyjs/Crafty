@@ -458,6 +458,65 @@
     e.destroy();
   });
 
+  test("Multiway - diagonal movement", function(_) {
+    var e = Crafty.e("2D, Multiway")
+        .attr({ x: 0, y: 0 })
+        .multiway(50, {
+          NUMPAD_7:-135, NUMPAD_8: -90, NUMPAD_9: -45,
+          NUMPAD_4: 180,                NUMPAD_6:   0,
+          NUMPAD_1: 135, NUMPAD_2:  90, NUMPAD_3:  45
+        }, { normalize: true });
+
+    // test if diagonal movement same magnitude as horizontal/vertical movement
+    // ||(-35, -35)|| =~= ||(50, 0)||
+    keysDown(Crafty.keys.NUMPAD_7);
+    Crafty.timer.simulateFrames(1);
+    _.strictEqual(e._vx|0, -35, "vx ~ -35 when NUMPAD_7 pressed");
+    _.strictEqual(e._vy|0, -35, "vy ~ -35 when NUMPAD_7 pressed");
+    keysUp(Crafty.keys.NUMPAD_7);
+
+    keysDown(Crafty.keys.NUMPAD_8);
+    Crafty.timer.simulateFrames(1);
+    _.strictEqual(e._vx, 0, "vx = 0 when NUMPAD_8 pressed");
+    _.strictEqual(e._vy, -50, "vy = -50 when NUMPAD_8 pressed");
+    keysUp(Crafty.keys.NUMPAD_8);
+
+    // pressing both diagonal keys should result in correct vertical movement
+    keysDown(Crafty.keys.NUMPAD_7, Crafty.keys.NUMPAD_9);
+    Crafty.timer.simulateFrames(1);
+    _.strictEqual(e._vx, 0, "vx = 0 when both NUMPAD_7 & NUMPAD_9 pressed");
+    _.strictEqual(e._vy, -50, "vy = -50 when both NUMPAD_7 & NUMPAD_9 pressed");
+    // pressing an additional horizontal key in that direction should not change velocity
+    keysDown(Crafty.keys.NUMPAD_8);
+    Crafty.timer.simulateFrames(1);
+    _.strictEqual(e._vx, 0, "vx = 0 when NUMPAD_7 & NUMPAD_9 & NUMPAD_8 pressed");
+    _.strictEqual(e._vy, -50, "vy = -50 when NUMPAD_7 & NUMPAD_9 & NUMPAD_8 pressed");
+    keysUp(Crafty.keys.NUMPAD_8, Crafty.keys.NUMPAD_7, Crafty.keys.NUMPAD_9);
+
+    // pressing two keys of opposite directions cancels out all movement
+    keysDown(Crafty.keys.NUMPAD_2, Crafty.keys.NUMPAD_8);
+    Crafty.timer.simulateFrames(1);
+    _.strictEqual(e._vx, 0, "vx = 0 when NUMPAD_8 & NUMPAD_2 pressed");
+    _.strictEqual(e._vy, 0, "vy = 0 when NUMPAD_8 & NUMPAD_2 pressed");
+    keysUp(Crafty.keys.NUMPAD_2, Crafty.keys.NUMPAD_8);
+
+    // pressing 2 diagonal keys in one direction does not cancel out 1 vertical key in opposite direction
+    keysDown(Crafty.keys.NUMPAD_7, Crafty.keys.NUMPAD_9, Crafty.keys.NUMPAD_2);
+    Crafty.timer.simulateFrames(1);
+    _.strictEqual(e._vx, 0, "vx = 0 when NUMPAD_7 & NUMPAD_9 & NUMPAD_8 pressed");
+    _.strictEqual(e._vy, -50, "vy = -50 when NUMPAD_7 & NUMPAD_9 & NUMPAD_8 pressed");
+    keysUp(Crafty.keys.NUMPAD_7, Crafty.keys.NUMPAD_9, Crafty.keys.NUMPAD_2);
+
+    // asymetric key movement
+    keysDown(Crafty.keys.NUMPAD_4, Crafty.keys.NUMPAD_1);
+    Crafty.timer.simulateFrames(1);
+    _.strictEqual(e._vx|0, -46, "vx ~ -46 when NUMPAD_4 & NUMPAD_1 pressed");
+    _.strictEqual(e._vy|0, 19, "vy ~ 19 when NUMPAD_4 & NUMPAD_1 pressed");
+    keysUp(Crafty.keys.NUMPAD_4, Crafty.keys.NUMPAD_1);
+
+    e.destroy();
+  });
+
   // Use keysUp/Down helper functions defined in common.js
   test("Integrationtest - Twoway", function(_) {
     var done = false;
