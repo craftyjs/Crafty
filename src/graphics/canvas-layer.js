@@ -93,9 +93,21 @@ Crafty._registerLayerTemplate("Canvas", {
      */
      _canvas: null,
 
+    events: {
+        // Respond to init & remove events
+        "LayerInit": "layerInit",
+        "LayerRemove": "layerRemove",
+        // Bind scene rendering (see drawing.js)
+        "RenderScene": "_render",
+        // Listen for pixelart changes
+        "PixelartSet": "_setPixelart",
+        // Handle viewport modifications
+        "ViewportResize": "_resize"
+    },
+
     // When the system is first created, create the necessary canvas element and initial state
     // Bind to the necessary events
-    init: function () {
+    layerInit: function () {
         //check if canvas is supported
         if (!Crafty.support.canvas) {
             Crafty.trigger("NoCanvas");
@@ -133,7 +145,7 @@ Crafty._registerLayerTemplate("Canvas", {
     },
 
     // When the system is destroyed, remove related resources
-    remove: function() {
+    layerRemove: function() {
         this._canvas.parentNode.removeChild(this._canvas);
     },
 
