@@ -282,23 +282,31 @@ Crafty.s("Controls", {
 
     // dpad definition is a map of directions to keys array and active flag
     updateActiveDirection: function (dpad, normalize) {
-        dpad.x = 0;
-        dpad.y = 0;
+        var x = 0, y = 0;
+
+        // Sum up all active directions
         for (var d in dpad.directions) {
             var dir = dpad.directions[d];
             if (!dir.active) continue;
-            dpad.x += dir.n.x;
-            dpad.y += dir.n.y;
+            x += dir.n.x;
+            y += dir.n.y;
         }
+
+        // Mitigate rounding errors when close to zero movement
+        x = (-1e-10 < x && x < 1e-10) ? 0 : x;
+        y = (-1e-10 < y && y < 1e-10) ? 0 : y;
 
         // Normalize
         if (normalize) {
-            var m = Math.sqrt(dpad.x * dpad.x + dpad.y * dpad.y);
+            var m = Math.sqrt(x * x + y * y);
             if (m > 0) {
-                dpad.x = dpad.x / m;
-                dpad.y = dpad.y / m;
+                x /= m;
+                y /= m;
             }
         }
+
+        dpad.x = x;
+        dpad.y = y;
     },
 
     updateTriggerInput: function (trigger) {
