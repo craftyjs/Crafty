@@ -122,6 +122,69 @@
     _.ok(propList.indexOf("_foo") === -1, "Property _foo is not enumerable");
   });
 
+  test("component - order of handling special members", function(_) {
+    _.expect(5 * 5 - 1);
+
+    Crafty.c("MemberOrderTest", {
+      // 1st: basic prop should be added to entity
+      foo: 1,
+      // 2nd: properties should be defined on entity
+      properties: {
+        bar: {
+          get: function() {
+            if (!this.getCalled) {
+              _.strictEqual(this.foo, 1);
+              // can't check this.bar here - infinite recursion
+              _.strictEqual(this.baz, undefined);
+              _.strictEqual(this.quux, undefined);
+              _.strictEqual(this.quuz, undefined);
+              this.getCalled = true;
+            }
+            return 2;
+          }
+        }
+      },
+      // 3rd: events should be bound on entity
+      events: {
+        "CustomEvent": function() {
+          _.strictEqual(this.foo, 1);
+          _.strictEqual(this.bar, 2);
+          _.strictEqual(this.baz, undefined);
+          _.strictEqual(this.quux, undefined);
+          _.strictEqual(this.quuz, undefined);
+          this.baz = 3;
+        }
+      },
+      // 4th: init method should be called on entity
+      init: function() {
+        this.trigger("CustomEvent");
+
+        _.strictEqual(this.foo, 1);
+        _.strictEqual(this.bar, 2);
+        _.strictEqual(this.baz, 3);
+        _.strictEqual(this.quux, undefined);
+        _.strictEqual(this.quuz, undefined);
+        this.quux = 4;
+      },
+      // 5th: remove method should be called on entity
+      remove: function() {
+        _.strictEqual(this.foo, 1);
+        _.strictEqual(this.bar, 2);
+        _.strictEqual(this.baz, 3);
+        _.strictEqual(this.quux, 4);
+        _.strictEqual(this.quuz, undefined);
+        this.quuz = 5;
+      }
+    });
+    var e = Crafty.e().addComponent("MemberOrderTest").removeComponent("MemberOrderTest");
+
+    _.strictEqual(e.foo, 1);
+    _.strictEqual(e.bar, 2);
+    _.strictEqual(e.baz, 3);
+    _.strictEqual(e.quux, 4);
+    _.strictEqual(e.quuz, 5);
+  });
+
   test("overwrite component definition", function(_) {
     Crafty.c('MyCompDef', { a: 0 });
     var e = Crafty.e('MyCompDef');

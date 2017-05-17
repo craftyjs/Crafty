@@ -115,11 +115,6 @@ Crafty.CraftySystem = (function() {
                 Object.defineProperty(this, propertyName, props[propertyName]);
             }
         }
-
-        // Run any instantiation code
-        if (typeof this.init === "function") {
-            this.init(name);
-        }
         // If an events object is provided, bind the listed event handlers
         if ("events" in template) {
             var auto = template.events;
@@ -127,6 +122,10 @@ Crafty.CraftySystem = (function() {
                 var fn = typeof auto[eventName] === "function" ? auto[eventName] : template[auto[eventName]];
                 this.bind(eventName, fn);
             }
+        }
+        // Run any instantiation code
+        if (typeof this.init === "function") {
+            this.init(name);
         }
     };
 })();

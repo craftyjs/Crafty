@@ -266,5 +266,68 @@
     _.strictEqual(Crafty.s('MySystemDef').b, 1);
   });
 
+  test("order of handling special members", function(_) {
+    _.expect(5 * 5 - 1);
+
+    Crafty.s("MemberOrderTest", {
+      // 1st: basic prop should be added to entity
+      foo: 1,
+      // 2nd: properties should be defined on entity
+      properties: {
+        bar: {
+          get: function() {
+            if (!this.getCalled) {
+              _.strictEqual(this.foo, 1);
+              // can't check this.bar here - infinite recursion
+              _.strictEqual(this.baz, undefined);
+              _.strictEqual(this.quux, undefined);
+              _.strictEqual(this.quuz, undefined);
+              this.getCalled = true;
+            }
+            return 2;
+          }
+        }
+      },
+      // 3rd: events should be bound on entity
+      events: {
+        "CustomEvent": function() {
+          _.strictEqual(this.foo, 1);
+          _.strictEqual(this.bar, 2);
+          _.strictEqual(this.baz, undefined);
+          _.strictEqual(this.quux, undefined);
+          _.strictEqual(this.quuz, undefined);
+          this.baz = 3;
+        }
+      },
+      // 4th: init method should be called on entity
+      init: function() {
+        this.trigger("CustomEvent");
+
+        _.strictEqual(this.foo, 1);
+        _.strictEqual(this.bar, 2);
+        _.strictEqual(this.baz, 3);
+        _.strictEqual(this.quux, undefined);
+        _.strictEqual(this.quuz, undefined);
+        this.quux = 4;
+      },
+      // 5th: remove method should be called on entity
+      remove: function() {
+        _.strictEqual(this.foo, 1);
+        _.strictEqual(this.bar, 2);
+        _.strictEqual(this.baz, 3);
+        _.strictEqual(this.quux, 4);
+        _.strictEqual(this.quuz, undefined);
+        this.quuz = 5;
+      }
+    });
+    var s = Crafty.s("MemberOrderTest");
+    s.destroy();
+
+    _.strictEqual(s.foo, 1);
+    _.strictEqual(s.bar, 2);
+    _.strictEqual(s.baz, 3);
+    _.strictEqual(s.quux, 4);
+    _.strictEqual(s.quuz, 5);
+  });
 })();
 

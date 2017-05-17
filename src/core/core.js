@@ -323,10 +323,6 @@ Crafty.fn = Crafty.prototype = {
                     Object.defineProperty(this, propertyName, props[propertyName]);
                 }
             }
-            // Call constructor function
-            if (comp && "init" in comp) {
-                comp.init.call(this);
-            }
             // Bind events
             if (comp && "events" in comp){
                 var auto = comp.events;
@@ -334,6 +330,10 @@ Crafty.fn = Crafty.prototype = {
                     var fn = typeof auto[eventName] === "function" ? auto[eventName] : comp[auto[eventName]];
                     this.bind(eventName, fn);
                 }
+            }
+            // Call constructor function
+            if (comp && "init" in comp) {
+                comp.init.call(this);
             }
         }
 
