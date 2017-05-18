@@ -13,7 +13,10 @@ var Crafty = require('../core/core.js'),
  *
  * Crafty.debugCanvas.init() will be automatically called if it is not called already to initialize the canvas element.
  *
- * To visualise an object's MBR, use "VisibleMBR".  To visualise a "Collision" object's hitbox, use "WiredHitBox" or "SolidHitBox".
+ * To visualise an object's MBR, use "WiredMBR" or "SolidMBR".
+ * To visualise a "Collision" object's hitbox, use "WiredHitBox" or "SolidHitBox".
+ * To visualize an entity's click area, use "WiredAreaMap" or "SolidAreaMap".
+ *
  * @see DebugPolygon,  DebugRectangle
  */
 Crafty.c("DebugCanvas", {
@@ -179,35 +182,59 @@ Crafty.c("DebugRectangle", {
 });
 
 
-
 /**@
- * #VisibleMBR
+ * #WiredMBR
  * @category Debug
  * @kind Component
  *
- * Adding this component to an entity will cause it's MBR to be drawn to the debug canvas.
+ * Adding this component to an entity will cause its MBR to be drawn to the debug canvas as an outline.
  *
  * The methods of DebugCanvas can be used to control this component's appearance.
+ *
  * @see 2D, DebugRectangle, DebugCanvas
  */
-Crafty.c("VisibleMBR", {
+Crafty.c("WiredMBR", {
     init: function () {
         this.requires("DebugRectangle")
-            .debugFill("purple")
-            .bind("PreRender", this._assignRect);
+            .debugStroke("purple");
     },
 
-    // Internal method for updating the MBR drawn.
-    _assignRect: function () {
-        if (this._mbr)
-            this.debugRectangle(this._mbr);
-        else
-            this.debugRectangle(this);
-
+    events: {
+        "PreRender": function () {
+            // Internal method for updating the MBR drawn.
+            this.debugRectangle(this._mbr || this);
+        }
     }
-
-
 });
+
+
+/**@
+ * #SolidMBR
+ * @category Debug
+ * @kind Component
+ *
+ * Adding this component to an entity will cause its MBR to be drawn to the debug canvas.
+ *
+ * The methods of DebugCanvas can be used to control this component's appearance.
+ *
+ * @see 2D, DebugRectangle, DebugCanvas
+ */
+var solidMBR = {
+    init: function () {
+        this.requires("DebugRectangle")
+            .debugFill("pink");
+    },
+
+    events: {
+        "PreRender": function () {
+            // Internal method for updating the MBR drawn.
+            this.debugRectangle(this._mbr || this);
+        }
+    }
+};
+Crafty.c("SolidMBR", solidMBR);
+// DEPRECATED: remove this in an upcoming release
+Crafty.c("VisibleMBR", solidMBR);
 
 
 /**@
@@ -218,8 +245,6 @@ Crafty.c("VisibleMBR", {
  * For drawing a polygon to the debug canvas
  *
  * The methods of DebugCanvas can be used to control this component's appearance -- by default it is neither filled nor outlined
- *
- * For debugging hitboxes, use WiredHitBox or SolidHitBox.  For debugging MBR, use VisibleMBR
  *
  * @see DebugCanvas
  */
