@@ -498,6 +498,12 @@
     Crafty.timer.simulateFrames(1);
     _.strictEqual(e._vx, 0, "vx = 0 when NUMPAD_8 & NUMPAD_2 pressed");
     _.strictEqual(e._vy, 0, "vy = 0 when NUMPAD_8 & NUMPAD_2 pressed");
+    // pressing two more keys of opposite diagonal directions still cancels out all movement
+    keysDown(Crafty.keys.NUMPAD_7, Crafty.keys.NUMPAD_3);
+    Crafty.timer.simulateFrames(1);
+    _.strictEqual(e._vx, 0, "vx = 0 when NUMPAD_8 & NUMPAD_2 & NUMPAD_7 & NUMPAD_3 pressed");
+    _.strictEqual(e._vy, 0, "vy = 0 when NUMPAD_8 & NUMPAD_2 & NUMPAD_7 & NUMPAD_3 pressed");
+    keysUp(Crafty.keys.NUMPAD_7, Crafty.keys.NUMPAD_3);
     keysUp(Crafty.keys.NUMPAD_2, Crafty.keys.NUMPAD_8);
 
     // pressing 2 diagonal keys in one direction does not cancel out 1 vertical key in opposite direction
