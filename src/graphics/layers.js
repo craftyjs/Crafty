@@ -20,24 +20,6 @@ Crafty.extend({
         this._drawLayerTemplates[type] = layerTemplate;
         var common = this._commonLayerProperties;
 
-        // merge inits
-        if (typeof layerTemplate.init === 'function') {
-            var layerInit = layerTemplate.init;
-            var commonInit = common.init;
-            layerTemplate.init = function() {
-                layerInit.call(this);
-                commonInit.call(this);
-            };
-        }
-        // merge removes
-        if (typeof layerTemplate.remove === 'function') {
-            var layerRemove = layerTemplate.remove;
-            var commonRemove = common.remove;
-            layerTemplate.remove = function() {
-                layerRemove.call(this);
-                commonRemove.call(this);
-            };
-        }
         // add common properties, don't overwrite existing ones
         for (var key in common) {
             if (layerTemplate[key]) continue;
@@ -63,41 +45,26 @@ Crafty.extend({
         // A cached version of the viewport rect
         _cachedViewportRect: null,
 
-        // This init code will be run after any other specific layer init code
+
         init: function() {
             this._cachedViewportRect = {};
 
-            // Handle viewport modifications
-            this.uniqueBind("ViewportResize", this._resize);
-            this.uniqueBind("InvalidateViewport", function () {
-                this._dirtyViewport = true;
-            });
+            // Trigger layer-specific init code
+            this.trigger("LayerInit");
 
-            // Bind scene rendering (see drawing.js)
-            this.uniqueBind("RenderScene", this._render);
-
-            // Set pixelart to current status, and listen for changes
-            this._setPixelart(Crafty._pixelartEnabled);
-            this.uniqueBind("PixelartSet", this._setPixelart);
+            // Handle viewport invalidation
+            this.uniqueBind("InvalidateViewport", function () { this._dirtyViewport = true; });
+            // Set pixelart to current status
+            this.trigger("PixelartSet", Crafty._pixelartEnabled);
 
             Crafty._addDrawLayerInstance(this);
         },
-        // This remove code will be run after any other specific layer remove code
-        remove: function() {
-            Crafty._removeDrawLayerInstance(this);
-        },
 
-        _resize: function() {
-            // per default, do nothing
-            // specific layer should overwrite this method
-        },
-        _setPixelart: function(enabled) {
-            // per default, do nothing
-            // specific layer should overwrite this method
-        },
-        _render: function() {
-            // per default, render nothing
-            // specific layer should overwrite this method
+        remove: function() {
+            // Trigger layer-specific remove code
+            this.trigger("LayerRemove");
+
+            Crafty._removeDrawLayerInstance(this);
         },
 
         // Sort function for rendering in the correct order

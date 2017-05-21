@@ -24,7 +24,20 @@ Crafty._registerLayerTemplate("DOM", {
      */
     _div: null,
 
-    init: function () {
+    events: {
+        // Respond to init & remove events
+        "LayerInit": "layerInit",
+        "LayerRemove": "layerRemove",
+        // Bind scene rendering (see drawing.js)
+        "RenderScene": "_render",
+        // Listen for pixelart changes
+        "PixelartSet": "_setPixelart"
+        // Layers should generally listen for resize events,
+        // but the DOM layers automatically inherit the stage's dimensions
+        //"ViewportResize": "_resize"
+    },
+
+    layerInit: function () {
         // Avoid shared state between systems
         this._changedObjs = [];
 
@@ -38,13 +51,8 @@ Crafty._registerLayerTemplate("DOM", {
     },
 
     // Cleanup the DOM when the layer is destroyed
-    remove: function() {
+    layerRemove: function() {
         this._div.parentNode.removeChild(this._div);
-    },
-
-    // Layers should generally listen for resize events,
-    // but the DOM layers automatically inherit the stage's dimensions
-    _resize: function() {
     },
 
     // Handle whether images should be smoothed or not

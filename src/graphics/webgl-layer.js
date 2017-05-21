@@ -256,7 +256,19 @@ Crafty._registerLayerTemplate("WebGL", {
         return this.texture_manager.makeTexture(url, image, repeating);
     },
 
-    init: function() {
+    events: {
+        // Respond to init & remove events
+        "LayerInit": "layerInit",
+        "LayerRemove": "layerRemove",
+        // Bind scene rendering (see drawing.js)
+        "RenderScene": "_render",
+        // Listen for pixelart changes
+        "PixelartSet": "_setPixelart",
+        // Handle viewport modifications
+        "ViewportResize": "_resize"
+    },
+
+    layerInit: function() {
 
         //check if we support webgl is supported
         if (!Crafty.support.webgl) {
@@ -311,7 +323,7 @@ Crafty._registerLayerTemplate("WebGL", {
     },
 
     // Cleanup the DOM when the system is destroyed
-    remove: function() {
+    layerRemove: function() {
         this._canvas.parentNode.removeChild(this._canvas);
     },
 
