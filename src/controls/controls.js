@@ -191,7 +191,7 @@ Crafty.c("Controllable", {
      * @example
      * ~~~~
      * // Create a trigger bound to the `b` key
-     * Crafty.s("Controls").defineTriggerInput("BlushTrigger", {keys:['b']});
+     * Crafty.s("Controls").defineTriggerGroup("BlushTrigger", {keys:['b']});
      * // Create a blue square that turns pink when the trigger is pressed
      * Crafty.e("2D, Canvas, Color, Controllable")
      *   .attr({x:10, y:10, h:10, w:10}).color("blue")
@@ -297,6 +297,8 @@ Crafty.c("Multiway", {
 
     remove: function() {
         if (!this.disableControls) this.vx = this.vy = 0;
+        this.unlinkInput("DirectionalInput", this._dpadName);
+        Crafty.s("Controls").destroyDpad(this._dpadName);
     },
 
     events: {
@@ -441,10 +443,9 @@ Crafty.c("Jumper", {
         this.requires("Supportable, Motion, Controllable");
     },
 
-    
-
     remove: function() {
         this.unlinkInput("TriggerInputDown", this._jumpTriggerName);
+        Crafty.s("Controls").destroyTriggerGroup(this._jumpTriggerName);
     },
 
     _keydown_jumper: function (e) {
