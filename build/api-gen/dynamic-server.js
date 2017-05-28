@@ -5,7 +5,7 @@ var http = require('http'),
 var React = require('react');
 var ReactDOMServer = require('react-dom/server');
 require('node-jsx').install({extension: '.jsx'});
-var StaticPage = require('./server-side'); // React component
+var StaticPageCreator = require('./server-side'); // React component
 
 var createIndex = require("./index-docs");
 var cleanName = require("./clean-name");
@@ -19,7 +19,7 @@ function startServer(grunt, input){
     function createPage(selector, filename) {
       filename = filename || cleanName(selector) + ".html";
       props.selector = selector;
-      var page = React.createElement(StaticPage, props);
+      var page = React.createElement(StaticPageCreator.create(), props);
       var raw = ReactDOMServer.renderToStaticMarkup(page);
       if (pages[selector]) {
         var title = pages[selector].main.name;

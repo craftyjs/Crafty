@@ -31,9 +31,10 @@ module.exports = function (grunt) {
         grunt.log.writeln("Wrote api data to " + outputFile);
     };
 
-    var apiServer = require("./build/api-gen/dynamic-server.js");
+    
     function runApiServer() {
       this.async();
+      var apiServer = require("./build/api-gen/dynamic-server.js");
       apiServer(grunt, "./build/api.json");
       setTimeout(function(){
         open("http://localhost:8080");
