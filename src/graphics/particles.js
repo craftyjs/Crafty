@@ -1,5 +1,9 @@
-var Crafty = require('../core/core.js'),    
-    document = window.document;
+var Crafty = require('../core/core.js');
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// Particles are based on Parcycle by Mr. Speaker, licensed under the MIT, Ported by Leo Koppelkamm //
+//////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**@
  * #Particles
@@ -8,18 +12,47 @@ var Crafty = require('../core/core.js'),
  * 
  * @trigger ParticleEnd - when the particle animation has finished
  *
- * Based on Parcycle by Mr. Speaker, licensed under the MIT, Ported by Leo Koppelkamm
+ * Create particle effects.
  *
- * @note This requires the canvas element, and won't do anything if the browser doesn't support it!
+ * Particles won't be drawn outside the entity's bounds. Make sure to adjust the entity's dimensions accordingly.
  *
- * For implementation details, check out the source code.
+ * @note Particles effects currently work exclusively with the Canvas render backend.
+ * Particles won't be drawn if the browser doesn't support this!
+ *
+ * @see .particles
  */
 Crafty.c("Particles", {
+    required: "Renderable",
+    ready: true,
+
     init: function () {
         //We need to clone it
         this._Particles = Crafty.clone(this._Particles);
         this._Particles.parentEntity = this;
         this._particlesPaused = false;
+    },
+
+    events: {
+        "UpdateFrame": function () {
+            // don't update if paused or no particle fx active
+            if (this._particlesPaused || !this._Particles.active) return;
+
+            // This updates all particle colors & positions
+            this._Particles.update();
+            // Request redraw from render backend, as appearance has changed
+            this.trigger("Invalidate");
+        },
+
+        // render backend wants this entity to redraw itself
+        "Draw": function (e) {
+            // don't render if no particle fx active, but do redraw paused particles
+            if (!this._Particles.active) return;
+
+            if (e.type === "canvas") {
+                // This renders the updated particles
+                this._Particles.render(e);
+            }
+        }
     },
 
     /**@
@@ -29,6 +62,8 @@ Crafty.c("Particles", {
      * 
      * @sign public this .particles(Object options)
      * @param options - Map of options that specify the behavior and look of the particles.
+     *
+     * Create a new particle animation.
      *
      * @example
      * ~~~
@@ -64,81 +99,20 @@ Crafty.c("Particles", {
      *   originOffset: {x: 0, y: 0}
      * };
      *
-     * Crafty.e("2D,Canvas,Particles").particles(options);
+     * Crafty.e("2D, Canvas, Particles")
+     *     .attr({ w: 200, h: 200 })
+     *     // debug entity's bounds while developing
+     *     // make sure particles fit into entity's bounds
+     *     .addComponent('WiredMBR')
+     *     // init particle animation
+     *     .particles(options);
      * ~~~
      */
     particles: function (options) {
-
-        if (!Crafty.support.canvas || Crafty.deactivateParticles) return this;
-
-        //If we drew on the main canvas, we'd have to redraw
-        //potentially huge sections of the screen every frame
-        //So we create a separate canvas, where we only have to redraw
-        //the changed particles.
-        var c, ctx, relativeX, relativeY, bounding;
-
-        c = document.createElement("canvas");
-        c.width = Crafty.viewport.width;
-        c.height = Crafty.viewport.height;
-        c.style.position = 'absolute';
-        c.style.left = "0px";
-        c.style.top = "0px";
-
-        Crafty.stage.elem.appendChild(c);
-
-        ctx = c.getContext('2d');
-
         this._Particles.init(options);
-
-        // Clean up the DOM when this component is removed
-        this.bind('Remove', function () {
-            Crafty.stage.elem.removeChild(c);
-        }).bind("RemoveComponent", function (id) {
-            if (id === "particles")
-                Crafty.stage.elem.removeChild(c);
-        });
-
-        relativeX = this.x + Crafty.viewport.x;
-        relativeY = this.y + Crafty.viewport.y;
-        this._Particles.position = this._Particles.vectorHelpers.create(relativeX, relativeY);
-
-        var oldViewport = {
-            x: Crafty.viewport.x,
-            y: Crafty.viewport.y
-        };
-
-        this.bind('UpdateFrame', function () {
-            if (this._particlesPaused) return;
-            relativeX = this.x + Crafty.viewport.x;
-            relativeY = this.y + Crafty.viewport.y;
-            this._Particles.viewportDelta = {
-                x: Crafty.viewport.x - oldViewport.x,
-                y: Crafty.viewport.y - oldViewport.y
-            };
-
-            oldViewport = {
-                x: Crafty.viewport.x,
-                y: Crafty.viewport.y
-            };
-
-            this._Particles.position = this._Particles.vectorHelpers.create(relativeX, relativeY);
-
-            //Selective clearing
-            if (typeof Crafty.rectManager.boundingRect === 'function') {
-                bounding = Crafty.rectManager.boundingRect(this._Particles.register);
-                if (bounding) ctx.clearRect(bounding._x, bounding._y, bounding._w, bounding._h);
-            } else {
-                ctx.clearRect(0, 0, Crafty.viewport.width, Crafty.viewport.height);
-            }
-
-            //This updates all particle colors & positions
-            this._Particles.update();
-
-            //This renders the updated particles
-            this._Particles.render(ctx);
-        });
         return this;
     },
+
     _Particles: {
         presets: {
             maxParticles: 150,
@@ -184,9 +158,7 @@ Crafty.c("Particles", {
             particleIndex: 0
         },
 
-
         init: function (options) {
-            this.position = this.vectorHelpers.create(0, 0);
             if (typeof options === 'undefined') options = {};
 
             //Create current config by merging given options and presets.
@@ -213,19 +185,21 @@ Crafty.c("Particles", {
 
             return true;
         },
+
         RANDM1TO1: function () {
             return Math.random() * 2 - 1;
         },
+
         initParticle: function (particle) {
-            particle.position.x = Crafty.viewport._scale * (this.position.x + this.originOffset.x + this.positionRandom.x * this.RANDM1TO1());
-            particle.position.y = Crafty.viewport._scale * (this.position.y + this.originOffset.y + this.positionRandom.y * this.RANDM1TO1());
+            particle.position.x = this.originOffset.x + this.positionRandom.x * this.RANDM1TO1();
+            particle.position.y = this.originOffset.y + this.positionRandom.y * this.RANDM1TO1();
 
             var newAngle = (this.angle + this.angleRandom * this.RANDM1TO1()) * (Math.PI / 180); // convert to radians
             var vector = this.vectorHelpers.create(Math.sin(newAngle), -Math.cos(newAngle)); // Could move to lookup for speed
             var vectorSpeed = this.speed + this.speedRandom * this.RANDM1TO1();
             particle.direction = this.vectorHelpers.multiply(vector, vectorSpeed);
 
-            particle.size = Crafty.viewport._scale * (this.size + this.sizeRandom * this.RANDM1TO1());
+            particle.size = this.size + this.sizeRandom * this.RANDM1TO1();
             particle.size = particle.size < 0 ? 0 : ~~particle.size;
             particle.timeToLive = this.lifeSpan + this.lifeSpanRandom * this.RANDM1TO1();
 
@@ -253,6 +227,7 @@ Crafty.c("Particles", {
             particle.deltaColour[2] = (end[2] - start[2]) / particle.timeToLive;
             particle.deltaColour[3] = (end[3] - start[3]) / particle.timeToLive;
         },
+
         update: function () {
             if (this.active && this.emissionRate > 0) {
                 var rate = 1 / this.emissionRate;
@@ -280,7 +255,6 @@ Crafty.c("Particles", {
                     // Calculate the new direction based on gravity
                     currentParticle.direction = this.vectorHelpers.add(currentParticle.direction, this.gravity);
                     currentParticle.position = this.vectorHelpers.add(currentParticle.position, currentParticle.direction);
-                    currentParticle.position = this.vectorHelpers.add(currentParticle.position, this.viewportDelta);
                     if (this.jitter) {
                         currentParticle.position.x += this.jitter * this.RANDM1TO1();
                         currentParticle.position.y += this.jitter * this.RANDM1TO1();
@@ -331,19 +305,21 @@ Crafty.c("Particles", {
             this.parentEntity.trigger("ParticleEnd");
         },
 
-        render: function (context) {
+        render: function (e) {
+            var context = e.ctx;
 
             for (var i = 0, j = this.particleCount; i < j; i++) {
                 var particle = this.particles[i];
                 var size = particle.size;
                 var halfSize = size >> 1;
 
-                if (particle.position.x + size < 0 || particle.position.y + size < 0 || particle.position.x - size > Crafty.viewport.width || particle.position.y - size > Crafty.viewport.height) {
+                if (particle.position.x < 0 || particle.position.x + size > e.pos._w ||
+                    particle.position.y < 0 || particle.position.y + size > e.pos._h) {
                     //Particle is outside
                     continue;
                 }
-                var x = ~~particle.position.x;
-                var y = ~~particle.position.y;
+                var x = ~~(e.pos._x + particle.position.x);
+                var y = ~~(e.pos._y + particle.position.y);
 
                 if (this.fastMode) {
                     context.fillStyle = particle.drawColour;
@@ -357,6 +333,7 @@ Crafty.c("Particles", {
                 context.fillRect(x, y, size, size);
             }
         },
+
         particle: function (vectorHelpers) {
             this.position = vectorHelpers.create(0, 0);
             this.direction = vectorHelpers.create(0, 0);
@@ -368,6 +345,7 @@ Crafty.c("Particles", {
             this.deltaColour = [];
             this.sharpness = 0;
         },
+
         vectorHelpers: {
             create: function (x, y) {
                 return {
@@ -387,6 +365,7 @@ Crafty.c("Particles", {
             }
         }
     },
+
     /**@
      * #.pauseParticles
      * @comp Particles
@@ -409,6 +388,7 @@ Crafty.c("Particles", {
     pauseParticles: function() {
         this._particlesPaused = true;
     },
+
     /**@
      * #.resumeParticles
      * @comp Particles
