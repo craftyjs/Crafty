@@ -182,6 +182,9 @@ Crafty.c("Color", {
     ready: true,
 
     init: function () {
+        // Necessary for some rendering layers
+        this.__coord = this.__coord || [0, 0, 0, 0];
+        
         this.bind("Draw", this._drawColor);
         if (this._drawLayer) {
             this._setupColor(this._drawLayer);
