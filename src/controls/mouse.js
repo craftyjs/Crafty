@@ -5,18 +5,14 @@ var Crafty = require('../core/core.js');
  * @category Input
  * @kind Component
  *
- * Provides valid mouse related events and button states for the entity.
+ * Handles valid mouse related events and button states for the entity.
+ * @note This is an internally used component, automatically included in the `MouseSystem`.
  *
- * @trigger MouseOver - when the mouse enters - MouseEvent
- * @trigger MouseOut - when the mouse leaves - MouseEvent
- * @trigger MouseDown - when the mouse button is pressed on - MouseEvent
- * @trigger MouseUp - when the mouse button is released on - MouseEvent
- * @trigger Click - when the user clicks - MouseEvent
- * @trigger DoubleClick - when the user double clicks - MouseEvent
- * @trigger MouseMove - when the mouse is over and moves - MouseEvent
+ * @trigger MouseDown - when a mouse button is pressed - MouseEvent
+ * @trigger MouseMove - when the mouse moves - MouseEvent
+ * @trigger MouseUp - when a mouse button is released - MouseEvent
  *
- * The event callbacks are triggered with a native [`MouseEvent`](https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent),
- * which is wrapped in a standard Crafty event object consisting of additional properties:
+ * The standard Crafty `MouseEvent` object:
  * ~~~
  * // event name of mouse event
  * e.eventName
@@ -25,34 +21,18 @@ var Crafty = require('../core/core.js');
  * // Crafty.mouseButtons.LEFT, Crafty.mouseButtons.RIGHT or Crafty.mouseButtons.MIDDLE
  * e.mouseButton
  *
+ * // the closest (visible & Mouse-enhanced) entity to the source of the event (if available), otherwise null
+ * e.target
+ *
  * // (x,y) coordinates of mouse event in world (default viewport) space
  * e.realX
  * e.realY
- *
- * // (x,y) coordinates of mouse event in web-browser (screen) space
- * e.clientX
- * e.clientY
  *
  * // Original mouse event, containing additional native properties
  * e.originalEvent
  * ~~~
  *
  * In addition to binding to these events, the current state (pressed/released) of a mouse button can also be queried using the `.isButtonDown` method.
- *
- * @example
- * ~~~
- * var myEntity = Crafty.e('2D, Canvas, Color, Mouse')
- * .attr({x: 10, y: 10, w: 40, h: 40})
- * .color('red')
- * .bind('Click', function(MouseEvent){
- *   alert('clicked', MouseEvent);
- * });
- *
- * myEntity.bind('MouseUp', function(e) {
- *    if( e.mouseButton == Crafty.mouseButtons.RIGHT )
- *        Crafty.log("Clicked right button");
- * })
- * ~~~
  *
  * @see Mouse, MouseSystem
  * @see Crafty.mouseButtons
@@ -78,10 +58,11 @@ Crafty.__mouseStateTemplate = {
         this.lastMouseEvent = {
             eventName: '',
             mouseButton: -1,
+            target: null,
             realX: 0,
             realY: 0,
-            clientX: 0,
-            clientY: 0,
+            clientX: 0, // DEPRECATED: remove in upcoming release
+            clientY: 0, // DEPRECATED: remove in upcoming release
             originalEvent: null
         };
     },
@@ -158,7 +139,7 @@ Crafty.__mouseStateTemplate = {
      * @param eventName - Name of the mouse event to trigger ("MouseDown", "MouseUp", "MouseMove", ...)
      * @param eventData - The mouse event to trigger
      *
-     * Try to trigger a mouse event on this entity.
+     * Try to trigger a mouse event on this entity and persist the button state.
      * This method prevents inconsistent button state.
      * e.g. If this entity didn't receive a "MouseDown" previously, it won't fire a "MouseUp" event.
      *
@@ -184,10 +165,11 @@ Crafty.__mouseStateTemplate = {
         var lastEvent = this.lastMouseEvent;
         lastEvent.eventName = eventName;
         lastEvent.mouseButton = eventData.mouseButton;
+        lastEvent.target = eventData.target;
         lastEvent.realX = eventData.realX;
         lastEvent.realY = eventData.realY;
-        lastEvent.clientX = eventData.clientX;
-        lastEvent.clientY = eventData.clientY;
+        lastEvent.clientX = eventData.clientX; // DEPRECATED: remove in upcoming release
+        lastEvent.clientY = eventData.clientY; // DEPRECATED: remove in upcoming release
         lastEvent.originalEvent = eventData.originalEvent;
 
         // trigger event only if valid state

@@ -35,19 +35,21 @@
       var touchStartsOverEntities = 0,
           touchEndsOverEntities = 0;
       Crafty.e('2D, Renderable, DOM, Touch')
+              .setName('EntityA')
               .attr({ x: 100, y: 100, w:200, h:200, z:1 })
-              .bind('TouchStart',function(){ 
+              .bind('TouchOver',function() {
                   touchStartsOverEntities++;
               })
-              .bind('TouchEnd',function(){ 
+              .bind('TouchOut',function() {
                   touchEndsOverEntities++;
               });
       Crafty.e('2D, Renderable, DOM, Touch')
+              .setName('EntityB')
               .attr({ x: 40, y: 150, w:90, h:300, z:2 })
-              .bind('TouchStart',function(){ 
+              .bind('TouchOver',function() {
                   touchStartsOverEntities++;
               })
-              .bind('TouchEnd',function(){ 
+              .bind('TouchOut',function() {
                   touchEndsOverEntities++;
               });
       var elem = Crafty.stage.elem,
@@ -58,36 +60,177 @@
          touchEnd2 = createTouchEvent(elem, "touchend", [[200 + sx, 50 + sy, 2]]),
          touchStart2 = createTouchEvent(elem, "touchstart", [[100 + sx, 80 + sy, 4]]),
          touchEnd3 = createTouchEvent(elem, "touchend", [[150 + sx, 150 + sy, 1]]),
+         touchMove1 = createTouchEvent(elem, "touchmove", [[150 + sx, 150 + sy, 4]]),
          touchEnd4 = createTouchEvent(elem, "touchend", [[100 + sx, 80 + sy, 0]]),
+         touchMove2 = createTouchEvent(elem, "touchmove", [[100 + sx, 80 + sy, 4]]),
          touchEnd5 = createTouchEvent(elem, "touchend", [[100 + sx, 80 + sy, 4]]);
 
+      var touchPoint, touchPoints = Crafty.s('Touch').touchPoints;
+
+      /** touchStart1 **/
       touchStart1();
-    
-      _.equal(Crafty.s('Touch')._touchHandler.fingers.length, 4, "Four fingers currently touching stage");
-    
+      _.strictEqual(touchPoints.length, 4, "Four fingers currently touching stage");
+      // id 0
+      touchPoint = touchPoints[0];
+      _.strictEqual(touchPoint.eventName, "TouchStart");
+      _.strictEqual(touchPoint.identifier, 0);
+      _.strictEqual(touchPoint.realX, 100);
+      _.strictEqual(touchPoint.realY, 80);
+      _.strictEqual(touchPoint.target, null);
+      // id 1
+      touchPoint = touchPoints[1];
+      _.strictEqual(touchPoint.eventName, "TouchStart");
+      _.strictEqual(touchPoint.identifier, 1);
+      _.strictEqual(touchPoint.realX, 150);
+      _.strictEqual(touchPoint.realY, 150);
+      _.strictEqual(touchPoint.target.getName(), "EntityA");
+      // id 2
+      touchPoint = touchPoints[2];
+      _.strictEqual(touchPoint.eventName, "TouchStart");
+      _.strictEqual(touchPoint.identifier, 2);
+      _.strictEqual(touchPoint.realX, 200);
+      _.strictEqual(touchPoint.realY, 50);
+      _.strictEqual(touchPoint.target, null);
+      // id 3
+      touchPoint = touchPoints[3];
+      _.strictEqual(touchPoint.eventName, "TouchStart");
+      _.strictEqual(touchPoint.identifier, 3);
+      _.strictEqual(touchPoint.realX, 65);
+      _.strictEqual(touchPoint.realY, 275);
+      _.strictEqual(touchPoint.target.getName(), "EntityB");
+
+      /** touchEnd1 **/
       touchEnd1();
+      _.strictEqual(touchPoints.length, 3, "Three fingers currently touching stage");
+      // id 0
+      touchPoint = touchPoints[0];
+      _.strictEqual(touchPoint.eventName, "TouchStart");
+      _.strictEqual(touchPoint.identifier, 0);
+      _.strictEqual(touchPoint.realX, 100);
+      _.strictEqual(touchPoint.realY, 80);
+      _.strictEqual(touchPoint.target, null);
+      // id 1
+      touchPoint = touchPoints[1];
+      _.strictEqual(touchPoint.eventName, "TouchStart");
+      _.strictEqual(touchPoint.identifier, 1);
+      _.strictEqual(touchPoint.realX, 150);
+      _.strictEqual(touchPoint.realY, 150);
+      _.strictEqual(touchPoint.target.getName(), "EntityA");
+      // id 2
+      touchPoint = touchPoints[2];
+      _.strictEqual(touchPoint.eventName, "TouchStart");
+      _.strictEqual(touchPoint.identifier, 2);
+      _.strictEqual(touchPoint.realX, 200);
+      _.strictEqual(touchPoint.realY, 50);
+      _.strictEqual(touchPoint.target, null);
 
-      _.equal(Crafty.s('Touch')._touchHandler.fingers.length, 3, "Three fingers currently touching stage");
-    
+      /** touchEnd2 **/
       touchEnd2();
+      _.strictEqual(touchPoints.length, 2, "Two fingers currently touching stage");
+      // id 0
+      touchPoint = touchPoints[0];
+      _.strictEqual(touchPoint.eventName, "TouchStart");
+      _.strictEqual(touchPoint.identifier, 0);
+      _.strictEqual(touchPoint.realX, 100);
+      _.strictEqual(touchPoint.realY, 80);
+      _.strictEqual(touchPoint.target, null);
+      // id 1
+      touchPoint = touchPoints[1];
+      _.strictEqual(touchPoint.eventName, "TouchStart");
+      _.strictEqual(touchPoint.identifier, 1);
+      _.strictEqual(touchPoint.realX, 150);
+      _.strictEqual(touchPoint.realY, 150);
+      _.strictEqual(touchPoint.target.getName(), "EntityA");
+
+      /** touchStart2 **/
       touchStart2();
-      
-      _.equal(Crafty.s('Touch')._touchHandler.fingers.length, 3, "Three fingers currently touching stage");
-    
+      _.strictEqual(touchPoints.length, 3, "Three fingers currently touching stage");
+      // id 0
+      touchPoint = touchPoints[0];
+      _.strictEqual(touchPoint.eventName, "TouchStart");
+      _.strictEqual(touchPoint.identifier, 0);
+      _.strictEqual(touchPoint.realX, 100);
+      _.strictEqual(touchPoint.realY, 80);
+      _.strictEqual(touchPoint.target, null);
+      // id 1
+      touchPoint = touchPoints[1];
+      _.strictEqual(touchPoint.eventName, "TouchStart");
+      _.strictEqual(touchPoint.identifier, 1);
+      _.strictEqual(touchPoint.realX, 150);
+      _.strictEqual(touchPoint.realY, 150);
+      _.strictEqual(touchPoint.target.getName(), "EntityA");
+      // id 4
+      touchPoint = touchPoints[2];
+      _.strictEqual(touchPoint.eventName, "TouchStart");
+      _.strictEqual(touchPoint.identifier, 4);
+      _.strictEqual(touchPoint.realX, 100);
+      _.strictEqual(touchPoint.realY, 80);
+      _.strictEqual(touchPoint.target, null);
+
+      /** touchEnd3 **/
       touchEnd3();
-    
-      _.equal(Crafty.s('Touch')._touchHandler.fingers.length, 2, "Two fingers currently touching stage");
+      _.strictEqual(touchPoints.length, 2, "Two fingers currently touching stage");
+      // id 0
+      touchPoint = touchPoints[0];
+      _.strictEqual(touchPoint.eventName, "TouchStart");
+      _.strictEqual(touchPoint.identifier, 0);
+      _.strictEqual(touchPoint.realX, 100);
+      _.strictEqual(touchPoint.realY, 80);
+      _.strictEqual(touchPoint.target, null);
+      // id 4
+      touchPoint = touchPoints[1];
+      _.strictEqual(touchPoint.eventName, "TouchStart");
+      _.strictEqual(touchPoint.identifier, 4);
+      _.strictEqual(touchPoint.realX, 100);
+      _.strictEqual(touchPoint.realY, 80);
+      _.strictEqual(touchPoint.target, null);
 
+      /** touchMove1 **/
+      touchMove1();
+      _.strictEqual(touchPoints.length, 2, "Two fingers currently touching stage");
+      // id 0
+      touchPoint = touchPoints[0];
+      _.strictEqual(touchPoint.eventName, "TouchStart");
+      _.strictEqual(touchPoint.identifier, 0);
+      _.strictEqual(touchPoint.realX, 100);
+      _.strictEqual(touchPoint.realY, 80);
+      _.strictEqual(touchPoint.target, null);
+      // id 4
+      touchPoint = touchPoints[1];
+      _.strictEqual(touchPoint.eventName, "TouchMove");
+      _.strictEqual(touchPoint.identifier, 4);
+      _.strictEqual(touchPoint.realX, 150);
+      _.strictEqual(touchPoint.realY, 150);
+      _.strictEqual(touchPoint.target.getName(), "EntityA");
+
+      /** touchEnd4 **/
       touchEnd4();
-      
-      _.equal(Crafty.s('Touch')._touchHandler.fingers.length, 1, "One finger currently touching stage");
+      _.strictEqual(touchPoints.length, 1, "One finger currently touching stage");
+      // id 4
+      touchPoint = touchPoints[0];
+      _.strictEqual(touchPoint.eventName, "TouchMove");
+      _.strictEqual(touchPoint.identifier, 4);
+      _.strictEqual(touchPoint.realX, 150);
+      _.strictEqual(touchPoint.realY, 150);
+      _.strictEqual(touchPoint.target.getName(), "EntityA");
 
+      /** touchMove2 **/
+      touchMove2();
+      _.strictEqual(touchPoints.length, 1, "One finger currently touching stage");
+      // id 4
+      touchPoint = touchPoints[0];
+      _.strictEqual(touchPoint.eventName, "TouchMove");
+      _.strictEqual(touchPoint.identifier, 4);
+      _.strictEqual(touchPoint.realX, 100);
+      _.strictEqual(touchPoint.realY, 80);
+      _.strictEqual(touchPoint.target, null);
+
+      /** touchEnd5 **/
       touchEnd5();
-    
-      _.equal(Crafty.s('Touch')._touchHandler.fingers.length, 0, "No fingers currently touching stage");
+      _.strictEqual(touchPoints.length, 0, "No fingers currently touching stage");
       
-      _.equal(touchStartsOverEntities, 2, "Two entities recieved TouchStart");
-      _.equal(touchEndsOverEntities, 2, "Two entities recieved TouchEnd");
+      _.strictEqual(touchStartsOverEntities, 3, "Two entities received TouchStart, one received it twice");
+      _.strictEqual(touchEndsOverEntities, 3, "Two entities received TouchEnd, one received it twice");
     });
     
     test("stopKeyPropagation", function(_) {
@@ -108,9 +251,10 @@
         returnValue: false,
       };
 
+      var origSelected = Crafty.selected;
       Crafty.selected = true;
       Crafty.s('Keyboard').processEvent(mockEvent);
-      Crafty.selected = false;
+      Crafty.selected = origSelected;
       
       _.ok(stopPropCalled, "stopPropagation Not Called");
       _.ok(preventDefaultCalled, "preventDefault Not Called");

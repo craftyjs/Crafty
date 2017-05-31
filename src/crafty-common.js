@@ -32,6 +32,7 @@ module.exports = function(requireNew) {
     require('./controls/keyboard');
     require('./controls/keycodes');
     require('./controls/mouse');
+    require('./controls/touch');
 
     require('./debug/logging');
 

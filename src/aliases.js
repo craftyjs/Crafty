@@ -23,6 +23,8 @@ module.exports = {
 
         createDeprecatedAlias(Crafty, "touchDispatch", Crafty, "_touchDispatch");
         createDeprecatedAlias(Crafty, "touchObjs", Crafty.s('Touch'), "touchObjs");
+        Crafty.touchHandler = {};
+        createDeprecatedAlias(Crafty.touchHandler, "fingers", Crafty.s('Touch'), "touchPoints");
     }
 };
 

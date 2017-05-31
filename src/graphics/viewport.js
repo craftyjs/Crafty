@@ -488,9 +488,10 @@ Crafty.extend({
                 diff = {x: 0, y: 0};
 
             function startFn (e) {
-                if (dragging) return;
+                if (dragging || e.target) return;
 
                 Crafty.trigger("StopCamera");
+                // DEPRECATED: switch computation to use e.realX, e.realY
                 lastMouse.x = e.clientX;
                 lastMouse.y = e.clientY;
                 dragging = true;
@@ -516,8 +517,7 @@ Crafty.extend({
             }
 
             return function (op) {
-                // FIXME: mouseLook is incompatible with Draggable entities
-                // TODO: lock pointer events on controls system
+                // TODO: lock pointer events on controls system in future
                 mouseSystem = Crafty.s('Mouse');
 
                 if (op && !active) {

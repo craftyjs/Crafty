@@ -6,18 +6,33 @@ var Crafty = require('../core/core.js');
  * @kind System
  *
  * System which dispatches mouse wheel events received by Crafty.
- * @trigger MouseWheelScroll - is triggered when mouse is scrolled on stage - { direction: +1 | -1} - Scroll direction (up | down)
+ * @trigger MouseWheelScroll - when mouse is scrolled - MouseWheelEvent
  *
- * @note This system processes a native [`wheel` event](https://developer.mozilla.org/en-US/docs/Web/Events/wheel) (all newer browsers),
+ * The event callback is triggered with a native [`wheel` event](https://developer.mozilla.org/en-US/docs/Web/Events/wheel) (all newer browsers),
  * a native [`mousewheel` event](https://developer.mozilla.org/en-US/docs/Web/Events/mousewheel) (old IE and WebKit browsers) or
  * a native [`DOMMouseScroll` event](https://developer.mozilla.org/en-US/docs/Web/Events/DOMMouseScroll) (old Firefox browsers)
- * received by `Crafty.stage.elem`, wraps it into a standard Crafty event object with additional `.direction`, `.realX`, `.realY` properties (see below) and
- * dispatches it to the global Crafty object and thus to every entity.
- * See [mdn details on wheel events](https://developer.mozilla.org/en-US/docs/Web/Events/wheel#Listening_to_this_event_across_browser).
+ * received by Crafty's stage (`Crafty.stage.elem`), which is wrapped in a standard Crafty event object (see below).
  *
- * @note The wheel delta properties of the event vary in magnitude across browsers, thus it is recommended to check for `.direction` instead.
- * The `.direction` equals `+1` if wheel was scrolled up, `-1` if wheel was scrolled down
- * (see [details](http://stackoverflow.com/questions/5527601/normalizing-mousewheel-speed-across-browsers)).
+ * These MouseWheel events are triggered on the global Crafty object and thus on every entity and system.
+ *
+ * The standard `MouseWheelEvent` object:
+ * ~~~
+ * // event name of mouse wheel event - "MouseWheelScroll"
+ * e.eventName
+ *
+ * // the direction the wheel was scrolled, +1 if wheel was scrolled up, -1 if wheel was scrolled down
+ * e.direction
+ *
+ * // the closest (visible & Mouse-enhanced) entity to the source of the event (if available), otherwise null
+ * e.target
+ *
+ * // (x,y) coordinates of mouse event in world (default viewport) space
+ * e.realX
+ * e.realY
+ *
+ * // Original mouse wheel event, containing additional native properties
+ * e.originalEvent
+ * ~~~
  *
  * @example
  * Zoom the viewport (camera) in response to mouse scroll events.
@@ -26,6 +41,11 @@ var Crafty = require('../core/core.js');
  *     Crafty.viewport.scale(Crafty.viewport._scale * (1 + evt.direction * 0.1));
  * });
  * ~~~
+ *
+ * For more details see [mdn article on wheel events](https://developer.mozilla.org/en-US/docs/Web/Events/wheel#Listening_to_this_event_across_browser).
+ * @note The wheel delta properties of the event vary in magnitude across browsers, thus it is recommended to check for `.direction` instead.
+ * The `.direction` equals `+1` if wheel was scrolled up, `-1` if wheel was scrolled down
+ * (see [details](http://stackoverflow.com/questions/5527601/normalizing-mousewheel-speed-across-browsers)).
  *
  * @example
  * Interactive, map-like zooming of the viewport (camera) in response to mouse scroll events.
@@ -71,27 +91,58 @@ var Crafty = require('../core/core.js');
  *
  * // enable interactive map-like zooming by scrolling the mouse
  * Crafty.bind("MouseWheelScroll", function (evt) {
- *     var pos = Crafty.domHelper.translate(evt.clientX, evt.clientY);
- *     zoomTowards(1 + evt.direction/10, pos.x, pos.y, 5);
+ *     zoomTowards(1 + evt.direction/10, evt.realX, evt.realY, 5);
  * });
  * ~~~
  */
 
 Crafty.s("MouseWheel", Crafty.extend.call(new Crafty.__eventDispatcher(), {
-    dispatchEvent: function (e) {
+    _evt: { // evt object to reuse
+        eventName:'',
+        direction: 0,
+        target: null,
+        clientX: 0, // DEPRECATED: remove in upcoming release
+        clientY: 0, // DEPRECATED: remove in upcoming release
+        realX: 0,
+        realY: 0,
+        originalEvent: null
+    },
+    _mouseSystem: null,
+
+    prepareEvent: function (e) {
+        var mouseSystem = this._mouseSystem;
+        if (!mouseSystem) this._mouseSystem = mouseSystem = Crafty.s('Mouse');
+
+        var evt = this._evt;
+
         // normalize eventName
-        e.eventName = "MouseWheelScroll";
+        evt.eventName = "MouseWheelScroll";
+
         // normalize direction
-        e.direction = (e.detail < 0 || e.wheelDelta > 0 || e.deltaY < 0) ? 1 : -1;
+        evt.direction = (e.detail < 0 || e.wheelDelta > 0 || e.deltaY < 0) ? 1 : -1;
+
+        // copy screen coordinates
+        // only browsers supporting `wheel` event contain mouse coordinates
+        // DEPRECATED: remove in upcoming release
+        evt.clientX = e.clientX !== undefined ? e.clientX : mouseSystem.lastMouseEvent.clientX;
+        evt.clientY = e.clientY !== undefined ? e.clientY : mouseSystem.lastMouseEvent.clientY;
+
+        // augment mouse event with real coordinates
+        Crafty.translatePointerEventCoordinates(e, evt);
+
+        // augment mouse event with target entity
+        evt.target = mouseSystem.mouseObjs ? Crafty.findPointerEventTargetByComponent("Mouse", e) : null;
+
         // wrap original event into standard Crafty event object
-        // (no current impact, but could be changed in future)
-        e.originalEvent = e;
+        evt.originalEvent = e;
 
-        // augment event with real coordinates
-        Crafty.augmentPointerEvent(e);
+        return evt;
+    },
 
+    dispatchEvent: function (e) {
+        var evt = this.prepareEvent(e);
         // trigger event
-        Crafty.trigger("MouseWheelScroll", e);
+        Crafty.trigger("MouseWheelScroll", evt);
     }
 }), {}, false);
 
@@ -102,8 +153,16 @@ Crafty.s("MouseWheel", Crafty.extend.call(new Crafty.__eventDispatcher(), {
  * @kind System
  *
  * Provides access to mouse events.
+ * @note Additional events and methods are inherited from the `MouseState` component.
  *
- * Events and methods are inherited from the `MouseState` component.
+ * @trigger MouseOver - when the mouse enters an entity - MouseEvent
+ * @trigger MouseOut - when the mouse leaves an entity - MouseEvent
+ * @trigger Click - when the user clicks - MouseEvent
+ * @trigger DoubleClick - when the user double clicks - MouseEvent
+ *
+ * The event callbacks are triggered with a native [`MouseEvent`](https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent)
+ * received by Crafty's stage (`Crafty.stage.elem`), which is wrapped in a standard Crafty event object (as described in `MouseState`).
+ *
  * These mouse events are triggered on the MouseSystem itself.
  * Additionally, they are dispatched to the closest (visible & `Mouse`-enhanced) entity to the source of the event (if available).
  *
@@ -131,34 +190,53 @@ Crafty.s("Mouse", Crafty.extend.call(Crafty.extend.call(new Crafty.__eventDispat
         "mousemove": "MouseMove"
     },
 
+    _evt: { // evt object to reuse
+        eventName:'',
+        mouseButton: -1,
+        target: null,
+        clientX: 0, // DEPRECATED: remove in upcoming release
+        clientY: 0, // DEPRECATED: remove in upcoming release
+        realX: 0,
+        realY: 0,
+        originalEvent: null
+    },
+
     // Indicates how many entities have the Mouse component, for performance optimization
     // Mouse events are still routed to Crafty.s('Mouse') even if there are no entities with Mouse component
     mouseObjs: 0,
 
-    // current object that is moused over
+    // current entity that is moused over
     over: null,
 
     prepareEvent: function (e) {
+        var evt = this._evt;
+
         // Normalize event name
         var type = e.type;
-        e.eventName = this.normedEventNames[type] || type;
+        evt.eventName = this.normedEventNames[type] || type;
 
         // Normalize button according to http://unixpapa.com/js/mouse.html
-        var mouseButton;
         if (typeof e.which === 'undefined') {
-            mouseButton = e.mouseButton = (e.button < 2) ? Crafty.mouseButtons.LEFT : ((e.button === 4) ? Crafty.mouseButtons.MIDDLE : Crafty.mouseButtons.RIGHT);
+            evt.mouseButton = (e.button < 2) ? Crafty.mouseButtons.LEFT : ((e.button === 4) ? Crafty.mouseButtons.MIDDLE : Crafty.mouseButtons.RIGHT);
         } else {
-            mouseButton = e.mouseButton = (e.which < 2) ? Crafty.mouseButtons.LEFT : ((e.which === 2) ? Crafty.mouseButtons.MIDDLE : Crafty.mouseButtons.RIGHT);
+            evt.mouseButton = (e.which < 2) ? Crafty.mouseButtons.LEFT : ((e.which === 2) ? Crafty.mouseButtons.MIDDLE : Crafty.mouseButtons.RIGHT);
         }
 
-        // wrap original event into standard Crafty event object
-        // (no current impact, but could be changed in future)
-        e.originalEvent = e;
+        // copy screen coordinates
+        // DEPRECATED: remove in upcoming release
+        evt.clientX = e.clientX;
+        evt.clientY = e.clientY;
 
         // augment mouse event with real coordinates
-        Crafty.augmentPointerEvent(e);
+        Crafty.translatePointerEventCoordinates(e, evt);
 
-        return e;
+        // augment mouse event with target entity
+        evt.target = this.mouseObjs ? Crafty.findPointerEventTargetByComponent("Mouse", e) : null;
+
+        // wrap original event into standard Crafty event object
+        evt.originalEvent = e;
+
+        return evt;
     },
 
     // this method will be called by MouseState iff triggerMouse event was valid
@@ -166,34 +244,33 @@ Crafty.s("Mouse", Crafty.extend.call(Crafty.extend.call(new Crafty.__eventDispat
         // trigger event on MouseSystem itself
         this.trigger(eventName, e);
 
-        // TODO: move routing of events in future to controls system
-        // make it similar to KeyboardSystem and Keyboard implementation
-        if (!this.mouseObjs) return;
+        // special case: MouseOver & MouseOut
+        var over = this.over, closest = e.target;
+        if (eventName === "MouseMove" && over !== closest) { // MouseOver target changed
+            // if old MouseOver target wasn't null, send MouseOut
+            if (over) {
+                e.eventName = "MouseOut";
+                e.target = over;
+                over.trigger("MouseOut", e);
+                e.eventName = "MouseMove";
+                e.target = closest;
+            }
 
-        // Try to find closest element that will also receive mouse event
-        var closest = Crafty.findPointerEventTargetByComponent("Mouse", e.originalEvent);
-        if (closest) {
-            // trigger whatever it is
-            closest.trigger(eventName, e);
+            // save new over entity
+            this.over = closest;
 
-            if (eventName === "MouseMove") {
-                if (this.over !== closest) { // new mouseover target
-                    if (this.over) {
-                        this.over.trigger("MouseOut", e); // if old mouseover target wasn't null, send mouseout
-                        this.over = null;
-                    }
-
-                    this.over = closest;
-                    closest.trigger("MouseOver", e);
-                }
+            // if new MouseOver target isn't null, send MouseOver
+            if (closest) {
+                e.eventName = "MouseOver";
+                closest.trigger("MouseOver", e);
+                e.eventName = "MouseMove";
             }
         }
-        // If nothing in particular was clicked
-        else {
-            if (eventName === "MouseMove" && this.over) { // if there is still a mouseover target
-                this.over.trigger("MouseOut", e); // send mouseout
-                this.over = null;
-            }
+
+        // TODO: move routing of events in future to controls system, make it similar to KeyboardSystem
+        // try to find closest element that will also receive mouse event, whatever the event is
+        if (closest) {
+            closest.trigger(eventName, e);
         }
     },
 
@@ -213,11 +290,33 @@ Crafty.s("Mouse", Crafty.extend.call(Crafty.extend.call(new Crafty.__eventDispat
  * Mouse events get dispatched to the closest (visible & `Mouse`-enhanced) entity to the source of the event (if available).
  * @note If you do not add this component, mouse events will not be triggered on the entity.
  *
- * Triggers all events described in the `MouseState` component.
+ * Triggers all events described in `MouseSystem` and `MouseState`, these are:
+ * @trigger MouseOver - when the mouse enters the entity - MouseEvent
+ * @trigger MouseMove - when the mouse is over the entity and moves - MouseEvent
+ * @trigger MouseOut - when the mouse leaves the entity - MouseEvent
+ * @trigger MouseDown - when a mouse button is pressed on the entity - MouseEvent
+ * @trigger MouseUp - when a mouse button is released on the entity - MouseEvent
+ * @trigger Click - when the user clicks on the entity - MouseEvent
+ * @trigger DoubleClick - when the user double clicks on the entity - MouseEvent
  *
  * @note If you're targeting mobile, you should know that by default Crafty turns touch events into mouse events,
  * making mouse dependent components work with touch. However, if you need multitouch, you'll have
  * to make use of the Touch component instead, which can break compatibility with things which directly interact with the Mouse component.
+ *
+ * @example
+ * ~~~
+ * var myEntity = Crafty.e('2D, Canvas, Color, Mouse')
+ * .attr({x: 10, y: 10, w: 40, h: 40})
+ * .color('red')
+ * .bind('Click', function(MouseEvent){
+ *   alert('clicked', MouseEvent);
+ * });
+ *
+ * myEntity.bind('MouseUp', function(e) {
+ *    if( e.mouseButton == Crafty.mouseButtons.RIGHT )
+ *        Crafty.log("Clicked right button");
+ * })
+ * ~~~
  *
  * @see MouseState, MouseSystem
  * @see Crafty.multitouch
@@ -251,6 +350,14 @@ Crafty.c("MouseDrag", {
     required: "Mouse",
     events: {
         "MouseDown": "_ondown"
+    },
+
+    init: function () {
+        // TODO: remove this and instead lock on pointer control events in future
+        // bind the this object for listeners called with the MouseSystem as the this object
+        this._ondown = this._ondown.bind(this);
+        this._ondrag = this._ondrag.bind(this);
+        this._onup = this._onup.bind(this);
     },
 
     // When dragging is enabled, this method is bound to the MouseDown crafty event
@@ -287,8 +394,9 @@ Crafty.c("MouseDrag", {
         if (this._dragging) return;
         this._dragging = true;
 
-        Crafty.addEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
-        Crafty.addEvent(this, Crafty.stage.elem, "mouseup", this._onup);
+        // TODO: remove this and instead lock on pointer control events in future
+        Crafty.s("Mouse").bind("MouseMove", this._ondrag);
+        Crafty.s("Mouse").bind("MouseUp", this._onup);
 
         // if event undefined, use the last known position of the mouse
         this.trigger("StartDrag", e || Crafty.s("Mouse").lastMouseEvent);
@@ -310,8 +418,9 @@ Crafty.c("MouseDrag", {
         if (!this._dragging) return;
         this._dragging = false;
 
-        Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", this._ondrag);
-        Crafty.removeEvent(this, Crafty.stage.elem, "mouseup", this._onup);
+        // TODO: remove this and instead lock on pointer control events in future
+        Crafty.s("Mouse").unbind("MouseMove", this._ondrag);
+        Crafty.s("Mouse").unbind("MouseUp", this._onup);
 
         // if event undefined, use the last known position of the mouse
         this.trigger("StopDrag", e || Crafty.s("Mouse").lastMouseEvent);

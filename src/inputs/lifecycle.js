@@ -9,8 +9,10 @@ var mouseWheelEvent = typeof document.onwheel !== 'undefined' ? 'wheel' : // mod
 //initialize the input events onload
 Crafty._preBind("Load", function () {
     Crafty.addEvent(this, document.body, "mouseup", Crafty.detectBlur);
-    Crafty.addEvent(this, window, "blur", Crafty.s('Keyboard').resetKeyDown);
-    Crafty.addEvent(this, window, "mouseup", Crafty.s('Mouse').resetButtonDown);
+    Crafty.addEvent(Crafty.s('Keyboard'), window, "blur", Crafty.s('Keyboard').resetKeyDown);
+    Crafty.addEvent(Crafty.s('Mouse'), window, "mouseup", Crafty.s('Mouse').resetButtonDown);
+    Crafty.addEvent(Crafty.s('Touch'), window, "touchend", Crafty.s('Touch').resetTouchPoints);
+    Crafty.addEvent(Crafty.s('Touch'), window, "touchcancel", Crafty.s('Touch').resetTouchPoints);
 
     Crafty.addEvent(Crafty.s('Keyboard'), "keydown", Crafty.s('Keyboard').processEvent);
     Crafty.addEvent(Crafty.s('Keyboard'), "keyup", Crafty.s('Keyboard').processEvent);
@@ -44,8 +46,10 @@ Crafty._preBind("CraftyStop", function () {
 
 Crafty._preBind("CraftyStop", function () {
     Crafty.removeEvent(this, document.body, "mouseup", Crafty.detectBlur);
-    Crafty.removeEvent(this, window, "blur", Crafty.s('Keyboard').resetKeyDown);
-    Crafty.removeEvent(this, window, "mouseup", Crafty.s('Mouse').resetButtonDown);
+    Crafty.removeEvent(Crafty.s('Keyboard'), window, "blur", Crafty.s('Keyboard').resetKeyDown);
+    Crafty.removeEvent(Crafty.s('Mouse'), window, "mouseup", Crafty.s('Mouse').resetButtonDown);
+    Crafty.removeEvent(Crafty.s('Touch'), window, "touchend", Crafty.s('Touch').resetTouchPoints);
+    Crafty.removeEvent(Crafty.s('Touch'), window, "touchcancel", Crafty.s('Touch').resetTouchPoints);
 
     Crafty.removeEvent(Crafty.s('Keyboard'), "keydown", Crafty.s('Keyboard').processEvent);
     Crafty.removeEvent(Crafty.s('Keyboard'), "keyup", Crafty.s('Keyboard').processEvent);

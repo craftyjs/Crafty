@@ -5,18 +5,18 @@ var Crafty = require('../core/core.js');
  * @category Input
  * @kind Component
  *
- * Provides valid key related events and key states for the entity.
+ * Handles valid key related events and key states for the entity.
+ * @note This is an internally used component, automatically included in the `KeyboardSystem`.
  *
- * @trigger KeyDown - is triggered when the DOM 'keydown' event is triggered. - { key: `Crafty.keys` keyCode (Number), originalEvent: original KeyboardEvent } - Crafty's KeyboardEvent
- * @trigger KeyUp - is triggered when the DOM 'keyup' event is triggered. - { key: `Crafty.keys` keyCode (Number), originalEvent: original KeyboardEvent } - Crafty's KeyboardEvent
+ * @trigger KeyDown - when a key is pressed - KeyboardEvent
+ * @trigger KeyUp - when a key is released - KeyboardEvent
  *
- * The event callbacks are triggered with a native [`KeyboardEvent`](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent) received by `window.document`,
- * which is wrapped in a standard Crafty event object consisting of additional properties:
+ * The standard Crafty `KeyboardEvent` object:
  * ~~~
  * // event name of key event
  * e.eventName
  *
- * // Normalized keyCode according to Crafty.keys
+ * // Normalized keyCode number according to `Crafty.keys`
  * e.key
  *
  * // Original keyboard event, containing additional native properties
@@ -108,7 +108,7 @@ Crafty.__keyboardStateTemplate = {
      * @param eventName - Name of the key event to trigger ("KeyDown" or "KeyUp")
      * @param eventData - The key event to trigger
      *
-     * Try to trigger a key event on this entity.
+     * Try to trigger a key event on this entity and persist the key state.
      * This method prevents inconsistent key state.
      * e.g. If this entity didn't receive a "KeyDown" previously, it won't fire a "KeyUp" event.
      *
