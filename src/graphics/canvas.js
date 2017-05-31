@@ -44,7 +44,7 @@ Crafty.c("Canvas", {
      * @comp Canvas
      * @kind Method
      * 
-     * @sign public this .draw([[Context ctx, ]Number x, Number y, Number w, Number h])
+     * @sign public this .draw([Context ctx, Number x, Number y, Number w, Number h])
      * @param ctx - Canvas 2D context if drawing on another canvas is required
      * @param x - X offset for drawing a segment
      * @param y - Y offset for drawing a segment
@@ -70,13 +70,6 @@ Crafty.c("Canvas", {
 
     draw: function (ctx, x, y, w, h) {
         if (!this.ready) return;
-        if (arguments.length === 4) {
-            h = w;
-            w = y;
-            y = x;
-            x = ctx;
-            ctx = this._drawContext;
-        }
 
         var pos = this.drawVars.pos;
         pos._x = (this._x + (x || 0));
