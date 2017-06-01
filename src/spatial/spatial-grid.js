@@ -139,16 +139,14 @@ HashMap.prototype = {
      * @comp Crafty.map
      * @kind Method
      *
-     * @sign public Object Crafty.map.search(Object rect[, Boolean filter])
+     * @sign public Array Crafty.map.search(Object rect[, Array results])
      * @param rect - the rectangular region to search for entities.
      *               This object must contain the properties `_x`,`_y`,`_w`,`_h`.
-     * @param filter - If `false`, only performs a broad-phase collision check.  The default value is `true`.
-     * @return an (possibly empty) array of entities that have been found in the given region
+     * @param results - If passed, entities found will be appended to this array.
+     * @return a (possibly empty) array of entities that have been found in the given region
      *
-     * Search for entities in the given region, using their broadphase bounding rectangles.
-     *
-     * - If `filter` is `false`, just search for all the entries in the give `rect` region by broad phase collision. Entity may be returned duplicated.
-     * - If `filter` is `true`, filter the above results by checking that they actually overlap `rect`.
+     * Do a search for entities in the given region.  Returned entities are guaranteed
+     * to overlap with the given region.
      *
      * The easier usage is with `filter == true`. For performance reason, you may use `filter == false`, and filter the result yourself. See examples in drawing.js and collision.js.
      *
@@ -165,47 +163,73 @@ HashMap.prototype = {
      * }
      * ~~~
      */
-
-    search: function (rect, filter) {
+     _searchHolder: [],
+    search: function (rect, results) {
         var keys = HashMap.key(rect, keyHolder),
-            i, j, k, l, cell,
-            results = [];
+            i, j, k,  cell,
+            previouslyChecked = this._searchHolder;
+        results = results || [];
+        previouslyChecked.length = 0;
 
-        if (filter === undefined) filter = true; //default filter to true
+        var obj;
+        //search in all x buckets
+        for (i = keys.x1; i <= keys.x2; i++) {
+            //insert into all y buckets
+            for (j = keys.y1; j <= keys.y2; j++) {
+                if ((cell = this.map[(i << 16) ^ j])) {
+                    for (k = 0; k < cell.length; k++) {
+                        if (previouslyChecked[cell[k][0]]) continue;
+                        obj = previouslyChecked[cell[k][0]] = cell[k];
+                        obj = obj._cbr || obj._mbr || obj;
+                        if (obj._x < rect._x + rect._w && obj._x + obj._w > rect._x &&
+                                obj._y < rect._y + rect._h && obj._y + obj._h > rect._y) {
+                            results.push(cell[k]);
+                        }
+                    }
+                }
+            }
+        }
+
+        return results;
+    },
+
+    /**@
+     * #Crafty.map.unfilteredSearch
+     * @comp Crafty.map
+     * @kind Method
+     *
+     * @sign public Array Crafty.map.search(Object rect[, Array results])
+     * @param rect - the rectangular region to search for entities.
+     *               This object must contain the properties `_x`,`_y`,`_w`,`_h`.
+     * @param results - If passed, entities found will be appended to this array.
+     * @return a (possibly empty) array of entities that have been found in the given region
+     *
+     * Do a search for entities in the given region.  Returned entities are **not** guaranteed
+     * to overlap with the given region, and the results may contain duplicates.
+     * 
+     * This method is intended to be used as the first step of a more complex search.
+     * More common use cases should use Crafty.map.search, which filters the results.
+     * 
+     * @see Crafty.map.search
+     */
+    unfilteredSearch: function(rect, results) {
+        var keys = HashMap.key(rect, keyHolder),
+            i, j, k,  cell;
+        results = results || [];
 
         //search in all x buckets
         for (i = keys.x1; i <= keys.x2; i++) {
             //insert into all y buckets
             for (j = keys.y1; j <= keys.y2; j++) {
                 if ((cell = this.map[(i << 16) ^ j])) {
-                    for (k = 0; k < cell.length; k++)
+                    for (k = 0; k < cell.length; k++) {
                         results.push(cell[k]);
+                    }
                 }
             }
         }
 
-        if (filter) {
-            var obj, id, finalresult = [],
-                found = {};
-            //add unique elements to lookup table with the entity ID as unique key
-            for (i = 0, l = results.length; i < l; i++) {
-                obj = results[i];
-                if (!obj) continue; //skip if deleted
-                id = obj[0]; //unique ID
-                obj = obj._cbr || obj._mbr || obj;
-                //check if not added to hash and that actually intersects
-                if (!found[id] && obj._x < rect._x + rect._w && obj._x + obj._w > rect._x &&
-                                  obj._y < rect._y + rect._h && obj._y + obj._h > rect._y)
-                    found[id] = results[i];
-            }
-
-            //loop over lookup table and copy to final array
-            for (obj in found) finalresult.push(found[obj]);
-
-            return finalresult;
-        } else {
-            return results;
-        }
+        return results;
     },
 
     /**@

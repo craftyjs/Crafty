@@ -223,8 +223,8 @@ Crafty._registerLayerTemplate("Canvas", {
             rect._w = dirtyRects[i + 2];
             rect._h = dirtyRects[i + 3];
 
-            // Draw the rectangle, collision search doesn't need to check for duplicates
-            this._drawRect(rect, false);
+            // Draw the rectangle
+            this._drawRect(rect);
         }
 
         // Draw dirty rectangles for debugging, if that flag is set
@@ -261,11 +261,11 @@ Crafty._registerLayerTemplate("Canvas", {
     _drawAll: function (view) {
         var viewportRect = this._viewportRect(); // this updates the viewportRect for later cached use
 
-        // Draw the whole layer rectangle, collision search should check for duplicates
-        this._drawRect(view || viewportRect, true);
+        // Draw the whole layer rectangle
+        this._drawRect(view || viewportRect);
     },
 
-    _drawRect: function(rect, checkDupes) {
+    _drawRect: function(rect) {
         var i, l, q, obj, previousGlobalZ,
             integerBounds = Crafty.rectManager.integerBounds,
             ctx = this.context,
@@ -293,7 +293,7 @@ Crafty._registerLayerTemplate("Canvas", {
         searchRect._y = rect._y;
         searchRect._w = rect._w - 1;
         searchRect._h = rect._h - 1;
-        q = Crafty.map.search(searchRect, checkDupes);
+        q = Crafty.map.search(searchRect);
         // Sort objects by z level, duplicate objs will be ordered next to each other due to same _globalZ
         q.sort(this._sort);
 

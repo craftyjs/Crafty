@@ -487,7 +487,7 @@ Crafty.c("Collision", {
      */
     hit: function (component) {
         var area = this._cbr || this._mbr || this,
-            results = Crafty.map.search(area, false),
+            results = Crafty.map.unfilteredSearch(area),
             i = 0,
             l = results.length,
             dupes = {},

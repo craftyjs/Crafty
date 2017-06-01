@@ -57,12 +57,12 @@ Crafty.extend({
 
                 // Get the position in this layer
                 pos = Crafty.domHelper.translate(x, y, layer);
-                q = Crafty.map.search({
+                q = Crafty.map.unfilteredSearch({
                     _x: pos.x,
                     _y: pos.y,
                     _w: 1,
                     _h: 1
-                }, false);
+                });
 
                 for (i = 0, l = q.length; i < l; ++i) {
                     current = q[i];

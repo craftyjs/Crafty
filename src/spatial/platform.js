@@ -161,7 +161,7 @@ Crafty.c("Supportable", {
         // check if we land (also possible to land on other ground object in same frame after lift-off from current ground object)
         if (!ground) {
             var obj, oarea,
-                results = Crafty.map.search(area, false),
+                results = Crafty.map.unfilteredSearch(area),
                 i = 0,
                 l = results.length;
 
