@@ -81,8 +81,9 @@ ToggleInputGroup.prototype = {
  * @trigger TriggerInputDown - When a trigger group is activated - {name}
  * @trigger TriggerInputUp - When a trigger group is released - {name, downFor}
  * @trigger DirectionalInput - When a directional input changes - {name, x, y}
- * 
- * 
+ *
+ * @trigger ControlDefined - When a control input is defined - {type, name}
+ * @trigger ControlDestroyed - When a control input is destroyed - {type, name}
  */
 Crafty.s("Controls", {
     init: function () {
@@ -139,7 +140,7 @@ Crafty.s("Controls", {
      * #.defineTriggerGroup
      * @comp Controls
      * @kind Method
-     * 
+     *
      * @sign defineTriggerGroup(string name, obj definition)
      * @param name - a name for the trigger group
      * @param definition - an object which defines the inputs for the trigger
@@ -190,6 +191,8 @@ Crafty.s("Controls", {
             downFor: 0,
             active: false
         };
+
+        Crafty.trigger("ControlDefined", { type: "TriggerGroup", name: name });
     },
 
     /**@
@@ -208,6 +211,7 @@ Crafty.s("Controls", {
         if (this._triggers[name]) {
             this._triggers[name].input.destroy();
             delete this._triggers[name];
+            Crafty.trigger("ControlDestroyed", { type: "TriggerGroup", name: name });
         }
     },
 
@@ -283,6 +287,8 @@ Crafty.s("Controls", {
             normalize: options.normalize,
             multipleDirectionBehavior: options.multipleDirectionBehavior
         };
+
+        Crafty.trigger("ControlDefined", { type: "Dpad", name: name });
     },
 
     /**@
@@ -303,6 +309,7 @@ Crafty.s("Controls", {
                 this._dpads[name].parsedDefinition[d].input.destroy();
             }
             delete this._dpads[name];
+            Crafty.trigger("ControlDestroyed", { type: "Dpad", name: name });
         }
     },
 
