@@ -81,8 +81,9 @@ ToggleInputGroup.prototype = {
  * @trigger TriggerInputDown - When a trigger group is activated - {name}
  * @trigger TriggerInputUp - When a trigger group is released - {name, downFor}
  * @trigger DirectionalInput - When a directional input changes - {name, x, y}
- * 
- * 
+ *
+ * @trigger ControlDefined - When a control input is defined - {type, name}
+ * @trigger ControlDestroyed - When a control input is destroyed - {type, name}
  */
 Crafty.s("Controls", {
     init: function () {
@@ -139,7 +140,7 @@ Crafty.s("Controls", {
      * #.defineTriggerGroup
      * @comp Controls
      * @kind Method
-     * 
+     *
      * @sign defineTriggerGroup(string name, obj definition)
      * @param name - a name for the trigger group
      * @param definition - an object which defines the inputs for the trigger
@@ -160,7 +161,8 @@ Crafty.s("Controls", {
      *   keys: [Crafty.keys.A, Crafty.keys.B]
      * });
      * ~~~
-     * 
+     *
+     * @see .destroyTriggerGroup
      * @see Crafty.mouseButtons
      * @see Crafty.keys
      * @see Controllable
@@ -182,15 +184,35 @@ Crafty.s("Controls", {
                 }
             }
         }
-        if (this._triggers[name]) {
-            this._triggers[name].input.destroy();
-        }
+        this.destroyTriggerGroup(name);
         this._triggers[name] = {
             name: name,
             input: new ToggleInputGroup(inputs),
             downFor: 0,
             active: false
         };
+
+        Crafty.trigger("ControlDefined", { type: "TriggerGroup", name: name });
+    },
+
+    /**@
+     * #.destroyTriggerGroup
+     * @comp Controls
+     * @kind Method
+     *
+     * @sign destroyTriggerGroup(string name)
+     * @param name - the name of the trigger group
+     *
+     * Destroys a previously defined trigger group.
+     *
+     * @see .defineTriggerGroup
+     */
+    destroyTriggerGroup: function(name) {
+        if (this._triggers[name]) {
+            this._triggers[name].input.destroy();
+            delete this._triggers[name];
+            Crafty.trigger("ControlDestroyed", { type: "TriggerGroup", name: name });
+        }
     },
 
     /**@
@@ -214,7 +236,8 @@ Crafty.s("Controls", {
      * // Define a two-direction dpad, with two keys each bound to the right and left directions
      * Crafty.s("Controls").defineDpad("MyDpad", {RIGHT_ARROW: 0, LEFT_ARROW: 180, D: 0, A: 180});
      * ~~~
-     * 
+     *
+     * @see .destroyDpad
      * @see Crafty.keys
      * @see Controllable
      * @see Multiway
@@ -251,13 +274,8 @@ Crafty.s("Controls", {
             options.multipleDirectionBehavior = "all";
         }
         // Create the fully realized dpad object
-          // Store the name/definition pair
-        if (this._dpads[name]) {
-            for (d in this._dpads[name].parsedDefinition) {
-                this._dpads[name].parsedDefinition[d].input.destroy();
-            }
-            delete this._dpads[name];
-        }
+        // Store the name/definition pair
+        this.destroyDpad(name);
         this._dpads[name] = {
             name: name,
             directions: parsedDefinition,
@@ -269,6 +287,30 @@ Crafty.s("Controls", {
             normalize: options.normalize,
             multipleDirectionBehavior: options.multipleDirectionBehavior
         };
+
+        Crafty.trigger("ControlDefined", { type: "Dpad", name: name });
+    },
+
+    /**@
+     * #.destroyDpad
+     * @comp Controls
+     * @kind Method
+     *
+     * @sign destroyDpad(string name)
+     * @param name - the name of the dpad input
+     *
+     * Destroys a previously defined dpad.
+     *
+     * @see .defineDpad
+     */
+    destroyDpad: function (name) {
+        if (this._dpads[name]) {
+            for (var d in this._dpads[name].parsedDefinition) {
+                this._dpads[name].parsedDefinition[d].input.destroy();
+            }
+            delete this._dpads[name];
+            Crafty.trigger("ControlDestroyed", { type: "Dpad", name: name });
+        }
     },
 
     // Takes an amount in degrees and converts it to an x/y object.
