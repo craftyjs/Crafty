@@ -27,6 +27,40 @@
     _.strictEqual(areaMapEvents, 3, "NewAreaMap event triggered 3 times");
   });
 
+  test("AreaMap's layer correctly tracks pointer entities on destruction", function(_) {
+      var e = Crafty.e("2D, Mouse, DOM, Color");
+      var layer = Crafty.s("DefaultDOMLayer");
+      _.strictEqual(layer._pointerEntities, 1, "Single entity when created");
+      e.destroy();
+      _.strictEqual(layer._pointerEntities, 0, "Zero pointer entities when destroyed");
+    });
+
+    test("AreaMap's layer correctly tracks pointer entities when removing components", function(_) {
+      var e = Crafty.e("2D, Mouse, DOM, Color");
+      var layer = Crafty.s("DefaultDOMLayer");
+      _.strictEqual(layer._pointerEntities, 1, "Single entity when created");
+      e.removeComponent("AreaMap");
+      _.strictEqual(layer._pointerEntities, 0, "Zero pointer entities once component is removed");
+      e.destroy();
+      _.strictEqual(layer._pointerEntities, 0, "Zero pointer entities when destroyed");
+    });
+
+    test("Layer correctly tracks pointer entities on AreaMap component addition", function(_) {
+      var e = Crafty.e("2D, DOM, Color");
+      var layer = Crafty.s("DefaultDOMLayer");
+      _.strictEqual(layer._pointerEntities, 0, "No entities before component is added");
+      e.addComponent("AreaMap");
+      _.strictEqual(layer._pointerEntities, 1, "Single entity after component is added");
+    });
+
+    test("AreaMap's layer correctly tracks pointer entities on layer addition", function(_) {
+      var e = Crafty.e("2D, AreaMap, Color");
+      var layer = Crafty.s("DefaultDOMLayer");
+      _.strictEqual(layer._pointerEntities, 0, "No entities before layer is added");
+      e.addComponent("DOM");
+      _.strictEqual(layer._pointerEntities, 1, "Single entity after layer is added");
+    });
+
   // mock-phantom-touch-events is a PhantomJS plugin, thus the test below is skipped if enviroment is not PhantomJS
   if (navigator.userAgent.indexOf("PhantomJS") !== -1)
     test('Multitouch simulation', function(_) {

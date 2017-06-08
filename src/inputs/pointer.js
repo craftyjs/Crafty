@@ -129,8 +129,8 @@ Crafty.c("AreaMap", {
         }
     },
 
-    remove: function () {
-        if (this.has("Renderable") && this._drawLayer) {
+    remove: function (isDestruction) {
+        if (!isDestruction && this.has("Renderable") && this._drawLayer) {
             this._drawLayer._pointerEntities--;
         }
     },
