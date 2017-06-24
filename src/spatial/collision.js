@@ -425,18 +425,23 @@ Crafty.c("Collision", {
      * @comp Collision
      * @kind Method
      * 
-     * @sign public Array .hit(String component)
+     * @sign public Array .hit(String component[, Array results])
      * @param component - Check collision with entities that have this component
      * applied to them.
+     * @param results - If a results array is supplied, any collisions will be appended to it 
      * @return `null` if there is no collision. If a collision is detected,
      * returns an Array of collision data objects (see below).
+     * If the results parameter was passed, it will be used as the return value.
      *
-     * Tests for collisions with entities that have the specified component
-     * applied to them.
-     * If a collision is detected, data regarding the collision will be present in
-     * the array returned by this method.
-     * If no collisions occur, this method returns `null`.
+     * Tests for collisions with entities that have the specified component applied to them.
+     * If a collision is detected, data regarding the collision will be present in the array 
+     * returned by this method. If no collisions occur, this method returns `null`.
      *
+     * When testing for collisions, if both entities have the `Collision` component, then 
+     * the collision test will use the Separating Axis Theorem (SAT), and provide more detailed
+     * information about the collision.  Otherwise, it will be a simple test of whether the
+     * minimal bounding rectangles (MBR) overlap.
+     * 
      * Following is a description of a collision data object that this method may
      * return: The returned collision data will be an Array of Objects with the
      * type of collision used, the object collided and if the type used was SAT (a polygon was used as the hitbox) then an amount of overlap.
@@ -444,17 +449,27 @@ Crafty.c("Collision", {
      * [{
      *    obj: [entity],
      *    type: ["MBR" or "SAT"],
-     *    overlap: [number]
+     *    overlap: [number],
+     *    nx: [number],
+     *    ny: [number]
      * }]
      * ~~~
      *
+     * All collision results will have these properties:
      * - **obj:** The entity with which the collision occured.
      * - **type:** Collision detection method used. One of:
      *   - *MBR:* Standard axis aligned rectangle intersection (`.intersect` in the 2D component).
      *   - *SAT:* Collision between any two convex polygons. Used when both colliding entities have the `Collision` component applied to them.
-     * - **overlap:** If SAT collision was used, this will signify the overlap percentage between the colliding entities.
+     * 
+     * If the collision result type is **SAT** then there will be three additional properties, which
+     * represent the minimum translation vector (MTV) -- the direction and distance of the minimal translation
+     * that will result in non-overlapping entities.
+     * - **overlap:** The magnitude of the translation vector.
+     * - **nx:** The x component of the MTV.
+     * - **ny:** The y component of the MTV.
      *
-     * Keep in mind that both entities need to have the `Collision` component, if you want to check for `SAT` (custom hitbox) collisions between them.
+     * These additional properties (returned only when both entities have the "Collision" component)
+     * are useful when providing more natural collision resolution.
      *
      * If you want more fine-grained control consider using `Crafty.map.search()`.
      *
@@ -471,8 +486,8 @@ Crafty.c("Collision", {
      *           hitData = hitDatas[0]; // resolving collision for just one collider
      *           if (hitData.type === 'SAT') { // SAT, advanced collision resolution
      *             // move player back by amount of overlap
-     *             this.x -= hitData.overlap * hitData.normal.x;
-     *             this.y -= hitData.overlap * hitData.normal.y;
+     *             this.x -= hitData.overlap * hitData.nx;
+     *             this.y -= hitData.overlap * hitData.ny;
      *           } else { // MBR, simple collision resolution
      *             // move player to position before he moved (on respective axis)
      *             this[evt.axis] = evt.oldValue;
@@ -483,54 +498,54 @@ Crafty.c("Collision", {
      *
      * @see Crafty.map#Crafty.map.search
      */
-    hit: function (component) {
-        var area = this._cbr || this._mbr || this,
-            results = Crafty.map.unfilteredSearch(area),
-            i = 0,
-            l = results.length,
-            dupes = {},
-            id, obj, oarea, key,
-            overlap = Crafty.rectManager.overlap,
-            hasMap = ('map' in this && 'containsPoint' in this.map),
-            finalresult = [];
-
+    _collisionHitDupes: [],
+    _collisionHitResults: [],
+    hit: function (component, results) {
+        var area = this._cbr || this._mbr || this;
+        var searchResults = this._collisionHitResults;
+        searchResults.length = 0;
+        searchResults = Crafty.map.unfilteredSearch(area, searchResults);
+        var l = searchResults.length;
         if (!l) {
             return null;
         }
+        var  i = 0,
+            dupes = this._collisionHitDupes,
+            id, obj;
+
+        results = results || [];
+        dupes.length = 0;
 
         for (; i < l; ++i) {
-            obj = results[i];
-            oarea = obj._cbr || obj._mbr || obj; //use the mbr
+            obj = searchResults[i];
 
             if (!obj) continue;
             id = obj[0];
 
             //check if not added to hash and that actually intersects
-            if (!dupes[id] && this[0] !== id && obj.__c[component] && overlap(oarea, area))
+            if (!dupes[id] && this[0] !== id && obj.__c[component]){
                 dupes[id] = obj;
-        }
-
-        for (key in dupes) {
-            obj = dupes[key];
-
-            if (hasMap && 'map' in obj) {
-                var SAT = this._SAT(this.map, obj.map);
-                SAT.obj = obj;
-                SAT.type = "SAT";
-                if (SAT) finalresult.push(SAT);
-            } else {
-                finalresult.push({
-                    obj: obj,
-                    type: "MBR"
-                });
+                if (obj.map) {
+                    var SAT = this._SAT(this.map, obj.map);
+                    if (SAT) {
+                        results.push(SAT);
+                        SAT.obj = obj;
+                        SAT.type = "SAT";
+                    }
+                } else if (Crafty.rectManager.overlap(area, this._cbr || this._mbr || this)){
+                    results.push({
+                        obj: obj,
+                        type: "MBR"
+                    });
+                }
             }
         }
 
-        if (!finalresult.length) {
+        if (!results.length) {
             return null;
         }
 
-        return finalresult;
+        return results;
     },
 
     /**@
@@ -934,10 +949,8 @@ Crafty.c("Collision", {
 
         return {
             overlap: MTV,
-            normal: {
-                x: MNx,
-                y: MNy
-            }
+            nx: MNx,
+            ny: MNy
         };
     }
 });
