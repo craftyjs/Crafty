@@ -279,14 +279,12 @@ Crafty.c("Collision", {
 
         // If the entity is currently rotated, the points in the hitbox must also be rotated
         if (this.rotation) {
-            polygon.rotate({
-                cos: Math.cos(-this.rotation * DEG_TO_RAD),
-                sin: Math.sin(-this.rotation * DEG_TO_RAD),
-                o: {
-                    x: this._origin.x,
-                    y: this._origin.y
-                }
-            });
+            polygon.rotate(
+                this.rotation,
+                this._origin.x,
+                this._origin.y,
+                Math.cos(-this.rotation * DEG_TO_RAD),
+                Math.sin(-this.rotation * DEG_TO_RAD));
         }
 
         // Finally, assign the hitbox, and attach it to the "Collision" entity

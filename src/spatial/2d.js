@@ -14,7 +14,7 @@ var M = Math,
  * Component for any entity that has a position on the stage.
  * @trigger Move - when the entity has moved - { _x:Number, _y:Number, _w:Number, _h:Number } - Old position
  * @trigger Invalidate - when the entity needs to be redrawn
- * @trigger Rotate - when the entity is rotated - { cos:Number, sin:Number, deg:Number, rad:Number, o: {x:Number, y:Number}}
+ * @trigger Rotate - when the entity is rotated - { rotation:Number} - Rotation in degrees
  * @trigger Reorder - when the entity's z index has changed
  * @trigger Resize - when the entity's dimensions have changed - { axis: 'w' | 'h', amount: Number }
  */
@@ -280,7 +280,7 @@ Crafty.c("2D", {
             this._entry.update(old);
             // Rotate children (if any) by the same amount
             if (this._children.length > 0) {
-                this._cascade(e);
+                this._cascadeRotation(e);
             }
         });
 
@@ -430,30 +430,9 @@ Crafty.c("2D", {
         else
             this._rotation = v;
 
-        //Calculate the new MBR
-        var //rad = theta * DEG_TO_RAD,
-            o = {
-                x: this._origin.x + this._x,
-                y: this._origin.y + this._y
-            };
-
         this._calculateMBR();
 
-
-        //trigger "Rotate" event
-        var drad = difference * DEG_TO_RAD,
-            // ct = Math.cos(rad),
-            // st = Math.sin(rad),
-            cos = Math.cos(drad),
-            sin = Math.sin(drad);
-
-        this.trigger("Rotate", {
-            cos: (-1e-10 < cos && cos < 1e-10) ? 0 : cos, // Special case 90 degree rotations to prevent rounding problems
-            sin: (-1e-10 < sin && sin < 1e-10) ? 0 : sin, // Special case 90 degree rotations to prevent rounding problems
-            deg: difference,
-            rad: drad,
-            o: o
-        });
+        this.trigger("Rotate", difference);
     },
 
     /**@
@@ -695,7 +674,7 @@ Crafty.c("2D", {
      * @sign public void ._cascade(e)
      * @param e - An object describing the motion
      *
-     * Move or rotate the entity's children according to a certain motion.
+     * Move the entity's children according to a certain motion.
      * This method is part of a function bound to "Move": It is used
      * internally for ensuring that when a parent moves, the child also
      * moves in the same way.
@@ -706,25 +685,55 @@ Crafty.c("2D", {
             children = this._children,
             l = children.length,
             obj;
-        //rotation
-        if (("cos" in e) || ("sin" in e)) {
-            for (; i < l; ++i) {
-                obj = children[i];
-                if (obj.__frozen) continue;
-                if ('rotate' in obj) obj.rotate(e);
-            }
-        } else {
-            //use current position
-            var dx = this._x - e._x,
-                dy = this._y - e._y,
-                dw = this._w - e._w,
-                dh = this._h - e._h;
 
-            for (; i < l; ++i) {
-                obj = children[i];
-                if (obj.__frozen) continue;
-                obj.shift(dx, dy, dw, dh);
-            }
+        //use current position
+        var dx = this._x - e._x,
+            dy = this._y - e._y,
+            dw = this._w - e._w,
+            dh = this._h - e._h;
+
+        for (; i < l; ++i) {
+            obj = children[i];
+            if (obj.__frozen) continue;
+            obj.shift(dx, dy, dw, dh);
+        }
+        
+    },
+    
+    /**@
+     * #._cascadeRotation
+     * @comp 2D
+     * @kind Method
+     * @private
+     * 
+     * @sign public void ._cascade(deg)
+     * @param deg - The amount of rotation in degrees
+     *
+     * Move the entity's children the specified amount
+     * This method is part of a function bound to "Move": It is used
+     * internally for ensuring that when a parent moves, the child also
+     * moves in the same way.
+     */
+    _cascadeRotation: function(deg) {
+        if (!deg) return;
+        var i = 0,
+            children = this._children,
+            l = children.length,
+            obj;
+        // precalculate rotation info
+        var drad = deg * DEG_TO_RAD;
+        var cos = Math.cos(drad);
+        var sin = Math.sin(drad);
+        // Avoid some rounding problems
+        cos = (-1e-10 < cos && cos < 1e-10) ? 0 : cos;
+        sin = (-1e-10 < sin && sin < 1e-10) ? 0 : sin;
+        var ox = this._origin.x + this._x;
+        var oy = this._origin.y + this._y;
+
+        for (; i < l; ++i) {
+            obj = children[i];
+            if (obj.__frozen) continue;
+            if ('rotate' in obj) obj.rotate(deg, ox, oy, cos, sin);
         }
     },
 
@@ -867,12 +876,14 @@ Crafty.c("2D", {
 
     /**
      * Method for rotation rather than through a setter
+     * 
+     * Pass in degree amount, origin coordinate and precalculated cos/sin
      */
-    rotate: function (e) {
+    rotate: function (deg, ox, oy, cos, sin) {
         var x2, y2;
-        x2 =  (this._x + this._origin.x - e.o.x) * e.cos + (this._y + this._origin.y - e.o.y) * e.sin + (e.o.x - this._origin.x);
-        y2 =  (this._y + this._origin.y - e.o.y) * e.cos - (this._x + this._origin.x - e.o.x) * e.sin + (e.o.y - this._origin.y);
-        this._setter2d('_rotation', this._rotation - e.deg);
+        x2 =  (this._x + this._origin.x - ox) * cos + (this._y + this._origin.y - oy) * sin + (ox - this._origin.x);
+        y2 =  (this._y + this._origin.y - oy) * cos - (this._x + this._origin.x - ox) * sin + (oy - this._origin.y);
+        this._setter2d('_rotation', this._rotation - deg);
         this._setter2d('_x', x2 );
         this._setter2d('_y', y2 );
     },
@@ -1061,15 +1072,15 @@ Crafty.polygon.prototype = {
         return new Crafty.polygon(this.points.slice(0));
     },
 
-    rotate: function (e) {
+    rotate: function (deg, ox, oy, cos, sin) {
         var i = 0, p = this.points,
             l = p.length,
             x, y;
 
         for (; i < l; i+=2) {
 
-            x = e.o.x + (p[i] - e.o.x) * e.cos + (p[i+1] - e.o.y) * e.sin;
-            y = e.o.y - (p[i] - e.o.x) * e.sin + (p[i+1] - e.o.y) * e.cos;
+            x = ox + (p[i] - ox) * cos + (p[i+1] - oy) * sin;
+            y = oy - (p[i] - ox) * sin + (p[i+1] - oy) * cos;
 
             p[i] = x;
             p[i+1] = y;
