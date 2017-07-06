@@ -657,8 +657,7 @@ Crafty.c("2D", {
      * for an opposite direction.
      */
     shift: function (x, y, w, h) {
-        if (x) this.x += x;
-        if (y) this.y += y;
+        if (x || y) this._setPosition(this._x + x, this._y + y);
         if (w) this.w += w;
         if (h) this.h += h;
 
@@ -888,6 +887,28 @@ Crafty.c("2D", {
         this._setter2d('_y', y2 );
     },
 
+    // A separate setter for the common case of moving an entity along both axes
+    _setPosition: function(x, y) {
+        if (x === this._x && y === this._y) return;
+        var old = Crafty.rectManager._pool.copy(this);
+        var mbr = this._mbr;
+        if (mbr) {
+            mbr._x -= this._x - x;
+            mbr._y -= this._y - y;
+            // cbr is a non-minimal bounding rectangle that contains both hitbox and mbr
+            // It will exist only when the collision hitbox sits outside the entity
+            if (this._cbr){
+                this._cbr._x -= this._x - x;
+                this._cbr._y -= this._y - y;
+            }
+        }
+        this._x = x;
+        this._y = y;
+        this.trigger("Move", old);
+        this.trigger("Invalidate");
+        Crafty.rectManager._pool.recycle(old);
+    },
+
     // This is a setter method for all 2D properties including
     // x, y, w, h, and rotation.
     _setter2d: function (name, value) {
@@ -908,7 +929,7 @@ Crafty.c("2D", {
             mbr = this._mbr;
             if (mbr) {
                 mbr[name] -= this[name] - value;
-                // cbr is a non-minmal bounding rectangle that contains both hitbox and mbr
+                // cbr is a non-minimal bounding rectangle that contains both hitbox and mbr
                 // It will exist only when the collision hitbox sits outside the entity
                 if (this._cbr){
                     this._cbr[name] -= this[name] - value;
