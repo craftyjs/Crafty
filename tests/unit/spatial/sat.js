@@ -13,15 +13,15 @@
     var o = e._SAT(poly1, poly2);
     _.notEqual(o, false, "Overlap exists");
     _.strictEqual(o.overlap, -1, "Overlap by 1 unit");
-    _.strictEqual(o.normal.x, -1, "normal.x is -1");
-    _.strictEqual(o.normal.y, 0, "normal.y is 0");
+    _.strictEqual(o.nx, -1, "nx is -1");
+    _.strictEqual(o.ny, 0, "ny is 0");
     
     // order 2
     o = e._SAT(poly2, poly1);
     _.notEqual(o, false, "Overlap exists");
     _.strictEqual(o.overlap, -1, "Overlap by 1 unit");
-    _.strictEqual(o.normal.x, 1, "normal.x is 1");
-    _.strictEqual(o.normal.y, 0, "normal.y is 0");
+    _.strictEqual(o.nx, 1, "nx is 1");
+    _.strictEqual(o.ny, 0, "ny is 0");
 
   });
 
@@ -32,15 +32,15 @@
     var o = e._SAT(poly1, poly2);
     _.notEqual(o, false, "Overlap exists");
     _.strictEqual(o.overlap, -1, "Overlap by 1 unit");
-    _.strictEqual(o.normal.y, -1, "normal.y is -1");
-    _.strictEqual(o.normal.x, 0, "normal.x is 0");
+    _.strictEqual(o.ny, -1, "ny is -1");
+    _.strictEqual(o.nx, 0, "nx is 0");
     
     // order 2
     o = e._SAT(poly2, poly1);
     _.notEqual(o, false, "Overlap exists");
     _.strictEqual(o.overlap, -1, "Overlap by 1 unit");
-    _.strictEqual(o.normal.y, 1, "normal.y is 1");
-    _.strictEqual(o.normal.x, 0, "normal.x is 0");
+    _.strictEqual(o.ny, 1, "ny is 1");
+    _.strictEqual(o.nx, 0, "nx is 0");
 
   });
 
@@ -53,15 +53,15 @@
     var o = e._SAT(poly1, poly2);
     _.notEqual(o, false, "Overlap exists");
     _.strictEqual(o.overlap, -1, "Overlap by 1 unit");
-    _.strictEqual(o.normal.x, -1, "normal.x is -1");
-    _.strictEqual(o.normal.y, 0, "normal.y is 0");
+    _.strictEqual(o.nx, -1, "nx is -1");
+    _.strictEqual(o.ny, 0, "ny is 0");
     
     // order 2
     o = e._SAT(poly2, poly1);
     _.notEqual(o, false, "Overlap exists");
     _.strictEqual(o.overlap, -1, "Overlap by 1 unit");
-    _.strictEqual(o.normal.x, 1, "normal.x is 1");
-    _.strictEqual(o.normal.y, 0, "normal.y is 0");
+    _.strictEqual(o.nx, 1, "nx is 1");
+    _.strictEqual(o.ny, 0, "ny is 0");
 
   });
 
@@ -72,15 +72,15 @@
     var o = e._SAT(poly1, poly2);
     _.notEqual(o, false, "Overlap exists");
     _.strictEqual(o.overlap, -1, "Overlap by 1 unit");
-    _.strictEqual(o.normal.y, -1, "normal.y is -1");
-    _.strictEqual(o.normal.x, 0, "normal.x is 0");
+    _.strictEqual(o.ny, -1, "ny is -1");
+    _.strictEqual(o.nx, 0, "nx is 0");
 
     // order 2
     o = e._SAT(poly2, poly1);
     _.notEqual(o, false, "Overlap exists");
     _.strictEqual(o.overlap, -1, "Overlap by 1 unit");
-    _.strictEqual(o.normal.y, 1, "normal.y is 1");
-    _.strictEqual(o.normal.x, 0, "normal.x is 0");
+    _.strictEqual(o.ny, 1, "ny is 1");
+    _.strictEqual(o.nx, 0, "nx is 0");
   });
 
   test("overlap with non parallel faces, but axis-aligned normal", function(_){
@@ -90,15 +90,15 @@
     var o = e._SAT(poly1, poly2);
     _.notEqual(o, false, "Overlap exists");
     _.strictEqual(o.overlap, -1, "Overlap by 1 unit");
-    _.strictEqual(o.normal.x, -1, "normal.x is -1");
-    _.strictEqual(o.normal.y, 0, "normal.x is 0");
+    _.strictEqual(o.nx, -1, "nx is -1");
+    _.strictEqual(o.ny, 0, "nx is 0");
 
     // order 2
     o = e._SAT(poly2, poly1);
     _.notEqual(o, false, "Overlap exists");
     _.strictEqual(o.overlap, -1, "Overlap by 1 unit");
-    _.strictEqual(o.normal.x, 1, "normal.x is 1");
-    _.strictEqual(o.normal.y, 0, "normal.x is 0");
+    _.strictEqual(o.nx, 1, "nx is 1");
+    _.strictEqual(o.ny, 0, "nx is 0");
   });
 
   test("overlap with non parallel faces, non-axis-aligned normal", function(_){
@@ -112,15 +112,15 @@
     var o = e._SAT(poly1, poly2);
     _.notEqual(o, false, "Overlap exists");
     _.ok(is_inverse_sqrt2(-o.overlap), "Overlap by 1/sqrt(2)");
-    _.ok( is_inverse_sqrt2(-o.normal.x), "normal.x is -1/sqrt(2)");
-    _.ok( is_inverse_sqrt2(-o.normal.y), "normal.y is -1/sqrt(2)");
+    _.ok( is_inverse_sqrt2(-o.nx), "nx is -1/sqrt(2)");
+    _.ok( is_inverse_sqrt2(-o.ny), "ny is -1/sqrt(2)");
 
 
     // order 2
     o = e._SAT(poly2, poly1);
     _.notEqual(o, false, "Overlap exists");
     _.ok(is_inverse_sqrt2(-o.overlap), "Overlap by 1/sqrt(2)");
-    _.ok( is_inverse_sqrt2(o.normal.x), "normal.x is +1/sqrt(2)");
-    _.ok( is_inverse_sqrt2(o.normal.y), "normal.y is +1/sqrt(2)");
+    _.ok( is_inverse_sqrt2(o.nx), "nx is +1/sqrt(2)");
+    _.ok( is_inverse_sqrt2(o.ny), "ny is +1/sqrt(2)");
   });
 })();
