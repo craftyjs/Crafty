@@ -36,6 +36,7 @@ var HashMap = function (cell) {
     this.map = {};
 
     this.boundsDirty = false;
+    this.coordBoundsDirty = false;
     this.boundsHash = {
         maxX: -Infinity,
         maxY: -Infinity,
@@ -393,13 +394,18 @@ HashMap.prototype = {
 
     _updateBoundaries: function() {
         // update map boundaries if they were changed
-        if (!this.boundsDirty) return;
+        if (!this.boundsDirty && !this.coordBoundsDirty) return;
+
 
         var hash = this.boundsHash;
-        hash.maxX = -Infinity;
-        hash.maxY = -Infinity;
-        hash.minX = Infinity;
-        hash.minY = Infinity;
+        // Optimization: if no entities have moved cells, 
+        // we don't need to recalculate the hash boundaries
+        if (this.boundsDirty) {
+            hash.maxX = -Infinity;
+            hash.maxY = -Infinity;
+            hash.minX = Infinity;
+            hash.minY = Infinity;
+        }
 
         var coords = this.boundsCoords;
         coords.maxX = -Infinity;
@@ -462,8 +468,8 @@ HashMap.prototype = {
 
         // mark map boundaries as clean
         this.boundsDirty = false;
+        this.coordBoundsDirty = false;
     },
-
 
     /**@
      * #Crafty.map.traverseRay
@@ -663,7 +669,11 @@ Entry.prototype = {
         //check if buckets change
         if (HashMap.hash(HashMap.key(rect, keyHolder)) !== HashMap.hash(this.keys)) {
             this.map.refresh(this);
+        } else {
+            //mark map coordinate boundaries as dirty
+            this.map.coordBoundsDirty = true;
         }
+        
     }
 };
 
