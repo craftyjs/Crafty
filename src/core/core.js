@@ -411,6 +411,9 @@ Crafty.fn = Crafty.prototype = {
      * 
      * @sign public this .requires(String componentList)
      * @param componentList - List of components that must be added
+     * 
+     * @sign public this .addComponent(String component1, String component2[, .. , ComponentN])
+     * @param Component# - A component to add
      *
      * Makes sure the entity has the components listed. If the entity does not
      * have the component, it will add it.
@@ -423,8 +426,8 @@ Crafty.fn = Crafty.prototype = {
      *
      * @see .addComponent
      */
-    requires: function (list) {
-        return this.addComponent(list);
+    requires: function () {
+        return this.addComponent.apply(this, arguments);
     },
 
     /**@

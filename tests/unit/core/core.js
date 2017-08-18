@@ -388,6 +388,17 @@
 
   });
 
+  test("requires multiple args", function(_) {
+    var first = Crafty.e("test");
+    Crafty.c("one", {});
+    Crafty.c("two", {});
+
+    first.requires("one", "two");
+
+    _.ok(first.has("one"), "Component one added");
+    _.ok(first.has("two"), "Component two added");
+  });
+
   test("required special parameter", function(_) {
     var hasComp = false;
     Crafty.c("Requisitioner", {
