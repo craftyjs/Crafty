@@ -257,6 +257,12 @@ Crafty.math.Vector2D = (function () {
      * @param {Vector2D} vector - A vector to copy
      * @returns {Vector2D} A new vector with the copied x and y values
      * 
+     * @example
+     * ```
+     * var v1 = new Crafty.math.Vector2D(3, 5);
+     * var v2 = new Crafty.math.Vector2D(v1);
+     * ```
+     * 
      */
 
     function Vector2D(x, y) {
@@ -785,6 +791,15 @@ Crafty.math.Matrix2D = (function () {
      * @param {Number=0} e - (dx) Horizontal translation
      * @param {Number=0} f - (dy) Vertical translation
      * @returns {Matrix2D} A new instance whose entries are set from the passed arguments
+     * 
+     * @example
+     * ```
+     * // Create the following translation matrix:
+     * // [1, 0, 5]
+     * // [0, 1, 7]
+     * // [0, 0, 1]
+     * var m = new Crafty.math.Matrix2D(1, 0, 0, 1, 5, 7);
+     * ```
      */
     function Matrix2D (a, b, c, d, e, f) {
         if (a instanceof Matrix2D) {
