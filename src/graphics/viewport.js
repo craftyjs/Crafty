@@ -568,8 +568,8 @@ Crafty.extend({
          * @comp Crafty.stage
          * @kind Method
          * 
-         * @sign public void Crafty.viewport.init([Number width, Number height, String stage_elem])
-         * @sign public void Crafty.viewport.init([Number width, Number height, HTMLElement stage_elem])
+         * @sign public void Crafty.viewport.init([Number width, Number height][, String stage_elem])
+         * @sign public void Crafty.viewport.init([Number width, Number height][, HTMLElement stage_elem])
          * @param Number width - Width of the viewport
          * @param Number height - Height of the viewport
          * @param String or HTMLElement stage_elem - the element to use as the stage (either its id or the actual element).
@@ -583,6 +583,14 @@ Crafty.extend({
          * @see Crafty.device, Crafty.domHelper, Crafty.stage, Crafty.viewport.reload
          */
         init: function (w, h, stage_elem) {
+            // Handle specifying stage_elem without w & h
+            if (typeof(stage_elem) === 'undefined' && typeof(h) === 'undefined' &&
+                typeof(w) !=='undefined' && typeof(w) !== 'number') {
+                stage_elem = w;
+                w = window.innerWidth;
+                h = window.innerHeight;
+            }
+
             // Define default graphics layers with default z-layers
             Crafty.createLayer("DefaultCanvasLayer", "Canvas", {z: 20});
             Crafty.createLayer("DefaultDOMLayer", "DOM", {z: 30});
