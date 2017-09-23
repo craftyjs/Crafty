@@ -558,7 +558,7 @@ Crafty.c("Collision", {
      * @param callbackOn - Callback method to execute upon collision with the component.
      *                     The first argument passed  will be the results of the collision check in the same format documented for `hit()`.
      *                     The second argument passed will be a Boolean indicating whether the collision with a component occurs for the first time.
-     * @param callbackOff - Callback method executed once as soon as collision stops.
+     * @param callbackOff - Callback method executed once as soon as collision stops.  No arguments are passed.
      *
      * Creates an `UpdateFrame` event calling `.hit()` each frame.  When a collision is detected the `callbackOn` will be invoked.
      *
