@@ -8,6 +8,14 @@
  * This syncs with Crafty's internal clock, and so should generally be preferred to using methods such as `setTimeout`.
  */
 module.exports = {
+    /**@
+     * #.delaySpeed
+     * @comp Delay
+     *
+     * The rate of the delay.  This property defaults to 1.
+     */
+    delaySpeed: 1,
+
     init: function () {
         this._delays = [];
         this._delaysPaused = false;
@@ -20,7 +28,7 @@ module.exports = {
                     // remove canceled item from array
                     this._delays.splice(index, 1);
                 } else {
-                    item.accumulator+=frameData.dt;
+                    item.accumulator += frameData.dt * this.delaySpeed;
                     // The while loop handles the (pathological) case where dt>delay
                     while(item.accumulator >= item.delay && item.repeat >= 0){
                         item.accumulator -= item.delay;
