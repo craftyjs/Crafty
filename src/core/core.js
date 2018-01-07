@@ -470,7 +470,9 @@ Crafty.fn = Crafty.prototype = {
         }
         delete this.__c[id];
         // update map from component to (entityId -> entity)
-        delete compEntities[id][this[0]];
+        if (compEntities[id]) {
+            delete compEntities[id][this[0]];
+        }
 
         return this;
     },

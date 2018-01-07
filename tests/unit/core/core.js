@@ -57,6 +57,7 @@
     first.removeComponent("comp", false);
     _.strictEqual(!first.added && !first.has("comp"), true, "hard-removed component (properties are gone)");
 
+    first.removeComponent("nonAddedComponent");
   });
 
   test("remove", function(_) {
