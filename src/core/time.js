@@ -12,7 +12,9 @@ module.exports = {
      * #.delaySpeed
      * @comp Delay
      *
-     * The rate of the delay.  This property defaults to 1.
+     * The rate of the delay. This property defaults to 1.
+     * When setting delaySpeed to 0.5, delays will take twice as long,
+     * setting it to 2.0 will make them twice as short
      */
     delaySpeed: 1,
 

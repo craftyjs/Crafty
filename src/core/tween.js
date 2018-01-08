@@ -16,7 +16,9 @@ module.exports = {
    * #.tweenSpeed
    * @comp Tween
    *
-   * The rate of the tween.  This property defaults to 1.
+   * The rate of the tween. This property defaults to 1.
+   * When setting tweenSpeed to 0.5, tweens will take twice as long,
+   * setting it to 2.0 will make them twice as short
    */
   tweenSpeed: 1,
 
