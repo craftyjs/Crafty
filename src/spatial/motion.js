@@ -325,7 +325,6 @@ Crafty.c("Motion", {
         __motionProp(this, "d", "y", false);
         this._motionDelta = __motionVector(this, "d", false, new Crafty.math.Vector2D());
 
-        this.__movedEvent = {axis: '', oldValue: 0};
         this.__oldDirection = {x: 0, y: 0};
 
         this.bind("UpdateFrame", this._linearMotionTick);
