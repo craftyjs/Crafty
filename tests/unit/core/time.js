@@ -122,6 +122,31 @@
     Crafty.timer.simulateFrames(5);
     _.strictEqual(counter, 1, "delayed function should have executed once");
     _.strictEqual(ent._delays.length, 0, "no more scheduled delays");
+
+    //test delaySpeed being 0.5
+    counter = 0;
+    ent.delay(incr, 99);
+    ent.delaySpeed = 0.5;
+    Crafty.timer.simulateFrames(5); // 5 * 20ms = 100ms
+    _.strictEqual(counter, 0, "delayed function should not have executed");
+    _.strictEqual(ent._delays.length, 1, "one pending delay");
+    Crafty.timer.simulateFrames(5); // 5 * 20ms = 100ms
+    _.strictEqual(counter, 1, "delayed function should have executed once");
+    _.strictEqual(ent._delays.length, 0, "no more scheduled delays");
+    ent.delaySpeed = 1.0;
+
+    //test delaySpeed being 0.5 halfway through
+    counter = 0;
+    ent.delay(incr, 99);
+    Crafty.timer.simulateFrames(3); // 3 * 20ms = 60ms
+    ent.delaySpeed = 0.5;
+    Crafty.timer.simulateFrames(3); // 3 * 10ms = 30ms
+    _.strictEqual(counter, 0, "delayed function should not have executed");
+    _.strictEqual(ent._delays.length, 1, "one pending delay");
+    Crafty.timer.simulateFrames(1); // 1 * 10ms = 100ms
+    _.strictEqual(counter, 1, "delayed function should have executed once");
+    _.strictEqual(ent._delays.length, 0, "no more scheduled delays");
+
   });
 
   module("Crafty.timer", {

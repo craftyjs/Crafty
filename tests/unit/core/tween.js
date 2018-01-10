@@ -143,6 +143,33 @@
     _.strictEqual(e.z, 300, "end position");
   });
 
+  test('.tweenSpeed', function(_) {
+    var actualTweens = [],
+        fired = 0;
+
+    var e = Crafty.e('2D, Tween')
+      .tween({ y: 50, z: 300 }, 200) // 10 frames = 200ms by default
+      .bind('TweenEnd', function(props) {
+        ++fired;
+        actualTweens = actualTweens.concat(Object.keys(props).sort());
+      });
+
+    // no progress if paused
+    e.tweenSpeed = 0.5;
+    Crafty.timer.simulateFrames(10);
+    _.strictEqual(fired, 0, "no events fired");
+    _.deepEqual(actualTweens, [], "no tweens finished");
+    _.strictEqual(e.y, 25, "mid position");
+    _.strictEqual(e.z, 150, "mid position");
+
+    e.tweenSpeed = 1.0;
+    Crafty.timer.simulateFrames(5+1);
+    _.strictEqual(fired, 1, "1 event fired");
+    _.deepEqual(actualTweens, ['y', 'z'], "y and z tween finished");
+    _.strictEqual(e.y, 50, "end position");
+    _.strictEqual(e.z, 300, "end position");
+  });
+
   test('cancel tween', function(_) {
     _.expect(12); // 3[x,y,z-start] + 2[x,z]*3[TweenEnd] + 3[x,y,z-end] assertions
 
