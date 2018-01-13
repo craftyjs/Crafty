@@ -15,15 +15,10 @@ Crafty.c("Draggable", {
     _oldY: null,
     _dir: null,
 
-    init: function () {
-        this.requires("MouseDrag");
-        this.bind("StartDrag", this._startDrag)
-            .bind("Dragging", this._drag);
-    },
-
-    remove: function() {
-        this.unbind("StartDrag", this._startDrag)
-            .unbind("Dragging", this._drag);
+    required: "MouseDrag",
+    events: {
+        "StartDrag": "_startDrag",
+        "Dragging": "_drag"
     },
 
     /**@
@@ -196,7 +191,7 @@ Crafty.c("Controllable", {
      * @example
      * ~~~~
      * // Create a trigger bound to the `b` key
-     * Crafty.s("Controls").defineTriggerInput("BlushTrigger", {keys:['b']});
+     * Crafty.s("Controls").defineTriggerGroup("BlushTrigger", {keys:['b']});
      * // Create a blue square that turns pink when the trigger is pressed
      * Crafty.e("2D, Canvas, Color, Controllable")
      *   .attr({x:10, y:10, h:10, w:10}).color("blue")
@@ -207,6 +202,7 @@ Crafty.c("Controllable", {
      */
     linkInput: function(event, name, fn) {
         this._inputBindings[event][name] = fn;
+        return this;
     },
 
     /**@
@@ -224,6 +220,7 @@ Crafty.c("Controllable", {
      */
     unlinkInput: function(event, name) {
         delete this._inputBindings[event][name];
+        return this;
     },
 
 
@@ -300,10 +297,12 @@ Crafty.c("Multiway", {
 
     remove: function() {
         if (!this.disableControls) this.vx = this.vy = 0;
+        this.unlinkInput("DirectionalInput", this._dpadName);
+        Crafty.s("Controls").destroyDpad(this._dpadName);
     },
 
     events: {
-        "EnterFrame": function() {
+        "UpdateFrame": function() {
             if (!this.disableControls) {
                 if (typeof this._speed.x !== 'undefined' && this._speed.x !== null){
                     this.vx = this._speed.x * this._direction.x;
@@ -444,10 +443,9 @@ Crafty.c("Jumper", {
         this.requires("Supportable, Motion, Controllable");
     },
 
-    
-
     remove: function() {
         this.unlinkInput("TriggerInputDown", this._jumpTriggerName);
+        Crafty.s("Controls").destroyTriggerGroup(this._jumpTriggerName);
     },
 
     _keydown_jumper: function (e) {

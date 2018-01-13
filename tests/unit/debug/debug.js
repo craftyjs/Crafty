@@ -33,19 +33,19 @@
 
   });
 
-  test("VisibleMBR and DebugRect", function(_) {
-    var e = Crafty.e("2D, VisibleMBR").attr({
+  test("DebugRectangle", function(_) {
+    var e = Crafty.e("2D, DebugRectangle").attr({
       x: 10,
       y: 10,
       w: 10,
       h: 20
     });
-    e._assignRect();
+    e.debugRectangle(e._mbr || e);
     _.strictEqual(e.debugRect._x, 10, "debugRect has correct x coord");
     _.strictEqual(e.debugRect._h, 20, "debugRect has correct height");
 
     e.rotation = 90;
-    e._assignRect();
+    e.debugRectangle(e._mbr || e);
     _.strictEqual(e.debugRect._h, 10, "debugRect has correct height of MBR after rotation");
 
     e.destroy();

@@ -38,7 +38,7 @@ Crafty.e("2D, DOM, Color, Collision")
     .attr({ x: 300, y: 150, w: 10, h: 10,
             dX: Crafty.math.randomInt(2, 5),
             dY: Crafty.math.randomInt(2, 5) })
-    .bind('EnterFrame', function () {
+    .bind('UpdateFrame', function () {
         //hit floor or roof
         if (this.y <= 0 || this.y >= 290)
             this.dY *= -1;

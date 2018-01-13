@@ -32,6 +32,14 @@ Crafty.defaultShader("Image", new Crafty.WebGLShader(
  * @kind Component
  * 
  * Draw an image with or without repeating (tiling).
+ *
+ * If the entity's width and height are smaller than the width and height of the image source, the image will appear cropped.
+ * If the entity's dimensions are larger than the dimensions of the image source, the exact appearance of the remaining space will depend on what renderer (WebGL, DOM, or Canvas) is used.
+ * However, if tiling is enabled, the remaining space will be filled by a repeating pattern of the image.
+ *
+ * @note Image scaling is not supported by this component. Use a spritesheet, defined by `Crafty.sprite`, consisting of a single `Sprite` instead.
+ *
+ * @see Sprite, Crafty.sprite
  */
 Crafty.c("Image", {
     _repeat: "repeat",

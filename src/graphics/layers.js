@@ -19,25 +19,74 @@ Crafty.extend({
     _registerLayerTemplate: function (type, layerTemplate) {
         this._drawLayerTemplates[type] = layerTemplate;
         var common = this._commonLayerProperties;
+
+        // add common properties, don't overwrite existing ones
         for (var key in common) {
             if (layerTemplate[key]) continue;
             layerTemplate[key] = common[key];
         }
-        // A marker to avoid creating temporary objects
-        layerTemplate._viewportRectHolder = {};
     },
 
     _commonLayerProperties: {
-        // Based on the camera options, find the Crafty coordinates corresponding to the layer's position in the viewport
-        _viewportRect: function () {
-            var options = this.options;
-            var rect = this._viewportRectHolder;
-            var scale = Math.pow(Crafty.viewport._scale, options.scaleResponse);
+        // Layer options
+        options: {
+            xResponse: 1,
+            yResponse: 1,
+            scaleResponse: 1,
+            z: 0
+        },
+
+        // A tracker for whether any elements in this layer need to listen to mouse/touch events
+        _pointerEntities: 0,
+
+        // Track dirty viewport state - render code should uncheck flag once finished handling it
+        _dirtyViewport: false,
+
+        // A cached version of the viewport rect
+        _cachedViewportRect: null,
+
+
+        init: function() {
+            this._cachedViewportRect = {};
+
+            // Trigger layer-specific init code
+            this.trigger("LayerInit");
+
+            // Handle viewport invalidation
+            this.uniqueBind("InvalidateViewport", function () { this._dirtyViewport = true; });
+            // Set pixelart to current status
+            this.trigger("PixelartSet", Crafty._pixelartEnabled);
+
+            Crafty._addDrawLayerInstance(this);
+        },
+
+        remove: function() {
+            // Trigger layer-specific remove code
+            this.trigger("LayerRemove");
+
+            Crafty._removeDrawLayerInstance(this);
+        },
+
+        // Sort function for rendering in the correct order
+        // Sort by globalZ
+        _sort: function(a, b) {
+            return a._globalZ - b._globalZ;
+        },
+
+        // Based on the camera options, find the Crafty coordinates
+        // corresponding to the layer's position in the viewport
+        _viewportRect: function (useCached) {
+            var rect = this._cachedViewportRect;
+            if (useCached) return rect;
+
+            // total transform is viewport transform combined with this layer's transform
             var viewport = Crafty.viewport;
+            var options = this.options;
+
+            var scale = Math.pow(viewport._scale, options.scaleResponse);
             rect._scale = scale;
             rect._w = viewport._width / scale;
             rect._h = viewport._height / scale;
-
             
             // This particular transformation is designed such that,
             // if a combination pan/scale keeps the center of the screen fixed for a layer with x/y response of 1,
@@ -47,10 +96,23 @@ Crafty.extend({
                 0.5 * (options.xResponse - 1) * (1 - 1 / scale) * viewport._width;  
             rect._y = options.yResponse * (-viewport._y) - 
                 0.5 * (options.yResponse - 1) * (1 - 1 / scale) * viewport._height; 
+
             return rect;
         },
-        // A tracker for whether any elements in this layer need to listen to mouse/touch events
-        _pointerEntities: 0
+
+        // transform a given rect to view space, depending on this layers' total transform
+        _viewTransformRect: function(rect, outRect, useCached) {
+            var view = this._viewportRect(useCached),
+                scale = view._scale;
+
+            outRect = outRect || {};
+            outRect._x = rect._x * scale + Math.round(-view._x * scale);
+            outRect._y = rect._y * scale + Math.round(-view._y * scale);
+            outRect._w = rect._w * scale;
+            outRect._h = rect._h * scale;
+
+            return outRect;
+        }
     },
 
     /**@

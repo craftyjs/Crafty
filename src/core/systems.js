@@ -28,10 +28,14 @@ Crafty._systems = {};
  *
  * Objects which handle entities might want to subscribe to the event system without being entities themselves.
  * When you declare a system with a template object, all the methods and properties of that template are copied to a new object.
- * This new system will automatically have the following event related methods, which function like those of components: `.bind()`, `unbind()`, `trigger()`, `one()`, `uniqueBind()`, `destroy()`.
- * Much like components, you can also provide `init()` and `remove()` methods, as well as an `events` parameter for automatically binding to events.
+ * This new system will automatically have the following event related methods, which function like those of components:
+ * `.bind()`, `unbind()`, `trigger()`, `one()`, `uniqueBind()`, `destroy()`.
+ * Much like components, you can also provide `init()` and `remove()` methods,
+ * a `properties` dictionary which will be used to define properties with Object.defineProperty,
+ * as well as an `events` parameter for automatically binding to events.
  *
- * @note The `init()` method is for setting up the internal state of the system -- if you create entities in it that then reference the system, that'll create an infinite loop.
+ * @note The `init()` method is for setting up the internal state of the system,
+ * if you create entities in it that then reference the system, that'll create an infinite loop.
  */
 Crafty.s = function(name, obj, options, lazy) {
     if (obj) {
@@ -103,9 +107,13 @@ Crafty.CraftySystem = (function() {
 
         // Give this object a global ID.  Used for event handlers.
         this[0] = "system" + (systemID++);
-        // Run any instantiation code
-        if (typeof this.init === "function") {
-            this.init(name);
+
+        // Define properties
+        if ("properties" in template) {
+            var props = template.properties;
+            for (var propertyName in props) {
+                Object.defineProperty(this, propertyName, props[propertyName]);
+            }
         }
         // If an events object is provided, bind the listed event handlers
         if ("events" in template) {
@@ -114,6 +122,10 @@ Crafty.CraftySystem = (function() {
                 var fn = typeof auto[eventName] === "function" ? auto[eventName] : template[auto[eventName]];
                 this.bind(eventName, fn);
             }
+        }
+        // Run any instantiation code
+        if (typeof this.init === "function") {
+            this.init(name);
         }
     };
 })();

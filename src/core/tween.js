@@ -6,17 +6,27 @@ var Crafty = require('../core/core.js');
  * @category Animation
  * @kind Component
  * 
- * @trigger TweenEnd - when a tween finishes - String - property
+ * @trigger TweenEnd - when a tween finishes - Object - an object containing the properties that finished tweening
  *
  * Component to animate the change in 2D properties over time.
  */
 module.exports = {
 
+  /**@
+   * #.tweenSpeed
+   * @comp Tween
+   *
+   * The rate of the tween. This property defaults to 1.
+   * When setting tweenSpeed to 0.5, tweens will take twice as long,
+   * setting it to 2.0 will make them twice as short
+   */
+  tweenSpeed: 1,
+
   init: function(){
     this.tweenGroup = {};
     this.tweenStart = {};
     this.tweens = [];
-    this.uniqueBind("EnterFrame", this._tweenTick);
+    this.uniqueBind("UpdateFrame", this._tweenTick);
 
   },
 
@@ -24,7 +34,7 @@ module.exports = {
     var tween, v, i;
     for ( i = this.tweens.length-1; i>=0; i--){
       tween = this.tweens[i];
-      tween.easing.tick(frameData.dt);
+      tween.easing.tick(frameData.dt * this.tweenSpeed);
       v  = tween.easing.value();
       this._doTween(tween.props, v);
       if (tween.easing.complete) {
@@ -156,9 +166,11 @@ module.exports = {
   * Stops tweening the specified group of properties, and fires the "TweenEnd" event.
   */
   _endTween: function(properties){
+    var notEmpty = false;
     for (var propname in properties){
+      notEmpty = true;
       delete this.tweenGroup[propname];
     }
-    this.trigger("TweenEnd", properties);
+    if (notEmpty) this.trigger("TweenEnd", properties);
   }
 };

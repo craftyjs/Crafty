@@ -135,10 +135,10 @@ Crafty.c("AngularMotion", {
 
         this.__oldRotationDirection = 0;
 
-        this.bind("EnterFrame", this._angularMotionTick);
+        this.bind("UpdateFrame", this._angularMotionTick);
     },
     remove: function(destroyed) {
-        this.unbind("EnterFrame", this._angularMotionTick);
+        this.unbind("UpdateFrame", this._angularMotionTick);
     },
 
     /**@
@@ -195,7 +195,6 @@ Crafty.c("AngularMotion", {
  * @category 2D
  * @kind Component
  * 
- * @trigger Moved - When entity has moved due to velocity/acceleration on either x or y axis a Moved event is triggered. If the entity has moved on both axes for diagonal movement the event is triggered twice. - { axis: 'x' | 'y', oldValue: Number } - Old position
  * @trigger NewDirection - When entity has changed direction due to velocity on either x or y axis a NewDirection event is triggered. The event is triggered once, if direction is different from last frame. - { x: -1 | 0 | 1, y: -1 | 0 | 1 } - New direction
  * @trigger MotionChange - When a motion property has changed a MotionChange event is triggered. - { key: String, oldValue: Number } - Motion property name and old value
  *
@@ -326,13 +325,12 @@ Crafty.c("Motion", {
         __motionProp(this, "d", "y", false);
         this._motionDelta = __motionVector(this, "d", false, new Crafty.math.Vector2D());
 
-        this.__movedEvent = {axis: '', oldValue: 0};
         this.__oldDirection = {x: 0, y: 0};
 
-        this.bind("EnterFrame", this._linearMotionTick);
+        this.bind("UpdateFrame", this._linearMotionTick);
     },
     remove: function(destroyed) {
-        this.unbind("EnterFrame", this._linearMotionTick);
+        this.unbind("UpdateFrame", this._linearMotionTick);
     },
 
     /**@
@@ -474,12 +472,12 @@ Crafty.c("Motion", {
      */
     _linearMotionTick: function(frameData) {
         var dt = frameData.dt / 1000; // time in s
-        var oldX = this._x, vx = this._vx, ax = this._ax,
-            oldY = this._y, vy = this._vy, ay = this._ay;
+        var vx = this._vx, ax = this._ax,
+            vy = this._vy, ay = this._ay;
 
         // s += v * Δt + (0.5 * a) * Δt * Δt
-        var newX = oldX + vx * dt + 0.5 * ax * dt * dt;
-        var newY = oldY + vy * dt + 0.5 * ay * dt * dt;
+        var dx = vx * dt + 0.5 * ax * dt * dt;
+        var dy = vy * dt + 0.5 * ay * dt * dt;
         // v += a * Δt
         this.vx = vx + ax * dt;
         this.vy = vy + ay * dt;
@@ -494,22 +492,10 @@ Crafty.c("Motion", {
             this.trigger('NewDirection', oldDirection);
         }
 
-        // Check if velocity has changed
-        var movedEvent = this.__movedEvent;
-        // Δs = s[t] - s[t-1]
-        this._dx = newX - oldX;
-        this._dy = newY - oldY;
-        if (this._dx !== 0) {
-            this.x = newX;
-            movedEvent.axis = 'x';
-            movedEvent.oldValue = oldX;
-            this.trigger('Moved', movedEvent);
-        }
-        if (this._dy !== 0) {
-            this.y = newY;
-            movedEvent.axis = 'y';
-            movedEvent.oldValue = oldY;
-            this.trigger('Moved', movedEvent);
-        }
+        this._dx = dx;
+        this._dy = dy;
+
+        // Set the position using the optimized _setPosition method
+        this._setPosition(this._x + dx, this._y + dy);
     }
 });

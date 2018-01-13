@@ -56,7 +56,7 @@ var Crafty = function (selector) {
     return new Crafty.fn.init(selector);
 };
     // Internal variables
-var GUID, frame, components, entities, handlers, onloads,
+var GUID, frame, components, entities, handlers, onloads, compEntities,
 slice, rlist, rspace;
 
 
@@ -70,6 +70,7 @@ var initState = function () {
     frame       = 0;
 
     entities    = {}; // Map of entities and their data
+    compEntities= {}; // Map from componentName to (entityId -> entity)
     handlers    = {}; // Global event handlers
     onloads     = []; // Temporary storage of onload handlers
 };
@@ -95,12 +96,11 @@ Crafty.fn = Crafty.prototype = {
         if (typeof selector === "string") {
             var elem = 0, //index elements
                 e, //entity forEach
-                current,
                 and = false, //flags for multiple
                 or = false,
                 del,
                 comps,
-                score,
+                filteredCompEnts, compEnts, compEnts2, compEnt,
                 i, l;
 
             if (selector === '*') {
@@ -130,30 +130,49 @@ Crafty.fn = Crafty.prototype = {
                 del = rspace;
             }
 
-            //loop over entities
-            for (e in entities) {
-                if (!entities.hasOwnProperty(e)) continue; //skip
-                current = entities[e];
+            if (or) {
+                comps = selector.split(del);
 
-                if (and || or) { //multiple components
-                    comps = selector.split(del);
-                    i = 0;
-                    l = comps.length;
-                    score = 0;
+                filteredCompEnts = {}; // populate object with union of keys from all sets
+                for (i = 0, l = comps.length; i < l; i++) {
+                    compEnts = compEntities[comps[i]];
+                    for (compEnt in compEnts) {
+                        filteredCompEnts[compEnt] = +compEnt; //convert to int
+                    }
+                }
 
-                    for (; i < l; i++) //loop over components
-                        if (current.__c[comps[i]]) score++; //if component exists add to score
+                for (compEnt in filteredCompEnts) { // add set elements to result
+                    this[elem++] = filteredCompEnts[compEnt];
+                }
+            } else if (and) {
+                comps = selector.split(del);
 
-                        //if anded comps and has all OR ored comps and at least 1
-                    if (and && score === l || or && score > 0) this[elem++] = +e;
+                filteredCompEnts = {}; // populate initial object with keys in common from first two sets
+                compEnts = compEntities[comps[0]];
+                compEnts2 = compEntities[comps[1]];
+                for (compEnt in compEnts) {
+                    if (compEnts2[compEnt] !== undefined)
+                        filteredCompEnts[compEnt] = +compEnt; //convert to int
+                }
 
-                } else if (current.__c[selector]) this[elem++] = +e; //convert to int
+                for (i = 2, l = comps.length; i < l; i++) { // strip initial object keys not in following sets
+                    compEnts = compEntities[comps[i]];
+                    for (compEnt in filteredCompEnts) {
+                        if (compEnts[compEnt] === undefined)
+                            filteredCompEnts[compEnt] = -1;
+                    }
+                }
+
+                for (compEnt in filteredCompEnts) { // add valid elements to result
+                    i = filteredCompEnts[compEnt];
+                    if (i >= 0) this[elem++] = i;
+                }
+            } else { // single component selector
+                compEnts = compEntities[selector];
+                for (compEnt in compEnts) {
+                    this[elem++] = +compEnt; //convert to int
+                }
             }
-
-            //extend all common components
-            if (elem > 0 && !and && !or) this.extend(components[selector]);
-            if (comps && and)
-                for (i = 0; i < l; i++) this.extend(components[comps[i]]);
 
             this.length = elem; //length is the last index (already incremented)
 
@@ -268,7 +287,7 @@ Crafty.fn = Crafty.prototype = {
      * ~~~
      */
     addComponent: function (id) {
-        var comps,
+        var comps, compName,
             comp, c = 0;
 
         //add multiple arguments
@@ -280,12 +299,17 @@ Crafty.fn = Crafty.prototype = {
 
         //extend the components
         for (; c < comps.length; c++) {
+            compName = comps[c];
+
             // If component already exists, continue
-            if (this.__c[comps[c]] === true) {
+            if (this.__c[compName] === true) {
                 continue;
             }
-            this.__c[comps[c]] = true;
-            comp = components[comps[c]];
+            this.__c[compName] = true;
+            // update map from component to (entityId -> entity)
+            (compEntities[compName] = compEntities[compName] || {})[this[0]] = this;
+
+            comp = components[compName];
             // Copy all methods of the component
             this.extend(comp);
             // Add any required components
@@ -299,10 +323,6 @@ Crafty.fn = Crafty.prototype = {
                     Object.defineProperty(this, propertyName, props[propertyName]);
                 }
             }
-            // Call constructor function
-            if (comp && "init" in comp) {
-                comp.init.call(this);
-            }
             // Bind events
             if (comp && "events" in comp){
                 var auto = comp.events;
@@ -310,6 +330,10 @@ Crafty.fn = Crafty.prototype = {
                     var fn = typeof auto[eventName] === "function" ? auto[eventName] : comp[auto[eventName]];
                     this.bind(eventName, fn);
                 }
+            }
+            // Call constructor function
+            if (comp && "init" in comp) {
+                comp.init.call(this);
             }
         }
 
@@ -387,6 +411,9 @@ Crafty.fn = Crafty.prototype = {
      * 
      * @sign public this .requires(String componentList)
      * @param componentList - List of components that must be added
+     * 
+     * @sign public this .addComponent(String component1, String component2[, .. , ComponentN])
+     * @param Component# - A component to add
      *
      * Makes sure the entity has the components listed. If the entity does not
      * have the component, it will add it.
@@ -399,8 +426,8 @@ Crafty.fn = Crafty.prototype = {
      *
      * @see .addComponent
      */
-    requires: function (list) {
-        return this.addComponent(list);
+    requires: function () {
+        return this.addComponent.apply(this, arguments);
     },
 
     /**@
@@ -442,7 +469,10 @@ Crafty.fn = Crafty.prototype = {
             }
         }
         delete this.__c[id];
-
+        // update map from component to (entityId -> entity)
+        if (compEntities[id]) {
+            delete compEntities[id][this[0]];
+        }
 
         return this;
     },
@@ -723,7 +753,7 @@ Crafty.fn = Crafty.prototype = {
      * this.bind("myevent", function() {
      *     this.triggers++; //whenever myevent is triggered, increment
      * });
-     * this.bind("EnterFrame", function() {
+     * this.bind("UpdateFrame", function() {
      *     this.trigger("myevent"); //trigger myevent on every frame
      * });
      * ~~~
@@ -1037,10 +1067,100 @@ Crafty.fn = Crafty.prototype = {
                 comp = components[compName];
                 if (comp && "remove" in comp)
                     comp.remove.call(this, true);
+
+                // update map from component to (entityId -> entity)
+                delete compEntities[compName][this[0]];
             }
             this._unbindAll();
             delete entities[this[0]];
         });
+    },
+
+    /**@
+     * #.freeze
+     * @comp Crafty Core
+     * @kind Method
+     * 
+     * @sign public this .freeze()
+     * 
+     * @triggers Freeze - Directly before the entity is frozen
+     * 
+     * Freezes the entity.  A frozen entity will not receive events or be displayed by graphics systems. 
+     * It is also removed from the spatial map, which means it will not be found by collisions, 
+     * raycasting, or similar functions.
+     * 
+     * This method may be called upon a collection of entities.
+     * 
+     * @note Because the entity no longer listens to events, modifying its properties can result in an inconsistent state.
+     * 
+     * If custom components need to handle frozen entities, they can listen to the "Freeze" event, which will be triggered before the event system is disabled.
+     * 
+     * @example
+     * 
+     * ```
+     * // Freeze all entities with the Dead component
+     * Crafty("Dead").freeze();
+     * ```
+     * 
+     * @see .unfreeze
+     */
+    freeze: function () {
+        if (this.length === 1 && !this.__frozen) {
+            this.trigger("Freeze", this);
+            this._freezeCallbacks();
+            this.__frozen = true;
+        } else {
+            for (var i = 0; i < this.length; i++) {
+                var e = entities[this[i]];
+                if (e && !e.__frozen) {
+                    e.trigger("Freeze", e);
+                    e._freezeCallbacks();
+                    // Set a frozen flag.  (This is distinct from the __callbackFrozen flag)
+                    e.__frozen = true;
+                }
+            }
+        }
+        return this;
+    },
+
+    /**#
+     * #.unfreeze
+     * @comp Crafty Core
+     * @kind Method
+     * 
+     * @sign public this .unfreeze()
+     * 
+     * @triggers Unfreeze - While the entity is being unfrozen
+     * 
+     * Unfreezes the entity, allowing it to receive events, inserting it back into the spatial map, 
+     * and restoring it to its previous visibility.
+     * 
+     * This method may be called upon a collection of entities.
+     * 
+     * If a custom component needs to know when an entity is unfrozen, they can listen to the "Unfreeze"" event.
+     * 
+     * @example
+     * ```
+     * // Bring the dead back to life!
+     * Crafty("Dead").unfreeze().addComponent("Undead");
+     * ```
+     */
+    unfreeze: function () {
+        if (this.length === 1 && this.__frozen) {
+            this.__frozen = false;
+            this._unfreezeCallbacks();
+            this.trigger("Unfreeze", this);
+        } else {
+            for (var i = 0; i < this.length; i++) {
+                var e = entities[this[i]];
+                if (e && e.__frozen) {
+                    e.__frozen = false;
+                    e._unfreezeCallbacks();
+                    e.trigger("Unfreeze", e);
+                }
+            }
+        }
+        return this;
     }
 };
 
@@ -1138,7 +1258,7 @@ Crafty._callbackMethods = {
 
     // Process for running all callbacks for the given event
     _runCallbacks: function(event, data) {
-        if (!this._callbacks[event]) {
+        if (!this._callbacks[event] || this.__callbacksFrozen) {
             return;
         }
         var callbacks = this._callbacks[event];
@@ -1186,6 +1306,7 @@ Crafty._callbackMethods = {
     // Completely all callbacks for every event, such as on object destruction
     _unbindAll: function() {
         if (!this._callbacks) return;
+        this.__callbacksFrozen = false;
         for (var event in this._callbacks) {
             if (this._callbacks[event]) {
                 // Remove the normal way, in case we've got a nested loop
@@ -1194,6 +1315,30 @@ Crafty._callbackMethods = {
                 delete handlers[event][this[0]];
             }
         }
+    },
+
+    _freezeCallbacks: function() {
+        if (!this._callbacks) return;
+        for (var event in this._callbacks) {
+            if (this._callbacks[event]) {
+                // Remove the callbacks from the global list of handlers
+                delete handlers[event][this[0]];
+            }
+        }
+        // Mark this callback list as frozen
+        this.__callbacksFrozen = true;
+    },
+
+     _unfreezeCallbacks: function() {
+        if (!this._callbacks) return;
+        this.__callbacksFrozen = false;
+        for (var event in this._callbacks) {
+            if (this._callbacks[event]) {
+                // Add the callbacks back to the global list of handlers
+                 handlers[event][this[0]] = this._callbacks[event];
+            }
+        }
+        
     }
 };
 
@@ -1214,7 +1359,7 @@ Crafty.extend({
      * @category Core
      * @kind Method
      * 
-     * @trigger Load - Just after the viewport is initialised. Before the EnterFrame loops is started
+     * @trigger Load - Just after the viewport is initialised. Before the UpdateFrame loops is started
      * @sign public this Crafty.init([Number width, Number height, String stage_elem])
      * @sign public this Crafty.init([Number width, Number height, HTMLElement stage_elem])
      * @param Number width - Width of the stage
@@ -1223,7 +1368,7 @@ Crafty.extend({
      *
      * Sets the element to use as the stage, creating it if necessary.  By default a div with id 'cr-stage' is used, but if the 'stage_elem' argument is provided that will be used instead.  (see `Crafty.viewport.init`)
      *
-     * Starts the `EnterFrame` interval. This will call the `EnterFrame` event for every frame.
+     * Starts the `UpdateFrame` interval. This will call the `UpdateFrame` event for every frame.
      *
      * Can pass width and height values for the stage otherwise will default to window size.
      *
@@ -1292,7 +1437,7 @@ Crafty.extend({
      * @sign public this Crafty.stop([bool clearState])
      * @param clearState - if true the stage and all game state is cleared.
      *
-     * Stops the EnterFrame interval and removes the stage element.
+     * Stops the `UpdateFrame` interval and removes the stage element.
      *
      * To restart, use `Crafty.init()`.
      * @see Crafty.init
@@ -1336,7 +1481,7 @@ Crafty.extend({
      * @trigger Unpause - when the game is unpaused
      * @sign public this Crafty.pause(void)
      *
-     * Pauses the game by stopping the EnterFrame event from firing. If the game is already paused it is unpaused.
+     * Pauses the game by stopping the `UpdateFrame` event from firing. If the game is already paused it is unpaused.
      * You can pass a boolean parameter if you want to pause or unpause no matter what the current state is.
      * Modern browsers pauses the game when the page is not visible to the user. If you want the Pause event
      * to be triggered when that happens you can enable autoPause in `Crafty.settings`.
@@ -1356,7 +1501,6 @@ Crafty.extend({
             setTimeout(function () {
                 Crafty.timer.stop();
             }, 0);
-            Crafty.keydown = {};
         } else {
             this.trigger('Unpause');
             this._paused = false;
@@ -1420,7 +1564,7 @@ Crafty.extend({
             init: function () {
                 // When first called, set the  gametime one frame before now!
                 if (typeof gameTime === "undefined")
-                    gameTime = (new Date().getTime()) - milliSecPerFrame;
+                    gameTime = Date.now() - milliSecPerFrame;
 
                 var onFrame = (typeof window !== "undefined") && (
                     window.requestAnimationFrame ||
@@ -1519,7 +1663,8 @@ Crafty.extend({
              * @kind Method
              * 
              * @sign public void Crafty.timer.step()
-             * @trigger EnterFrame - Triggered on each frame.  Passes the frame number, and the amount of time since the last frame.  If the time is greater than maxTimestep, that will be used instead.  (The default value of maxTimestep is 50 ms.) - { frame: Number, dt:Number }
+             * @trigger EnterFrame - Triggered before each frame.  Passes the frame number, and the amount of time since the last frame.  If the time is greater than maxTimestep, that will be used instead.  (The default value of maxTimestep is 50 ms.) - { frame: Number, dt:Number }
+             * @trigger UpdateFrame - Triggered on each frame.  Passes the frame number, and the amount of time since the last frame.  If the time is greater than maxTimestep, that will be used instead.  (The default value of maxTimestep is 50 ms.) - { frame: Number, dt:Number }
              * @trigger ExitFrame - Triggered after each frame.  Passes the frame number, and the amount of time since the last frame.  If the time is greater than maxTimestep, that will be used instead.  (The default value of maxTimestep is 50 ms.) - { frame: Number, dt:Number }
              * @trigger PreRender - Triggered every time immediately before a scene should be rendered
              * @trigger RenderScene - Triggered every time a scene should be rendered
@@ -1529,7 +1674,7 @@ Crafty.extend({
              * @trigger MeasureRenderTime - Triggered after each render. Passes the time it took to render the scene - Number
              *
              * Advances the game by performing a step. A step consists of one/multiple frames followed by a render. The amount of frames depends on the timer's steptype.
-             * Specifically it triggers `EnterFrame` & `ExitFrame` events for each frame and `PreRender`, `RenderScene` & `PostRender` events for each render.
+             * Specifically it triggers `EnterFrame`, `UpdateFrame` & `ExitFrame` events for each frame and `PreRender`, `RenderScene` & `PostRender` events for each render.
              *
              * @see Crafty.timer.steptype
              * @see Crafty.timer.FPS
@@ -1537,7 +1682,7 @@ Crafty.extend({
             step: function () {
                 var drawTimeStart, dt, lastFrameTime, loops = 0;
 
-                var currentTime = new Date().getTime();
+                var currentTime = Date.now();
                 if (endTime > 0)
                     Crafty.trigger("MeasureWaitTime", currentTime - endTime);
 
@@ -1582,15 +1727,18 @@ Crafty.extend({
                         dt: dt,
                         gameTime: gameTime
                     };
-                    // Handle any changes due to user input
-                    Crafty.trigger("EnterFrameInput", frameData);
-                    // Everything that changes over time hooks into this event
+
+                    // Event that happens before "UpdateFrame",
+                    // e.g. for setting-up movement in response to user input for the next "UpdateFrame" event
                     Crafty.trigger("EnterFrame", frameData);
-                    // Event that happens after "EnterFrame", e.g. for resolivng collisions applied through movement during "EnterFrame" events
+                    // Everything that changes over time hooks into this event
+                    Crafty.trigger("UpdateFrame", frameData);
+                    // Event that happens after "UpdateFrame",
+                    // e.g. for resolivng collisions applied through movement during "UpdateFrame" events
                     Crafty.trigger("ExitFrame", frameData);
                     gameTime += dt;
 
-                    currentTime = new Date().getTime();
+                    currentTime = Date.now();
                     Crafty.trigger("MeasureFrameTime", currentTime - lastFrameTime);
                 }
 
@@ -1600,7 +1748,7 @@ Crafty.extend({
                     Crafty.trigger("PreRender"); // Pre-render setup opportunity
                     Crafty.trigger("RenderScene");
                     Crafty.trigger("PostRender"); // Post-render cleanup opportunity
-                    currentTime = new Date().getTime();
+                    currentTime = Date.now();
                     Crafty.trigger("MeasureRenderTime", currentTime - drawTimeStart);
                 }
 
@@ -1649,8 +1797,8 @@ Crafty.extend({
                         frame: frame++,
                         dt: timestep
                     };
-                    Crafty.trigger("EnterFrameInput", frameData);
                     Crafty.trigger("EnterFrame", frameData);
+                    Crafty.trigger("UpdateFrame", frameData);
                     Crafty.trigger("ExitFrame", frameData);
                 }
                 Crafty.trigger("PreRender");
@@ -1740,19 +1888,19 @@ Crafty.extend({
      * Crafty.c("Annoying", {
      *     _message: "HiHi",
      *     init: function() {
-     *         this.bind("EnterFrame", function() { alert(this.message); });
+     *         this.bind("UpdateFrame", function() { alert(this.message); });
      *     },
      *     annoying: function(message) { this.message = message; }
      * });
      *
      * Crafty.e("Annoying").annoying("I'm an orange...");
      * ~~~
-     * To attach to the "EnterFrame" event using the `events` property instead:
+     * To attach to the "UpdateFrame" event using the `events` property instead:
      * ~~~
      * Crafty.c("Annoying", {
      *     _message: "HiHi",
      *     events: {
-     *         "EnterFrame": function(){alert(this.message);}
+     *         "UpdateFrame": function(){alert(this.message);}
      *     }
      *     annoying: function(message) { this.message = message; }
      * });
@@ -1920,6 +2068,10 @@ Crafty.extend({
      */
     frame: function () {
         return frame;
+    },
+
+    entities: function () {
+        return entities;
     },
 
     components: function () {

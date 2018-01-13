@@ -1,17 +1,5 @@
-var Crafty = require('../core/core.js'),
-    HashMap = require('./spatial-grid.js');
+var Crafty = require('../core/core.js');
 
-
-
-/**@
- * #Crafty.map
- * @category 2D
- * @kind CoreObject
- * 
- * Functions related with querying entities.
- * @see Crafty.HashMap
- */
-Crafty.map = new HashMap();
 var M = Math,
     //Mc = M.cos,
     //Ms = M.sin,
@@ -26,8 +14,9 @@ var M = Math,
  * Component for any entity that has a position on the stage.
  * @trigger Move - when the entity has moved - { _x:Number, _y:Number, _w:Number, _h:Number } - Old position
  * @trigger Invalidate - when the entity needs to be redrawn
- * @trigger Rotate - when the entity is rotated - { cos:Number, sin:Number, deg:Number, rad:Number, o: {x:Number, y:Number}}
+ * @trigger Rotate - when the entity is rotated - { rotation:Number} - Rotation in degrees
  * @trigger Reorder - when the entity's z index has changed
+ * @trigger Resize - when the entity's dimensions have changed - { axis: 'w' | 'h', amount: Number }
  */
 Crafty.c("2D", {
     /**@
@@ -138,7 +127,7 @@ Crafty.c("2D", {
     _children: null,
     _parent: null,
 
-    // Setup   all the properties that we need to define
+    // Setup all the properties that we need to define
     properties: {
         x: {
             set: function (v) {
@@ -210,7 +199,49 @@ Crafty.c("2D", {
             configurable: true,
             enumerable: true
         },
-        _rotation: {enumerable:false}
+        _rotation: {enumerable:false},
+        
+        /**@
+         * #.ox
+         * @comp 2D
+         * @kind Property
+         * 
+         * The `x` position on the stage of the origin. When modified, will set the underlying `x` value of the entity.
+         * 
+         * @see .origin
+         */
+        ox: {
+            set: function (v) {
+                var x = v - this._origin.x;
+                this._setter2d('_x', x);
+            },
+            get: function () {
+                return this._x + this._origin.x;
+            },
+            configurable: true,
+            enumerable: true
+        },
+
+        /**@
+         * #.oy
+         * @comp 2D
+         * @kind Property
+         * 
+         * The `y` position on the stage of the origin. When modified, will set the underlying `y` value of the entity.
+         * 
+         * @see .origin
+         */
+        oy: {
+            set: function (v) {
+                var y = v - this._origin.y;
+                this._setter2d('_y', y);
+            },
+            get: function () {
+                return this._y + this._origin.y;
+            },
+            configurable: true,
+            enumerable: true
+        }
     },
 
     init: function () {
@@ -230,6 +261,7 @@ Crafty.c("2D", {
 
         //insert self into the HashMap
         this._entry = Crafty.map.insert(this);
+        
 
         //when object changes, update HashMap
         this.bind("Move", function (e) {
@@ -248,7 +280,7 @@ Crafty.c("2D", {
             this._entry.update(old);
             // Rotate children (if any) by the same amount
             if (this._children.length > 0) {
-                this._cascade(e);
+                this._cascadeRotation(e);
             }
         });
 
@@ -279,6 +311,14 @@ Crafty.c("2D", {
         });
     },
 
+    events: {
+        "Freeze":function(){
+            Crafty.map.remove(this._entry);
+        },
+        "Unfreeze":function(){
+            this._entry = Crafty.map.insert(this, this._entry);
+        }
+    }, 
 
     /**@
      * #.offsetBoundary
@@ -390,30 +430,9 @@ Crafty.c("2D", {
         else
             this._rotation = v;
 
-        //Calculate the new MBR
-        var //rad = theta * DEG_TO_RAD,
-            o = {
-                x: this._origin.x + this._x,
-                y: this._origin.y + this._y
-            };
-
         this._calculateMBR();
 
-
-        //trigger "Rotate" event
-        var drad = difference * DEG_TO_RAD,
-            // ct = Math.cos(rad),
-            // st = Math.sin(rad),
-            cos = Math.cos(drad),
-            sin = Math.sin(drad);
-
-        this.trigger("Rotate", {
-            cos: (-1e-10 < cos && cos < 1e-10) ? 0 : cos, // Special case 90 degree rotations to prevent rounding problems
-            sin: (-1e-10 < sin && sin < 1e-10) ? 0 : sin, // Special case 90 degree rotations to prevent rounding problems
-            deg: difference,
-            rad: drad,
-            o: o
-        });
+        this.trigger("Rotate", difference);
     },
 
     /**@
@@ -638,8 +657,7 @@ Crafty.c("2D", {
      * for an opposite direction.
      */
     shift: function (x, y, w, h) {
-        if (x) this.x += x;
-        if (y) this.y += y;
+        if (x || y) this._setPosition(this._x + x, this._y + y);
         if (w) this.w += w;
         if (h) this.h += h;
 
@@ -655,7 +673,7 @@ Crafty.c("2D", {
      * @sign public void ._cascade(e)
      * @param e - An object describing the motion
      *
-     * Move or rotate the entity's children according to a certain motion.
+     * Move the entity's children according to a certain motion.
      * This method is part of a function bound to "Move": It is used
      * internally for ensuring that when a parent moves, the child also
      * moves in the same way.
@@ -666,23 +684,55 @@ Crafty.c("2D", {
             children = this._children,
             l = children.length,
             obj;
-        //rotation
-        if (("cos" in e) || ("sin" in e)) {
-            for (; i < l; ++i) {
-                obj = children[i];
-                if ('rotate' in obj) obj.rotate(e);
-            }
-        } else {
-            //use current position
-            var dx = this._x - e._x,
-                dy = this._y - e._y,
-                dw = this._w - e._w,
-                dh = this._h - e._h;
 
-            for (; i < l; ++i) {
-                obj = children[i];
-                obj.shift(dx, dy, dw, dh);
-            }
+        //use current position
+        var dx = this._x - e._x,
+            dy = this._y - e._y,
+            dw = this._w - e._w,
+            dh = this._h - e._h;
+
+        for (; i < l; ++i) {
+            obj = children[i];
+            if (obj.__frozen) continue;
+            obj.shift(dx, dy, dw, dh);
+        }
+        
+    },
+    
+    /**@
+     * #._cascadeRotation
+     * @comp 2D
+     * @kind Method
+     * @private
+     * 
+     * @sign public void ._cascade(deg)
+     * @param deg - The amount of rotation in degrees
+     *
+     * Move the entity's children the specified amount
+     * This method is part of a function bound to "Move": It is used
+     * internally for ensuring that when a parent moves, the child also
+     * moves in the same way.
+     */
+    _cascadeRotation: function(deg) {
+        if (!deg) return;
+        var i = 0,
+            children = this._children,
+            l = children.length,
+            obj;
+        // precalculate rotation info
+        var drad = deg * DEG_TO_RAD;
+        var cos = Math.cos(drad);
+        var sin = Math.sin(drad);
+        // Avoid some rounding problems
+        cos = (-1e-10 < cos && cos < 1e-10) ? 0 : cos;
+        sin = (-1e-10 < sin && sin < 1e-10) ? 0 : sin;
+        var ox = this._origin.x + this._x;
+        var oy = this._origin.y + this._y;
+
+        for (; i < l; ++i) {
+            obj = children[i];
+            if (obj.__frozen) continue;
+            if ('rotate' in obj) obj.rotate(deg, ox, oy, cos, sin);
         }
     },
 
@@ -769,7 +819,12 @@ Crafty.c("2D", {
      * @param offset - Alignment identifier, which is a combination of center, top, bottom, middle, left and right
      *
      * Set the origin point of an entity for it to rotate around.
+     * 
+     * The properties `ox` and `oy` map to the coordinates of the origin on the stage; setting them moves the entity.
+     * In contrast, this method sets the origin relative to the entity itself.
      *
+     * @triggers OriginChanged -- after the new origin is assigned
+     * 
      * @example
      * ~~~
      * this.origin("top left")
@@ -792,7 +847,7 @@ Crafty.c("2D", {
      *       .attr({x: 25, y: 25, rotation: 180});
      * ~~~
      *
-     * @see .rotation
+     * @see .rotation, .ox, .oy
      */
     origin: function (x, y) {
         //text based origin
@@ -814,20 +869,44 @@ Crafty.c("2D", {
 
         this._origin.x = x;
         this._origin.y = y;
-
+        this.trigger("OriginChanged");
         return this;
     },
 
     /**
      * Method for rotation rather than through a setter
+     * 
+     * Pass in degree amount, origin coordinate and precalculated cos/sin
      */
-    rotate: function (e) {
+    rotate: function (deg, ox, oy, cos, sin) {
         var x2, y2;
-        x2 =  (this._x + this._origin.x - e.o.x) * e.cos + (this._y + this._origin.y - e.o.y) * e.sin + (e.o.x - this._origin.x);
-        y2 =  (this._y + this._origin.y - e.o.y) * e.cos - (this._x + this._origin.x - e.o.x) * e.sin + (e.o.y - this._origin.y);
-        this._setter2d('_rotation', this._rotation - e.deg);
+        x2 =  (this._x + this._origin.x - ox) * cos + (this._y + this._origin.y - oy) * sin + (ox - this._origin.x);
+        y2 =  (this._y + this._origin.y - oy) * cos - (this._x + this._origin.x - ox) * sin + (oy - this._origin.y);
+        this._setter2d('_rotation', this._rotation - deg);
         this._setter2d('_x', x2 );
         this._setter2d('_y', y2 );
+    },
+
+    // A separate setter for the common case of moving an entity along both axes
+    _setPosition: function(x, y) {
+        if (x === this._x && y === this._y) return;
+        var old = Crafty.rectManager._pool.copy(this);
+        var mbr = this._mbr;
+        if (mbr) {
+            mbr._x -= this._x - x;
+            mbr._y -= this._y - y;
+            // cbr is a non-minimal bounding rectangle that contains both hitbox and mbr
+            // It will exist only when the collision hitbox sits outside the entity
+            if (this._cbr){
+                this._cbr._x -= this._x - x;
+                this._cbr._y -= this._y - y;
+            }
+        }
+        this._x = x;
+        this._y = y;
+        this.trigger("Move", old);
+        this.trigger("Invalidate");
+        Crafty.rectManager._pool.recycle(old);
     },
 
     // This is a setter method for all 2D properties including
@@ -850,7 +929,7 @@ Crafty.c("2D", {
             mbr = this._mbr;
             if (mbr) {
                 mbr[name] -= this[name] - value;
-                // cbr is a non-minmal bounding rectangle that contains both hitbox and mbr
+                // cbr is a non-minimal bounding rectangle that contains both hitbox and mbr
                 // It will exist only when the collision hitbox sits outside the entity
                 if (this._cbr){
                     this._cbr[name] -= this[name] - value;
@@ -1014,15 +1093,15 @@ Crafty.polygon.prototype = {
         return new Crafty.polygon(this.points.slice(0));
     },
 
-    rotate: function (e) {
+    rotate: function (deg, ox, oy, cos, sin) {
         var i = 0, p = this.points,
             l = p.length,
             x, y;
 
         for (; i < l; i+=2) {
 
-            x = e.o.x + (p[i] - e.o.x) * e.cos + (p[i+1] - e.o.y) * e.sin;
-            y = e.o.y - (p[i] - e.o.x) * e.sin + (p[i+1] - e.o.y) * e.cos;
+            x = ox + (p[i] - ox) * cos + (p[i+1] - oy) * sin;
+            y = oy - (p[i] - ox) * sin + (p[i+1] - oy) * cos;
 
             p[i] = x;
             p[i+1] = y;

@@ -11,15 +11,8 @@ var Crafty = require('../core/core.js'),
  */
 Crafty._registerLayerTemplate("DOM", {
     type: "DOM",
-    options: {
-        xResponse: 1,
-        yResponse: 1,
-        scaleResponse: 1,
-        z: 0
-    },
 
     _changedObjs: [],
-    _dirtyViewport: false,
 
     /**@
      * #._div
@@ -31,7 +24,20 @@ Crafty._registerLayerTemplate("DOM", {
      */
     _div: null,
 
-    init: function () {
+    events: {
+        // Respond to init & remove events
+        "LayerInit": "layerInit",
+        "LayerRemove": "layerRemove",
+        // Bind scene rendering (see drawing.js)
+        "RenderScene": "_render",
+        // Listen for pixelart changes
+        "PixelartSet": "_setPixelart"
+        // Layers should generally listen for resize events,
+        // but the DOM layers automatically inherit the stage's dimensions
+        //"ViewportResize": "_resize"
+    },
+
+    layerInit: function () {
         // Avoid shared state between systems
         this._changedObjs = [];
 
@@ -42,26 +48,11 @@ Crafty._registerLayerTemplate("DOM", {
         div.style.position = "absolute";
         div.style.zIndex = this.options.z;
         div.style.transformStyle = "preserve-3d"; // Seems necessary for Firefox to preserve zIndexes?
-
-        // Bind scene rendering (see drawing.js)
-        this.uniqueBind("RenderScene", this._render);
-
-        // Layers should generally listen for resize events, but the DOM layers automatically inherit the stage's dimensions
-
-        // Listen for changes in pixel art settings
-        // Since window is inited before stage, can't set right away, but shouldn't need to!
-        this.uniqueBind("PixelartSet", this._setPixelArt);
-
-        this.uniqueBind("InvalidateViewport", function() {
-            this._dirtyViewport = true;
-        });
-        Crafty._addDrawLayerInstance(this);
     },
 
     // Cleanup the DOM when the layer is destroyed
-    remove: function() {
+    layerRemove: function() {
         this._div.parentNode.removeChild(this._div);
-        Crafty._removeDrawLayerInstance(this);
     },
 
     // Handle whether images should be smoothed or not

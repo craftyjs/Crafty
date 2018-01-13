@@ -189,7 +189,6 @@
 
     var newDirectionEvents = 0,
         newRotationDirectionEvents = 0,
-        movedEvents = 0,
         rotatedEvents = 0,
         motionEvents = 0;
     e.bind("NewDirection", function(evt) {
@@ -197,9 +196,6 @@
     });
     e.bind("NewRotationDirection", function(evt) {
       newRotationDirectionEvents++;
-    });
-    e.bind("Moved", function(evt) {
-      movedEvents++;
     });
     e.bind("Rotated", function(evt) {
       rotatedEvents++;
@@ -213,10 +209,6 @@
       _.strictEqual(evt.x, 0, "[1] - no motion along x axis");
       _.strictEqual(evt.y, 1, "[1] - moving along +y axis");
     });
-    e.one("Moved", function(evt) { 
-      _.strictEqual(evt.axis, "y", "[1] - moved along y axis"); 
-      _.strictEqual(evt.oldValue, 0, "[1] - old y was 0"); 
-    });
     e.one("MotionChange", function(evt) { 
       _.strictEqual(evt.key, "vy", "[1] - vy was set"); 
       _.strictEqual(evt.oldValue, 0, "[1] - old vy was 0");
@@ -225,18 +217,9 @@
     Crafty.timer.simulateFrames(1);
 
     // group 2: set both vy and vx to be negative
-    var old_y = e.y;
     e.one("NewDirection", function(evt) {
       _.strictEqual(evt.x, -1, "[2] - Now moving along -x axis" );
       _.strictEqual(evt.y, -1, "[2] - Now moving along -y axis");
-    });
-    e.one("Moved", function(evt) { 
-      _.strictEqual(evt.axis, "x", "[2] - Moved along x axis"); 
-      _.strictEqual(evt.oldValue, 0, "[2] - old x was 0"); 
-      e.one("Moved", function(evt) { 
-        _.strictEqual(evt.axis, "y", "[2] - Moved along y axis"); 
-        _.strictEqual(evt.oldValue, old_y, "[2] - old y value matches cached"); 
-      });
     });
     e.one("MotionChange", function(evt) { 
       _.strictEqual(evt.key, "vx", "[2] - vx was changed"); 
@@ -321,7 +304,6 @@
     _.strictEqual(newDirectionEvents, 3, "NewDirection fired 3 times.");
     _.strictEqual(newRotationDirectionEvents, 4, "NewRotationDirection fired 4 times.");
     _.strictEqual(motionEvents, 13, "MotionChange fired 13 times.");
-    _.strictEqual(movedEvents, 3, "Moved fired 3 times.");
     _.strictEqual(rotatedEvents, 3, "Rotated fired 3 times.");
     e.destroy();
   });

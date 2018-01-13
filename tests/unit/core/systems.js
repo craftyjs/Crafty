@@ -193,6 +193,43 @@
     s.destroy();
   });
 
+  test("Special property `properties`", function(_) {
+    var sys = {
+      properties: {
+        foo: {
+          set: function(value){
+            this._foo = value;
+          },
+          get: function(){
+            return this._foo;
+          },
+          configurable: true,
+          enumerable: true
+        },
+        _foo: {value: 0, writable: true, enumerable:false}
+      }
+    };
+    Crafty.s("PropertySystem", sys);
+
+    var s = Crafty.s("PropertySystem");
+
+    _.strictEqual(s._foo, 0, "Initial value works");
+
+    s.foo = 5;
+    _.strictEqual(s._foo, 5, "Setter works");
+
+    s._foo = 10;
+    _.strictEqual(s.foo, 10, "Getter works");
+
+    var propList = [];
+    for (var prop in s) {
+      propList.push(prop);
+    }
+
+    _.ok(propList.indexOf("foo") >= 0 , "Property foo is enumerable");
+    _.ok(propList.indexOf("_foo") === -1, "Property _foo is not enumerable");
+  });
+
   test("Special property `options` default values", function(_) {
     var sys =  {
         n: 0,
@@ -219,5 +256,78 @@
     s.destroy();
   });
 
+  test("Overwrite system definition", function(_) {
+    Crafty.s('MySystemDef', { a: 0 }, {}, false);
+    _.strictEqual(Crafty.s('MySystemDef').a, 0);
+    _.strictEqual(Crafty.s('MySystemDef').b, undefined);
+
+    Crafty.s('MySystemDef', { a: 1, b: 1 }, {}, false);
+    _.strictEqual(Crafty.s('MySystemDef').a, 1);
+    _.strictEqual(Crafty.s('MySystemDef').b, 1);
+  });
+
+  test("order of handling special members", function(_) {
+    _.expect(5 * 5 - 1);
+
+    Crafty.s("MemberOrderTest", {
+      // 1st: basic prop should be added to entity
+      foo: 1,
+      // 2nd: properties should be defined on entity
+      properties: {
+        bar: {
+          get: function() {
+            if (!this.getCalled) {
+              _.strictEqual(this.foo, 1);
+              // can't check this.bar here - infinite recursion
+              _.strictEqual(this.baz, undefined);
+              _.strictEqual(this.quux, undefined);
+              _.strictEqual(this.quuz, undefined);
+              this.getCalled = true;
+            }
+            return 2;
+          }
+        }
+      },
+      // 3rd: events should be bound on entity
+      events: {
+        "CustomEvent": function() {
+          _.strictEqual(this.foo, 1);
+          _.strictEqual(this.bar, 2);
+          _.strictEqual(this.baz, undefined);
+          _.strictEqual(this.quux, undefined);
+          _.strictEqual(this.quuz, undefined);
+          this.baz = 3;
+        }
+      },
+      // 4th: init method should be called on entity
+      init: function() {
+        this.trigger("CustomEvent");
+
+        _.strictEqual(this.foo, 1);
+        _.strictEqual(this.bar, 2);
+        _.strictEqual(this.baz, 3);
+        _.strictEqual(this.quux, undefined);
+        _.strictEqual(this.quuz, undefined);
+        this.quux = 4;
+      },
+      // 5th: remove method should be called on entity
+      remove: function() {
+        _.strictEqual(this.foo, 1);
+        _.strictEqual(this.bar, 2);
+        _.strictEqual(this.baz, 3);
+        _.strictEqual(this.quux, 4);
+        _.strictEqual(this.quuz, undefined);
+        this.quuz = 5;
+      }
+    });
+    var s = Crafty.s("MemberOrderTest");
+    s.destroy();
+
+    _.strictEqual(s.foo, 1);
+    _.strictEqual(s.bar, 2);
+    _.strictEqual(s.baz, 3);
+    _.strictEqual(s.quux, 4);
+    _.strictEqual(s.quuz, 5);
+  });
 })();
 

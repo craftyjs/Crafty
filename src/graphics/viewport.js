@@ -208,7 +208,7 @@ Crafty.extend({
         pan: (function () {
             var targetX, targetY, startingX, startingY, easing;
 
-            function enterFrame(e) {
+            function updateFrame(e) {
                 easing.tick(e.dt);
                 var v = easing.value();
                 Crafty.viewport.x = (1-v) * startingX + v * targetX;
@@ -222,7 +222,7 @@ Crafty.extend({
             }
 
             function stopPan(){
-                Crafty.unbind("EnterFrame", enterFrame);
+                Crafty.unbind("UpdateFrame", updateFrame);
             }
 
             Crafty._preBind("StopCamera", stopPan);
@@ -244,7 +244,7 @@ Crafty.extend({
                 easing = new Crafty.easing(time, easingFn);
 
                 // bind to event, using uniqueBind prevents multiple copies from being bound
-                Crafty.uniqueBind("EnterFrame", enterFrame);
+                Crafty.uniqueBind("UpdateFrame", updateFrame);
                        
             };
         })(),
@@ -360,13 +360,13 @@ Crafty.extend({
             
 
             function stopZoom(){
-                Crafty.unbind("EnterFrame", enterFrame);
+                Crafty.unbind("UpdateFrame", updateFrame);
             }
             Crafty._preBind("StopCamera", stopZoom);
 
             var startingZoom, finalZoom, finalAmount, startingX, finalX, startingY, finalY, easing;
 
-            function enterFrame(e){
+            function updateFrame(e){
                 var amount, v;
 
                 easing.tick(e.dt);
@@ -427,7 +427,7 @@ Crafty.extend({
 
                 easing = new Crafty.easing(time, easingFn);
 
-                Crafty.uniqueBind("EnterFrame", enterFrame);
+                Crafty.uniqueBind("UpdateFrame", updateFrame);
             };
 
             
@@ -480,54 +480,65 @@ Crafty.extend({
          * If the user starts a drag, "StopCamera" will be triggered, which will cancel any existing camera animations.
          */
         mouselook: (function () {
+            var mouseSystem;
+
             var active = false,
                 dragging = false,
-                lastMouse = {};
+                lastMouse = {x: 0, y: 0},
+                diff = {x: 0, y: 0};
 
-            return function (op, arg) {
-                if (typeof op === 'boolean') {
+            function startFn (e) {
+                if (dragging || e.target) return;
+
+                Crafty.trigger("StopCamera");
+                // DEPRECATED: switch computation to use e.realX, e.realY
+                lastMouse.x = e.clientX;
+                lastMouse.y = e.clientY;
+                dragging = true;
+            }
+            function moveFn (e) {
+                if (!dragging) return;
+
+                diff.x = e.clientX - lastMouse.x;
+                diff.y = e.clientY - lastMouse.y;
+
+                lastMouse.x = e.clientX;
+                lastMouse.y = e.clientY;
+
+                var viewport = Crafty.viewport;
+                viewport.x += diff.x / viewport._scale;
+                viewport.y += diff.y / viewport._scale;
+                viewport._clamp();
+            }
+            function stopFn (e) {
+                if (!dragging) return;
+
+                dragging = false;
+            }
+
+            return function (op) {
+                // TODO: lock pointer events on controls system in future
+                mouseSystem = Crafty.s('Mouse');
+
+                if (op && !active) {
+                    mouseSystem.bind("MouseDown", startFn);
+                    mouseSystem.bind("MouseMove", moveFn);
+                    mouseSystem.bind("MouseUp", stopFn);
                     active = op;
-                    if (active) {
-                        Crafty.mouseObjs++;
-                    } else {
-                        Crafty.mouseObjs = Math.max(0, Crafty.mouseObjs - 1);
-                    }
-                    return;
-                }
-                if (!active) return;
-                switch (op) {
-                case 'move':
-                case 'drag':
-                    if (!dragging) return;
-                    var diff = {
-                        x: arg.clientX - lastMouse.x,
-                        y: arg.clientY - lastMouse.y
-                    };
-
-                    lastMouse.x = arg.clientX;
-                    lastMouse.y = arg.clientY;
-
-                    Crafty.viewport.x += diff.x;
-                    Crafty.viewport.y += diff.y;
-                    Crafty.viewport._clamp();
-                    break;
-                case 'start':
-                    Crafty.trigger("StopCamera");
-                    lastMouse.x = arg.clientX;
-                    lastMouse.y = arg.clientY;
-                    dragging = true;
-                    break;
-                case 'stop':
-                    dragging = false;
-                    break;
+                } else if (!op && active) {
+                    mouseSystem.unbind("MouseDown", startFn);
+                    mouseSystem.unbind("MouseMove", moveFn);
+                    mouseSystem.unbind("MouseUp", stopFn);
+                    active = op;
                 }
             };
         })(),
+
         _clamp: function () {
             // clamps the viewport to the viewable area
             // under no circumstances should the viewport see something outside the boundary of the 'world'
             if (!this.clampToEntities) return;
-            var bound = Crafty.clone(this.bounds) || Crafty.clone(Crafty.map.boundaries());
+            var bound = Crafty.clone(this.bounds) || Crafty.map.boundaries();
             bound.max.x *= this._scale;
             bound.min.x *= this._scale;
             bound.max.y *= this._scale;
@@ -557,8 +568,8 @@ Crafty.extend({
          * @comp Crafty.stage
          * @kind Method
          * 
-         * @sign public void Crafty.viewport.init([Number width, Number height, String stage_elem])
-         * @sign public void Crafty.viewport.init([Number width, Number height, HTMLElement stage_elem])
+         * @sign public void Crafty.viewport.init([Number width, Number height][, String stage_elem])
+         * @sign public void Crafty.viewport.init([Number width, Number height][, HTMLElement stage_elem])
          * @param Number width - Width of the viewport
          * @param Number height - Height of the viewport
          * @param String or HTMLElement stage_elem - the element to use as the stage (either its id or the actual element).
@@ -572,6 +583,14 @@ Crafty.extend({
          * @see Crafty.device, Crafty.domHelper, Crafty.stage, Crafty.viewport.reload
          */
         init: function (w, h, stage_elem) {
+            // Handle specifying stage_elem without w & h
+            if (typeof(stage_elem) === 'undefined' && typeof(h) === 'undefined' &&
+                typeof(w) !=='undefined' && typeof(w) !== 'number') {
+                stage_elem = w;
+                w = window.innerWidth;
+                h = window.innerHeight;
+            }
+
             // Define default graphics layers with default z-layers
             Crafty.createLayer("DefaultCanvasLayer", "Canvas", {z: 20});
             Crafty.createLayer("DefaultDOMLayer", "DOM", {z: 30});
@@ -807,7 +826,7 @@ Crafty.extend({
          * Called when scene() is run.
          */
         reset: function () {
-            Crafty.viewport.mouselook("stop");
+            Crafty.viewport.mouselook(false);
             Crafty.trigger("StopCamera");
             // Reset viewport position and scale
             Crafty.viewport.scroll("_x", 0);

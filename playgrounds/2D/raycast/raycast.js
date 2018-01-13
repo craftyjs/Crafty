@@ -154,7 +154,7 @@ function raycast(start, end) {
       'distance=', results[i].distance.toFixed(2),
       '@[', results[i].x.toFixed(2), results[i].y.toFixed(2), ']');
 
-    Crafty.e("Hit, 2D, DOM, VisibleMBR")
+    Crafty.e("Hit, 2D, DOM, SolidMBR")
           .setName("Hit"+i)
           .attr({
             x: results[i].x - 2, w: 4,

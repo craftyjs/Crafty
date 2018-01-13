@@ -9,21 +9,30 @@
   });
 
   test("selectors", function(_) {
-    var first = Crafty.e("test");
-    Crafty.e("test");
+    var first = Crafty.e("test, test3");
     Crafty.e("test");
     Crafty.e("test");
     Crafty.e("test, test2");
-    Crafty.e("test, test2");
-    Crafty.e("test2");
+    var other = Crafty.e("test2, test, test3");
+    Crafty.e("test2, test3");
+    Crafty.e("test3, test");
     _.strictEqual(Crafty("test").length, 6, "Single component");
     _.strictEqual(Crafty("test test2").length, 2, "Two components ANDed");
+    _.strictEqual(Crafty("test2 test test3").length, 1, "Three components ANDed");
     _.strictEqual(Crafty("test, test2").length, 7, "Two components ORed");
 
     _.strictEqual(Crafty("*").length, 7, "All components - universal selector");
 
     _.strictEqual(Crafty(first[0]), first, "Get by ID");
 
+    first.removeComponent("test3");
+    _.strictEqual(Crafty("test3").length, 3, "Single component query after removing a component");
+
+    other.destroy();
+    _.strictEqual(Crafty("test test2 test3").length, 0, "Compount component query after destroying an entity");
+    _.strictEqual(Crafty("test").length, 5, "Single component query after destroying an entity");
+    _.strictEqual(Crafty("test2").length, 2, "Single component query after destroying an entity");
+    _.strictEqual(Crafty("test3").length, 2, "Single component query after destroying an entity");
   });
 
   test("addComponent and removeComponent", function(_) {
@@ -48,6 +57,7 @@
     first.removeComponent("comp", false);
     _.strictEqual(!first.added && !first.has("comp"), true, "hard-removed component (properties are gone)");
 
+    first.removeComponent("nonAddedComponent");
   });
 
   test("remove", function(_) {
@@ -111,6 +121,83 @@
 
     _.ok(propList.indexOf("foo") >=0, "Property foo is enumerable");
     _.ok(propList.indexOf("_foo") === -1, "Property _foo is not enumerable");
+  });
+
+  test("component - order of handling special members", function(_) {
+    _.expect(5 * 5 - 1);
+
+    Crafty.c("MemberOrderTest", {
+      // 1st: basic prop should be added to entity
+      foo: 1,
+      // 2nd: properties should be defined on entity
+      properties: {
+        bar: {
+          get: function() {
+            if (!this.getCalled) {
+              _.strictEqual(this.foo, 1);
+              // can't check this.bar here - infinite recursion
+              _.strictEqual(this.baz, undefined);
+              _.strictEqual(this.quux, undefined);
+              _.strictEqual(this.quuz, undefined);
+              this.getCalled = true;
+            }
+            return 2;
+          }
+        }
+      },
+      // 3rd: events should be bound on entity
+      events: {
+        "CustomEvent": function() {
+          _.strictEqual(this.foo, 1);
+          _.strictEqual(this.bar, 2);
+          _.strictEqual(this.baz, undefined);
+          _.strictEqual(this.quux, undefined);
+          _.strictEqual(this.quuz, undefined);
+          this.baz = 3;
+        }
+      },
+      // 4th: init method should be called on entity
+      init: function() {
+        this.trigger("CustomEvent");
+
+        _.strictEqual(this.foo, 1);
+        _.strictEqual(this.bar, 2);
+        _.strictEqual(this.baz, 3);
+        _.strictEqual(this.quux, undefined);
+        _.strictEqual(this.quuz, undefined);
+        this.quux = 4;
+      },
+      // 5th: remove method should be called on entity
+      remove: function() {
+        _.strictEqual(this.foo, 1);
+        _.strictEqual(this.bar, 2);
+        _.strictEqual(this.baz, 3);
+        _.strictEqual(this.quux, 4);
+        _.strictEqual(this.quuz, undefined);
+        this.quuz = 5;
+      }
+    });
+    var e = Crafty.e().addComponent("MemberOrderTest").removeComponent("MemberOrderTest");
+
+    _.strictEqual(e.foo, 1);
+    _.strictEqual(e.bar, 2);
+    _.strictEqual(e.baz, 3);
+    _.strictEqual(e.quux, 4);
+    _.strictEqual(e.quuz, 5);
+  });
+
+  test("overwrite component definition", function(_) {
+    Crafty.c('MyCompDef', { a: 0 });
+    var e = Crafty.e('MyCompDef');
+    _.strictEqual(e.a, 0);
+    _.strictEqual(e.b, undefined);
+
+    Crafty.c('MyCompDef', { a: 1, b: 1 });
+    var f = Crafty.e('MyCompDef');
+    _.strictEqual(e.a, 0);
+    _.strictEqual(e.b, undefined);
+    _.strictEqual(f.a, 1);
+    _.strictEqual(f.b, 1);
   });
 
   test("name", function(_) {
@@ -302,6 +389,17 @@
 
   });
 
+  test("requires multiple args", function(_) {
+    var first = Crafty.e("test");
+    Crafty.c("one", {});
+    Crafty.c("two", {});
+
+    first.requires("one", "two");
+
+    _.ok(first.has("one"), "Component one added");
+    _.ok(first.has("two"), "Component two added");
+  });
+
   test("required special parameter", function(_) {
     var hasComp = false;
     Crafty.c("Requisitioner", {
@@ -330,12 +428,12 @@
     var frameFunction = function() {
       frameNumber = Crafty.frame();
     };
-    Crafty.bind('EnterFrame', frameFunction);
+    Crafty.bind('UpdateFrame', frameFunction);
     Crafty.timer.simulateFrames(1);
 
     _.ok(frameNumber, '.frame function should return a value.');
 
-    Crafty.unbind(frameFunction);
+    Crafty.unbind('UpdateFrame', frameFunction);
   });
 
   // TODO: add test for Crafty.stop() once problematic side effects are fixed!
@@ -348,34 +446,41 @@
 
     var enterFrameFunc = function() {
       counter++;
-      _.ok(counter === 1 || counter === 3 || counter === 5, "different counter value expected");
+      _.ok(counter === 1 || counter === 4 || counter === 7, "different counter value expected");
+    };
+    var updateFrameFunc = function() {
+      counter++;
+      _.ok(counter === 2 || counter === 5 || counter === 8, "different counter value expected");
     };
     var exitFrameFunc = function() {
       counter++;
-      _.ok(counter === 2 || counter === 4 || counter === 6, "different counter value expected");
+      _.ok(counter === 3 || counter === 6 || counter === 9, "different counter value expected");
     };
     var preRenderFunc = function() {
       counter++;
-      _.ok(counter === 7, "different counter value expected");
+      _.ok(counter === 10, "different counter value expected");
     };
     var renderSceneFunc = function() {
       counter++;
-      _.ok(counter === 8, "different counter value expected");
+      _.ok(counter === 11, "different counter value expected");
     };
     var postRenderFunc = function() {
       counter++;
-      _.ok(counter === 9, "different counter value expected");
+      _.ok(counter === 12, "different counter value expected");
     };
 
     Crafty.bind("EnterFrame", enterFrameFunc);
+    Crafty.bind("UpdateFrame", updateFrameFunc);
     Crafty.bind("ExitFrame", exitFrameFunc);
     Crafty.bind("PreRender", preRenderFunc);
     Crafty.bind("RenderScene", renderSceneFunc);
     Crafty.bind("PostRender", postRenderFunc);
 
-    Crafty.timer.simulateFrames(3); // 3*2 frame events + 1*3 render events
+    Crafty.timer.simulateFrames(3); // 3*3 frame events + 1*3 render events
+    _.strictEqual(counter, 12, "12 events should have been fired");
 
     Crafty.unbind("EnterFrame", enterFrameFunc);
+    Crafty.unbind("UpdateFrame", updateFrameFunc);
     Crafty.unbind("ExitFrame", exitFrameFunc);
     Crafty.unbind("PreRender", preRenderFunc);
     Crafty.unbind("RenderScene", renderSceneFunc);
@@ -428,7 +533,7 @@
       _.strictEqual(fps, 25);
       _.strictEqual(Crafty.timer.FPS(), 25);
     });
-    Crafty.one("EnterFrame", function(frameData) {
+    Crafty.one("UpdateFrame", function(frameData) {
       _.strictEqual(frameData.dt, 1000/25);
     });
     Crafty.timer.FPS(25);
@@ -438,7 +543,7 @@
       _.strictEqual(fps, 50);
       _.strictEqual(Crafty.timer.FPS(), 50);
     });
-    Crafty.one("EnterFrame", function(frameData) {
+    Crafty.one("UpdateFrame", function(frameData) {
       _.strictEqual(frameData.dt, 1000/50);
     });
     Crafty.timer.FPS(50);

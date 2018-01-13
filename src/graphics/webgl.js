@@ -202,39 +202,26 @@ Crafty.c("WebGL", {
      * @kind Method
      * @private
      * 
-     * @sign public this .draw([[Context ctx, ]Number x, Number y, Number w, Number h])
-     * @param ctx - Optionally supply a different r 2D context if drawing on another canvas is required
-     * @param x - X offset for drawing a segment
-     * @param y - Y offset for drawing a segment
-     * @param w - Width of the segment to draw
-     * @param h - Height of the segment to draw
+     * @sign public this .draw()
      *
      * An internal method to draw the entity on the webgl canvas element. Rather then rendering directly, it writes relevent information into a buffer to allow batch rendering.
      */
-    draw: function (ctx, x, y, w, h) {
+    draw: function () {
 
         if (!this.ready) return;
 
-        if (arguments.length === 4) {
-            h = w;
-            w = y;
-            y = x;
-            x = ctx;
-            ctx = this._drawLayer.context;
-        }
-
         var pos = this.drawVars.pos;
-        pos._x = (this._x + (x || 0));
-        pos._y = (this._y + (y || 0));
-        pos._w = (w || this._w);
-        pos._h = (h || this._h);
+        pos._x = this._x;
+        pos._y = this._y;
+        pos._w = this._w;
+        pos._h = this._h;
 
         var coord = this.__coord || [0, 0, 0, 0];
         var co = this.drawVars.co;
-        co.x = coord[0] + (x || 0);
-        co.y = coord[1] + (y || 0);
-        co.w = w || coord[2];
-        co.h = h || coord[3];
+        co.x = coord[0];
+        co.y = coord[1];
+        co.w = coord[2];
+        co.h = coord[3];
 
         // Handle flipX, flipY
         // (Just swap the positions of e.g. x and x+w)

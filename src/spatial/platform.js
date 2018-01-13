@@ -52,7 +52,7 @@ Crafty.c("Supportable", {
         this.defineField("ground", function() { return this._ground; }, function(newValue) {});
     },
     remove: function(destroyed) {
-        this.unbind("EnterFrame", this._detectGroundTick);
+        this.unbind("UpdateFrame", this._detectGroundTick);
     },
 
     /*@
@@ -82,7 +82,7 @@ Crafty.c("Supportable", {
      */
     startGroundDetection: function(ground) {
         if (ground) this._groundComp = ground;
-        this.uniqueBind("EnterFrame", this._detectGroundTick);
+        this.uniqueBind("UpdateFrame", this._detectGroundTick);
 
         return this;
     },
@@ -98,7 +98,7 @@ Crafty.c("Supportable", {
      * Disable ground detection for this component. It can be reenabled by calling .startGroundDetection()
      */
     stopGroundDetection: function() {
-        this.unbind("EnterFrame", this._detectGroundTick);
+        this.unbind("UpdateFrame", this._detectGroundTick);
 
         return this;
     },
@@ -161,7 +161,7 @@ Crafty.c("Supportable", {
         // check if we land (also possible to land on other ground object in same frame after lift-off from current ground object)
         if (!ground) {
             var obj, oarea,
-                results = Crafty.map.search(area, false),
+                results = Crafty.map.unfilteredSearch(area),
                 i = 0,
                 l = results.length;
 

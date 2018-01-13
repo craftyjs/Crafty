@@ -152,9 +152,11 @@ Crafty.c("Text", {
      * @sign public this .text(String text)
      * @param text - String of text that will be inserted into the DOM or Canvas element.
      *
-     * @sign public this .text(Function textGenerator)
+     * @sign public this .text(Function textGenerator[, Any eventData])
      * @param textGenerator - A function that returns a string.  
-     *        It will be immediately invoked in the context of the entity, with the result used as the text to display.
+     *        It will be immediately invoked with the optional eventData in the context of the entity,
+     *        with the result used as the text to display.
+     * @param [eventData] - Optional parameter to invoke the function with.
      *
      * This method will update the text inside the entity.
      *
@@ -178,10 +180,10 @@ Crafty.c("Text", {
      * ~~~
      */
     _textGenerator: null,
-    text: function (text) {
+    text: function (text, eventData) {
         if (!(typeof text !== "undefined" && text !== null)) return this._text;
         if (typeof (text) === "function"){
-            this._text = text.call(this);
+            this._text = text.call(this, eventData);
             this._textGenerator = text;
         } else {
             this._text = text;
@@ -202,12 +204,14 @@ Crafty.c("Text", {
      * 
      * @sign public this .dynamicTextGeneration(bool dynamicTextOn[, string textUpdateEvent])
      * @param dynamicTextOn - A flag that indicates whether dyanamic text should be on or off.
-     * @param textUpdateEvent - The name of the event which will trigger text to be updated.  Defaults to "EnterFrame".  (This parameter does nothing if dynamicTextOn is false.)
+     * @param textUpdateEvent - The name of the event which will trigger text to be updated.  Defaults to "UpdateFrame".  (This parameter does nothing if dynamicTextOn is false.)
      *
      * Turns on (or off) dynamic text generation for this entity.  While dynamic text generation is on, 
      * if the `.text()` method is called with a text generating function, the text will be updated each frame.
      * 
-     * If textUpdateEvent is provided, text generation will be bound to that event instead of "EnterFrame".  
+     * If textUpdateEvent is provided, text generation will be bound to that event instead of "UpdateFrame".
+     *
+     * The text generating function is invoked with the event object parameter, which the event was triggered with.
      * 
      * @note Dynamic text generation could cause performance issues when the entity is attached to a Canvas layer.
      *
@@ -221,14 +225,14 @@ Crafty.c("Text", {
      */
     _dynamicTextOn: false,
     _textUpdateEvent: null,
-    _dynamicTextUpdate: function(){
+    _dynamicTextUpdate: function(eventData) {
         if (!this._textGenerator) return;
-        this.text(this._textGenerator);
+        this.text(this._textGenerator, eventData);
     },
     dynamicTextGeneration: function(dynamicTextOn, textUpdateEvent) {
         this.unbind(this._textUpdateEvent, this._dynamicTextUpdate);
         if (dynamicTextOn) {
-            this._textUpdateEvent = textUpdateEvent || "EnterFrame";
+            this._textUpdateEvent = textUpdateEvent || "UpdateFrame";
             this.bind(this._textUpdateEvent, this._dynamicTextUpdate);
         }
         return this;

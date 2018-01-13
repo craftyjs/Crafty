@@ -122,6 +122,31 @@
     Crafty.timer.simulateFrames(5);
     _.strictEqual(counter, 1, "delayed function should have executed once");
     _.strictEqual(ent._delays.length, 0, "no more scheduled delays");
+
+    //test delaySpeed being 0.5
+    counter = 0;
+    ent.delay(incr, 99);
+    ent.delaySpeed = 0.5;
+    Crafty.timer.simulateFrames(5); // 5 * 20ms = 100ms
+    _.strictEqual(counter, 0, "delayed function should not have executed");
+    _.strictEqual(ent._delays.length, 1, "one pending delay");
+    Crafty.timer.simulateFrames(5); // 5 * 20ms = 100ms
+    _.strictEqual(counter, 1, "delayed function should have executed once");
+    _.strictEqual(ent._delays.length, 0, "no more scheduled delays");
+    ent.delaySpeed = 1.0;
+
+    //test delaySpeed being 0.5 halfway through
+    counter = 0;
+    ent.delay(incr, 99);
+    Crafty.timer.simulateFrames(3); // 3 * 20ms = 60ms
+    ent.delaySpeed = 0.5;
+    Crafty.timer.simulateFrames(3); // 3 * 10ms = 30ms
+    _.strictEqual(counter, 0, "delayed function should not have executed");
+    _.strictEqual(ent._delays.length, 1, "one pending delay");
+    Crafty.timer.simulateFrames(1); // 1 * 10ms = 100ms
+    _.strictEqual(counter, 1, "delayed function should have executed once");
+    _.strictEqual(ent._delays.length, 0, "no more scheduled delays");
+
   });
 
   module("Crafty.timer", {
@@ -137,24 +162,27 @@
 
   test("simulateFrames", function(_) {
     var framesPlayed = 0;
-    Crafty.bind("EnterFrame", function() {
+    var framesFunc = function() {
       framesPlayed++;
-    });
+    };
+    Crafty.bind("UpdateFrame", framesFunc);
+
     Crafty.timer.simulateFrames(1);
     _.strictEqual(framesPlayed, 1, "A frame should have been simulated");
 
     Crafty.timer.simulateFrames(100);
     _.strictEqual(framesPlayed, 101, "101 frames should have been simulated");
+
+    Crafty.unbind("UpdateFrame", framesFunc);
   });
 
   test("curTime", function(_) {
     _.expect(1);
     var done = _.async(); // pause the QUnit so the timeout has time to complete.
     var startTime, lastKnownTime;
-
     var framesTriggered = 0;
 
-    Crafty.e("").bind("EnterFrame", function(params) {
+    Crafty.e("").bind("UpdateFrame", function(params) {
       framesTriggered++;
       if (!startTime) {
         startTime = params.gameTime;

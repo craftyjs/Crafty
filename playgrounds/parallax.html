@@ -16,10 +16,15 @@
     Crafty.init(200, 200);
     Crafty.c("Bar", {
       init: function() {
-        this.requires('2D, Color, Mouse');
+        this.requires('2D, Color, Keyboard, Mouse, Draggable');
         this.attr({h: 100, w: 30});
-        this.bind("Click", function(){
-          window.alert(this._drawLayer.name);
+        this.bind("Click", function(e){
+          if (this.isDown("SHIFT")) {
+            window.alert(
+              "Clicked " + this._drawLayer.name +
+              " @pos(" + e.realX.toFixed(2) + ", " + e.realY.toFixed(2) + ")"
+            );
+          }
         });
       }
     });
@@ -41,16 +46,19 @@
 
 
       // A player controlled box in the "normal" layer
-      var player = Crafty.e("2D, ActionLayer, Color, Fourway, Mouse")
+      var player = Crafty.e("2D, ActionLayer, Color, Fourway, Mouse, Text")
           .attr({x: 200, y: 120, w: 50, h: 50, z: 30})
           .color("red")
-          .fourway(200);
+          .fourway(200)
+          .textFont({ size: '20px', weight: 'bold' })
+          .text(function () { return "x=" + this._x; })
+          .dynamicTextGeneration(true);
       
       // Scale the viewport up and down when clicking on the "player"
       var toggle = false;
       player.bind("Click", function(){
           if (toggle) {
-              Crafty.viewport.scale(1.5);
+            Crafty.viewport.scale(1.5);
           } else {
             Crafty.viewport.scale(1);
           }
@@ -61,7 +69,7 @@
       // Set up some repeating bars in the other layers
       // Note that the globalZ value determines which item is on the "top" for mouse clicks
       // not the z value of the individual layer -- do we want to change this?
-      for (var i = 0; i < 10; i++){
+      for (var i = -20; i < 20; i++){
         Crafty.e("Background, Bar, Collision, WiredHitBox").color("blue").attr({x: 100*i, y: 10, z: 30});
         Crafty.e("Midground, Bar, Collision, WiredHitBox").color("purple").attr({x: 100*i, y: 20, z: 30});
         Crafty.e("Foreground, Bar, Collision, WiredHitBox").color("yellow").attr({x: 100*i, y: 30, z: 10});
@@ -72,7 +80,7 @@
         .textColor("white")
         .textFont({size: '20px', family:'Arial'})
         .attr({x: 10, y: 130, w: 200})
-        .bind("EnterFrame", function(){
+        .bind("UpdateFrame", function(){
             this.text("Distance: " + Math.floor(Math.abs(Crafty.viewport.x)));
         });
 

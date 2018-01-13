@@ -90,6 +90,12 @@ Crafty.c("SpriteAnimation", {
      * @param duration - The length of the animation in milliseconds.
      * @param frames - An array of arrays containing the `x` and `y` values of successive frames: [[x1,y1],[x2,y2],...] (the values are in the unit of the sprite map's width/height respectively).
      *
+     * @sign public this .reel(String reelId, Duration duration, Array frames)
+     * Defines a reel by an explicit list of frames with sprite names
+     * @param reelId - ID of the animation reel being created
+     * @param duration - The length of the animation in milliseconds.
+     * @param frames - An array of strings containing the sprite names of successive frames: ['spriteName1','spriteName2',...].
+     *
      * @sign public this .reel(String reelId)
      * Switches to the specified reel.  The sprite will be updated to that reel's current frame
      * @param reelID - the ID to switch to
@@ -109,7 +115,11 @@ Crafty.c("SpriteAnimation", {
      * ~~~
      * // Define a sprite-map component
      * Crafty.sprite(16, "images/sprite.png", {
-     *     PlayerSprite: [0,0]
+     *     PlayerSprite: [0,0],
+     *     PlayerIdle1: [0,1],
+     *     PlayerLeftFootForward: [1,1],
+     *     PlayerIdle2: [2,1],
+     *     PlayerRightFootForward: [3,1]
      * });
      *
      * // Define an animation on the second row of the sprite map (fromY = 1)
@@ -119,6 +129,10 @@ Crafty.c("SpriteAnimation", {
      *
      * // This is the same animation definition, but using the alternative method
      * Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite").reel('PlayerRunning', 1000, [[0, 1], [1, 1], [2, 1], [3, 1]]);
+     *
+     * // This is the same animation definition, but uses sprite names instead of numbers
+     * Crafty.e("2D, DOM, SpriteAnimation, PlayerSprite")
+     *       .reel('PlayerRunning', 1000, ['PlayerIdle1', 'PlayerLeftFootForward', 'PlayerIdle2', 'PlayerRightFootForward']);
      * ~~~
      */
     reel: function (reelId, duration, fromX, fromY, frameCount, rowLength) {
@@ -255,7 +269,7 @@ Crafty.c("SpriteAnimation", {
         this._setFrame(0);
 
         // Start the anim
-        this.bind("EnterFrame", this._animationTick);
+        this.bind("UpdateFrame", this._animationTick);
         this._isPlaying = true;
         this.trigger("StartAnimation", currentReel);
 
@@ -274,7 +288,7 @@ Crafty.c("SpriteAnimation", {
      */
     resumeAnimation: function() {
         if (this._isPlaying === false &&  this._currentReel !== null) {
-            this.bind("EnterFrame", this._animationTick);
+            this.bind("UpdateFrame", this._animationTick);
             this._isPlaying = true;
             this._currentReel.easing.resume();
             this.trigger("StartAnimation", this._currentReel);
@@ -294,7 +308,7 @@ Crafty.c("SpriteAnimation", {
      */
     pauseAnimation: function () {
         if (this._isPlaying === true) {
-            this.unbind("EnterFrame", this._animationTick);
+            this.unbind("UpdateFrame", this._animationTick);
             this._isPlaying = false;
             this._reels[this._currentReelId].easing.pause();
         }
@@ -437,7 +451,7 @@ Crafty.c("SpriteAnimation", {
         return this;
     },
 
-    // Bound to "EnterFrame".  Progresses the animation by dt, changing the frame if necessary.
+    // Bound to "UpdateFrame".  Progresses the animation by dt, changing the frame if necessary.
     // dt is multiplied by the animationSpeed property
     _animationTick: function(frameData) {
         var currentReel = this._reels[this._currentReelId];

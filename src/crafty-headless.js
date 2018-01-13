@@ -19,17 +19,6 @@ module.exports = function() {
         init: function() {},
         reset: function() {}
     };
-    Crafty.c("Keyboard", {
-        isDown: function (key) {
-            return false;
-        }
-    });
-    // dummy keydown+mousedown registry
-    Crafty.keydown = {};
-    Crafty.resetKeyDown = function() {
-        Crafty.keydown = {};
-    };
-    Crafty.mouseButtonsDown = {};
 
     return Crafty;
 };
