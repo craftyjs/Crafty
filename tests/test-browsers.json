@@ -13,7 +13,7 @@
   {
     "browserName": "chrome",
     "version": "26",
-    "platform": "Windows XP"
+    "platform": "Windows 7"
   },
   {
     "browserName": "chrome",
@@ -23,8 +23,8 @@
   },
   {
     "browserName": "safari",
-    "version": "6",
-    "platform": "OS X 10.8",
+    "version": "7",
+    "platform": "OS X 10.9",
     "syntheticKeyEvents": true,
     "syntheticMouseEvents": true
   },
