@@ -73,6 +73,11 @@
         Crafty.e("Background, Bar, Collision, WiredHitBox").color("blue").attr({x: 100*i, y: 10, z: 30});
         Crafty.e("Midground, Bar, Collision, WiredHitBox").color("purple").attr({x: 100*i, y: 20, z: 30});
         Crafty.e("Foreground, Bar, Collision, WiredHitBox").color("yellow").attr({x: 100*i, y: 30, z: 10});
+
+        // A hitbox not attached to a renderable entity should track the default layer
+        Crafty.e("2D, Collision, WiredHitBox").debugStroke("green").attr({x: 100*i, y: 40, z: 100, h: 100, w: 31});
+        Crafty.e("ActionLayer, Bar").color("brown").attr({x: 100*i, y: 40, z: 100});
+        
       }
 
       // Some text that shows the viewport's current position, and sits in the UI layer
