@@ -454,12 +454,17 @@ Crafty.DebugCanvas = {
             current = q[i];
 
             // If necessary, update the view transform to match the current entities layer
-            if (lastLayer !== current._drawlayer){
-                view = current._drawLayer._viewportRect();
-                ctx.setTransform(view._scale, 0, 0, view._scale, Math.round(-view._x*view._scale), Math.round(-view._y*view._scale));
+            // If the current entity has no layer, switch back to the viewport's transform
+            if (lastLayer !== current._drawLayer){
+                if (current._drawLayer) {
+                    view = current._drawLayer._viewportRect();
+                    ctx.setTransform(view._scale, 0, 0, view._scale, Math.round(-view._x*view._scale), Math.round(-view._y*view._scale));
+                } else {
+                    view = Crafty.viewport;
+                    ctx.setTransform(view._scale, 0, 0, view._scale, Math.round(view._x*view._scale), Math.round(view._y*view._scale));
+                }
                 lastLayer = current._drawLayer;
             }
-
             current.debugDraw(ctx);
         }
 
