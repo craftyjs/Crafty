@@ -454,7 +454,7 @@ Crafty.DebugCanvas = {
             current = q[i];
 
             // If necessary, update the view transform to match the current entities layer
-            if (lastLayer !== current._drawlayer){
+            if (current._drawLayer && lastLayer !== current._drawLayer){
                 view = current._drawLayer._viewportRect();
                 ctx.setTransform(view._scale, 0, 0, view._scale, Math.round(-view._x*view._scale), Math.round(-view._y*view._scale));
                 lastLayer = current._drawLayer;
