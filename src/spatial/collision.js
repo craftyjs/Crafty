@@ -532,7 +532,7 @@ Crafty.c("Collision", {
                         SAT.obj = obj;
                         SAT.type = "SAT";
                     }
-                } else if (Crafty.rectManager.overlap(area, this._cbr || this._mbr || this)){
+                } else if (Crafty.rectManager.overlap(area, obj._cbr || obj._mbr || obj)){
                     results.push({
                         obj: obj,
                         type: "MBR"

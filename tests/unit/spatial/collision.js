@@ -103,6 +103,22 @@
     _.ok('overlap' in results[0], "expected overlap value");
   });
 
+  test("hit -- collision vs. non collision tests", function(_){
+    var e1 = Crafty.e("2D, Collision")
+      .attr({x: 0, y: 0, w: 2, h: 2});
+    var e2 = Crafty.e("2D")
+      .attr({x: 0, y: 0, w: 2, h: 2});
+    var results = e1.hit('2D');
+    _.strictEqual(results.length, 1, "exactly one collision");
+    _.strictEqual(results[0].type, "MBR", "expecdted MBR collision type");
+    _.strictEqual(results[0].obj[0], e2[0], "Expected collision with e2");
+  
+    // Move e2 such that it should be returned by the broadphase search, but should not be considered a hit
+    e2.x=3;
+    var newResults = e1.hit('2D');
+    _.ok(!newResults, 0, "No collisions");
+  });
+
   test("onHit", function(_) {
     var e = Crafty.e("2D, Collision")
                   .attr({x: 0, y: 0, w: 25, h: 25});
