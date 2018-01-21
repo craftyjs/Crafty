@@ -110,10 +110,12 @@
       .attr({x: 0, y: 0, w: 2, h: 2});
     var results = e1.hit('2D');
     _.strictEqual(results.length, 1, "exactly one collision");
-    _.strictEqual(results[0].type, "MBR", "expecdted MBR collision type");
-    _.strictEqual(results[0].obj[0], e2[0], "Expected collision with e2");
+    _.strictEqual(results[0].type, "MBR", "expected MBR collision type");
+    _.strictEqual(results[0].obj[0], e2[0], "expected collision with e2");
   
-    // Move e2 such that it should be returned by the broadphase search, but should not be considered a hit
+    // Move e2 such that it should be returned by the broadphase search
+    // (i.e. it's in the same cell of the spatial hashmap)
+    // but doesn't actually overlap e1's MBR
     e2.x=3;
     var newResults = e1.hit('2D');
     _.ok(!newResults, 0, "No collisions");
