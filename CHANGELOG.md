@@ -1,3 +1,50 @@
+## 0.9.0 (rc-1)
+*(This set of changes is in the testing branch, but has yet to be released)*
+
+A large number of performance improvements lead to a larger than normal set of breaking changes in this release.  There was some refactoring of control systems, and built-in support for freezing entities allows for some performance optimizations when spawning and destroying large numbers of identical entities.
+
+### New features
+- Several internal changes to how input and control events are dispatched.  (#1121, also for an overview https://github.com/craftyjs/Crafty/projects/1)
+	- Mouse scroll supported (#1115)
+- Properties shorthand for systems (#1122) and entities (#1096), allowing simpler definition of getter/setter behavior
+- Support for freezing/unfreezing entities (#1087), which essentially remove an entity from the gamestate while preserving its internal state.  This allows useful optimizations such as reusing entities. 
+- Support setting the size of a custom stage element (#1154)
+- Allow passing a list of components as an argument list when calling `requires` (#1150)
+- Allow sprite animations to be specified with a list of named positions (1091, 1114)
+- Allow controls to be destroyed, and fire events on creation/destruction #1133
+- Several improvements to input events (#1121)
+- Add `ox` and `oy` properties that get and set the position of the entities origin on the stage
+- Bind the callbacks in a components `event` prop before running `init`(#1131)
+- Allow specifying multiway behavior when calling fourway (#1094)
+- "SetStyle" event emitted when using the `.css` method on DOM entities.
+
+### Breaking changes
+
+- **Major**: Built-in components moved to use "UpdateFrame" rather than "EnterFrame".  "EnterFrame" is still fired once per frame, before the "UpdateFrame" event, and so will occur before things like "Motion" have been processed. #1034
+- **Major**: The "Moved" event is removed completely (use "Move" instead) #1146
+- The 'Motion' component will fire the "Move" event once per tick, rather than separately for x/y motion #1146
+- The event handlers declared using the `events` property shorthand are now bound *before* `init()` is run, instead of after
+- The map.search previously took a flag that controlled whether it would filter the results.  For performance reasons, this behavior has now been split into two methods: `search` and `unfilteredSearch`. #1144
+- The results of the internal _SAT method now return nx and ny as top level properties `{overlap, nx, ny}` rather than as a nested normal object `{overlap, normal {nx, ny}}`. #1147
+- The 'Rotate' event now only contains the rotation amount in degrees.  The `rotate` method signature now takes a set of parameters rather than the 'Rotate' event object.  #1145
+- Internally, _cascade now handles linear motion of any attached entities, while _cascadeRotation handles their rotation. #1145
+- Changes to touch events:
+	- TouchStart and TouchEnd are no longer triggered when a finger enters or leaves entity. They are now triggered only once, when a finger is pressed or raised on the touch surface, no matter which entity was targeted.
+	- TouchOver and TouchOut replace those events, which are triggered when a finger enters or leaves the entity.
+- Crafty.selected now defaults to true rather than false
+
+### Bug fixes and optimizations
+- Fix a bug when when destroying pointer entities could result in double-decrementing the pointer entity counter for their layer #1143
+- Bugfix for weird behavior with cancelTween (1113)
+- A large number of optimizations to simplify events and allocate fewer object.  These effect:
+	- How the 'Motion' component fires events #1146
+	- spatial map search and collision algorithms #1147
+	- how the 'Rotate' event fires #1145
+	- the "Particles" component; should now render more like other standard graphics components #1132, #1141
+	- the `Crafty("component")` selector (1117)
+        - How Canvas partial redraws work (bnow rely on the spatial map grid struture as an optimization in the common case) (#1125)
+	- Misc allocation fixes (#1136, #1137, #1138)
+
 ## 0.8.0
 Several important new features: raycasting, control over webgl shaders, a new system for wiring up inputs to entities, and more versatile graphics layers.
 

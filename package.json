@@ -1,6 +1,6 @@
 {
   "name": "craftyjs",
-  "version": "0.9.0-rc1",
+  "version": "0.9.0-rc2",
   "description": "Crafty is a modern component and event based framework for developing games in JavaScript that targets DOM, Canvas and WebGL.",
   "keywords": [
     "framework",

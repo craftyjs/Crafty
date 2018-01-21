@@ -363,5 +363,4 @@ module.exports = function (grunt) {
 
     // Make crafty.js ready for release - minified version
     grunt.registerTask('release', ['version', 'changelog', 'build:release', 'uglify', 'jsvalidate:release', 'api']);
-
 };
