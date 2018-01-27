@@ -480,7 +480,7 @@ Crafty.c("Collision", {
      *       .attr({x: 32, y: 32, w: 32, h: 32})
      *       .collision([0, 16, 16, 0, 32, 16, 16, 32])
      *       .fourway()
-     *       .bind('Moved', function(evt) { // after player moved
+     *       .bind('Move', function(evt) { // after player moved
      *         var hitDatas, hitData;
      *         if ((hitDatas = this.hit('wall'))) { // check for collision with walls
      *           hitData = hitDatas[0]; // resolving collision for just one collider
@@ -489,8 +489,9 @@ Crafty.c("Collision", {
      *             this.x -= hitData.overlap * hitData.nx;
      *             this.y -= hitData.overlap * hitData.ny;
      *           } else { // MBR, simple collision resolution
-     *             // move player to position before he moved (on respective axis)
-     *             this[evt.axis] = evt.oldValue;
+     *             // move player to previous position 
+     *             this.x = evt._x;
+     *             this.y = evt._y;
      *           }
      *         }
      *       });
