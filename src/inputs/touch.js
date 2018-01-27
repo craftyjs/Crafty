@@ -19,9 +19,10 @@ Crafty.extend({
      *
      * If this is set to true, it is expected that your entities have the `Touch` component instead of the `Mouse` component.
      * If false (default), then only entities with the Mouse component will respond to touch.
-     * It's recommended to add the `Button` component instead, which requires the proper component depending on this feature.
+     * For simple use cases, tt's recommended to add the `Button` component instead, which requires the proper component depending on this feature.
      *
      * @note The multitouch feature is currently incompatible with the `Draggable` component and `Crafty.viewport.mouselook`.
+     * @note When multitouch is not enabled, Crafty will cancel touch events when forwarding them to the mouse system.
      *
      * @example
      * ~~~
@@ -97,6 +98,7 @@ Crafty.extend({
                     first.target.dispatchEvent(simulatedEvent);
                 }
             }
+            e.preventDefault();
         }
 
         return function(e) {
