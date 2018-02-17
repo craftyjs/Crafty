@@ -1,5 +1,4 @@
-## 0.9.0 (rc-1)
-*(This set of changes is in the testing branch, but has yet to be released)*
+## 0.9.0
 
 A large number of performance improvements lead to a larger than normal set of breaking changes in this release.  There was some refactoring of control systems, and built-in support for freezing entities allows for some performance optimizations when spawning and destroying large numbers of identical entities.
 

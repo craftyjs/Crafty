@@ -1,5 +1,5 @@
 /**
- * craftyjs 0.9.0-rc2
+ * craftyjs 0.9.0
  * http://craftyjs.com/
  *
  * Copyright 2018, Louis Stowasser
@@ -6090,7 +6090,7 @@ module.exports = {
 };
 
 },{"../core/core.js":10}],19:[function(require,module,exports){
-module.exports = "0.9.0-rc2";
+module.exports = "0.9.0";
 },{}],20:[function(require,module,exports){
 // Define common features available in both browser and node
 module.exports = function(requireNew) {
@@ -13563,9 +13563,10 @@ Crafty.extend({
      *
      * If this is set to true, it is expected that your entities have the `Touch` component instead of the `Mouse` component.
      * If false (default), then only entities with the Mouse component will respond to touch.
-     * It's recommended to add the `Button` component instead, which requires the proper component depending on this feature.
+     * For simple use cases, tt's recommended to add the `Button` component instead, which requires the proper component depending on this feature.
      *
      * @note The multitouch feature is currently incompatible with the `Draggable` component and `Crafty.viewport.mouselook`.
+     * @note When multitouch is not enabled, Crafty will cancel touch events when forwarding them to the mouse system.
      *
      * @example
      * ~~~
@@ -13641,6 +13642,7 @@ Crafty.extend({
                     first.target.dispatchEvent(simulatedEvent);
                 }
             }
+            e.preventDefault();
         }
 
         return function(e) {
@@ -16786,7 +16788,7 @@ Crafty.c("Collision", {
      *       .attr({x: 32, y: 32, w: 32, h: 32})
      *       .collision([0, 16, 16, 0, 32, 16, 16, 32])
      *       .fourway()
-     *       .bind('Moved', function(evt) { // after player moved
+     *       .bind('Move', function(evt) { // after player moved
      *         var hitDatas, hitData;
      *         if ((hitDatas = this.hit('wall'))) { // check for collision with walls
      *           hitData = hitDatas[0]; // resolving collision for just one collider
@@ -16795,8 +16797,9 @@ Crafty.c("Collision", {
      *             this.x -= hitData.overlap * hitData.nx;
      *             this.y -= hitData.overlap * hitData.ny;
      *           } else { // MBR, simple collision resolution
-     *             // move player to position before he moved (on respective axis)
-     *             this[evt.axis] = evt.oldValue;
+     *             // move player to previous position 
+     *             this.x = evt._x;
+     *             this.y = evt._y;
      *           }
      *         }
      *       });
