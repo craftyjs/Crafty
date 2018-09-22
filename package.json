@@ -74,7 +74,7 @@
     "phantomjs-prebuilt": "2.1.14",
     "q": "^1.4.1",
     "q-io": "^1.13.1",
-    "qunitjs": "^2.3.0",
+    "qunitjs": "^2.4.1",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
     "request": "^2.81.0",
