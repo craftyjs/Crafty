@@ -257,14 +257,14 @@ module.exports = {
             isAsset = function(a) {
                 return Crafty.asset(a) || null;
             },
-            // jshint ignore:start
+            
             isSupportedAudio = function(f) {
 
                 return Crafty.support.audio && Crafty.audio.supports(
                     Utility.fileTypeOf( f ).type
                 );
             },
-            // jshint ignore:end
+            
             isValidImage = function(f) {
 
                 return -1 < Crafty.imageWhitelist.indexOf(
@@ -332,7 +332,9 @@ module.exports = {
 
                     current = (typeof current === "object")  ?
                         current  :  {'': current + ''};
-                    // jshint ignore:start
+
+                    // Disable (Don't make functions in a loop) warning
+                    // jshint -W083
                     var files = Object.keys( current ).filter(function (key) {
 
                         var fileUrl = getFilePath(type, current[key]);
@@ -344,9 +346,9 @@ module.exports = {
                         )
                             return  shortURLOf( fileUrl );
                     });
+                    // jshint +W083
 
                     if ( files[0] )  obj = Crafty.audio.add(asset, files);
-                    // jshint ignore:end
                     //extract actual audio obj if audio creation was successfull
                     if ( obj )  obj = obj.obj;
 

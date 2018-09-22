@@ -6,7 +6,7 @@ exports.blobOf = function blobOf(URI) {
 
     XHR.open('GET', URI);
 
-    return  new Promise(function (resolve, reject) {  // jshint ignore:line
+    return  new Promise(function (resolve, reject) {
 
         XHR.onload = function () {  resolve( this.response );  };
 

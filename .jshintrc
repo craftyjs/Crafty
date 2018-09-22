@@ -1,6 +1,6 @@
 {
   "eqeqeq": true,
-  "esversion": 5,
+  "esversion": 6,
   "freeze": true,
   "futurehostile": true,
   "latedef": "nofunc",
