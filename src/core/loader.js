@@ -257,14 +257,12 @@ module.exports = {
             isAsset = function(a) {
                 return Crafty.asset(a) || null;
             },
-            
             isSupportedAudio = function(f) {
 
                 return Crafty.support.audio && Crafty.audio.supports(
                     Utility.fileTypeOf( f ).type
                 );
             },
-            
             isValidImage = function(f) {
 
                 return -1 < Crafty.imageWhitelist.indexOf(
@@ -284,7 +282,6 @@ module.exports = {
             };
 
         //Progress function
-
         function pro() {
             var src = this.src;
 
@@ -304,8 +301,8 @@ module.exports = {
 
             if (j === total && oncomplete) oncomplete();
         }
-        //Error function
 
+        //Error function
         function err() {
             var src = this.src;
             if (onerror)
@@ -329,7 +326,6 @@ module.exports = {
                 obj = null;
 
                 if (type === "audio") {
-
                     current = (typeof current === "object")  ?
                         current  :  {'': current + ''};
 
@@ -362,7 +358,8 @@ module.exports = {
 
                     if (!isAsset( fileUrl )  &&  isValidImage( asset )) {
 
-                        obj = new Image();  fileUrl = shortURLOf( fileUrl );
+                        obj = new Image();
+                        fileUrl = shortURLOf( fileUrl );
 
                         if (type === "sprites")
                             Crafty.sprite(
