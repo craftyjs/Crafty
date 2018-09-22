@@ -55,7 +55,7 @@
     "grunt-browserify": "^5.0.0",
     "grunt-contrib-connect": "^1.0.2",
     "grunt-contrib-copy": "^1.0.0",
-    "grunt-contrib-jshint": "^1.0.0",
+    "grunt-contrib-jshint": "^1.1.0",
     "grunt-contrib-qunit": "^1.2.0",
     "grunt-contrib-uglify": "^2.0.0",
     "grunt-contrib-watch": "^1.0.0",
@@ -74,7 +74,7 @@
     "phantomjs-prebuilt": "2.1.14",
     "q": "^1.4.1",
     "q-io": "^1.13.1",
-    "qunitjs": "^2.3.0",
+    "qunitjs": "^2.4.1",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
     "request": "^2.81.0",
@@ -82,10 +82,5 @@
     "wdio-qunit-framework": "mucaho/wdio-qunit-framework#master",
     "wdio-sauce-service": "^0.3.1",
     "webdriverio": "^4.6.2"
-  },
-  "browserify": {
-    "transform": [
-      "brfs"
-    ]
   }
 }
