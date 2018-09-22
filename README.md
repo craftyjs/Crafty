@@ -1,4 +1,4 @@
-# Crafty JS [![Travis Build Status](https://travis-ci.org/craftyjs/Crafty.svg?branch=develop)](https://travis-ci.org/craftyjs/Crafty) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/craftyjs/Crafty?svg=true&branch=develop)](https://ci.appveyor.com/project/starwed/crafty) [![Sauce Test Status](https://saucelabs.com/buildstatus/mucaho)](https://saucelabs.com/u/mucaho)
+﻿# Crafty JS [![Travis Build Status](https://travis-ci.org/craftyjs/Crafty.svg?branch=develop)](https://travis-ci.org/craftyjs/Crafty) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/craftyjs/Crafty?svg=true&branch=develop)](https://ci.appveyor.com/project/starwed/crafty) [![Sauce Test Status](https://saucelabs.com/buildstatus/mucaho)](https://saucelabs.com/u/mucaho)
 
 Crafty is a JavaScript game library that can help you create games in a structured way…
 
@@ -82,7 +82,7 @@ If you would like to make larger contributions please catch us in the [forum](ht
 
 ### Quick build instructions
 
-The easiest way to build crafty uses [gruntjs](http://gruntjs.com/), which requires [node](nodejs.org/) and [npm](https://npmjs.org/).  If you have grunt, node, and npm already installed, then run `npm install` from Crafty's root directory.  (This will pull down about 30MB of node packages.)  From then on, just run `grunt` to build.
+The easiest way to build crafty is to use [gruntjs](http://gruntjs.com/), which requires [node](nodejs.org/) and [npm](https://npmjs.org/).  If you have grunt, node, and npm already installed, then run `npm install` from Crafty's root directory.  (This will pull down about 30MB of node packages.)  From then on, just run `grunt` to build.
 
 You can also use [yarn](https://yarnpkg.com/) instead of npm.
 
