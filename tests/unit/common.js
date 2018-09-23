@@ -27,8 +27,9 @@ Crafty.pause();
 // Helper functions //
 //////////////////////
 
+// Disable jshint rules for setting global vars
+// jshint -W020
 resetStage = function() {
-  // jshint ignore:line
   Crafty.viewport.reset();
   Crafty.viewport.scroll("_x", 0);
   Crafty.viewport.scroll("_y", 0);
@@ -36,12 +37,10 @@ resetStage = function() {
 };
 
 Round = function(x) {
-  // jshint ignore:line
   return Math.round(x * 100) / 100;
 };
 
 keysUp = function() {
-  // jshint ignore:line
   var keysToRelease = Array.prototype.slice.call(arguments);
   for (var k in keysToRelease) {
     var key = Crafty.keys[keysToRelease[k]] || keysToRelease[k];
@@ -49,7 +48,6 @@ keysUp = function() {
   }
 };
 keysDown = function() {
-  // jshint ignore:line
   var keysToPress = Array.prototype.slice.call(arguments);
   for (var k in keysToPress) {
     var key = Crafty.keys[keysToPress[k]] || keysToPress[k];
@@ -59,6 +57,7 @@ keysDown = function() {
     });
   }
 };
+// jshint +W020
 
 //////////////////
 // QUnit config //

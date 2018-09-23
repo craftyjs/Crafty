@@ -2309,10 +2309,11 @@ function clone(obj) {
 // export Crafty
 if (typeof define === "function") {
     // AMD
+    // jshint ignore:start
     define("crafty", [], function() {
-        // jshint ignore:line
         return Crafty;
     });
+    // jshint ignore:end
 }
 
 module.exports = Crafty;
