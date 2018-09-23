@@ -1,4 +1,4 @@
-var Crafty = require('../core/core.js');
+var Crafty = require("../core/core.js");
 
 /**@
  * #TouchState
@@ -80,11 +80,13 @@ Crafty.__touchStateTemplate = {
      *
      * @see .touchPoints
      */
-    resetTouchPoints: function () {
+    resetTouchPoints: function() {
         // Tell all touch points they're no longer held down
-        var touchPoints = this.touchPoints, touchPoint,
+        var touchPoints = this.touchPoints,
+            touchPoint,
             i = touchPoints.length;
-        while (i--) { // iterate backwards to avoid conflicts with removal of array elements
+        while (i--) {
+            // iterate backwards to avoid conflicts with removal of array elements
             touchPoint = touchPoints[i];
             touchPoint.eventName = "TouchCancel";
             this.triggerTouch("TouchCancel", touchPoint);
@@ -121,7 +123,7 @@ Crafty.__touchStateTemplate = {
      * Crafty.log(wasTriggered); // prints false
      * ~~~
      */
-    triggerTouch: function (eventName, eventData) {
+    triggerTouch: function(eventName, eventData) {
         switch (eventName) {
             case "TouchStart":
                 this._handleStart(eventData);
@@ -139,7 +141,7 @@ Crafty.__touchStateTemplate = {
         return this;
     },
 
-    _indexOfTouchPoint: function (identifier) {
+    _indexOfTouchPoint: function(identifier) {
         var touchPoints = this.touchPoints;
         for (var i = 0, l = touchPoints.length; i < l; i++) {
             if (touchPoints[i].identifier === identifier) {
@@ -149,7 +151,7 @@ Crafty.__touchStateTemplate = {
         return -1;
     },
 
-    _setTouchPoint: function (touchPointDest, touchPointSrc) {
+    _setTouchPoint: function(touchPointDest, touchPointSrc) {
         touchPointDest.eventName = touchPointSrc.eventName;
         touchPointDest.identifier = touchPointSrc.identifier;
         touchPointDest.target = touchPointSrc.target;
@@ -159,10 +161,11 @@ Crafty.__touchStateTemplate = {
         touchPointDest.originalEvent = touchPointSrc.originalEvent;
     },
 
-    _handleStart: function (touchPoint) {
+    _handleStart: function(touchPoint) {
         var oldIndex = this._indexOfTouchPoint(touchPoint.identifier),
             oldTouchPoint = oldIndex >= 0 ? this.touchPoints[oldIndex] : null;
-        if (!oldTouchPoint) { // ignore TouchStart due to inconsistent state caused by loosing focus
+        if (!oldTouchPoint) {
+            // ignore TouchStart due to inconsistent state caused by loosing focus
             // allocate touch point
             var newTouchPoint = this._touchPointsPool.pop() || {};
             this._setTouchPoint(newTouchPoint, touchPoint);
@@ -172,10 +175,11 @@ Crafty.__touchStateTemplate = {
         }
     },
 
-    _handleMove: function (touchPoint) {
+    _handleMove: function(touchPoint) {
         var oldIndex = this._indexOfTouchPoint(touchPoint.identifier),
             oldTouchPoint = oldIndex >= 0 ? this.touchPoints[oldIndex] : null;
-        if (oldTouchPoint) { // ignore TouchMove due to inconsistent state caused by loosing focus
+        if (oldTouchPoint) {
+            // ignore TouchMove due to inconsistent state caused by loosing focus
             // update touch point
             this._setTouchPoint(oldTouchPoint, touchPoint);
 
@@ -183,10 +187,11 @@ Crafty.__touchStateTemplate = {
         }
     },
 
-    _handleEnd: function (touchPoint) {
+    _handleEnd: function(touchPoint) {
         var oldIndex = this._indexOfTouchPoint(touchPoint.identifier),
             oldTouchPoint = oldIndex >= 0 ? this.touchPoints[oldIndex] : null;
-        if (oldTouchPoint) { // ignore TouchEnd due to inconsistent state caused by loosing focus
+        if (oldTouchPoint) {
+            // ignore TouchEnd due to inconsistent state caused by loosing focus
             this._setTouchPoint(oldTouchPoint, touchPoint);
             this.triggerTouchEvent(oldTouchPoint.eventName, oldTouchPoint);
 
@@ -203,9 +208,17 @@ Crafty.c("TouchState", Crafty.__touchStateTemplate);
 
 // define a basic Touch system for headless mode
 // will be substituted with proper one in browser mode
-Crafty.s("Touch", Crafty.extend.call({
-    // this method will be called by TouchState iff triggerTouch event was valid
-    triggerTouchEvent: function (eventName, e) {
-        Crafty.trigger(eventName, e);
-    }
-}, Crafty.__touchStateTemplate), {}, false);
+Crafty.s(
+    "Touch",
+    Crafty.extend.call(
+        {
+            // this method will be called by TouchState iff triggerTouch event was valid
+            triggerTouchEvent: function(eventName, e) {
+                Crafty.trigger(eventName, e);
+            }
+        },
+        Crafty.__touchStateTemplate
+    ),
+    {},
+    false
+);

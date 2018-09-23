@@ -1,10 +1,10 @@
-var Crafty = require('../core/core.js');
+var Crafty = require("../core/core.js");
 
 /**@
  * #Supportable
  * @category 2D
  * @kind Component
- * 
+ *
  * @trigger LandedOnGround - When entity has landed. This event is triggered with the object the entity landed on.
  * @trigger LiftedOffGround - When entity has lifted off. This event is triggered with the object the entity stood on before lift-off.
  * @trigger CheckLanding - When entity is about to land. This event is triggered with the object the entity is about to land on. Third parties can respond to this event and prevent the entity from being able to land.
@@ -18,7 +18,7 @@ Crafty.c("Supportable", {
      * @comp Supportable
      * @kind Property
      *
-     * Access the ground entity (which may be the actual ground entity if it exists, or `null` if it doesn't exist) and thus whether this entity is currently on the ground or not. 
+     * Access the ground entity (which may be the actual ground entity if it exists, or `null` if it doesn't exist) and thus whether this entity is currently on the ground or not.
      * The ground entity is also available through the events, when the ground entity changes.
      */
     _ground: null,
@@ -31,7 +31,7 @@ Crafty.c("Supportable", {
      * @kind Property
      *
      * The canLand boolean determines if the entity is allowed to land or not (e.g. perhaps the entity should not land if it's not falling).
-     * The Supportable component will trigger a "CheckLanding" event. 
+     * The Supportable component will trigger a "CheckLanding" event.
      * Interested parties can listen to this event and prevent the entity from landing by setting `canLand` to false.
      *
      * @example
@@ -46,10 +46,16 @@ Crafty.c("Supportable", {
      */
     canLand: true,
 
-    init: function () {
+    init: function() {
         this.requires("2D");
-        this.__area = {_x: 0, _y: 0, _w: 0, _h: 0};
-        this.defineField("ground", function() { return this._ground; }, function(newValue) {});
+        this.__area = { _x: 0, _y: 0, _w: 0, _h: 0 };
+        this.defineField(
+            "ground",
+            function() {
+                return this._ground;
+            },
+            function(newValue) {}
+        );
     },
     remove: function(destroyed) {
         this.unbind("UpdateFrame", this._detectGroundTick);
@@ -107,7 +113,7 @@ Crafty.c("Supportable", {
      * #.preventGroundTunneling
      * @comp Supportable
      * @kind Method
-     * 
+     *
      * @sign this .preventGroundTunneling([Boolean enable])
      * @param enable - Boolean indicating whether to enable continous collision detection or not; if omitted defaults to true
      *
@@ -118,10 +124,8 @@ Crafty.c("Supportable", {
      * @see Motion#.ccdbr
      */
     preventGroundTunneling: function(enable) {
-        if (typeof enable === 'undefined')
-            enable = true;
-        if (enable)
-            this.requires("Motion");
+        if (typeof enable === "undefined") enable = true;
+        if (enable) this.requires("Motion");
         this._preventGroundTunneling = enable;
 
         return this;
@@ -147,11 +151,16 @@ Crafty.c("Supportable", {
         // Decrease width by 1px from left and 1px from right, to fall more gracefully
         // area._x++; area._w--;
 
-
         // check if we lift-off
         if (ground) {
             var garea = ground._cbr || ground._mbr || ground;
-            if (!(ground.__c[groundComp] && Crafty(ground[0]) === ground && overlap(garea, area))) {
+            if (
+                !(
+                    ground.__c[groundComp] &&
+                    Crafty(ground[0]) === ground &&
+                    overlap(garea, area)
+                )
+            ) {
                 this._ground = null;
                 this.trigger("LiftedOffGround", ground); // no collision with ground was detected for first time
                 ground = null;
@@ -160,7 +169,8 @@ Crafty.c("Supportable", {
 
         // check if we land (also possible to land on other ground object in same frame after lift-off from current ground object)
         if (!ground) {
-            var obj, oarea,
+            var obj,
+                oarea,
                 results = Crafty.map.unfilteredSearch(area),
                 i = 0,
                 l = results.length;
@@ -169,7 +179,11 @@ Crafty.c("Supportable", {
                 obj = results[i];
                 oarea = obj._cbr || obj._mbr || obj;
                 // check for an intersection with the player
-                if (obj !== this && obj.__c[groundComp] && overlap(oarea, area)) {
+                if (
+                    obj !== this &&
+                    obj.__c[groundComp] &&
+                    overlap(oarea, area)
+                ) {
                     this.canLand = true;
                     this.trigger("CheckLanding", obj); // is entity allowed to land?
                     if (this.canLand) {
@@ -217,7 +231,7 @@ Crafty.c("GroundAttacher", {
         ground.detach(this);
     },
 
-    init: function () {
+    init: function() {
         this.requires("Supportable");
 
         this.bind("LandedOnGround", this._groundAttach);
@@ -229,12 +243,11 @@ Crafty.c("GroundAttacher", {
     }
 });
 
-
 /**@
  * #Gravity
  * @category 2D
  * @kind Component
- * 
+ *
  * Adds gravitational pull to the entity.
  *
  * Additionally, this component provides the entity with `Supportable` and `Motion` methods & events.
@@ -248,7 +261,7 @@ Crafty.c("Gravity", {
     _gravityConst: 500,
     _gravityActive: false,
 
-    init: function () {
+    init: function() {
         this.requires("2D, Supportable, Motion");
 
         this.bind("LiftedOffGround", this._startGravity); // start gravity if we are off ground
@@ -260,15 +273,14 @@ Crafty.c("Gravity", {
     },
 
     _gravityCheckLanding: function(ground) {
-        if (this._dy < 0) 
-            this.canLand = false;
+        if (this._dy < 0) this.canLand = false;
     },
 
     /**@
      * #.gravity
      * @comp Gravity
      * @kind Method
-     * 
+     *
      * @sign public this .gravity([comp])
      * @param comp - The name of a component that will stop this entity from falling
      *
@@ -285,7 +297,7 @@ Crafty.c("Gravity", {
      *   .gravity("platform");
      * ~~~
      */
-    gravity: function (comp) {
+    gravity: function(comp) {
         this.uniqueBind("CheckLanding", this._gravityCheckLanding);
         this.startGroundDetection(comp);
         this._startGravity();
@@ -296,11 +308,11 @@ Crafty.c("Gravity", {
      * #.antigravity
      * @comp Gravity
      * @kind Method
-     * 
+     *
      * @sign public this .antigravity()
      * Disable gravity for this component. It can be reenabled by calling .gravity()
      */
-    antigravity: function () {
+    antigravity: function() {
         this._stopGravity();
         this.stopGroundDetection();
         this.unbind("CheckLanding", this._gravityCheckLanding);
@@ -312,7 +324,7 @@ Crafty.c("Gravity", {
      * #.gravityConst
      * @comp Gravity
      * @kind Method
-     * 
+     *
      * @sign public this .gravityConst(g)
      * @param g - gravitational constant in pixels per second squared
      *
@@ -327,8 +339,9 @@ Crafty.c("Gravity", {
      *   .gravity("platform");
      * ~~~
      */
-    gravityConst: function (g) {
-        if (this._gravityActive) { // gravity active, change acceleration
+    gravityConst: function(g) {
+        if (this._gravityActive) {
+            // gravity active, change acceleration
             this.ay -= this._gravityConst;
             this.ay += g;
         }
@@ -349,4 +362,3 @@ Crafty.c("Gravity", {
         this.vy = 0;
     }
 });
-

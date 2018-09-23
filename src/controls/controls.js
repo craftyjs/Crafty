@@ -1,4 +1,4 @@
-var Crafty = require('../core/core.js');
+var Crafty = require("../core/core.js");
 
 /**@
  * #Draggable
@@ -17,22 +17,22 @@ Crafty.c("Draggable", {
 
     required: "MouseDrag",
     events: {
-        "StartDrag": "_startDrag",
-        "Dragging": "_drag"
+        StartDrag: "_startDrag",
+        Dragging: "_drag"
     },
 
     /**@
      * #.enableDrag
-     * @comp Draggable 
+     * @comp Draggable
      * @kind Method
-     * 
+     *
      * @sign public this .enableDrag(void)
      *
      * Reenable dragging of entity. Use if `.disableDrag` has been called.
      *
      * @see .disableDrag
      */
-    enableDrag: function () {
+    enableDrag: function() {
         this.uniqueBind("Dragging", this._drag);
         return this;
     },
@@ -41,14 +41,14 @@ Crafty.c("Draggable", {
      * #.disableDrag
      * @comp Draggable
      * @kind Method
-     * 
+     *
      * @sign public this .disableDrag(void)
      *
      * Disables entity dragging. Reenable with `.enableDrag()`.
      *
      * @see .enableDrag
      */
-    disableDrag: function () {
+    disableDrag: function() {
         this.unbind("Dragging", this._drag);
         return this;
     },
@@ -57,7 +57,7 @@ Crafty.c("Draggable", {
      * #.dragDirection
      * @comp Draggable
      * @kind Method
-     * 
+     *
      * Method used for modifying the drag direction.
      * If direction is set, the entity being dragged will only move along the specified direction.
      * If direction is not set, the entity being dragged will move along any direction.
@@ -84,13 +84,14 @@ Crafty.c("Draggable", {
      * this.dragDirection(60) //60 degree.
      * ~~~
      */
-    dragDirection: function (dir) {
-        if (typeof dir === 'undefined') {
+    dragDirection: function(dir) {
+        if (typeof dir === "undefined") {
             this._dir = null;
-        } else if (+dir === dir) { //dir is a number
+        } else if (+dir === dir) {
+            //dir is a number
             this._dir = {
-                x: Math.cos(dir / 180 * Math.PI),
-                y: Math.sin(dir / 180 * Math.PI)
+                x: Math.cos((dir / 180) * Math.PI),
+                y: Math.sin((dir / 180) * Math.PI)
             };
         } else {
             if (dir.x === 0 && dir.y === 0) {
@@ -106,7 +107,7 @@ Crafty.c("Draggable", {
         return this;
     },
 
-    _startDrag: function (e) {
+    _startDrag: function(e) {
         this._origX = e.realX;
         this._origY = e.realY;
         this._oldX = this._x;
@@ -117,7 +118,9 @@ Crafty.c("Draggable", {
     _drag: function(e) {
         if (this._dir) {
             if (this._dir.x !== 0 || this._dir.y !== 0) {
-                var len = (e.realX - this._origX) * this._dir.x + (e.realY - this._origY) * this._dir.y;
+                var len =
+                    (e.realX - this._origX) * this._dir.x +
+                    (e.realY - this._origY) * this._dir.y;
                 this.x = this._oldX + len * this._dir.x;
                 this.y = this._oldY + len * this._dir.y;
             }
@@ -127,7 +130,6 @@ Crafty.c("Draggable", {
         }
     }
 });
-
 
 /**@
  * #Controllable
@@ -140,30 +142,30 @@ Crafty.c("Draggable", {
  *
  */
 Crafty.c("Controllable", {
-    init: function () {
+    init: function() {
         this._inputBindings = {
-            "DirectionalInput": {},
-            "TriggerInputDown": {},
-            "TriggerInputUp": {}
+            DirectionalInput: {},
+            TriggerInputDown: {},
+            TriggerInputUp: {}
         };
     },
-    
+
     events: {
         // We don't want to use dot notation here for the property names
         /* jshint -W069 */
-        "DirectionalInput": function (e) {
+        DirectionalInput: function(e) {
             if (this._inputBindings["DirectionalInput"][e.name]) {
                 this._inputBindings["DirectionalInput"][e.name].call(this, e);
             }
         },
 
-        "TriggerInputDown": function (e) {
+        TriggerInputDown: function(e) {
             if (this._inputBindings["TriggerInputDown"][e.name]) {
                 this._inputBindings["TriggerInputDown"][e.name].call(this, e);
             }
         },
 
-         "TriggerInputUp": function (e) {
+        TriggerInputUp: function(e) {
             if (this._inputBindings["TriggerInputUp"][e.name]) {
                 this._inputBindings["TriggerInputUp"][e.name].call(this, e);
             }
@@ -175,19 +177,19 @@ Crafty.c("Controllable", {
      * #.linkInput
      * @comp Controllable
      * @kind Method
-     * 
+     *
      * @sign public this linkInput(string event, string name, function fn)
      * @param event - the name of the input event
      * @param name - the name of the input
      * @param fn - the function that will be called with the event object
-     * 
+     *
      * Binds the function to the particular named event trigger.
-     * 
+     *
      * Currently supports three types of input events.  Each event will have a `name` property.
      * - `DirectionalInput`: The event will have `x` and `y` properties representing the directional input vector, often normalized to a unit vector.  Triggered when the input changes.
      * - `TriggerInputDown`: Occurs when the input is triggered.
      * - `TriggerInputDown`: Occurs when the trigger is released.  The event will have a `downFor` property, indicating how long it had been active.
-     * 
+     *
      * @example
      * ~~~~
      * // Create a trigger bound to the `b` key
@@ -197,8 +199,8 @@ Crafty.c("Controllable", {
      *   .attr({x:10, y:10, h:10, w:10}).color("blue")
      *   .linkInput("TriggerInputDown", "BlushTrigger", function(){this.color('pink');});
      * ~~~
-     * 
-     * @see .unlinkInput  
+     *
+     * @see .unlinkInput
      */
     linkInput: function(event, name, fn) {
         this._inputBindings[event][name] = fn;
@@ -209,13 +211,13 @@ Crafty.c("Controllable", {
      * #.unlinkInput
      * @comp Controllable
      * @kind Method
-     * 
+     *
      * @sign public this linkInput(string event, string name)
      * @param event - the name of the input event
      * @param name - the name of the input
-     * 
+     *
      * Removes a binding setup by linkInput
-     * 
+     *
      * @see .linkInput
      */
     unlinkInput: function(event, name) {
@@ -223,14 +225,13 @@ Crafty.c("Controllable", {
         return this;
     },
 
-
     disableControls: false,
 
     /**@
      * #.enableControl
      * @comp Controllable
      * @kind Method
-     * 
+     *
      * @sign public this .enableControl()
      *
      * Enable the component to listen to input events.
@@ -240,7 +241,7 @@ Crafty.c("Controllable", {
      * this.enableControl();
      * ~~~
      */
-    enableControl: function () {
+    enableControl: function() {
         this.disableControls = false;
         return this;
     },
@@ -249,7 +250,7 @@ Crafty.c("Controllable", {
      * #.disableControl
      * @comp Controllable
      * @kind Method
-     * 
+     *
      * @sign public this .disableControl()
      *
      * Disable the component from responding to input events.
@@ -259,12 +260,11 @@ Crafty.c("Controllable", {
      * this.disableControl();
      * ~~~
      */
-    disableControl: function () {
+    disableControl: function() {
         this.disableControls = true;
         return this;
     }
 });
-
 
 /**@
  * #Multiway
@@ -274,9 +274,9 @@ Crafty.c("Controllable", {
  * Used to bind keys to directions and have the entity move accordingly.
  *
  * Multiway acts by listening to directional events, and then setting the velocity each frame based on the current direction and the current speed.
- * 
+ *
  * If a speed is not defined for a particular axis (x or y), then the velocity along that axis will not be set.
- *   
+ *
  * This behavior works in most cases, but can cause undesired behavior if you manipulate velocities by yourself while this component is in effect.
  * If you need to resolve collisions, it's advised to correct the position directly rather than to manipulate the velocity.
  * If you still need to reset the velocity once a collision happens, make sure to re-add the previous velocity once the collision is resolved.
@@ -287,12 +287,12 @@ Crafty.c("Controllable", {
  */
 Crafty.c("Multiway", {
     _speed: null,
-    
-    init: function () {
+
+    init: function() {
         this.requires("Motion, Controllable");
         this._dpadName = "MultiwayDpad" + this[0];
         this._speed = { x: 150, y: 150 };
-        this._direction = {x:0, y:0};
+        this._direction = { x: 0, y: 0 };
     },
 
     remove: function() {
@@ -302,20 +302,26 @@ Crafty.c("Multiway", {
     },
 
     events: {
-        "UpdateFrame": function() {
+        UpdateFrame: function() {
             if (!this.disableControls) {
-                if (typeof this._speed.x !== 'undefined' && this._speed.x !== null){
+                if (
+                    typeof this._speed.x !== "undefined" &&
+                    this._speed.x !== null
+                ) {
                     this.vx = this._speed.x * this._direction.x;
                 }
-                if (typeof this._speed.y !== 'undefined' && this._speed.y !== null) {
+                if (
+                    typeof this._speed.y !== "undefined" &&
+                    this._speed.y !== null
+                ) {
                     this.vy = this._speed.y * this._direction.y;
                 }
             }
         }
     },
-   
-   // Rather than update the velocity directly in response to changing input, track the input direction separately
-   // That makes it easier to enable/disable control
+
+    // Rather than update the velocity directly in response to changing input, track the input direction separately
+    // That makes it easier to enable/disable control
     _updateDirection: function(e) {
         this._direction.x = e.x;
         this._direction.y = e.y;
@@ -325,7 +331,7 @@ Crafty.c("Multiway", {
      * #.multiway
      * @comp Multiway
      * @kind Method
-     * 
+     *
      * @sign public this .multiway([Number speed,] Object keyBindings[, Object options])
      * @param speed - A speed in pixels per second
      * @param keyBindings - What keys should make the entity go in which direction. Direction is specified in degrees
@@ -336,9 +342,9 @@ Crafty.c("Multiway", {
      * Can be called while a key is pressed to change direction & speed on the fly.
      *
      * The options parameter controls the behavior of the component, and has the following defaults:
-     * 
+     *
      *  - `"normalize": false`.  When set to true, the directional input always has a magnitude of 1
-     *  - `"multipleDirectionBehavior": "all"` How to resolve multiple active directions.  
+     *  - `"multipleDirectionBehavior": "all"` How to resolve multiple active directions.
      *     Set to "first" or "last" to allow only one active direction at a time.
      *
      *  @example
@@ -349,8 +355,9 @@ Crafty.c("Multiway", {
      * ~~~
      *
      * @see Crafty.keys
-     */         
-    multiway: function (speed, keys, options) {
+     */
+
+    multiway: function(speed, keys, options) {
         var inputSystem = Crafty.s("Controls");
 
         if (keys) {
@@ -359,7 +366,11 @@ Crafty.c("Multiway", {
             keys = speed;
         }
         inputSystem.defineDpad(this._dpadName, keys, options);
-        this.linkInput("DirectionalInput", this._dpadName, this._updateDirection);
+        this.linkInput(
+            "DirectionalInput",
+            this._dpadName,
+            this._updateDirection
+        );
 
         return this;
     },
@@ -368,13 +379,13 @@ Crafty.c("Multiway", {
      * #.speed
      * @comp Multiway
      * @kind Method
-     * 
+     *
      * @sign public this .speed(Object speed)
      * @param speed - New speed the entity has, for x and y axis.
      *
      * Change the speed that the entity moves with, in units of pixels per second.
      * Can be called while a key is pressed to change speed on the fly.
-     * 
+     *
      * If the passed object has only an x or y property, only the velocity along that axis will be controlled.
      *
      * @example
@@ -382,8 +393,8 @@ Crafty.c("Multiway", {
      * this.speed({ x: 150, y: 50 });
      * ~~~
      */
-    speed: function (speed) {
-        if (typeof speed === 'object') {
+    speed: function(speed) {
+        if (typeof speed === "object") {
             this._speed.x = speed.x;
             this._speed.y = speed.y;
         } else {
@@ -391,11 +402,8 @@ Crafty.c("Multiway", {
             this._speed.y = speed;
         }
         return this;
-    },
-
-    
+    }
 });
-
 
 /**@
  * #Jumper
@@ -439,7 +447,7 @@ Crafty.c("Jumper", {
      */
     canJump: true,
 
-    init: function () {
+    init: function() {
         this.requires("Supportable, Motion, Controllable");
     },
 
@@ -448,16 +456,16 @@ Crafty.c("Jumper", {
         Crafty.s("Controls").destroyTriggerGroup(this._jumpTriggerName);
     },
 
-    _keydown_jumper: function (e) {
+    _keydown_jumper: function(e) {
         if (this.disableControls) return;
-        this.jump();        
+        this.jump();
     },
 
     /**@
      * #.jump
      * @comp Jumper
      * @kind Method
-     * 
+     *
      * @sign public this .jump()
      *
      * Directly trigger the entity to jump.
@@ -477,18 +485,18 @@ Crafty.c("Jumper", {
      * #.jumper
      * @comp Jumper
      * @kind Method
-     * 
+     *
      * @sign public this .jumper([Number jumpSpeed,] Array jumpKeys)
      * @param jumpSpeed - Vertical jump speed in pixels per second
      * @param jumpKeys - Keys to listen for and make entity jump in response
-     * 
+     *
      * @sign public this .jumper([Number jumpSpeed,] Object jumpInputs)
      * @param jumpSpeed - Vertical jump speed in pixels per second
      * @param jumpInputs - An object with two properties, `keys` and `mouseButtons`.
      *
      * Constructor to initialize the power of jump and keys to listen to.
      * Component will listen for key events and make the entity jump appropriately.
-     * 
+     *
      * If second argument is an object, the properties `keys` and `mouseButtons` will be used as triggers.
      *
      * @example
@@ -499,7 +507,7 @@ Crafty.c("Jumper", {
      *
      * @see Crafty.keys
      */
-    jumper: function (jumpSpeed, jumpKeys) {
+    jumper: function(jumpSpeed, jumpKeys) {
         if (jumpKeys) {
             this._jumpSpeed = jumpSpeed;
         } else {
@@ -513,14 +521,21 @@ Crafty.c("Jumper", {
                 var keyCode = Crafty.keys[key] || key;
                 keys.push(keyCode);
             }
-            Crafty.s("Controls")
-                .defineTriggerGroup(this._jumpTriggerName, {keys:keys});
+            Crafty.s("Controls").defineTriggerGroup(this._jumpTriggerName, {
+                keys: keys
+            });
         } else {
-            Crafty.s("Controls")
-                .defineTriggerGroup(this._jumpTriggerName, jumpKeys);
+            Crafty.s("Controls").defineTriggerGroup(
+                this._jumpTriggerName,
+                jumpKeys
+            );
         }
-        
-        this.linkInput("TriggerInputDown", this._jumpTriggerName, this._keydown_jumper);
+
+        this.linkInput(
+            "TriggerInputDown",
+            this._jumpTriggerName,
+            this._keydown_jumper
+        );
 
         return this;
     },
@@ -529,7 +544,7 @@ Crafty.c("Jumper", {
      * #.jumpSpeed
      * @comp Jumper
      * @kind Method
-     * 
+     *
      * @sign public this .jumpSpeed(Number jumpSpeed)
      * @param jumpSpeed - new vertical jump speed
      *
@@ -540,7 +555,7 @@ Crafty.c("Jumper", {
      * this.jumpSpeed(300);
      * ~~~
      */
-    jumpSpeed: function (jumpSpeed) {
+    jumpSpeed: function(jumpSpeed) {
         this._jumpSpeed = jumpSpeed;
         return this;
     }
@@ -561,8 +576,7 @@ Crafty.c("Jumper", {
  * @see Motion
  */
 Crafty.c("Fourway", {
-
-    init: function () {
+    init: function() {
         this.requires("Multiway");
     },
 
@@ -570,13 +584,13 @@ Crafty.c("Fourway", {
      * #.fourway
      * @comp Fourway
      * @kind Method
-     * 
+     *
      * @sign public this .fourway([Number speed[, Object options]])
      * @param speed - The speed of motion in pixels per second.
      * @param options - A dictionary of options passed through to the underlying Multiway component
      *
      * Initialize the component with the given speed and options.  See the Multiway component for available options.
-     * 
+     *
      * @example
      * ~~~
      * Crafty.e("2D, Color, Fourway")
@@ -585,22 +599,26 @@ Crafty.c("Fourway", {
      *    .fourway(100, {normalize:true});
      * ~~~
      * Create a green square controlled by the arrow keys and WASD, with diagonal movement normalized to the given speed.
-     * 
+     *
      * The speed is in units of pixels per second.
      */
-    fourway: function (speed, options) {
-        this.multiway(speed || this._speed, {
-            UP_ARROW: -90,
-            DOWN_ARROW: 90,
-            RIGHT_ARROW: 0,
-            LEFT_ARROW: 180,
-            W: -90,
-            S: 90,
-            D: 0,
-            A: 180,
-            Z: -90,
-            Q: 180
-        }, options);
+    fourway: function(speed, options) {
+        this.multiway(
+            speed || this._speed,
+            {
+                UP_ARROW: -90,
+                DOWN_ARROW: 90,
+                RIGHT_ARROW: 0,
+                LEFT_ARROW: 180,
+                W: -90,
+                S: 90,
+                D: 0,
+                A: 180,
+                Z: -90,
+                Q: 180
+            },
+            options
+        );
 
         return this;
     }
@@ -621,8 +639,7 @@ Crafty.c("Fourway", {
  * @see Multiway, Jumper
  */
 Crafty.c("Twoway", {
-
-    init: function () {
+    init: function() {
         this.requires("Multiway, Jumper");
     },
 
@@ -630,7 +647,7 @@ Crafty.c("Twoway", {
      * #.twoway
      * @comp Twoway
      * @kind Method
-     * 
+     *
      * @sign public this .twoway([Number speed[, Number jumpSpeed]])
      * @param speed - A speed in pixels per second
      * @param jumpSpeed - Vertical jump speed in pixels per second
@@ -640,16 +657,19 @@ Crafty.c("Twoway", {
      * in the respective direction by the speed passed in the argument.
      * Pressing the jump key will cause the entity to jump with the supplied power.
      */
-    twoway: function (speed, jumpSpeed) {
+    twoway: function(speed, jumpSpeed) {
         // Set multiway with horizontal speed only
         var hSpeed = speed || this._speed;
-        this.multiway({x: hSpeed}, {
-            RIGHT_ARROW: 0,
-            LEFT_ARROW: 180,
-            D: 0,
-            A: 180,
-            Q: 180
-        });
+        this.multiway(
+            { x: hSpeed },
+            {
+                RIGHT_ARROW: 0,
+                LEFT_ARROW: 180,
+                D: 0,
+                A: 180,
+                Q: 180
+            }
+        );
 
         this.jumper(jumpSpeed || speed * 2 || this._jumpSpeed, [
             Crafty.keys.UP_ARROW,

@@ -1,4 +1,4 @@
-var Crafty = require('../core/core.js');
+var Crafty = require("../core/core.js");
 
 /**@
  * #MouseWheel
@@ -96,56 +96,71 @@ var Crafty = require('../core/core.js');
  * ~~~
  */
 
-Crafty.s("MouseWheel", Crafty.extend.call(new Crafty.__eventDispatcher(), {
-    _evt: { // evt object to reuse
-        eventName:'',
-        direction: 0,
-        target: null,
-        clientX: 0, // DEPRECATED: remove in upcoming release
-        clientY: 0, // DEPRECATED: remove in upcoming release
-        realX: 0,
-        realY: 0,
-        originalEvent: null
-    },
-    _mouseSystem: null,
+Crafty.s(
+    "MouseWheel",
+    Crafty.extend.call(new Crafty.__eventDispatcher(), {
+        _evt: {
+            // evt object to reuse
+            eventName: "",
+            direction: 0,
+            target: null,
+            clientX: 0, // DEPRECATED: remove in upcoming release
+            clientY: 0, // DEPRECATED: remove in upcoming release
+            realX: 0,
+            realY: 0,
+            originalEvent: null
+        },
+        _mouseSystem: null,
 
-    prepareEvent: function (e) {
-        var mouseSystem = this._mouseSystem;
-        if (!mouseSystem) this._mouseSystem = mouseSystem = Crafty.s('Mouse');
+        prepareEvent: function(e) {
+            var mouseSystem = this._mouseSystem;
+            if (!mouseSystem)
+                this._mouseSystem = mouseSystem = Crafty.s("Mouse");
 
-        var evt = this._evt;
+            var evt = this._evt;
 
-        // normalize eventName
-        evt.eventName = "MouseWheelScroll";
+            // normalize eventName
+            evt.eventName = "MouseWheelScroll";
 
-        // normalize direction
-        evt.direction = (e.detail < 0 || e.wheelDelta > 0 || e.deltaY < 0) ? 1 : -1;
+            // normalize direction
+            evt.direction =
+                e.detail < 0 || e.wheelDelta > 0 || e.deltaY < 0 ? 1 : -1;
 
-        // copy screen coordinates
-        // only browsers supporting `wheel` event contain mouse coordinates
-        // DEPRECATED: remove in upcoming release
-        evt.clientX = e.clientX !== undefined ? e.clientX : mouseSystem.lastMouseEvent.clientX;
-        evt.clientY = e.clientY !== undefined ? e.clientY : mouseSystem.lastMouseEvent.clientY;
+            // copy screen coordinates
+            // only browsers supporting `wheel` event contain mouse coordinates
+            // DEPRECATED: remove in upcoming release
+            evt.clientX =
+                e.clientX !== undefined
+                    ? e.clientX
+                    : mouseSystem.lastMouseEvent.clientX;
+            evt.clientY =
+                e.clientY !== undefined
+                    ? e.clientY
+                    : mouseSystem.lastMouseEvent.clientY;
 
-        // augment mouse event with real coordinates
-        Crafty.translatePointerEventCoordinates(e, evt);
+            // augment mouse event with real coordinates
+            Crafty.translatePointerEventCoordinates(e, evt);
 
-        // augment mouse event with target entity
-        evt.target = mouseSystem.mouseObjs ? Crafty.findPointerEventTargetByComponent("Mouse", e) : null;
+            // augment mouse event with target entity
+            evt.target = mouseSystem.mouseObjs
+                ? Crafty.findPointerEventTargetByComponent("Mouse", e)
+                : null;
 
-        // wrap original event into standard Crafty event object
-        evt.originalEvent = e;
+            // wrap original event into standard Crafty event object
+            evt.originalEvent = e;
 
-        return evt;
-    },
+            return evt;
+        },
 
-    dispatchEvent: function (e) {
-        var evt = this.prepareEvent(e);
-        // trigger event
-        Crafty.trigger("MouseWheelScroll", evt);
-    }
-}), {}, false);
-
+        dispatchEvent: function(e) {
+            var evt = this.prepareEvent(e);
+            // trigger event
+            Crafty.trigger("MouseWheelScroll", evt);
+        }
+    }),
+    {},
+    false
+);
 
 /**@
  * #MouseSystem
@@ -181,105 +196,127 @@ Crafty.s("MouseWheel", Crafty.extend.call(new Crafty.__eventDispatcher(), {
  * @see MouseState, Mouse
  * @see Crafty.multitouch
  */
-Crafty.s("Mouse", Crafty.extend.call(Crafty.extend.call(new Crafty.__eventDispatcher(), {
-    normedEventNames: {
-        "mousedown": "MouseDown",
-        "mouseup": "MouseUp",
-        "dblclick": "DoubleClick",
-        "click": "Click",
-        "mousemove": "MouseMove"
-    },
+Crafty.s(
+    "Mouse",
+    Crafty.extend.call(
+        Crafty.extend.call(new Crafty.__eventDispatcher(), {
+            normedEventNames: {
+                mousedown: "MouseDown",
+                mouseup: "MouseUp",
+                dblclick: "DoubleClick",
+                click: "Click",
+                mousemove: "MouseMove"
+            },
 
-    _evt: { // evt object to reuse
-        eventName:'',
-        mouseButton: -1,
-        target: null,
-        clientX: 0, // DEPRECATED: remove in upcoming release
-        clientY: 0, // DEPRECATED: remove in upcoming release
-        realX: 0,
-        realY: 0,
-        originalEvent: null
-    },
+            _evt: {
+                // evt object to reuse
+                eventName: "",
+                mouseButton: -1,
+                target: null,
+                clientX: 0, // DEPRECATED: remove in upcoming release
+                clientY: 0, // DEPRECATED: remove in upcoming release
+                realX: 0,
+                realY: 0,
+                originalEvent: null
+            },
 
-    // Indicates how many entities have the Mouse component, for performance optimization
-    // Mouse events are still routed to Crafty.s('Mouse') even if there are no entities with Mouse component
-    mouseObjs: 0,
+            // Indicates how many entities have the Mouse component, for performance optimization
+            // Mouse events are still routed to Crafty.s('Mouse') even if there are no entities with Mouse component
+            mouseObjs: 0,
 
-    // current entity that is moused over
-    over: null,
+            // current entity that is moused over
+            over: null,
 
-    prepareEvent: function (e) {
-        var evt = this._evt;
+            prepareEvent: function(e) {
+                var evt = this._evt;
 
-        // Normalize event name
-        var type = e.type;
-        evt.eventName = this.normedEventNames[type] || type;
+                // Normalize event name
+                var type = e.type;
+                evt.eventName = this.normedEventNames[type] || type;
 
-        // Normalize button according to http://unixpapa.com/js/mouse.html
-        if (typeof e.which === 'undefined') {
-            evt.mouseButton = (e.button < 2) ? Crafty.mouseButtons.LEFT : ((e.button === 4) ? Crafty.mouseButtons.MIDDLE : Crafty.mouseButtons.RIGHT);
-        } else {
-            evt.mouseButton = (e.which < 2) ? Crafty.mouseButtons.LEFT : ((e.which === 2) ? Crafty.mouseButtons.MIDDLE : Crafty.mouseButtons.RIGHT);
-        }
+                // Normalize button according to http://unixpapa.com/js/mouse.html
+                if (typeof e.which === "undefined") {
+                    evt.mouseButton =
+                        e.button < 2
+                            ? Crafty.mouseButtons.LEFT
+                            : e.button === 4
+                                ? Crafty.mouseButtons.MIDDLE
+                                : Crafty.mouseButtons.RIGHT;
+                } else {
+                    evt.mouseButton =
+                        e.which < 2
+                            ? Crafty.mouseButtons.LEFT
+                            : e.which === 2
+                                ? Crafty.mouseButtons.MIDDLE
+                                : Crafty.mouseButtons.RIGHT;
+                }
 
-        // copy screen coordinates
-        // DEPRECATED: remove in upcoming release
-        evt.clientX = e.clientX;
-        evt.clientY = e.clientY;
+                // copy screen coordinates
+                // DEPRECATED: remove in upcoming release
+                evt.clientX = e.clientX;
+                evt.clientY = e.clientY;
 
-        // augment mouse event with real coordinates
-        Crafty.translatePointerEventCoordinates(e, evt);
+                // augment mouse event with real coordinates
+                Crafty.translatePointerEventCoordinates(e, evt);
 
-        // augment mouse event with target entity
-        evt.target = this.mouseObjs ? Crafty.findPointerEventTargetByComponent("Mouse", e) : null;
+                // augment mouse event with target entity
+                evt.target = this.mouseObjs
+                    ? Crafty.findPointerEventTargetByComponent("Mouse", e)
+                    : null;
 
-        // wrap original event into standard Crafty event object
-        evt.originalEvent = e;
+                // wrap original event into standard Crafty event object
+                evt.originalEvent = e;
 
-        return evt;
-    },
+                return evt;
+            },
 
-    // this method will be called by MouseState iff triggerMouse event was valid
-    triggerMouseEvent: function (eventName, e) {
-        // trigger event on MouseSystem itself
-        this.trigger(eventName, e);
+            // this method will be called by MouseState iff triggerMouse event was valid
+            triggerMouseEvent: function(eventName, e) {
+                // trigger event on MouseSystem itself
+                this.trigger(eventName, e);
 
-        // special case: MouseOver & MouseOut
-        var over = this.over, closest = e.target;
-        if (eventName === "MouseMove" && over !== closest) { // MouseOver target changed
-            // if old MouseOver target wasn't null, send MouseOut
-            if (over) {
-                e.eventName = "MouseOut";
-                e.target = over;
-                over.trigger("MouseOut", e);
-                e.eventName = "MouseMove";
-                e.target = closest;
+                // special case: MouseOver & MouseOut
+                var over = this.over,
+                    closest = e.target;
+                if (eventName === "MouseMove" && over !== closest) {
+                    // MouseOver target changed
+                    // if old MouseOver target wasn't null, send MouseOut
+                    if (over) {
+                        e.eventName = "MouseOut";
+                        e.target = over;
+                        over.trigger("MouseOut", e);
+                        e.eventName = "MouseMove";
+                        e.target = closest;
+                    }
+
+                    // save new over entity
+                    this.over = closest;
+
+                    // if new MouseOver target isn't null, send MouseOver
+                    if (closest) {
+                        e.eventName = "MouseOver";
+                        closest.trigger("MouseOver", e);
+                        e.eventName = "MouseMove";
+                    }
+                }
+
+                // TODO: move routing of events in future to controls system, make it similar to KeyboardSystem
+                // try to find closest element that will also receive mouse event, whatever the event is
+                if (closest) {
+                    closest.trigger(eventName, e);
+                }
+            },
+
+            dispatchEvent: function(e) {
+                var evt = this.prepareEvent(e);
+                this.triggerMouse(evt.eventName, evt);
             }
-
-            // save new over entity
-            this.over = closest;
-
-            // if new MouseOver target isn't null, send MouseOver
-            if (closest) {
-                e.eventName = "MouseOver";
-                closest.trigger("MouseOver", e);
-                e.eventName = "MouseMove";
-            }
-        }
-
-        // TODO: move routing of events in future to controls system, make it similar to KeyboardSystem
-        // try to find closest element that will also receive mouse event, whatever the event is
-        if (closest) {
-            closest.trigger(eventName, e);
-        }
-    },
-
-    dispatchEvent: function (e) {
-        var evt = this.prepareEvent(e);
-        this.triggerMouse(evt.eventName, evt);
-    }
-}), Crafty.__mouseStateTemplate), {}, false);
-
+        }),
+        Crafty.__mouseStateTemplate
+    ),
+    {},
+    false
+);
 
 /**@
  * #Mouse
@@ -324,7 +361,7 @@ Crafty.s("Mouse", Crafty.extend.call(Crafty.extend.call(new Crafty.__eventDispat
 Crafty.c("Mouse", {
     required: "AreaMap",
 
-    init: function () {
+    init: function() {
         Crafty.s("Mouse").mouseObjs++;
     },
     remove: function() {
@@ -349,10 +386,10 @@ Crafty.c("MouseDrag", {
 
     required: "Mouse",
     events: {
-        "MouseDown": "_ondown"
+        MouseDown: "_ondown"
     },
 
-    init: function () {
+    init: function() {
         // TODO: remove this and instead lock on pointer control events in future
         // bind the this object for listeners called with the MouseSystem as the this object
         this._ondown = this._ondown.bind(this);
@@ -361,20 +398,20 @@ Crafty.c("MouseDrag", {
     },
 
     // When dragging is enabled, this method is bound to the MouseDown crafty event
-    _ondown: function (e) {
+    _ondown: function(e) {
         if (e.mouseButton !== Crafty.mouseButtons.LEFT) return;
         this.startDrag(e);
     },
 
     // While a drag is occurring, this method is bound to the mousemove DOM event
-    _ondrag: function (e) {
+    _ondrag: function(e) {
         // ignore invalid 0 position - strange problem on ipad
         if (!this._dragging || e.realX === 0 || e.realY === 0) return false;
         this.trigger("Dragging", e);
     },
 
     // While a drag is occurring, this method is bound to mouseup DOM event
-    _onup: function (e) {
+    _onup: function(e) {
         if (e.mouseButton !== Crafty.mouseButtons.LEFT) return;
         this.stopDrag(e);
     },
@@ -390,7 +427,7 @@ Crafty.c("MouseDrag", {
      *
      * @see .stopDrag
      */
-    startDrag: function (e) {
+    startDrag: function(e) {
         if (this._dragging) return;
         this._dragging = true;
 
@@ -414,7 +451,7 @@ Crafty.c("MouseDrag", {
      *
      * @see .startDrag
      */
-    stopDrag: function (e) {
+    stopDrag: function(e) {
         if (!this._dragging) return;
         this._dragging = false;
 

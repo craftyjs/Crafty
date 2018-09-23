@@ -37,7 +37,7 @@ module.exports = {
      * ~~~
      * @see Crafty.removeEvent
      */
-    addEvent: function (ctx, obj, type, callback) {
+    addEvent: function(ctx, obj, type, callback) {
         if (arguments.length === 3) {
             callback = type;
             type = obj;
@@ -46,18 +46,17 @@ module.exports = {
 
         //save anonymous function to be able to remove
         var id = ctx[0] || "",
-            afn = function (e) {
+            afn = function(e) {
                 callback.call(ctx, e);
             };
 
         if (!this._events[id + obj + type + callback])
             this._events[id + obj + type + callback] = afn;
-        else  {
+        else {
             return;
         }
 
         obj.addEventListener(type, afn, false);
-
     },
 
     /**@
@@ -77,7 +76,7 @@ module.exports = {
      *
      * @see Crafty.addEvent
      */
-    removeEvent: function (ctx, obj, type, callback) {
+    removeEvent: function(ctx, obj, type, callback) {
         if (arguments.length === 3) {
             callback = type;
             type = obj;

@@ -18,10 +18,10 @@ module.exports = {
      */
     delaySpeed: 1,
 
-    init: function () {
+    init: function() {
         this._delays = [];
         this._delaysPaused = false;
-        this.bind("UpdateFrame", function (frameData) {
+        this.bind("UpdateFrame", function(frameData) {
             if (this._delaysPaused) return;
             var index = this._delays.length;
             while (--index >= 0) {
@@ -32,21 +32,20 @@ module.exports = {
                 } else {
                     item.accumulator += frameData.dt * this.delaySpeed;
                     // The while loop handles the (pathological) case where dt>delay
-                    while(item.accumulator >= item.delay && item.repeat >= 0){
+                    while (item.accumulator >= item.delay && item.repeat >= 0) {
                         item.accumulator -= item.delay;
                         item.repeat--;
                         item.callback.call(this);
                     }
                     // remove finished item from array
-                    if (item.repeat<0){
+                    if (item.repeat < 0) {
                         this._delays.splice(index, 1);
-                        if(typeof item.callbackOff === "function")
+                        if (typeof item.callbackOff === "function")
                             item.callbackOff.call(this);
                     }
                 }
             }
         });
-
     },
     /**@
      * #.delay
@@ -59,7 +58,7 @@ module.exports = {
      * @param repeat - (optional) How often to repeat the delayed function. A value of 0 triggers the delayed
      * function exactly once. A value n > 0 triggers the delayed function exactly n+1 times. A
      * value of -1 triggers the delayed function indefinitely. Defaults to one execution.
-     * @param callbackOff - (optional) Method to execute after delay ends(after all iterations are executed). 
+     * @param callbackOff - (optional) Method to execute after delay ends(after all iterations are executed).
      * If repeat value equals -1, callbackOff will never be triggered.
      *
      * The delay method will execute a function after a given amount of time in milliseconds.
@@ -91,13 +90,13 @@ module.exports = {
      * ~~~
      *
      */
-    delay: function (callback, delay, repeat, callbackOff) {
+    delay: function(callback, delay, repeat, callbackOff) {
         this._delays.push({
             accumulator: 0,
             callback: callback,
             callbackOff: callbackOff,
             delay: delay,
-            repeat: (repeat < 0 ? Infinity : repeat) || 0,
+            repeat: (repeat < 0 ? Infinity : repeat) || 0
         });
         return this;
     },
@@ -105,7 +104,7 @@ module.exports = {
      * #.cancelDelay
      * @comp Delay
      * @kind Method
-     * 
+     *
      * @sign public this.cancelDelay(Function callback)
      * @param callback - Method reference passed to .delay
      *
@@ -124,11 +123,11 @@ module.exports = {
      * ent.cancelDelay(doSomething);
      * ~~~
      */
-    cancelDelay: function (callback) {
+    cancelDelay: function(callback) {
         var index = this._delays.length;
         while (--index >= 0) {
             var item = this._delays[index];
-            if(item && item.callback === callback){
+            if (item && item.callback === callback) {
                 this._delays[index] = false;
             }
         }
@@ -138,7 +137,7 @@ module.exports = {
      * #.pauseDelays
      * @comp Delay
      * @kind Method
-     * 
+     *
      * @sign public this.pauseDelays()
      *
      * The pauseDelays method will pause all delays of this
@@ -164,7 +163,7 @@ module.exports = {
      * #.resumeDelays
      * @comp Delay
      * @kind Method
-     * 
+     *
      * @sign public this.resumeDelays()
      *
      * The resumeDelays method will resume earlier paused delays for this

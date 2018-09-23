@@ -1,10 +1,10 @@
-var Crafty = require('../core/core.js');
+var Crafty = require("../core/core.js");
 
 /**@
  * #WebGL
  * @category Graphics
  * @kind Component
- * 
+ *
  * @trigger Draw - when the entity is ready to be drawn to the stage - {type: "canvas", pos, co, ctx}
  * @trigger NoCanvas - if the browser does not support canvas
  *
@@ -29,7 +29,7 @@ Crafty.extend({
      * #Crafty.WebGLShader
      * @category Graphics
      * @kind Method
-     * 
+     *
      * @sign public Crafty.WebGLShader Crafty.WebGLShader(String vertexShaderCode, String fragmentShaderCode, Array attributeList, Function drawCallback(e, entity))
      * @param vertexShaderCode - GLSL code for the vertex shader
      * @param fragmentShaderCode - GLSL code for the fragment shader
@@ -119,7 +119,12 @@ Crafty.extend({
      * @see Color
      * @see WebGL
      */
-    WebGLShader: function(vertexCode, fragmentCode, attributeList, drawCallback){
+    WebGLShader: function(
+        vertexCode,
+        fragmentCode,
+        attributeList,
+        drawCallback
+    ) {
         this.vertexCode = vertexCode;
         this.fragmentCode = fragmentCode;
         this.attributeList = attributeList;
@@ -129,7 +134,7 @@ Crafty.extend({
      * #Crafty.defaultShader
      * @category Graphics
      * @kind Method
-     * 
+     *
      * @sign public Crafty.WebGLShader Crafty.defaultShader(String component[, Crafty.WebGLShader shader])
      * @param component - Name of the component to assign a default shader to
      * @param shader - New default shader to assign to a component
@@ -153,13 +158,12 @@ Crafty.extend({
      * @see WebGL
      */
     defaultShader: function(component, shader) {
-        this._defaultShaders = (this._defaultShaders || {});
-        if (arguments.length === 1 ){
+        this._defaultShaders = this._defaultShaders || {};
+        if (arguments.length === 1) {
             return this._defaultShaders[component];
         }
         this._defaultShaders[component] = shader;
-    },
-
+    }
 });
 
 Crafty.c("WebGL", {
@@ -170,15 +174,15 @@ Crafty.c("WebGL", {
      *
      * The webgl context this entity will be rendered to.
      */
-    init: function () {
+    init: function() {
         this.requires("Renderable");
         // Attach to webgl layer
-        if (!this._customLayer){
-            this._attachToLayer( Crafty.s("DefaultWebGLLayer") );
+        if (!this._customLayer) {
+            this._attachToLayer(Crafty.s("DefaultWebGLLayer"));
         }
     },
- 
-    remove: function(){
+
+    remove: function() {
         this._detachFromLayer();
     },
 
@@ -201,13 +205,12 @@ Crafty.c("WebGL", {
      * @comp WebGL
      * @kind Method
      * @private
-     * 
+     *
      * @sign public this .draw()
      *
      * An internal method to draw the entity on the webgl canvas element. Rather then rendering directly, it writes relevent information into a buffer to allow batch rendering.
      */
-    draw: function () {
-
+    draw: function() {
         if (!this.ready) return;
 
         var pos = this.drawVars.pos;
@@ -225,43 +228,46 @@ Crafty.c("WebGL", {
 
         // Handle flipX, flipY
         // (Just swap the positions of e.g. x and x+w)
-        if (this._flipX ) {
-           co.x = co.x + co.w;
-           co.w = - co.w;
+        if (this._flipX) {
+            co.x = co.x + co.w;
+            co.w = -co.w;
         }
-        if (this._flipY ) {
-           co.y = co.y + co.h;
-           co.h = - co.h;
+        if (this._flipY) {
+            co.y = co.y + co.h;
+            co.h = -co.h;
         }
 
         //Draw entity
         var gl = this._drawContext;
         this.drawVars.gl = gl;
-        var prog = this.drawVars.program = this.program;
+        var prog = (this.drawVars.program = this.program);
 
         // The program might need to refer to the current element's index
         prog.setCurrentEntity(this);
 
         // Write position; x, y, w, h
-        prog.writeVector("aPosition",
-            this._x, this._y,
-            this._x , this._y + this._h,
-            this._x + this._w, this._y,
-            this._x + this._w, this._y + this._h
+        prog.writeVector(
+            "aPosition",
+            this._x,
+            this._y,
+            this._x,
+            this._y + this._h,
+            this._x + this._w,
+            this._y,
+            this._x + this._w,
+            this._y + this._h
         );
 
         // Write orientation
-        prog.writeVector("aOrientation",
+        prog.writeVector(
+            "aOrientation",
             this._origin.x + this._x,
             this._origin.y + this._y,
-            this._rotation * Math.PI / 180
+            (this._rotation * Math.PI) / 180
         );
 
         // Write z, alpha
-        prog.writeVector("aLayer",
-            this._globalZ,
-            this._alpha
-        );
+        prog.writeVector("aLayer", this._globalZ, this._alpha);
 
         // This should only need to handle *specific* attributes!
         this.trigger("Draw", this.drawVars);
@@ -273,7 +279,7 @@ Crafty.c("WebGL", {
     },
 
     // v_src is optional, there's a default vertex shader that works for regular rectangular entities
-    _establishShader: function(compName, shader){
+    _establishShader: function(compName, shader) {
         this.program = this._drawLayer.getProgramWrapper(compName, shader);
 
         // Needs to know where in the big array we are!

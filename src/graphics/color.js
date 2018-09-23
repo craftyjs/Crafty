@@ -1,16 +1,13 @@
-var Crafty = require('../core/core.js'),
+var Crafty = require("../core/core.js"),
     document = window.document;
-
-
-
 
 /**@
  * #Crafty.assignColor
  * @category Graphics
  * @kind Method
- * 
- * Maps a wide vareity of color representations to a set of simple rgb(a) properties. 
- * 
+ *
+ * Maps a wide vareity of color representations to a set of simple rgb(a) properties.
+ *
  * @sign Crafty.assignColor(color[, assignee])
  * @param color - a string represenation of the color to assign, in any valid HTML format
  * @param assignee - an object to use instead of creating one from scratch
@@ -19,51 +16,51 @@ var Crafty = require('../core/core.js'),
  *           If the assignee parameter is passed, that object will be assigned those values and returned.
  */
 Crafty.extend({
-    assignColor: (function(){
-
+    assignColor: (function() {
         // Create phantom element to assess color
         var element = document.createElement("div");
         element.style.display = "none";
         // Can't attach it til later on, so we need a flag!
         var element_attached = false;
         var dictionary = {
-            "aqua":     "#00ffff",
-            "black":    "#000000",
-            "blue":     "#0000ff",
-            "fuchsia":  "#ff00ff",
-            "gray":     "#808080",
-            "green":    "#00ff00",
-            "lime":     "#00ff00",
-            "maroon":   "#800000",
-            "navy":     "#000080",
-            "olive":    "#808000",
-            "orange":   "#ffa500",
-            "purple":   "#800080",
-            "red":      "#ff0000",
-            "silver":   "#c0c0c0",
-            "teal":     "#008080",
-            "white":    "#ffffff",
-            "yellow":   "#ffff00"
+            aqua: "#00ffff",
+            black: "#000000",
+            blue: "#0000ff",
+            fuchsia: "#ff00ff",
+            gray: "#808080",
+            green: "#00ff00",
+            lime: "#00ff00",
+            maroon: "#800000",
+            navy: "#000080",
+            olive: "#808000",
+            orange: "#ffa500",
+            purple: "#800080",
+            red: "#ff0000",
+            silver: "#c0c0c0",
+            teal: "#008080",
+            white: "#ffffff",
+            yellow: "#ffff00"
         };
 
-        function default_value(c){
+        function default_value(c) {
             c._red = c._blue = c._green = 0;
             return c;
         }
 
         function hexComponent(component) {
             var hex = component.toString(16);
-            if (hex.length === 1)
-                hex = "0" + hex;
+            if (hex.length === 1) hex = "0" + hex;
             return hex;
         }
 
-        function rgbToHex(r, g, b){
+        function rgbToHex(r, g, b) {
             return "#" + hexComponent(r) + hexComponent(g) + hexComponent(b);
         }
 
         function parseHexString(hex, c) {
-            var r, g, b,
+            var r,
+                g,
+                b,
                 l = hex.length;
 
             if (l === 7) {
@@ -71,9 +68,12 @@ Crafty.extend({
                 g = hex.substr(3, 2);
                 b = hex.substr(5, 2);
             } else if (l === 4) {
-                r = hex.substr(1, 1); r += r;
-                g = hex.substr(2, 1); g += g;
-                b = hex.substr(3, 1); b += b;
+                r = hex.substr(1, 1);
+                r += r;
+                g = hex.substr(2, 1);
+                g += g;
+                b = hex.substr(3, 1);
+                b += b;
             } else {
                 return default_value(c);
             }
@@ -88,7 +88,10 @@ Crafty.extend({
 
         function parseRgbString(rgb, c) {
             var values = rgb_regex.exec(rgb);
-            if( values === null || (values.length !== 4 && values.length !== 5)) {
+            if (
+                values === null ||
+                (values.length !== 4 && values.length !== 5)
+            ) {
                 return default_value(c); // return bad result?
             }
             c._red = Math.round(parseFloat(values[1]));
@@ -100,9 +103,9 @@ Crafty.extend({
             return c;
         }
 
-        function parseColorName(key, c){
-            if (typeof dictionary[key] === "undefined"){
-                if (element_attached === false){
+        function parseColorName(key, c) {
+            if (typeof dictionary[key] === "undefined") {
+                if (element_attached === false) {
                     window.document.body.appendChild(element);
                     element_attached = true;
                 }
@@ -117,18 +120,32 @@ Crafty.extend({
             return c;
         }
 
-        function rgbaString(c){
-            return "rgba(" + c._red + ", " + c._green + ", " + c._blue + ", " + c._strength + ")";
+        function rgbaString(c) {
+            return (
+                "rgba(" +
+                c._red +
+                ", " +
+                c._green +
+                ", " +
+                c._blue +
+                ", " +
+                c._strength +
+                ")"
+            );
         }
 
         // The actual assignColor function
-        return function(color, c){
+        return function(color, c) {
             c = c || {};
             color = color.trim().toLowerCase();
             var ret = null;
-            if (color[0] === '#'){
+            if (color[0] === "#") {
                 ret = parseHexString(color, c);
-            } else if (color[0] === 'r' && color[1] === 'g' && color[2] === 'b'){
+            } else if (
+                color[0] === "r" &&
+                color[1] === "g" &&
+                color[2] === "b"
+            ) {
                 ret = parseRgbString(color, c);
             } else {
                 ret = parseColorName(color, c);
@@ -136,41 +153,40 @@ Crafty.extend({
             c._strength = c._strength || 1.0;
             c._color = rgbaString(c);
         };
-
     })()
 });
 
-
-
-
-
 // Define some variables required for webgl
-var fs = require('fs');
+var fs = require("fs");
 
-Crafty.defaultShader("Color", new Crafty.WebGLShader(
-    fs.readFileSync(__dirname + '/shaders/color.vert', 'utf8'),
-    fs.readFileSync(__dirname + '/shaders/color.frag', 'utf8'),
-    [
-        { name: "aPosition",    width: 2 },
-        { name: "aOrientation", width: 3 },
-        { name: "aLayer",       width: 2 },
-        { name: "aColor",       width: 4 }
-    ],
-    function(e, entity) {
-        e.program.writeVector("aColor",
-            entity._red/255,
-            entity._green/255,
-            entity._blue/255,
-            entity._strength
-        );
-    }
-));
+Crafty.defaultShader(
+    "Color",
+    new Crafty.WebGLShader(
+        fs.readFileSync(__dirname + "/shaders/color.vert", "utf8"),
+        fs.readFileSync(__dirname + "/shaders/color.frag", "utf8"),
+        [
+            { name: "aPosition", width: 2 },
+            { name: "aOrientation", width: 3 },
+            { name: "aLayer", width: 2 },
+            { name: "aColor", width: 4 }
+        ],
+        function(e, entity) {
+            e.program.writeVector(
+                "aColor",
+                entity._red / 255,
+                entity._green / 255,
+                entity._blue / 255,
+                entity._strength
+            );
+        }
+    )
+);
 
 /**@
  * #Color
  * @category Graphics
  * @kind Component
- * 
+ *
  * Draw a colored rectangle.
  */
 Crafty.c("Color", {
@@ -181,10 +197,10 @@ Crafty.c("Color", {
     _color: "",
     ready: true,
 
-    init: function () {
+    init: function() {
         // Necessary for some rendering layers
         this.__coord = this.__coord || [0, 0, 0, 0];
-        
+
         this.bind("Draw", this._drawColor);
         if (this._drawLayer) {
             this._setupColor(this._drawLayer);
@@ -193,12 +209,12 @@ Crafty.c("Color", {
     },
 
     events: {
-        "LayerAttached": "_setupColor"
+        LayerAttached: "_setupColor"
     },
 
-    remove: function(){
+    remove: function() {
         this.unbind("Draw", this._drawColor);
-        if (this.has("DOM")){
+        if (this.has("DOM")) {
             this._element.style.backgroundColor = "transparent";
         }
         this.trigger("Invalidate");
@@ -211,15 +227,17 @@ Crafty.c("Color", {
     },
 
     // draw function for "Color"
-    _drawColor: function(e){
-        if (!this._color) { return; }
+    _drawColor: function(e) {
+        if (!this._color) {
+            return;
+        }
         if (e.type === "DOM") {
             e.style.backgroundColor = this._color;
             e.style.lineHeight = 0;
         } else if (e.type === "canvas") {
             e.ctx.fillStyle = this._color;
             e.ctx.fillRect(e.pos._x, e.pos._y, e.pos._w, e.pos._h);
-        } else if (e.type === "webgl"){
+        } else if (e.type === "webgl") {
             e.program.draw(e, this);
         }
     },
@@ -228,7 +246,7 @@ Crafty.c("Color", {
      * #.color
      * @comp Color
      * @kind Method
-     * 
+     *
      * @trigger Invalidate - when the color changes
      *
      * Will assign the color and opacity, either through a string shorthand, or through explicit rgb values.
@@ -261,26 +279,32 @@ Crafty.c("Color", {
      * ```
      * Two ways of assigning a transparent green color.
      */
-    color: function (color) {
-        if (arguments.length === 0 ){
+    color: function(color) {
+        if (arguments.length === 0) {
             return this._color;
-        } else if (arguments.length>=3){
+        } else if (arguments.length >= 3) {
             this._red = arguments[0];
             this._green = arguments[1];
             this._blue = arguments[2];
-            if (typeof arguments[3] === "number")
-                this._strength = arguments[3];
+            if (typeof arguments[3] === "number") this._strength = arguments[3];
         } else {
             // First argument is color name
             Crafty.assignColor(color, this);
             // Second argument, if present, is strength of color
             // Note that assignColor will give a default strength of 1.0 if none exists.
-            if (typeof arguments[1] === "number")
-                this._strength = arguments[1];
+            if (typeof arguments[1] === "number") this._strength = arguments[1];
         }
-        this._color = "rgba(" + this._red + ", " + this._green + ", " + this._blue + ", " + this._strength + ")";
+        this._color =
+            "rgba(" +
+            this._red +
+            ", " +
+            this._green +
+            ", " +
+            this._blue +
+            ", " +
+            this._strength +
+            ")";
         this.trigger("Invalidate");
         return this;
     }
 });
-

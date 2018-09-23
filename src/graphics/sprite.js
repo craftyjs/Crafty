@@ -1,34 +1,42 @@
-var Crafty = require('../core/core.js');
+var Crafty = require("../core/core.js");
 
 // Define some variables required for webgl
-var fs = require('fs');
+var fs = require("fs");
 
-Crafty.defaultShader("Sprite", new Crafty.WebGLShader(
-    fs.readFileSync(__dirname + '/shaders/sprite.vert', 'utf8'),
-    fs.readFileSync(__dirname + '/shaders/sprite.frag', 'utf8'),
-    [
-        { name: "aPosition",     width: 2 },
-        { name: "aOrientation",  width: 3 },
-        { name: "aLayer",        width: 2 },
-        { name: "aTextureCoord", width: 2 }
-    ],
-    function(e, _entity) {
-        var co = e.co;
-        // Write texture coordinates
-        e.program.writeVector("aTextureCoord",
-            co.x, co.y,
-            co.x, co.y + co.h,
-            co.x + co.w, co.y,
-            co.x + co.w, co.y + co.h
-        );
-    }
-));
+Crafty.defaultShader(
+    "Sprite",
+    new Crafty.WebGLShader(
+        fs.readFileSync(__dirname + "/shaders/sprite.vert", "utf8"),
+        fs.readFileSync(__dirname + "/shaders/sprite.frag", "utf8"),
+        [
+            { name: "aPosition", width: 2 },
+            { name: "aOrientation", width: 3 },
+            { name: "aLayer", width: 2 },
+            { name: "aTextureCoord", width: 2 }
+        ],
+        function(e, _entity) {
+            var co = e.co;
+            // Write texture coordinates
+            e.program.writeVector(
+                "aTextureCoord",
+                co.x,
+                co.y,
+                co.x,
+                co.y + co.h,
+                co.x + co.w,
+                co.y,
+                co.x + co.w,
+                co.y + co.h
+            );
+        }
+    )
+);
 
 Crafty.extend({
     /**@
      * #Crafty.sprite
      * @kind Method
-     * 
+     *
      * @category Graphics
      * @sign public this Crafty.sprite([Number tile, [Number tileh]], String url, Object map[, Number paddingX[, Number paddingY[, Boolean paddingAroundBorder]]])
      * @param tile - Tile size of the sprite map, defaults to 1
@@ -79,7 +87,15 @@ Crafty.extend({
      *
      * @see Sprite
      */
-    sprite: function (tile, tileh, url, map, paddingX, paddingY, paddingAroundBorder) {
+    sprite: function(
+        tile,
+        tileh,
+        url,
+        map,
+        paddingX,
+        paddingY,
+        paddingAroundBorder
+    ) {
         var spriteName, temp, img;
 
         //if no tile value, default to 1.
@@ -116,7 +132,7 @@ Crafty.extend({
             img = new Image();
             img.src = url;
             Crafty.asset(url, img);
-            img.onload = function () {
+            img.onload = function() {
                 //all components with this img are now ready
                 for (var spriteName in map) {
                     Crafty(spriteName).each(markSpritesReady);
@@ -129,12 +145,22 @@ Crafty.extend({
             this.__trim = [0, 0, 0, 0];
             this.__image = url;
             this.__map = map;
-            this.__coord = [this.__coord[0], this.__coord[1], this.__coord[2], this.__coord[3]];
+            this.__coord = [
+                this.__coord[0],
+                this.__coord[1],
+                this.__coord[2],
+                this.__coord[3]
+            ];
             this.__tile = tile;
             this.__tileh = tileh;
             this.__padding = [paddingX, paddingY];
             this.__padBorder = paddingAroundBorder;
-            this.sprite(this.__coord[0], this.__coord[1], this.__coord[2], this.__coord[3]);
+            this.sprite(
+                this.__coord[0],
+                this.__coord[1],
+                this.__coord[2],
+                this.__coord[3]
+            );
 
             this.img = img;
             //draw now
@@ -171,7 +197,7 @@ Crafty.extend({
  * #Sprite
  * @category Graphics
  * @kind Component
- * 
+ *
  * @trigger Invalidate - when the sprites change
  *
  * A component for using tiles in a sprite map.
@@ -182,7 +208,7 @@ Crafty.extend({
  * @see Crafty.sprite, Crafty.load
  */
 Crafty.c("Sprite", {
-    __image: '',
+    __image: "",
     /*
      * #.__tile
      * @comp Sprite
@@ -203,33 +229,36 @@ Crafty.c("Sprite", {
     //ready is changed to true in Crafty.sprite
     ready: false,
 
-    init: function () {
+    init: function() {
         this.__trim = [0, 0, 0, 0];
         this.bind("Draw", this._drawSprite);
         this.bind("LayerAttached", this._setupSpriteImage);
     },
 
-    remove: function(){
+    remove: function() {
         this.unbind("Draw", this._drawSprite);
         this.unbind("LayerAttached", this._setupSpriteImage);
     },
-    
+
     _setupSpriteImage: function(layer) {
         if (!this.__image || !this.img || !layer) return;
-        if (layer.type === "WebGL"){
+        if (layer.type === "WebGL") {
             this._establishShader(this.__image, Crafty.defaultShader("Sprite"));
-            this.program.setTexture( layer.makeTexture(this.__image, this.img, false) );
+            this.program.setTexture(
+                layer.makeTexture(this.__image, this.img, false)
+            );
         }
     },
 
-    _drawSprite: function(e){
+    _drawSprite: function(e) {
         var co = e.co,
-                pos = e.pos,
-                context = e.ctx;
+            pos = e.pos,
+            context = e.ctx;
 
         if (e.type === "canvas") {
             //draw the image on the canvas element
-            context.drawImage(this.img, //image element
+            context.drawImage(
+                this.img, //image element
                 co.x, //x position on sprite
                 co.y, //y position on sprite
                 co.w, //width on sprite
@@ -251,14 +280,21 @@ Crafty.c("Sprite", {
 
             // Don't change background if it's not necessary -- this can cause some browsers to reload the image
             // See [this chrome issue](https://code.google.com/p/chromium/issues/detail?id=102706)
-            var newBackground = bgColor + " url('" + this.__image + "') no-repeat";
+            var newBackground =
+                bgColor + " url('" + this.__image + "') no-repeat";
             if (newBackground !== style.background) {
                 style.background = newBackground;
             }
-            style.backgroundPosition = "-" + co.x * hscale + "px -" + co.y * vscale + "px";
+            style.backgroundPosition =
+                "-" + co.x * hscale + "px -" + co.y * vscale + "px";
             // style.backgroundSize must be set AFTER style.background!
             if (vscale !== 1 || hscale !== 1) {
-                style.backgroundSize = (this.img.width * hscale) + "px" + " " + (this.img.height * vscale) + "px";
+                style.backgroundSize =
+                    this.img.width * hscale +
+                    "px" +
+                    " " +
+                    this.img.height * vscale +
+                    "px";
             }
         } else if (e.type === "webgl") {
             // Write texture coordinates
@@ -305,8 +341,9 @@ Crafty.c("Sprite", {
      *
      * The coordinate of the slide within the sprite in the format of [x, y, w, h].
      */
-    sprite: function (x, y, w, h) {
-        if (typeof x === 'string') { // retrieve location from sprite map by name
+    sprite: function(x, y, w, h) {
+        if (typeof x === "string") {
+            // retrieve location from sprite map by name
             var temp = this.__map[x];
             if (!temp) return this;
 
@@ -318,11 +355,18 @@ Crafty.c("Sprite", {
 
         this.__coord = this.__coord || [0, 0, 0, 0];
 
-        this.__coord[0] = x * (this.__tile + this.__padding[0]) + (this.__padBorder ? this.__padding[0] : 0) + this.__trim[0];
-        this.__coord[1] = y * (this.__tileh + this.__padding[1]) + (this.__padBorder ? this.__padding[1] : 0) + this.__trim[1];
-        if (typeof(w)!=='undefined' && typeof(h)!=='undefined') {
+        this.__coord[0] =
+            x * (this.__tile + this.__padding[0]) +
+            (this.__padBorder ? this.__padding[0] : 0) +
+            this.__trim[0];
+        this.__coord[1] =
+            y * (this.__tileh + this.__padding[1]) +
+            (this.__padBorder ? this.__padding[1] : 0) +
+            this.__trim[1];
+        if (typeof w !== "undefined" && typeof h !== "undefined") {
             this.__coord[2] = this.__trim[2] || w * this.__tile || this.__tile;
-            this.__coord[3] = this.__trim[3] || h * this.__tileh || this.__tileh;
+            this.__coord[3] =
+                this.__trim[3] || h * this.__tileh || this.__tileh;
         }
 
         this.trigger("Invalidate");
@@ -333,7 +377,7 @@ Crafty.c("Sprite", {
      * #.crop
      * @comp Sprite
      * @kind Method
-     * 
+     *
      * @sign public this .crop(Number x, Number y, Number w, Number h)
      * @param x - Offset x position
      * @param y - Offset y position
@@ -350,7 +394,7 @@ Crafty.c("Sprite", {
      *   .crop(40, 40, 22, 23);
      * ~~~
      */
-    crop: function (x, y, w, h) {
+    crop: function(x, y, w, h) {
         var old = this._mbr || this.pos();
         this.__trim = [];
         this.__trim[0] = x;

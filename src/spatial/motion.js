@@ -1,45 +1,57 @@
-var Crafty = require('../core/core.js');
-
-
+var Crafty = require("../core/core.js");
 
 // This is used to define getters and setters for Motion properties
 // For instance
-//      __motionProp(entity, "a", "x", true) 
+//      __motionProp(entity, "a", "x", true)
 // will define a getter for `ax` which accesses an underlying private property `_ax`
 // If the `setter` property is false, setting a value will be a null-op
 var __motionProp = function(self, prefix, prop, setter) {
     var publicProp = prefix + prop;
     var privateProp = "_" + publicProp;
 
-    var motionEvent = { key: "", oldValue: 0};
+    var motionEvent = { key: "", oldValue: 0 };
     // getters & setters for public property
     if (setter) {
-        Crafty.defineField(self, publicProp, function() { return this[privateProp]; }, function(newValue) {
-            var oldValue = this[privateProp];
-            if (newValue !== oldValue) {
-                this[privateProp] = newValue;
+        Crafty.defineField(
+            self,
+            publicProp,
+            function() {
+                return this[privateProp];
+            },
+            function(newValue) {
+                var oldValue = this[privateProp];
+                if (newValue !== oldValue) {
+                    this[privateProp] = newValue;
 
-                motionEvent.key = publicProp;
-                motionEvent.oldValue = oldValue;
-                this.trigger("MotionChange", motionEvent);
+                    motionEvent.key = publicProp;
+                    motionEvent.oldValue = oldValue;
+                    this.trigger("MotionChange", motionEvent);
+                }
             }
-        });
+        );
     } else {
-        Crafty.defineField(self, publicProp, function() { return this[privateProp]; }, function(newValue) {});
+        Crafty.defineField(
+            self,
+            publicProp,
+            function() {
+                return this[privateProp];
+            },
+            function(newValue) {}
+        );
     }
 
     // hide private property
     Object.defineProperty(self, privateProp, {
-        value : 0,
-        writable : true,
-        enumerable : false,
-        configurable : false
+        value: 0,
+        writable: true,
+        enumerable: false,
+        configurable: false
     });
 };
 
 // This defines an alias for a pair of underlying properties which represent the components of a vector
 // It takes an object with vector methods, and redefines its x/y properties as getters and setters to properties of self
-// This allows you to use the vector's special methods to manipulate the entity's properties, 
+// This allows you to use the vector's special methods to manipulate the entity's properties,
 // while still allowing you to manipulate those properties directly if performance matters
 var __motionVector = function(self, prefix, setter, vector) {
     var publicX = prefix + "x",
@@ -48,13 +60,47 @@ var __motionVector = function(self, prefix, setter, vector) {
         privateY = "_" + publicY;
 
     if (setter) {
-        Crafty.defineField(vector, "x", function() { return self[privateX]; }, function(v) { self[publicX] = v; });
-        Crafty.defineField(vector, "y", function() { return self[privateY]; }, function(v) { self[publicY] = v; });
+        Crafty.defineField(
+            vector,
+            "x",
+            function() {
+                return self[privateX];
+            },
+            function(v) {
+                self[publicX] = v;
+            }
+        );
+        Crafty.defineField(
+            vector,
+            "y",
+            function() {
+                return self[privateY];
+            },
+            function(v) {
+                self[publicY] = v;
+            }
+        );
     } else {
-        Crafty.defineField(vector, "x", function() { return self[privateX]; }, function(v) {});
-        Crafty.defineField(vector, "y", function() { return self[privateY]; }, function(v) {});
+        Crafty.defineField(
+            vector,
+            "x",
+            function() {
+                return self[privateX];
+            },
+            function(v) {}
+        );
+        Crafty.defineField(
+            vector,
+            "y",
+            function() {
+                return self[privateY];
+            },
+            function(v) {}
+        );
     }
-    if (Object.seal) { Object.seal(vector); }
+    if (Object.seal) {
+        Object.seal(vector);
+    }
 
     return vector;
 };
@@ -63,7 +109,7 @@ var __motionVector = function(self, prefix, setter, vector) {
  * #AngularMotion
  * @category 2D
  * @kind Component
- * 
+ *
  * @trigger Rotated - When entity has rotated due to angular velocity/acceleration a Rotated event is triggered. - Number - Old rotation
  * @trigger NewRotationDirection - When entity has changed rotational direction due to rotational velocity a NewRotationDirection event is triggered. The event is triggered once, if direction is different from last frame. - -1 | 0 | 1 - New direction
  * @trigger MotionChange - When a motion property has changed a MotionChange event is triggered. - { key: String, oldValue: Number } - Motion property name and old value
@@ -76,8 +122,8 @@ Crafty.c("AngularMotion", {
      * #.vrotation
      * @comp AngularMotion
      * @kind Property
-     * 
-     * A property for accessing/modifying the angular(rotational) velocity. 
+     *
+     * A property for accessing/modifying the angular(rotational) velocity.
      * The velocity remains constant over time, unless the acceleration increases the velocity.
      *
      * @example
@@ -95,8 +141,8 @@ Crafty.c("AngularMotion", {
      * #.arotation
      * @comp AngularMotion
      * @kind Property
-     * 
-     * A property for accessing/modifying the angular(rotational) acceleration. 
+     *
+     * A property for accessing/modifying the angular(rotational) acceleration.
      * The acceleration increases the velocity over time, resulting in ever increasing speed.
      *
      * @example
@@ -114,7 +160,7 @@ Crafty.c("AngularMotion", {
      * #.drotation
      * @comp AngularMotion
      * @kind Property
-     * 
+     *
      * A number that reflects the change in rotation (difference between the old & new rotation) that was applied in the last frame.
      *
      * @example
@@ -126,7 +172,7 @@ Crafty.c("AngularMotion", {
      */
     _drotation: 0,
 
-    init: function () {
+    init: function() {
         this.requires("2D");
 
         __motionProp(this, "v", "rotation", true);
@@ -145,9 +191,9 @@ Crafty.c("AngularMotion", {
      * #.resetAngularMotion
      * @comp AngularMotion
      * @kind Method
-     * 
+     *
      * @sign public this .resetAngularMotion()
-     * 
+     *
      * Reset all motion (resets velocity, acceleration, motionDelta).
      */
     resetAngularMotion: function() {
@@ -174,10 +220,11 @@ Crafty.c("AngularMotion", {
         this.vrotation = vr + ar * dt;
 
         // Check if direction of velocity has changed
-        var _vr = this._vrotation, dvr = _vr ? (_vr<0 ? -1:1):0; // Quick implementation of Math.sign
+        var _vr = this._vrotation,
+            dvr = _vr ? (_vr < 0 ? -1 : 1) : 0; // Quick implementation of Math.sign
         if (this.__oldRotationDirection !== dvr) {
             this.__oldRotationDirection = dvr;
-            this.trigger('NewRotationDirection', dvr);
+            this.trigger("NewRotationDirection", dvr);
         }
 
         // Check if velocity has changed
@@ -185,7 +232,7 @@ Crafty.c("AngularMotion", {
         this._drotation = newR - oldR;
         if (this._drotation !== 0) {
             this.rotation = newR;
-            this.trigger('Rotated', oldR);
+            this.trigger("Rotated", oldR);
         }
     }
 });
@@ -194,7 +241,7 @@ Crafty.c("AngularMotion", {
  * #Motion
  * @category 2D
  * @kind Component
- * 
+ *
  * @trigger NewDirection - When entity has changed direction due to velocity on either x or y axis a NewDirection event is triggered. The event is triggered once, if direction is different from last frame. - { x: -1 | 0 | 1, y: -1 | 0 | 1 } - New direction
  * @trigger MotionChange - When a motion property has changed a MotionChange event is triggered. - { key: String, oldValue: Number } - Motion property name and old value
  *
@@ -208,7 +255,7 @@ Crafty.c("Motion", {
      * #.vx
      * @comp Motion
      * @kind Property
-     * 
+     *
      * A property for accessing/modifying the linear velocity in the x axis.
      * The velocity remains constant over time, unless the acceleration changes the velocity.
      *
@@ -227,7 +274,7 @@ Crafty.c("Motion", {
      * #.vy
      * @comp Motion
      * @kind Property
-     * 
+     *
      * A property for accessing/modifying the linear velocity in the y axis.
      * The velocity remains constant over time, unless the acceleration changes the velocity.
      *
@@ -246,7 +293,7 @@ Crafty.c("Motion", {
      * #.ax
      * @comp Motion
      * @kind Property
-     * 
+     *
      * A property for accessing/modifying the linear acceleration in the x axis.
      * The acceleration changes the velocity over time.
      *
@@ -265,7 +312,7 @@ Crafty.c("Motion", {
      * #.ay
      * @comp Motion
      * @kind Property
-     * 
+     *
      * A property for accessing/modifying the linear acceleration in the y axis.
      * The acceleration changes the velocity over time.
      *
@@ -284,7 +331,7 @@ Crafty.c("Motion", {
      * #.dx
      * @comp Motion
      * @kind Property
-     * 
+     *
      * A number that reflects the change in x (difference between the old & new x) that was applied in the last frame.
      *
      * @example
@@ -300,7 +347,7 @@ Crafty.c("Motion", {
      * #.dy
      * @comp Motion
      * @kind Property
-     * 
+     *
      * A number that reflects the change in y (difference between the old & new y) that was applied in the last frame.
      *
      * @example
@@ -312,20 +359,35 @@ Crafty.c("Motion", {
      */
     _dy: 0,
 
-    init: function () {
+    init: function() {
         this.requires("2D");
 
         __motionProp(this, "v", "x", true);
         __motionProp(this, "v", "y", true);
-        this._velocity = __motionVector(this, "v", true, new Crafty.math.Vector2D());
+        this._velocity = __motionVector(
+            this,
+            "v",
+            true,
+            new Crafty.math.Vector2D()
+        );
         __motionProp(this, "a", "x", true);
         __motionProp(this, "a", "y", true);
-        this._acceleration = __motionVector(this, "a", true, new Crafty.math.Vector2D());
+        this._acceleration = __motionVector(
+            this,
+            "a",
+            true,
+            new Crafty.math.Vector2D()
+        );
         __motionProp(this, "d", "x", false);
         __motionProp(this, "d", "y", false);
-        this._motionDelta = __motionVector(this, "d", false, new Crafty.math.Vector2D());
+        this._motionDelta = __motionVector(
+            this,
+            "d",
+            false,
+            new Crafty.math.Vector2D()
+        );
 
-        this.__oldDirection = {x: 0, y: 0};
+        this.__oldDirection = { x: 0, y: 0 };
 
         this.bind("UpdateFrame", this._linearMotionTick);
     },
@@ -337,16 +399,19 @@ Crafty.c("Motion", {
      * #.resetMotion
      * @comp Motion
      * @kind Method
-     * 
+     *
      * @sign public this .resetMotion()
      * @return this
-     * 
+     *
      * Reset all linear motion (resets velocity, acceleration, motionDelta).
      */
     resetMotion: function() {
-        this.vx = 0; this.vy = 0;
-        this.ax = 0; this.ay = 0;
-        this._dx = 0; this._dy = 0;
+        this.vx = 0;
+        this.vy = 0;
+        this.ax = 0;
+        this.ay = 0;
+        this._dx = 0;
+        this._dy = 0;
 
         return this;
     },
@@ -355,10 +420,10 @@ Crafty.c("Motion", {
      * #.motionDelta
      * @comp Motion
      * @kind Method
-     * 
+     *
      * @sign public Vector2D .motionDelta()
      * @return A Vector2D with the properties {x, y} that reflect the change in x & y.
-     * 
+     *
      * Returns the difference between the old & new position that was applied in the last frame.
      *
      * @example
@@ -401,15 +466,14 @@ Crafty.c("Motion", {
         return this._velocity;
     },
 
-
     /**@
      * #.acceleration
      * @comp Motion
      * @kind Method
-     * 
-     * Method for accessing/modifying the linear(x,y) acceleration. 
+     *
+     * Method for accessing/modifying the linear(x,y) acceleration.
      * The acceleration increases the velocity over time, resulting in ever increasing speed.
-     * 
+     *
      * @sign public Vector2D .acceleration()
      * @return The acceleration Vector2D with the properties {x, y} that reflects the acceleration in the <x, y> direction of the entity.
      *
@@ -434,7 +498,7 @@ Crafty.c("Motion", {
      * #.ccdbr
      * @comp Motion
      * @kind Method
-     * 
+     *
      * @sign public Object .ccdbr([Object ccdbr])
      * @param ccdbr - an object to use as output
      * @returns an object with `_x`, `_y`, `_w`, and `_h` properties; if an object is passed in, it will be reused rather than creating a new object.
@@ -449,11 +513,12 @@ Crafty.c("Motion", {
      *
      * @see .motionDelta, Collision#.cbr
      */
-    ccdbr: function (ccdbr) {
+    ccdbr: function(ccdbr) {
         var pos = this._cbr || this._mbr || this,
             dx = this._dx,
             dy = this._dy,
-            ccdX = 0, ccdY = 0,
+            ccdX = 0,
+            ccdY = 0,
             ccdW = dx > 0 ? (ccdX = dx) : -dx,
             ccdH = dy > 0 ? (ccdY = dy) : -dy;
 
@@ -472,8 +537,10 @@ Crafty.c("Motion", {
      */
     _linearMotionTick: function(frameData) {
         var dt = frameData.dt / 1000; // time in s
-        var vx = this._vx, ax = this._ax,
-            vy = this._vy, ay = this._ay;
+        var vx = this._vx,
+            ax = this._ax,
+            vy = this._vy,
+            ay = this._ay;
 
         // s += v * Δt + (0.5 * a) * Δt * Δt
         var dx = vx * dt + 0.5 * ax * dt * dt;
@@ -484,12 +551,14 @@ Crafty.c("Motion", {
 
         // Check if direction of velocity has changed
         var oldDirection = this.__oldDirection,
-            _vx = this._vx, dvx = _vx ? (_vx<0 ? -1:1):0, // A quick implementation of Math.sign
-            _vy = this._vy, dvy = _vy ? (_vy<0 ? -1:1):0;
+            _vx = this._vx,
+            dvx = _vx ? (_vx < 0 ? -1 : 1) : 0, // A quick implementation of Math.sign
+            _vy = this._vy,
+            dvy = _vy ? (_vy < 0 ? -1 : 1) : 0;
         if (oldDirection.x !== dvx || oldDirection.y !== dvy) {
             oldDirection.x = dvx;
             oldDirection.y = dvy;
-            this.trigger('NewDirection', oldDirection);
+            this.trigger("NewDirection", oldDirection);
         }
 
         this._dx = dx;

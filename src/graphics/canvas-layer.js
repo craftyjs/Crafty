@@ -1,4 +1,4 @@
-var Crafty = require('../core/core.js');
+var Crafty = require("../core/core.js");
 
 /**@
  * #CanvasLayer
@@ -11,7 +11,7 @@ var Crafty = require('../core/core.js');
  */
 Crafty._registerLayerTemplate("Canvas", {
     type: "Canvas",
-    
+
     layerCount: 0,
     _changedObjs: null,
 
@@ -22,13 +22,12 @@ Crafty._registerLayerTemplate("Canvas", {
     __tempSearchRect: null,
     __tempScreenRect: null,
 
-
     /**@
      * #.dirty
      * @comp CanvasLayer
      * @kind Method
      * @private
-     * 
+     *
      * @sign public .dirty(ent)
      * @param ent - The entity to add
      *
@@ -37,13 +36,13 @@ Crafty._registerLayerTemplate("Canvas", {
     dirty: function dirty(ent) {
         this._changedObjs.push(ent);
     },
-    
+
     /**@
      * #.attach
      * @comp CanvasLayer
      * @kind Method
      * @private
-     * 
+     *
      * @sign public .attach(ent)
      * @param ent - The entity to add
      *
@@ -54,13 +53,13 @@ Crafty._registerLayerTemplate("Canvas", {
         //increment the number of canvas objs
         this.layerCount++;
     },
-    
+
     /**@
      * #.detach
      * @comp CanvasLayer
      * @kind Method
      * @private
-     * 
+     *
      * @sign public .detach(ent)
      * @param ent - The entity to detach
      *
@@ -72,7 +71,6 @@ Crafty._registerLayerTemplate("Canvas", {
         //decrement the number of canvas objs
         this.layerCount--;
     },
-    
 
     /**@
      * #.context
@@ -91,23 +89,23 @@ Crafty._registerLayerTemplate("Canvas", {
      *
      * The canvas element associated with the canvas layer.
      */
-     _canvas: null,
+    _canvas: null,
 
     events: {
         // Respond to init & remove events
-        "LayerInit": "layerInit",
-        "LayerRemove": "layerRemove",
+        LayerInit: "layerInit",
+        LayerRemove: "layerRemove",
         // Bind scene rendering (see drawing.js)
-        "RenderScene": "_render",
+        RenderScene: "_render",
         // Listen for pixelart changes
-        "PixelartSet": "_setPixelart",
+        PixelartSet: "_setPixelart",
         // Handle viewport modifications
-        "ViewportResize": "_resize"
+        ViewportResize: "_resize"
     },
 
     // When the system is first created, create the necessary canvas element and initial state
     // Bind to the necessary events
-    layerInit: function () {
+    layerInit: function() {
         //check if canvas is supported
         if (!Crafty.support.canvas) {
             Crafty.trigger("NoCanvas");
@@ -129,19 +127,18 @@ Crafty._registerLayerTemplate("Canvas", {
         c = document.createElement("canvas");
         c.width = Crafty.viewport.width;
         c.height = Crafty.viewport.height;
-        c.style.position = 'absolute';
+        c.style.position = "absolute";
         c.style.left = "0px";
         c.style.top = "0px";
         c.style.zIndex = this.options.z;
 
         Crafty.stage.elem.appendChild(c);
-        this.context = c.getContext('2d');
+        this.context = c.getContext("2d");
         this._canvas = c;
 
         //Set any existing transformations
         var zoom = Crafty.viewport._scale;
-        if (zoom !== 1)
-            this.context.scale(zoom, zoom);
+        if (zoom !== 1) this.context.scale(zoom, zoom);
     },
 
     // When the system is destroyed, remove related resources
@@ -157,21 +154,28 @@ Crafty._registerLayerTemplate("Canvas", {
             return;
         }
 
-        // Set the camera transforms from the combination of the current viewport parameters and this layers 
+        // Set the camera transforms from the combination of the current viewport parameters and this layers
         var cameraOptions = this.options;
         if (dirtyViewport && cameraOptions) {
             var view = this._viewportRect();
-            var scale = view._scale; 
+            var scale = view._scale;
             var dx = -view._x * scale;
             var dy = -view._y * scale;
-            ctx.setTransform(scale, 0, 0, scale, Math.round(dx), Math.round(dy) );
+            ctx.setTransform(
+                scale,
+                0,
+                0,
+                scale,
+                Math.round(dx),
+                Math.round(dy)
+            );
         }
 
         // TODO: check if these conditions really make that much sense!
         // if the amount of changed objects is over 60% of the total objects, do the naive method redrawing
         if (l / this.layerCount > 0.6 || dirtyViewport) {
             this._drawAll();
-        // otherwise draw dirty cell grid regions
+            // otherwise draw dirty cell grid regions
         } else {
             this._drawDirtyCells();
         }
@@ -199,7 +203,7 @@ Crafty._registerLayerTemplate("Canvas", {
      *
      * @see Canvas#.draw
      */
-    _drawDirtyCells: function (view) {
+    _drawDirtyCells: function(view) {
         var viewportRect = this._viewportRect(), // this updates the viewportRect for later cached use
             rect = this.__tempRect,
             dirtyRects = this._dirtyRects,
@@ -217,7 +221,8 @@ Crafty._registerLayerTemplate("Canvas", {
         this._createDirtyRects();
 
         // For each dirty rectangle, find entities near it, and draw the overlapping ones
-        for (i = 0, l = dirtyRects.length; i < l; i += 4) { //loop over every dirty rect
+        for (i = 0, l = dirtyRects.length; i < l; i += 4) {
+            //loop over every dirty rect
             rect._x = dirtyRects[i + 0];
             rect._y = dirtyRects[i + 1];
             rect._w = dirtyRects[i + 2];
@@ -235,7 +240,12 @@ Crafty._registerLayerTemplate("Canvas", {
                 b = (6 * frame + 170) % 255;
             ctx.strokeStyle = "rgb(" + r + ", " + g + ", " + b + ")";
             for (i = 0, l = dirtyRects.length; i < l; i += 4) {
-                ctx.strokeRect(dirtyRects[i + 0], dirtyRects[i + 1], dirtyRects[i + 2], dirtyRects[i + 3]);
+                ctx.strokeRect(
+                    dirtyRects[i + 0],
+                    dirtyRects[i + 1],
+                    dirtyRects[i + 2],
+                    dirtyRects[i + 3]
+                );
             }
         }
     },
@@ -245,7 +255,7 @@ Crafty._registerLayerTemplate("Canvas", {
      * @comp CanvasLayer
      * @kind Method
      * @private
-     * 
+     *
      * @sign public ._drawAll([Object rect])
      * @param rect - a rectangular region {_x: x_val, _y: y_val, _w: w_val, _h: h_val}
      *
@@ -258,7 +268,7 @@ Crafty._registerLayerTemplate("Canvas", {
      *
      * @see Canvas#.draw
      */
-    _drawAll: function (view) {
+    _drawAll: function(view) {
         var viewportRect = this._viewportRect(); // this updates the viewportRect for later cached use
 
         // Draw the whole layer rectangle
@@ -266,7 +276,11 @@ Crafty._registerLayerTemplate("Canvas", {
     },
 
     _drawRect: function(rect) {
-        var i, l, q, obj, previousGlobalZ,
+        var i,
+            l,
+            q,
+            obj,
+            previousGlobalZ,
             integerBounds = Crafty.rectManager.integerBounds,
             ctx = this.context,
             searchRect = this.__tempSearchRect,
@@ -297,7 +311,6 @@ Crafty._registerLayerTemplate("Canvas", {
         // Sort objects by z level, duplicate objs will be ordered next to each other due to same _globalZ
         q.sort(this._sort);
 
-
         // save context before drawing, saves e.g. infinite clip region
         ctx.save();
 
@@ -310,7 +323,12 @@ Crafty._registerLayerTemplate("Canvas", {
         ctx.beginPath();
         ctx.rect(screenRect._x, screenRect._y, screenRect._w, screenRect._h);
         // Clear the rect from the main canvas
-        ctx.clearRect(screenRect._x, screenRect._y, screenRect._w, screenRect._h);
+        ctx.clearRect(
+            screenRect._x,
+            screenRect._y,
+            screenRect._w,
+            screenRect._h
+        );
         ctx.restore();
         ctx.clip();
 
@@ -321,7 +339,11 @@ Crafty._registerLayerTemplate("Canvas", {
         for (i = 0, l = q.length; i < l; ++i) {
             obj = q[i];
 
-            if (obj._globalZ > previousGlobalZ && obj._visible && obj._drawLayer === this) {
+            if (
+                obj._globalZ > previousGlobalZ &&
+                obj._visible &&
+                obj._drawLayer === this
+            ) {
                 obj.draw(ctx);
                 obj._changed = false;
 
@@ -338,7 +360,7 @@ Crafty._registerLayerTemplate("Canvas", {
     },
 
     /** cleans up current dirty state, stores stale state for future passes */
-    _clean: function () {
+    _clean: function() {
         var dirtyKeys, staleKeys, obj, i, l;
 
         var changed = this._changedObjs;
@@ -349,7 +371,8 @@ Crafty._registerLayerTemplate("Canvas", {
             // track stale grid cell keys for dirty grid cell drawing
             dirtyKeys = obj._entry.keys; // cached computation of Crafty.HashMap.key(obj)
             staleKeys = obj.staleKeys;
-            if (staleKeys === undefined) obj.staleKeys = staleKeys = { x1: 0, y1: 0, x2: 0, y2: 0 };
+            if (staleKeys === undefined)
+                obj.staleKeys = staleKeys = { x1: 0, y1: 0, x2: 0, y2: 0 };
             staleKeys.x1 = dirtyKeys.x1;
             staleKeys.y1 = dirtyKeys.y1;
             staleKeys.x2 = dirtyKeys.x2;
@@ -371,7 +394,7 @@ Crafty._registerLayerTemplate("Canvas", {
     // If a dirty cell doesn't overlap with the area to be drawn (e.g. viewport),
     // don't include it
     //
-    _createDirtyCells: function (view) {
+    _createDirtyCells: function(view) {
         var changed = this._changedObjs,
             dirtyCells = this._dirtyCells;
         var viewKeys = Crafty.HashMap.key(view, this._viewKeys);
@@ -381,13 +404,17 @@ Crafty._registerLayerTemplate("Canvas", {
             obj = changed[i];
 
             // if object was previously drawn it's old position needs to be redrawn (cleared)
-            if ((keys = obj.staleKeys)) { // cached computation of stale keys
+            if ((keys = obj.staleKeys)) {
+                // cached computation of stale keys
                 for (j = keys.x1; j <= keys.x2; j++) {
                     for (k = keys.y1; k <= keys.y2; k++) {
                         // if stale cell is inside area to be drawn
-                        if (viewKeys.x1 <= j && j <= viewKeys.x2 &&
-                            viewKeys.y1 <= k && k <= viewKeys.y2) {
-
+                        if (
+                            viewKeys.x1 <= j &&
+                            j <= viewKeys.x2 &&
+                            viewKeys.y1 <= k &&
+                            k <= viewKeys.y2
+                        ) {
                             // combine two 16 bit unsigned numbers into a unique 32 bit unsigned number
                             dirtyCells[(j << 16) ^ k] = true;
                         }
@@ -399,9 +426,12 @@ Crafty._registerLayerTemplate("Canvas", {
             for (j = keys.x1; j <= keys.x2; j++) {
                 for (k = keys.y1; k <= keys.y2; k++) {
                     // if dirty cell is inside area to be drawn
-                    if (viewKeys.x1 <= j && j <= viewKeys.x2 &&
-                        viewKeys.y1 <= k && k <= viewKeys.y2) {
-
+                    if (
+                        viewKeys.x1 <= j &&
+                        j <= viewKeys.x2 &&
+                        viewKeys.y1 <= k &&
+                        k <= viewKeys.y2
+                    ) {
                         // combine two 16 bit unsigned numbers into a unique 32 bit unsigned number
                         dirtyCells[(j << 16) ^ k] = true;
                     }
@@ -423,18 +453,16 @@ Crafty._registerLayerTemplate("Canvas", {
             hash = +strHash;
             // deconstruct a 32 bit unsigned number into a unique pair of 16 bit unsigned numbers
             k = (hash << 16) >> 16;
-            j = (k < 0) ? ~(hash >> 16) : hash >> 16;
+            j = k < 0 ? ~(hash >> 16) : hash >> 16;
             dirtyRects.push(j * cellsize, k * cellsize, cellsize, cellsize);
         }
     },
-
 
     // Resize the canvas element to the current viewport
     _resize: function() {
         var c = this._canvas;
         c.width = Crafty.viewport.width;
         c.height = Crafty.viewport.height;
-
     },
 
     _setPixelart: function(enabled) {
@@ -445,5 +473,4 @@ Crafty._registerLayerTemplate("Canvas", {
         context.oImageSmoothingEnabled = !enabled;
         context.msImageSmoothingEnabled = !enabled;
     }
-
 });

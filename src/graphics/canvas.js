@@ -1,11 +1,10 @@
-var Crafty = require('../core/core.js');
-
+var Crafty = require("../core/core.js");
 
 /**@
  * #Canvas
  * @category Graphics
  * @kind Component
- * 
+ *
  * @trigger Draw - when the entity is ready to be drawn to the stage - {type: "canvas", pos, co, ctx}
  * @trigger NoCanvas - if the browser does not support canvas
  *
@@ -21,18 +20,16 @@ var Crafty = require('../core/core.js');
  *~~~
  */
 Crafty.c("Canvas", {
-
-    init: function () {
+    init: function() {
         this.requires("Renderable");
-        
+
         //Allocate an object to hold this components current region
         this.currentRect = {};
-        
+
         // Add the default canvas layer if we aren't attached to a custom one
-        if (!this._customLayer){
-            this._attachToLayer( Crafty.s("DefaultCanvasLayer"));
+        if (!this._customLayer) {
+            this._attachToLayer(Crafty.s("DefaultCanvasLayer"));
         }
-        
     },
 
     remove: function() {
@@ -43,7 +40,7 @@ Crafty.c("Canvas", {
      * #.draw
      * @comp Canvas
      * @kind Method
-     * 
+     *
      * @sign public this .draw([Context ctx, Number x, Number y, Number w, Number h])
      * @param ctx - Canvas 2D context if drawing on another canvas is required
      * @param x - X offset for drawing a segment
@@ -68,15 +65,14 @@ Crafty.c("Canvas", {
         }
     },
 
-    draw: function (ctx, x, y, w, h) {
+    draw: function(ctx, x, y, w, h) {
         if (!this.ready) return;
 
         var pos = this.drawVars.pos;
-        pos._x = (this._x + (x || 0));
-        pos._y = (this._y + (y || 0));
-        pos._w = (w || this._w);
-        pos._h = (h || this._h);
-
+        pos._x = this._x + (x || 0);
+        pos._y = this._y + (y || 0);
+        pos._w = w || this._w;
+        pos._h = h || this._h;
 
         var context = ctx || this._drawContext;
         var coord = this.__coord || [0, 0, 0, 0];
@@ -93,7 +89,10 @@ Crafty.c("Canvas", {
 
         // rotate the context about this entity's origin
         if (this._rotation !== 0) {
-            context.translate(this._origin.x + this._x, this._origin.y + this._y);
+            context.translate(
+                this._origin.x + this._x,
+                this._origin.y + this._y
+            );
             pos._x = -this._origin.x;
             pos._y = -this._origin.y;
             context.rotate((this._rotation % 360) * (Math.PI / 180));
@@ -101,7 +100,7 @@ Crafty.c("Canvas", {
 
         // We realize a flipped entity by scaling the context in the opposite direction, then adjusting the position coordinates to match
         if (this._flipX || this._flipY) {
-            context.scale((this._flipX ? -1 : 1), (this._flipY ? -1 : 1));
+            context.scale(this._flipX ? -1 : 1, this._flipY ? -1 : 1);
             if (this._flipX) {
                 pos._x = -(pos._x + pos._w);
             }

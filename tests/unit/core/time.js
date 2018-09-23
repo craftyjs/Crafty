@@ -6,7 +6,9 @@
 
   test("Delay", function(_) {
     var counter = 0,
-        incr = function() { counter++; };
+      incr = function() {
+        counter++;
+      };
     var ent = Crafty.e("Delay");
 
     // test one execution
@@ -26,11 +28,15 @@
 
     // test infinite executions
     counter = 0;
-    
+
     ent.delay(incr, 49, -1);
     Crafty.timer.simulateFrames(8);
 
-    _.strictEqual(counter, 3, "delayed function should have executed three times");
+    _.strictEqual(
+      counter,
+      3,
+      "delayed function should have executed three times"
+    );
     _.strictEqual(ent._delays.length, 1, "one more scheduled delay");
 
     // test cancel
@@ -44,13 +50,18 @@
     counter = 0;
     ent.delay(incr, 5, 1);
     Crafty.timer.simulateFrames(1);
-    _.strictEqual(counter, 2, "function should be executed exactly twice, in a single frame");
+    _.strictEqual(
+      counter,
+      2,
+      "function should be executed exactly twice, in a single frame"
+    );
     _.strictEqual(ent._delays.length, 0, "no more scheduled delays");
-
 
     // test callbackOff
     counter = 0;
-    ent.delay(incr, 49, 0, function() { counter-=5; });
+    ent.delay(incr, 49, 0, function() {
+      counter -= 5;
+    });
     Crafty.timer.simulateFrames(10);
     _.strictEqual(counter, -4, "two functions should have executed once");
     _.strictEqual(ent._delays.length, 0, "no more scheduled delays");
@@ -64,7 +75,11 @@
     ent.delay(incr, 65); // x1
     ent.delay(incr, 65); // x1
     Crafty.timer.simulateFrames(8);
-    _.strictEqual(counter, 11, "delayed function should have executed eleven times");
+    _.strictEqual(
+      counter,
+      11,
+      "delayed function should have executed eleven times"
+    );
     _.strictEqual(ent._delays.length, 2, "two more scheduled delays");
 
     // test multiple cancels
@@ -73,7 +88,6 @@
     Crafty.timer.simulateFrames(10);
     _.strictEqual(counter, 0, "delayed function should not have executed");
     _.strictEqual(ent._delays.length, 0, "no more scheduled delays");
-
 
     //test resume delays without pausing before
     counter = 0;
@@ -146,7 +160,6 @@
     Crafty.timer.simulateFrames(1); // 1 * 10ms = 100ms
     _.strictEqual(counter, 1, "delayed function should have executed once");
     _.strictEqual(ent._delays.length, 0, "no more scheduled delays");
-
   });
 
   module("Crafty.timer", {
@@ -194,9 +207,16 @@
     setTimeout(function() {
       var endTime = lastKnownTime;
 
-      _.ok(endTime > startTime, "After " + framesTriggered + " frames triggered, EndTime " + endTime + " must be larger than StartTime " + startTime);
+      _.ok(
+        endTime > startTime,
+        "After " +
+          framesTriggered +
+          " frames triggered, EndTime " +
+          endTime +
+          " must be larger than StartTime " +
+          startTime
+      );
       done();
     }, 200);
   });
-
 })();

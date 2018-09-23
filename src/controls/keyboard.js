@@ -1,4 +1,4 @@
-var Crafty = require('../core/core.js');
+var Crafty = require("../core/core.js");
 
 /**@
  * #KeyboardState
@@ -63,7 +63,7 @@ Crafty.__keyboardStateTemplate = {
      * @see .resetKeyDown
      * @see Crafty.keys
      */
-    isKeyDown: function (key) {
+    isKeyDown: function(key) {
         if (typeof key === "string") {
             key = Crafty.keys[key];
         }
@@ -84,7 +84,7 @@ Crafty.__keyboardStateTemplate = {
      * @see .isKeyDown
      * @see Crafty.keys
      */
-    resetKeyDown: function () {
+    resetKeyDown: function() {
         var evt = { key: -1, eventName: "KeyUp" };
 
         // Tell all the keys they're no longer held down
@@ -129,7 +129,7 @@ Crafty.__keyboardStateTemplate = {
      *
      * @see Crafty.keys
      */
-    triggerKey: function (eventName, eventData) {
+    triggerKey: function(eventName, eventData) {
         // trigger event only if valid state
         var key = eventData.key;
         if (eventName === "KeyDown") {
@@ -156,9 +156,17 @@ Crafty.c("KeyboardState", Crafty.__keyboardStateTemplate);
 
 // define a basic Keyboard system for headless mode
 // will be substituted with proper one in browser mode
-Crafty.s("Keyboard", Crafty.extend.call({
-    // this method will be called by KeyboardState iff triggerKey event was valid
-    triggerKeyEvent: function (eventName, e) {
-        Crafty.trigger(eventName, e);
-    }
-}, Crafty.__keyboardStateTemplate), {}, false);
+Crafty.s(
+    "Keyboard",
+    Crafty.extend.call(
+        {
+            // this method will be called by KeyboardState iff triggerKey event was valid
+            triggerKeyEvent: function(eventName, e) {
+                Crafty.trigger(eventName, e);
+            }
+        },
+        Crafty.__keyboardStateTemplate
+    ),
+    {},
+    false
+);

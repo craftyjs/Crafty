@@ -1,4 +1,4 @@
-var Crafty = require('../core/core.js');
+var Crafty = require("../core/core.js");
 
 /**@
  * #KeyboardSystem
@@ -30,44 +30,56 @@ var Crafty = require('../core/core.js');
  * ~~~
  * @see KeyboardState, Keyboard
  */
-Crafty.s("Keyboard", Crafty.extend.call(Crafty.extend.call(new Crafty.__eventDispatcher(), {
-    _evt: { // evt object to reuse
-        eventName:'',
-        key: 0,
-        which: 0,
-        originalEvent: null
-    },
+Crafty.s(
+    "Keyboard",
+    Crafty.extend.call(
+        Crafty.extend.call(new Crafty.__eventDispatcher(), {
+            _evt: {
+                // evt object to reuse
+                eventName: "",
+                key: 0,
+                which: 0,
+                originalEvent: null
+            },
 
-    prepareEvent: function (e) {
-        var evt = this._evt;
+            prepareEvent: function(e) {
+                var evt = this._evt;
 
-        // Normalize event name
-        var type = e.type;
-        evt.eventName = type === "keydown" ? "KeyDown" :
-                        type === "keyup" ? "KeyUp" : type;
+                // Normalize event name
+                var type = e.type;
+                evt.eventName =
+                    type === "keydown"
+                        ? "KeyDown"
+                        : type === "keyup"
+                            ? "KeyUp"
+                            : type;
 
-        // Normalize key to avoid cross-browser issues
-        evt.which = e.charCode !== null ? e.charCode : e.keyCode;
-        evt.key = e.keyCode || e.which;
+                // Normalize key to avoid cross-browser issues
+                evt.which = e.charCode !== null ? e.charCode : e.keyCode;
+                evt.key = e.keyCode || e.which;
 
-        // wrap original event into standard Crafty event object
-        // as original key event's properties are read-only
-        evt.originalEvent = e;
+                // wrap original event into standard Crafty event object
+                // as original key event's properties are read-only
+                evt.originalEvent = e;
 
-        return evt;
-    },
+                return evt;
+            },
 
-    // this method will be called by KeyboardState iff triggerKey event was valid
-    triggerKeyEvent: function (eventName, e) {
-        Crafty.trigger(eventName, e);
-    },
+            // this method will be called by KeyboardState iff triggerKey event was valid
+            triggerKeyEvent: function(eventName, e) {
+                Crafty.trigger(eventName, e);
+            },
 
-    dispatchEvent: function (e) {
-        var evt = this.prepareEvent(e);
-        this.triggerKey(evt.eventName, evt);
-    }
-}), Crafty.__keyboardStateTemplate), {}, false);
-
+            dispatchEvent: function(e) {
+                var evt = this.prepareEvent(e);
+                this.triggerKey(evt.eventName, evt);
+            }
+        }),
+        Crafty.__keyboardStateTemplate
+    ),
+    {},
+    false
+);
 
 /**@
  * #Keyboard
@@ -105,6 +117,6 @@ Crafty.s("Keyboard", Crafty.extend.call(Crafty.extend.call(new Crafty.__eventDis
 Crafty.c("Keyboard", {
     // DEPRECATED: remove in an upcoming release
     isDown: function(key) {
-        return Crafty.s('Keyboard').isKeyDown(key);
+        return Crafty.s("Keyboard").isKeyDown(key);
     }
 });

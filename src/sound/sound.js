@@ -1,4 +1,4 @@
-var Crafty = require('../core/core.js'),
+var Crafty = require("../core/core.js"),
     document = window.document;
 
 Crafty.extend({
@@ -16,10 +16,10 @@ Crafty.extend({
      * The maximum number of sounds that can be played simultaneously is defined by Crafty.audio.maxChannels.  The default value is 7.
      */
     audio: {
-
         sounds: {},
         supported: null,
-        codecs: { // Chart from jPlayer
+        codecs: {
+            // Chart from jPlayer
             ogg: 'audio/ogg; codecs="vorbis"', //OGG
             wav: 'audio/wav; codecs="1"', // PCM
             webma: 'audio/webm; codecs="vorbis"', // WEBM
@@ -33,11 +33,10 @@ Crafty.extend({
         /**
          * Function to setup supported formats
          **/
-        _canPlay: function () {
+        _canPlay: function() {
             this.supported = {};
             // Without support, no formats are supported
-            if (!Crafty.support.audio)
-                return;
+            if (!Crafty.support.audio) return;
             var audio = this.audioElement(),
                 canplay;
             for (var i in this.codecs) {
@@ -48,36 +47,34 @@ Crafty.extend({
                     this.supported[i] = false;
                 }
             }
-
         },
 
         /**@
          * #Crafty.audio.supports
          * @comp Crafty.audio
          * @kind Method
-         * 
+         *
          * @sign public this Crafty.audio.supports(String extension)
          * @param extension - A file extension to check audio support for
          *
          * Return true if the browser thinks it can play the given file type, otherwise false
          */
-        supports: function (extension) {
+        supports: function(extension) {
             // Build cache of supported formats, if necessary
-            if (this.supported === null)
-                this._canPlay();
+            if (this.supported === null) this._canPlay();
 
-            if (this.supported[extension])
-                return true;
-            else
-                return false;
+            if (this.supported[extension]) return true;
+            else return false;
         },
 
         /**
          * Function to get an Audio Element
          **/
-        audioElement: function () {
+        audioElement: function() {
             //IE does not support Audio Object
-            return typeof Audio !== 'undefined' ? new Audio("") : document.createElement('audio');
+            return typeof Audio !== "undefined"
+                ? new Audio("")
+                : document.createElement("audio");
         },
 
         /**@
@@ -85,7 +82,7 @@ Crafty.extend({
          * @comp Crafty.audio
          * @kind Method
          * @private
-         * 
+         *
          * @sign public this Crafty.audio.create(String id, String url)
          * @param id - A string to refer to sounds
          * @param url - A string pointing to the sound file
@@ -94,11 +91,10 @@ Crafty.extend({
          *
          * If the sound file extension is not supported, returns false; otherwise, returns the audio asset.
          */
-        create: function (id, path) {
+        create: function(id, path) {
             //check extension, return if not supported
-            var ext = path.substr(path.lastIndexOf('.') + 1).toLowerCase();
-            if (!this.supports(ext))
-                return false;
+            var ext = path.substr(path.lastIndexOf(".") + 1).toLowerCase();
+            if (!this.supports(ext)) return false;
 
             //initiate the audio element
             var audio = this.audioElement();
@@ -115,14 +111,13 @@ Crafty.extend({
                 volume: Crafty.audio.volume
             };
             return this.sounds[id];
-
         },
 
         /**@
          * #Crafty.audio.add
          * @comp Crafty.audio
          * @kind Method
-         * 
+         *
          * @sign public this Crafty.audio.add(String id, String url)
          * @param id - A string to refer to sounds
          * @param url - A string pointing to the sound file
@@ -162,18 +157,16 @@ Crafty.extend({
          * Crafty.audio.add("jump", "sounds/jump.mp3");
          * ~~~
          */
-        add: function (id, url) {
-            if (!Crafty.support.audio)
-                return;
+        add: function(id, url) {
+            if (!Crafty.support.audio) return;
 
-            var src,
-                a;
+            var src, a;
 
             if (arguments.length === 1 && typeof id === "object") {
                 for (var i in id) {
                     for (src in id[i]) {
                         a = Crafty.audio.create(i, id[i][src]);
-                        if (a){
+                        if (a) {
                             break;
                         }
                     }
@@ -187,11 +180,9 @@ Crafty.extend({
                 if (typeof url === "object") {
                     for (src in url) {
                         a = Crafty.audio.create(id, url[src]);
-                        if (a)
-                            break;
+                        if (a) break;
                     }
                 }
-
             }
             return a;
         },
@@ -222,31 +213,27 @@ Crafty.extend({
          * Crafty.audio.play("explosion",1,0.5); //play sound once with volume of 50%
          * ~~~
          */
-        play: function (id, repeat, volume) {
+        play: function(id, repeat, volume) {
             if (repeat === 0 || !Crafty.support.audio || !this.sounds[id])
                 return;
             var s = this.sounds[id];
             var c = this.getOpenChannel();
-            if (!c)
-                return null;
+            if (!c) return null;
             c.id = id;
             c.repeat = repeat;
             var a = c.obj;
-
 
             c.volume = s.volume = s.obj.volume = volume || Crafty.audio.volume;
 
             a.volume = s.volume;
             a.src = s.obj.src;
 
-            if (this.muted)
-                a.volume = 0;
+            if (this.muted) a.volume = 0;
             a.play();
             s.played++;
-            c.onEnd = function () {
+            c.onEnd = function() {
                 if (s.played < c.repeat || c.repeat === -1) {
-                    if (this.currentTime)
-                        this.currentTime = 0;
+                    if (this.currentTime) this.currentTime = 0;
                     this.play();
                     s.played++;
                 } else {
@@ -258,41 +245,40 @@ Crafty.extend({
                         id: c.id
                     });
                 }
-
             };
             a.addEventListener("ended", c.onEnd, true);
 
             return a;
         },
 
-
-
         /**@
          * #Crafty.audio.setChannels
          * @comp Crafty.audio
          * @kind Method
-         * 
+         *
          * @sign public this Crafty.audio.setChannels(Number n)
          * @param n - The maximum number of channels
          */
         maxChannels: 7,
-        setChannels: function (n) {
+        setChannels: function(n) {
             this.maxChannels = n;
-            if (n < this.channels.length)
-                this.channels.length = n;
+            if (n < this.channels.length) this.channels.length = n;
         },
 
         channels: [],
         // Finds an unused audio element, marks it as in use, and return it.
-        getOpenChannel: function () {
+        getOpenChannel: function() {
             for (var i = 0; i < this.channels.length; i++) {
                 var chan = this.channels[i];
-                  /*
+                /*
                    * Second test looks for stuff that's out of use,
                    * but fallen foul of Chromium bug 280417
                    */
-                if (chan.active === false ||
-                      chan.obj.ended && chan.repeat <= this.sounds[chan.id].played) {
+                if (
+                    chan.active === false ||
+                    (chan.obj.ended &&
+                        chan.repeat <= this.sounds[chan.id].played)
+                ) {
                     chan.active = true;
                     return chan;
                 }
@@ -303,7 +289,7 @@ Crafty.extend({
                     obj: this.audioElement(),
                     active: true,
                     // Checks that the channel is being used to play sound id
-                    _is: function (id) {
+                    _is: function(id) {
                         return this.id === id && this.active;
                     }
                 };
@@ -318,13 +304,13 @@ Crafty.extend({
          * #Crafty.audio.remove
          * @comp Crafty.audio
          * @kind Method
-         * 
+         *
          * @sign public this Crafty.audio.remove([String id])
          * @param id - A string to refer to sounds
          *
          * Will stop the sound and remove all references to the audio object allowing the browser to free the memory.
          * If no id is given, all sounds will be removed.
-         * 
+         *
          * This function uses audio path set in Crafty.path in order to remove sound from the assets object.
          *
          * @example
@@ -332,16 +318,17 @@ Crafty.extend({
          * Crafty.audio.remove("walk");
          * ~~~
          */
-        remove: function (id) {
-            if (!Crafty.support.audio)
-                return;
+        remove: function(id) {
+            if (!Crafty.support.audio) return;
 
-            var s, filename, audioFolder = Crafty.paths().audio;
+            var s,
+                filename,
+                audioFolder = Crafty.paths().audio;
 
             if (!id) {
                 for (var i in this.sounds) {
                     s = this.sounds[i];
-                    filename = s.obj.src.split('/').pop();
+                    filename = s.obj.src.split("/").pop();
                     Crafty.audio.stop(id);
                     delete Crafty.assets[audioFolder + filename];
                     delete Crafty.assets[s.obj.src];
@@ -349,11 +336,10 @@ Crafty.extend({
                 }
                 return;
             }
-            if (!this.sounds[id])
-                return;
+            if (!this.sounds[id]) return;
 
             s = this.sounds[id];
-            filename = s.obj.src.split('/').pop();
+            filename = s.obj.src.split("/").pop();
             Crafty.audio.stop(id);
             delete Crafty.assets[audioFolder + filename];
             delete Crafty.assets[s.obj.src];
@@ -363,7 +349,7 @@ Crafty.extend({
          * #Crafty.audio.stop
          * @comp Crafty.audio
          * @kind Method
-         * 
+         *
          * @sign public this Crafty.audio.stop([Number ID])
          *
          * Stops any playing sound. if id is not set, stop all sounds which are playing
@@ -375,13 +361,12 @@ Crafty.extend({
          *
          * ~~~
          */
-        stop: function (id) {
-            if (!Crafty.support.audio)
-                return;
+        stop: function(id) {
+            if (!Crafty.support.audio) return;
             var c;
             for (var i in this.channels) {
                 c = this.channels[i];
-                if ( (!id && c.active) || c._is(id) ) {
+                if ((!id && c.active) || c._is(id)) {
                     c.active = false;
                     c.obj.pause();
                 }
@@ -393,14 +378,13 @@ Crafty.extend({
          * @comp Crafty.audio
          * @kind Method
          * @kind private
-         * 
+         *
          * @sign public this Crafty.audio._mute([Boolean mute])
          *
          * Mute or unmute every Audio instance that is playing.
          */
-        _mute: function (mute) {
-            if (!Crafty.support.audio)
-                return;
+        _mute: function(mute) {
+            if (!Crafty.support.audio) return;
             var c;
             for (var i in this.channels) {
                 c = this.channels[i];
@@ -412,7 +396,7 @@ Crafty.extend({
          * #Crafty.audio.toggleMute
          * @comp Crafty.audio
          * @kind Method
-         * 
+         *
          * @sign public this Crafty.audio.toggleMute()
          *
          * Mute or unmute every Audio instance that is playing. Toggles between
@@ -424,19 +408,18 @@ Crafty.extend({
          * Crafty.audio.toggleMute();
          * ~~~
          */
-        toggleMute: function () {
+        toggleMute: function() {
             if (!this.muted) {
                 this._mute(true);
             } else {
                 this._mute(false);
             }
-
         },
         /**@
          * #Crafty.audio.mute
          * @comp Crafty.audio
          * @kind Method
-         * 
+         *
          * @sign public this Crafty.audio.mute()
          *
          * Mute every Audio instance that is playing.
@@ -446,14 +429,14 @@ Crafty.extend({
          * Crafty.audio.mute();
          * ~~~
          */
-        mute: function () {
+        mute: function() {
             this._mute(true);
         },
         /**@
          * #Crafty.audio.unmute
          * @comp Crafty.audio
          * @kind Method
-         * 
+         *
          * @sign public this Crafty.audio.unmute()
          *
          * Unmute every Audio instance that is playing.
@@ -463,7 +446,7 @@ Crafty.extend({
          * Crafty.audio.unmute();
          * ~~~
          */
-        unmute: function () {
+        unmute: function() {
             this._mute(false);
         },
 
@@ -471,7 +454,7 @@ Crafty.extend({
          * #Crafty.audio.pause
          * @comp Crafty.audio
          * @kind Method
-         * 
+         *
          * @sign public this Crafty.audio.pause(string ID)
          * @param {string} id - The id of the audio object to pause
          *
@@ -483,23 +466,20 @@ Crafty.extend({
          * ~~~
          *
          */
-        pause: function (id) {
-            if (!Crafty.support.audio || !id || !this.sounds[id])
-                return;
+        pause: function(id) {
+            if (!Crafty.support.audio || !id || !this.sounds[id]) return;
             var c;
             for (var i in this.channels) {
                 c = this.channels[i];
-                if (c._is(id) && !c.obj.paused)
-                    c.obj.pause();
+                if (c._is(id) && !c.obj.paused) c.obj.pause();
             }
-
         },
 
         /**@
          * #Crafty.audio.unpause
          * @comp Crafty.audio
          * @kind Method
-         * 
+         *
          * @sign public this Crafty.audio.unpause(string ID)
          * @param {string} id - The id of the audio object to unpause
          *
@@ -511,14 +491,12 @@ Crafty.extend({
          * ~~~
          *
          */
-        unpause: function (id) {
-            if (!Crafty.support.audio || !id || !this.sounds[id])
-                return;
+        unpause: function(id) {
+            if (!Crafty.support.audio || !id || !this.sounds[id]) return;
             var c;
             for (var i in this.channels) {
                 c = this.channels[i];
-                if (c._is(id) && c.obj.paused)
-                    c.obj.play();
+                if (c._is(id) && c.obj.paused) c.obj.play();
             }
         },
 
@@ -526,7 +504,7 @@ Crafty.extend({
          * #Crafty.audio.togglePause
          * @comp Crafty.audio
          * @kind Method
-         * 
+         *
          * @sign public this Crafty.audio.togglePause(string ID)
          * @param {string} id - The id of the audio object to pause/
          *
@@ -538,9 +516,8 @@ Crafty.extend({
          * ~~~
          *
          */
-        togglePause: function (id) {
-            if (!Crafty.support.audio || !id || !this.sounds[id])
-                return;
+        togglePause: function(id) {
+            if (!Crafty.support.audio || !id || !this.sounds[id]) return;
             var c;
             for (var i in this.channels) {
                 c = this.channels[i];
@@ -558,7 +535,7 @@ Crafty.extend({
          * #Crafty.audio.isPlaying
          * @comp Crafty.audio
          * @kind Method
-         * 
+         *
          * @sign public Boolean Crafty.audio.isPlaying(string ID)
          * @param {string} id - The id of the audio object
          * @return a Boolean indicating whether the audio is playing or not
@@ -572,12 +549,10 @@ Crafty.extend({
          *
          */
         isPlaying: function(id) {
-            if (!Crafty.support.audio)
-                return false;
+            if (!Crafty.support.audio) return false;
 
             for (var i in this.channels) {
-                if (this.channels[i]._is(id))
-                    return true;
+                if (this.channels[i]._is(id)) return true;
             }
 
             return false;

@@ -5,14 +5,16 @@
   module("Systems");
 
   test("Create a system using Crafty.ss", function(_) {
-    var sys =  {
-        n: 0,
-        add: function(m) { this.n+=m; }
+    var sys = {
+      n: 0,
+      add: function(m) {
+        this.n += m;
+      }
     };
     Crafty.s("Adder", sys);
     var s = Crafty.s("Adder");
     _.ok(s, "System is returned");
-    _.ok(s.n===0, "System has property copied");
+    _.ok(s.n === 0, "System has property copied");
     _.ok(typeof s.add === "function", "System has method copied");
     _.ok(typeof s.bind === "function", "System has bind method");
     _.ok(typeof s.unbind === "function", "System has unbind method");
@@ -21,39 +23,47 @@
     _.ok(typeof s.uniqueBind === "function", "System has uniqueBind method");
 
     s.destroy();
-
   });
 
   test("Create a system, then access it using Crafty.s", function(_) {
-    var sys =  {
-        n: 0,
-        add: function(m) { this.n+=m; }
+    var sys = {
+      n: 0,
+      add: function(m) {
+        this.n += m;
+      }
     };
     Crafty.s("Adder", sys);
     var s = Crafty._systems.Adder;
     var s2 = Crafty.s("Adder");
-    _.ok(s===s2, "Crafty.s returns correct object;");
+    _.ok(s === s2, "Crafty.s returns correct object;");
 
     s.destroy();
-
   });
 
   test("Create a system, then destroy it", function(_) {
-    var sys =  {
-        n: 0,
-        add: function(m) { this.n+=m; }
+    var sys = {
+      n: 0,
+      add: function(m) {
+        this.n += m;
+      }
     };
     Crafty.s("Adder", sys);
     var s = Crafty.s("Adder");
     s.destroy();
     var s2 = Crafty.s("Adder");
-    _.strictEqual(typeof s2, "undefined", "Crafty.s returns undefined after system is destroyed;");
+    _.strictEqual(
+      typeof s2,
+      "undefined",
+      "Crafty.s returns undefined after system is destroyed;"
+    );
   });
 
-  test("Create a non-lazy system with an init method", function(_){
+  test("Create a non-lazy system with an init method", function(_) {
     var loaded = false;
-    var sys =  {
-        init: function() { loaded = true; }
+    var sys = {
+      init: function() {
+        loaded = true;
+      }
     };
     Crafty.s("Loader", sys, false);
     _.strictEqual(loaded, true, "System loaded on creation");
@@ -62,10 +72,12 @@
     s.destroy();
   });
 
-  test("Create a lazy system with an init method", function(_){
+  test("Create a lazy system with an init method", function(_) {
     var loaded = false;
-    var sys =  {
-        init: function() { loaded = true; }
+    var sys = {
+      init: function() {
+        loaded = true;
+      }
     };
     Crafty.s("Loader", sys, true);
     _.strictEqual(loaded, false, "System not loaded on creation");
@@ -74,10 +86,12 @@
     s.destroy();
   });
 
-  test("Create a system with a remove method", function(_){
+  test("Create a system with a remove method", function(_) {
     var destroyed = false;
-    var sys =  {
-        remove: function() { destroyed = true; }
+    var sys = {
+      remove: function() {
+        destroyed = true;
+      }
     };
     Crafty.s("Loader", sys);
     var s = Crafty.s("Loader");
@@ -87,9 +101,11 @@
   });
 
   test("Bind an event to a system, trigger directly", function(_) {
-    var sys =  {
-        n: 0,
-        add: function(m) { this.n+=m; }
+    var sys = {
+      n: 0,
+      add: function(m) {
+        this.n += m;
+      }
     };
     Crafty.s("Adder", sys);
     var s = Crafty.s("Adder");
@@ -101,9 +117,11 @@
   });
 
   test("Bind an event to a system, then unbind", function(_) {
-    var sys =  {
-        n: 0,
-        add: function(m) { this.n+=m; }
+    var sys = {
+      n: 0,
+      add: function(m) {
+        this.n += m;
+      }
     };
     Crafty.s("Adder", sys);
     var s = Crafty.s("Adder");
@@ -118,11 +136,12 @@
     s.destroy();
   });
 
-
   test("Bind an event to a system, trigger globally", function(_) {
-    var sys =  {
-        n: 0,
-        add: function(m) { this.n+=m; }
+    var sys = {
+      n: 0,
+      add: function(m) {
+        this.n += m;
+      }
     };
     Crafty.s("Adder", sys);
     var s = Crafty.s("Adder");
@@ -134,9 +153,11 @@
   });
 
   test("Bind an event to a system, then destroy it and trigger globally", function(_) {
-    var sys =  {
-        n: 0,
-        add: function(m) { this.n+=m; }
+    var sys = {
+      n: 0,
+      add: function(m) {
+        this.n += m;
+      }
     };
     Crafty.s("Adder", sys);
     var s = Crafty.s("Adder");
@@ -147,13 +168,14 @@
     s.destroy();
     Crafty.trigger("Add", 1);
     _.strictEqual(s.n, 1, "No trigger after unbind");
-
   });
 
-  test("system.uniqueBind()", function(_){
-    var sys =  {
-        n: 0,
-        add: function(m) { this.n+=m; }
+  test("system.uniqueBind()", function(_) {
+    var sys = {
+      n: 0,
+      add: function(m) {
+        this.n += m;
+      }
     };
     Crafty.s("Adder", sys);
     var s = Crafty.s("Adder");
@@ -161,13 +183,14 @@
     s.uniqueBind("Add", s.add);
     s.trigger("Add", 1);
     _.strictEqual(s.n, 1, "Only one event handler called");
-
   });
 
-  test("system.one()", function(_){
-    var sys =  {
-        n: 0,
-        add: function(m) { this.n+=m; }
+  test("system.one()", function(_) {
+    var sys = {
+      n: 0,
+      add: function(m) {
+        this.n += m;
+      }
     };
     Crafty.s("Adder", sys);
     var s = Crafty.s("Adder");
@@ -176,20 +199,25 @@
     s.trigger("Add", 1);
     s.destroy();
     _.strictEqual(s.n, 1, "Only one event handler called");
-
   });
 
   test("Special property `events`", function(_) {
-    var sys =  {
-        n: 0,
-        events:{
-            "Add": function(m) { this.n+=m; }
+    var sys = {
+      n: 0,
+      events: {
+        Add: function(m) {
+          this.n += m;
         }
+      }
     };
     Crafty.s("Adder", sys);
     var s = Crafty.s("Adder");
     s.trigger("Add", 1);
-    _.strictEqual(s.n, 1, "Method listed in .events property triggers correctly.");
+    _.strictEqual(
+      s.n,
+      1,
+      "Method listed in .events property triggers correctly."
+    );
     s.destroy();
   });
 
@@ -197,16 +225,16 @@
     var sys = {
       properties: {
         foo: {
-          set: function(value){
+          set: function(value) {
             this._foo = value;
           },
-          get: function(){
+          get: function() {
             return this._foo;
           },
           configurable: true,
           enumerable: true
         },
-        _foo: {value: 0, writable: true, enumerable:false}
+        _foo: { value: 0, writable: true, enumerable: false }
       }
     };
     Crafty.s("PropertySystem", sys);
@@ -226,44 +254,52 @@
       propList.push(prop);
     }
 
-    _.ok(propList.indexOf("foo") >= 0 , "Property foo is enumerable");
+    _.ok(propList.indexOf("foo") >= 0, "Property foo is enumerable");
     _.ok(propList.indexOf("_foo") === -1, "Property _foo is not enumerable");
   });
 
   test("Special property `options` default values", function(_) {
-    var sys =  {
-        n: 0,
-        options: {
-            testFlag: true
-        }
+    var sys = {
+      n: 0,
+      options: {
+        testFlag: true
+      }
     };
-    Crafty.s("Test", sys, {secondFlag: false});
+    Crafty.s("Test", sys, { secondFlag: false });
     var s = Crafty.s("Test");
-    _.strictEqual(s.options.testFlag, true, "Default values for options not changed when not set");
+    _.strictEqual(
+      s.options.testFlag,
+      true,
+      "Default values for options not changed when not set"
+    );
     s.destroy();
   });
 
   test("Special property `options` override values", function(_) {
-    var sys =  {
-        n: 0,
-        options: {
-            testFlag: true
-        }
+    var sys = {
+      n: 0,
+      options: {
+        testFlag: true
+      }
     };
-    Crafty.s("Test", sys, {testFlag: false});
+    Crafty.s("Test", sys, { testFlag: false });
     var s = Crafty.s("Test");
-    _.strictEqual(s.options.testFlag, false, "Default values for options can be overridden");
+    _.strictEqual(
+      s.options.testFlag,
+      false,
+      "Default values for options can be overridden"
+    );
     s.destroy();
   });
 
   test("Overwrite system definition", function(_) {
-    Crafty.s('MySystemDef', { a: 0 }, {}, false);
-    _.strictEqual(Crafty.s('MySystemDef').a, 0);
-    _.strictEqual(Crafty.s('MySystemDef').b, undefined);
+    Crafty.s("MySystemDef", { a: 0 }, {}, false);
+    _.strictEqual(Crafty.s("MySystemDef").a, 0);
+    _.strictEqual(Crafty.s("MySystemDef").b, undefined);
 
-    Crafty.s('MySystemDef', { a: 1, b: 1 }, {}, false);
-    _.strictEqual(Crafty.s('MySystemDef').a, 1);
-    _.strictEqual(Crafty.s('MySystemDef').b, 1);
+    Crafty.s("MySystemDef", { a: 1, b: 1 }, {}, false);
+    _.strictEqual(Crafty.s("MySystemDef").a, 1);
+    _.strictEqual(Crafty.s("MySystemDef").b, 1);
   });
 
   test("order of handling special members", function(_) {
@@ -290,7 +326,7 @@
       },
       // 3rd: events should be bound on entity
       events: {
-        "CustomEvent": function() {
+        CustomEvent: function() {
           _.strictEqual(this.foo, 1);
           _.strictEqual(this.bar, 2);
           _.strictEqual(this.baz, undefined);
@@ -330,4 +366,3 @@
     _.strictEqual(s.quuz, 5);
   });
 })();
-

@@ -1,5 +1,4 @@
-var Crafty = require('../core/core.js');
-
+var Crafty = require("../core/core.js");
 
 /**@
  * #Crafty.log
@@ -24,17 +23,25 @@ var Crafty = require('../core/core.js');
  * It is recommended to use `Crafty.error`, as `console.error` can crash on IE9.
  */
 Crafty.extend({
-	// Allow logging to be disabled
-	loggingEnabled: true,
-	// In some cases console.log doesn't exist, so provide a wrapper for it
-	log: function() {
-		if (Crafty.loggingEnabled && (typeof window !== "undefined" ? window.console : console) && console.log) {
-			console.log.apply(console, arguments);
-		}
-	},
-	error: function() {
-		if (Crafty.loggingEnabled && (typeof window !== "undefined" ? window.console : console) && console.error) {
-			console.error.apply(console, arguments);
-		}
-	}
+    // Allow logging to be disabled
+    loggingEnabled: true,
+    // In some cases console.log doesn't exist, so provide a wrapper for it
+    log: function() {
+        if (
+            Crafty.loggingEnabled &&
+            (typeof window !== "undefined" ? window.console : console) &&
+            console.log
+        ) {
+            console.log.apply(console, arguments);
+        }
+    },
+    error: function() {
+        if (
+            Crafty.loggingEnabled &&
+            (typeof window !== "undefined" ? window.console : console) &&
+            console.error
+        ) {
+            console.error.apply(console, arguments);
+        }
+    }
 });

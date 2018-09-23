@@ -1,4 +1,4 @@
-var Crafty = require('../core/core.js');
+var Crafty = require("../core/core.js");
 
 Crafty.extend({
     /**@
@@ -26,19 +26,25 @@ Crafty.extend({
      * For having a detection area specified for the enity, add the AreaMap component to the entity expected to be found.
      *
      */
-    findPointerEventTargetByComponent: function (comp, x, y) {
+    findPointerEventTargetByComponent: function(comp, x, y) {
         var tar = x.target || x.srcElement || Crafty.stage.elem;
-        y = typeof y !== 'undefined' ? y : x.clientY;
-        x = typeof x.clientX !== 'undefined' ? x.clientX : x;
+        y = typeof y !== "undefined" ? y : x.clientY;
+        x = typeof x.clientX !== "undefined" ? x.clientX : x;
 
-        var closest = null, current, q, l, i, pos, maxz = -Infinity;
+        var closest = null,
+            current,
+            q,
+            l,
+            i,
+            pos,
+            maxz = -Infinity;
 
         //if it's a DOM element with component we are done
         if (tar.nodeName !== "CANVAS") {
-            while (typeof (tar.id) !== 'string' && tar.id.indexOf('ent') === -1) {
+            while (typeof tar.id !== "string" && tar.id.indexOf("ent") === -1) {
                 tar = tar.parentNode;
             }
-            var ent = Crafty(parseInt(tar.id.replace('ent', ''), 10));
+            var ent = Crafty(parseInt(tar.id.replace("ent", ""), 10));
             pos = Crafty.domHelper.translate(x, y, ent._drawLayer);
             if (ent.__c[comp] && ent.isAt(pos.x, pos.y)) {
                 closest = ent;
@@ -47,7 +53,6 @@ Crafty.extend({
 
         //else we search for an entity with component
         if (!closest) {
-
             // Loop through each layer
             for (var layerIndex in Crafty._drawLayers) {
                 var layer = Crafty._drawLayers[layerIndex];
@@ -66,8 +71,13 @@ Crafty.extend({
 
                 for (i = 0, l = q.length; i < l; ++i) {
                     current = q[i];
-                    if (current._visible && current._drawLayer === layer && current._globalZ > maxz &&
-                        current.__c[comp] && current.isAt(pos.x, pos.y)) {
+                    if (
+                        current._visible &&
+                        current._drawLayer === layer &&
+                        current._globalZ > maxz &&
+                        current.__c[comp] &&
+                        current.isAt(pos.x, pos.y)
+                    ) {
                         maxz = current._globalZ;
                         closest = current;
                     }
@@ -96,18 +106,23 @@ Crafty.extend({
      *
      * @see Crafty.domHelper#Crafty.domHelper.translate
      */
-    translatePointerEventCoordinates: function (e, out) {
+    translatePointerEventCoordinates: function(e, out) {
         out = out || e;
 
         // Find the Crafty position in the default coordinate set,
         // disregard the fact that the pointer event was related to a specific layer.
-        var pos = Crafty.domHelper.translate(e.clientX, e.clientY, undefined, this.__pointerPos);
+        var pos = Crafty.domHelper.translate(
+            e.clientX,
+            e.clientY,
+            undefined,
+            this.__pointerPos
+        );
 
         // Set the mouse position based on standard viewport coordinates
         out.realX = pos.x;
         out.realY = pos.y;
     },
-    __pointerPos: {x: 0, y: 0} // object to reuse
+    __pointerPos: { x: 0, y: 0 } // object to reuse
 });
 
 /**@
@@ -123,23 +138,23 @@ Crafty.extend({
  * @see Crafty.findPointerEventTargetByComponent
  */
 Crafty.c("AreaMap", {
-    init: function () {
+    init: function() {
         if (this.has("Renderable") && this._drawLayer) {
             this._drawLayer._pointerEntities++;
         }
     },
 
-    remove: function (isDestruction) {
+    remove: function(isDestruction) {
         if (!isDestruction && this.has("Renderable") && this._drawLayer) {
             this._drawLayer._pointerEntities--;
         }
     },
 
     events: {
-        "LayerAttached": function (layer) {
+        LayerAttached: function(layer) {
             layer._pointerEntities++;
         },
-        "LayerDetached": function (layer) {
+        LayerDetached: function(layer) {
             layer._pointerEntities--;
         }
     },
@@ -181,7 +196,7 @@ Crafty.c("AreaMap", {
      *
      * @see Crafty.polygon
      */
-    areaMap: function (poly) {
+    areaMap: function(poly) {
         //create polygon
         if (arguments.length > 1) {
             //convert args to array to create polygon
@@ -214,8 +229,11 @@ Crafty.c("AreaMap", {
  * @see Crafty.multitouch
  */
 Crafty.c("Button", {
-    init: function () {
-        var req = (!Crafty.mobile || (Crafty.mobile && !Crafty.multitouch())) ? "Mouse" : "Touch";
+    init: function() {
+        var req =
+            !Crafty.mobile || (Crafty.mobile && !Crafty.multitouch())
+                ? "Mouse"
+                : "Touch";
         this.requires(req);
     }
 });

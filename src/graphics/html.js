@@ -1,27 +1,26 @@
-var Crafty = require('../core/core.js');
-
+var Crafty = require("../core/core.js");
 
 /**@
  * #HTML
  * @category Graphics
  * @kind Component
  *
- * A component which allows for the insertion of arbitrary HTML into a DOM entity.  
+ * A component which allows for the insertion of arbitrary HTML into a DOM entity.
  *
  * Adding this to an entity will automatically add the `DOM` component.
  */
 Crafty.c("HTML", {
-    inner: '',
+    inner: "",
 
-    init: function () {
-        this.requires('2D, DOM');
+    init: function() {
+        this.requires("2D, DOM");
     },
 
     /**@
      * #.replace
      * @comp HTML
      * @kind Method
-     * 
+     *
      * @sign public this .replace(String html)
      * @param html - arbitrary html
      *
@@ -35,7 +34,7 @@ Crafty.c("HTML", {
      *    .replace("<a href='index.html'>Index</a>");
      * ~~~
      */
-    replace: function (new_html) {
+    replace: function(new_html) {
         this.inner = new_html;
         this._element.innerHTML = new_html;
         return this;
@@ -45,7 +44,7 @@ Crafty.c("HTML", {
      * #.append
      * @comp HTML
      * @kind Method
-     * 
+     *
      * @sign public this .append(String html)
      * @param html - arbitrary html
      *
@@ -59,7 +58,7 @@ Crafty.c("HTML", {
      *    .append("<a href='index.html'>Index</a>");
      * ~~~
      */
-    append: function (new_html) {
+    append: function(new_html) {
         this.inner += new_html;
         this._element.innerHTML += new_html;
         return this;
@@ -69,7 +68,7 @@ Crafty.c("HTML", {
      * #.prepend
      * @comp HTML
      * @kind Method
-     * 
+     *
      * @sign public this .prepend(String html)
      * @param html - arbitrary html
      *
@@ -83,7 +82,7 @@ Crafty.c("HTML", {
      *    .prepend("<a href='index.html'>Index</a>");
      * ~~~
      */
-    prepend: function (new_html) {
+    prepend: function(new_html) {
         this.inner = new_html + this.inner;
         this._element.innerHTML = new_html + this.inner;
         return this;

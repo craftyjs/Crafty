@@ -1,12 +1,8 @@
-var Crafty = require('../core/core.js');
-
+var Crafty = require("../core/core.js");
 
 // ToggleInput contract
 // Must provide an isDown method which returns whether the input is down or not
 // May provide a destroy method which can be used for cleanup
-
-
-
 
 // MouseButtonToggleInput
 function MouseButtonToggleInput(button) {
@@ -16,7 +12,7 @@ function MouseButtonToggleInput(button) {
 MouseButtonToggleInput.prototype = {
     isDown: function() {
         var mouseSystem = this.mouseSystem;
-        if (!mouseSystem) this.mouseSystem = mouseSystem = Crafty.s('Mouse');
+        if (!mouseSystem) this.mouseSystem = mouseSystem = Crafty.s("Mouse");
         return mouseSystem.isButtonDown(this.button);
     }
 };
@@ -29,11 +25,11 @@ function KeyboardToggleInput(key) {
 KeyboardToggleInput.prototype = {
     isDown: function() {
         var keyboardSystem = this.keyboardSystem;
-        if (!keyboardSystem) this.keyboardSystem = keyboardSystem = Crafty.s('Keyboard');
+        if (!keyboardSystem)
+            this.keyboardSystem = keyboardSystem = Crafty.s("Keyboard");
         return keyboardSystem.isKeyDown(this.key);
     }
 };
-
 
 // ToggleInputGroup
 function ToggleInputGroup(inputs) {
@@ -43,7 +39,7 @@ function ToggleInputGroup(inputs) {
 // Handles a group of inputs that represent the same toggle state
 ToggleInputGroup.prototype = {
     timeDown: null,
-    isActive: function () {
+    isActive: function() {
         for (var i in this.inputs) {
             var input = this.inputs[i];
             if (input.isDown()) {
@@ -58,7 +54,7 @@ ToggleInputGroup.prototype = {
     },
     destroy: function() {
         for (var i in this.inputs) {
-            if (typeof this.inputs[i].destroy === 'function') {
+            if (typeof this.inputs[i].destroy === "function") {
                 this.inputs[i].destroy();
             }
         }
@@ -73,11 +69,11 @@ ToggleInputGroup.prototype = {
  * #Controls
  * @category Controls
  * @kind System
- * 
+ *
  * A built-in system for linking specific inputs to general types of input events.
- * 
+ *
  * @note The methods provided by this system are likely to change in future verisons of Crafty, as more input types are supported.
- * 
+ *
  * @trigger TriggerInputDown - When a trigger group is activated - {name}
  * @trigger TriggerInputUp - When a trigger group is released - {name, downFor}
  * @trigger DirectionalInput - When a directional input changes - {name, x, y}
@@ -86,7 +82,7 @@ ToggleInputGroup.prototype = {
  * @trigger ControlDestroyed - When a control input is destroyed - {type, name}
  */
 Crafty.s("Controls", {
-    init: function () {
+    init: function() {
         // internal object to store definitions
         this._dpads = {};
         this._triggers = {};
@@ -99,9 +95,9 @@ Crafty.s("Controls", {
     },
 
     events: {
-        "EnterFrame": "runEvents",
-        "KeyDown": "updateTriggers",
-        "KeyUp": "updateTriggers"
+        EnterFrame: "runEvents",
+        KeyDown: "updateTriggers",
+        KeyUp: "updateTriggers"
     },
 
     // Runs through all triggers and updates their status
@@ -112,7 +108,7 @@ Crafty.s("Controls", {
         }
     },
 
-    runEvents: function () { 
+    runEvents: function() {
         // Trigger DirectionalInput events for dpads
         for (var d in this._dpads) {
             var dpad = this._dpads[d];
@@ -128,7 +124,7 @@ Crafty.s("Controls", {
         }
     },
 
-    getDpad: function (name) {
+    getDpad: function(name) {
         return this._dpads[name];
     },
 
@@ -144,15 +140,15 @@ Crafty.s("Controls", {
      * @sign defineTriggerGroup(string name, obj definition)
      * @param name - a name for the trigger group
      * @param definition - an object which defines the inputs for the trigger
-     * 
-     * A trigger group is a set of togglable inputs mapped to the same event.  
-     * If any of the inputs are down, the trigger is considered down.  If all are up, it is considered up.  
+     *
+     * A trigger group is a set of togglable inputs mapped to the same event.
+     * If any of the inputs are down, the trigger is considered down.  If all are up, it is considered up.
      * When the trigger state changes, a `TriggerInputUp` or `TriggerInputDown` event is fired.
-     * 
+     *
      * The definition object lists the inputs that are mapped to the trigger:
      * - `keys`: An array of Crafty keycodes
      * - `mouseButtons`: An array of Crafty mouse button codes
-     * 
+     *
      * @example
      * ~~~
      * // Define a trigger group mapped to the left mouse button and the A and B keys.
@@ -174,8 +170,10 @@ Crafty.s("Controls", {
         } else {
             inputs = [];
             if (definition.mouseButtons) {
-                for (var b in definition.mouseButtons){
-                    inputs.push(new MouseButtonToggleInput(definition.mouseButtons[b]));
+                for (var b in definition.mouseButtons) {
+                    inputs.push(
+                        new MouseButtonToggleInput(definition.mouseButtons[b])
+                    );
                 }
             }
             if (definition.keys) {
@@ -211,7 +209,10 @@ Crafty.s("Controls", {
         if (this._triggers[name]) {
             this._triggers[name].input.destroy();
             delete this._triggers[name];
-            Crafty.trigger("ControlDestroyed", { type: "TriggerGroup", name: name });
+            Crafty.trigger("ControlDestroyed", {
+                type: "TriggerGroup",
+                name: name
+            });
         }
     },
 
@@ -219,18 +220,18 @@ Crafty.s("Controls", {
      * #.defineDpad
      * @comp Controls
      * @kind Method
-     * 
+     *
      * @sign defineDpad(string name, obj definition[, obj options])
      * @param name - a name for the dpad input
      * @param definition - an object which defines the inputs and directions for the dpad
      * @param options - a set of options for the dpad
-     * 
+     *
      * A dpad is a type of directional control which maps a set of triggers to a set of directions.
-     * 
+     *
      * The options object has two properties:
      * - `normalize` *(bool)*: If true, the directional input will be normalized to a unit vector.  Defaults to false.
      * - `multipleDirectionBehavior` *(string)*: How to behave when multiple directions are active at the same time.  Values are "first", "last", and "all".  Defaults to "all".
-     * 
+     *
      * @example
      * ~~~
      * // Define a two-direction dpad, with two keys each bound to the right and left directions
@@ -242,7 +243,7 @@ Crafty.s("Controls", {
      * @see Controllable
      * @see Multiway
      */
-    defineDpad: function (name, definition, options) {
+    defineDpad: function(name, definition, options) {
         var directionDict = {};
         for (var k in definition) {
             var direction = definition[k];
@@ -264,13 +265,13 @@ Crafty.s("Controls", {
                 n: this.parseDirection(d)
             };
         }
-        if (typeof options === 'undefined') {
+        if (typeof options === "undefined") {
             options = {};
         }
-        if (typeof options.normalize === 'undefined') {
+        if (typeof options.normalize === "undefined") {
             options.normalize = false;
         }
-        if (typeof options.multipleDirectionBehavior === 'undefined') {
+        if (typeof options.multipleDirectionBehavior === "undefined") {
             options.multipleDirectionBehavior = "all";
         }
         // Create the fully realized dpad object
@@ -303,7 +304,7 @@ Crafty.s("Controls", {
      *
      * @see .defineDpad
      */
-    destroyDpad: function (name) {
+    destroyDpad: function(name) {
         if (this._dpads[name]) {
             for (var d in this._dpads[name].parsedDefinition) {
                 this._dpads[name].parsedDefinition[d].input.destroy();
@@ -315,7 +316,7 @@ Crafty.s("Controls", {
 
     // Takes an amount in degrees and converts it to an x/y object.
     // Clamps to avoid rounding issues with sin/cos
-    parseDirection: function (direction) {
+    parseDirection: function(direction) {
         return {
             x: Math.round(Math.cos(direction * (Math.PI / 180)) * 1000) / 1000,
             y: Math.round(Math.sin(direction * (Math.PI / 180)) * 1000) / 1000
@@ -323,8 +324,9 @@ Crafty.s("Controls", {
     },
 
     // dpad definition is a map of directions to keys array and active flag
-    updateActiveDirection: function (dpad, normalize) {
-        var x = 0, y = 0;
+    updateActiveDirection: function(dpad, normalize) {
+        var x = 0,
+            y = 0;
 
         // Sum up all active directions
         for (var d in dpad.directions) {
@@ -335,8 +337,8 @@ Crafty.s("Controls", {
         }
 
         // Mitigate rounding errors when close to zero movement
-        x = (-1e-10 < x && x < 1e-10) ? 0 : x;
-        y = (-1e-10 < y && y < 1e-10) ? 0 : y;
+        x = -1e-10 < x && x < 1e-10 ? 0 : x;
+        y = -1e-10 < y && y < 1e-10 ? 0 : y;
 
         // Normalize
         if (normalize) {
@@ -351,7 +353,7 @@ Crafty.s("Controls", {
         dpad.y = y;
     },
 
-    updateTriggerInput: function (trigger) {
+    updateTriggerInput: function(trigger) {
         if (!trigger.active) {
             if (trigger.input.isActive()) {
                 trigger.downFor = Date.now() - trigger.input.timeDown;
@@ -370,8 +372,8 @@ Crafty.s("Controls", {
     // Has to handle three cases concerning multiple active input groups:
     // - "all": all directions are active
     // - "last": one direction at a time, new directions replace old ones
-    // - "first": one direction at a time, new directions are ignored while old ones are still active 
-    updateDpadInput: function (dpad, multiBehavior) {
+    // - "first": one direction at a time, new directions are ignored while old ones are still active
+    updateDpadInput: function(dpad, multiBehavior) {
         var d, dir;
         var winner;
 
