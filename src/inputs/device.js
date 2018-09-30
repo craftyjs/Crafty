@@ -1,5 +1,4 @@
-var Crafty = require('../core/core.js');
-
+var Crafty = require("../core/core.js");
 
 Crafty.extend({
     /**@
@@ -26,31 +25,31 @@ Crafty.extend({
          *
          * @param eventData HTML5 DeviceOrientation event
          */
-        _normalizeDeviceOrientation: function (eventData) {
+        _normalizeDeviceOrientation: function(eventData) {
             var data;
             if (window.DeviceOrientationEvent) {
                 data = {
                     // gamma is the left-to-right tilt in degrees, where right is positive
-                    'tiltLR': eventData.gamma,
+                    tiltLR: eventData.gamma,
                     // beta is the front-to-back tilt in degrees, where front is positive
-                    'tiltFB': eventData.beta,
+                    tiltFB: eventData.beta,
                     // alpha is the compass direction the device is facing in degrees
-                    'dir': eventData.alpha,
+                    dir: eventData.alpha,
                     // deviceorientation does not provide this data
-                    'motUD': null
+                    motUD: null
                 };
             } else if (window.OrientationEvent) {
                 data = {
                     // x is the left-to-right tilt from -1 to +1, so we need to convert to degrees
-                    'tiltLR': eventData.x * 90,
+                    tiltLR: eventData.x * 90,
                     // y is the front-to-back tilt from -1 to +1, so we need to convert to degrees
                     // We also need to invert the value so tilting the device towards us (forward)
                     // results in a positive value.
-                    'tiltFB': eventData.y * -90,
+                    tiltFB: eventData.y * -90,
                     // MozOrientation does not provide this data
-                    'dir': null,
+                    dir: null,
                     // z is the vertical acceleration of the device
-                    'motUD': eventData.z
+                    motUD: eventData.z
                 };
             }
 
@@ -60,22 +59,31 @@ Crafty.extend({
         /**
          * @param eventData HTML5 DeviceMotion event
          */
-        _normalizeDeviceMotion: function (eventData) {
+        _normalizeDeviceMotion: function(eventData) {
             var acceleration = eventData.accelerationIncludingGravity,
-                facingUp = (acceleration.z > 0) ? +1 : -1;
+                facingUp = acceleration.z > 0 ? +1 : -1;
 
             var data = {
                 // Grab the acceleration including gravity from the results
-                'acceleration': acceleration,
-                'rawAcceleration': "[" + Math.round(acceleration.x) + ", " + Math.round(acceleration.y) + ", " + Math.round(acceleration.z) + "]",
+                acceleration: acceleration,
+                rawAcceleration:
+                    "[" +
+                    Math.round(acceleration.x) +
+                    ", " +
+                    Math.round(acceleration.y) +
+                    ", " +
+                    Math.round(acceleration.z) +
+                    "]",
                 // Z is the acceleration in the Z axis, and if the device is facing up or down
-                'facingUp': facingUp,
+                facingUp: facingUp,
                 // Convert the value from acceleration to degrees acceleration.x|y is the
                 // acceleration according to gravity, we'll assume we're on Earth and divide
                 // by 9.81 (earth gravity) to get a percentage value, and then multiply that
                 // by 90 to convert to degrees.
-                'tiltLR': Math.round(((acceleration.x) / 9.81) * -90),
-                'tiltFB': Math.round(((acceleration.y + 9.81) / 9.81) * 90 * facingUp)
+                tiltLR: Math.round((acceleration.x / 9.81) * -90),
+                tiltFB: Math.round(
+                    ((acceleration.y + 9.81) / 9.81) * 90 * facingUp
+                )
             };
 
             Crafty.device._deviceMotionCallback(data);
@@ -85,7 +93,7 @@ Crafty.extend({
          * #Crafty.device.deviceOrientation
          * @comp Crafty.device
          * @kind Method
-         * 
+         *
          * @sign public Crafty.device.deviceOrientation(Function callback)
          * @param callback - Callback method executed once as soon as device orientation is change
          *
@@ -109,15 +117,25 @@ Crafty.extend({
          *
          * See browser support at http://caniuse.com/#search=device orientation.
          */
-        deviceOrientation: function (func) {
+        deviceOrientation: function(func) {
             this._deviceOrientationCallback = func;
             if (Crafty.support.deviceorientation) {
                 if (window.DeviceOrientationEvent) {
                     // Listen for the deviceorientation event and handle DeviceOrientationEvent object
-                    Crafty.addEvent(this, window, 'deviceorientation', this._normalizeDeviceOrientation);
+                    Crafty.addEvent(
+                        this,
+                        window,
+                        "deviceorientation",
+                        this._normalizeDeviceOrientation
+                    );
                 } else if (window.OrientationEvent) {
                     // Listen for the MozOrientation event and handle OrientationData object
-                    Crafty.addEvent(this, window, 'MozOrientation', this._normalizeDeviceOrientation);
+                    Crafty.addEvent(
+                        this,
+                        window,
+                        "MozOrientation",
+                        this._normalizeDeviceOrientation
+                    );
                 }
             }
         },
@@ -126,7 +144,7 @@ Crafty.extend({
          * #Crafty.device.deviceMotion
          * @comp Crafty.device
          * @kind Method
-         * 
+         *
          * @sign public Crafty.device.deviceMotion(Function callback)
          * @param callback - Callback method executed once as soon as device motion is change
          *
@@ -151,12 +169,17 @@ Crafty.extend({
          *
          * See browser support at http://caniuse.com/#search=motion.
          */
-        deviceMotion: function (func) {
+        deviceMotion: function(func) {
             this._deviceMotionCallback = func;
             if (Crafty.support.devicemotion) {
                 if (window.DeviceMotionEvent) {
                     // Listen for the devicemotion event and handle DeviceMotionEvent object
-                    Crafty.addEvent(this, window, 'devicemotion', this._normalizeDeviceMotion);
+                    Crafty.addEvent(
+                        this,
+                        window,
+                        "devicemotion",
+                        this._normalizeDeviceMotion
+                    );
                 }
             }
         }

@@ -1,5 +1,4 @@
-var Crafty = require('../core/core.js');
-
+var Crafty = require("../core/core.js");
 
 module.exports = {
     _scenes: {},
@@ -9,7 +8,7 @@ module.exports = {
      * #Crafty.scene
      * @category Scenes, Stage
      * @kind Method
-     * 
+     *
      * @trigger SceneChange - just before a new scene is initialized - { oldScene:String, newScene:String }
      * @trigger SceneDestroy - just before the current scene is destroyed - { newScene:String  }
      *
@@ -58,7 +57,7 @@ module.exports = {
      *     Crafty.e("2D, DOM, Color")
      *           .attr(attributes)
      *           .color("red");
-     * 
+     *
      * });
      *
      * ~~~
@@ -83,9 +82,9 @@ module.exports = {
      * This will clear the stage, set the background black, and create a red square with the specified position and dimensions.
      * ~~~
      */
-    scene: function (name, intro, outro) {
+    scene: function(name, intro, outro) {
         // If there's one argument, or the second argument isn't a function, play the scene
-        if (arguments.length === 1 || typeof(arguments[1]) !== "function") {
+        if (arguments.length === 1 || typeof arguments[1] !== "function") {
             Crafty.enterScene(name, arguments[1]);
             return;
         }
@@ -105,16 +104,15 @@ module.exports = {
      * @see Crafty.enterScene
      * @see Crafty.scene
      */
-    defineScene: function(name, init, uninit){
+    defineScene: function(name, init, uninit) {
         if (typeof init !== "function")
-            throw("Init function is the wrong type.");
+            throw "Init function is the wrong type.";
         this._scenes[name] = {};
         this._scenes[name].initialize = init;
-        if (typeof uninit !== 'undefined') {
+        if (typeof uninit !== "undefined") {
             this._scenes[name].uninitialize = uninit;
         }
         return;
-
     },
 
     /* 
@@ -132,9 +130,8 @@ module.exports = {
      * @see Crafty.defineScene
      * @see Crafty.scene
      */
-    enterScene: function(name, data){
-        if (typeof data === "function")
-            throw("Scene data cannot be a function");
+    enterScene: function(name, data) {
+        if (typeof data === "function") throw "Scene data cannot be a function";
 
         // ---FYI---
         // this._current is the name (ID) of the scene in progress.
@@ -147,11 +144,14 @@ module.exports = {
         });
         Crafty.viewport.reset();
 
-        Crafty("2D").each(function () {
+        Crafty("2D").each(function() {
             if (!this.has("Persist")) this.destroy();
         });
         // uninitialize previous scene
-        if (this._current !== null && 'uninitialize' in this._scenes[this._current]) {
+        if (
+            this._current !== null &&
+            "uninitialize" in this._scenes[this._current]
+        ) {
             this._scenes[this._current].uninitialize.call(this);
         }
         // initialize next scene
@@ -161,7 +161,7 @@ module.exports = {
             oldScene: oldScene,
             newScene: name
         });
-           
+
         if (this._scenes.hasOwnProperty(name)) {
             this._scenes[name].initialize.call(this, data);
         } else {
@@ -169,6 +169,5 @@ module.exports = {
         }
 
         return;
-
     }
 };

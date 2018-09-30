@@ -1,6 +1,5 @@
-var Crafty = require('../core/core.js'),
+var Crafty = require("../core/core.js"),
     document = window.document;
-
 
 /**@
  * #DomLayer
@@ -19,30 +18,30 @@ Crafty._registerLayerTemplate("DOM", {
      * @comp DomLayer
      * @kind Property
      * @private
-     * 
+     *
      * A div inside the `#cr-stage` div that holds all DOM entities.
      */
     _div: null,
 
     events: {
         // Respond to init & remove events
-        "LayerInit": "layerInit",
-        "LayerRemove": "layerRemove",
+        LayerInit: "layerInit",
+        LayerRemove: "layerRemove",
         // Bind scene rendering (see drawing.js)
-        "RenderScene": "_render",
+        RenderScene: "_render",
         // Listen for pixelart changes
-        "PixelartSet": "_setPixelart"
+        PixelartSet: "_setPixelart"
         // Layers should generally listen for resize events,
         // but the DOM layers automatically inherit the stage's dimensions
         //"ViewportResize": "_resize"
     },
 
-    layerInit: function () {
+    layerInit: function() {
         // Avoid shared state between systems
         this._changedObjs = [];
 
         // Create the div that will contain DOM elements
-        var div = this._div = document.createElement("div");
+        var div = (this._div = document.createElement("div"));
 
         Crafty.stage.elem.appendChild(div);
         div.style.position = "absolute";
@@ -60,18 +59,24 @@ Crafty._registerLayerTemplate("DOM", {
         var style = this._div.style;
         var camelize = Crafty.domHelper.camelize;
         if (enabled) {
-            style[camelize("image-rendering")] = "optimizeSpeed";   /* legacy */
-            style[camelize("image-rendering")] = "-moz-crisp-edges";    /* Firefox */
-            style[camelize("image-rendering")] = "-o-crisp-edges";  /* Opera */
-            style[camelize("image-rendering")] = "-webkit-optimize-contrast";   /* Webkit (Chrome & Safari) */
-            style[camelize("-ms-interpolation-mode")] = "nearest-neighbor";  /* IE */
-            style[camelize("image-rendering")] = "optimize-contrast";   /* CSS3 proposed */
-            style[camelize("image-rendering")] = "pixelated";   /* CSS4 proposed */
-            style[camelize("image-rendering")] = "crisp-edges"; /* CSS4 proposed */
+            style[camelize("image-rendering")] = "optimizeSpeed"; /* legacy */
+            style[camelize("image-rendering")] =
+                "-moz-crisp-edges"; /* Firefox */
+            style[camelize("image-rendering")] = "-o-crisp-edges"; /* Opera */
+            style[camelize("image-rendering")] =
+                "-webkit-optimize-contrast"; /* Webkit (Chrome & Safari) */
+            style[camelize("-ms-interpolation-mode")] =
+                "nearest-neighbor"; /* IE */
+            style[camelize("image-rendering")] =
+                "optimize-contrast"; /* CSS3 proposed */
+            style[camelize("image-rendering")] =
+                "pixelated"; /* CSS4 proposed */
+            style[camelize("image-rendering")] =
+                "crisp-edges"; /* CSS4 proposed */
         } else {
-            style[camelize("image-rendering")] = "optimizeQuality";   /* legacy */
-            style[camelize("-ms-interpolation-mode")] = "bicubic";   /* IE */
-            style[camelize("image-rendering")] = "auto";   /* CSS3 */
+            style[camelize("image-rendering")] = "optimizeQuality"; /* legacy */
+            style[camelize("-ms-interpolation-mode")] = "bicubic"; /* IE */
+            style[camelize("image-rendering")] = "auto"; /* CSS3 */
         }
     },
 
@@ -79,34 +84,33 @@ Crafty._registerLayerTemplate("DOM", {
      * #.debug
      * @comp DomLayer
      * @kind Method
-     * 
+     *
      * @sign public .debug()
-     * 
+     *
      * Logs the current list of entities that have been invalidated in this layer.
      */
-    debug: function () {
+    debug: function() {
         Crafty.log(this._changedObjs);
     },
-
 
     /**@
      * #._render
      * @comp DomLayer
      * @kind Method
      * @private
-     * 
+     *
      * @sign public .render()
      *
      * When "RenderScene" is triggered, draws all DOM entities that have been flagged
      *
      * @see DOM#.draw
      */
-    _render: function () {
+    _render: function() {
         var changed = this._changedObjs;
         // Adjust the viewport
         if (this._dirtyViewport) {
-           this._setViewport();
-           this._dirtyViewport = false;
+            this._setViewport();
+            this._dirtyViewport = false;
         }
 
         //if no objects have been changed, stop
@@ -121,7 +125,6 @@ Crafty._registerLayerTemplate("DOM", {
 
         //reset DOM array
         changed.length = 0;
-
     },
 
     /**@
@@ -129,7 +132,7 @@ Crafty._registerLayerTemplate("DOM", {
      * @comp DomLayer
      * @kind Method
      * @private
-     * 
+     *
      * @sign public .dirty(ent)
      * @param ent - The entity to mark as dirty
      *
@@ -144,7 +147,7 @@ Crafty._registerLayerTemplate("DOM", {
      * @comp DomLayer
      * @kind Method
      * @private
-     * 
+     *
      * @sign public .attach(ent)
      * @param ent - The entity to add
      *
@@ -158,13 +161,13 @@ Crafty._registerLayerTemplate("DOM", {
         ent._element.style.position = "absolute";
         ent._element.id = "ent" + ent[0];
     },
-    
+
     /**@
      * #.detach
      * @comp DomLayer
      * @kind Method
      * @private
-     * 
+     *
      * @sign public .detach(ent)
      * @param ent - The entity to remove
      *
@@ -184,10 +187,10 @@ Crafty._registerLayerTemplate("DOM", {
         var dx = -view._x * scale;
         var dy = -view._y * scale;
 
-        style.transform = style[Crafty.support.prefix + "Transform"] = "scale(" + scale + ", " + scale + ")";
+        style.transform = style[Crafty.support.prefix + "Transform"] =
+            "scale(" + scale + ", " + scale + ")";
         style.left = Math.round(dx) + "px";
         style.top = Math.round(dy) + "px";
         style.zIndex = this.options.z;
     }
-
 });

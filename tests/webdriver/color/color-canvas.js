@@ -1,2 +1,2 @@
 QUnit.module(module);
-require('./color-common.js')(QUnit, browser, 'Canvas');
+require("./color-common.js")(QUnit, browser, "Canvas");

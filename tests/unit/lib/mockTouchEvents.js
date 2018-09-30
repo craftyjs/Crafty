@@ -24,22 +24,25 @@
  */
 
 function computedStyle(el, prop) {
-    return (
-        window.getComputedStyle ? window.getComputedStyle(el) : el.currentStyle
-    )[prop.replace(/-(\w)/gi, function (word, letter) {
-        return letter.toUpperCase();
-    })];
+    return (window.getComputedStyle
+        ? window.getComputedStyle(el)
+        : el.currentStyle)[
+        prop.replace(/-(\w)/gi, function(word, letter) {
+            return letter.toUpperCase();
+        })
+    ];
 }
 
 function getChildrenSize(container) {
     if (!container) {
         return;
     }
-    var children = [].slice.call(container.children, 0).filter(function (el) {
-        var pos = computedStyle(el, 'position');
+    var children = [].slice.call(container.children, 0).filter(function(el) {
+        var pos = computedStyle(el, "position");
         el.rect = el.getBoundingClientRect(); // store rect for later
         return !(
-            (pos === 'absolute' || pos === 'fixed') ||
+            pos === "absolute" ||
+            pos === "fixed" ||
             (el.rect.width === 0 && el.rect.height === 0)
         );
     });
@@ -50,14 +53,15 @@ function getChildrenSize(container) {
         };
     }
 
-    var totRect = children.reduce(function (tot, el) {
-        return (!tot ?
-            el.rect : {
-                top: Math.min(tot.top, el.rect.top),
-                left: Math.min(tot.left, el.rect.left),
-                right: Math.max(tot.right, el.rect.right),
-                bottom: Math.max(tot.bottom, el.rect.bottom)
-            });
+    var totRect = children.reduce(function(tot, el) {
+        return !tot
+            ? el.rect
+            : {
+                  top: Math.min(tot.top, el.rect.top),
+                  left: Math.min(tot.left, el.rect.left),
+                  right: Math.max(tot.right, el.rect.right),
+                  bottom: Math.max(tot.bottom, el.rect.bottom)
+              };
     }, null);
 
     return {
@@ -73,15 +77,19 @@ function createTouchList(target, list) {
     if (Array.isArray(list) && list[0] && !Array.isArray(list[0])) {
         list = [list];
     }
-    list = list.map(function (entry, index) {
-        var x = entry[0], y = entry[1], id = entry[2] || index;
+    list = list.map(function(entry, index) {
+        var x = entry[0],
+            y = entry[1],
+            id = entry[2] || index;
         return createTouch(x, y, target, id);
     });
     return document.createTouchList.apply(document, list);
 }
 
 function createTouch(x, y, target, id) {
-    return document.createTouch(window, target,
+    return document.createTouch(
+        window,
+        target,
         //identifier
         id || 0,
         //pageX / clientX
@@ -129,14 +137,14 @@ function initTouchEvent(touchEvent, type, touches) {
 }
 
 function createTouchEvent(elem, type, touches) {
-    var touchEvent = document.createEvent('TouchEvent');
+    var touchEvent = document.createEvent("TouchEvent");
     if (Array.isArray(touches)) {
         touches = createTouchList(elem, touches);
     }
 
     function dispatch(getEvent) {
         initTouchEvent(touchEvent, type, touches);
-        if (typeof getEvent === 'function'){
+        if (typeof getEvent === "function") {
             getEvent.call(elem, touchEvent, elem);
         }
         elem.dispatchEvent(touchEvent);
@@ -150,22 +158,22 @@ function apply(fn, arg, args) {
 }
 
 function swipeLeft() {
-    return apply(swipe, 'left', arguments);
+    return apply(swipe, "left", arguments);
 }
 
 function swipeRight() {
-    return apply(swipe, 'right', arguments);
+    return apply(swipe, "right", arguments);
 }
 
-function swipeTop(){
-    return apply(swipe, 'top', arguments);
+function swipeTop() {
+    return apply(swipe, "top", arguments);
 }
 
-function swipeBottom(){
-    return apply(swipe, 'bottom', arguments);
+function swipeBottom() {
+    return apply(swipe, "bottom", arguments);
 }
 
-function round(num){
+function round(num) {
     return Math.round(num);
 }
 
@@ -178,72 +186,67 @@ function swipe(direction, elem, ms, frames, getEvent) {
     var y;
     var from;
     var to;
-    var isVertical = direction === 'top' || direction === 'bottom';
-    if (isVertical){
+    var isVertical = direction === "top" || direction === "bottom";
+    if (isVertical) {
         y = elemSize.height;
         x = elemSize.width / 2;
 
-        from = [x*0.95, VERTICAL_OFFSET].map(round);
-        to   = [x*1.01, y-VERTICAL_OFFSET].map(round);
+        from = [x * 0.95, VERTICAL_OFFSET].map(round);
+        to = [x * 1.01, y - VERTICAL_OFFSET].map(round);
     } else {
         // horizontal
         x = elemSize.width;
         y = elemSize.height / 2;
-        from = [HORIZONTAL_OFFSET, y*0.98].map(round);
-        to   = [x - HORIZONTAL_OFFSET, y*1.01].map(round);
+        from = [HORIZONTAL_OFFSET, y * 0.98].map(round);
+        to = [x - HORIZONTAL_OFFSET, y * 1.01].map(round);
     }
 
-    if (direction === 'right' || direction === 'top') {
+    if (direction === "right" || direction === "top") {
         touchActionSequence(elem, from, to, ms, frames, getEvent);
     } else {
         touchActionSequence(elem, to, from, ms, frames, getEvent);
     }
 }
 
-function getDiff(fromList, toList){
-    return [
-        toList[0] - fromList[0],
-        toList[1] - fromList[1]
-    ];
+function getDiff(fromList, toList) {
+    return [toList[0] - fromList[0], toList[1] - fromList[1]];
 }
 
-function getXandYFrame(startPoint, diffToWalk, currentProgress){
+function getXandYFrame(startPoint, diffToWalk, currentProgress) {
     return [
-        Math.round(
-            Math.abs(
-                startPoint[0] + (diffToWalk[0] * currentProgress))),
-        Math.round(
-            Math.abs(
-                startPoint[1] + (diffToWalk[1] * currentProgress)))
+        Math.round(Math.abs(startPoint[0] + diffToWalk[0] * currentProgress)),
+        Math.round(Math.abs(startPoint[1] + diffToWalk[1] * currentProgress))
     ];
 }
 
 function touchActionSequence(elem, fromXandY, toXandY, ms, frames, getEvent) {
-    frames       = frames || 10;
-    ms           = Math.round((ms||1000) / frames);
+    frames = frames || 10;
+    ms = Math.round((ms || 1000) / frames);
     // lets find difference from start to end and divide on frames
-    var diff     = getDiff(fromXandY, toXandY);
-    var counter  = frames;
-    var pos             = getXandYFrame(fromXandY, diff, counter/frames);
+    var diff = getDiff(fromXandY, toXandY);
+    var counter = frames;
+    var pos = getXandYFrame(fromXandY, diff, counter / frames);
     var targetElement;
 
-    targetElement   = document.elementFromPoint(pos[0], pos[1]);
+    targetElement = document.elementFromPoint(pos[0], pos[1]);
 
     setTimeout(function handler() {
         counter--;
         if (counter) {
-            pos = getXandYFrame(fromXandY, diff, counter/frames);
+            pos = getXandYFrame(fromXandY, diff, counter / frames);
             targetElement = document.elementFromPoint(pos[0], pos[1]);
-            createTouchEvent(targetElement||elem, 'touchmove', pos)(getEvent);
+            createTouchEvent(targetElement || elem, "touchmove", pos)(getEvent);
             setTimeout(handler, ms);
         } else {
-            createTouchEvent(targetElement||elem, 'touchend', [[0, 0]])(getEvent);
+            createTouchEvent(targetElement || elem, "touchend", [[0, 0]])(
+                getEvent
+            );
         }
     }, ms);
-    createTouchEvent(targetElement||elem, 'touchstart', pos)(getEvent);
+    createTouchEvent(targetElement || elem, "touchstart", pos)(getEvent);
 }
 
-function factory(){
+function factory() {
     return {
         _apply: apply,
         _getXandYFrame: getXandYFrame,
@@ -257,7 +260,7 @@ function factory(){
     };
 }
 
-if (typeof module !== 'undefined' && module.exports){
+if (typeof module !== "undefined" && module.exports) {
     module.exports = factory();
 } else {
     window.mockPhantomTouchEvents = factory();

@@ -1,12 +1,12 @@
-var Crafty = require('../core/core.js'),
+var Crafty = require("../core/core.js"),
     document = window.document;
 
 // Object for abstracting out all the gl calls to handle rendering entities with a particular program
-function RenderProgramWrapper(layer, shader){
+function RenderProgramWrapper(layer, shader) {
     this.shader = shader;
     this.layer = layer;
     this.context = layer.context;
-    this.draw = function() { };
+    this.draw = function() {};
 
     this.array_size = 16;
     this.max_size = 1024;
@@ -38,7 +38,9 @@ RenderProgramWrapper.prototype = {
         this.stride = offset;
 
         // Create attribute array of correct size to hold max elements
-        this._attributeArray = new Float32Array(this.array_size * 4 * this.stride);
+        this._attributeArray = new Float32Array(
+            this.array_size * 4 * this.stride
+        );
         this._attributeBuffer = this.context.createBuffer();
         this._registryHoles = [];
         this._registrySize = 0;
@@ -67,7 +69,7 @@ RenderProgramWrapper.prototype = {
     registerEntity: function(e) {
         if (this._registryHoles.length === 0) {
             if (this._registrySize >= this.max_size) {
-                throw ("Number of entities exceeds maximum limit.");
+                throw "Number of entities exceeds maximum limit.";
             } else if (this._registrySize >= this.array_size) {
                 this.growArrays(2 * this.array_size);
             }
@@ -101,11 +103,19 @@ RenderProgramWrapper.prototype = {
         var gl = this.context;
         gl.useProgram(this.shader);
         gl.bindBuffer(gl.ARRAY_BUFFER, this._attributeBuffer);
-        var a, attributes = this.attributes;
+        var a,
+            attributes = this.attributes;
         // Process every attribute
         for (var i = 0; i < attributes.length; i++) {
             a = attributes[i];
-            gl.vertexAttribPointer(a.location, a.width, a.type, false, this.stride * a.bytes, a.offset * a.bytes);
+            gl.vertexAttribPointer(
+                a.location,
+                a.width,
+                a.type,
+                false,
+                this.stride * a.bytes,
+                a.offset * a.bytes
+            );
         }
 
         // For now, special case the need for texture objects
@@ -120,8 +130,7 @@ RenderProgramWrapper.prototype = {
     // Sets a texture
     setTexture: function(texture_obj) {
         // Only needs to be done once
-        if (this.texture_obj !== undefined)
-            return;
+        if (this.texture_obj !== undefined) return;
         // Set the texture buffer to use
         texture_obj.setToProgram(this.shader, "uSampler", "uTextureDimensions");
         this.texture_obj = texture_obj;
@@ -130,7 +139,8 @@ RenderProgramWrapper.prototype = {
     // adds a set of 6 indices to the index array
     // Corresponds to 2 triangles that make up a rectangle
     addIndices: function(offset) {
-        var index = this._indexArray, l = this.index_pointer;
+        var index = this._indexArray,
+            l = this.index_pointer;
         index[0 + l] = 0 + offset;
         index[1 + l] = 1 + offset;
         index[2 + l] = 2 + offset;
@@ -140,21 +150,30 @@ RenderProgramWrapper.prototype = {
         this.index_pointer += 6;
     },
 
-
     // Writes data from the attribute and index arrays to the appropriate buffers, and then calls drawElements.
     renderBatch: function() {
         var gl = this.context;
         gl.bindBuffer(gl.ARRAY_BUFFER, this._attributeBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this._attributeArray, gl.STATIC_DRAW);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this._indexArray, gl.STATIC_DRAW);
+        gl.bufferData(
+            gl.ELEMENT_ARRAY_BUFFER,
+            this._indexArray,
+            gl.STATIC_DRAW
+        );
         gl.drawElements(gl.TRIANGLES, this.index_pointer, gl.UNSIGNED_SHORT, 0);
     },
 
     setViewportUniforms: function(viewport, cameraOptions) {
         var gl = this.context;
         gl.useProgram(this.shader);
-        gl.uniform4f(this.shader.viewport, -viewport._x, -viewport._y, viewport._w , viewport._h );
+        gl.uniform4f(
+            this.shader.viewport,
+            -viewport._x,
+            -viewport._y,
+            viewport._w,
+            viewport._h
+        );
     },
 
     // Fill in the attribute with the given arguments, cycling through the data if necessary
@@ -162,13 +181,16 @@ RenderProgramWrapper.prototype = {
     // TODO determine if this abstraction is a performance hit!
     writeVector: function(name, x, y) {
         var a = this._attribute_table[name];
-        var stride = this.stride, offset = a.offset + this.ent_offset * stride, w = a.width;
-        var l = (arguments.length - 1);
+        var stride = this.stride,
+            offset = a.offset + this.ent_offset * stride,
+            w = a.width;
+        var l = arguments.length - 1;
         var data = this._attributeArray;
 
         for (var r = 0; r < 4; r++)
             for (var c = 0; c < w; c++) {
-                data[offset + stride * r + c] = arguments[(w * r + c) % l + 1];
+                data[offset + stride * r + c] =
+                    arguments[((w * r + c) % l) + 1];
             }
     }
 };
@@ -199,7 +221,7 @@ Crafty._registerLayerTemplate("WebGL", {
         gl.shaderSource(shader, src);
         gl.compileShader(shader);
         if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-            throw (gl.getShaderInfoLog(shader));
+            throw gl.getShaderInfoLog(shader);
         }
         return shader;
     },
@@ -208,8 +230,14 @@ Crafty._registerLayerTemplate("WebGL", {
     // Will compile the two shaders and then link them together
     _makeProgram: function(shader) {
         var gl = this.context;
-        var fragmentShader = this._compileShader(shader.fragmentCode, gl.FRAGMENT_SHADER);
-        var vertexShader = this._compileShader(shader.vertexCode, gl.VERTEX_SHADER);
+        var fragmentShader = this._compileShader(
+            shader.fragmentCode,
+            gl.FRAGMENT_SHADER
+        );
+        var vertexShader = this._compileShader(
+            shader.vertexCode,
+            gl.VERTEX_SHADER
+        );
 
         var shaderProgram = gl.createProgram();
         gl.attachShader(shaderProgram, vertexShader);
@@ -217,10 +245,13 @@ Crafty._registerLayerTemplate("WebGL", {
         gl.linkProgram(shaderProgram);
 
         if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-            throw ("Could not initialise shaders");
+            throw "Could not initialise shaders";
         }
 
-        shaderProgram.viewport = gl.getUniformLocation(shaderProgram, "uViewport");
+        shaderProgram.viewport = gl.getUniformLocation(
+            shaderProgram,
+            "uViewport"
+        );
         return shaderProgram;
     },
 
@@ -258,18 +289,17 @@ Crafty._registerLayerTemplate("WebGL", {
 
     events: {
         // Respond to init & remove events
-        "LayerInit": "layerInit",
-        "LayerRemove": "layerRemove",
+        LayerInit: "layerInit",
+        LayerRemove: "layerRemove",
         // Bind scene rendering (see drawing.js)
-        "RenderScene": "_render",
+        RenderScene: "_render",
         // Listen for pixelart changes
-        "PixelartSet": "_setPixelart",
+        PixelartSet: "_setPixelart",
         // Handle viewport modifications
-        "ViewportResize": "_resize"
+        ViewportResize: "_resize"
     },
 
     layerInit: function() {
-
         //check if we support webgl is supported
         if (!Crafty.support.webgl) {
             Crafty.trigger("NoWebGL");
@@ -285,7 +315,7 @@ Crafty._registerLayerTemplate("WebGL", {
         c = document.createElement("canvas");
         c.width = Crafty.viewport.width;
         c.height = Crafty.viewport.height;
-        c.style.position = 'absolute';
+        c.style.position = "absolute";
         c.style.left = "0px";
         c.style.top = "0px";
         c.style.zIndex = this.options.z;
@@ -295,7 +325,11 @@ Crafty._registerLayerTemplate("WebGL", {
         // Try to get a webgl context
         var gl;
         try {
-            gl = c.getContext("webgl", { premultipliedalpha: true }) || c.getContext("experimental-webgl", { premultipliedalpha: true });
+            gl =
+                c.getContext("webgl", { premultipliedalpha: true }) ||
+                c.getContext("experimental-webgl", {
+                    premultipliedalpha: true
+                });
             gl.viewportWidth = c.width;
             gl.viewportHeight = c.height;
         } catch (e) {
@@ -380,13 +414,16 @@ Crafty._registerLayerTemplate("WebGL", {
         visible_gl.length = 0;
         for (i = 0; i < l; i++) {
             current = q[i];
-            if (current._visible && current.program && (current._drawLayer === this)) {
+            if (
+                current._visible &&
+                current.program &&
+                current._drawLayer === this
+            ) {
                 visible_gl.push(current);
             }
         }
         visible_gl.sort(this._sort);
         l = visible_gl.length;
-
 
         // Now iterate through the z-sorted entities to be rendered
         // Each entity writes it's data into a typed array
@@ -413,7 +450,6 @@ Crafty._registerLayerTemplate("WebGL", {
         if (shaderProgram !== null) {
             shaderProgram.renderBatch();
         }
-
     },
 
     /**@
@@ -421,7 +457,7 @@ Crafty._registerLayerTemplate("WebGL", {
      * @comp WebGLLayer
      * @kind Method
      * @private
-     * 
+     *
      * @sign public .dirty(ent)
      * @param ent - The entity to mark as dirty
      *
@@ -436,7 +472,7 @@ Crafty._registerLayerTemplate("WebGL", {
      * @comp WebGLLayer
      * @kind Method
      * @private
-     * 
+     *
      * @sign public .attach(ent)
      * @param ent - The entity to add
      *
@@ -452,7 +488,7 @@ Crafty._registerLayerTemplate("WebGL", {
      * @comp WebGLLayer
      * @kind Method
      * @private
-     * 
+     *
      * @sign public .detach(ent)
      * @param ent - The entity to remove
      *
@@ -465,6 +501,4 @@ Crafty._registerLayerTemplate("WebGL", {
             ent.program.unregisterEntity(ent);
         }
     }
-
 });
-

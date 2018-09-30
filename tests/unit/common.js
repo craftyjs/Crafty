@@ -27,31 +27,37 @@ Crafty.pause();
 // Helper functions //
 //////////////////////
 
-resetStage = function() { // jshint ignore:line
+// Disable jshint rules for setting global vars
+// jshint -W020
+resetStage = function() {
   Crafty.viewport.reset();
-  Crafty.viewport.scroll('_x', 0);
-  Crafty.viewport.scroll('_y', 0);
+  Crafty.viewport.scroll("_x", 0);
+  Crafty.viewport.scroll("_y", 0);
   Crafty.viewport.clampToEntities = true;
 };
 
-Round = function(x){ // jshint ignore:line
-  return Math.round(x*100)/100;
+Round = function(x) {
+  return Math.round(x * 100) / 100;
 };
 
-keysUp = function() { // jshint ignore:line
+keysUp = function() {
   var keysToRelease = Array.prototype.slice.call(arguments);
-    for (var k in keysToRelease) {
-      var key = Crafty.keys[keysToRelease[k]] || keysToRelease[k];
-      Crafty.s('Keyboard').triggerKey("KeyUp", {eventName: "KeyUp", key: key});
-    } 
+  for (var k in keysToRelease) {
+    var key = Crafty.keys[keysToRelease[k]] || keysToRelease[k];
+    Crafty.s("Keyboard").triggerKey("KeyUp", { eventName: "KeyUp", key: key });
+  }
 };
-keysDown = function() { // jshint ignore:line
-    var keysToPress = Array.prototype.slice.call(arguments);
-    for (var k in keysToPress) {
-      var key = Crafty.keys[keysToPress[k]] || keysToPress[k];
-      Crafty.s('Keyboard').triggerKey("KeyDown", {eventName: "KeyDown", key: key});
-    }
+keysDown = function() {
+  var keysToPress = Array.prototype.slice.call(arguments);
+  for (var k in keysToPress) {
+    var key = Crafty.keys[keysToPress[k]] || keysToPress[k];
+    Crafty.s("Keyboard").triggerKey("KeyDown", {
+      eventName: "KeyDown",
+      key: key
+    });
+  }
 };
+// jshint +W020
 
 //////////////////
 // QUnit config //
@@ -70,17 +76,17 @@ QUnit.config.reorder = false;
 ///////////////////////
 
 var log = [];
-QUnit.testStart(function(testDetails){
-  QUnit.log(function(details){
+QUnit.testStart(function(testDetails) {
+  QUnit.log(function(details) {
     if (!details.result) {
       details.name = testDetails.name;
       log.push(details);
     }
   });
 });
-QUnit.done(function (test_results) {
+QUnit.done(function(test_results) {
   var tests = [];
-  for(var i = 0, len = log.length; i < len; i++) {
+  for (var i = 0, len = log.length; i < len; i++) {
     var details = log[i];
     tests.push({
       name: details.name,
@@ -91,8 +97,7 @@ QUnit.done(function (test_results) {
     });
   }
   test_results.tests = tests;
-  if (typeof window !== "undefined")
-    window.global_test_results = test_results;
+  if (typeof window !== "undefined") window.global_test_results = test_results;
   else if (typeof global !== "undefined")
     global.global_test_results = test_results;
 });

@@ -35,7 +35,8 @@
   "browser": "src/crafty.js",
   "scripts": {
     "test": "grunt check",
-    "postinstall": "(node -e \"process.env.NODE_ENV !== 'production' && process.exit()\" && grunt copy:lib) || node -v"
+    "postinstall": "(node -e \"process.env.NODE_ENV !== 'production' && process.exit()\" && grunt copy:lib) || node -v",
+    "precommit": "pretty-quick --staged"
   },
   "browserify": {
     "transform": [
@@ -66,12 +67,15 @@
     "grunt-saucelabs": "^9.0.0",
     "grunt-webdriver": "^2.0.3",
     "highlight.js": "^9.7.0",
+    "husky": "^1.0.0-rc.15",
     "jimp": "^0.2.27",
     "marked": "^0.3.6",
     "node-jsx": "^0.13.3",
     "node-resemble-js": "^0.1.1",
     "open": "^0.0.5",
     "phantomjs-prebuilt": "2.1.14",
+    "prettier": "1.14.3",
+    "pretty-quick": "^1.7.0",
     "q": "^1.4.1",
     "q-io": "^1.13.1",
     "qunitjs": "^2.4.1",

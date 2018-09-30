@@ -4,7 +4,6 @@
  * @author Louis Stowasser
  */
 
-
 /**@
  * #Crafty.HashMap
  * @category 2D
@@ -31,7 +30,7 @@ var cellsize, // TODO: make cellsize an instance property, so multiple maps with
  * Set `cellsize`.
  * And create `this.map`.
  */
-var HashMap = function (cell) {
+var HashMap = function(cell) {
     cellsize = cell || 64;
     this.map = {};
 
@@ -66,7 +65,7 @@ var HashMap = function (cell) {
  *
  * @see Crafty.HashMap.constructor
  */
-HashMap.key = function (obj, keys) {
+HashMap.key = function(obj, keys) {
     obj = obj._cbr || obj._mbr || obj;
     keys = keys || {};
 
@@ -77,7 +76,7 @@ HashMap.key = function (obj, keys) {
     return keys;
 };
 
-HashMap.hash = function (keys) {
+HashMap.hash = function(keys) {
     return keys.x1 + SPACE + keys.y1 + SPACE + keys.x2 + SPACE + keys.y2;
 };
 
@@ -114,7 +113,7 @@ HashMap.prototype = {
      * }
      * ~~~
      */
-    insert: function (obj, entry) {
+    insert: function(obj, entry) {
         var i, j, hash;
         var keys = HashMap.key(obj, entry && entry.keys);
         entry = entry || new Entry(keys, obj, this);
@@ -164,10 +163,13 @@ HashMap.prototype = {
      * }
      * ~~~
      */
-     _searchHolder: [],
-    search: function (rect, results) {
+    _searchHolder: [],
+    search: function(rect, results) {
         var keys = HashMap.key(rect, keyHolder),
-            i, j, k,  cell,
+            i,
+            j,
+            k,
+            cell,
             previouslyChecked = this._searchHolder;
         results = results || [];
         previouslyChecked.length = 0;
@@ -182,8 +184,12 @@ HashMap.prototype = {
                         if (previouslyChecked[cell[k][0]]) continue;
                         obj = previouslyChecked[cell[k][0]] = cell[k];
                         obj = obj._cbr || obj._mbr || obj;
-                        if (obj._x < rect._x + rect._w && obj._x + obj._w > rect._x &&
-                                obj._y < rect._y + rect._h && obj._y + obj._h > rect._y) {
+                        if (
+                            obj._x < rect._x + rect._w &&
+                            obj._x + obj._w > rect._x &&
+                            obj._y < rect._y + rect._h &&
+                            obj._y + obj._h > rect._y
+                        ) {
                             results.push(cell[k]);
                         }
                     }
@@ -207,15 +213,18 @@ HashMap.prototype = {
      *
      * Do a search for entities in the given region.  Returned entities are **not** guaranteed
      * to overlap with the given region, and the results may contain duplicates.
-     * 
+     *
      * This method is intended to be used as the first step of a more complex search.
      * More common use cases should use Crafty.map.search, which filters the results.
-     * 
+     *
      * @see Crafty.map.search
      */
     unfilteredSearch: function(rect, results) {
         var keys = HashMap.key(rect, keyHolder),
-            i, j, k,  cell;
+            i,
+            j,
+            k,
+            cell;
         results = results || [];
 
         //search in all x buckets
@@ -248,11 +257,12 @@ HashMap.prototype = {
      * Crafty.map.remove(e);
      * ~~~
      */
-    remove: function (entry) {
+    remove: function(entry) {
         var keys = entry.keys;
         var obj = entry.obj;
         var i = 0,
-            j, hash;
+            j,
+            hash;
 
         //search in all x buckets
         for (i = keys.x1; i <= keys.x2; i++) {
@@ -262,11 +272,11 @@ HashMap.prototype = {
 
                 if (this.map[hash]) {
                     var cell = this.map[hash],
-                        m, n = cell.length;
+                        m,
+                        n = cell.length;
                     //loop over objs in cell and delete
                     for (m = 0; m < n; m++)
-                        if (cell[m] && cell[m][0] === obj[0])
-                            cell.splice(m, 1);
+                        if (cell[m] && cell[m][0] === obj[0]) cell.splice(m, 1);
                 }
             }
         }
@@ -290,7 +300,7 @@ HashMap.prototype = {
      * Crafty.map.refresh(e);
      * ~~~
      */
-    refresh: function (entry) {
+    refresh: function(entry) {
         var keys = entry.keys;
         var obj = entry.obj;
         var cell, i, j, m, n;
@@ -303,8 +313,7 @@ HashMap.prototype = {
                     n = cell.length;
                     //loop over objs in cell and delete
                     for (m = 0; m < n; m++)
-                        if (cell[m] && cell[m][0] === obj[0])
-                            cell.splice(m, 1);
+                        if (cell[m] && cell[m][0] === obj[0]) cell.splice(m, 1);
                 }
             }
         }
@@ -326,7 +335,6 @@ HashMap.prototype = {
 
         return entry;
     },
-
 
     /**@
      * #Crafty.map.boundaries
@@ -396,9 +404,8 @@ HashMap.prototype = {
         // update map boundaries if they were changed
         if (!this.boundsDirty && !this.coordBoundsDirty) return;
 
-
         var hash = this.boundsHash;
-        // Optimization: if no entities have moved cells, 
+        // Optimization: if no entities have moved cells,
         // we don't need to recalculate the hash boundaries
         if (this.boundsDirty) {
             hash.maxX = -Infinity;
@@ -432,7 +439,7 @@ HashMap.prototype = {
                     ent = cell[k];
                     //TODO: remove these checks introduced by 25e7c88f61f64525adc32f7fd776099413cb1567?
                     //make sure that this is a Crafty entity
-                    if (typeof ent === 'object' && 'requires' in ent) {
+                    if (typeof ent === "object" && "requires" in ent) {
                         coords.maxX = Math.max(coords.maxX, ent.x + ent.w);
                     }
                 }
@@ -441,7 +448,7 @@ HashMap.prototype = {
                 hash.minX = i;
                 for (k in cell) {
                     ent = cell[k];
-                    if (typeof ent === 'object' && 'requires' in ent) {
+                    if (typeof ent === "object" && "requires" in ent) {
                         coords.minX = Math.min(coords.minX, ent.x);
                     }
                 }
@@ -450,7 +457,7 @@ HashMap.prototype = {
                 hash.maxY = j;
                 for (k in cell) {
                     ent = cell[k];
-                    if (typeof ent === 'object' && 'requires' in ent) {
+                    if (typeof ent === "object" && "requires" in ent) {
                         coords.maxY = Math.max(coords.maxY, ent.y + ent.h);
                     }
                 }
@@ -459,7 +466,7 @@ HashMap.prototype = {
                 hash.minY = j;
                 for (k in cell) {
                     ent = cell[k];
-                    if (typeof ent === 'object' && 'requires' in ent) {
+                    if (typeof ent === "object" && "requires" in ent) {
                         coords.minY = Math.min(coords.minY, ent.y);
                     }
                 }
@@ -565,7 +572,6 @@ HashMap.prototype = {
             _h: 0
         };
 
-
         var keyBounds = this._keyBoundaries();
         var keys = HashMap.key(origin, keyHolder);
 
@@ -577,13 +583,14 @@ HashMap.prototype = {
             maxCol = keyBounds.maxX,
             maxRow = keyBounds.maxY;
         // direction to traverse cells
-        var stepCol = dirX > 0 ? 1 : (dirX < 0 ? -1 : 0),
-            stepRow = dirY > 0 ? 1 : (dirY < 0 ? -1 : 0);
-
+        var stepCol = dirX > 0 ? 1 : dirX < 0 ? -1 : 0,
+            stepRow = dirY > 0 ? 1 : dirY < 0 ? -1 : 0;
 
         // first, next cell edge in absolute coordinates
-        var firstCellEdgeX = (dirX >= 0) ? (currentCol + 1) * cellsize : currentCol * cellsize,
-            firstCellEdgeY = (dirY >= 0) ? (currentRow + 1) * cellsize : currentRow * cellsize;
+        var firstCellEdgeX =
+                dirX >= 0 ? (currentCol + 1) * cellsize : currentCol * cellsize,
+            firstCellEdgeY =
+                dirY >= 0 ? (currentRow + 1) * cellsize : currentRow * cellsize;
 
         // distance from origin to previous cell edge
         var previousDistance = -Infinity;
@@ -598,19 +605,21 @@ HashMap.prototype = {
         if (dirX !== 0) {
             norm = 1.0 / dirX;
             nextDistanceX = (firstCellEdgeX - origin._x) * norm;
-            deltaDistanceX = (cellsize * stepCol) * norm;
+            deltaDistanceX = cellsize * stepCol * norm;
         }
         if (dirY !== 0) {
             norm = 1.0 / dirY;
             nextDistanceY = (firstCellEdgeY - origin._y) * norm;
-            deltaDistanceY = (cellsize * stepRow) * norm;
+            deltaDistanceY = cellsize * stepRow * norm;
         }
 
-
         // advance starting cell to be inside of map bounds
-        while ((stepCol === 1 && currentCol < minCol && minCol !== Infinity) || (stepCol === -1 && currentCol > maxCol && maxCol !== -Infinity) ||
-               (stepRow === 1 && currentRow < minRow && minRow !== Infinity) || (stepRow === -1 && currentRow > maxRow && maxRow !== -Infinity)) {
-
+        while (
+            (stepCol === 1 && currentCol < minCol && minCol !== Infinity) ||
+            (stepCol === -1 && currentCol > maxCol && maxCol !== -Infinity) ||
+            (stepRow === 1 && currentRow < minRow && minRow !== Infinity) ||
+            (stepRow === -1 && currentRow > maxRow && maxRow !== -Infinity)
+        ) {
             // advance to closest cell
             if (nextDistanceX < nextDistanceY) {
                 previousDistance = nextDistanceX;
@@ -628,16 +637,17 @@ HashMap.prototype = {
         var cell;
         // traverse over cells
         // TODO: maybe change condition to `while (currentCol !== endX) || (currentRow !== endY)`
-        while ((minCol <= currentCol && currentCol <= maxCol) &&
-               (minRow <= currentRow && currentRow <= maxRow)) {
-
+        while (
+            minCol <= currentCol &&
+            currentCol <= maxCol &&
+            (minRow <= currentRow && currentRow <= maxRow)
+        ) {
             // process cell
             if ((cell = this.map[(currentCol << 16) ^ currentRow])) {
                 // check each object inside this cell
                 for (var k = 0; k < cell.length; k++) {
                     // if supplied callback returns true, abort traversal
-                    if (callback(cell[k], previousDistance))
-                        return;
+                    if (callback(cell[k], previousDistance)) return;
                 }
             }
 
@@ -655,7 +665,6 @@ HashMap.prototype = {
             }
         }
     }
-
 };
 
 function Entry(keys, obj, map) {
@@ -665,15 +674,17 @@ function Entry(keys, obj, map) {
 }
 
 Entry.prototype = {
-    update: function (rect) {
+    update: function(rect) {
         //check if buckets change
-        if (HashMap.hash(HashMap.key(rect, keyHolder)) !== HashMap.hash(this.keys)) {
+        if (
+            HashMap.hash(HashMap.key(rect, keyHolder)) !==
+            HashMap.hash(this.keys)
+        ) {
             this.map.refresh(this);
         } else {
             //mark map coordinate boundaries as dirty
             this.map.coordBoundsDirty = true;
         }
-        
     }
 };
 

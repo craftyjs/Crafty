@@ -1,5 +1,4 @@
-var Crafty = require('../core/core.js');
-
+var Crafty = require("../core/core.js");
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // Particles are based on Parcycle by Mr. Speaker, licensed under the MIT, Ported by Leo Koppelkamm //
@@ -28,7 +27,7 @@ Crafty.c("Particles", {
 
     _particlesPaused: false,
 
-    init: function () {
+    init: function() {
         // We need to clone particle handler object to avoid shared object trap
         this._Particles = Crafty.clone(this._Particles);
         // Add default options
@@ -38,7 +37,7 @@ Crafty.c("Particles", {
     },
 
     events: {
-        "UpdateFrame": function () {
+        UpdateFrame: function() {
             // don't update if paused or no particle fx active
             if (this._particlesPaused || !this._Particles.active) return;
 
@@ -48,7 +47,7 @@ Crafty.c("Particles", {
             this.trigger("Invalidate");
         },
 
-        "Draw": function (e) {
+        Draw: function(e) {
             // don't render if no particle fx active, but do redraw paused particles
             if (!this._Particles.active) return;
 
@@ -63,7 +62,7 @@ Crafty.c("Particles", {
      * #.particles
      * @comp Particles
      * @kind Method
-     * 
+     *
      * @sign public this .particles([Object options])
      * @param options - Map of options that specify the behavior and look of the particles.
      *
@@ -118,7 +117,7 @@ Crafty.c("Particles", {
      *     .particles(options);
      * ~~~
      */
-    particles: function (options) {
+    particles: function(options) {
         // Overwrite default options
         this._Particles.config(options);
         // Start animation
@@ -160,7 +159,7 @@ Crafty.c("Particles", {
             // sensible values are 0-3
             jitter: 0,
             // offset of particles from origin
-            originOffset: {x: 0, y: 0}
+            originOffset: { x: 0, y: 0 }
         },
         emissionRate: 0,
 
@@ -169,14 +168,14 @@ Crafty.c("Particles", {
         active: true,
         particles: [],
 
-        init: function () {
-           // Create initial config by adding presets.
+        init: function() {
+            // Create initial config by adding presets.
             for (var key in this.presets) {
                 this[key] = this.presets[key];
             }
         },
 
-        config: function (options) {
+        config: function(options) {
             options = options || {};
 
             // Create current config by merging in given options.
@@ -194,7 +193,7 @@ Crafty.c("Particles", {
             }
         },
 
-        start: function () {
+        start: function() {
             // (re)set active state
             this.active = true;
             this.elapsedFrames = 0;
@@ -209,26 +208,42 @@ Crafty.c("Particles", {
             this.parentEntity.trigger("ParticleStart");
         },
 
-        stop: function () {
+        stop: function() {
             // set disabled state
             this.active = false;
 
             this.parentEntity.trigger("ParticleEnd");
         },
 
-        initParticle: function (particle) {
-            var angle, speed, size, timeToLive, sharpness, c,
-                startR, startG, startB, startA,
-                endR, endG, endB, endA;
+        initParticle: function(particle) {
+            var angle,
+                speed,
+                size,
+                timeToLive,
+                sharpness,
+                c,
+                startR,
+                startG,
+                startB,
+                startA,
+                endR,
+                endG,
+                endB,
+                endA;
 
-            particle.timeToLive = timeToLive = this.lifeSpan + this.lifeSpanRandom * this.RANDM1TO1();
+            particle.timeToLive = timeToLive =
+                this.lifeSpan + this.lifeSpanRandom * this.RANDM1TO1();
 
             // TODO default to entity origin instead, deprecate originOffset
             // TODO subtract size/2 from position
-            particle.positionX = this.originOffset.x + this.spread * this.RANDM1TO1();
-            particle.positionY = this.originOffset.y + this.spread * this.RANDM1TO1();
+            particle.positionX =
+                this.originOffset.x + this.spread * this.RANDM1TO1();
+            particle.positionY =
+                this.originOffset.y + this.spread * this.RANDM1TO1();
 
-            angle = (this.angle + this.angleRandom * this.RANDM1TO1()) * (Math.PI / 180); // convert to radians
+            angle =
+                (this.angle + this.angleRandom * this.RANDM1TO1()) *
+                (Math.PI / 180); // convert to radians
             speed = this.speed + this.speedRandom * this.RANDM1TO1();
             // Could move to lookup for speed
             particle.directionX = Math.sin(angle) * speed;
@@ -237,25 +252,39 @@ Crafty.c("Particles", {
             size = this.size + this.sizeRandom * this.RANDM1TO1();
             particle.size = size = size < 0 ? 0 : ~~size;
 
-            sharpness = this.sharpness + this.sharpnessRandom * this.RANDM1TO1();
-            particle.sharpness = sharpness = sharpness > 100 ? 100 : sharpness < 0 ? 0 : sharpness;
+            sharpness =
+                this.sharpness + this.sharpnessRandom * this.RANDM1TO1();
+            particle.sharpness = sharpness =
+                sharpness > 100 ? 100 : sharpness < 0 ? 0 : sharpness;
 
             // internal circle gradient size - affects the sharpness of the radial gradient
-            particle.sizeSmall = ~~ ((size / 200) * sharpness); //(size/2/100)
+            particle.sizeSmall = ~~((size / 200) * sharpness); //(size/2/100)
 
-            c = startR = this.startColour[0] + this.startColourRandom[0] * this.RANDM1TO1();
+            c = startR =
+                this.startColour[0] +
+                this.startColourRandom[0] * this.RANDM1TO1();
             particle.colourR = c > 255 ? 255 : c < 0 ? 0 : ~~c;
-            c = startG = this.startColour[1] + this.startColourRandom[1] * this.RANDM1TO1();
+            c = startG =
+                this.startColour[1] +
+                this.startColourRandom[1] * this.RANDM1TO1();
             particle.colourG = c > 255 ? 255 : c < 0 ? 0 : ~~c;
-            c = startB = this.startColour[2] + this.startColourRandom[2] * this.RANDM1TO1();
+            c = startB =
+                this.startColour[2] +
+                this.startColourRandom[2] * this.RANDM1TO1();
             particle.colourB = c > 255 ? 255 : c < 0 ? 0 : ~~c;
-            c = startA = this.startColour[3] + this.startColourRandom[3] * this.RANDM1TO1();
-            particle.colourA = c > 1 ? 1 : c < 0 ? 0 : (~~(c * 100)) / 100;
+            c = startA =
+                this.startColour[3] +
+                this.startColourRandom[3] * this.RANDM1TO1();
+            particle.colourA = c > 1 ? 1 : c < 0 ? 0 : ~~(c * 100) / 100;
 
-            endR = this.endColour[0] + this.endColourRandom[0] * this.RANDM1TO1();
-            endG = this.endColour[1] + this.endColourRandom[1] * this.RANDM1TO1();
-            endB = this.endColour[2] + this.endColourRandom[2] * this.RANDM1TO1();
-            endA = this.endColour[3] + this.endColourRandom[3] * this.RANDM1TO1();
+            endR =
+                this.endColour[0] + this.endColourRandom[0] * this.RANDM1TO1();
+            endG =
+                this.endColour[1] + this.endColourRandom[1] * this.RANDM1TO1();
+            endB =
+                this.endColour[2] + this.endColourRandom[2] * this.RANDM1TO1();
+            endA =
+                this.endColour[3] + this.endColourRandom[3] * this.RANDM1TO1();
 
             particle.deltaColourR = (endR - startR) / timeToLive;
             particle.deltaColourG = (endG - startG) / timeToLive;
@@ -263,7 +292,7 @@ Crafty.c("Particles", {
             particle.deltaColourA = (endA - startA) / timeToLive;
         },
 
-        update: function () {
+        update: function() {
             var RANDM1TO1 = this.RANDM1TO1;
             var gravityX = this.gravity.x,
                 gravityY = this.gravity.y;
@@ -280,13 +309,14 @@ Crafty.c("Particles", {
             this.emitCounter++;
 
             // update all particles
-            var c, particle, particles = this.particles;
+            var c,
+                particle,
+                particles = this.particles;
             for (var i = 0, l = particles.length; i < l; ++i) {
                 particle = particles[i];
 
                 // If the current particle is alive then update it
                 if (particle.timeToLive > 0) {
-
                     // Calculate the new position based on gravity
                     particle.directionX += gravityX;
                     particle.directionY += gravityY;
@@ -305,12 +335,13 @@ Crafty.c("Particles", {
                     c = particle.colourB + particle.deltaColourB;
                     particle.colourB = c > 255 ? 255 : c < 0 ? 0 : ~~c;
                     c = particle.colourA + particle.deltaColourA;
-                    particle.colourA = c > 1 ? 1 : c < 0 ? 0 : (~~(c * 100)) / 100;
+                    particle.colourA =
+                        c > 1 ? 1 : c < 0 ? 0 : ~~(c * 100) / 100;
 
                     // Decrease particle's lifespan
                     particle.timeToLive--;
 
-                // Else reinitialize particle if within emission rate
+                    // Else reinitialize particle if within emission rate
                 } else if (this.emitCounter > rate) {
                     this.initParticle(particle);
                     this.emitCounter -= rate;
@@ -318,19 +349,24 @@ Crafty.c("Particles", {
             }
         },
 
-        render: function (e) {
+        render: function(e) {
             var context = e.ctx;
             var delim = ",";
 
-            var particle, particles = this.particles;
+            var particle,
+                particles = this.particles;
             for (var i = 0, l = particles.length; i < l; i++) {
                 particle = particles[i];
 
                 var size = particle.size;
                 var halfSize = size >> 1;
 
-                if (particle.positionX < 0 || particle.positionX + size > e.pos._w ||
-                    particle.positionY < 0 || particle.positionY + size > e.pos._h) {
+                if (
+                    particle.positionX < 0 ||
+                    particle.positionX + size > e.pos._w ||
+                    particle.positionY < 0 ||
+                    particle.positionY + size > e.pos._h
+                ) {
                     //Particle is outside
                     continue;
                 }
@@ -343,13 +379,22 @@ Crafty.c("Particles", {
                     a = particle.colourA;
 
                 // Calculate the rgba string to draw.
-                var drawColour = "rgba(" + r + delim + g + delim + b + delim + a + ")";
+                var drawColour =
+                    "rgba(" + r + delim + g + delim + b + delim + a + ")";
                 if (this.fastMode) {
                     context.fillStyle = drawColour;
                 } else {
-                    var drawColourEnd = "rgba(" + r + delim + g + delim + b + delim + "0)";
+                    var drawColourEnd =
+                        "rgba(" + r + delim + g + delim + b + delim + "0)";
 
-                    var radgrad = context.createRadialGradient(x + halfSize, y + halfSize, particle.sizeSmall, x + halfSize, y + halfSize, halfSize);
+                    var radgrad = context.createRadialGradient(
+                        x + halfSize,
+                        y + halfSize,
+                        particle.sizeSmall,
+                        x + halfSize,
+                        y + halfSize,
+                        halfSize
+                    );
                     radgrad.addColorStop(0, drawColour);
                     //0.9 to avoid visible boxing
                     radgrad.addColorStop(0.9, drawColourEnd);
@@ -359,7 +404,7 @@ Crafty.c("Particles", {
             }
         },
 
-        Particle: function () {
+        Particle: function() {
             this.positionX = 0;
             this.positionY = 0;
 
@@ -384,7 +429,7 @@ Crafty.c("Particles", {
             this.sharpness = 0;
         },
 
-        RANDM1TO1: function () {
+        RANDM1TO1: function() {
             return Math.random() * 2 - 1;
         }
     },
@@ -393,7 +438,7 @@ Crafty.c("Particles", {
      * #.pauseParticles
      * @comp Particles
      * @kind Method
-     * 
+     *
      * @sign public this.pauseParticles()
      *
      * The pauseParticles will freeze these particles in execution.
@@ -416,7 +461,7 @@ Crafty.c("Particles", {
      * #.resumeParticles
      * @comp Particles
      * @kind Method
-     * 
+     *
      * @sign public this.resumeParticles()
      *
      * The resumeParticles will resume earlier paused particles

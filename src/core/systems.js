@@ -1,5 +1,4 @@
-var Crafty = require('../core/core.js');
-
+var Crafty = require("../core/core.js");
 
 // Dictionary of existing systems
 Crafty._systems = {};
@@ -54,7 +53,7 @@ Crafty.s = function(name, obj, options, lazy) {
     }
 };
 
-function optionMerge(defaults, specific){
+function optionMerge(defaults, specific) {
     var options = {};
     // Copy all the specified keys, then all the default keys that aren't specified
     for (var key in specific) {
@@ -64,14 +63,13 @@ function optionMerge(defaults, specific){
         if (!(key in specific)) {
             options[key] = defaults[key];
         }
-    } 
+    }
     return options;
 }
 
-
 Crafty._registerLazySystem = function(name, obj, options) {
     // This is a bit of magic to only init a system if it's requested at least once.
-    // We define a getter for _systems[name] that will first initialize the system, 
+    // We define a getter for _systems[name] that will first initialize the system,
     // and then redefine _systems[name] to remove that getter.
     Object.defineProperty(Crafty._systems, name, {
         get: function() {
@@ -86,7 +84,6 @@ Crafty._registerLazySystem = function(name, obj, options) {
         },
         configurable: true
     });
-
 };
 
 // Each system has its properties and methods copied onto an object of this type
@@ -97,7 +94,7 @@ Crafty.CraftySystem = (function() {
         if (!template) return this;
         this._systemTemplate = template;
         this.extend(template);
-        
+
         // Overwrite any default options with the passed options object
         // This does a deep copy on the objects, and treats null as a specified value
         this.options = optionMerge(this.options, options);
@@ -106,7 +103,7 @@ Crafty.CraftySystem = (function() {
         Crafty._addCallbackMethods(this);
 
         // Give this object a global ID.  Used for event handlers.
-        this[0] = "system" + (systemID++);
+        this[0] = "system" + systemID++;
 
         // Define properties
         if ("properties" in template) {
@@ -119,7 +116,10 @@ Crafty.CraftySystem = (function() {
         if ("events" in template) {
             var auto = template.events;
             for (var eventName in auto) {
-                var fn = typeof auto[eventName] === "function" ? auto[eventName] : template[auto[eventName]];
+                var fn =
+                    typeof auto[eventName] === "function"
+                        ? auto[eventName]
+                        : template[auto[eventName]];
                 this.bind(eventName, fn);
             }
         }
@@ -129,8 +129,6 @@ Crafty.CraftySystem = (function() {
         }
     };
 })();
-
-
 
 Crafty.CraftySystem.prototype = {
     extend: function(obj) {
@@ -181,5 +179,4 @@ Crafty.CraftySystem.prototype = {
         this._unbindAll();
         delete Crafty._systems[this.name];
     }
-
 };

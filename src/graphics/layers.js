@@ -1,22 +1,26 @@
-var Crafty = require('../core/core.js');
+var Crafty = require("../core/core.js");
 
 Crafty.extend({
     _drawLayerTemplates: {},
     _drawLayers: [],
-    _addDrawLayerInstance: function (layer) {
+    _addDrawLayerInstance: function(layer) {
         Crafty._drawLayers.push(layer);
-        this._drawLayers.sort(function (a, b) { return a.options.z - b.options.z; });
+        this._drawLayers.sort(function(a, b) {
+            return a.options.z - b.options.z;
+        });
     },
 
-    _removeDrawLayerInstance: function (layer) {
+    _removeDrawLayerInstance: function(layer) {
         var i = this._drawLayers.indexOf(layer);
         if (i >= 0) {
             this._drawLayers.splice(i, 1);
         }
-        this._drawLayers.sort(function (a, b) { return a.options.z - b.options.z; });
+        this._drawLayers.sort(function(a, b) {
+            return a.options.z - b.options.z;
+        });
     },
 
-    _registerLayerTemplate: function (type, layerTemplate) {
+    _registerLayerTemplate: function(type, layerTemplate) {
         this._drawLayerTemplates[type] = layerTemplate;
         var common = this._commonLayerProperties;
 
@@ -45,7 +49,6 @@ Crafty.extend({
         // A cached version of the viewport rect
         _cachedViewportRect: null,
 
-
         init: function() {
             this._cachedViewportRect = {};
 
@@ -53,7 +56,9 @@ Crafty.extend({
             this.trigger("LayerInit");
 
             // Handle viewport invalidation
-            this.uniqueBind("InvalidateViewport", function () { this._dirtyViewport = true; });
+            this.uniqueBind("InvalidateViewport", function() {
+                this._dirtyViewport = true;
+            });
             // Set pixelart to current status
             this.trigger("PixelartSet", Crafty._pixelartEnabled);
 
@@ -75,7 +80,7 @@ Crafty.extend({
 
         // Based on the camera options, find the Crafty coordinates
         // corresponding to the layer's position in the viewport
-        _viewportRect: function (useCached) {
+        _viewportRect: function(useCached) {
             var rect = this._cachedViewportRect;
             if (useCached) return rect;
 
@@ -87,15 +92,23 @@ Crafty.extend({
             rect._scale = scale;
             rect._w = viewport._width / scale;
             rect._h = viewport._height / scale;
-            
+
             // This particular transformation is designed such that,
             // if a combination pan/scale keeps the center of the screen fixed for a layer with x/y response of 1,
             // then it will also be fixed for layers with other values for x/y response
             // (note that the second term vanishes when either the response or scale are 1)
-            rect._x = options.xResponse * (-viewport._x) - 
-                0.5 * (options.xResponse - 1) * (1 - 1 / scale) * viewport._width;  
-            rect._y = options.yResponse * (-viewport._y) - 
-                0.5 * (options.yResponse - 1) * (1 - 1 / scale) * viewport._height; 
+            rect._x =
+                options.xResponse * -viewport._x -
+                0.5 *
+                    (options.xResponse - 1) *
+                    (1 - 1 / scale) *
+                    viewport._width;
+            rect._y =
+                options.yResponse * -viewport._y -
+                0.5 *
+                    (options.yResponse - 1) *
+                    (1 - 1 / scale) *
+                    viewport._height;
 
             return rect;
         },
@@ -139,9 +152,9 @@ Crafty.extend({
      * Crafty will automatically define three built-in layers: "DefaultDOMLayer", DefaultCanvasLayer",  and "DefaultWebGLLayer".
      * They will have `z` values of `30`, `20`, and `10` respectively, and will be initialized if a "DOM", "Canvas" or "WebGL" component
      * is used with an entity not attached to any user-specified layer.
-     * 
+     *
      * @note Layers are implemented as systems, so the layer name must be distinct from other systems.
-     * 
+     *
      * @note By default, layers will persist across scene changes.  You can manually clean up a layer by removing all it's entities and then destroying it.
      *
      * @example
@@ -161,13 +174,13 @@ Crafty.extend({
      * @example
      * ```
      * Crafty.createLayer("MyCanvasLayer", "Canvas");
-     * Crafty.s("MyCanvasLayer").one("RenderScene", function(){ this.everRendered = true; }); 
+     * Crafty.s("MyCanvasLayer").one("RenderScene", function(){ this.everRendered = true; });
      * ```
      * Create a custom layer, and then bind a method to run the first time it renders.
      * * @example
      * ```
      * Crafty("MyCanvasLayer").destroy();
-     * Crafty.s("MyCanvasLayer").destroy(); 
+     * Crafty.s("MyCanvasLayer").destroy();
      * ```
      * For a previously defined "MyCanvasLayer", destroy it and all the entities rendered by it.
      */
@@ -175,16 +188,16 @@ Crafty.extend({
         var layerTemplate = this._drawLayerTemplates[type];
         Crafty.s(name, layerTemplate, options);
         Crafty.c(name, {
-            init: function () {
-                this.requires("Renderable"); 
-                
+            init: function() {
+                this.requires("Renderable");
+
                 // Flag to indicate that the base component doesn't need to attach a layer
                 this._customLayer = true;
                 this.requires(layerTemplate.type);
                 this._attachToLayer(Crafty.s(name));
             },
 
-            remove: function () {
+            remove: function() {
                 this._detachFromLayer();
             }
         });

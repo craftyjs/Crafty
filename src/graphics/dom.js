@@ -1,4 +1,4 @@
-var Crafty = require('../core/core.js'),
+var Crafty = require("../core/core.js"),
     document = window.document;
 
 /**@
@@ -23,37 +23,37 @@ Crafty.c("DOM", {
      * #.avoidCss3dTransforms
      * @comp DOM
      * @kind Property
-     * 
+     *
      * Avoids using of CSS 3D Transform for positioning when true. Default value is false.
      */
     avoidCss3dTransforms: false,
 
-    init: function () {
+    init: function() {
         this.requires("Renderable");
-        
+
         this._cssStyles = {
-            visibility: '',
-            left: '',
-            top: '',
-            width: '',
-            height: '',
-            zIndex: '',
-            opacity: '',
-            transformOrigin: '',
-            transform: ''
+            visibility: "",
+            left: "",
+            top: "",
+            width: "",
+            height: "",
+            zIndex: "",
+            opacity: "",
+            transformOrigin: "",
+            transform: ""
         };
         this._element = document.createElement("div");
 
         // Attach the entity to the dom layer
-        if (!this._customLayer){
-            this._attachToLayer( Crafty.s("DefaultDOMLayer") );
+        if (!this._customLayer) {
+            this._attachToLayer(Crafty.s("DefaultDOMLayer"));
         }
 
         this.bind("NewComponent", this._updateClass);
         this.bind("RemoveComponent", this._removeClass);
     },
 
-    remove: function(){
+    remove: function() {
         this._detachFromLayer();
         this.unbind("NewComponent", this._updateClass);
         this.unbind("RemoveComponent", this._removeClass);
@@ -63,12 +63,12 @@ Crafty.c("DOM", {
      * #.getDomId
      * @comp DOM
      * @kind Method
-     * 
+     *
      * @sign public this .getDomId()
      *
      * Get the Id of the DOM element used to represent the entity.
      */
-    getDomId: function () {
+    getDomId: function() {
         return this._element.id;
     },
 
@@ -79,7 +79,7 @@ Crafty.c("DOM", {
             str = "";
         for (comp in c) {
             if (comp !== removedComponent) {
-                str += ' ' + comp;
+                str += " " + comp;
             }
         }
         str = str.substr(1);
@@ -92,7 +92,7 @@ Crafty.c("DOM", {
             c = this.__c,
             str = "";
         for (comp in c) {
-            str += ' ' + comp;
+            str += " " + comp;
         }
         str = str.substr(1);
         this._element.className = str;
@@ -102,16 +102,16 @@ Crafty.c("DOM", {
      * #.DOM
      * @comp DOM
      * @kind Method
-     * 
+     *
      * @trigger Draw - when the entity is ready to be drawn to the stage - { style:String, type:"DOM", co}
      * @sign public this .DOM(HTMLElement elem)
      * @param elem - HTML element that will replace the dynamically created one
      *
      * Pass a DOM element to use rather than one created. Will set `._element` to this value. Removes the old element.
-     * 
+     *
      * Will reattach the entity to the current draw layer
      */
-    DOM: function (elem) {
+    DOM: function(elem) {
         if (elem && elem.nodeType) {
             var layer = this._drawLayer;
             this._detachFromLayer();
@@ -126,12 +126,12 @@ Crafty.c("DOM", {
      * @comp DOM
      * @kind Method
      * @private
-     * 
+     *
      * @sign public this .draw(void)
      *
      * Updates the CSS properties of the node to draw on the stage.
      */
-    draw: function () {
+    draw: function() {
         var style = this._element.style,
             coord = this.__coord || [0, 0, 0, 0],
             co = {
@@ -154,25 +154,27 @@ Crafty.c("DOM", {
 
         //utilize CSS3 if supported
         if (Crafty.support.css3dtransform && !this.avoidCss3dTransforms) {
-            trans.push("translate3d(" + (~~this._x) + "px," + (~~this._y) + "px,0)");
+            trans.push(
+                "translate3d(" + ~~this._x + "px," + ~~this._y + "px,0)"
+            );
         } else {
             if (this._cssStyles.left !== this._x) {
                 this._cssStyles.left = this._x;
-                style.left = ~~ (this._x) + "px";
+                style.left = ~~this._x + "px";
             }
             if (this._cssStyles.top !== this._y) {
                 this._cssStyles.top = this._y;
-                style.top = ~~ (this._y) + "px";
+                style.top = ~~this._y + "px";
             }
         }
 
         if (this._cssStyles.width !== this._w) {
             this._cssStyles.width = this._w;
-            style.width = ~~ (this._w) + "px";
+            style.width = ~~this._w + "px";
         }
         if (this._cssStyles.height !== this._h) {
             this._cssStyles.height = this._h;
-            style.height = ~~ (this._h) + "px";
+            style.height = ~~this._h + "px";
         }
         if (this._cssStyles.zIndex !== this._z) {
             this._cssStyles.zIndex = this._z;
@@ -189,7 +191,8 @@ Crafty.c("DOM", {
             var origin = this._origin.x + "px " + this._origin.y + "px";
             style.transformOrigin = origin;
             style[prefix + "TransformOrigin"] = origin;
-            if (Crafty.support.css3dtransform) trans.push("rotateZ(" + this._rotation + "deg)");
+            if (Crafty.support.css3dtransform)
+                trans.push("rotateZ(" + this._rotation + "deg)");
             else trans.push("rotate(" + this._rotation + "deg)");
         }
 
@@ -218,7 +221,7 @@ Crafty.c("DOM", {
 
     _setCssProperty: function(style, key, val) {
         key = Crafty.domHelper.camelize(key);
-        if (typeof val === "number") val += 'px';
+        if (typeof val === "number") val += "px";
         style[key] = val;
         this.trigger("SetStyle", key);
     },
@@ -228,7 +231,7 @@ Crafty.c("DOM", {
      * @comp DOM
      * @kind Method
      * @trigger SetStyle - for each style that is set - string - propertyName
-     * 
+     *
      * @sign public css(String property, String value)
      * @param property - CSS property to modify
      * @param value - Value to give the CSS property
@@ -258,7 +261,7 @@ Crafty.c("DOM", {
      * this.css("text-Decoration"); //returns line-through
      * ~~~
      */
-    css: function (obj, value) {
+    css: function(obj, value) {
         var key,
             elem = this._element,
             val,
@@ -275,13 +278,13 @@ Crafty.c("DOM", {
             //if a value is passed, set the property
             if (value) {
                 this._setCssProperty(style, obj, value);
-            } else { //otherwise return the computed property
+            } else {
+                //otherwise return the computed property
                 return Crafty.domHelper.getStyle(elem, obj);
             }
         }
 
         this.trigger("Invalidate");
-        
 
         return this;
     }

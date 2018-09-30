@@ -12,7 +12,6 @@
     Crafty.scene("test-call", sceneInit);
     Crafty.scene("test-call");
     _.strictEqual(x, 13, "Scene called succesfully.");
-
   });
 
   test("Scene parameters", function(_) {
@@ -32,7 +31,6 @@
     Crafty.scene("test-destroy");
     var l = Crafty("2D").length;
     _.strictEqual(l, 0, "2D entity destroyed on scene change.");
-
   });
 
   test("Calling a scene doesn't destroy 2D entities with Persist", function(_) {
@@ -42,9 +40,7 @@
     Crafty.scene("test-persist");
     var l = Crafty("2D").length;
     _.strictEqual(l, 1, "Persist entity remains on scene change.");
-
   });
-
 
   test("Scene uninit function called", function(_) {
     var x = 0;
@@ -62,8 +58,10 @@
     Crafty.defineScene("game", sceneGame);
     Crafty.enterScene("test-uninit");
     Crafty.enterScene("game");
-    _.strictEqual(x, 20, "Uninit scene called successfully when chanced to another scene");
-
+    _.strictEqual(
+      x,
+      20,
+      "Uninit scene called successfully when chanced to another scene"
+    );
   });
-
 })();

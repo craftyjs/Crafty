@@ -1,17 +1,18 @@
-var Crafty = require('../core/core.js');
+var Crafty = require("../core/core.js");
 
 try {
-  var storage = (typeof window !== "undefined" && window.localStorage) || (new require('node-localstorage').LocalStorage('./localStorage'));
-} catch(e) {
-  var storage = null;
+    var storage =
+        (typeof window !== "undefined" && window.localStorage) ||
+        new require("node-localstorage").LocalStorage("./localStorage");
+} catch (e) {
+    var storage = null;
 }
-
 
 /**@
  * #Storage
  * @category Utilities
  * @kind Property
- * 
+ *
  * Very simple way to get and set values, which will persist when the browser is closed also.
  * Storage wraps around HTML5 Web Storage, which is well-supported across browsers and platforms, but limited to 5MB total storage per domain.
  * Storage is also available for node, which is permanently persisted to the `./localStorage` folder - take care of removing entries. Note that multiple Crafty instances use the same storage, so care has to be taken not to overwrite existing entries.
@@ -20,9 +21,9 @@ try {
  * #Crafty.storage
  * @comp Storage
  * @kind Method
- * 
+ *
  * @sign Crafty.storage(String key)
- * @param key - a key you would like to get from the storage. 
+ * @param key - a key you would like to get from the storage.
  * @returns The stored value, or `null` if none saved under that key exists
  *
  * @sign Crafty.storage(String key, String value)
@@ -33,7 +34,7 @@ try {
  * @param key - the key you would like to save the data under.
  * @param value - the value you would like to save, can be an Object or an Array.
  *
- * `Crafty.storage` is used synchronously to either get or set values. 
+ * `Crafty.storage` is used synchronously to either get or set values.
  *
  * You can store booleans, strings, objects and arrays.
  *
@@ -68,35 +69,34 @@ try {
  */
 
 var store = function(key, value) {
-  var _value = value;
+    var _value = value;
 
-  if(!storage) {
-    Crafty.error("Local storage is not accessible.  (Perhaps you are including crafty.js cross-domain?)");
-    return false;
-  }
-
-  if(arguments.length === 1) {
-    try {
-      return JSON.parse(storage.getItem(key));
-    }
-    catch (e) {
-      return storage.getItem(key);
-    }
-  } else {
-    if(typeof value === "object") {
-      _value = JSON.stringify(value);
+    if (!storage) {
+        Crafty.error(
+            "Local storage is not accessible.  (Perhaps you are including crafty.js cross-domain?)"
+        );
+        return false;
     }
 
-    storage.setItem(key, _value);
-    
-  }
+    if (arguments.length === 1) {
+        try {
+            return JSON.parse(storage.getItem(key));
+        } catch (e) {
+            return storage.getItem(key);
+        }
+    } else {
+        if (typeof value === "object") {
+            _value = JSON.stringify(value);
+        }
 
+        storage.setItem(key, _value);
+    }
 };
 /**@
  * #Crafty.storage.remove
  * @comp Storage
  * @kind Method
- * 
+ *
  * @sign Crafty.storage.remove(String key)
  * @param key - a key where you will like to delete the value of.
  *
@@ -112,11 +112,13 @@ var store = function(key, value) {
  *
  */
 store.remove = function(key) {
-  if(!storage){
-    Crafty.error("Local storage is not accessible.  (Perhaps you are including crafty.js cross-domain?)");
-    return;
-  }
-  storage.removeItem(key);
+    if (!storage) {
+        Crafty.error(
+            "Local storage is not accessible.  (Perhaps you are including crafty.js cross-domain?)"
+        );
+        return;
+    }
+    storage.removeItem(key);
 };
 
 module.exports = store;

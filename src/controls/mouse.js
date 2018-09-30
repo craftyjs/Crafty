@@ -1,4 +1,4 @@
-var Crafty = require('../core/core.js');
+var Crafty = require("../core/core.js");
 
 /**@
  * #MouseState
@@ -56,7 +56,7 @@ Crafty.__mouseStateTemplate = {
         // use custom trigger method if specified
         this.triggerMouseEvent = this.triggerMouseEvent || this.trigger;
         this.lastMouseEvent = {
-            eventName: '',
+            eventName: "",
             mouseButton: -1,
             target: null,
             realX: 0,
@@ -93,7 +93,7 @@ Crafty.__mouseStateTemplate = {
      * @see .resetButtonDown
      * @see Crafty.mouseButtons
      */
-    isButtonDown: function (button) {
+    isButtonDown: function(button) {
         if (typeof button === "string") {
             button = Crafty.mouseButtons[button];
         }
@@ -114,7 +114,7 @@ Crafty.__mouseStateTemplate = {
      * @see .isButtonDown
      * @see Crafty.mouseButtons
      */
-    resetButtonDown: function () {
+    resetButtonDown: function() {
         var lastEvent = this.lastMouseEvent;
 
         // Tell all buttons they're no longer held down
@@ -160,7 +160,7 @@ Crafty.__mouseStateTemplate = {
      *
      * @see Crafty.mouseButtons
      */
-    triggerMouse: function (eventName, eventData) {
+    triggerMouse: function(eventName, eventData) {
         // copy newest event to lastEvent
         var lastEvent = this.lastMouseEvent;
         lastEvent.eventName = eventName;
@@ -198,9 +198,17 @@ Crafty.c("MouseState", Crafty.__mouseStateTemplate);
 
 // define a basic Mouse system for headless mode
 // will be substituted with proper one in browser mode
-Crafty.s("Mouse", Crafty.extend.call({
-    // this method will be called by MouseState iff triggerMouse event was valid
-    triggerMouseEvent: function (eventName, e) {
-        Crafty.trigger(eventName, e);
-    }
-}, Crafty.__mouseStateTemplate), {}, false);
+Crafty.s(
+    "Mouse",
+    Crafty.extend.call(
+        {
+            // this method will be called by MouseState iff triggerMouse event was valid
+            triggerMouseEvent: function(eventName, e) {
+                Crafty.trigger(eventName, e);
+            }
+        },
+        Crafty.__mouseStateTemplate
+    ),
+    {},
+    false
+);

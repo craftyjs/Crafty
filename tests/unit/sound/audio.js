@@ -17,7 +17,7 @@
           this.endedListeners.push(listener);
           break;
         default:
-          throw("Not implemented");
+          throw "Not implemented";
       }
     };
     this.removeEventListener = function(event, listener) {
@@ -27,7 +27,7 @@
           if (ind) this.endedListeners.splice(ind, 1);
           break;
         default:
-          throw("Not implemented");
+          throw "Not implemented";
       }
     };
 
@@ -65,7 +65,6 @@
     this.pause = function() {};
     this.ended = false;
   }
-
 
   test("setChannels", function(_) {
     // Test that setChannels doesn't break sound

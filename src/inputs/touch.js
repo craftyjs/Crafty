@@ -1,4 +1,4 @@
-var Crafty = require('../core/core.js');
+var Crafty = require("../core/core.js");
 
 Crafty.extend({
     /**@
@@ -40,20 +40,20 @@ Crafty.extend({
      * @see Touch
      * @see Mouse
      */
-    multitouch: function (bool) {
+    multitouch: function(bool) {
         if (typeof bool !== "boolean") return this._multitouch;
         this._multitouch = bool;
         return this;
     },
-     _multitouch: false,
+    _multitouch: false,
 
-    _touchDispatch: (function () {
+    _touchDispatch: (function() {
         var touchSystem;
 
         var startX = 0, // keeps track of start touch location
             startY = 0; // keeps track of start touch location
 
-        function mimicMouse (e) {
+        function mimicMouse(e) {
             var type, first;
             if (e.type === "touchstart") type = "mousedown";
             else if (e.type === "touchmove") type = "mousemove";
@@ -66,34 +66,54 @@ Crafty.extend({
                 first = e.changedTouches[0];
             }
             var simulatedEvent = document.createEvent("MouseEvent");
-            simulatedEvent.initMouseEvent(type, true, true, window, 1,
+            simulatedEvent.initMouseEvent(
+                type,
+                true,
+                true,
+                window,
+                1,
                 first.screenX,
                 first.screenY,
                 first.clientX,
                 first.clientY,
-                false, false, false, false, 0, e.relatedTarget
+                false,
+                false,
+                false,
+                false,
+                0,
+                e.relatedTarget
             );
             first.target.dispatchEvent(simulatedEvent);
 
             // trigger click when it should be triggered
-            if (type === 'mousedown') {
+            if (type === "mousedown") {
                 startX = first.clientX;
                 startY = first.clientY;
-            } else if (type === 'mouseup') {
+            } else if (type === "mouseup") {
                 var diffX = first.clientX - startX,
                     diffY = first.clientY - startY;
 
                 // make sure that distance between touchstart and touchend smaller than some threshold,
                 // e.g. <= 16 px
                 if (diffX * diffX + diffY * diffY <= 256) {
-                    type = 'click';
+                    type = "click";
                     simulatedEvent = document.createEvent("MouseEvent");
-                    simulatedEvent.initMouseEvent(type, true, true, window, 1,
+                    simulatedEvent.initMouseEvent(
+                        type,
+                        true,
+                        true,
+                        window,
+                        1,
                         first.screenX,
                         first.screenY,
                         first.clientX,
                         first.clientY,
-                        false, false, false, false, 0, e.relatedTarget
+                        false,
+                        false,
+                        false,
+                        false,
+                        0,
+                        e.relatedTarget
                     );
                     first.target.dispatchEvent(simulatedEvent);
                 }
@@ -104,9 +124,9 @@ Crafty.extend({
         return function(e) {
             // either dispatch real touch events
             if (Crafty._multitouch) {
-                if (!touchSystem) touchSystem = Crafty.s('Touch');
+                if (!touchSystem) touchSystem = Crafty.s("Touch");
                 touchSystem.processEvent(e);
-            // or mimic mouse events
+                // or mimic mouse events
             } else {
                 mimicMouse(e);
             }
@@ -139,107 +159,128 @@ Crafty.extend({
  * @see TouchState, Touch
  * @see Crafty.multitouch
  */
-Crafty.s("Touch", Crafty.extend.call(Crafty.extend.call(new Crafty.__eventDispatcher(), {
-    normedEventNames: {
-        "touchstart": "TouchStart",
-        "touchmove": "TouchMove",
-        "touchend": "TouchEnd",
-        "touchcancel": "TouchCancel" // touchcancel is treated as touchend, but triggers a TouchCancel event
-    },
+Crafty.s(
+    "Touch",
+    Crafty.extend.call(
+        Crafty.extend.call(new Crafty.__eventDispatcher(), {
+            normedEventNames: {
+                touchstart: "TouchStart",
+                touchmove: "TouchMove",
+                touchend: "TouchEnd",
+                touchcancel: "TouchCancel" // touchcancel is treated as touchend, but triggers a TouchCancel event
+            },
 
-    _evt: { // evt object to reuse
-        eventName:'',
-        identifier: -1,
-        target: null,
-        entity: null, // DEPRECATED: remove this in upcoming release
-        realX: 0,
-        realY: 0,
-        originalEvent: null
-    },
+            _evt: {
+                // evt object to reuse
+                eventName: "",
+                identifier: -1,
+                target: null,
+                entity: null, // DEPRECATED: remove this in upcoming release
+                realX: 0,
+                realY: 0,
+                originalEvent: null
+            },
 
-    // Indicates how many entities have the Touch component, for performance optimization
-    // Touch events are still routed to Crafty.s('Touch') even if there are no entities with Touch component
-    touchObjs: 0,
+            // Indicates how many entities have the Touch component, for performance optimization
+            // Touch events are still routed to Crafty.s('Touch') even if there are no entities with Touch component
+            touchObjs: 0,
 
-    // current entites that are pointed at
-    overs: {},
+            // current entites that are pointed at
+            overs: {},
 
-    prepareEvent: function (e, type) {
-        var evt = this._evt;
+            prepareEvent: function(e, type) {
+                var evt = this._evt;
 
-        // Normalize event name
-        evt.eventName = this.normedEventNames[type] || type;
+                // Normalize event name
+                evt.eventName = this.normedEventNames[type] || type;
 
-        // copy identifier
-        evt.identifier = e.identifier;
+                // copy identifier
+                evt.identifier = e.identifier;
 
-        // augment touch event with real coordinates
-        Crafty.translatePointerEventCoordinates(e, evt);
+                // augment touch event with real coordinates
+                Crafty.translatePointerEventCoordinates(e, evt);
 
-        // augment touch event with target entity
-        evt.target = this.touchObjs ? Crafty.findPointerEventTargetByComponent("Touch", e) : null;
-        // DEPRECATED: remove this in upcoming release
-        evt.entity = evt.target;
+                // augment touch event with target entity
+                evt.target = this.touchObjs
+                    ? Crafty.findPointerEventTargetByComponent("Touch", e)
+                    : null;
+                // DEPRECATED: remove this in upcoming release
+                evt.entity = evt.target;
 
-        return evt;
-    },
+                return evt;
+            },
 
-    // this method will be called by TouchState iff triggerTouch event was valid
-    triggerTouchEvent: function(eventName, e) {
-        // trigger event on TouchSystem itself
-        this.trigger(eventName, e);
+            // this method will be called by TouchState iff triggerTouch event was valid
+            triggerTouchEvent: function(eventName, e) {
+                // trigger event on TouchSystem itself
+                this.trigger(eventName, e);
 
-        var identifier = e.identifier,
-            closest = e.target,
-            over = this.overs[identifier];
+                var identifier = e.identifier,
+                    closest = e.target,
+                    over = this.overs[identifier];
 
-        if (over) { // if old TouchOver target wasn't null, send TouchOut
-            if ((eventName === "TouchMove" && over !== closest) || // if TouchOver target changed
-                eventName === "TouchEnd" || eventName === "TouchCancel") { // or TouchEnd occurred
+                if (over) {
+                    // if old TouchOver target wasn't null, send TouchOut
+                    if (
+                        (eventName === "TouchMove" && over !== closest) || // if TouchOver target changed
+                        eventName === "TouchEnd" ||
+                        eventName === "TouchCancel"
+                    ) {
+                        // or TouchEnd occurred
 
-                e.eventName = "TouchOut";
-                e.target = over;
-                e.entity = over; // DEPRECATED: remove this in upcoming release
-                over.trigger("TouchOut", e);
-                e.eventName = eventName;
-                e.target = closest;
-                e.entity = closest; // DEPRECATED: remove this in upcoming release
+                        e.eventName = "TouchOut";
+                        e.target = over;
+                        e.entity = over; // DEPRECATED: remove this in upcoming release
+                        over.trigger("TouchOut", e);
+                        e.eventName = eventName;
+                        e.target = closest;
+                        e.entity = closest; // DEPRECATED: remove this in upcoming release
 
-                // delete old over entity
-                delete this.overs[identifier];
+                        // delete old over entity
+                        delete this.overs[identifier];
+                    }
+                }
+
+                // TODO: move routing of events in future to controls system, make it similar to KeyboardSystem
+                // try to find closest element that will also receive touch event, whatever the event is
+                if (closest) {
+                    closest.trigger(eventName, e);
+                }
+
+                if (closest) {
+                    // if new TouchOver target isn't null, send TouchOver
+                    if (
+                        eventName === "TouchStart" || // if TouchStart occurred
+                        (eventName === "TouchMove" && over !== closest)
+                    ) {
+                        // or TouchOver target changed
+
+                        e.eventName = "TouchOver";
+                        closest.trigger("TouchOver", e);
+                        e.eventName = eventName;
+
+                        // save new over entity
+                        this.overs[identifier] = closest;
+                    }
+                }
+            },
+
+            dispatchEvent: function(e) {
+                var evt,
+                    touches = e.changedTouches;
+                for (var i = 0, l = touches.length; i < l; i++) {
+                    evt = this.prepareEvent(touches[i], e.type);
+                    // wrap original event into standard Crafty event object
+                    evt.originalEvent = e;
+                    this.triggerTouch(evt.eventName, evt);
+                }
             }
-        }
-
-        // TODO: move routing of events in future to controls system, make it similar to KeyboardSystem
-        // try to find closest element that will also receive touch event, whatever the event is
-        if (closest) {
-            closest.trigger(eventName, e);
-        }
-
-        if (closest) { // if new TouchOver target isn't null, send TouchOver
-            if (eventName === "TouchStart" || // if TouchStart occurred
-                (eventName === "TouchMove" && over !== closest)) { // or TouchOver target changed
-
-                e.eventName = "TouchOver";
-                closest.trigger("TouchOver", e);
-                e.eventName = eventName;
-
-                // save new over entity
-                this.overs[identifier] = closest;
-            }
-        }
-    },
-
-    dispatchEvent: function (e) {
-        var evt, touches = e.changedTouches;
-        for (var i = 0, l = touches.length; i < l; i++) {
-            evt = this.prepareEvent(touches[i], e.type);
-            // wrap original event into standard Crafty event object
-            evt.originalEvent = e;
-            this.triggerTouch(evt.eventName, evt);
-        }
-    }
-}), Crafty.__touchStateTemplate), {}, false);
+        }),
+        Crafty.__touchStateTemplate
+    ),
+    {},
+    false
+);
 
 /**@
  * #Touch
@@ -298,10 +339,10 @@ Crafty.s("Touch", Crafty.extend.call(Crafty.extend.call(new Crafty.__eventDispat
  */
 Crafty.c("Touch", {
     required: "AreaMap",
-    init: function () {
-        Crafty.s('Touch').touchObjs++;
+    init: function() {
+        Crafty.s("Touch").touchObjs++;
     },
-    remove: function () {
-        Crafty.s('Touch').touchObjs--;
+    remove: function() {
+        Crafty.s("Touch").touchObjs--;
     }
 });

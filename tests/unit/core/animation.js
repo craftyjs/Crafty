@@ -22,7 +22,9 @@
   });
 
   test("Crafty.easing with custom function", function(_) {
-    var e = new Crafty.easing(80, function(t){return t*t;}) ; // 4 frames == 80ms by default
+    var e = new Crafty.easing(80, function(t) {
+      return t * t;
+    }); // 4 frames == 80ms by default
     e.tick(20);
     e.tick(20);
     _.strictEqual(e.value(), 0.25, ".25 after two steps");
@@ -41,5 +43,4 @@
     e.tick(20);
     _.strictEqual(e.value(), 1, "1 after completed");
   });
-
 })();

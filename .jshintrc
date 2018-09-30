@@ -12,5 +12,6 @@
   "unused": "vars",
   "validthis": true,
   "browser": true,
-  "node": true
+  "node": true,
+  "laxbreak": true
 }
