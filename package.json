@@ -35,7 +35,7 @@
   "browser": "src/crafty.js",
   "scripts": {
     "test": "grunt check",
-    "postinstall": "(node -e \"process.env.NODE_ENV !== 'production' && process.exit()\" && grunt copy:lib) || node -v",
+    "prepare": "(node -e \"process.env.NODE_ENV !== 'production' && process.exit()\" && grunt copy:lib) || node -v",
     "precommit": "pretty-quick --staged"
   },
   "browserify": {
