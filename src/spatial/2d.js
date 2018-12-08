@@ -925,6 +925,7 @@ Crafty.c("2D", {
         }
 
         this.trigger("OriginChanged");
+        this.trigger("Invalidate");
         return this;
     },
 
