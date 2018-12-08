@@ -6,6 +6,20 @@ var M = Math,
     PI = M.PI,
     DEG_TO_RAD = PI / 180;
 
+// These versions of cos and sin ensure that rotations very close to 0 return 0.
+// This avoids some problems where entities are not quite aligned with the grid.
+var rounded_cos = function(drad) {
+    var cos = Math.cos(drad);
+    cos = -1e-10 < cos && cos < 1e-10 ? 0 : cos;
+    return cos;
+};
+
+var rounded_sin = function(drad) {
+    var sin = Math.sin(drad);
+    sin = -1e-10 < sin && sin < 1e-10 ? 0 : sin;
+    return sin;
+};
+
 /**@
  * #2D
  * @category 2D
@@ -364,11 +378,8 @@ Crafty.c("2D", {
             dy1 = this._y - this._by1 - oy,
             dy2 = this._y + this._h + this._by2 - oy;
 
-        var ct = Math.cos(rad),
-            st = Math.sin(rad);
-        // Special case 90 degree rotations to prevent rounding problems
-        ct = ct < 1e-10 && ct > -1e-10 ? 0 : ct;
-        st = st < 1e-10 && st > -1e-10 ? 0 : st;
+        var ct = rounded_cos(rad),
+            st = rounded_sin(rad);
 
         // Calculate the new points relative to the origin, then find the new (absolute) bounding coordinates!
         var x0 = dx1 * ct + dy1 * st,
@@ -695,11 +706,7 @@ Crafty.c("2D", {
      * moves in the same way.
      */
     _cascade: function(e) {
-        if (!e) return; //no change in position
-        var i = 0,
-            children = this._children,
-            l = children.length,
-            obj;
+        if (!e) return;
 
         //use current position
         var dx = this._x - e._x,
@@ -707,6 +714,14 @@ Crafty.c("2D", {
             dw = this._w - e._w,
             dh = this._h - e._h;
 
+        this._cascadeInner(dx, dy, dw, dh);
+    },
+
+    _cascadeInner: function(dx, dy, dw, dh) {
+        var i = 0,
+            children = this._children,
+            l = children.length,
+            obj;
         for (; i < l; ++i) {
             obj = children[i];
             if (obj.__frozen) continue;
@@ -736,11 +751,8 @@ Crafty.c("2D", {
             obj;
         // precalculate rotation info
         var drad = deg * DEG_TO_RAD;
-        var cos = Math.cos(drad);
-        var sin = Math.sin(drad);
-        // Avoid some rounding problems
-        cos = -1e-10 < cos && cos < 1e-10 ? 0 : cos;
-        sin = -1e-10 < sin && sin < 1e-10 ? 0 : sin;
+        var cos = rounded_cos(drad);
+        var sin = rounded_sin(drad);
         var ox = this._origin.x + this._x;
         var oy = this._origin.y + this._y;
 
@@ -892,9 +904,31 @@ Crafty.c("2D", {
             }
         }
 
+        // When entity is rotated, we'll need to shift attached entities on origin change
+        // The below transformation is equivalent to unrotating, shifting the origin,
+        // and then rotating around this new origin
+        if (this.rotation) {
+            var rad = -this._rotation * DEG_TO_RAD;
+            var d_ox = x - this._origin.x;
+            var d_oy = y - this._origin.y;
+            var cos = rounded_cos(rad);
+            var sin = rounded_sin(rad);
+            var dx = d_ox * (1 - cos) - d_oy * sin;
+            var dy = d_oy * (1 - cos) + d_ox * sin;
+            this._cascadeInner(dx, dy, 0, 0);
+        }
         this._origin.x = x;
         this._origin.y = y;
+
+        if (this._mbr) {
+            this._calculateMBR();
+        }
+
+        // Update position in spatial map
+        this._entry.update(this._cbr || this._mbr || this);
+
         this.trigger("OriginChanged");
+        this.trigger("Invalidate");
         return this;
     },
 

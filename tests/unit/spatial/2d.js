@@ -361,6 +361,80 @@
     _.strictEqual(child._rotation, 90, "child also rotates 90deg");
   });
 
+  test("origin change affects children", function(_) {
+    var parent = Crafty.e("2D").attr({
+      x: 0,
+      y: 0,
+      w: 50,
+      h: 50
+    });
+    var child = Crafty.e("2D").attr({
+      x: 100,
+      y: 0,
+      w: 50,
+      h: 50
+    });
+    parent.attach(child);
+    parent.rotation = 90;
+    _.strictEqual(
+      child._y,
+      100,
+      "child rotates around top left corner (x position)"
+    );
+    _.strictEqual(
+      child._x,
+      0,
+      "child rotates around top left corner (y position)"
+    );
+
+    parent.origin(50, 0);
+    _.strictEqual(
+      child._y,
+      50,
+      "child rotates around top right corner (x position)"
+    );
+    _.strictEqual(
+      child._x,
+      50,
+      "child rotates around top right corner (y position)"
+    );
+  });
+
+  test("origin change affects MBR", function(_) {
+    var parent = Crafty.e("2D").attr({
+      x: 0,
+      y: 0,
+      w: 50,
+      h: 50
+    });
+
+    parent.rotation = 90;
+    var mbr1 = parent.mbr();
+    _.strictEqual(
+      mbr1._x,
+      -50,
+      "MBR rotates around top left corner (x position)"
+    );
+    _.strictEqual(
+      mbr1._y,
+      0,
+      "MBR rotates around top left corner (y position)"
+    );
+
+    parent.origin(50, 0);
+    var mbr2 = parent.mbr();
+    _.strictEqual(
+      mbr2._x,
+      0,
+      "MBR rotates around top right corner (x position)"
+    );
+    _.strictEqual(
+      mbr2._y,
+      -50,
+      "MBR rotates around top right corner (y position)"
+    );
+  });
+
   test("origin properties", function(_) {
     var player = Crafty.e("2D, Centered").attr({
       x: 0,
