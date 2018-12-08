@@ -920,6 +920,10 @@ Crafty.c("2D", {
         this._origin.x = x;
         this._origin.y = y;
 
+        if (this._mbr) {
+            this._calculateMBR();
+        }
+
         this.trigger("OriginChanged");
         return this;
     },
