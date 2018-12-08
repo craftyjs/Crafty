@@ -924,6 +924,9 @@ Crafty.c("2D", {
             this._calculateMBR();
         }
 
+        // Update position in spatial map
+        this._entry.update(this._cbr || this._mbr || this);
+
         this.trigger("OriginChanged");
         this.trigger("Invalidate");
         return this;
