@@ -1,32 +1,32 @@
 require("coffee-script");
-var path = require("path"),
+let path = require("path"),
     fs = require("fs"),
     EOL = require("os").EOL;
 
-var request = require("request"),
+let request = require("request"),
     open = require("open"),
     semver = require("semver");
 
-var pathToQUnit = path.dirname(path.relative(path.resolve(), require.resolve('qunitjs')));
+let pathToQUnit = path.dirname(path.relative(path.resolve(), require.resolve('qunitjs')));
 
 module.exports = function (grunt) {
-    var banner = '/**\n' +
+    let banner = '/**\n' +
                 ' * <%= pkg.name %> <%= pkg.version %>\n' +
                 ' * <%= pkg.author.url %>\n *\n' +
                 ' * Copyright <%= grunt.template.today("yyyy") %>, <%= pkg.author.name %>\n' +
                 ' * Licensed under the MIT license.\n' +
                 ' */\n\n';
 
-    var docGen = function() {
-        var outputFile = "./build/api.json";
-        var sourceParser = require("./build/parseSourceDocs");
-        var apiGenerator = require("./build/parseNodes");
+    let docGen = function() {
+        let outputFile = "./build/api.json";
+        let sourceParser = require("./build/parseSourceDocs");
+        let apiGenerator = require("./build/parseNodes");
 
-        var sourceFiles = grunt.file.expand('src/**/*.js');
-        var blocks = sourceParser.parse(sourceFiles);
-        var jsonObject = apiGenerator.structureBlocks(blocks);
+        let sourceFiles = grunt.file.expand('src/**/*.js');
+        let blocks = sourceParser.parse(sourceFiles);
+        let jsonObject = apiGenerator.structureBlocks(blocks);
 
-        var apiJSON = JSON.stringify(jsonObject, null, 4);
+        let apiJSON = JSON.stringify(jsonObject, null, 4);
         grunt.file.write(outputFile, apiJSON);
         grunt.log.writeln("Wrote api data to " + outputFile);
     };
@@ -34,7 +34,7 @@ module.exports = function (grunt) {
     
     function runApiServer() {
       this.async();
-      var apiServer = require("./build/api-gen/dynamic-server.js");
+      let apiServer = require("./build/api-gen/dynamic-server.js");
       apiServer(grunt, "./build/api.json");
       setTimeout(function(){
         open("http://localhost:8080");
@@ -154,7 +154,7 @@ module.exports = function (grunt) {
                     setup: function (qunit) {
                         qunit.on('testEnd', function (testEnd) {
                             testEnd.errors.forEach(function (error) {
-                                var actual = qunit.dump.parse(error.actual),
+                                let actual = qunit.dump.parse(error.actual),
                                 expected = qunit.dump.parse(error.expected),
                                 reason = 'Actual value ' + actual + ' does not match expected value ' + expected,
                                 message = 'Description: ' + error.message + EOL +
@@ -273,8 +273,8 @@ module.exports = function (grunt) {
 
 
     grunt.registerTask('version', 'Propagates version changes', function() {
-        var pkg = grunt.config.get('pkg');
-        var version = grunt.option('crafty-version');
+        let pkg = grunt.config.get('pkg');
+        let version = grunt.option('crafty-version');
         if (!version) {
             grunt.warn("No command-line argument '--crafty-version' specified. Rerun the task with '--crafty-version=X.X.X'. You can force a release with the previous version.");
             version = pkg.version;
@@ -292,9 +292,9 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask('changelog', 'Copies changelog to file', function() {
-        var done = this.async();
+        let done = this.async();
 
-        var changelog = grunt.option('changelog');
+        let changelog = grunt.option('changelog');
         if (typeof changelog === 'undefined') {
             grunt.fatal("No command-line argument '--changelog' specified. Rerun the task with the appropriate argument value." + EOL +
                 "Use '--changelog=false' to indicate that you DON'T want to update the changelog." + EOL +
@@ -333,7 +333,7 @@ module.exports = function (grunt) {
     grunt.registerTask('test-cloud-webdriver', ['webdriver:cloud']);
     grunt.registerTask('test-cloud', function() {
         // execute cloud tests only in travis, while on testing branch, with open sauce lab credentials
-        var branch =  process.env.TRAVIS_BRANCH;
+        let branch =  process.env.TRAVIS_BRANCH;
         if (process.env.TRAVIS && branch === process.env.SAUCE_BRANCH &&
             process.env.SAUCE_USERNAME && process.env.SAUCE_ACCESS_KEY)
             grunt.task.run('connect', 'test-cloud-browser', 'test-cloud-webdriver');
