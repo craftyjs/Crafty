@@ -1,5 +1,5 @@
 // Define common features
-var Crafty = require('./crafty-common.js')();
+let Crafty = require('./crafty-common.js')();
 
 // Define features only available in browser environment
 
