@@ -5,7 +5,7 @@ function requireNew (id) {
 
 module.exports = function() {
     // Define common features
-    var Crafty = require('./crafty-common.js')(requireNew);
+    let Crafty = require('./crafty-common.js')(requireNew);
 
     // Define some aliases for renamed properties
     requireNew('./aliases').defineAliases(Crafty);
